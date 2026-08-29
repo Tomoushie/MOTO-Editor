@@ -2,8 +2,8 @@
 
   <!-- ══════════════ Ciblage : Windows par défaut, macOS si build sur macOS ══════════════ -->
   <PropertyGroup>
-    <TargetFrameworks>net8.0-windows10.0.19041.0</TargetFrameworks>
-    <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('osx'))">$(TargetFrameworks);net8.0-maccatalyst</TargetFrameworks>
+    <TargetFrameworks>net10.0-windows10.0.19041.0</TargetFrameworks>
+    <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('osx'))">$(TargetFrameworks);net10.0-maccatalyst</TargetFrameworks>
 
     <OutputType>Exe</OutputType>
     <RootNamespace>Moto.Editor</RootNamespace>
@@ -24,30 +24,26 @@
     <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</SupportedOSPlatformVersion>
     <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">13.1</SupportedOSPlatformVersion>
 
-    <ApplicationIcon>Platforms\Windows\appicon.ico</ApplicationIcon>
+    <!--
+      MauiVersion : épingle sur la version du workload MAUI réellement installé
+      sur cette machine (Microsoft.Maui.Sdk 10.0.20), pour éviter tout écart
+      entre les paquets NuGet et les cibles de build du workload.
+    -->
+    <MauiVersion>10.0.20</MauiVersion>
+
+    <!--
+      Icône/splash/logos : pas encore livrés dans le dépôt (Resources/ et
+      Platforms/Windows/appicon.ico n'existent pas). MAUI utilisera son icône
+      par défaut en attendant — voir assets/icon/ + scripts/generate-icons.ps1
+      pour les générer quand le choix du logo sera fait.
+    -->
   </PropertyGroup>
-
-  <!-- ══════════════ Ressources MAUI ══════════════ -->
-  <ItemGroup>
-    <MauiIcon Include="Resources\AppIcon\appicon.png" BaseSize="512,512" />
-    <MauiSplashScreen Include="Resources\Splash\splash.png" Color="#0B1526" BaseSize="256,256" />
-    <MauiImage Include="Resources\Images\moto_logo.png" />
-    <MauiImage Include="Resources\Images\moto_logo_128.png" />
-    <MauiImage Include="Resources\Images\moto_logo_32.png" />
-    <MauiFont Include="Resources\Fonts\*" />
-    <MauiAsset Include="Resources\Raw\**" LogicalName="%(RecursiveDir)%(Filename)%(Extension)" />
-  </ItemGroup>
-
-  <!-- ══════════════ .ico copié en sortie (Windows uniquement) ══════════════ -->
-  <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">
-    <Content Include="Platforms\Windows\appicon.ico" CopyToOutputDirectory="PreserveNewest" ExcludeFromSingleFile="true" />
-  </ItemGroup>
 
   <!-- ══════════════ Packages NuGet ══════════════ -->
   <ItemGroup>
     <PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
     <PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="$(MauiVersion)" />
-    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.0" />
   </ItemGroup>
 
   <!-- ══════════════ Références projets ══════════════ -->

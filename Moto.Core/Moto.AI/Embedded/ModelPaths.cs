@@ -7,7 +7,7 @@ namespace Moto.Core.AI.Embedded;
 /// <summary>
 /// Centralise et sécurise tous les chemins d'accès aux modèles IA.
 /// Empêche le path traversal et garantit la cohérence entre les composants.
-3. /// </summary>
+/// </summary>
 public static class ModelPaths
 {
     private static readonly string BaseDirectory = Path.Combine(

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Moto.Core.Settings.Profiles
 {
@@ -23,7 +24,7 @@ namespace Moto.Core.Settings.Profiles
     public sealed class ProfileManager
     {
         private readonly string _profilesDirectory;
-        private readonly SettingsEngine _settings;
+        private readonly ISettingsStore _settings;
         private readonly ILogger<ProfileManager> _logger;
 
         public ProfileManager(SettingsEngine settings, ILogger<ProfileManager> logger)
@@ -31,6 +32,20 @@ namespace Moto.Core.Settings.Profiles
             _settings = settings ?? throw new ArgumentNullException(nameof(settings));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _profilesDirectory = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                "MotoEditor", "profiles");
+            Directory.CreateDirectory(_profilesDirectory);
+        }
+
+        /// <summary>
+        /// Constructeur ajustable (tests) : permet d'injecter un ISettingsStore,
+        /// un répertoire de profils et un logger optionnels.
+        /// </summary>
+        public ProfileManager(ISettingsStore settings, string? profilesDirectory = null, ILogger<ProfileManager>? logger = null)
+        {
+            _settings = settings ?? throw new ArgumentNullException(nameof(settings));
+            _logger = logger ?? NullLogger<ProfileManager>.Instance;
+            _profilesDirectory = profilesDirectory ?? Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
                 "MotoEditor", "profiles");
             Directory.CreateDirectory(_profilesDirectory);
@@ -158,17 +173,6 @@ namespace Moto.Core.Settings.Profiles
                 {
                     _logger.LogError(ex, "[Profiles] Erreur chargement {File}", file);
                 }
-            }
-
-            // Moto.Core/Settings/Profiles/ProfileManager.cs (constructeur ajustable)
-            public ProfileManager(ISettingsStore settings, string? profilesDirectory = null, ILogger<ProfileManager>? logger = null)
-            {
-                _settings = settings ?? throw new ArgumentNullException(nameof(settings));
-                _logger = logger ?? NullLogger<ProfileManager>.Instance;
-                _profilesDirectory = profilesDirectory ?? Path.Combine(
-                    Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-                    "MotoEditor", "profiles");
-                Directory.CreateDirectory(_profilesDirectory);
             }
 
             return profiles;

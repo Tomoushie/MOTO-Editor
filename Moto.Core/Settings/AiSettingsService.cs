@@ -127,7 +127,7 @@ namespace Moto.Core.Settings
                 AppendAudit(preview.Key, preview.OldValue, preview.NewValue);
 
                 return AiSettingsResult.Ok(
-                    $"✅ '{preview.Key}' modifié : {preview.OldValue?.ToString() ?? "(null)"} → {preview.NewValue?.ToString() ?? "(null)}");
+                    $"✅ '{preview.Key}' modifié : {preview.OldValue?.ToString() ?? "(null)"} → {preview.NewValue?.ToString() ?? "(null)"}");
             }
             catch (Exception ex)
             {

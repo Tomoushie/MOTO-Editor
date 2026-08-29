@@ -264,6 +264,7 @@ public class Program
 
             // 2. Head Avalonia complet
             p.Files.AddRange(AvaloniaLinuxGenerator.Generate(ns));
+        }
 
         // ------------------------------------------------------------------
         // WINDOWS

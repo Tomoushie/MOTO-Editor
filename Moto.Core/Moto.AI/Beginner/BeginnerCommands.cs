@@ -25,7 +25,6 @@ namespace Moto.Editor.AI.Beginner
         public const string BuildBehavior = "MOTO: Ajouter un comportement";
         public const string FixMyProject = "MOTO: Réparer tout le projet";
     }
-}
 
     /// <summary>
     /// IDs des Quick Actions, utilisés pour brancher les handlers dans MainWindow.

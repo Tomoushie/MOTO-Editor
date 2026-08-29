@@ -182,7 +182,7 @@ public partial class MainWindow : Window
 
     private async void OnOpenFolder(object sender, RoutedEventArgs e)
     {
-        var dlg = new OpenFolderDialog { Title = "Ouvrir un projet" };
+        var dlg = new OpenFolderDialog { Title = ""Ouvrir un projet"" };
         var path = await dlg.ShowAsync(this);
 
         if (string.IsNullOrWhiteSpace(path)) return;
@@ -190,14 +190,14 @@ public partial class MainWindow : Window
         _root = path;
         _kernel = new MotoAiKernel(path);
         LoadTree();
-        SetStatus($"Projet ouvert : {path}");
+        SetStatus($""Projet ouvert : {path}"");
     }
 
     private void LoadTree()
     {
         Explorer.Items.Clear();
 
-        foreach (var f in Directory.GetFiles(_root, "*.cs", SearchOption.AllDirectories))
+        foreach (var f in Directory.GetFiles(_root, ""*.cs"", SearchOption.AllDirectories))
         {
             Explorer.Items.Add(new TreeViewItem
             {
@@ -213,7 +213,7 @@ public partial class MainWindow : Window
         {
             _currentFile = path;
             Editor.Text = File.ReadAllText(path);
-            SetStatus($"Ouvert : {Path.GetFileName(path)}");
+            SetStatus($""Ouvert : {Path.GetFileName(path)}"");
         }
     }
 
@@ -222,14 +222,14 @@ public partial class MainWindow : Window
         if (string.IsNullOrWhiteSpace(_currentFile)) return;
 
         File.WriteAllText(_currentFile, Editor.Text);
-        SetStatus("Sauvegardé.");
+        SetStatus(""Sauvegardé."");
     }
 
     private void OnSendAi(object sender, RoutedEventArgs e)
     {
         if (_kernel == null)
         {
-            SetStatus("Ouvre d'abord un projet.");
+            SetStatus(""Ouvre d'abord un projet."");
             return;
         }
 
@@ -239,7 +239,7 @@ public partial class MainWindow : Window
             UserText = AiInput.Text ?? string.Empty
         });
 
-        AiLog.Text += $"\n> {AiInput.Text}\n{response.Title} — {response.Summary}\n";
+        AiLog.Text += $""\n> {AiInput.Text}\n{response.Title} — {response.Summary}\n"";
         AiInput.Text = string.Empty;
     }
 
@@ -249,11 +249,11 @@ public partial class MainWindow : Window
 
         var report = _autoLink.Analyze(_currentFile);
 
-        AiLog.Text += $"\n[AutoLink] {report.Actions.Count} suggestion(s) :\n";
+        AiLog.Text += $""\n[AutoLink] {report.Actions.Count} suggestion(s) :\n"";
 
         foreach (var a in report.Actions)
         {
-            AiLog.Text += $" - {a.Title}\n";
+            AiLog.Text += $"" - {a.Title}\n"";
         }
     }
 

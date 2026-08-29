@@ -12,7 +12,7 @@ public partial class MotoAiKernel
     /// Les constructeurs existants restent fonctionnels.
     /// </summary>
     public MotoAiKernel(
-        /* paramètres existants à conserver */,
+        /* paramètres existants à conserver */
         EmbeddedModelRouter? embeddedRouter = null)
     {
         // ... initialisation existante ...

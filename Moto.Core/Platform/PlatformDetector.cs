@@ -1,7 +1,16 @@
 // Moto.Core/Platform/PlatformDetector.cs — AJOUT (4) : détection intelligente
 // Ajoute ce bloc à la classe PlatformDetector existante :
 
-/// <summary>Regex combinée : tout pattern plateforme connu.</summary>
+using System;
+using System.IO;
+using System.Text.RegularExpressions;
+
+namespace Moto.Core.Platform
+{
+    public partial class PlatformDetector
+    {
+
+    /// <summary>Regex combinée : tout pattern plateforme connu.</summary>
 private static readonly Regex CombinedSignal = new Regex(
     @"(#if\s+(ANDROID|IOS|MACCATALYST|WINDOWS)|__ANDROID__|__IOS__|__MACOS__|" +
     @"using\s+(Android|UIKit|AppKit)|OperatingSystem\.Is(Linux|Windows)|" +
@@ -28,5 +37,7 @@ public static bool ContainsPlatformSignal(string filePath)
     catch
     {
         return false;
+    }
+}
     }
 }

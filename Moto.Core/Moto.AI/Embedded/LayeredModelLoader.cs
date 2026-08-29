@@ -1,9 +1,18 @@
 // Mise à jour de Moto.Core/AI/Embedded/LayeredModelLoader.cs
 
-/// <summary>
-/// Charge une couche spécifique en RAM de manière asynchrone.
-/// </summary>
-public async Task LoadLayerAsync(int layerIndex, CancellationToken ct = default)
+using System;
+using System.IO;
+using System.Threading;
+using System.Threading.Tasks;
+
+namespace Moto.Core.AI.Embedded;
+
+public class LayeredModelLoader
+{
+    /// <summary>
+    /// Charge une couche spécifique en RAM de manière asynchrone.
+    /// </summary>
+    public async Task LoadLayerAsync(int layerIndex, CancellationToken ct = default)
 {
     if (layerIndex < 0 || layerIndex >= _config.TotalLayers)
         throw new ArgumentOutOfRangeException(nameof(layerIndex));
@@ -56,4 +65,5 @@ private async Task PrefetchNextLayerAsync(int nextLayerIndex, CancellationToken 
             try { await LoadLayerAsync(nextLayerIndex, ct); } catch { /* Ignorer les erreurs de prefetch */ }
         }, ct);
     }
+}
 }

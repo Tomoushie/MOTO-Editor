@@ -225,7 +225,7 @@ public sealed class GitService
             {
                 if (!string.IsNullOrEmpty(currentFile))
                     diffs.Add(new GitDiff { FilePath = currentFile, OldContent = string.Join("\n", oldLines), NewContent = string.Join("\n", newLines) });
-                currentFile = line.Split(' ').LastOrDefault()?.TrimStart('b/') ?? "";
+                currentFile = line.Split(' ').LastOrDefault()?.TrimStart('b', '/') ?? "";
                 oldLines.Clear();
                 newLines.Clear();
             }

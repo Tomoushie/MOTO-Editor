@@ -1,8 +1,12 @@
 // ── AJOUT : dépendance
-private readonly Moto.Core.Collab.PresenceAwareSuggestionGate _presenceGate;
+namespace Moto.Core.AI.Workspace
+{
+    public class ProactiveSuggestions
+    {
+        private readonly Moto.Core.Collab.PresenceAwareSuggestionGate _presenceGate;
 
 // ── CONSTRUCTEUR : ajouter le paramètre
-public ProactiveSuggestions(/* ...paramètres existants... */,
+public ProactiveSuggestions(/* ...paramètres existants... */
                             Moto.Core.Collab.PresenceAwareSuggestionGate presenceGate)
 {
     // ... affectations existantes ...
@@ -17,4 +21,6 @@ public void EvaluateAndSuggest(/* ...paramètres existants... */)
         return; // on ne lance pas le pipeline lourd
 
     // ... logique existante inchangée ...
+}
+    }
 }
