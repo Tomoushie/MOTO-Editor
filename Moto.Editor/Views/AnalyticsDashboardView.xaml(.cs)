@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Moto.Editor.Views.AnalyticsDashboardView"
+             IsVisible="False" BackgroundColor="{StaticResource BgPanel}" WidthRequest="500">
+    <Grid RowDefinitions="Auto,Auto,*,Auto" Padding="16" RowSpacing="12">
+        <Grid Grid.Row="0" ColumnDefinitions="*,Auto">
+            <Label Text="📊 Analytics Dashboard" FontSize="18" FontAttributes="Bold"
+                   TextColor="{StaticResource Txt1}" VerticalOptions="Center"/>
+            <Button Grid.Column="1" Text="✕" WidthRequest="30" HeightRequest="30"
+                    BackgroundColor="Transparent" TextColor="{StaticResource Txt2}"
+                    Clicked="OnCloseClicked"/>
+        </Grid>
+        <HorizontalStackLayout Grid.Row="1" Spacing="8">
+            <Button x:Name="TabTopBtn" Text="🏆 Top" Clicked="OnTabTopClicked"/>
+            <Button x:Name="TabSuggestionsBtn" Text="💡 Suggestions" Clicked="OnTabSuggestionsClicked"/>
+            <Button x:Name="TabHeatmapBtn" Text="🔥 Heatmap" Clicked="OnTabHeatmapClicked"/>
+            <Button x:Name="TabExportBtn" Text="📤 Export" Clicked="OnExportClicked"/>
+        </HorizontalStackLayout>
+        <ScrollView Grid.Row="2">
+            <VerticalStackLayout x:Name="ContentArea" Spacing="12"/>
+        </ScrollView>
+        <Label Grid.Row="3" x:Name="FooterLabel" Text="Données en temps réel"
+               FontSize="11" TextColor="{StaticResource Txt2}" HorizontalOptions="Center"/>
+    </Grid>
+</ContentView>

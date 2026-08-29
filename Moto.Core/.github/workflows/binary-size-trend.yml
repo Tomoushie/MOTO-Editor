@@ -1,0 +1,51 @@
+name: Binary Size Trend (Nightly)
+
+on:
+  schedule:
+    - cron: '0 2 * * *'  # Tous les jours à 2h UTC
+  workflow_dispatch:
+
+jobs:
+  size-trend:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 30  # 30 derniers commits pour la tendance
+
+    - name: Setup .NET 8
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+
+    - name: Build and measure
+      shell: pwsh
+      run: |
+        $results = @()
+        $commits = git log --oneline -30 | ForEach-Object { $_.Split(' ')[0] }
+
+        foreach ($commit in $commits) {
+          git checkout $commit --quiet
+          dotnet build --configuration Release --verbosity quiet
+
+          $binary = Get-ChildItem ./bin/Release/**/*.exe -Recurse | Select-Object -First 1
+          if ($binary) {
+            $sizeMb = [math]::Round($binary.Length / 1MB, 2)
+            $results += [PSCustomObject]@{
+              Commit = $commit
+              SizeMB = $sizeMb
+              Date = (git log -1 --format=%ci $commit)
+            }
+          }
+        }
+
+        $results | ConvertTo-Json | Out-File ./size-trend.json
+        Write-Host "Trend measured for $($results.Count) commits"
+
+    - name: Upload trend data
+      uses: actions/upload-artifact@v4
+      with:
+        name: binary-size-trend
+        path: ./size-trend.json

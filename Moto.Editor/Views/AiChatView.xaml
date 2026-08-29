@@ -1,0 +1,131 @@
+<!-- Moto.Editor/Views/AiChatView.xaml (régénéré, structure type agent) -->
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Moto.Editor.Views.AiChatView"
+             BackgroundColor="#17181C">
+
+    <Grid RowDefinitions="Auto,*,Auto,Auto,Auto" Padding="6">
+
+        <!-- En-tête : drag + titre + actions -->
+        <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto,Auto,Auto,Auto" Padding="0,4">
+
+            <Label Grid.Column="0" x:Name="DragHandle" Text="⋮⋮"
+                   FontSize="14" VerticalOptions="Center" />
+
+            <Label Grid.Column="1" x:Name="TitleLabel"
+                   Text="MOTO AI" FontAttributes="Bold"
+                   VerticalOptions="Center" />
+
+            <Button Grid.Column="2" Text="＋" Padding="6,2" FontSize="11"
+                    ToolTipProperties.Text="Nouvelle conversation"
+                    Clicked="OnNewThreadClicked" />
+
+            <Button Grid.Column="3" Text="🗑" Padding="6,2" FontSize="11"
+                    ToolTipProperties.Text="/clear"
+                    Clicked="OnClearClicked" />
+
+            <Button Grid.Column="4" Text="⇄" Padding="6,2" FontSize="11"
+                    ToolTipProperties.Text="Déplacer à gauche/droite"
+                    Clicked="OnDockToggleClicked" />
+
+            <Button Grid.Column="5" Text="✕" Padding="6,2" FontSize="11"
+                    ToolTipProperties.Text="Fermer"
+                    Clicked="OnCloseClicked" />
+
+        </Grid>
+
+        <!-- Messages -->
+        <CollectionView Grid.Row="1" x:Name="MessageList" SelectionMode="None">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Border StrokeShape="RoundRectangle 10"
+                            BackgroundColor="{Binding BubbleColor}"
+                            Padding="10,6" Margin="4,3"
+                            MaximumWidthRequest="420"
+                            HorizontalOptions="{Binding Alignment}">
+                        <VerticalStackLayout Spacing="2">
+                            <Label Text="{Binding Content}" FontSize="12" TextColor="White" />
+                            <Label Text="{Binding TimeLabel}" FontSize="9"
+                                   TextColor="#9aa0a6" HorizontalOptions="End" />
+                        </VerticalStackLayout>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <!-- Contexte attaché -->
+        <CollectionView Grid.Row="2" x:Name="ContextList"
+                        HeightRequest="28" SelectionMode="None">
+            <CollectionView.ItemsLayout>
+                <LinearItemsLayout Orientation="Horizontal" ItemSpacing="6" />
+            </CollectionView.ItemsLayout>
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Border StrokeShape="RoundRectangle 12"
+                            BackgroundColor="#202126" Stroke="#3A3B40" Padding="8,2">
+                        <Label Text="{Binding Label}" FontSize="10" />
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <!-- Suggestions slash -->
+        <ListView Grid.Row="3" x:Name="SlashList" HeightRequest="100"
+                  IsVisible="False" BackgroundColor="#202126"
+                  ItemSelected="OnSlashSelected" />
+
+        <!-- Zone de saisie + barre mode/modèle (structure type agent) -->
+        <Border Grid.Row="4" StrokeShape="RoundRectangle 10"
+                Stroke="#3A3B40" BackgroundColor="#1E1F24" Padding="6">
+
+            <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="Auto,*,Auto">
+
+                <Entry Grid.Row="0" Grid.ColumnSpan="3" x:Name="InputEntry"
+                       Placeholder="Message MOTO AI, @ pour le contexte, / pour les commandes"
+                       BackgroundColor="Transparent" FontSize="12"
+                       TextChanged="OnInputTextChanged"
+                       Completed="OnSendClicked" />
+
+                <Button Grid.Row="1" Grid.Column="0" Text="📎"
+                        Padding="6,2" FontSize="11"
+                        ToolTipProperties.Text="Attacher fichier / sélection"
+                        Clicked="OnAttachClicked" />
+
+                <HorizontalStackLayout Grid.Row="1" Grid.Column="1" Spacing="4">
+
+                    <Picker x:Name="ModePicker" FontSize="10" WidthRequest="120">
+                        <Picker.ItemsSource>
+                            <x:Array Type="{x:Type x:String}">
+                                <x:String>Chat</x:String>
+                                <x:String>Chat &amp; Write</x:String>
+                                <x:String>Agent</x:String>
+                            </x:Array>
+                        </Picker.ItemsSource>
+                    </Picker>
+
+                    <Picker x:Name="ModelPicker" FontSize="10" WidthRequest="150"
+                            SelectedIndexChanged="OnModelChanged">
+                        <Picker.ItemsSource>
+                            <x:Array Type="{x:Type x:String}">
+                                <x:String>MOTO interne</x:String>
+                                <x:String>Ollama (qwen2.5-coder:7b)</x:String>
+                                <x:String>OpenAI</x:String>
+                                <x:String>Anthropic</x:String>
+                                <x:String>Mistral</x:String>
+                            </x:Array>
+                        </Picker.ItemsSource>
+                    </Picker>
+
+                </HorizontalStackLayout>
+
+                <Button Grid.Row="1" Grid.Column="2" Text="➤"
+                        Padding="8,2" Clicked="OnSendClicked" />
+
+            </Grid>
+
+        </Border>
+
+    </Grid>
+
+</ContentView>

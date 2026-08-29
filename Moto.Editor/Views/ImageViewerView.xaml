@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView
+    x:Class="Moto.Editor.Views.ImageViewerView"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    BackgroundColor="{StaticResource MotoBackgroundColor}">
+
+    <Grid RowDefinitions="Auto, *">
+
+        <!-- Barre d'outils : mêmes boutons que l'éditeur de code -->
+        <HorizontalStackLayout Grid.Row="0" Spacing="6" Padding="8,4">
+            <Label x:Name="FileNameLabel" FontSize="13" VerticalOptions="Center"
+                   TextColor="{StaticResource MotoTextColor}" />
+            <Label x:Name="ImageInfoLabel" FontSize="11" VerticalOptions="Center"
+                   TextColor="{StaticResource MotoSecondaryTextColor}" />
+
+            <!-- ★ Le même bouton ⛶ que le plein écran de l'éditeur de code -->
+            <Button x:Name="OpenExternalButton"
+                    Text="⛶"
+                    FontSize="13"
+                    WidthRequest="30" HeightRequest="28"
+                    BackgroundColor="Transparent"
+                    BorderColor="{StaticResource MotoBorderColor}"
+                    ToolTipProperties.Text="Ouvrir dans une fenêtre externe"
+                    Clicked="OnOpenExternalClicked" />
+
+            <Button Text="🔍+" FontSize="11" WidthRequest="34" HeightRequest="28"
+                    BackgroundColor="Transparent" Clicked="OnZoomInClicked" />
+            <Button Text="🔍-" FontSize="11" WidthRequest="34" HeightRequest="28"
+                    BackgroundColor="Transparent" Clicked="OnZoomOutClicked" />
+            <Button Text="⤢ Fit" FontSize="11" WidthRequest="44" HeightRequest="28"
+                    BackgroundColor="Transparent" Clicked="OnFitClicked" />
+        </HorizontalStackLayout>
+
+        <!-- Zone image : scroll + zoom -->
+        <ScrollView Grid.Row="1" HorizontalScrollBarVisibility="Auto"
+                    VerticalScrollBarVisibility="Auto"
+                    BackgroundColor="{StaticResource MotoEditorBackgroundColor}">
+            <Image x:Name="ImageDisplay"
+                   Aspect="AspectFit"
+                   HorizontalOptions="Center"
+                   VerticalOptions="Center" />
+        </ScrollView>
+
+    </Grid>
+</ContentView>

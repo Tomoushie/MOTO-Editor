@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Moto.Editor.Views.AiMonitoringView">
+
+    <!-- Item 64 — Quick win UX. Utilise les ressources MotoTheme (DynamicResource
+         pour tolérer l'absence d'une clé sans casser le rendu). -->
+    <Border Background="{DynamicResource MotoCardBackground}"
+            Stroke="{DynamicResource MotoCardBorder}"
+            StrokeThickness="1" Padding="16" Margin="0,12,0,0">
+        <Border.StrokeShape><RoundRectangle CornerRadius="12" /></Border.StrokeShape>
+
+        <VerticalStackLayout Spacing="12">
+
+            <Label Text="🧠 Monitoring IA — Circuit Breaker"
+                   FontSize="16" FontAttributes="Bold" />
+
+            <Grid ColumnDefinitions="*, Auto" RowDefinitions="Auto, Auto" ColumnSpacing="12">
+
+                <!-- Badge CircuitOpen 24h -->
+                <Label Grid.Column="0" Grid.Row="0"
+                       Text="Circuit Open (24h) :"
+                       FontSize="13" Opacity="0.7" />
+
+                <Border Grid.Column="0" Grid.Row="1"
+                        x:Name="CircuitBadge"
+                        Padding="14,6" HorizontalOptions="Start">
+                    <Border.StrokeShape><RoundRectangle CornerRadius="16" /></Border.StrokeShape>
+                    <Label x:Name="CircuitCountLabel" Text="0"
+                           FontAttributes="Bold" FontSize="14" />
+                </Border>
+
+                <!-- Bouton Collect logs -->
+                <Button Grid.Column="1" Grid.RowSpan="2"
+                        x:Name="CollectLogsButton"
+                        Text="📦 Collecter les logs"
+                        Clicked="OnCollectLogsClicked"
+                        VerticalOptions="Center" />
+            </Grid>
+
+            <Label x:Name="StatusLabel"
+                   Text="Circuit : Closed"
+                   FontSize="12" Opacity="0.6" />
+        </VerticalStackLayout>
+    </Border>
+</ContentView>

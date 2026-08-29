@@ -1,0 +1,54 @@
+{
+  "ai_modules": {
+    "foundations": [
+      "CortexEngine",
+      "NeuralMode",
+      "AIWorkspace",
+      "SettingsEngine",
+      "ProfileManager"
+    ],
+    "suggestions": [
+      "ContextEngine",
+      "ProactiveSuggestionsEngine",
+      "MultiAgentSuggestionEngine",
+      "PresenceAwareSuggestionGate"
+    ],
+    "performance": [
+      "SpeculativeDecoder",
+      "LayeredModelLoader",
+      "SmartModelManager",
+      "AdaptiveResourceGovernor",
+      "InferenceWatchdog"
+    ],
+    "optimizations": [
+      "SpeculativeActivationService",
+      "LayeredActivationService",
+      "AiOptimizationsBenchmark"
+    ],
+    "xeno_pipeline": [
+      "XenoPipelineV5",
+      "XenoPipelineV5_Optimized",
+      "NeuralMode_Optimized"
+    ],
+    "agents_specialized": [
+      "ExplainChangeAgent",
+      "CommitMessageAgent",
+      "SearchSummarizerAgent",
+      "SnippetGeneratorAgent",
+      "ChangelogAgent",
+      "SecurityHintAgent",
+      "PrivacyScannerAgent",
+      "DependencyRiskAgent",
+      "AutoFormatPolicyAgent",
+      "SmartTodoAgent",
+      "TestFlakinessAgent",
+      "CodeHealthAgent",
+      "AgentCostEstimatorAgent"
+    ]
+  },
+  "notes": [
+    "Modules IA déclarés pour Claude Code.",
+    "Permet à Claude de comprendre les responsabilités IA.",
+    "Structure claire, sans duplication."
+  ]
+}

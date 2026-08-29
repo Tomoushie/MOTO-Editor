@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Moto.Editor.Views.CommandPaletteView"
+             IsVisible="False"
+             BackgroundColor="#99000000">
+
+    <Border WidthRequest="640"
+            MaxHeight="480"
+            HorizontalOptions="Center"
+            VerticalOptions="Start"
+            Margin="0,80,0,0"
+            BackgroundColor="{StaticResource BgPanel}"
+            Stroke="{StaticResource BgHover}"
+            StrokeThickness="1"
+            StrokeShape="RoundRectangle CornerRadius=12"
+            Padding="12">
+
+        <Grid RowDefinitions="Auto,*" RowSpacing="10">
+
+            <!-- Barre de recherche -->
+            <Border BackgroundColor="{StaticResource BgSide}"
+                    Stroke="{StaticResource BgHover}"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle CornerRadius=8"
+                    Padding="8">
+                <Entry x:Name="SearchEntry"
+                       Placeholder="Rechercher une commande…"
+                       BackgroundColor="Transparent"
+                       TextColor="{StaticResource Txt1}"
+                       PlaceholderColor="{StaticResource Txt2}"
+                       FontSize="14"
+                       TextChanged="OnSearchTextChanged"
+                       Completed="OnSearchCompleted" />
+            </Border>
+
+            <!-- Résultats -->
+            <ScrollView Grid.Row="1" HeightRequest="380">
+                <VerticalStackLayout x:Name="ResultsList" Spacing="4" />
+            </ScrollView>
+        </Grid>
+    </Border>
+</ContentView>

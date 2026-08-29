@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Moto.Editor.Views.AboutXenoView">
+
+    <Border Background="{DynamicResource MotoCardBackground}"
+            Stroke="{DynamicResource MotoCardBorder}" StrokeThickness="1" Padding="24">
+        <Border.StrokeShape><RoundRectangle CornerRadius="16" /></Border.StrokeShape>
+
+        <ScrollView>
+            <VerticalStackLayout Spacing="12" HorizontalOptions="Center">
+                <Label Text="🧠 XENO-SSS∞" FontSize="26" FontAttributes="Bold" HorizontalOptions="Center" />
+                <Label Text="Orchestrateur IA structuré — opérations sur projet complet"
+                       FontSize="12" Opacity="0.7" HorizontalOptions="Center" />
+
+                <!-- Pipeline -->
+                <Border Padding="14" WidthRequest="460"
+                        Background="{DynamicResource MotoSubtleBackground}"
+                        Stroke="{DynamicResource MotoCardBorder}" StrokeThickness="1">
+                    <Border.StrokeShape><RoundRectangle CornerRadius="10" /></Border.StrokeShape>
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="️ Pipeline" FontSize="14" FontAttributes="Bold" />
+                        <Label FontSize="12" Text="Scanner → Analyzer → Synthesizer → Connector → Validator" />
+                        <Label FontSize="11" Opacity="0.7"
+                               Text="Scan complet · analyse architecturale · génération · connexion des briques · validation de cohérence" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Agents -->
+                <Border Padding="14" WidthRequest="460"
+                        Background="{DynamicResource MotoSubtleBackground}"
+                        Stroke="{DynamicResource MotoCardBorder}" StrokeThickness="1">
+                    <Border.StrokeShape><RoundRectangle CornerRadius="10" /></Border.StrokeShape>
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="🤖 Agents" FontSize="14" FontAttributes="Bold" />
+                        <Label FontSize="12" Text="AgentScanner · AgentAnalyzer · AgentSynthesizer · AgentConnector · AgentValidator" />
+                    </VerticalStackLayout>
+                </Border>
+
+                <!-- Règles -->
+                <Border Padding="14" WidthRequest="460"
+                        Background="{DynamicResource MotoSubtleBackground}"
+                        Stroke="{DynamicResource MotoCardBorder}" StrokeThickness="1">
+                    <Border.StrokeShape><RoundRectangle CornerRadius="10" /></Border.StrokeShape>
+                    <VerticalStackLayout Spacing="4">
+                        <Label Text="📐 Règles d'architecture" FontSize="14" FontAttributes="Bold" />
+                        <Label FontSize="12"
+                               Text="MOTO Editor édite/affiche · MOTO AI assiste/route · XENO-SSS∞ structure.&#10;MOTO appelle XENO comme VS Code appelle Copilot — en local, sans cloud." />
+                    </VerticalStackLayout>
+                </Border>
+            </VerticalStackLayout>
+        </ScrollView>
+    </Border>
+</ContentView>

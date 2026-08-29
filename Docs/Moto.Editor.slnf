@@ -1,0 +1,10 @@
+{
+  "solution": "Moto.Editor.sln",
+  "projects": [
+    "Moto.Editor/Moto.Editor.csproj",
+    "Moto.Core/Moto.Core.csproj",
+    "Snake2000.Engine/Snake2000.Engine.csproj",
+    "Moto.Installer/Moto.Installer.csproj",
+    "Moto.SignTool/Moto.SignTool.csproj"
+  ]
+}

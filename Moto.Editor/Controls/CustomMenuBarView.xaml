@@ -1,0 +1,53 @@
+<!-- Moto.Editor/Controls/CustomMenuBarView.xaml -->
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Moto.Editor.Controls.CustomMenuBarView"
+             HeightRequest="32">
+    <Grid ColumnDefinitions="*,Auto,Auto,Auto">
+        <!-- Zone de drag (title bar custom) -->
+        <Border x:Name="TitleBarDragZone"
+                Grid.Column="0"
+                BackgroundColor="Transparent"
+                HorizontalOptions="Fill"
+                VerticalOptions="Fill" />
+
+        <!-- Bouton Minimiser -->
+        <Border x:Name="BtnMin"
+                Grid.Column="1"
+                WidthRequest="46"
+                BackgroundColor="Transparent"
+                StrokeThickness="0">
+            <Label Text="─"
+                   HorizontalOptions="Center"
+                   VerticalOptions="Center"
+                   FontSize="12"
+                   TextColor="{StaticResource Txt1}" />
+        </Border>
+
+        <!-- Bouton Maximiser -->
+        <Border x:Name="BtnMax"
+                Grid.Column="2"
+                WidthRequest="46"
+                BackgroundColor="Transparent"
+                StrokeThickness="0">
+            <Label Text="□"
+                   HorizontalOptions="Center"
+                   VerticalOptions="Center"
+                   FontSize="12"
+                   TextColor="{StaticResource Txt1}" />
+        </Border>
+
+        <!-- Bouton Fermer -->
+        <Border x:Name="BtnClose"
+                Grid.Column="3"
+                WidthRequest="46"
+                BackgroundColor="Transparent"
+                StrokeThickness="0">
+            <Label Text="×"
+                   HorizontalOptions="Center"
+                   VerticalOptions="Center"
+                   FontSize="14"
+                   TextColor="{StaticResource Txt1}" />
+        </Border>
+    </Grid>
+</ContentView>

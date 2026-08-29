@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Moto.Editor.Views.LivePreviewView"
+             IsVisible="False"
+             BackgroundColor="{StaticResource BgPanel}"
+             WidthRequest="600">
+    <Grid RowDefinitions="Auto,*" Padding="8" RowSpacing="6">
+
+        <!-- Header -->
+        <Grid ColumnDefinitions="Auto,*,Auto,Auto,Auto" ColumnSpacing="6">
+            <Label Text="🌐 Live Preview" FontSize="14" FontAttributes="Bold"
+                   TextColor="{StaticResource Txt1}" VerticalOptions="Center"/>
+            <Label Grid.Column="1" x:Name="FileLabel" Text="—" FontSize="11"
+                   TextColor="{StaticResource Txt2}" VerticalOptions="Center"/>
+            <Button Grid.Column="2" Text="🔄" WidthRequest="32" HeightRequest="32"
+                    BackgroundColor="{StaticResource BgSide}" TextColor="{StaticResource Txt1}"
+                    Clicked="OnRefreshClicked"/>
+            <Button Grid.Column="3" Text="📂" WidthRequest="32" HeightRequest="32"
+                    BackgroundColor="{StaticResource BgSide}" TextColor="{StaticResource Txt1}"
+                    Clicked="OnOpenExternalClicked"/>
+            <Button Grid.Column="4" Text="✕" WidthRequest="32" HeightRequest="32"
+                    BackgroundColor="Transparent" TextColor="{StaticResource Txt2}"
+                    Clicked="OnCloseClicked"/>
+        </Grid>
+
+        <!-- WebView sandbox offline -->
+        <Border Grid.Row="1" BackgroundColor="White"
+                Stroke="{StaticResource BgHover}" StrokeThickness="1"
+                StrokeShape="RoundRectangle CornerRadius=6">
+            <WebView x:Name="PreviewBrowser"
+                     BackgroundColor="White"/>
+        </Border>
+    </Grid>
+</ContentView>

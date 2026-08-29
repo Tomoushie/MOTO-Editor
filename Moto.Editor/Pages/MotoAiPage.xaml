@@ -1,0 +1,94 @@
+<!-- Moto.Editor/Pages/MotoAiPage.xaml -->
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Moto.Editor.Pages.MotoAiPage"
+             Title="MOTO AI">
+
+    <ScrollView Padding="16">
+
+        <VerticalStackLayout Spacing="12">
+
+            <Label Text="MOTO AI interne"
+                   FontSize="20"
+                   FontAttributes="Bold" />
+
+            <Entry x:Name="WorkspaceEntry"
+                   Placeholder="Chemin du workspace" />
+
+            <Entry x:Name="InstructionEntry"
+                   Placeholder="Ex : ajoute un système de santé" />
+
+            <Picker x:Name="ModePicker"
+                    Title="Mode">
+                <Picker.ItemsSource>
+                    <x:Array Type="{x:Type x:String}">
+                        <x:String>Beginner</x:String>
+                        <x:String>Expert</x:String>
+                    </x:Array>
+                </Picker.ItemsSource>
+            </Picker>
+
+            <Button Text="Exécuter MOTO AI"
+                    Clicked="OnRunClicked" />
+
+            <Button Text="Appliquer les fichiers proposés"
+                    Clicked="OnApplyClicked" />
+
+            <Label x:Name="ResultLabel"
+                   LineBreakMode="WordWrap" />
+
+            <Label Text="Étapes"
+                   FontAttributes="Bold" />
+
+            <CollectionView x:Name="StepsView"
+                            HeightRequest="140">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Label Text="{Binding Name}"
+                               Padding="4" />
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <Label Text="Fichiers proposés"
+                   FontAttributes="Bold" />
+
+            <CollectionView x:Name="ChangesView"
+                            HeightRequest="180">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <VerticalStackLayout Padding="4">
+                            <Label Text="{Binding Path}"
+                                   FontAttributes="Bold" />
+                            <Label Text="{Binding Reason}"
+                                   FontSize="12"
+                                   Opacity="0.8" />
+                        </VerticalStackLayout>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <Label Text="Suggestions"
+                   FontAttributes="Bold" />
+
+            <CollectionView x:Name="SuggestionsView"
+                            HeightRequest="180">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <VerticalStackLayout Padding="4">
+                            <Label Text="{Binding Title}"
+                                   FontAttributes="Bold" />
+                            <Label Text="{Binding Detail}"
+                                   FontSize="12"
+                                   Opacity="0.8" />
+                        </VerticalStackLayout>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+        </VerticalStackLayout>
+
+    </ScrollView>
+
+</ContentPage>

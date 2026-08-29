@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!-- Moto.Editor/Views/MarketplaceView.xaml
+     Overlay marketplace : cohérent avec MotoTheme.xaml (BgPanel, BgHover, Accent). -->
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Moto.Editor.Views.MarketplaceView"
+             BackgroundColor="{StaticResource BgPanel}"
+             IsVisible="False">
+
+    <Grid RowDefinitions="Auto,Auto,*,Auto" Padding="16" RowSpacing="12">
+
+        <!-- En-tête -->
+        <Grid Grid.Row="0" ColumnDefinitions="*,Auto">
+            <Label Text="🛒 Marketplace des plugins"
+                   FontSize="18"
+                   FontAttributes="Bold"
+                   TextColor="{StaticResource Txt1}"
+                   VerticalOptions="Center" />
+            <Button Grid.Column="1"
+                    Text="✕"
+                    WidthRequest="32"
+                    HeightRequest="32"
+                    BackgroundColor="Transparent"
+                    TextColor="{StaticResource Txt2}"
+                    Clicked="OnCloseClicked" />
+        </Grid>
+
+        <!-- Recherche -->
+        <Entry Grid.Row="1"
+               x:Name="SearchEntry"
+               Placeholder="Rechercher un plugin…"
+               BackgroundColor="{StaticResource BgSide}"
+               TextColor="{StaticResource Txt1}"
+               PlaceholderColor="{StaticResource Txt2}"
+               Completed="OnSearchCompleted" />
+
+        <!-- Liste des plugins -->
+        <ScrollView Grid.Row="2">
+            <VerticalStackLayout x:Name="PluginsList" Spacing="8" />
+        </ScrollView>
+
+        <!-- Status -->
+        <Label Grid.Row="3"
+               x:Name="StatusLabel"
+               Text="Prêt."
+               FontSize="12"
+               TextColor="{StaticResource Txt2}" />
+    </Grid>
+</ContentView>

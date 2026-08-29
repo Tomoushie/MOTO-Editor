@@ -1,0 +1,49 @@
+name: CI — Perf Gate
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  perf-gate:
+    name: Performance Gate
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Install MAUI workload
+        run: dotnet workload install maui-windows
+
+      - name: Restore & Build
+        run: |
+          dotnet restore MOTO-Editor.sln
+          dotnet build MOTO-Editor.sln -c Release --no-restore
+
+      # ★ ITEM 102 : Perf Gate — capture les métriques et vérifie les seuils
+      - name: Run Perf Gate
+        id: perfgate
+        shell: pwsh
+        run: |
+          # Exécute le harness PerfGate (mode headless)
+          dotnet run --project Moto.Tests/Moto.Tests.csproj --filter "FullyQualifiedName~PerfGateHarness" -- --export perf-current.json
+          $metrics = Get-Content perf-current.json -Raw | ConvertFrom-Json
+          "startup_ms=$($metrics.startupTimeMs)" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          "memory_mb=$($metrics.peakMemoryMb)" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+
+      # ★ ITEM 102 : Compare au baseline (réutilise compare-benchmarks.ps1 — item 62)
+      - name: Compare to baseline
+        run: pwsh ./scripts/compare-benchmarks.ps1 -TolerancePercent 15 -Baseline ./baselines/perf-baseline.json
+
+      - name: Upload perf artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: perf-gate-results
+          path: perf-current.json

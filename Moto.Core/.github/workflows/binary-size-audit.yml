@@ -1,0 +1,107 @@
+name: Binary Size Audit
+
+on:
+  pull_request:
+    branches: [ main, develop ]
+  push:
+    branches: [ main ]
+
+jobs:
+  binary-size-audit:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup .NET 8
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+
+    - name: Restore dependencies
+      run: dotnet restore
+
+    - name: Build Release
+      run: dotnet build --configuration Release --no-restore
+
+    - name: Publish single-file
+      run: |
+        dotnet publish Moto.Editor/Moto.Editor.csproj `
+          --configuration Release `
+          --runtime win-x64 `
+          --self-contained false `
+          -p:PublishSingleFile=true `
+          -o ./publish
+
+    - name: Calculate binary size
+      id: size
+      shell: pwsh
+      run: |
+        $binary = Get-ChildItem ./publish/*.exe | Select-Object -First 1
+        if ($binary) {
+          $sizeMb = [math]::Round($binary.Length / 1MB, 2)
+          echo "size_mb=$sizeMb" >> $env:GITHUB_OUTPUT
+          echo "binary_name=$($binary.Name)" >> $env:GITHUB_OUTPUT
+          Write-Host "Binary: $($binary.Name) = $sizeMb MB"
+        } else {
+          Write-Error "Binary not found!"
+          exit 1
+        }
+
+    - name: Check size threshold
+      shell: pwsh
+      run: |
+        $sizeMb = [double]"${{ steps.size.outputs.size_mb }}"
+        $thresholdMb = 150  # Seuil maximal en MB
+
+        Write-Host "Binary size: $sizeMb MB (threshold: $thresholdMb MB)"
+
+        if ($sizeMb -gt $thresholdMb) {
+          Write-Error "❌ Binary too large: $sizeMb MB > $thresholdMb MB"
+          exit 1
+        } else {
+          Write-Host "✅ Binary size OK: $sizeMb MB"
+        }
+
+    - name: Generate size report
+      if: always()
+      shell: pwsh
+      run: |
+        $report = @"
+        # Binary Size Audit Report
+
+        | Metric | Value |
+        |--------|-------|
+        | Binary | ${{ steps.size.outputs.binary_name }} |
+        | Size | ${{ steps.size.outputs.size_mb }} MB |
+        | Threshold | 150 MB |
+        | Status | $(if ([double]"${{ steps.size.outputs.size_mb }}" -le 150) { "✅ PASS" } else { "❌ FAIL" }) |
+
+        Generated: $(Get-Date -Format "yyyy-MM-dd HH:mm:ss")
+        "@
+
+        $report | Out-File -FilePath ./size-report.md
+        Write-Host $report
+
+    - name: Upload size report
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: binary-size-report
+        path: ./size-report.md
+
+    - name: Comment PR
+      if: github.event_name == 'pull_request'
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const fs = require('fs');
+          const report = fs.readFileSync('./size-report.md', 'utf8');
+
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: `## 📦 Binary Size Audit\n\n${report}`
+          });

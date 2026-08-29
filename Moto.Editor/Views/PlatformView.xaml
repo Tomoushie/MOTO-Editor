@@ -1,0 +1,51 @@
+<!-- Moto.Editor/Views/PlatformView.xaml -->
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Moto.Editor.Views.PlatformView"
+             BackgroundColor="#17181C">
+
+    <Border StrokeShape="RoundRectangle 12" Stroke="#3A3B40"
+            BackgroundColor="#1A1B1F" WidthRequest="460" Padding="14">
+
+        <Grid RowDefinitions="Auto,Auto,*,Auto,Auto" RowSpacing="8">
+
+            <Label Grid.Row="0" Text="📱 MOTO Platform Engine"
+                   FontAttributes="Bold" FontSize="14" />
+
+            <Label Grid.Row="1" x:Name="SummaryLabel"
+                   Text="Analyse des portages…" FontSize="11" Opacity="0.7" />
+
+            <CollectionView Grid.Row="2" x:Name="ProposalsList">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Border StrokeShape="RoundRectangle 8" BackgroundColor="#202126"
+                                Padding="10" Margin="0,4">
+                            <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto">
+                                <Label Grid.Row="0" Grid.Column="0" Text="{Binding Title}"
+                                       FontSize="12" FontAttributes="Bold" />
+                                <Label Grid.Row="1" Grid.Column="0" Text="{Binding Description}"
+                                       FontSize="10" Opacity="0.7" />
+                                <Button Grid.Row="0" Grid.Column="1" Text="Générer"
+                                        FontSize="10" Padding="8,2"
+                                        Clicked="OnGenerateClicked" />
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <ProgressBar Grid.Row="3" x:Name="GenProgress" Progress="0" IsVisible="False" />
+
+            <Grid Grid.Row="4" ColumnDefinitions="*,*">
+                <Button Grid.Column="0" Text="🔄 Ré-analyser" FontSize="11"
+                        Clicked="OnReanalyzeClicked" />
+                <Label Grid.Column="1" x:Name="LogLabel" FontSize="10"
+                       Opacity="0.7" VerticalOptions="Center" />
+            </Grid>
+
+        </Grid>
+
+    </Border>
+
+</ContentView>

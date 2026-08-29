@@ -1,0 +1,40 @@
+<!-- Moto.Editor/Views/PresentationView.xaml -->
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Moto.Editor.Views.PresentationView"
+             BackgroundColor="#17181C">
+
+    <Border StrokeShape="RoundRectangle 12" Stroke="#3A3B40"
+            BackgroundColor="#1A1B1F" WidthRequest="460" Padding="14">
+
+        <VerticalStackLayout Spacing="8">
+
+            <Label Text="🎤 Créer une présentation" FontAttributes="Bold" />
+
+            <Picker x:Name="KindPicker" FontSize="12">
+                <Picker.ItemsSource>
+                    <x:Array Type="{x:Type x:String}">
+                        <x:String>Présentation projet</x:String>
+                        <x:String>Estimation commerciale</x:String>
+                        <x:String>Pitch</x:String>
+                        <x:String>Slides techniques</x:String>
+                        <x:String>Résumé exécutif</x:String>
+                    </x:Array>
+                </Picker.ItemsSource>
+            </Picker>
+
+            <Entry x:Name="ProjectEntry" Placeholder="Nom du projet" FontSize="12" />
+            <Entry x:Name="AuthorEntry" Placeholder="Auteur" FontSize="12" />
+            <Editor x:Name="ContextEditor" Placeholder="Contexte, notes..."
+                    HeightRequest="80" FontSize="11" />
+
+            <Button Text="Générer la présentation" Clicked="OnGenerateClicked" />
+
+            <Label x:Name="StatusLabel" FontSize="11" Opacity="0.7" />
+
+        </VerticalStackLayout>
+
+    </Border>
+
+</ContentView>

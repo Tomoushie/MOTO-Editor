@@ -1,0 +1,7 @@
+<!-- Moto.Editor/Controls/EditorPaneView.xaml — AJOUT du bouton Export dans la toolbar -->
+<!-- Dans la première ligne (Grid.Row="0"), ajouter avant les boutons split/max/ai : -->
+<Button Grid.Column="2" Text="⬇" Padding="8,2" FontSize="12"
+        ToolTipProperties.Text="Exporter (txt, md, html, pdf, docx, odt, rtf...)"
+        Clicked="OnExportClicked" />
+
+<!-- Et ajuster ColumnDefinitions pour ajouter une colonne. -->

@@ -1,0 +1,35 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <AssemblyName>MotoEditor-Setup</AssemblyName>
+    <RootNamespace>Moto.Installer</RootNamespace>
+
+    <!-- ★ Single-file self-contained : un seul EXE, payload inclus -->
+    <PublishSingleFile>true</PublishSingleFile>
+    <SelfContained>true</SelfContained>
+    <RuntimeIdentifier Condition="'$(RuntimeIdentifier)' == ''">win-x64</RuntimeIdentifier>
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+    <EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+    <InvariantGlobalization>true</InvariantGlobalization>
+  </PropertyGroup>
+
+  <!-- ★ Payload embarqué dans l'EXE (généré par build-installer.ps1) -->
+  <ItemGroup>
+    <EmbeddedResource Include="payload.zip" Condition="Exists('payload.zip')" />
+  </ItemGroup>
+
+  <!-- ★ Fichiers partagés (source unique, sans doublon) -->
+  <ItemGroup>
+    <Compile Include="..\Shared\PayloadExtractor.cs"   Link="Shared\PayloadExtractor.cs" />
+    <Compile Include="..\Shared\UpdateManifest.cs"     Link="Shared\UpdateManifest.cs" />
+    <Compile Include="..\Shared\Sha256Helper.cs"        Link="Shared\Sha256Helper.cs" />
+    <Compile Include="..\Shared\Ed25519.cs"             Link="Shared\Ed25519.cs" />
+    <Compile Include="..\Shared\PayloadVerifier.cs"     Link="Shared\PayloadVerifier.cs" />
+    <Compile Include="..\Shared\ResumableDownloader.cs" Link="Shared\ResumableDownloader.cs" />
+    <Compile Include="..\Shared\AtomicUpdater.cs"       Link="Shared\AtomicUpdater.cs" />
+    <Compile Include="..\Shared\BuildKeys.cs"           Link="Shared\BuildKeys.cs" />
+  </ItemGroup>
+</Project>

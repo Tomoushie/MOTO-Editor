@@ -1,0 +1,14 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <LangVersion>latest</LangVersion>
+    <Nullable>enable</Nullable>
+    <AssemblyName>Moto.Plugin.SampleFormat</AssemblyName>
+    <RootNamespace>Moto.Plugin.SampleFormat</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Référence au SDK officiel -->
+    <PackageReference Include="Moto.Plugin.SDK" Version="1.0.0" />
+  </ItemGroup>
+</Project>

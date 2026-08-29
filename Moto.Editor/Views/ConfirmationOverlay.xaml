@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Moto.Editor.Views.ConfirmationOverlay"
+             IsVisible="False"
+             BackgroundColor="#99000000">
+
+    <Border WidthRequest="480"
+            HorizontalOptions="Center"
+            VerticalOptions="Center"
+            BackgroundColor="{StaticResource BgPanel}"
+            Stroke="{StaticResource BgHover}"
+            StrokeThickness="1"
+            StrokeShape="RoundRectangle CornerRadius=12"
+            Padding="20">
+
+        <Grid RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="12">
+
+            <!-- Titre -->
+            <Label Grid.Row="0"
+                   x:Name="TitleLabel"
+                   FontSize="16"
+                   FontAttributes="Bold"
+                   TextColor="{StaticResource Txt1}" />
+
+            <!-- Message -->
+            <Label Grid.Row="1"
+                   x:Name="MessageLabel"
+                   FontSize="13"
+                   TextColor="{StaticResource Txt1}" />
+
+            <!-- Détails -->
+            <Border Grid.Row="2"
+                    BackgroundColor="{StaticResource BgSide}"
+                    Stroke="{StaticResource BgHover}"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle CornerRadius=8"
+                    Padding="12">
+                <Label x:Name="DetailsLabel"
+                       FontSize="12"
+                       TextColor="{StaticResource Txt2}" />
+            </Border>
+
+            <!-- Boutons -->
+            <HorizontalStackLayout Grid.Row="3"
+                                   Spacing="8"
+                                   HorizontalOptions="End">
+                <Button x:Name="CancelBtn"
+                        Text="Annuler"
+                        BackgroundColor="{StaticResource BgHover}"
+                        TextColor="{StaticResource Txt1}"
+                        Clicked="OnCancelClicked" />
+                <Button x:Name="ConfirmBtn"
+                        Text="Appliquer"
+                        BackgroundColor="{StaticResource Accent}"
+                        TextColor="White"
+                        Clicked="OnConfirmClicked" />
+            </HorizontalStackLayout>
+        </Grid>
+    </Border>
+</ContentView>

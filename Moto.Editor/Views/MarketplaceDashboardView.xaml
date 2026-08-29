@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Moto.Editor.Views.MarketplaceDashboardView"
+             IsVisible="False"
+             BackgroundColor="{StaticResource BgPanel}"
+             WidthRequest="800">
+    <Grid RowDefinitions="Auto,Auto,*,Auto" Padding="16" RowSpacing="12">
+
+        <!-- Header -->
+        <Grid Grid.Row="0" ColumnDefinitions="*,Auto,Auto">
+            <Label Text="🛒 Marketplace" FontSize="20" FontAttributes="Bold"
+                   TextColor="{StaticResource Txt1}" VerticalOptions="Center"/>
+            <Button Grid.Column="1" Text="🔄 Mises à jour" Margin="0,0,8,0"
+                    BackgroundColor="{StaticResource BgSide}" TextColor="{StaticResource Txt1}"
+                    Clicked="OnCheckUpdatesClicked"/>
+            <Button Grid.Column="2" Text="✕" WidthRequest="30" HeightRequest="30"
+                    BackgroundColor="Transparent" TextColor="{StaticResource Txt2}"
+                    Clicked="OnCloseClicked"/>
+        </Grid>
+
+        <!-- Recherche + filtres -->
+        <Grid Grid.Row="1" ColumnDefinitions="*,Auto,Auto" ColumnSpacing="8">
+            <Entry x:Name="SearchEntry" Placeholder="Rechercher un plugin…"
+                   BackgroundColor="{StaticResource BgSide}" TextColor="{StaticResource Txt1}"
+                   PlaceholderColor="{StaticResource Txt2}" TextChanged="OnSearchChanged"/>
+            <Picker Grid.Column="1" x:Name="CategoryPicker" WidthRequest="150"
+                    BackgroundColor="{StaticResource BgSide}" TextColor="{StaticResource Txt1}">
+                <Picker.Items>
+                    <x:String>Tous</x:String>
+                    <x:String>Productivité</x:String>
+                    <x:String>Langages</x:String>
+                    <x:String>Thèmes</x:String>
+                    <x:String>Debug</x:String>
+                    <x:String>Collaboration</x:String>
+                </Picker.Items>
+            </Picker>
+            <Picker Grid.Column="2" x:Name="SortPicker" WidthRequest="120"
+                    BackgroundColor="{StaticResource BgSide}" TextColor="{StaticResource Txt1}">
+                <Picker.Items>
+                    <x:String>Popularité</x:String>
+                    <x:String>Récent</x:String>
+                    <x:String>Note</x:String>
+                </Picker.Items>
+            </Picker>
+        </Grid>
+
+        <!-- Liste des plugins -->
+        <ScrollView Grid.Row="2">
+            <VerticalStackLayout x:Name="PluginsList" Spacing="8"/>
+        </ScrollView>
+
+        <!-- Footer -->
+        <Grid Grid.Row="3" ColumnDefinitions="*,Auto" ColumnSpacing="8">
+            <Label x:Name="StatusLabel" Text="Prêt." FontSize="11"
+                   TextColor="{StaticResource Txt2}" VerticalOptions="Center"/>
+            <Button Grid.Column="1" Text="📊 Analytics"
+                    BackgroundColor="{StaticResource Accent}" TextColor="White"
+                    Clicked="OnAnalyticsClicked"/>
+        </Grid>
+    </Grid>
+</ContentView>

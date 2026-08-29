@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"path": "../Snake2000"
+		},
+		{
+			"path": "../Snake2000/src/Snake2000.App"
+		}
+	],
+	"settings": {
+		"git.ignoreLimitWarning": true
+	}
+}

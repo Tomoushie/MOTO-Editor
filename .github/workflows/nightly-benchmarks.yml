@@ -1,0 +1,75 @@
+name: Nightly — Benchmarks & Binary Size
+
+on:
+  schedule:
+    - cron: '0 2 * * *'   # 02:00 UTC chaque nuit
+  workflow_dispatch:
+
+jobs:
+  benchmarks:
+    name: Benchmarks par tier
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Install MAUI workload
+        run: dotnet workload install maui-windows
+
+      - name: Restore & Build
+        run: |
+          dotnet restore MOTO-Editor.sln
+          dotnet build MOTO-Editor.sln -c Release --no-restore
+
+      - name: Run benchmarks (Lite/Standard/Full)
+        run: dotnet run --project Moto.Tests/Moto.Tests.csproj --filter "FullyQualifiedName~AiOptimizationsBenchmark" -- --export json --export csv
+
+      - name: Compare vs baseline (±15%)
+        run: pwsh ./scripts/compare-benchmarks.ps1 -TolerancePercent 15 -Baseline ./baselines/benchmark-baseline.json
+
+      - name: Upload benchmark artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: nightly-benchmarks
+          path: |
+            **/benchmark-*.json
+            **/benchmark-*.csv
+
+  binary-size-audit:
+    name: Audit taille binaire (seuil 150 MB)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Install MAUI workload
+        run: dotnet workload install maui-windows
+
+      - name: Publish Release
+        run: dotnet publish Moto.Editor/Moto.Editor.csproj -c Release -r win-x64 --self-contained -o ./publish
+
+      - name: Measure size
+        id: size
+        shell: pwsh
+        run: |
+          $bytes = (Get-ChildItem ./publish -Recurse | Measure-Object -Property Length -Sum).Sum
+          $mb = [math]::Round($bytes / 1MB, 2)
+          "size_mb=$mb" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+          Write-Host "Binary size: $mb MB"
+
+      - name: Enforce threshold (150 MB)
+        shell: pwsh
+        run: |
+          $size = [double]"${{ steps.size.outputs.size_mb }}"
+          if ($size -gt 150) {
+            Write-Error "Binary size $size MB exceeds 150 MB threshold"
+            exit 1
+          }

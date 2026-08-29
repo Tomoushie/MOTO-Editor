@@ -1,0 +1,10 @@
+<UserControl x:Class="Moto.Editor.Controls.XenoFeedbackControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <StackPanel Orientation="Horizontal" Spacing="4">
+        <Button x:Name="BtnLike" Content="👍" Width="28" Height="28" Padding="0" Click="OnLikeClicked" ToolTipService.ToolTip="Approuver"/>
+        <Button x:Name="BtnDislike" Content="👎" Width="28" Height="28" Padding="0" Click="OnDislikeClicked" ToolTipService.ToolTip="Rejeter"/>
+        <Button x:Name="BtnEdit" Content="✏️" Width="28" Height="28" Padding="0" Click="OnEditClicked" ToolTipService.ToolTip="Proposer une variante"/>
+        <TextBlock x:Name="ScoreText" Text="Score: 0.85" FontSize="11" VerticalAlignment="Center" Margin="8,0,0,0" Foreground="{StaticResource SecondaryTextBrush}"/>
+    </StackPanel>
+</UserControl>

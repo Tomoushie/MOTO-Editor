@@ -1,0 +1,13 @@
+{
+  "id": "motoplugin-template",
+  "name": "MotoPluginTemplate",
+  "version": "1.0.0",
+  "author": "PLUGIN_AUTHOR",
+  "description": "PLUGIN_DESCRIPTION",
+  "kind": "System",
+  "category": "Productivity",
+  "entryPoint": "MotoPluginTemplate.dll",
+  "mainClass": "MotoPluginTemplate.Plugin",
+  "dependencies": [],
+  "settings": {}
+}

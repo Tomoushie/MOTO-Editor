@@ -1,0 +1,53 @@
+<!-- Moto.Editor/Views/ContextSuggestionsView.xaml -->
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Moto.Editor.Views.ContextSuggestionsView"
+             BackgroundColor="#17181C">
+
+    <Border StrokeShape="RoundRectangle 12" Stroke="#3A3B40"
+            BackgroundColor="#1A1B1F" WidthRequest="440" Padding="14">
+
+        <Grid RowDefinitions="Auto,Auto,*" Padding="0">
+
+            <Label Grid.Row="0" Text="💡 MOTO Context Engine" FontAttributes="Bold" FontSize="14" />
+
+            <Label Grid.Row="1" x:Name="SummaryLabel"
+                   Text="Aucune suggestion pour l'instant."
+                   FontSize="11" Opacity="0.7" Margin="0,4,0,8" />
+
+            <CollectionView Grid.Row="2" x:Name="SuggestionsList">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Border StrokeShape="RoundRectangle 8" BackgroundColor="#202126"
+                                Padding="10" Margin="0,4">
+                            <Grid ColumnDefinitions="Auto,*,Auto,Auto" RowDefinitions="Auto,Auto" ColumnSpacing="8">
+
+                                <Label Grid.Row="0" Grid.Column="0" Grid.RowSpan="2"
+                                       Text="{Binding Icon}" FontSize="20" VerticalOptions="Center" />
+
+                                <Label Grid.Row="0" Grid.Column="1" Text="{Binding Title}"
+                                       FontSize="12" FontAttributes="Bold" />
+
+                                <Label Grid.Row="1" Grid.Column="1" Text="{Binding Description}"
+                                       FontSize="10" Opacity="0.7" />
+
+                                <Button Grid.Row="0" Grid.Column="2" Text="Apply"
+                                        FontSize="10" Padding="8,2"
+                                        Clicked="OnApplyClicked" />
+
+                                <Button Grid.Row="0" Grid.Column="3" Text="Dismiss"
+                                        FontSize="10" Padding="8,2"
+                                        Clicked="OnDismissClicked" />
+
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+        </Grid>
+
+    </Border>
+
+</ContentView>

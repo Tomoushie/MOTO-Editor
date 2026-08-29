@@ -1,0 +1,24 @@
+<!-- Ajout dans ResourceGovernorView.xaml -->
+<Border Grid.Row="2" Background="{StaticResource MotoCardBackground}" Stroke="{StaticResource MotoCardBorder}" StrokeThickness="1" Padding="16" Margin="0,16,0,0">
+    <VerticalStackLayout Spacing="12">
+        <Label Text="🛡️ Diagnostics & Circuit Breaker" Style="{StaticResource MotoSubtitle}" />
+
+        <Grid ColumnDefinitions="*, Auto" RowDefinitions="Auto, Auto">
+            <Label Grid.Column="0" Grid.Row="0" Text="Circuit Open (24h) :" Style="{StaticResource MotoCaption}" />
+
+            <!-- Badge dynamique -->
+            <Border Grid.Column="0" Grid.Row="1" Background="{StaticResource MotoSuccessBackground}"
+                    Stroke="{StaticResource MotoSuccessBrush}" StrokeThickness="1"
+                    Padding="12,6" HorizontalOptions="Start">
+                <Border.StrokeShape>
+                    <RoundRectangle CornerRadius="16" />
+                </Border.StrokeShape>
+                <Label x:Name="CircuitCountLabel" Text="0" TextColor="{StaticResource MotoSuccessBrush}" FontAttributes="Bold" />
+            </Border>
+
+            <Button Grid.Column="1" Grid.RowSpan="2" Text="📦 Collecter les logs"
+                    Clicked="OnCollectLogsClicked"
+                    Style="{StaticResource MotoPrimaryButton}" VerticalOptions="Center" />
+        </Grid>
+    </VerticalStackLayout>
+</Border>

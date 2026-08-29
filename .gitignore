@@ -1,0 +1,21 @@
+## Build output
+bin/
+obj/
+dist/
+*.user
+
+## Secrets — ne jamais committer
+keys/
+*.priv
+*.pfx
+*.pem
+
+## OS / IDE
+.vs/
+.vscode/
+*.suo
+.DS_Store
+
+## Packages/NuGet
+*.nupkg
+packages/

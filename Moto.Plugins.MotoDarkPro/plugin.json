@@ -1,0 +1,13 @@
+{
+  "id": "moto-dark-pro",
+  "name": "Moto Dark Pro",
+  "version": "1.0.0",
+  "author": "MOTO Team",
+  "description": "Thème sombre professionnel avec palette de couleurs premium",
+  "kind": "Ui",
+  "category": "Theme",
+  "entryPoint": "Moto.Plugins.MotoDarkPro.dll",
+  "mainClass": "Moto.Plugins.MotoDarkPro.MotoDarkProPlugin",
+  "dependencies": [],
+  "settings": {}
+}

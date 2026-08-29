@@ -1,0 +1,23 @@
+<!-- Moto.Editor/Controls/ActivityBarView.xaml -->
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Moto.Editor.Controls.ActivityBarView"
+             WidthRequest="48" BackgroundColor="{StaticResource BgSide}">
+
+    <VerticalStackLayout Spacing="2" Padding="0,8">
+        <Button Text="📁" HeightRequest="40" CommandParameter="explorer" Clicked="OnClicked"
+                ToolTipProperties.Text="Explorateur" />
+        <Button Text="🔍" HeightRequest="40" CommandParameter="search" Clicked="OnClicked"
+                ToolTipProperties.Text="Recherche" />
+        <Button Text="🤖" HeightRequest="40" CommandParameter="ai" Clicked="OnClicked"
+                ToolTipProperties.Text="Chat IA" />
+        <Button Text="🧠" HeightRequest="40" CommandParameter="cortex" Clicked="OnClicked"
+                ToolTipProperties.Text="Cortex" />
+        <Button Text="👥" HeightRequest="40" CommandParameter="collab" Clicked="OnClicked"
+                ToolTipProperties.Text="Collaboration" />
+        <Button Text="⚙️" HeightRequest="40" CommandParameter="settings" Clicked="OnClicked"
+                ToolTipProperties.Text="Paramètres" />
+    </VerticalStackLayout>
+
+</ContentView>

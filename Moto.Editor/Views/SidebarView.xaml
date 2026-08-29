@@ -1,0 +1,48 @@
+<!-- Moto.Editor/Views/SidebarView.xaml -->
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Moto.Editor.Views.SidebarView"
+             WidthRequest="240" BackgroundColor="{StaticResource BgSide}">
+
+    <Grid RowDefinitions="Auto,Auto,*,Auto" Padding="10,8">
+
+        <!-- Header : titre + recherche + notif -->
+        <HorizontalStackLayout Grid.Row="0" Spacing="8">
+            <Label Text="MOTO AI" FontAttributes="Bold" FontSize="15" VerticalOptions="Center" />
+            <Label Text="🔍" VerticalOptions="Center" Style="{StaticResource TxtSecondary}" />
+            <Label Text="🔔" VerticalOptions="Center" Style="{StaticResource TxtSecondary}" />
+        </HorizontalStackLayout>
+
+        <!-- Nouveau chat -->
+        <Border Grid.Row="1" Stroke="{StaticResource BorderCol}" StrokeShape="RoundRectangle 8"
+                BackgroundColor="{StaticResource BgPanel}" Padding="10,6" Margin="0,8">
+            <Border.GestureRecognizers>
+                <TapGestureRecognizer Tapped="OnNewChat" />
+            </Border.GestureRecognizers>
+            <Label Text="＋ Nouveau chat" FontSize="12" />
+        </Border>
+
+        <!-- Sections : Épinglés / Projets / Récents -->
+        <ScrollView Grid.Row="2">
+            <VerticalStackLayout Spacing="4">
+                <Label Text="ÉPINGLÉS" Style="{StaticResource TxtSecondary}" Margin="0,6,0,2" />
+                <VerticalStackLayout x:Name="PinnedList" Spacing="2" />
+
+                <Label Text="PROJETS" Style="{StaticResource TxtSecondary}" Margin="0,10,0,2" />
+                <VerticalStackLayout x:Name="ProjectsList" Spacing="2" />
+
+                <Label Text="RÉCENTS" Style="{StaticResource TxtSecondary}" Margin="0,10,0,2" />
+                <VerticalStackLayout x:Name="RecentsList" Spacing="2" />
+            </VerticalStackLayout>
+        </ScrollView>
+
+        <!-- Footer utilisateur -->
+        <HorizontalStackLayout Grid.Row="3" Spacing="8" Padding="0,8,0,0">
+            <Label Text="👤" />
+            <Label Text="Tom Nowak" FontSize="12" VerticalOptions="Center" />
+        </HorizontalStackLayout>
+
+    </Grid>
+
+</ContentView>

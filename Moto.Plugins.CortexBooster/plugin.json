@@ -1,0 +1,17 @@
+{
+  "id": "cortex-booster",
+  "name": "Cortex Booster",
+  "version": "1.0.0",
+  "author": "MOTO Team",
+  "description": "Booste les performances de l'IA avec des suggestions proactives avancées",
+  "kind": "Ai",
+  "category": "Productivity",
+  "entryPoint": "Moto.Plugins.CortexBooster.dll",
+  "mainClass": "Moto.Plugins.CortexBooster.CortexBoosterPlugin",
+  "dependencies": [],
+  "settings": {
+    "boost_enabled": "true",
+    "suggestion_threshold": "0.8",
+    "learning_rate": "1.0"
+  }
+}

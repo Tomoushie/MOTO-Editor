@@ -1,0 +1,65 @@
+<!-- Moto.Editor/Views/SettingsMenuView.xaml -->
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Moto.Editor.Views.SettingsMenuView">
+
+    <!-- Menu paramètres type IDE classique, ouvert par l'engrenage -->
+    <Border StrokeShape="RoundRectangle 12"
+            Stroke="#3A3B40"
+            BackgroundColor="#1A1B1F"
+            WidthRequest="300"
+            Padding="14">
+
+        <ScrollView>
+            <VerticalStackLayout Spacing="10">
+
+                <Label Text="⚙ Paramètres" FontSize="18" FontAttributes="Bold" />
+
+                <Label Text="Thème" FontSize="12" Opacity="0.7" />
+                <Picker x:Name="ThemePicker" SelectedIndexChanged="OnThemeChanged">
+                    <Picker.ItemsSource>
+                        <x:Array Type="{x:Type x:String}">
+                            <x:String>Sombre</x:String>
+                            <x:String>Clair</x:String>
+                            <x:String>Système</x:String>
+                        </x:Array>
+                    </Picker.ItemsSource>
+                </Picker>
+
+                <Label Text="Mode de puissance IA" FontSize="12" Opacity="0.7" />
+                <Picker x:Name="PowerPicker" SelectedIndexChanged="OnPowerChanged">
+                    <Picker.ItemsSource>
+                        <x:Array Type="{x:Type x:String}">
+                            <x:String>Eco</x:String>
+                            <x:String>Balanced</x:String>
+                            <x:String>Turbo</x:String>
+                            <x:String>Ultra</x:String>
+                        </x:Array>
+                    </Picker.ItemsSource>
+                </Picker>
+
+                <Label Text="Taille de police éditeur" FontSize="12" Opacity="0.7" />
+                <Slider x:Name="FontSlider" Minimum="10" Maximum="26" Value="14"
+                        ValueChanged="OnFontChanged" />
+
+                <Switch x:Name="MiniMapSwitch" IsToggled="True"
+                        Toggled="OnMiniMapToggled" />
+                <Label Text="Mini-map" FontSize="12" Margin="0,-8,0,0" />
+
+                <Switch x:Name="TerminalSwitch" Toggled="OnTerminalToggled" />
+                <Label Text="Terminal" FontSize="12" Margin="0,-8,0,0" />
+
+                <Button Text="🔑 Providers IA (clés API)" Clicked="OnProvidersClicked" />
+                <Button Text="🕘 Snapshot Time Machine" Clicked="OnSnapshotClicked" />
+                <Button Text="🩺 Santé du projet" Clicked="OnHealthClicked" />
+
+                <Label Text="MOTO Editor v0.3 — MOTO AI interne + XENO-SSS∞"
+                       FontSize="10" Opacity="0.5" HorizontalOptions="Center" />
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+    </Border>
+
+</ContentView>

@@ -1,0 +1,34 @@
+<!-- Moto.Editor/Views/HealthMonitorView.xaml -->
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Moto.Editor.Views.HealthMonitorView"
+             BackgroundColor="#17181C">
+
+    <Grid RowDefinitions="Auto,Auto,*" Padding="8">
+
+        <Label Grid.Row="0" Text="SANTÉ DU PROJET" FontAttributes="Bold" />
+
+        <VerticalStackLayout Grid.Row="1" Spacing="4">
+            <Label x:Name="ScoreLabel" Text="--/100" FontSize="28" FontAttributes="Bold" />
+            <ProgressBar x:Name="ScoreBar" Progress="0" ProgressColor="LimeGreen" />
+        </VerticalStackLayout>
+
+        <CollectionView Grid.Row="2" x:Name="IssueList">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Border StrokeShape="RoundRectangle 8" Padding="8" Margin="0,3"
+                            BackgroundColor="#202126">
+                        <VerticalStackLayout>
+                            <Label Text="{Binding Message}" FontAttributes="Bold" FontSize="12" />
+                            <Label Text="{Binding FilePath}" FontSize="10" Opacity="0.6" />
+                            <Label Text="{Binding Suggestion}" FontSize="11" TextColor="LimeGreen" />
+                        </VerticalStackLayout>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+    </Grid>
+
+</ContentView>

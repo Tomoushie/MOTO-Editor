@@ -1,0 +1,36 @@
+<!-- Docs/ROADMAP.md -->
+# 🗺️ Roadmap
+
+## ✅ v0.1 — Fondation (livrée)
+- Shell MAUI 4 colonnes, explorateur, onglets+badges, terminal, status bar.
+- `CodeEditorView` WebView maison (gutter, coloration, minimap, h-scroll).
+- SettingsEngine data-driven (~300 paramètres).
+- XENO-SSS∞ pipeline de base.
+
+## ✅ v0.2 — UI moderne (livrée)
+- Layout type Zen, chat multi-threads dockable, ghost text (Tab).
+- Export 9 formats, Présentations, Remote (WS+SSH), Collab CRDT-light.
+- Time Machine, Health, Pattern Detector, AutoLink, Context, Doc, Performance.
+
+## ✅ v0.3 — IA interne (livrée)
+- Cortex Engine (mémoire + style), Neural Mode (embeddings), AI Workspace.
+- Platform Engine (portages + CI multi-providers + Avalonia Linux + validation incrémentale).
+- Modes Beginner/Tutor/No-Code/Pair, Story Mode, Evolution.
+
+## 🔄 v0.4 — AI Workspace (en cours)
+- Suggestions proactives unifiées, auto-refactor, auto-doc, auto-port.
+- Panneaux Cortex/Neural/Workspace intégrés (MainPage v21).
+
+## 🎯 v1.0 — Production (à venir)
+- [ ] **LSP Roslyn** (remplace les regex : complétion/diagnostics précis).
+- [ ] **CRDT réel** (Automerge/Yjs) + serveur de sync.
+- [ ] **DAP debugger** complet (breakpoints, step, watch).
+- [ ] Suite de tests automatisés + CI interne.
+- [ ] Accessibilité + i18n (FR/EN).
+- [ ] Édition collaborative avec curseurs distants.
+
+## 🚀 v1.1+ — Écosystème
+- [ ] Marketplace de plugins.
+- [ ] Parité Avalonia Linux complète.
+- [ ] Version mobile (consultation + review).
+- [ ] Headless CLI (`moto ai --fix ...`).

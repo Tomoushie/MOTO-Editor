@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Moto.Editor.Views.ReviewLaneView">
+
+    <Border Background="{DynamicResource MotoCardBackground}"
+            Stroke="{DynamicResource MotoCardBorder}"
+            StrokeThickness="1" Padding="14" Margin="0,10,0,0">
+        <Border.StrokeShape><RoundRectangle CornerRadius="12" /></Border.StrokeShape>
+
+        <Grid RowDefinitions="Auto,*,Auto" RowSpacing="10">
+
+            <!-- En-tête -->
+            <Grid Grid.Row="0" ColumnDefinitions="*,Auto">
+                <Label Text="🧾 Review Lane — commentaires rapides" FontSize="15" FontAttributes="Bold" />
+                <Label Grid.Column="1" x:Name="ModeLabel" Text="Mode : Editor"
+                       FontSize="12" Opacity="0.6" VerticalOptions="Center" />
+            </Grid>
+
+            <!-- Liste des commentaires -->
+            <CollectionView Grid.Row="1" x:Name="CommentsList" EmptyView="Aucun commentaire pour ce fichier.">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Border Padding="10" Margin="0,4"
+                                Background="{DynamicResource MotoSubtleBackground}"
+                                Stroke="{DynamicResource MotoCardBorder}" StrokeThickness="1">
+                            <Border.StrokeShape><RoundRectangle CornerRadius="8" /></Border.StrokeShape>
+                            <VerticalStackLayout Spacing="4">
+                                <Grid ColumnDefinitions="Auto,*,Auto">
+                                    <Label Text="{Binding LineLabel}" FontSize="11" Opacity="0.6" />
+                                    <Label Grid.Column="1" Text="{Binding Author}" FontSize="11"
+                                           FontAttributes="Italic" HorizontalOptions="End" />
+                                    <Button Grid.Column="2" Text="✔" FontSize="11" Padding="6,0"
+                                            Clicked="OnResolveClicked" CommandParameter="{Binding Id}" />
+                                </Grid>
+                                <Label Text="{Binding Text}" FontSize="13" />
+                            </VerticalStackLayout>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <!-- Ajout d'un commentaire -->
+            <Grid Grid.Row="2" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
+                <Entry Grid.Column="0" x:Name="LineEntry" Placeholder="Ligne" WidthRequest="70" Keyboard="Numeric" />
+                <Entry Grid.Column="1" x:Name="CommentEntry" Placeholder="Votre commentaire…" />
+                <Button Grid.Column="2" Text="Ajouter" Clicked="OnAddClicked" />
+            </Grid>
+        </Grid>
+    </Border>
+</ContentView>

@@ -1,0 +1,73 @@
+{
+  "name": "MOTO Editor Project Map",
+  "modules": {
+    "Moto.Editor": {
+      "type": "UI + IDE",
+      "depends_on": [
+        "Moto.Core",
+        "Snake2000.Engine",
+        "Shared",
+        "Moto.Installer (update delegation)"
+      ]
+    },
+    "Moto.Core": {
+      "type": "AI Foundations",
+      "contains": [
+        "CortexEngine",
+        "NeuralMode",
+        "AIWorkspace",
+        "SettingsEngine",
+        "ProfileManager",
+        "ContextEngine",
+        "SpeculativeDecoder",
+        "LayeredModelLoader"
+      ]
+    },
+    "Snake2000.Engine": {
+      "type": "Game Engine",
+      "contains": [
+        "XENO Pipeline",
+        "Agents",
+        "Rendering",
+        "Gameplay Systems"
+      ]
+    },
+    "Moto.Installer": {
+      "type": "Installer + Updater",
+      "contains": [
+        "AtomicUpdater",
+        "PayloadExtractor (Shared)",
+        "PayloadVerifier",
+        "ResumableDownloader",
+        "Rollback",
+        "MSIX optional"
+      ]
+    },
+    "Moto.SignTool": {
+      "type": "Crypto",
+      "contains": [
+        "Ed25519",
+        "Key generation",
+        "Manifest signing",
+        "BuildKeys emission"
+      ]
+    },
+    "Shared": {
+      "type": "Common Logic",
+      "contains": [
+        "PayloadExtractor",
+        "UpdateManifest",
+        "Sha256Helper",
+        "Ed25519",
+        "PayloadVerifier",
+        "ResumableDownloader",
+        "AtomicUpdater"
+      ]
+    }
+  },
+  "notes": [
+    "Carte complète pour Claude Code.",
+    "Chaque module est clairement séparé par rôle.",
+    "Les dépendances sont explicites et non circulaires."
+  ]
+}

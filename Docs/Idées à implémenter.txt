@@ -1,0 +1,2 @@
+MOTO Editor permette à quelqu’un qui ne sait pas coder de lancer un projet, de le maintenir, de le modifier, de le faire évoluer… sans jamais apprendre à coder. 
+

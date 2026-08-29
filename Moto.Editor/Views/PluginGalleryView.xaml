@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Moto.Editor.Views.PluginGalleryView"
+             IsVisible="False"
+             BackgroundColor="{StaticResource BgPanel}"
+             WidthRequest="420"
+             HorizontalOptions="End"
+             VerticalOptions="Start"
+             Margin="0,40,60,0">
+
+    <Grid RowDefinitions="Auto,Auto,*,Auto"
+          Padding="14"
+          RowSpacing="10">
+
+        <Grid Grid.Row="0" ColumnDefinitions="*,Auto">
+            <Label Text="🧩 Galerie de plugins"
+                   FontSize="16"
+                   FontAttributes="Bold"
+                   TextColor="{StaticResource Txt1}"
+                   VerticalOptions="Center" />
+
+            <Button Grid.Column="1"
+                    Text="✕"
+                    WidthRequest="30"
+                    HeightRequest="30"
+                    BackgroundColor="Transparent"
+                    TextColor="{StaticResource Txt2}"
+                    Clicked="OnCloseClicked" />
+        </Grid>
+
+        <Entry Grid.Row="1"
+               x:Name="SearchEntry"
+               Placeholder="Rechercher un plugin…"
+               BackgroundColor="{StaticResource BgSide}"
+               TextColor="{StaticResource Txt1}"
+               PlaceholderColor="{StaticResource Txt2}"
+               Completed="OnSearchCompleted" />
+
+        <ScrollView Grid.Row="2"
+                    HeightRequest="420">
+            <VerticalStackLayout x:Name="PluginsList"
+                                 Spacing="8" />
+        </ScrollView>
+
+        <Label Grid.Row="3"
+               x:Name="StatusLabel"
+               Text="Prêt."
+               FontSize="11"
+               TextColor="{StaticResource Txt2}" />
+    </Grid>
+</ContentView>

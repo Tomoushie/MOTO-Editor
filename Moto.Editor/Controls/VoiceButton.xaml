@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<UserControl xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="Moto.Editor.Controls.VoiceButton">
+    <Grid>
+        <ToggleButton x:Name="VoiceToggle"
+                      Content="🎤"
+                      Width="32" Height="32"
+                      ToolTipService.ToolTip="Dictée vocale (désactivé par défaut)"
+                      Checked="OnVoiceToggled"
+                      Unchecked="OnVoiceUntoggled"
+                      Background="Transparent"
+                      Foreground="{StaticResource StatusBarTextBrush}"/>
+    </Grid>
+</UserControl>

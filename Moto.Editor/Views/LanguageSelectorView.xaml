@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Moto.Editor.Views.LanguageSelectorView"
+             IsVisible="False"
+             BackgroundColor="{StaticResource BgPanel}"
+             WidthRequest="400">
+    <Grid RowDefinitions="Auto,Auto,*,Auto" Padding="16" RowSpacing="12">
+
+        <!-- Header -->
+        <Grid ColumnDefinitions="*,Auto">
+            <Label Text="🌐 Langue / Language" FontSize="18" FontAttributes="Bold"
+                   TextColor="{StaticResource Txt1}"/>
+            <Button Grid.Column="1" Text="✕" WidthRequest="30" HeightRequest="30"
+                    BackgroundColor="Transparent" TextColor="{StaticResource Txt2}"
+                    Clicked="OnCloseClicked"/>
+        </Grid>
+
+        <!-- Onglets -->
+        <HorizontalStackLayout Grid.Row="1" Spacing="8">
+            <Button x:Name="TabInstalledBtn" Text="✅ Installées"
+                    BackgroundColor="{StaticResource Accent}" TextColor="White"
+                    Clicked="OnTabInstalledClicked"/>
+            <Button x:Name="TabMarketplaceBtn" Text="🛒 Marketplace"
+                    BackgroundColor="{StaticResource BgSide}" TextColor="{StaticResource Txt1}"
+                    Clicked="OnTabMarketplaceClicked"/>
+            <Button x:Name="TabContributeBtn" Text="✍️ Contribuer"
+                    BackgroundColor="{StaticResource BgSide}" TextColor="{StaticResource Txt1}"
+                    Clicked="OnTabContributeClicked"/>
+        </HorizontalStackLayout>
+
+        <!-- Contenu -->
+        <ScrollView Grid.Row="2">
+            <VerticalStackLayout x:Name="ContentArea" Spacing="8"/>
+        </ScrollView>
+
+        <!-- Footer -->
+        <Label Grid.Row="3" x:Name="StatusLabel" Text="Prêt."
+               FontSize="11" TextColor="{StaticResource Txt2}"/>
+    </Grid>
+</ContentView>

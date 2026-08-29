@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Moto.Editor.Views.DevOpsDashboardView">
+
+    <Border Background="{DynamicResource MotoCardBackground}"
+            Stroke="{DynamicResource MotoCardBorder}" StrokeThickness="1" Padding="16">
+        <Border.StrokeShape><RoundRectangle CornerRadius="12" /></Border.StrokeShape>
+
+        <Grid RowDefinitions="Auto,*" RowSpacing="12">
+            <Label Grid.Row="0" Text="📊 DevOps Dashboard" FontSize="18" FontAttributes="Bold" />
+
+            <ScrollView Grid.Row="1">
+                <VerticalStackLayout Spacing="12">
+
+                    <!-- PerfGate -->
+                    <Border Padding="12" Background="{DynamicResource MotoSubtleBackground}"
+                            Stroke="{DynamicResource MotoCardBorder}" StrokeThickness="1">
+                        <Border.StrokeShape><RoundRectangle CornerRadius="8" /></Border.StrokeShape>
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="⚡ Perf Gate" FontSize="14" FontAttributes="Bold" />
+                            <Label x:Name="StartupLabel" Text="Startup : —" FontSize="12" />
+                            <Label x:Name="MemoryLabel" Text="Mémoire : —" FontSize="12" />
+                            <Label x:Name="GateStatusLabel" Text="Gate : —" FontSize="12" FontAttributes="Italic" />
+                            <Button Text="Capturer métriques" Clicked="OnCaptureMetricsClicked" />
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- Crash Triage -->
+                    <Border Padding="12" Background="{DynamicResource MotoSubtleBackground}"
+                            Stroke="{DynamicResource MotoCardBorder}" StrokeThickness="1">
+                        <Border.StrokeShape><RoundRectangle CornerRadius="8" /></Border.StrokeShape>
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="💥 Crash Triage" FontSize="14" FontAttributes="Bold" />
+                            <Label x:Name="CrashCountLabel" Text="Groupes de crash : —" FontSize="12" />
+                            <Label x:Name="CrashHintLabel" Text="" FontSize="11" Opacity="0.7" />
+                        </VerticalStackLayout>
+                    </Border>
+
+                    <!-- Feature Flags -->
+                    <Border Padding="12" Background="{DynamicResource MotoSubtleBackground}"
+                            Stroke="{DynamicResource MotoCardBorder}" StrokeThickness="1">
+                        <Border.StrokeShape><RoundRectangle CornerRadius="8" /></Border.StrokeShape>
+                        <VerticalStackLayout Spacing="6">
+                            <Label Text="🚩 Feature Flags" FontSize="14" FontAttributes="Bold" />
+                            <CollectionView x:Name="FlagsList">
+                                <CollectionView.ItemTemplate>
+                                    <DataTemplate>
+                                        <Grid ColumnDefinitions="*,Auto" Padding="2">
+                                            <Label Text="{Binding Name}" FontSize="12" VerticalOptions="Center" />
+                                            <Switch Grid.Column="1" IsToggled="{Binding IsEnabled}"
+                                                    Toggled="OnFlagToggled" />
+                                        </Grid>
+                                    </DataTemplate>
+                                </CollectionView.ItemTemplate>
+                            </CollectionView>
+                        </VerticalStackLayout>
+                    </Border>
+                </VerticalStackLayout>
+            </ScrollView>
+        </Grid>
+    </Border>
+</ContentView>

@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Moto.Editor.Views.SnippetCreatorView"
+             IsVisible="False"
+             BackgroundColor="{StaticResource BgPanel}"
+             WidthRequest="700">
+    <Grid RowDefinitions="Auto,Auto,*,Auto" Padding="16" RowSpacing="12">
+
+        <!-- Header -->
+        <Grid ColumnDefinitions="*,Auto">
+            <Label Text="✂️ Créateur de Snippets" FontSize="18" FontAttributes="Bold"
+                   TextColor="{StaticResource Txt1}"/>
+            <Button Grid.Column="1" Text="✕" WidthRequest="30" HeightRequest="30"
+                    BackgroundColor="Transparent" TextColor="{StaticResource Txt2}"
+                    Clicked="OnCloseClicked"/>
+        </Grid>
+
+        <!-- Formulaire -->
+        <Grid Grid.Row="1" ColumnDefinitions="*,*" ColumnSpacing="12">
+            <VerticalStackLayout Spacing="8">
+                <Label Text="Trigger (ex: 'prop')" FontSize="12" TextColor="{StaticResource Txt2}"/>
+                <Entry x:Name="TriggerEntry" Placeholder="prop"
+                       BackgroundColor="{StaticResource BgSide}" TextColor="{StaticResource Txt1}"
+                       TextChanged="OnTriggerChanged"/>
+
+                <Label Text="Langage" FontSize="12" TextColor="{StaticResource Txt2}"/>
+                <Picker x:Name="LanguagePicker" BackgroundColor="{StaticResource BgSide}"
+                        TextColor="{StaticResource Txt1}">
+                    <Picker.Items>
+                        <x:String>csharp</x:String>
+                        <x:String>python</x:String>
+                        <x:String>javascript</x:String>
+                        <x:String>typescript</x:String>
+                    </Picker.Items>
+                </Picker>
+
+                <Label Text="Description" FontSize="12" TextColor="{StaticResource Txt2}"/>
+                <Entry x:Name="DescriptionEntry" Placeholder="Property with backing field"
+                       BackgroundColor="{StaticResource BgSide}" TextColor="{StaticResource Txt1}"/>
+            </VerticalStackLayout>
+
+            <VerticalStackLayout Spacing="8">
+                <Label Text="Tags (séparés par virgule)" FontSize="12" TextColor="{StaticResource Txt2}"/>
+                <Entry x:Name="TagsEntry" Placeholder="property, class"
+                       BackgroundColor="{StaticResource BgSide}" TextColor="{StaticResource Txt1}"/>
+            </VerticalStackLayout>
+        </Grid>
+
+        <!-- Corps + Preview -->
+        <Grid Grid.Row="2" ColumnDefinitions="*,*" ColumnSpacing="12">
+            <!-- Corps du snippet -->
+            <VerticalStackLayout Spacing="4">
+                <Label Text="Corps du snippet (avec ${variables})" FontSize="12"
+                       TextColor="{StaticResource Txt2}"/>
+                <Editor x:Name="BodyEditor" HeightRequest="200"
+                        BackgroundColor="{StaticResource BgSide}" TextColor="{StaticResource Txt1}"
+                        FontFamily="Monospace" FontSize="12"
+                        TextChanged="OnBodyChanged"/>
+
+                <!-- Variables détectées -->
+                <VerticalStackLayout x:Name="VariablesContainer" Spacing="4" Margin="0,8,0,0"/>
+            </VerticalStackLayout>
+
+            <!-- Preview live -->
+            <VerticalStackLayout Spacing="4">
+                <Label Text="👁️ Preview Live" FontSize="12" FontAttributes="Bold"
+                       TextColor="{StaticResource Accent}"/>
+                <Editor x:Name="PreviewEditor" HeightRequest="200" IsReadOnly="True"
+                        BackgroundColor="{StaticResource BgSide}" TextColor="{StaticResource Txt1}"
+                        FontFamily="Monospace" FontSize="12"/>
+            </VerticalStackLayout>
+        </Grid>
+
+        <!-- Actions -->
+        <HorizontalStackLayout Grid.Row="3" Spacing="8" HorizontalOptions="End">
+            <Button Text="🔄 Nouveau" BackgroundColor="{StaticResource BgSide}"
+                    TextColor="{StaticResource Txt1}" Clicked="OnNewClicked"/>
+            <Button Text="💾 Sauvegarder" BackgroundColor="{StaticResource Accent}"
+                    TextColor="White" Clicked="OnSaveClicked"/>
+            <Button Text="📤 Partager" BackgroundColor="{StaticResource BgSide}"
+                    TextColor="{StaticResource Txt1}" Clicked="OnShareClicked"/>
+        </HorizontalStackLayout>
+    </Grid>
+</ContentView>

@@ -1,0 +1,203 @@
+{
+  "$schema": "https://moto-editor.dev/schemas/dashboard-template-v1.json",
+  "version": "1.0",
+  "description": "Template de monitoring pour la période d'essai MOTO Editor",
+
+  "metrics": {
+    "performance": [
+      {
+        "id": "acceptance_rate",
+        "name": "Acceptance Rate",
+        "description": "Taux d'acceptation des tokens spéculatifs",
+        "unit": "%",
+        "type": "gauge",
+        "thresholds": {
+          "warning": 60,
+          "critical": 40
+        },
+        "alert": {
+          "condition": "acceptance_rate < 60 for 5m",
+          "message": "Acceptance rate trop faible - vérifiez le modèle draft"
+        }
+      },
+      {
+        "id": "tokens_per_second",
+        "name": "Tokens/s",
+        "description": "Débit d'inférence",
+        "unit": "tokens/s",
+        "type": "gauge",
+        "thresholds": {
+          "lite": { "min": 15, "target": 25 },
+          "standard": { "min": 8, "target": 15 },
+          "full": { "min": 3, "target": 8 }
+        }
+      },
+      {
+        "id": "latency_ms",
+        "name": "Latence",
+        "description": "Latence de la première réponse",
+        "unit": "ms",
+        "type": "histogram",
+        "percentiles": [50, 95, 99],
+        "thresholds": {
+          "p50": 200,
+          "p95": 800,
+          "p99": 2000
+        }
+      }
+    ],
+    "resources": [
+      {
+        "id": "active_memory_mb",
+        "name": "RAM Active",
+        "description": "Mémoire utilisée par le modèle",
+        "unit": "MB",
+        "type": "gauge",
+        "thresholds": {
+          "lite": 512,
+          "standard": 2048,
+          "full": 8192
+        },
+        "alert": {
+          "condition": "active_memory_mb > threshold * 0.9 for 2m",
+          "message": "Mémoire proche du seuil - risque OOM"
+        }
+      },
+      {
+        "id": "loaded_layers",
+        "name": "Couches chargées",
+        "description": "Nombre de couches du modèle en mémoire",
+        "unit": "",
+        "type": "counter"
+      },
+      {
+        "id": "thermal_temp",
+        "name": "Température",
+        "description": "Température CPU/GPU",
+        "unit": "°C",
+        "type": "gauge",
+        "thresholds": {
+          "warning": 80,
+          "critical": 90
+        },
+        "alert": {
+          "condition": "thermal_temp > 85 for 1m",
+          "message": "Température élevée - bascule tier Lite"
+        }
+      }
+    ],
+    "reliability": [
+      {
+        "id": "watchdog_state",
+        "name": "État Watchdog",
+        "description": "État du circuit breaker",
+        "type": "state",
+        "states": ["Closed", "HalfOpen", "CircuitOpen"],
+        "alert": {
+          "condition": "watchdog_state == 'CircuitOpen'",
+          "message": "Circuit breaker ouvert - 3 échecs consécutifs",
+          "action": "show_send_logs_button"
+        }
+      },
+      {
+        "id": "fallback_count",
+        "name": "Fallbacks",
+        "description": "Nombre de basculements Ollama → Embarqué",
+        "unit": "",
+        "type": "counter",
+        "alert": {
+          "condition": "fallback_count > 10 in 1h",
+          "message": "Fallbacks fréquents - vérifiez Ollama"
+        }
+      },
+      {
+        "id": "oom_count",
+        "name": "OOM",
+        "description": "Nombre d'erreurs Out Of Memory",
+        "unit": "",
+        "type": "counter",
+        "alert": {
+          "condition": "oom_count > 0",
+          "message": "OOM détecté - activez le mode éco",
+          "severity": "critical"
+        }
+      }
+    ]
+  },
+
+  "panels": {
+    "layout": "grid",
+    "columns": 3,
+    "items": [
+      {
+        "title": "🧠 Performance IA",
+        "type": "timeseries",
+        "metrics": ["tokens_per_second", "acceptance_rate"],
+        "span": 2
+      },
+      {
+        "title": "🌡️ Température",
+        "type": "gauge",
+        "metrics": ["thermal_temp"],
+        "span": 1
+      },
+      {
+        "title": "💾 Mémoire",
+        "type": "timeseries",
+        "metrics": ["active_memory_mb"],
+        "span": 2
+      },
+      {
+        "title": "🛡️ Watchdog",
+        "type": "stat",
+        "metrics": ["watchdog_state"],
+        "span": 1
+      },
+      {
+        "title": "📊 Latence (p95)",
+        "type": "histogram",
+        "metrics": ["latency_ms"],
+        "span": 3
+      }
+    ]
+  },
+
+  "alerts": {
+    "channels": ["toast", "log", "statusbar"],
+    "rules": [
+      {
+        "name": "OOM Detected",
+        "condition": "oom_count > 0",
+        "severity": "critical",
+        "actions": ["toast", "log", "enable_eco_mode"]
+      },
+      {
+        "name": "Circuit Breaker Open",
+        "condition": "watchdog_state == 'CircuitOpen'",
+        "severity": "critical",
+        "actions": ["toast", "log", "show_send_logs_button"]
+      },
+      {
+        "name": "Low Acceptance Rate",
+        "condition": "acceptance_rate < 60 for 5m",
+        "severity": "warning",
+        "actions": ["toast", "log"]
+      },
+      {
+        "name": "Thermal Throttling",
+        "condition": "thermal_temp > 85 for 1m",
+        "severity": "warning",
+        "actions": ["toast", "log", "switch_to_lite_tier"]
+      }
+    ]
+  },
+
+  "export": {
+    "formats": ["json", "csv", "prometheus"],
+    "prometheus": {
+      "endpoint": "/metrics",
+      "port": 9090,
+      "labels": ["tier", "model", "provider"]
+    }
+  }
+}

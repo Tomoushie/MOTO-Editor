@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Moto.Editor.Views.WhiteboardView">
+
+    <Border Background="{DynamicResource MotoCardBackground}"
+            Stroke="{DynamicResource MotoCardBorder}" StrokeThickness="1" Padding="12">
+        <Border.StrokeShape><RoundRectangle CornerRadius="12" /></Border.StrokeShape>
+
+        <Grid RowDefinitions="Auto,*" RowSpacing="8">
+            <Grid Grid.Row="0" ColumnDefinitions="Auto,Auto,Auto,Auto,*">
+                <Button Text="▭ Rect"    Clicked="OnAddRect" />
+                <Button Grid.Column="1" Text="◯ Ellipse" Clicked="OnAddEllipse" />
+                <Button Grid.Column="2" Text="→ Flèche"  Clicked="OnAddArrow" />
+                <Button Grid.Column="3" Text="🗑 Effacer" Clicked="OnClear" />
+                <Label Grid.Column="4" Text="Tableau blanc d'architecture"
+                       HorizontalOptions="End" VerticalOptions="Center" Opacity="0.6" FontSize="12"/>
+            </Grid>
+
+            <!-- Rendu vectoriel multiplateforme -->
+            <GraphicsView Grid.Row="1" x:Name="Board" HeightRequest="360"
+                          Background="{DynamicResource MotoCanvasBackground}" />
+        </Grid>
+    </Border>
+</ContentView>

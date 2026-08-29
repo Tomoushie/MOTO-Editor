@@ -1,0 +1,40 @@
+<!-- Moto.Editor/Views/AiCommandBarView.xaml -->
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Moto.Editor.Views.AiCommandBarView">
+
+    <!-- Barre IA flottante, style Claude / Zen -->
+    <Border StrokeShape="RoundRectangle 24"
+            Stroke="#3A3B40"
+            BackgroundColor="#202126"
+            Padding="14,8"
+            WidthRequest="560"
+            Shadow="4,4,12,0.4">
+
+        <Grid ColumnDefinitions="Auto,*,Auto">
+
+            <Label Grid.Column="0"
+                   Text="✦"
+                   FontSize="18"
+                   VerticalOptions="Center"
+                   Margin="0,0,8,0" />
+
+            <Entry Grid.Column="1"
+                   x:Name="InputEntry"
+                   Placeholder="Comment puis-je vous aider aujourd'hui ?"
+                   BackgroundColor="Transparent"
+                   FontSize="14"
+                   Completed="OnSubmitted" />
+
+            <Button Grid.Column="2"
+                    Text="➤"
+                    BackgroundColor="Transparent"
+                    Clicked="OnSubmitted"
+                    Padding="8,4" />
+
+        </Grid>
+
+    </Border>
+
+</ContentView>

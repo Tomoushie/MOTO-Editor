@@ -1,0 +1,37 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "Tom NOWAK",
+  "classifications": ["MOTO", "Plugin", "Library"],
+  "identity": "Moto.Plugin.Template",
+  "name": "MOTO Editor Plugin",
+  "shortName": "motoplugin",
+  "tags": {
+    "language": "C#",
+    "type": "project"
+  },
+  "sourceName": "MotoPluginTemplate",
+  "preferNameDirectory": true,
+  "symbols": {
+    "PluginName": {
+      "type": "parameter",
+      "datatype": "text",
+      "description": "Nom du plugin",
+      "defaultValue": "MyPlugin",
+      "replaces": "MotoPluginTemplate"
+    },
+    "Author": {
+      "type": "parameter",
+      "datatype": "text",
+      "description": "Auteur du plugin",
+      "defaultValue": "Your Name",
+      "replaces": "PLUGIN_AUTHOR"
+    },
+    "Description": {
+      "type": "parameter",
+      "datatype": "text",
+      "description": "Description du plugin",
+      "defaultValue": "A MOTO Editor plugin",
+      "replaces": "PLUGIN_DESCRIPTION"
+    }
+  }
+}

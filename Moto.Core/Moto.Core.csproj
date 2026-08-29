@@ -1,0 +1,4 @@
+<!-- Ajouter dans Moto.Core/Moto.Core.csproj -->
+<ItemGroup>
+  <PackageReference Include="NSec.Cryptography" Version="22.4.0" />
+</ItemGroup>

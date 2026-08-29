@@ -1,0 +1,38 @@
+<!-- Moto.Editor/Views/CollabView.xaml -->
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Moto.Editor.Views.CollabView"
+             BackgroundColor="#17181C">
+
+    <Border StrokeShape="RoundRectangle 12" Stroke="#3A3B40"
+            BackgroundColor="#1A1B1F" WidthRequest="380" Padding="14">
+
+        <VerticalStackLayout Spacing="8">
+
+            <Label Text="👥 Co-working temps réel" FontAttributes="Bold" />
+
+            <Entry x:Name="NameEntry" Placeholder="Ton nom" FontSize="12" />
+            <Entry x:Name="HostEntry" Placeholder="Serveur (hôte:port)"
+                   Text="localhost:8888" FontSize="12" />
+
+            <Button Text="Rejoindre la session" Clicked="OnJoinClicked" />
+
+            <Label x:Name="PeersLabel" FontSize="11" Opacity="0.7" />
+
+            <Entry x:Name="ChatEntry" Placeholder="Message à l'équipe"
+                   FontSize="11" Completed="OnChatSend" />
+
+            <CollectionView x:Name="ChatList" HeightRequest="120">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Label Text="{Binding}" FontSize="10" Padding="2" />
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+        </VerticalStackLayout>
+
+    </Border>
+
+</ContentView>

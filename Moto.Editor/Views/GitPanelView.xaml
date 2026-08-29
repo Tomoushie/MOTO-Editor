@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Moto.Editor.Views.GitPanelView">
+
+    <Border Background="{DynamicResource MotoCardBackground}"
+            Stroke="{DynamicResource MotoCardBorder}" StrokeThickness="1" Padding="14">
+        <Border.StrokeShape><RoundRectangle CornerRadius="12" /></Border.StrokeShape>
+
+        <Grid RowDefinitions="Auto,Auto,*,Auto" RowSpacing="10">
+
+            <!-- En-tête : branche + actions rapides -->
+            <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto,Auto">
+                <Label Text="🔀" FontSize="18" VerticalOptions="Center" />
+                <Label Grid.Column="1" x:Name="BranchLabel" Text="branche : —"
+                       FontSize="14" FontAttributes="Bold" VerticalOptions="Center" Margin="8,0" />
+                <Button Grid.Column="2" Text="⟳ Fetch" Clicked="OnFetchClicked" FontSize="12" Padding="8,4" />
+                <Button Grid.Column="3" Text="⬇ Pull" Clicked="OnPullClicked" FontSize="12" Padding="8,4" Margin="6,0,0,0" />
+            </Grid>
+
+            <!-- Message de commit + bouton -->
+            <Grid Grid.Row="1" ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                <Entry Grid.Column="0" x:Name="CommitMessageEntry"
+                       Placeholder="Message de commit…" />
+                <Button Grid.Column="1" Text="✔ Commit" Clicked="OnCommitClicked" />
+            </Grid>
+
+            <!-- Listes staged / unstaged / untracked -->
+            <ScrollView Grid.Row="2">
+                <VerticalStackLayout Spacing="8">
+
+                    <Label Text="📌 Staged" FontSize="12" FontAttributes="Bold" Opacity="0.7" />
+                    <CollectionView x:Name="StagedList" HeightRequest="80">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <Grid ColumnDefinitions="*,Auto" Padding="4">
+                                    <Label Text="{Binding}" FontSize="12" />
+                                    <Button Grid.Column="1" Text="−" FontSize="11" Padding="6,0"
+                                            Clicked="OnUnstageClicked" CommandParameter="{Binding}" />
+                                </Grid>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+
+                    <Label Text="✏️ Unstaged" FontSize="12" FontAttributes="Bold" Opacity="0.7" />
+                    <CollectionView x:Name="UnstagedList" HeightRequest="80">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <Grid ColumnDefinitions="*,Auto" Padding="4">
+                                    <Label Text="{Binding}" FontSize="12" />
+                                    <Button Grid.Column="1" Text="+" FontSize="11" Padding="6,0"
+                                            Clicked="OnStageClicked" CommandParameter="{Binding}" />
+                                </Grid>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+
+                    <Label Text="❓ Untracked" FontSize="12" FontAttributes="Bold" Opacity="0.7" />
+                    <CollectionView x:Name="UntrackedList" HeightRequest="60">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <Grid ColumnDefinitions="*,Auto" Padding="4">
+                                    <Label Text="{Binding}" FontSize="12" />
+                                    <Button Grid.Column="1" Text="+" FontSize="11" Padding="6,0"
+                                            Clicked="OnStageClicked" CommandParameter="{Binding}" />
+                                </Grid>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+            </ScrollView>
+
+            <!-- Barre d'actions secondaires + statut -->
+            <Grid Grid.Row="3" ColumnDefinitions="Auto,Auto,Auto,*" ColumnSpacing="6">
+                <Button Text="⬆ Push" Clicked="OnPushClicked" FontSize="12" Padding="8,4" />
+                <Button Grid.Column="1" Text="🌿 Branches" Clicked="OnBranchesClicked" FontSize="12" Padding="8,4" />
+                <Button Grid.Column="2" Text="📜 Log" Clicked="OnLogClicked" FontSize="12" Padding="8,4" />
+                <Label Grid.Column="3" x:Name="StatusLabel" Text="Prêt"
+                       FontSize="11" Opacity="0.6" HorizontalOptions="End" VerticalOptions="Center" />
+            </Grid>
+        </Grid>
+    </Border>
+</ContentView>

@@ -1,0 +1,65 @@
+<!-- Moto.Editor/Views/BeginnerModesView.xaml -->
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Moto.Editor.Views.BeginnerModesView"
+             BackgroundColor="#17181C">
+
+    <Grid RowDefinitions="Auto,*" Padding="6">
+
+        <!-- Sélecteur de mode -->
+        <HorizontalStackLayout Grid.Row="0" Spacing="4">
+            <Button Text="Normal"  x:Name="BtnNormal"  Clicked="OnModeClicked" FontSize="10" Padding="8,3" />
+            <Button Text="📖 Explain" x:Name="BtnExplain" Clicked="OnModeClicked" FontSize="10" Padding="8,3" />
+            <Button Text="🎓 Tutor" x:Name="BtnTutor" Clicked="OnModeClicked" FontSize="10" Padding="8,3" />
+            <Button Text="🚫 No Code" x:Name="BtnNoCode" Clicked="OnModeClicked" FontSize="10" Padding="8,3" />
+            <Button Text="🤝 Pair" x:Name="BtnPair" Clicked="OnModeClicked" FontSize="10" Padding="8,3" />
+        </HorizontalStackLayout>
+
+        <ScrollView Grid.Row="1">
+
+            <VerticalStackLayout Spacing="8" Padding="0,6">
+
+                <!-- Explain Everything -->
+                <VerticalStackLayout x:Name="ExplainPanel" IsVisible="False" Spacing="6">
+                    <Label x:Name="ExplainFileLabel" FontAttributes="Bold" FontSize="13" />
+                    <Label x:Name="ExplainSummaryLabel" FontSize="12" Opacity="0.8" />
+                    <Label Text="— Lignes —" FontSize="11" Opacity="0.5" />
+                    <Label x:Name="ExplainLinesLabel" FontSize="11" FontFamily="Consolas" />
+                    <Label Text="— Erreurs / Systèmes / Dépendances —" FontSize="11" Opacity="0.5" />
+                    <Label x:Name="ExplainExtraLabel" FontSize="11" />
+                </VerticalStackLayout>
+
+                <!-- AI Tutor -->
+                <VerticalStackLayout x:Name="TutorPanel" IsVisible="False" Spacing="6">
+                    <Label x:Name="TutorScoreLabel" FontSize="11" Opacity="0.7" />
+                    <Label x:Name="TutorMessageLabel" FontSize="13" FontAttributes="Bold" />
+                    <Entry x:Name="TutorAnswerEntry" Placeholder="Ta réponse…" FontSize="12"
+                           Completed="OnTutorAnswer" />
+                    <Button Text="Question suivante" FontSize="11" Padding="8,3"
+                            Clicked="OnTutorNext" />
+                </VerticalStackLayout>
+
+                <!-- No Code -->
+                <VerticalStackLayout x:Name="NoCodePanel" IsVisible="False" Spacing="6">
+                    <Label Text="Décris ton projet, je fais tout :" FontSize="12" />
+                    <Editor x:Name="NoCodeInput" HeightRequest="70" FontSize="12"
+                            Placeholder="Ex : un jeu de serpent comme sur Nokia 3310" />
+                    <Button Text="✨ Générer mon projet" FontSize="12" Clicked="OnNoCodeRun" />
+                    <Label x:Name="NoCodeStepsLabel" FontSize="11" FontFamily="Consolas" />
+                    <Label x:Name="NoCodeResultLabel" FontSize="12" FontAttributes="Bold" />
+                </VerticalStackLayout>
+
+                <!-- Pair Programming -->
+                <VerticalStackLayout x:Name="PairPanel" IsVisible="False" Spacing="6">
+                    <Label Text="🤝 Copilot local actif." FontSize="12" FontAttributes="Bold" />
+                    <Label Text="Écris ton code : je propose la suite en gris. Appuie sur Tab pour accepter." FontSize="11" Opacity="0.7" />
+                </VerticalStackLayout>
+
+            </VerticalStackLayout>
+
+        </ScrollView>
+
+    </Grid>
+
+</ContentView>

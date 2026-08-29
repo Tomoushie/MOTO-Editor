@@ -1,0 +1,19 @@
+Moto.Installer/
+├── Moto.Installer.csproj
+├── Program.cs          ← flux principal
+├── Ui.cs               ← affichage console
+├── Platform.cs         ← détection OS + raccourcis + désinstallation
+└── payload.zip         ← généré par le script de build (embarqué)
+scripts/
+└── build-installer.ps1
+
+⚠️ Limites à connaître (transparence)
+
+SmartScreen:
+Un EXE inconnu/non signé déclenche un avertissement. Solution : signature de code (certificat) ou réputation à terme. Inno ne résout pas ça non plus.
+
+Cas tordus:
+Fichiers verrouillés, reboot pending, rollback : Inno les gère ; votre installateur gère le cas courant (per-user → beaucoup moins de verrous).
+
+Déploiement entreprise (MSI/GPO):
+Si besoin un jour, garder Inno/MSIX en parallèle. Le fait-maison couvre 95 % des utilisateurs individuels.

@@ -1,0 +1,59 @@
+<!-- Moto.Editor/Views/AIWorkspaceView.xaml -->
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Moto.Editor.Views.AIWorkspaceView"
+             BackgroundColor="#17181C">
+
+    <Border StrokeShape="RoundRectangle 12" Stroke="#3A3B40"
+            BackgroundColor="#1A1B1F" WidthRequest="480" Padding="14">
+
+        <Grid RowDefinitions="Auto,Auto,*,Auto" RowSpacing="8">
+
+            <Label Grid.Row="0" Text="🏗 MOTO AI Workspace"
+                   FontAttributes="Bold" FontSize="14" />
+
+            <Grid Grid.Row="1" ColumnDefinitions="*,Auto" ColumnSpacing="6">
+                <Label Grid.Column="0" x:Name="SummaryLabel"
+                       Text="Workspace IA — analyse en cours…"
+                       FontSize="11" Opacity="0.7" VerticalOptions="Center" />
+                <Button Grid.Column="1" Text="🔄 Ré-analyser"
+                        FontSize="10" Padding="8,2"
+                        Clicked="OnReanalyzeClicked" />
+            </Grid>
+
+            <CollectionView Grid.Row="2" x:Name="SuggestionsList" HeightRequest="320">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Border StrokeShape="RoundRectangle 8" BackgroundColor="#202126"
+                                Padding="10" Margin="0,4">
+                            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
+                                <Label Grid.Column="0" Text="{Binding Kind}"
+                                       FontSize="16" VerticalOptions="Center" />
+                                <VerticalStackLayout Grid.Column="1">
+                                    <Label Text="{Binding Title}"
+                                           FontSize="12" FontAttributes="Bold" />
+                                    <Label Text="{Binding Description}"
+                                           FontSize="10" Opacity="0.7" />
+                                    <Label Text="{Binding FilePath}"
+                                           FontSize="9" Opacity="0.5"
+                                           FontFamily="Consolas" />
+                                </VerticalStackLayout>
+                                <Button Grid.Column="2" Text="Apply"
+                                        FontSize="10" Padding="8,2"
+                                        Clicked="OnApplyClicked" />
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <Label Grid.Row="3" x:Name="StatusFooter"
+                   Text="💡 Le workspace IA apprend en continu pendant que tu codes."
+                   FontSize="10" Opacity="0.6" FontAttributes="Italic" />
+
+        </Grid>
+
+    </Border>
+
+</ContentView>

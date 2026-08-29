@@ -1,0 +1,50 @@
+<!-- Moto.Editor/Views/PerformanceView.xaml -->
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Moto.Editor.Views.PerformanceView"
+             BackgroundColor="#17181C">
+
+    <Border StrokeShape="RoundRectangle 12" Stroke="#3A3B40"
+            BackgroundColor="#1A1B1F" WidthRequest="460" Padding="14">
+
+        <Grid RowDefinitions="Auto,Auto,Auto,*" Padding="0" RowSpacing="10">
+
+            <Label Grid.Row="0" Text="⚡ MOTO Performance Engine"
+                   FontAttributes="Bold" FontSize="14" />
+
+            <!-- 4 modes -->
+            <Grid Grid.Row="1" ColumnDefinitions="*,*,*,*" ColumnSpacing="6">
+                <Button Grid.Column="0" x:Name="BtnEco" Text="🌱 Eco"
+                        FontSize="11" Padding="6,6" Clicked="OnModeClicked" />
+                <Button Grid.Column="1" x:Name="BtnBalanced" Text="⚖️ Balanced"
+                        FontSize="11" Padding="6,6" Clicked="OnModeClicked" />
+                <Button Grid.Column="2" x:Name="BtnTurbo" Text="🚀 Turbo"
+                        FontSize="11" Padding="6,6" Clicked="OnModeClicked" />
+                <Button Grid.Column="3" x:Name="BtnUltra" Text="⚡ Ultra"
+                        FontSize="11" Padding="6,6" Clicked="OnModeClicked" />
+            </Grid>
+
+            <!-- Preset débutant -->
+            <Border Grid.Row="2" StrokeShape="RoundRectangle 8"
+                    BackgroundColor="#202126" Padding="10">
+                <Grid ColumnDefinitions="*,Auto">
+                    <Label Grid.Column="0"
+                           Text="🤖 « MOTO fait tout pour moi » (Ultra : analyse continue, auto-linking, doc auto, refactor auto)"
+                           FontSize="11" VerticalOptions="Center" />
+                    <Switch Grid.Column="1" x:Name="FullAutoSwitch"
+                            Toggled="OnFullAutoToggled" />
+                </Grid>
+            </Border>
+
+            <!-- Détails du profil actuel -->
+            <ScrollView Grid.Row="3">
+                <Label x:Name="ProfileLabel" FontSize="11" FontFamily="Consolas"
+                       Opacity="0.85" />
+            </ScrollView>
+
+        </Grid>
+
+    </Border>
+
+</ContentView>

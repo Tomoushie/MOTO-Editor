@@ -1,0 +1,24 @@
+{
+  "name": "MOTO Editor Workspace",
+  "root": "../",
+  "projects": {
+    "editor": "Moto.Editor/",
+    "core": "Moto.Core/",
+    "engine": "Snake2000.Engine/",
+    "installer": "Moto.Installer/",
+    "signtool": "Moto.SignTool/",
+    "shared": "Shared/"
+  },
+  "paths": {
+    "docs": "Docs/",
+    "scripts": "scripts/",
+    "dist": "dist/",
+    "payload": "dist/payload/",
+    "updates": "dist/updates/"
+  },
+  "notes": [
+    "Workspace optimisé pour Claude Code.",
+    "Les projets sont clairement séparés par rôle.",
+    "Shared/ contient la logique commune (PayloadExtractor, Ed25519, etc.)."
+  ]
+}

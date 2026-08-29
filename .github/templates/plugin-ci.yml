@@ -1,0 +1,43 @@
+# Template GitHub Actions standard pour auteurs de plugins MOTO.
+# Couvre : build, test, signature.
+name: Plugin CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-test-sign:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Restore
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build -c Release --no-restore
+
+      - name: Test
+        run: dotnet test -c Release --no-build --logger "trx"
+
+      - name: Sign plugin
+        run: |
+          # Signature avec la clé fournie via secret
+          echo "Signing plugin with key..."
+          # dotnet run --project Moto.SignTool -- sign ./bin/Release/MyPlugin.dll
+        env:
+          SIGNING_KEY: ${{ secrets.PLUGIN_SIGNING_KEY }}
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: plugin-signed
+          path: ./bin/Release/

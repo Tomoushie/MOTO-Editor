@@ -1,0 +1,125 @@
+<!-- Moto.Editor/Controls/EditorPaneView.xaml (v6 — bouton Export ajouté) -->
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:Moto.Editor.Controls"
+             x:Class="Moto.Editor.Controls.EditorPaneView"
+             BackgroundColor="#1E2025">
+
+    <Grid RowDefinitions="Auto,Auto,Auto,*">
+
+        <!-- ============================================================ -->
+        <!-- Ligne 1 : Toolbar (flèches ← →, export, onglets, actions)    -->
+        <!-- ============================================================ -->
+        <Grid Grid.Row="0"
+              ColumnDefinitions="Auto,Auto,Auto,*,Auto,Auto,Auto"
+              BackgroundColor="#17181C" Padding="6,4" ColumnSpacing="4">
+
+            <!-- Navigation historique -->
+            <Button Grid.Column="0" Text="←" Padding="8,2" FontSize="12"
+                    ToolTipProperties.Text="Fichier précédent"
+                    Clicked="OnBackClicked" />
+
+            <Button Grid.Column="1" Text="→" Padding="8,2" FontSize="12"
+                    ToolTipProperties.Text="Fichier suivant"
+                    Clicked="OnForwardClicked" />
+
+            <!-- ★ NOUVEAU : bouton Export -->
+            <Button Grid.Column="2" Text="⬇" Padding="8,2" FontSize="12"
+                    ToolTipProperties.Text="Exporter (txt, md, html, pdf, docx, odt, rtf...)"
+                    Clicked="OnExportClicked" />
+
+            <!-- Onglets (nom + badge d'erreurs) -->
+            <CollectionView Grid.Column="3" x:Name="TabsList"
+                            SelectionMode="Single" HeightRequest="34"
+                            SelectionChanged="OnTabSelected">
+                <CollectionView.ItemsLayout>
+                    <LinearItemsLayout Orientation="Horizontal" ItemSpacing="5" />
+                </CollectionView.ItemsLayout>
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Border StrokeShape="RoundRectangle 8" BackgroundColor="#202126"
+                                Padding="10,5">
+                            <HorizontalStackLayout Spacing="6">
+                                <Label Text="{Binding Title}" FontSize="12" VerticalOptions="Center" />
+                                <Label Text="{Binding ErrorBadge}" TextColor="OrangeRed"
+                                       FontSize="11" IsVisible="{Binding HasErrors}"
+                                       VerticalOptions="Center" />
+                            </HorizontalStackLayout>
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+
+            <!-- Actions : split / plein écran / IA -->
+            <Button Grid.Column="4" Text="⧉" Padding="8,2" FontSize="12"
+                    ToolTipProperties.Text="Partager l'écran"
+                    Clicked="OnSplitClicked" />
+
+            <Button Grid.Column="5" Text="⛶" Padding="8,2" FontSize="12"
+                    ToolTipProperties.Text="Agrandir la zone (plein écran)"
+                    Clicked="OnMaximizeClicked" />
+
+            <Button Grid.Column="6" Text="🤖" Padding="8,2" FontSize="12"
+                    ToolTipProperties.Text="Bandeau IA (modèle + prompts)"
+                    Clicked="OnAiClicked" />
+
+        </Grid>
+
+        <!-- ============================================================ -->
+        <!-- Ligne 2 : Breadcrumb (localisation du fichier)               -->
+        <!-- ============================================================ -->
+        <Border Grid.Row="1" StrokeShape="RoundRectangle 6" BackgroundColor="#202126"
+                Padding="10,6" Margin="6,4">
+            <Grid ColumnDefinitions="*,Auto">
+                <Label Grid.Column="0" x:Name="CrumbLabel"
+                       Text="Aucun fichier ouvert" FontSize="12" Opacity="0.8" />
+                <Button Grid.Column="1" Text="Open File  Alt-Enter"
+                        FontSize="10" Padding="8,2"
+                        Clicked="OnOpenFileClicked" />
+            </Grid>
+        </Border>
+
+        <!-- ============================================================ -->
+        <!-- Ligne 3 : Bandeau IA (modèle + prompts, modifie en direct)   -->
+        <!-- ============================================================ -->
+        <Border Grid.Row="2" x:Name="AiBand" IsVisible="False"
+                StrokeShape="RoundRectangle 8" BackgroundColor="#1A1B1F"
+                Stroke="#3A3B40" Padding="8" Margin="6,0,6,4">
+            <Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto" ColumnSpacing="6">
+
+                <Picker Grid.Row="0" Grid.Column="0" x:Name="ModelPicker"
+                        WidthRequest="190" FontSize="11">
+                    <Picker.ItemsSource>
+                        <x:Array Type="{x:Type x:String}">
+                            <x:String>MOTO interne</x:String>
+                            <x:String>Ollama (qwen2.5-coder:7b)</x:String>
+                            <x:String>OpenAI</x:String>
+                            <x:String>Anthropic</x:String>
+                            <x:String>Mistral</x:String>
+                        </x:Array>
+                    </Picker.ItemsSource>
+                </Picker>
+
+                <Entry Grid.Row="0" Grid.Column="1" x:Name="PromptEntry"
+                       Placeholder="Demande à l'IA de modifier le code… (Entrée pour envoyer)"
+                       FontSize="12" BackgroundColor="Transparent"
+                       Completed="OnAiSendClicked" />
+
+                <Button Grid.Row="0" Grid.Column="2" Text="➤" Padding="10,2"
+                        Clicked="OnAiSendClicked" />
+
+                <Label Grid.Row="1" Grid.ColumnSpan="3" x:Name="AiStatus"
+                       FontSize="10" Opacity="0.6" />
+
+            </Grid>
+        </Border>
+
+        <!-- ============================================================ -->
+        <!-- Ligne 4 : Éditeur maison (WebView)                           -->
+        <!-- ============================================================ -->
+        <controls:CodeEditorView Grid.Row="3" x:Name="Editor" Margin="6,0,6,6" />
+
+    </Grid>
+
+</ContentView>

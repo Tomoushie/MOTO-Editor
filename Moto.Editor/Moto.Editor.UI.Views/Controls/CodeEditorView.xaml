@@ -1,0 +1,17 @@
+<!-- Controls/CodeEditorView.xaml -->
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Moto.Editor.Controls.CodeEditorView">
+
+    <!--
+        Remplace SyntaxRichTextBox WinForms.
+        MAUI Editor ne supporte pas encore la coloration riche nativement.
+        Pour une coloration complète, passer ensuite à WebView + Monaco.
+    -->
+    <Editor x:Name="Editor"
+            AutoSize="TextChanges"
+            FontFamily="Monospace"
+            TextChanged="Editor_TextChanged" />
+
+</ContentView>

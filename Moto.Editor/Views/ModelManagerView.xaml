@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView
+    x:Class="Moto.Editor.Views.ModelManagerView"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    BackgroundColor="{StaticResource MotoBackgroundColor}">
+
+    <Grid RowDefinitions="Auto, Auto, Auto, *" Padding="16">
+
+        <!-- ═══ En-tête ═══ -->
+        <StackLayout Grid.Row="0" Orientation="Horizontal" Spacing="12" Margin="0,0,0,16">
+            <Label Text="📦" FontSize="28" VerticalOptions="Center" />
+            <StackLayout>
+                <Label Text="Model Manager" FontSize="20" FontAttributes="Bold"
+                       TextColor="{StaticResource MotoAccentColor}" />
+                <Label Text="Sélectionnez le modèle et le tier de performance"
+                       FontSize="12" TextColor="{StaticResource MotoSecondaryTextColor}" />
+            </StackLayout>
+        </StackLayout>
+
+        <!-- ═══ Sélection du modèle ═══ -->
+        <Border Grid.Row="1" BackgroundColor="{StaticResource MotoSurfaceColor}"
+                Padding="16" Margin="0,0,0,16">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="8" />
+            </Border.StrokeShape>
+            <StackLayout Spacing="12">
+                <Label Text="Modèle" FontSize="14" FontAttributes="Bold"
+                       TextColor="{StaticResource MotoTextColor}" />
+                <Picker x:Name="ModelPicker" Title="Choisir un modèle..."
+                        SelectedIndexChanged="OnModelSelected">
+                    <Picker.ItemsSource>
+                        <x:Array Type="{x:Type x:String}">
+                            <x:String>Phi-3 Mini (3.8B, Q4)</x:String>
+                            <x:String>Qwen 2.5 (1.5B, Q4)</x:String>
+                            <x:String>Llama 3.2 (1B, Q4)</x:String>
+                            <x:String>Llama 3.2 (3B, Q4)</x:String>
+                        </x:Array>
+                    </Picker.ItemsSource>
+                </Picker>
+            </StackLayout>
+        </Border>
+
+        <!-- ═══ Sélection du tier ═══ -->
+        <Border Grid.Row="2" BackgroundColor="{StaticResource MotoSurfaceColor}"
+                Padding="16" Margin="0,0,0,16">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="8" />
+            </Border.StrokeShape>
+            <StackLayout Spacing="12">
+                <Label Text="Tier de performance" FontSize="14" FontAttributes="Bold"
+                       TextColor="{StaticResource MotoTextColor}" />
+                <Picker x:Name="TierPicker" Title="Choisir un tier..."
+                        SelectedIndexChanged="OnTierSelected">
+                    <Picker.ItemsSource>
+                        <x:Array Type="{x:Type x:String}">
+                            <x:String>Lite (500M, latence minimale)</x:String>
+                            <x:String>Standard (1.5B, équilibré)</x:String>
+                            <x:String>Full (7B, qualité maximale)</x:String>
+                        </x:Array>
+                    </Picker.ItemsSource>
+                </Picker>
+            </StackLayout>
+        </Border>
+
+        <!-- ═══ Téléchargement ═══ -->
+        <Border Grid.Row="3" BackgroundColor="{StaticResource MotoSurfaceColor}" Padding="16">
+            <Border.StrokeShape>
+                <RoundRectangle CornerRadius="8" />
+            </Border.StrokeShape>
+            <StackLayout Spacing="12">
+                <Label Text="Téléchargement" FontSize="14" FontAttributes="Bold"
+                       TextColor="{StaticResource MotoTextColor}" />
+
+                <!-- Barre de progression -->
+                <ProgressBar x:Name="DownloadProgressBar" Progress="0" HeightRequest="20"
+                             ProgressColor="{StaticResource MotoAccentColor}" />
+                <Label x:Name="DownloadStatusLabel" Text="Prêt à télécharger"
+                       FontSize="12" TextColor="{StaticResource MotoSecondaryTextColor}" />
+
+                <!-- Bouton télécharger -->
+                <Button x:Name="DownloadButton" Text="📥 Télécharger"
+                        BackgroundColor="{StaticResource MotoAccentColor}"
+                        TextColor="White" FontAttributes="Bold"
+                        Clicked="OnDownloadClicked" />
+            </StackLayout>
+        </Border>
+
+    </Grid>
+</ContentView>

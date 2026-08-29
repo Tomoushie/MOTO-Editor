@@ -1,0 +1,34 @@
+<!-- App.xaml -->
+<?xml version="1.0" encoding="UTF-8" ?>
+<Application xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Moto.Editor.App">
+
+    <Application.Resources>
+        <ResourceDictionary>
+
+            <!-- Couleur de fond globale selon le thème -->
+            <Style TargetType="ContentPage">
+                <Setter Property="BackgroundColor"
+                        Value="{AppThemeBinding Dark=#111214, Light=#F7F8FA}" />
+            </Style>
+
+            <!-- Boutons MOTO -->
+            <Style TargetType="Button">
+                <Setter Property="BackgroundColor" Value="#202126" />
+                <Setter Property="TextColor" Value="#E6E8EC" />
+                <Setter Property="CornerRadius" Value="8" />
+                <Setter Property="Padding" Value="10,6" />
+                <Setter Property="Margin" Value="0,0,6,0" />
+            </Style>
+
+            <!-- Labels -->
+            <Style TargetType="Label">
+                <Setter Property="TextColor"
+                        Value="{AppThemeBinding Dark=#E6E8EC, Light=#1A1C20}" />
+            </Style>
+
+        </ResourceDictionary>
+    </Application.Resources>
+
+</Application>

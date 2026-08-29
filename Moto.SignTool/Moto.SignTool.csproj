@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>Moto.SignTool</RootNamespace>
+  </PropertyGroup>
+
+  <!-- Réutilise la crypto partagée (cohérence sign ↔ verify) -->
+  <ItemGroup>
+    <Compile Include="..\Shared\Ed25519.cs"         Link="Shared\Ed25519.cs" />
+    <Compile Include="..\Shared\Sha256Helper.cs"     Link="Shared\Sha256Helper.cs" />
+    <Compile Include="..\Shared\UpdateManifest.cs"   Link="Shared\UpdateManifest.cs" />
+  </ItemGroup>
+</Project>

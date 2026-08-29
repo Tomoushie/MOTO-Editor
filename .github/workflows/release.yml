@@ -1,0 +1,168 @@
+name: Release — Build, Sign & Publish
+
+on:
+  push:
+    tags: [ 'v*' ]                 # release automatique à chaque tag v*
+  workflow_dispatch:               # release manuelle
+    inputs:
+      version:
+        description: "Version à publier (ex : 1.2.0)"
+        required: true
+        default: "1.2.0"
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+
+jobs:
+  # ══════════════ Windows : pipeline complet (build → sign → publish) ══════════════
+  release-windows:
+    name: Release Windows (win-x64)
+    runs-on: windows-latest
+    permissions:
+      contents: write              # nécessaire pour créer la release
+    env:
+      PRIV_KEY: ${{ secrets.MOTO_UPDATE_PRIV_KEY }}
+      PUB_KEY:  ${{ secrets.MOTO_UPDATE_PUB_KEY }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Install MAUI workload
+        run: dotnet workload install maui-windows
+
+      - name: Resolve version
+        id: ver
+        shell: pwsh
+        run: |
+          $v = if ("${{ github.event.inputs.version }}") { "${{ github.event.inputs.version }}" }
+               else { "${{ github.ref_name }}".TrimStart("v") }
+          "version=$v" | Out-File $env:GITHUB_OUTPUT -Append
+          Write-Host "Version cible : $v"
+
+      - name: Publish editor → dist/payload
+        run: dotnet publish Moto.Editor/Moto.Editor.csproj -c Release -r win-x64 --self-contained true -o dist/payload
+
+      # ★ Clé privée injectée depuis les secrets (jamais loggée, runner éphémère)
+      - name: Inject signing keys
+        shell: pwsh
+        run: |
+          if (-not $env:PRIV_KEY -or -not $env:PUB_KEY) {
+            throw "Secrets manquants : MOTO_UPDATE_PRIV_KEY / MOTO_UPDATE_PUB_KEY"
+          }
+          New-Item -ItemType Directory -Force -Path "keys" | Out-Null
+          Set-Content -Path "keys/update.priv" -Value $env:PRIV_KEY -NoNewline
+          Set-Content -Path "keys/update.pub"  -Value $env:PUB_KEY  -NoNewline
+          Write-Host "🔑 Clés injectées (keys/), exclues du commit par .gitignore."
+
+      # ★ Manifeste + signature Ed25519 + BuildKeys.cs (orchestré par le script)
+      - name: Build + sign manifest (Moto.SignTool)
+        shell: pwsh
+        run: ./scripts/build-update-manifest.ps1 -Version "${{ steps.ver.outputs.version }}"
+
+      # ★ Installateur single-file avec payload embarqué
+      - name: Publish installer (payload embarqué)
+        shell: pwsh
+        run: |
+          Copy-Item dist/payload.zip Moto.Installer/payload.zip -Force
+          dotnet publish Moto.Installer/Moto.Installer.csproj -c Release -r win-x64 -o dist/installer
+
+      - name: Prepare assets + checksums
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path dist/assets | Out-Null
+          Copy-Item dist/payload.zip  dist/assets/payload.zip
+          Copy-Item dist/payload.json dist/assets/payload.json
+          Copy-Item dist/installer/MotoEditor-Setup.exe dist/assets/MotoEditor-Setup.exe
+          Get-ChildItem dist/assets | ForEach-Object {
+            "$((Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLower())  $($_.Name)"
+          } | Set-Content dist/assets/checksums.txt
+          Write-Host "✅ Assets prêts + checksums.txt"
+
+      - name: Create GitHub Release & upload
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_type == 'tag' && github.ref_name || format('v{0}', steps.ver.outputs.version) }}
+          name: "MOTO Editor v${{ steps.ver.outputs.version }}"
+          files: |
+            dist/assets/payload.zip
+            dist/assets/payload.json
+            dist/assets/MotoEditor-Setup.exe
+            dist/assets/checksums.txt
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # ★ Nettoyage des clés, même en cas d'échec
+      - name: Cleanup keys
+        if: always()
+        shell: pwsh
+        run: Remove-Item "keys" -Recurse -Force -ErrorAction SilentlyContinue
+
+  # ══════════════ macOS : payload signé ajouté à la même release ══════════════
+  release-macos:
+    name: Release macOS (osx-x64)
+    runs-on: macos-latest
+    needs: release-windows         # la release existe déjà → on y ajoute les assets
+    permissions:
+      contents: write
+    env:
+      PRIV_KEY: ${{ secrets.MOTO_UPDATE_PRIV_KEY }}
+      PUB_KEY:  ${{ secrets.MOTO_UPDATE_PUB_KEY }}
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Install MAUI workload
+        run: dotnet workload install maui-maccatalyst
+
+      - name: Resolve version
+        id: ver
+        shell: pwsh
+        run: |
+          $v = if ("${{ github.event.inputs.version }}") { "${{ github.event.inputs.version }}" }
+               else { "${{ github.ref_name }}".TrimStart("v") }
+          "version=$v" | Out-File $env:GITHUB_OUTPUT -Append
+
+      - name: Publish editor → dist/payload (maccatalyst)
+        run: dotnet publish Moto.Editor/Moto.Editor.csproj -c Release -f net8.0-maccatalyst -r osx-x64 --self-contained true -o dist/payload
+
+      - name: Inject signing keys
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force -Path "keys" | Out-Null
+          Set-Content -Path "keys/update.priv" -Value $env:PRIV_KEY -NoNewline
+          Set-Content -Path "keys/update.pub"  -Value $env:PUB_KEY  -NoNewline
+
+      - name: Build + sign manifest
+        shell: pwsh
+        run: ./scripts/build-update-manifest.ps1 -Version "${{ steps.ver.outputs.version }}"
+
+      - name: Rename assets (osx)
+        shell: pwsh
+        run: |
+          Move-Item dist/payload.zip  "dist/payload-osx-x64.zip"  -Force
+          Move-Item dist/payload.json "dist/payload-osx-x64.json" -Force
+
+      - name: Upload to existing release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_type == 'tag' && github.ref_name || format('v{0}', steps.ver.outputs.version) }}
+          files: |
+            dist/payload-osx-x64.zip
+            dist/payload-osx-x64.json
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Cleanup keys
+        if: always()
+        shell: pwsh
+        run: Remove-Item "keys" -Recurse -Force -ErrorAction SilentlyContinue

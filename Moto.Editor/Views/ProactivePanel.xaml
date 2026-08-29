@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Moto.Editor.Views.ProactivePanel"
+             IsVisible="False"
+             BackgroundColor="Transparent"
+             HorizontalOptions="End"
+             VerticalOptions="End">
+
+    <Border WidthRequest="300"
+            Margin="20"
+            BackgroundColor="{StaticResource BgPanel}"
+            Stroke="{StaticResource BgHover}"
+            StrokeThickness="1"
+            StrokeShape="RoundRectangle CornerRadius=12"
+            Padding="12">
+
+        <Grid RowDefinitions="Auto,*,Auto" RowSpacing="8">
+
+            <!-- Header -->
+            <Grid ColumnDefinitions="*,Auto">
+                <Label Text="💡 Suggestions"
+                       FontSize="13"
+                       FontAttributes="Bold"
+                       TextColor="{StaticResource Accent}"
+                       VerticalOptions="Center" />
+                <Button Grid.Column="1"
+                        Text="✕"
+                        WidthRequest="24"
+                        HeightRequest="24"
+                        BackgroundColor="Transparent"
+                        TextColor="{StaticResource Txt2}"
+                        FontSize="10"
+                        Clicked="OnCloseClicked" />
+            </Grid>
+
+            <!-- Liste des suggestions -->
+            <ScrollView Grid.Row="1" HeightRequest="200">
+                <VerticalStackLayout x:Name="SuggestionsList" Spacing="6" />
+            </ScrollView>
+
+            <!-- Footer -->
+            <Label Grid.Row="2"
+                   x:Name="FooterLabel"
+                   Text="Mises à jour toutes les 30s"
+                   FontSize="10"
+                   TextColor="{StaticResource Txt2}"
+                   HorizontalOptions="Center" />
+        </Grid>
+    </Border>
+</ContentView>

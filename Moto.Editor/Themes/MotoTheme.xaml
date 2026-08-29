@@ -1,0 +1,54 @@
+<!-- Ajouts au MotoTheme.xaml : états hover/focus custom -->
+<Style TargetType="Button">
+    <Setter Property="BackgroundColor" Value="Transparent" />
+    <Setter Property="TextColor" Value="{StaticResource Txt1}" />
+    <Setter Property="BorderWidth" Value="0" />
+    <Setter Property="CornerRadius" Value="8" />
+    <Setter Property="FontSize" Value="12" />
+    <Setter Property="Padding" Value="10,6" />
+
+    <!-- MotoTheme.xaml -->
+        <Color x:Key="MotoLogoBackground">#0B1526</Color>
+        <Color x:Key="MotoAccentBlue">#2E9BFF</Color>
+
+    <Setter Property="VisualStateManager.VisualStateGroups">
+        <VisualStateGroupList>
+            <VisualStateGroup x:Name="CommonStates">
+                <VisualState x:Name="Normal" />
+                <VisualState x:Name="PointerOver">
+                    <VisualState.Setters>
+                        <Setter Property="BackgroundColor" Value="{StaticResource BgHover}" />
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="Pressed">
+                    <VisualState.Setters>
+                        <Setter Property="BackgroundColor" Value="{StaticResource BgPanel}" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateGroupList>
+    </Setter>
+</Style>
+
+<Style TargetType="Entry">
+    <Setter Property="BackgroundColor" Value="{StaticResource BgPanel}" />
+    <Setter Property="TextColor" Value="{StaticResource Txt1}" />
+    <Setter Property="PlaceholderColor" Value="{StaticResource Txt2}" />
+    <Setter Property="VisualStateManager.VisualStateGroups">
+        <VisualStateGroupList>
+            <VisualStateGroup x:Name="CommonStates">
+                <VisualState x:Name="Normal" />
+                <VisualState x:Name="PointerOver">
+                    <VisualState.Setters>
+                        <Setter Property="BackgroundColor" Value="{StaticResource BgHover}" />
+                    </VisualState.Setters>
+                </VisualState>
+                <VisualState x:Name="Focused">
+                    <VisualState.Setters>
+                        <Setter Property="BackgroundColor" Value="{StaticResource BgHover}" />
+                    </VisualState.Setters>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateGroupList>
+    </Setter>
+</Style>

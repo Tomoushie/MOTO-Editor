@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Moto.Editor.Views.ProactiveActionsView"
+             IsVisible="False"
+             BackgroundColor="Transparent"
+             HorizontalOptions="End"
+             VerticalOptions="End">
+
+    <Border WidthRequest="320"
+            Margin="20"
+            BackgroundColor="{StaticResource BgPanel}"
+            Stroke="{StaticResource BgHover}"
+            StrokeThickness="1"
+            StrokeShape="RoundRectangle CornerRadius=12"
+            Padding="12">
+
+        <Grid RowDefinitions="Auto,*" RowSpacing="8">
+
+            <Label Text="💡 Actions suggérées"
+                   FontSize="13"
+                   FontAttributes="Bold"
+                   TextColor="{StaticResource Accent}" />
+
+            <ScrollView Grid.Row="1"
+                        HeightRequest="180">
+                <VerticalStackLayout x:Name="ActionsList"
+                                     Spacing="6" />
+            </ScrollView>
+        </Grid>
+    </Border>
+</ContentView>

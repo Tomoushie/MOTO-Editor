@@ -1,0 +1,15 @@
+<!-- ★ À insérer EN HAUT de la barre latérale (avant les icônes d'outils) -->
+<controls:MotoLogoView Size="36" Margin="6,10,6,14" />
+
+<!-- ═══ Monitoring IA (nouveau) ═══ -->
+<Border Grid.Column="0" BackgroundColor="Transparent" Padding="4">
+    <Border.GestureRecognizers>
+        <TapGestureRecognizer Tapped="OnAiMonitorTapped" />
+    </Border.GestureRecognizers>
+    <HorizontalStackLayout Spacing="4" ToolTipProperties.Text="Monitoring IA — Cliquez pour ouvrir">
+        <Label x:Name="AiStatusIcon" Text="🧠" FontSize="14" VerticalOptions="Center" />
+        <Label x:Name="AiStatusLabel" Text="Idle" FontSize="11"
+               TextColor="{StaticResource MotoSecondaryTextColor}" VerticalOptions="Center" />
+    </HorizontalStackLayout>
+    <Button Text="ℹ️ À propos de MOTO Editor" Clicked="OnAboutClicked" />
+</Border>

@@ -1,0 +1,29 @@
+<!-- Ajouter dans CustomMenuBarView.xaml, avant les boutons Min/Max/Close -->
+<Grid ColumnDefinitions="*,Auto,Auto,Auto,Auto" Grid.Column="1">
+    <!-- Titre / zone de drag -->
+    <Label Grid.Column="0" Text="MOTO Editor"
+           TextColor="{StaticResource Txt2}" FontSize="12"
+           VerticalOptions="Center" Margin="12,0"/>
+
+    <!-- ★ Bouton Update (visible seulement si MAJ disponible) -->
+    <Border Grid.Column="1" x:Name="UpdateBadge"
+            BackgroundColor="{StaticResource Accent}"
+            Stroke="Transparent" StrokeThickness="0"
+            StrokeShape="RoundRectangle CornerRadius=12"
+            Padding="8,4" Margin="0,0,8,0"
+            IsVisible="False">
+        <Border.GestureRecognizers>
+            <TapGestureRecognizer Tapped="OnUpdateClicked"/>
+        </Border.GestureRecognizers>
+        <HorizontalStackLayout Spacing="4">
+            <Label Text="🔄" FontSize="11"/>
+            <Label x:Name="UpdateLabel" Text="MAJ" FontSize="11"
+                   TextColor="White" FontAttributes="Bold"/>
+        </HorizontalStackLayout>
+    </Border>
+
+    <!-- Boutons fenêtre -->
+    <Button Grid.Column="2" x:Name="BtnMin" Text="−" .../>
+    <Button Grid.Column="3" x:Name="BtnMax" Text="□" .../>
+    <Button Grid.Column="4" x:Name="BtnClose" Text="✕" .../>
+</Grid>

@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <PackageId>Moto.Plugin.SDK</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>MOTO Team</Authors>
+    <Description>SDK pour développerer des plugins MOTO Editor</Description>
+    <PackageTags>moto;plugin;sdk;editor</PackageTags>
+  </PropertyGroup>
+</Project>

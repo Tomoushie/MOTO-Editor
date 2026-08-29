@@ -1,0 +1,66 @@
+<!-- Docs/ARBORESCENCE.md -->
+# 🌳 Arborescence complète
+
+MOTO-Editor/
+├── Snake2000.Engine/
+│ └── AgentIntegrated/
+│ ├── Core/ AgentContext · AgentResult
+│ ├── Scanner/ AgentScanner
+│ ├── Analyzer/ AgentAnalyzer
+│ ├── Synthesizer/ AgentSynthesizer
+│ ├── Connector/ AgentConnector
+│ ├── Validator/ AgentValidator
+│ └── Pipeline/ XenoPipeline
+│
+├── Moto.Core/
+│ ├── AI/
+│ │ ├── Internal/ MotoAiKernel · ProjectUnderstandingEngine
+│ │ │ IntentDetector · AdvancedIntentDetector
+│ │ │ TimeMachineEngine · GranularRestoreEngine
+│ │ │ HealthMonitorEngine · HealthMetricsEngine
+│ │ │ PatternDetectorEngine · CodeImprovementEngine
+│ │ │ UserHistoryEngine · PedagogyEngine
+│ │ │ NavigationAssistantEngine · ArchitectureBuilderEngine
+│ │ │ UiGeneratorEngine · Models/
+│ │ ├── Builders/ AutoProjectBuilder · TemplateLibrary
+│ │ │ BehaviorBuilderV2 · CodeGenerationEngine
+│ │ │ LicenseGeneratorEngine
+│ │ ├── AutoLink/ AutoLinkEngine · AutoLinkDetector
+│ │ ├── Context/ ContextEngine · ContextAnalyzer
+│ │ ├── Cortex/ CortexEngine · CortexMemory · StyleLearner · CortexBehavior
+│ │ ├── Neural/ NeuralMode · EmbeddingEngine · CodeRetrieval · NeuralGenerator
+│ │ ├── Workspace/ AIWorkspace · SmartNavigation · ProactiveSuggestions · AutoRefactor
+│ │ ├── Story/ StoryModeEngine
+│ │ ├── Evolution/ ProjectEvolutionEngine
+│ │ └── Beginner/ ExplainEverythingEngine · AiTutorEngine
+│ │ NoCodeOrchestrator · PairProgrammingEngine
+│ ├── Doc/ DocEngine · DocGenerators · DocModels
+│ ├── Platform/ PlatformEngine · PlatformDetector · PlatformGenerators
+│ │ CiGenerator · AvaloniaLinuxGenerator · PlatformModels
+│ ├── Export/ ExportEngine · PresentationEngine
+│ ├── Remote/ RemoteClient · WebSocketRemoteClient · SshRemoteClient
+│ ├── Collab/ CollabSession · PatchEngine · CollabPresence
+│ ├── Services/ BuildEngine · RunEngine · SandboxEngine
+│ │ ProjectLockEngine · ProjectImportEngine · TerminalService
+│ ├── Performance/ PerformanceEngine · LazyFileLoader · IncrementalHighlighter
+│ │ MiniMapCompressor · AiCacheEngine
+│ └── Settings/ SettingsCatalog(.partial) · SettingsEngine
+│ SettingDefinition · SettingItem
+│
+├── Moto.Editor/
+│ ├── MainPage.xaml(.cs) (v21)
+│ ├── Controls/ EditorPaneView · CodeEditorView
+│ ├── Views/ ThreadListView · AiChatView · SettingsMenuView
+│ │ ExportMenuView · PresentationView · RemoteConnectView
+│ │ CollabView · AutoLinkView · ContextSuggestionsView
+│ │ DocPanelView · PerformanceView · PlatformView
+│ │ HealthMonitorView · EvolutionPanelView · StoryModeView
+│ │ CortexView · NeuralView · AIWorkspaceView
+│ ├── ViewModels/ MainViewModel
+│ ├── Models/ EditorDocument · ChatMessage · ChatThread · FileNode
+│ ├── Services/ MotoAiService · ChatService · FileTreeService
+│ ├── Pages/ SettingsPage · AiSettingsPage · GuidedProjectPage · MotoAiPage
+│ └── Platforms/Windows/ GlobalHotkeyService
+│
+└── Docs/ INDEX · README · ARCHITECTURE · ROADMAP
+ARBORESCENCE · FEATURES · CONTRIBUTING

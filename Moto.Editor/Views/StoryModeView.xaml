@@ -1,0 +1,23 @@
+<!-- Moto.Editor/Views/StoryModeView.xaml -->
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Moto.Editor.Views.StoryModeView"
+             BackgroundColor="#17181C">
+
+    <Grid RowDefinitions="Auto,*,Auto,Auto" Padding="8" ColumnSpacing="6">
+
+        <Label Grid.Row="0" Text="📚 Story Mode — raconte, je code" FontAttributes="Bold" />
+
+        <Editor Grid.Row="1" x:Name="StoryInput"
+                Placeholder="Il était une fois un chevalier qui suit un dragon dans une forêt pour protéger un trésor…"
+                BackgroundColor="#1E1F24" FontSize="12" />
+
+        <Button Grid.Row="2" Text="✨ Transformer mon histoire en projet"
+                Clicked="OnGenerateClicked" FontSize="12" />
+
+        <Label Grid.Row="3" x:Name="ResultLabel" FontSize="11" Opacity="0.85" />
+
+    </Grid>
+
+</ContentView>

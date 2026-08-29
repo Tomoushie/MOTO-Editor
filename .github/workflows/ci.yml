@@ -1,0 +1,55 @@
+name: CI — Tests & Benchmarks
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    name: Build + Tests (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ windows-latest ]
+        configuration: [ Release ]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Install MAUI workload
+        run: dotnet workload install maui-windows
+
+      - name: Restore
+        run: dotnet restore MOTO-Editor.sln
+
+      - name: Build
+        run: dotnet build MOTO-Editor.sln -c ${{ matrix.configuration }} --no-restore
+
+      - name: Run Unit Tests (Moto.Tests)
+        run: dotnet test Moto.Tests/Moto.Tests.csproj -c ${{ matrix.configuration }} --logger "trx;LogFileName=test-results.trx" --results-directory ./TestResults
+
+      - name: Upload Test Results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ matrix.os }}
+          path: ./TestResults/**
+
+      - name: Smoke test (run-e2e-tests)
+        run: pwsh ./scripts/run-e2e-tests.ps1 -Smoke -OutputDir ./e2e-output
+
+      - name: Upload E2E metrics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-metrics-${{ matrix.os }}
+          path: ./e2e-output/**

@@ -1,0 +1,208 @@
+<!-- Moto.Editor/Pages/AiSettingsPage.xaml -->
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Moto.Editor.Pages.AiSettingsPage"
+             Title="Paramètres IA">
+
+    <ScrollView Padding="20">
+
+        <VerticalStackLayout Spacing="20">
+
+            <!-- Titre -->
+            <Label Text="Connexion aux modèles IA"
+                   FontSize="24"
+                   FontAttributes="Bold" />
+
+            <Label Text="MOTO AI utilise d'abord le moteur local. Si besoin, elle bascule sur les providers configurés ci-dessous."
+                   FontSize="14"
+                   Opacity="0.7" />
+
+            <!-- Status des providers -->
+            <Border StrokeShape="RoundRectangle 12"
+                    Padding="16"
+                    BackgroundColor="#1A1B1F">
+
+                <VerticalStackLayout Spacing="8">
+
+                    <Label Text="État des providers"
+                           FontAttributes="Bold"
+                           FontSize="16" />
+
+                    <CollectionView x:Name="ProviderStatusList"
+                                    HeightRequest="120">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <Grid ColumnDefinitions="*,Auto" Padding="4">
+                                    <Label Text="{Binding DisplayName}"
+                                           Grid.Column="0" />
+                                    <Label Text="{Binding Status}"
+                                           Grid.Column="1"
+                                           TextColor="{Binding StatusColor}" />
+                                </Grid>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+
+                    <Button Text="Vérifier tous les providers"
+                            x:Name="CheckProvidersButton"
+                            Clicked="OnCheckProvidersClicked" />
+
+                </VerticalStackLayout>
+
+            </Border>
+
+            <!-- Ollama -->
+            <Border StrokeShape="RoundRectangle 12"
+                    Padding="16"
+                    BackgroundColor="#1A1B1F">
+
+                <VerticalStackLayout Spacing="10">
+
+                    <Label Text="Ollama (local)"
+                           FontSize="18"
+                           FontAttributes="Bold" />
+
+                    <Label Text="Modèles locaux gratuits. Priorité maximale."
+                           FontSize="12"
+                           Opacity="0.7" />
+
+                    <Entry x:Name="OllamaUrlEntry"
+                           Placeholder="http://127.0.0.1:11434"
+                           Text="http://127.0.0.1:11434" />
+
+                    <Entry x:Name="OllamaModelEntry"
+                           Placeholder="qwen2.5-coder:7b"
+                           Text="qwen2.5-coder:7b" />
+
+                    <Button Text="Tester Ollama"
+                            x:Name="TestOllamaButton"
+                            Clicked="OnTestOllamaClicked" />
+
+                </VerticalStackLayout>
+
+            </Border>
+
+            <!-- OpenAI -->
+            <Border StrokeShape="RoundRectangle 12"
+                    Padding="16"
+                    BackgroundColor="#1A1B1F">
+
+                <VerticalStackLayout Spacing="10">
+
+                    <Label Text="OpenAI"
+                           FontSize="18"
+                           FontAttributes="Bold" />
+
+                    <Label Text="GPT-4o, GPT-4 Turbo. Fallback secondaire."
+                           FontSize="12"
+                           Opacity="0.7" />
+
+                    <Entry x:Name="OpenAiKeyEntry"
+                           Placeholder="sk-..."
+                           IsPassword="True" />
+
+                    <Entry x:Name="OpenAiModelEntry"
+                           Placeholder="gpt-4o"
+                           Text="gpt-4o" />
+
+                    <Button Text="Tester OpenAI"
+                            x:Name="TestOpenAiButton"
+                            Clicked="OnTestOpenAiClicked" />
+
+                </VerticalStackLayout>
+
+            </Border>
+
+            <!-- Anthropic -->
+            <Border StrokeShape="RoundRectangle 12"
+                    Padding="16"
+                    BackgroundColor="#1A1B1F">
+
+                <VerticalStackLayout Spacing="10">
+
+                    <Label Text="Anthropic (Claude)"
+                           FontSize="18"
+                           FontAttributes="Bold" />
+
+                    <Label Text="Claude Sonnet, Claude Opus. Fallback secondaire."
+                           FontSize="12"
+                           Opacity="0.7" />
+
+                    <Entry x:Name="AnthropicKeyEntry"
+                           Placeholder="sk-ant-..."
+                           IsPassword="True" />
+
+                    <Entry x:Name="AnthropicModelEntry"
+                           Placeholder="claude-sonnet-4-20250514"
+                           Text="claude-sonnet-4-20250514" />
+
+                    <Button Text="Tester Anthropic"
+                            x:Name="TestAnthropicButton"
+                            Clicked="OnTestAnthropicClicked" />
+
+                </VerticalStackLayout>
+
+            </Border>
+
+            <!-- Mistral -->
+            <Border StrokeShape="RoundRectangle 12"
+                    Padding="16"
+                    BackgroundColor="#1A1B1F">
+
+                <VerticalStackLayout Spacing="10">
+
+                    <Label Text="Mistral AI"
+                           FontSize="18"
+                           FontAttributes="Bold" />
+
+                    <Label Text="Mistral Large, Mistral Medium. Fallback tertiaire."
+                           FontSize="12"
+                           Opacity="0.7" />
+
+                    <Entry x:Name="MistralKeyEntry"
+                           Placeholder="Clé API Mistral"
+                           IsPassword="True" />
+
+                    <Entry x:Name="MistralModelEntry"
+                           Placeholder="mistral-large-latest"
+                           Text="mistral-large-latest" />
+
+                    <Button Text="Tester Mistral"
+                            x:Name="TestMistralButton"
+                            Clicked="OnTestMistralClicked" />
+
+                </VerticalStackLayout>
+
+            </Border>
+
+            <!-- Boutons de sauvegarde -->
+            <HorizontalStackLayout Spacing="10" HorizontalOptions="Center">
+
+                <Button Text="Sauvegarder les clés"
+                        x:Name="SaveButton"
+                        Clicked="OnSaveClicked"
+                        BackgroundColor="#0078CC"
+                        TextColor="White"
+                        Padding="20,10" />
+
+                <Button Text="Effacer toutes les clés"
+                        x:Name="ClearButton"
+                        Clicked="OnClearClicked"
+                        BackgroundColor="#CC3333"
+                        TextColor="White"
+                        Padding="20,10" />
+
+            </HorizontalStackLayout>
+
+            <!-- Note de sécurité -->
+            <Label Text="🔒 Vos clés API sont chiffrées localement avec DPAPI (Windows) ou AES. Elles ne quittent jamais votre machine."
+                   FontSize="12"
+                   Opacity="0.6"
+                   HorizontalOptions="Center" />
+
+        </VerticalStackLayout>
+
+    </ScrollView>
+
+</ContentPage>
