@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!-- Moteur XENO-SSS∞ : logique pure, portable, sans dépendance UI. -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <RootNamespace>Snake2000.Engine</RootNamespace>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <!--
+    XenoPipelineV5_Optimized.cs est un prototype inachevé : il dépend de
+    Moto.Core.Performance (interdit ici, Snake2000.Engine est la couche la
+    plus basse) et il redéfinit ses propres AgentScanner/AgentContext/AgentResult
+    incompatibles avec ceux du pipeline réel (Core/, Scanner/, etc.).
+    Mis de côté tel quel (rien n'est perdu, juste exclu de la compilation) en
+    attendant qu'il soit réécrit pour utiliser les vrais types du pipeline.
+  -->
+  <ItemGroup>
+    <Compile Remove="AgentIntegrated\Pipeline\XenoPipelineV5_Optimized.cs" />
+  </ItemGroup>
+
+</Project>

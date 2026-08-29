@@ -7,10 +7,19 @@ using System.Threading.Tasks;
 namespace Snake2000.Engine.AgentIntegrated.Specialized
 {
     /// <summary>
+    /// Contrat commun aux agents spécialisés (Architecture, Performance, Sécurité, Tests).
+    /// Permet à l'orchestrateur (XenoPipelineV5) de les appeler sans passer par <c>dynamic</c>.
+    /// </summary>
+    public interface ISpecializedAgent
+    {
+        Task<AgentResult> AnalyzeAsync(AgentContext context);
+    }
+
+    /// <summary>
     /// Agent spécialisé : Architecture & Design Patterns.
     /// Analyse et suggère des améliorations architecturales.
     /// </summary>
-    public sealed class ArchitectureAgent
+    public sealed class ArchitectureAgent : ISpecializedAgent
     {
         public async Task<AgentResult> AnalyzeAsync(AgentContext context)
         {
@@ -38,7 +47,7 @@ namespace Snake2000.Engine.AgentIntegrated.Specialized
     /// <summary>
     /// Agent spécialisé : Performance & Optimisation.
     /// </summary>
-    public sealed class PerformanceAgent
+    public sealed class PerformanceAgent : ISpecializedAgent
     {
         public async Task<AgentResult> AnalyzeAsync(AgentContext context)
         {
@@ -65,7 +74,7 @@ namespace Snake2000.Engine.AgentIntegrated.Specialized
     /// <summary>
     /// Agent spécialisé : Sécurité & Bonnes pratiques.
     /// </summary>
-    public sealed class SecurityAgent
+    public sealed class SecurityAgent : ISpecializedAgent
     {
         public async Task<AgentResult> AnalyzeAsync(AgentContext context)
         {
@@ -92,7 +101,7 @@ namespace Snake2000.Engine.AgentIntegrated.Specialized
     /// <summary>
     /// Agent spécialisé : Tests & Qualité.
     /// </summary>
-    public sealed class TestingAgent
+    public sealed class TestingAgent : ISpecializedAgent
     {
         public async Task<AgentResult> AnalyzeAsync(AgentContext context)
         {

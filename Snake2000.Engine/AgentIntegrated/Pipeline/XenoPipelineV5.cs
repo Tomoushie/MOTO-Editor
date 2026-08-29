@@ -47,7 +47,7 @@ namespace Snake2000.Engine.AgentIntegrated.Pipeline
             };
         }
 
-        private async Task<AgentResult> RunWithFeedback(dynamic agent, AgentContext context)
+        private async Task<AgentResult> RunWithFeedback(ISpecializedAgent agent, AgentContext context)
         {
             var result = await agent.AnalyzeAsync(context);
 
