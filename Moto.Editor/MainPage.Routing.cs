@@ -86,12 +86,15 @@ namespace Moto.Editor
         private void OnActivitySelected(string id)
         {
             if (id == "explorer") { ToggleSide(isExplorer: true); return; }
-            if (id == "search") { AiBar.Toggle(); return; }
 
             bool showAi = id == "ai" && !AiHost.IsVisible;
             bool showCortex = id == "cortex" && !_cortexPanel.IsVisible;
             bool showCollab = id == "collab" && !CollabPanel.IsVisible;
             bool showSettings = id == "settings" && !SettingsMenu.IsVisible;
+            // ★ AJOUT (30/08, 2e passe) : "Recherche" ouvrait le bandeau IA sans
+            // rapport — ouvre maintenant une vraie recherche de fichiers par nom
+            // (voir SearchView.xaml.cs), sur le même patron que les autres panneaux.
+            bool showSearch = id == "search" && !_searchPanel.IsVisible;
 
             AiHost.IsVisible = false;
             _cortexPanel.IsVisible = false;
@@ -99,6 +102,7 @@ namespace Moto.Editor
             _workspacePanel.IsVisible = false;
             _pluginGallery.IsVisible = false;
             _analyticsDashboard.IsVisible = false;
+            _searchPanel.IsVisible = false;
             CollabPanel.IsVisible = false;
             SettingsMenu.IsVisible = false;
 
@@ -111,6 +115,7 @@ namespace Moto.Editor
                         _cortexPanel.LoadSuggestions(_viewModel.SelectedDocument.Path, _viewModel.SelectedDocument.Text);
                     break;
                 case "collab": CollabPanel.IsVisible = showCollab; break;
+                case "search": _searchPanel.IsVisible = showSearch; break;
                 case "gallery":
                     _pluginGallery.IsVisible = !_pluginGallery.IsVisible;
                     if (_pluginGallery.IsVisible) _pluginGallery.LoadGallery();

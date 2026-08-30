@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+  Moto.Editor/Views/SearchView.xaml
+  ★ AJOUT (30/08, 2e passe) : recherche de fichiers par nom dans le projet
+  ouvert — l'onglet "Recherche" du menu horizontal se contentait jusqu'ici de
+  rouvrir le bandeau IA, sans rapport avec son nom (repéré par Tom, 3 tours de
+  suite). Ancré dans le dock IA (colonne 0) comme Cortex/Neural/etc., via
+  AddFloatingPanel (MainPage.Panels.cs) — même habillage (en-tête titré + ✕).
+-->
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Moto.Editor.Views.SearchView"
+             WidthRequest="460">
+
+    <VerticalStackLayout Spacing="8">
+
+        <Entry x:Name="QueryEntry"
+               Placeholder="Rechercher un fichier par nom…"
+               FontSize="13"
+               TextChanged="OnQueryChanged" />
+
+        <Label x:Name="StatusLabel"
+               Text="Aucun dossier ouvert."
+               FontSize="11" Opacity="0.6" />
+
+        <CollectionView x:Name="ResultsList"
+                        SelectionMode="Single"
+                        HeightRequest="320"
+                        SelectionChanged="OnResultSelected">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Border StrokeShape="RoundRectangle 6" BackgroundColor="{StaticResource BgHover}"
+                            Padding="8,6" Margin="0,2">
+                        <VerticalStackLayout Spacing="1">
+                            <Label Text="{Binding Name}" FontSize="12" TextColor="{StaticResource Txt1}" />
+                            <Label Text="{Binding RelativePath}" FontSize="10" TextColor="{StaticResource Txt2}"
+                                   LineBreakMode="MiddleTruncation" />
+                        </VerticalStackLayout>
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+    </VerticalStackLayout>
+
+</ContentView>

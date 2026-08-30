@@ -99,7 +99,7 @@ namespace Moto.Editor
             bool any = AiHost.IsVisible || ChatHost.IsVisible || ThreadHost.IsVisible
                 || _platformPanel.IsVisible || _cortexPanel.IsVisible || _neuralPanel.IsVisible
                 || _workspacePanel.IsVisible || _pluginGallery.IsVisible || _analyticsDashboard.IsVisible
-                || _debugPanel.IsVisible;
+                || _debugPanel.IsVisible || _searchPanel.IsVisible;
             AiDockPanel.IsVisible = any;
         }
 
@@ -128,6 +128,7 @@ namespace Moto.Editor
             PluginGalleryView => "🧱 Plugins",
             AnalyticsDashboardView => "📊 Analytics",
             DebugPanelView => "🐞 Debug",
+            Views.SearchView => "🔍 Recherche",
             _ => panel.GetType().Name
         };
 
@@ -190,6 +191,7 @@ namespace Moto.Editor
             // "Projet logiciel", bouton Importer, AutoProjectBuilder) → on l'affiche.
             ExplorerPanel.IsVisible = true;
             Sidebar.IsVisible = false;
+            _searchPanel.SetRoot(path);
 
             StatusBar.SetLocked(_lock.IsLocked(path));
 

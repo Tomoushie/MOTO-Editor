@@ -62,6 +62,7 @@ namespace Moto.Editor
         private CortexView _cortexPanel;
         private NeuralView _neuralPanel;
         private AIWorkspaceView _workspacePanel;
+        private Views.SearchView _searchPanel;
         // _pluginGallery / _analyticsDashboard / _aiSettings : déclarés dans MainPage.Extensions.cs
         // _globalUsage : déclaré dans MainPage.UI.cs
         private DebugPanelView _debugPanel;
@@ -235,11 +236,15 @@ namespace Moto.Editor
             _pluginGallery = new PluginGalleryView(null, null, System.IO.Path.Combine(_currentRoot ?? "", "plugins"));
             _analyticsDashboard = new AnalyticsDashboardView();
             _debugPanel = new DebugPanelView();
+            // ★ AJOUT (30/08, 2e passe) : onglet "Recherche" — cherche des fichiers
+            // par nom dans le projet ouvert (voir SearchView.xaml.cs).
+            _searchPanel = new Views.SearchView();
+            _searchPanel.FileOpened += path => _viewModel.OpenFilePath(path);
 
             foreach (var panel in new ContentView[]
             {
                 _platformPanel, _cortexPanel, _neuralPanel, _workspacePanel,
-                _pluginGallery, _analyticsDashboard, _debugPanel
+                _pluginGallery, _analyticsDashboard, _debugPanel, _searchPanel
             })
                 AddFloatingPanel(panel);
 
