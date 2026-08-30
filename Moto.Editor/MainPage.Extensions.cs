@@ -94,8 +94,10 @@ namespace Moto.Editor
         private void AddMotoOverlay(ContentView overlay)
         {
             RootGrid.Children.Add(overlay);
-            Grid.SetRow(overlay, 1);
-            Grid.SetColumnSpan(overlay, 4);
+            // ★ CORRECTION (30/08, refonte Zen) : ligne 1 → 2, colonnes 4 → 3
+            // (nouvelle ligne de nav horizontale + dock IA/centre/arborescence).
+            Grid.SetRow(overlay, 2);
+            Grid.SetColumnSpan(overlay, 3);
         }
 
         /// <summary>
@@ -168,8 +170,8 @@ namespace Moto.Editor
                 if (_proactivePanel != null)
                 {
                     RootGrid.Children.Add(_proactivePanel);
-                    Grid.SetRow(_proactivePanel, 1);
-                    Grid.SetColumnSpan(_proactivePanel, 4);
+                    Grid.SetRow(_proactivePanel, 2);
+                    Grid.SetColumnSpan(_proactivePanel, 3);
                     _proactivePanel.SuggestionInvoked += command => OnAiCommandSubmitted(command);
                 }
 

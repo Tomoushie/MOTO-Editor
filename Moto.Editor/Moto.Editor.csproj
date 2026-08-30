@@ -64,11 +64,15 @@
     <MauiVersion>8.0.100</MauiVersion>
 
     <!--
-      Icône/splash/logos : pas encore livrés dans le dépôt (Resources/ et
-      Platforms/Windows/appicon.ico n'existent pas). MAUI utilisera son icône
-      par défaut en attendant — voir assets/icon/ + scripts/generate-icons.ps1
-      pour les générer quand le choix du logo sera fait.
+      ★ CORRECTION (30/08) : icône générée (scripts/generate-icons.ps1 -Source
+      assets/icon/MOTO-Logo.png) — Platforms/Windows/appicon.ico existe désormais.
+      ApplicationIcon l'intègre dans les ressources natives du .exe : c'est CE
+      fichier .ico (pas MauiIcon, qui ne concerne que l'empaquetage MSIX/autres
+      plateformes) que Windows lit pour l'icône de la barre des tâches, de
+      l'Explorateur, et de tout raccourci Bureau pointant vers l'exe sans
+      IconLocation explicite — repéré par Tom : raccourci Bureau sans logo.
     -->
+    <ApplicationIcon>Platforms\Windows\appicon.ico</ApplicationIcon>
   </PropertyGroup>
 
   <!-- ══════════════ Packages NuGet ══════════════ -->
@@ -113,6 +117,19 @@
   -->
   <ItemGroup>
     <MauiImage Include="Resources\Images\*" />
+  </ItemGroup>
+
+  <!--
+    ★ AJOUT (30/08) : copie le .ico brut à côté du .exe — OnWindowsWindowCreated
+    (App.xaml.cs) le cherche via AppContext.BaseDirectory + "appicon.ico" pour
+    l'icône de la barre de titre/taskbar AU RUNTIME. ApplicationIcon (ci-dessus)
+    couvre uniquement l'icône EMBARQUÉE dans le .exe (Explorateur/raccourcis) ;
+    les deux mécanismes lisent le même fichier source mais sont indépendants.
+  -->
+  <ItemGroup Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">
+    <None Include="Platforms\Windows\appicon.ico">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
   <!--

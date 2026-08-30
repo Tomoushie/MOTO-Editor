@@ -133,6 +133,27 @@ namespace Moto.Editor
                 // Titre de la fenêtre
                 appWindow.Title = "MOTO Editor";
 
+                // ★ CORRECTION (30/08) : aucune taille n'était fixée nulle part — la
+                // fenêtre s'ouvrait à la taille par défaut de WinUI (bien plus large que
+                // l'écran de contenu réel, repéré par Tom : "beaucoup trop large" au
+                // lancement). Taille confortable, centrée sur l'écran principal (zone de
+                // travail hors barre des tâches, via DisplayArea.WorkArea).
+                // ★ CORRECTION : "Windows.Graphics...." non qualifié résout vers le
+                // sous-espace de noms DU PROJET "Moto.Editor.Windows" (WindowManager y
+                // vit, voir MainPage.Extensions.cs) plutôt que le namespace WinRT global
+                // — même piège que Win32Interop rencontré plus tôt (SnapLayoutsHelper.cs).
+                const int DefaultWidth = 1360;
+                const int DefaultHeight = 860;
+                appWindow.Resize(new global::Windows.Graphics.SizeInt32(DefaultWidth, DefaultHeight));
+                var displayArea = Microsoft.UI.Windowing.DisplayArea.GetFromWindowId(
+                    windowId, Microsoft.UI.Windowing.DisplayAreaFallback.Primary);
+                if (displayArea != null)
+                {
+                    var centerX = displayArea.WorkArea.X + (displayArea.WorkArea.Width - DefaultWidth) / 2;
+                    var centerY = displayArea.WorkArea.Y + (displayArea.WorkArea.Height - DefaultHeight) / 2;
+                    appWindow.Move(new global::Windows.Graphics.PointInt32(centerX, centerY));
+                }
+
                 // ★ Icône hexagonale dans la titlebar + taskbar (si générée, voir assets/icon/)
                 string iconPath = System.IO.Path.Combine(AppContext.BaseDirectory, "appicon.ico");
                 if (System.IO.File.Exists(iconPath))

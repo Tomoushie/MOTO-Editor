@@ -36,7 +36,7 @@ namespace Moto.Editor
 
                 case "view.explorer": ToggleSide(isExplorer: true); break;
                 case "view.sidebar": ToggleSide(isExplorer: false); break;
-                case "view.aipanel": AiHost.IsVisible = !AiHost.IsVisible; break;
+                case "view.aipanel": AiHost.IsVisible = !AiHost.IsVisible; RefreshAiDockColumnWidth(); break;
                 case "view.terminal": _viewModel.IsTerminalVisible = !_viewModel.IsTerminalVisible; break;
                 case "view.diagnostics": _viewModel.IsDiagnosticsVisible = !_viewModel.IsDiagnosticsVisible; break;
                 case "view.maximize": OnMaximizeToggled(); break;
@@ -117,12 +117,33 @@ namespace Moto.Editor
                     break;
                 case "settings": SettingsMenu.IsVisible = showSettings; break;
             }
+
+            // ★ AJOUT (30/08, refonte Zen) : la colonne 0 (dock IA) est repliée à 0
+            // par défaut (l'ancienne "zone noire" toujours visible même vide, repérée
+            // par Tom) — on la rouvre/referme selon qu'un panneau y est visible.
+            RefreshAiDockColumnWidth();
         }
 
+        /// <summary>
+        /// ★ CORRECTION (30/08, refonte Zen) : l'arborescence (colonne 2, à droite
+        /// désormais) est masquée par défaut (colonne "Auto" → 0px tant que son
+        /// contenu est invisible). "Fichiers" bascule maintenant ouvert/fermé au lieu
+        /// de simplement échanger Explorer/Sidebar (utile puisqu'il n'y a plus
+        /// d'icône dédiée toujours visible pour refermer le volet).
+        /// </summary>
         private void ToggleSide(bool isExplorer)
         {
-            ExplorerPanel.IsVisible = isExplorer;
-            Sidebar.IsVisible = !isExplorer;
+            if (isExplorer)
+            {
+                bool willOpen = !ExplorerPanel.IsVisible;
+                ExplorerPanel.IsVisible = willOpen;
+                Sidebar.IsVisible = false;
+            }
+            else
+            {
+                ExplorerPanel.IsVisible = false;
+                Sidebar.IsVisible = true;
+            }
         }
 
         // ------------------------------------------------------------------

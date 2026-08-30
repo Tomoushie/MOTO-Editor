@@ -51,6 +51,7 @@ namespace Moto.Editor
             _analyticsDashboard.IsVisible = false;
             if (_cortexPanel.IsVisible && _viewModel.SelectedDocument != null)
                 _cortexPanel.LoadSuggestions(_viewModel.SelectedDocument.Path, _viewModel.SelectedDocument.Text);
+            RefreshAiDockColumnWidth();
         }
 
         private void OnNeuralClicked(object sender, EventArgs e)
@@ -60,6 +61,7 @@ namespace Moto.Editor
             _workspacePanel.IsVisible = false;
             _pluginGallery.IsVisible = false;
             _analyticsDashboard.IsVisible = false;
+            RefreshAiDockColumnWidth();
         }
 
         private void OnWorkspaceClicked(object sender, EventArgs e)
@@ -70,6 +72,7 @@ namespace Moto.Editor
             _pluginGallery.IsVisible = false;
             _analyticsDashboard.IsVisible = false;
             if (_workspacePanel.IsVisible) _workspacePanel.Analyze();
+            RefreshAiDockColumnWidth();
         }
 
         private void OnGalleryClicked()
@@ -80,6 +83,24 @@ namespace Moto.Editor
             _workspacePanel.IsVisible = false;
             _analyticsDashboard.IsVisible = false;
             if (_pluginGallery.IsVisible) _pluginGallery.LoadGallery();
+            RefreshAiDockColumnWidth();
+        }
+
+        /// <summary>
+        /// ★ AJOUT (30/08, refonte Zen) : AiDockPanel (colonne 0 — Cortex/Neural/
+        /// Workspace/Gallery/Analytics/Debug/Platform + AiHost/ChatHost/ThreadHost)
+        /// est masqué par défaut (voir MainPage.xaml) pour éviter la "zone noire"
+        /// toujours visible même vide, repérée par Tom. Sa colonne ("Auto") se
+        /// replie donc à 0 automatiquement tant qu'il est masqué. Ré-affiché ici dès
+        /// qu'au moins un des panneaux qu'il héberge est visible.
+        /// </summary>
+        private void RefreshAiDockColumnWidth()
+        {
+            bool any = AiHost.IsVisible || ChatHost.IsVisible || ThreadHost.IsVisible
+                || _platformPanel.IsVisible || _cortexPanel.IsVisible || _neuralPanel.IsVisible
+                || _workspacePanel.IsVisible || _pluginGallery.IsVisible || _analyticsDashboard.IsVisible
+                || _debugPanel.IsVisible;
+            AiDockPanel.IsVisible = any;
         }
 
         private void OnWorkspaceApply(Moto.Core.AI.Workspace.WorkspaceSuggestion suggestion)
@@ -161,6 +182,15 @@ namespace Moto.Editor
             _chatService.WorkspaceRoot = path;
             _aiService.SetWorkspace(path);
             ExplorerPanel.LoadFolder(path);
+
+            // ★ AJOUT (30/08, refonte Zen) : l'arborescence (colonne 2, à droite) est
+            // masquée par défaut — demandé par Tom : "non ouvert par défaut, jusqu'à
+            // ce qu'on importe une location". Un dossier vient d'être importé avec
+            // succès (ce point est atteint par TOUS les chemins d'import : chip
+            // "Projet logiciel", bouton Importer, AutoProjectBuilder) → on l'affiche.
+            ExplorerPanel.IsVisible = true;
+            Sidebar.IsVisible = false;
+
             StatusBar.SetLocked(_lock.IsLocked(path));
 
             _aiSettings = new Moto.Core.Settings.AiSettingsService(SettingsEngine.Shared, path);

@@ -1,17 +1,26 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <!--
   Moto.Editor/MainPage.xaml
-  Reconstruit intégralement (29-30/08/2026) : le fichier ne contenait plus
-  qu'un fragment d'insertion orphelin (pas de racine ContentPage, pas de
-  x:Class) — la mise en page réelle de la fenêtre principale avait disparu.
+  ★ REFONTE (30/08, 2e passe) : mise en page façon "Zen Code" minimaliste,
+  demandée par Tom après le premier lancement réel. Changements structurels :
+    - Colonne 0 (barre d'activité, icônes verticales) → ligne horizontale sous
+      la barre de titre (ActivityBarView, réécrite en horizontal, sans icônes).
+    - L'ancienne colonne 3 ("dock IA" : Cortex/Neural/Workspace/etc.) devient
+      la colonne 0, à GAUCHE (comme le panneau de discussion IA façon
+      VS Code/Zen demandé par Tom). Largeur nommée AiDockColumn, 0 par défaut
+      (repli de la "zone noire" toujours visible même vide, repérée par Tom) —
+      étendue par code (RefreshAiDockColumnWidth, MainPage.Panels.cs) dès qu'un
+      panneau de cette colonne devient visible.
+    - L'explorateur de fichiers (ancienne colonne 1) devient la colonne 2, à
+      DROITE (demandé par Tom). Largeur nommée FileTreeColumn, 0 par défaut —
+      étendue par code (ToggleSide / LoadWorkspace) à l'ouverture d'un dossier.
+    - Colonne centrale (Accueil/Éditeur) reste "*" : à largeur nulle des deux
+      côtés, elle occupe donc tout naturellement 100% de la largeur par défaut.
+    - Petit logo qui occupait le coin de l'ancienne colonne 1 : supprimé (plus
+      de coin sensé où le poser une fois la barre d'activité horizontale ;
+      l'accueil a déjà son propre gros logo).
   Chaque élément nommé ci-dessous a été retrouvé en lisant tous les
   MainPage.*.cs (partial class) pour savoir quel type/membre chacun exige.
-
-  Disposition façon IDE : barre de titre (haut) / [Explorateur|Sidebar]
-  [Barre d'activité] [Éditeur|Accueil] [dock droit IA] (milieu) / barre de
-  statut (bas). Les panneaux flottants (Cortex, Neural, Workspace, Command
-  Palette, etc.) sont ajoutés par-dessus au démarrage via du code
-  (MainPage.Panels.cs / MainPage.Extensions.cs, AddFloatingPanel/AddMotoOverlay).
 -->
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
@@ -21,42 +30,33 @@
              BackgroundColor="#1E2025"
              Loaded="OnPageLoaded">
 
-    <Grid x:Name="RootGrid"
-          RowDefinitions="34,*,26"
-          ColumnDefinitions="48,260,*,500">
-    <!-- ★ CORRECTION (30/08) : colonne 3 élargie de 300 à 500 — les panneaux
-         ancrés dans PanelHost (Cortex, Workspace, etc.) ont chacun une largeur
-         fixe allant jusqu'à 480-500px (conçus à l'origine pour flotter
-         librement) ; à 300px ils étaient coupés (Cortex : seulement 3 des 5
-         boutons de mode visibles, repéré par Tom). -->
+    <!--
+      ★ CORRECTION (après coup, 30/08) : les colonnes 0/2 utilisaient d'abord une
+      largeur absolue (GridLength 0/500/260) basculée par code. Ça a fait planter
+      WinUI à l'arrangement (CS... non, exception native WinRT dans Arrange —
+      voir %TEMP%\moto-editor-crash.log) : un Grid MAUI dont une colonne mesure
+      exactement 0px tente quand même d'arranger l'enfant qui s'y trouve, et le
+      CollectionView de l'explorateur (ItemsRepeater WinUI) ne tolère pas un
+      rectangle d'arrangement de taille nulle. Remplacé par le patron standard
+      MAUI : colonnes "Auto" + repli via IsVisible=False sur l'ÉLÉMENT lui-même
+      (AiDockPanel / ExplorerPanel / Sidebar) — un enfant invisible est
+      complètement ignoré par le moteur de layout (contribution 0,0), au lieu
+      d'être mesuré puis arrangé dans un rectangle dégénéré.
+    -->
+    <Grid x:Name="RootGrid" RowDefinitions="34,38,*,26" ColumnDefinitions="Auto,*,Auto">
 
         <!-- ══════════════════ Barre de titre / menu ══════════════════ -->
-        <views:CustomMenuBarView x:Name="MenuBar" Grid.Row="0" Grid.ColumnSpan="4" />
+        <views:CustomMenuBarView x:Name="MenuBar" Grid.Row="0" Grid.ColumnSpan="3" />
 
-        <!-- ══════════════════ Colonne 0 : Barre d'activité ══════════════════ -->
-        <controls:ActivityBarView x:Name="ActivityBar" Grid.Row="1" Grid.Column="0" />
+        <!-- ══════════════════ Barre de navigation horizontale (ex-barre d'activité) ══════════════════ -->
+        <controls:ActivityBarView x:Name="ActivityBar" Grid.Row="1" Grid.ColumnSpan="3" />
 
-        <!-- ══════════════════ Colonne 1 : Explorateur / Sidebar ══════════════════ -->
-        <views:FileExplorerView x:Name="ExplorerPanel" Grid.Row="1" Grid.Column="1" />
-        <views:SidebarView x:Name="Sidebar" Grid.Row="1" Grid.Column="1" IsVisible="False" />
-
-        <!-- ══════════════════ Colonne 2 : Accueil / Éditeur ══════════════════ -->
-        <controls:EditorPaneView x:Name="EditorPane" Grid.Row="1" Grid.Column="2" IsVisible="False" />
-        <!-- Home (x:Name="Home") est ajouté ici par code dans MainPage.xaml.cs :
-             HomeView n'a pas de constructeur sans paramètre (elle a besoin de
-             ChatService/CortexEngine/WorkspaceStateService, disponibles seulement
-             après InitializeComponent()). Elle occupe la même cellule Row=1,Col=2. -->
-
-        <!-- ══════════════════ Colonne 3 : dock IA (placeholders) + panneaux ══════════════════ -->
-        <!-- ★ CORRECTION (30/08) : cette colonne (300px, déjà existante) devient l'ancrage
-             réel des panneaux IA (Cortex/Neural/Workspace/etc.), au lieu qu'ils flottent
-             tous par-dessus le contenu au même endroit (superposés entre eux, repéré par
-             Tom : "les icônes... se chevauchent"). AiHost/ChatHost/ThreadHost inchangés
-             (utilisés ailleurs, OnMaximizeToggled notamment) — juste enveloppés dans un
-             Grid pour ajouter PanelHost à côté sans occuper la même cellule (même piège
-             que l'indicateur IA corrigé plus tôt : deux éléments dans la même cellule se
-             superposent). -->
-        <Grid Grid.Row="1" Grid.Column="3" RowDefinitions="Auto,*" BackgroundColor="#17181C">
+        <!-- ══════════════════ Colonne 0 : dock IA (placeholders) + panneaux ══════════════════ -->
+        <!-- Ancre réelle des panneaux IA (Cortex/Neural/Workspace/etc.), un par un
+             (voir AddFloatingPanel, MainPage.Panels.cs). AiHost/ChatHost/ThreadHost
+             inchangés (utilisés ailleurs, OnMaximizeToggled notamment). -->
+        <Grid x:Name="AiDockPanel" Grid.Row="2" Grid.Column="0" RowDefinitions="Auto,*"
+              WidthRequest="500" IsVisible="False" BackgroundColor="#17181C">
             <VerticalStackLayout Grid.Row="0" Spacing="8" Padding="8">
                 <Border x:Name="AiHost" IsVisible="False" Padding="10"
                         BackgroundColor="{StaticResource BgPanel}" StrokeShape="RoundRectangle 8">
@@ -77,72 +77,67 @@
             </ScrollView>
         </Grid>
 
+        <!-- ══════════════════ Colonne 1 : Accueil / Éditeur ══════════════════ -->
+        <controls:EditorPaneView x:Name="EditorPane" Grid.Row="2" Grid.Column="1" IsVisible="False" />
+        <!-- Home (x:Name="Home") est ajouté ici par code dans MainPage.xaml.cs :
+             HomeView n'a pas de constructeur sans paramètre (elle a besoin de
+             ChatService/CortexEngine/WorkspaceStateService, disponibles seulement
+             après InitializeComponent()). Elle occupe la même cellule Row=2,Col=1. -->
+
+        <!-- ══════════════════ Colonne 2 : Explorateur / Sidebar ══════════════════ -->
+        <views:FileExplorerView x:Name="ExplorerPanel" Grid.Row="2" Grid.Column="2"
+                                 WidthRequest="260" IsVisible="False" />
+        <views:SidebarView x:Name="Sidebar" Grid.Row="2" Grid.Column="2"
+                            WidthRequest="260" IsVisible="False" />
+
         <!-- ══════════════════ Barre de statut ══════════════════ -->
-        <views:StatusBarPanelView x:Name="StatusBar" Grid.Row="2" Grid.ColumnSpan="4" />
+        <views:StatusBarPanelView x:Name="StatusBar" Grid.Row="3" Grid.ColumnSpan="3" />
 
         <!-- ══════════════════ Bandeau IA flottant (Ctrl+Shift+I) ══════════════════ -->
-        <views:AiCommandBarView x:Name="AiBar" Grid.Row="1" Grid.ColumnSpan="4"
+        <views:AiCommandBarView x:Name="AiBar" Grid.Row="2" Grid.ColumnSpan="3"
                                  HorizontalOptions="Center" VerticalOptions="End"
                                  Margin="0,0,0,40" IsVisible="False" />
 
         <!-- ══════════════════ Panneaux flottants (toggle IsVisible) ══════════════════ -->
-        <views:ExportMenuView x:Name="ExportMenu" Grid.Row="1" Grid.ColumnSpan="4"
+        <views:ExportMenuView x:Name="ExportMenu" Grid.Row="2" Grid.ColumnSpan="3"
                                HorizontalOptions="End" VerticalOptions="Start"
                                Margin="0,10,60,0" IsVisible="False" />
 
-        <views:AutoLinkView x:Name="AutoLinkPanel" Grid.Row="1" Grid.ColumnSpan="4"
+        <views:AutoLinkView x:Name="AutoLinkPanel" Grid.Row="2" Grid.ColumnSpan="3"
                              HorizontalOptions="End" VerticalOptions="Start"
                              Margin="0,10,60,0" IsVisible="False" />
 
-        <views:ContextSuggestionsView x:Name="ContextPanel" Grid.Row="1" Grid.ColumnSpan="4"
+        <views:ContextSuggestionsView x:Name="ContextPanel" Grid.Row="2" Grid.ColumnSpan="3"
                                        HorizontalOptions="End" VerticalOptions="Start"
                                        Margin="0,10,60,0" IsVisible="False" />
 
-        <views:DocPanelView x:Name="DocPanel" Grid.Row="1" Grid.ColumnSpan="4"
+        <views:DocPanelView x:Name="DocPanel" Grid.Row="2" Grid.ColumnSpan="3"
                              HorizontalOptions="End" VerticalOptions="Start"
                              Margin="0,10,60,0" IsVisible="False" />
 
-        <views:PresentationView x:Name="PresentationPanel" Grid.Row="1" Grid.ColumnSpan="4"
+        <views:PresentationView x:Name="PresentationPanel" Grid.Row="2" Grid.ColumnSpan="3"
                                  HorizontalOptions="End" VerticalOptions="Start"
                                  Margin="0,10,60,0" IsVisible="False" />
 
-        <views:RemoteConnectView x:Name="RemotePanel" Grid.Row="1" Grid.ColumnSpan="4"
+        <views:RemoteConnectView x:Name="RemotePanel" Grid.Row="2" Grid.ColumnSpan="3"
                                   HorizontalOptions="End" VerticalOptions="Start"
                                   Margin="0,10,60,0" IsVisible="False" />
 
-        <views:CollabPanelView x:Name="CollabPanel" Grid.Row="1" Grid.ColumnSpan="4"
+        <views:CollabPanelView x:Name="CollabPanel" Grid.Row="2" Grid.ColumnSpan="3"
                                 HorizontalOptions="End" VerticalOptions="Start"
                                 Margin="0,10,60,0" IsVisible="False" />
 
         <!-- Écran de verrouillage (projet protégé par mot de passe) -->
-        <views:PasswordGateView x:Name="PasswordGate" Grid.Row="1" Grid.ColumnSpan="4" IsVisible="False" />
+        <views:PasswordGateView x:Name="PasswordGate" Grid.Row="2" Grid.ColumnSpan="3" IsVisible="False" />
 
         <!-- Menu custom "Emplacement d'exécution" (chip "💻 Local" de l'accueil) -->
-        <!-- ★ CORRECTION (30/08, 2e passe) : même patron que SettingsMenu/RemotePanel/etc.
-             (ancré en haut à droite) — l'essai précédent (fond plein écran) ne
-             s'affichait pas correctement chez Tom malgré 2 tentatives. -->
-        <controls:ExecutionLocationMenu x:Name="LocationMenu" Grid.Row="1" Grid.ColumnSpan="4"
+        <controls:ExecutionLocationMenu x:Name="LocationMenu" Grid.Row="2" Grid.ColumnSpan="3"
                                           HorizontalOptions="End" VerticalOptions="Start"
                                           Margin="0,10,60,0" IsVisible="False" />
 
         <!-- SettingsMenu (x:Name="SettingsMenu") est ajouté par code : SettingsMenuView
              a besoin de PluginRegistry/ProfileManager/SettingsImporterExporter en
              constructeur (résolus via DI dans MainPage.xaml.cs). -->
-
-        <!-- ══════════════════ Logo (coin haut-gauche de l'Explorateur) ══════════════════ -->
-        <!-- ★ CORRECTION (30/08) : Grid.Column="0" → "1" — cette colonne est devenue la
-             barre d'activité après la permutation des colonnes ; le petit logo s'y
-             superposait à ses icônes (repéré par Tom). -->
-        <HorizontalStackLayout Grid.Row="1" Grid.Column="1" Spacing="4"
-                                HorizontalOptions="Start" VerticalOptions="Start" Margin="6,6,0,0"
-                                InputTransparent="False">
-            <controls:MotoLogoView Size="20" Margin="4,2" />
-        </HorizontalStackLayout>
-
-        <!-- ★ CORRECTION (30/08) : l'indicateur IA (🧠 Idle) a déménagé DANS
-             StatusBarPanelView (voir ce fichier) — il se superposait littéralement à
-             elle ici, puisque StatusBarPanelView occupe déjà toute la ligne 2 via
-             Grid.ColumnSpan="4" (repéré par Tom : icônes/texte qui se chevauchent). -->
 
     </Grid>
 

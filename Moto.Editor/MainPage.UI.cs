@@ -267,8 +267,12 @@ namespace Moto.Editor
         {
             var s = SettingsEngine.Shared;
             StatusBar.ApplySettings(s);
-            var explorerLeft = s.GetString("pp_dock") == "Left";
-            Grid.SetColumn(ExplorerPanel, explorerLeft ? 0 : 3);
+            // ★ CORRECTION (30/08, refonte Zen) : "pp_dock" (Left/Right) n'est exposé
+            // nulle part dans SettingsMenuView — réglage mort, jamais atteignable par
+            // Tom. La colonne 0 est désormais fixe (dock IA, demandé "façon VS Code" à
+            // gauche) : l'explorateur ne peut plus docker à gauche sans se superposer
+            // au dock IA. Sa colonne (arborescence, à droite) est maintenant fixe.
+            Grid.SetColumn(ExplorerPanel, 2);
         }
 
         private async void OnSettingChanged(string key, object value)
@@ -352,12 +356,15 @@ namespace Moto.Editor
 
             if (_maximized)
             {
+                // ★ CORRECTION (30/08, refonte Zen) : 3 colonnes désormais (dock IA,
+                // centre, arborescence) au lieu de 4 — span complet = 3.
                 Grid.SetColumn(EditorPane, 0);
-                Grid.SetColumnSpan(EditorPane, 4);
+                Grid.SetColumnSpan(EditorPane, 3);
             }
             else
             {
-                Grid.SetColumn(EditorPane, 2);
+                // Colonne centrale : 2 → 1 (voir MainPage.xaml, refonte Zen).
+                Grid.SetColumn(EditorPane, 1);
                 Grid.SetColumnSpan(EditorPane, 1);
                 ApplyLayoutSettings();
             }

@@ -122,8 +122,10 @@ namespace Moto.Editor
         {
             _infoOverlay = Resolve<InfoOverlay>() ?? new InfoOverlay();
             RootGrid.Children.Add(_infoOverlay);
-            Grid.SetRow(_infoOverlay, 1);
-            Grid.SetColumnSpan(_infoOverlay, 4);
+            // ★ CORRECTION (30/08, refonte Zen) : ligne 1 → 2 (nouvelle ligne de nav
+            // horizontale insérée), colonnes 4 → 3 (dock IA + centre + arborescence).
+            Grid.SetRow(_infoOverlay, 2);
+            Grid.SetColumnSpan(_infoOverlay, 3);
 
             var updateManager = Resolve<Moto.Core.Updates.UpdateManager>();
             if (updateManager != null)
@@ -144,8 +146,10 @@ namespace Moto.Editor
         private void CreateHomeAndSettingsMenu()
         {
             Home = new Views.HomeView(_chatService, _cortex, _workspaceState);
-            Grid.SetRow(Home, 1);
-            Grid.SetColumn(Home, 2);
+            // ★ CORRECTION (30/08, refonte Zen) : colonne centrale 2 → 1 (le dock IA a
+            // pris la colonne 0, l'arborescence a pris la 2 — voir MainPage.xaml).
+            Grid.SetRow(Home, 2);
+            Grid.SetColumn(Home, 1);
             RootGrid.Children.Add(Home);
 
             SettingsMenu = new Views.SettingsMenuView
@@ -154,8 +158,8 @@ namespace Moto.Editor
                 HorizontalOptions = LayoutOptions.End,
                 VerticalOptions = LayoutOptions.Start
             };
-            Grid.SetRow(SettingsMenu, 1);
-            Grid.SetColumnSpan(SettingsMenu, 4);
+            Grid.SetRow(SettingsMenu, 2);
+            Grid.SetColumnSpan(SettingsMenu, 3);
             RootGrid.Children.Add(SettingsMenu);
         }
 
