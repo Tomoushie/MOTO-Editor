@@ -5,6 +5,7 @@ using System.Drawing;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
+using Color = System.Drawing.Color;
 
 namespace Moto.Editor.Syntax
 {

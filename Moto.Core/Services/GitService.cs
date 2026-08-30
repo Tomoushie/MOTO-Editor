@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Moto.Core.Logging;
 using Moto.Core.Settings;
+using Moto.Editor.Services;
 
 namespace Moto.Core.Services;
 
@@ -45,7 +46,7 @@ public sealed class GitService
     /// <summary>Initialise un nouveau dépôt Git.</summary>
     public async Task<GitOperationResult> InitAsync(string path)
     {
-        if (!_settings.Shared.Git.GitEnabled.Value) return GitOperationResult.Cancelled;
+        if (!SettingsCatalog.Git.GitEnabled.Value) return GitOperationResult.Cancelled;
         var result = await _terminal.ExecuteAsync($"git init \"{path}\"");
         _log.Info("Git", "Init", new { path, result });
         return result.ExitCode == 0 ? GitOperationResult.Success : GitOperationResult.Failure;
@@ -94,7 +95,7 @@ public sealed class GitService
     /// <summary>Push vers remote.</summary>
     public async Task<GitOperationResult> PushAsync(string remote = "origin", string branch = "", bool force = false)
     {
-        if (!_settings.Shared.Git.ConfirmBeforePush.Value && !force)
+        if (!SettingsCatalog.Git.ConfirmBeforePush.Value && !force)
         {
             _log.Warning("Git", "Push annulé : confirmation requise");
             return GitOperationResult.Cancelled;

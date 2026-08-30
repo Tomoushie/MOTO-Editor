@@ -32,25 +32,6 @@ public sealed class EmbeddedLlmEngine : IDisposable
         Instance = this;
     }
 
-    // Modification minimale : EmbeddedLlmEngine délègue à SmartModelManager
-    public sealed class EmbeddedLlmEngine : IDisposable
-    {
-        private readonly SmartModelManager _smartManager;
-
-        public EmbeddedLlmEngine(EmbeddedLlmConfig config, SmartModelManager smartManager)
-        {
-            _smartManager = smartManager;
-            // ... reste inchangé
-        }
-
-        public async Task<string> GenerateAsync(string prompt, int maxTokens = 512,
-            float temperature = 0.7f, CancellationToken ct = default)
-        {
-            // Délègue au SmartModelManager qui gère l'isolation
-            return await _smartManager.GenerateAsync(prompt, ct);
-        }
-    }
-
     /// <summary>
     /// Charge le modèle en mémoire (lazy, ~2-3 secondes).
     /// </summary>

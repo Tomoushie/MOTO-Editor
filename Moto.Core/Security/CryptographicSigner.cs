@@ -28,7 +28,7 @@ namespace Moto.Core.Security
         /// </summary>
         public (string PublicKey, string PrivateKey) GenerateKeyPair(string publisherId)
         {
-            using var ed25519 = new ECDsa();
+            using var ed25519 = ECDsa.Create();
             var parameters = ed25519.ExportParameters(true);
 
             var publicKey = Convert.ToBase64String(parameters.Q.X!);

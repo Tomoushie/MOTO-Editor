@@ -48,9 +48,9 @@ public sealed class AnnotationLayerService
 
     public void AddAnnotation(LineAnnotation annotation)
     {
-        if (!_settings.Shared.Collab.AnnotationLayersEnabled.Value) return;
+        if (!SettingsCatalog.Collab.AnnotationLayersEnabled.Value) return;
         if (annotation.Kind == AnnotationKind.MeetingNote &&
-            !_settings.Shared.Collab.MeetingNotesLinkingEnabled.Value) return;
+            !SettingsCatalog.Collab.MeetingNotesLinkingEnabled.Value) return;
 
         lock (_lock) _annotations.Add(annotation);
         Persist();

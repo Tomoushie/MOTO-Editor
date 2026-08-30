@@ -70,7 +70,11 @@ namespace Moto.Core.Chat
         {
             lock (_lock)
             {
-                var index = _threads.FindIndex(t => t.Id == updatedThread.Id);
+                var index = -1;
+                for (var i = 0; i < _threads.Count; i++)
+                {
+                    if (_threads[i].Id == updatedThread.Id) { index = i; break; }
+                }
                 if (index >= 0)
                 {
                     _threads[index] = updatedThread;

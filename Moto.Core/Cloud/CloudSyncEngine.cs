@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace Moto.Core.Cloud
 {
-    public enum CloudProvider { None, Dropbox, GoogleDrive, OneDrive }
+    // CloudProvider est défini dans CloudProviderClient.cs (même namespace) — pas de redéfinition ici.
 
     public sealed class CloudSyncConfig
     {

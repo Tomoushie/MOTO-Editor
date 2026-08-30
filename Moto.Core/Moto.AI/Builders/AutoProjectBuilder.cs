@@ -2,6 +2,7 @@
 using System;
 using System.IO;
 using System.Threading.Tasks;
+using Moto.Editor.AI.Builders;
 
 namespace Moto.Core.AI.Builders
 {

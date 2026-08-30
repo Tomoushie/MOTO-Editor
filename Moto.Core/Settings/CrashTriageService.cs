@@ -33,7 +33,7 @@ public sealed class CrashTriageService
 
     public void Report(CrashReport crash)
     {
-        if (!_settings.Shared.DevOps.CrashTriageEnabled.Value) return;
+        if (!SettingsCatalog.DevOps.CrashTriageEnabled.Value) return;
         crash.GroupKey = ComputeGroupKey(crash);
         _reports.Add(crash);
         _log.Info("CrashTriage", "Crash groupé", new { crash.GroupKey, crash.ExceptionType });

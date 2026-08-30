@@ -29,7 +29,7 @@ public sealed class FeatureFlagService
 
     public bool IsEnabled(string name)
     {
-        if (!_settings.Shared.DevOps.FeatureFlagsEnabled.Value) return true;
+        if (!SettingsCatalog.DevOps.FeatureFlagsEnabled.Value) return true;
         return _flags.TryGetValue(name, out var eval) && eval();
     }
 

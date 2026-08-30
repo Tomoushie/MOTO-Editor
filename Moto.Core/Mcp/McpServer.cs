@@ -44,8 +44,8 @@ public sealed class McpServerManager
 
     private void LoadServers()
     {
-        if (!_settings.Shared.Mcp.McpEnabled.Value) return;
-        string path = _settings.Shared.Mcp.McpServersPath.Value;
+        if (!SettingsCatalog.Mcp.McpEnabled.Value) return;
+        string path = SettingsCatalog.Mcp.McpServersPath.Value;
         if (!File.Exists(path)) return;
 
         try

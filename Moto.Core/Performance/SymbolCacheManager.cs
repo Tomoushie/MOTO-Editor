@@ -1,5 +1,6 @@
 // Moto.Core/Performance/SymbolCacheManager.cs
 using System.IO.Compression;
+using System.Text;
 using System.Text.Json;
 
 namespace Moto.Core.Performance;

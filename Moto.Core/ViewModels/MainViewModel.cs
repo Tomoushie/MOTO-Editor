@@ -125,22 +125,48 @@ namespace Moto.Editor.ViewModels
         {
             try
             {
-                var result = await FolderPicker.Default.PickAsync();
-
-                if (!result.IsSuccessful)
+                // Microsoft.Maui.Storage n'expose pas de FolderPicker cross-plateforme ;
+                // on utilise le picker natif Windows directement (voir méthode ci-dessous).
+                var path = await PickFolderPathAsync();
+                if (string.IsNullOrWhiteSpace(path))
                 {
                     return;
                 }
 
-                LoadFileNames(result.Folder.Path);
-                _terminal.Start(result.Folder.Path);
+                LoadFileNames(path);
+                _terminal.Start(path);
 
-                Status = $"Workspace ouvert : {result.Folder.Path}";
+                Status = $"Workspace ouvert : {path}";
             }
             catch (Exception ex)
             {
                 Status = $"Erreur : {ex.Message}";
             }
+        }
+
+        /// <summary>Ouvre le sélecteur de dossier natif (Windows). Retourne null si annulé/indisponible.</summary>
+        private static async Task<string?> PickFolderPathAsync()
+        {
+#if WINDOWS
+            var picker = new global::Windows.Storage.Pickers.FolderPicker
+            {
+                SuggestedStartLocation = global::Windows.Storage.Pickers.PickerLocationId.ComputerFolder,
+            };
+            picker.FileTypeFilter.Add("*");
+
+            var mauiWindow = Microsoft.Maui.Controls.Application.Current?.Windows.FirstOrDefault();
+            if (mauiWindow?.Handler?.PlatformView is Microsoft.UI.Xaml.Window nativeWindow)
+            {
+                var hwnd = WinRT.Interop.WindowNative.GetWindowHandle(nativeWindow);
+                WinRT.Interop.InitializeWithWindow.Initialize(picker, hwnd);
+            }
+
+            var folder = await picker.PickSingleFolderAsync();
+            return folder?.Path;
+#else
+            await Task.CompletedTask;
+            return null;
+#endif
         }
 
         /// <summary>

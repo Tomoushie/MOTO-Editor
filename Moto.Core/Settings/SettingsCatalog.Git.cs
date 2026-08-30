@@ -2,7 +2,7 @@ namespace Moto.Core.Settings;
 
 public partial class SettingsCatalog
 {
-    public GitSettings Git { get; } = new();
+    public static GitSettings Git { get; } = new();
 
     public partial class GitSettings
     {

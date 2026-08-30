@@ -51,7 +51,8 @@ namespace Moto.Core.AI.Internal
                 try
                 {
                     context.ActiveFileContent = File.ReadAllText(activeFile);
-                    context.ActiveFileSymbols = ExtractSymbols(context.ActiveFileContent);
+                    context.ActiveFileSymbols.Clear();
+                    context.ActiveFileSymbols.AddRange(ExtractSymbols(context.ActiveFileContent));
                 }
                 catch
                 {

@@ -7,11 +7,7 @@ using System.Text.Json;
 
 namespace Moto.Core.Settings
 {
-    public interface ISettingsStore
-    {
-        object? GetRaw(string key);
-        void Set(string key, object value);
-    }
+    // ISettingsStore : voir Moto.Core/Settings/ISettingsStore.cs (contrat commun, ne pas redéclarer ici).
 
     public sealed class AiSettingsResult
     {
@@ -191,9 +187,15 @@ namespace Moto.Core.Settings
                 _engine = engine ?? throw new ArgumentNullException(nameof(engine));
             }
 
+            public T Get<T>(string key, T defaultValue) => _engine.Get(key, defaultValue);
+
+            public void Set<T>(string key, T value) => _engine.Set(key, value);
+
             public object? GetRaw(string key) => _engine.GetRaw(key);
 
-            public void Set(string key, object value) => _engine.Set(key, value);
+            public bool GetBool(string key, bool defaultValue = false) => _engine.GetBool(key, defaultValue);
+
+            public string GetString(string key, string defaultValue = "") => _engine.GetString(key, defaultValue);
         }
     }
 }

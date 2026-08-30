@@ -2,7 +2,7 @@ namespace Moto.Core.Settings;
 
 public partial class SettingsCatalog
 {
-    public MarketplaceSettings Marketplace { get; } = new();
+    public static MarketplaceSettings Marketplace { get; } = new();
 
     public partial class MarketplaceSettings
     {

@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Moto.Core.AI.Cortex;
 using Moto.Core.AI.Neural;
 using Moto.Core.AI.Internal;
+using Moto.Core.AI.Internal.Models;
 using Moto.Core.Doc;
 using Moto.Core.Platform;
 

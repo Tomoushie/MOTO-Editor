@@ -119,7 +119,7 @@ namespace Moto.Editor.Navigation
 
                     // 5. Nombre de références entrantes (hub)
                     var fileName = Path.GetFileNameWithoutExtension(filePath);
-                    var referencingEntries = _index.FindByName(fileName, 100);
+                    var referencingEntries = _index.FindByName(fileName);
                     if (referencingEntries.Count > 5)
                     {
                         double weight = Math.Min(referencingEntries.Count * 0.05, 0.5);

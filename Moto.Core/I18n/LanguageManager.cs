@@ -24,6 +24,26 @@ namespace Moto.Core.I18n
     {
         public LanguageInfo Info { get; init; } = null!;
         public Dictionary<string, string> Translations { get; init; } = new();
+
+        // Champs additionnels pour les packs générés/partageables (marketplace communautaire),
+        // utilisés par LanguagePackGenerator/AiTranslationEngine en plus du chargement runtime.
+        public string Id { get; init; } = string.Empty;
+        public string Name { get; init; } = string.Empty;
+        public string NativeName { get; init; } = string.Empty;
+        public string Flag { get; init; } = string.Empty;
+        public string Version { get; init; } = "1.0.0";
+        public string Author { get; init; } = string.Empty;
+        public List<string> Contributors { get; init; } = new();
+        public DateTime LastUpdated { get; init; } = DateTime.UtcNow;
+        public LanguagePackMetadata Metadata { get; init; } = new();
+    }
+
+    /// <summary>Métadonnées communautaires d'un pack de langue (marketplace).</summary>
+    public sealed class LanguagePackMetadata
+    {
+        public int DownloadCount { get; init; }
+        public double Rating { get; init; }
+        public bool Verified { get; init; }
     }
 
     /// <summary>

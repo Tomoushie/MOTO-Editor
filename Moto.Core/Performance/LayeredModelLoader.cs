@@ -18,11 +18,11 @@ public class LayeredModelLoader
         _logger = logger;
 
         // Initialisation du sémaphore avec la valeur des settings (Backpressure)
-        var maxConcurrent = _settings.Shared.Ai.Advanced.MaxConcurrentPrefetch.Value;
+        var maxConcurrent = SettingsCatalog.Ai.Advanced.MaxConcurrentPrefetch.Value;
         _prefetchSemaphore = new SemaphoreSlim(maxConcurrent, maxConcurrent);
 
         // Écoute des changements pour ajustement dynamique (si l'utilisateur modifie le setting à chaud)
-        _settings.Shared.Ai.Advanced.MaxConcurrentPrefetch.Changed += OnMaxConcurrentChanged;
+        SettingsCatalog.Ai.Advanced.MaxConcurrentPrefetch.Changed += OnMaxConcurrentChanged;
     }
 
     private void OnMaxConcurrentChanged(object? sender, SettingChangedEventArgs<int> e)

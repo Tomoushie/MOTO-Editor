@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using Moto.Core.AI.AutoLink;
 using Moto.Core.AI.Internal;
+using Moto.Core.AI.Internal.Models;
 
 namespace Moto.Core.AI.Context
 {
@@ -15,7 +16,7 @@ namespace Moto.Core.AI.Context
     /// </summary>
     public class ContextAnalyzer
     {
-        private readonly AutoLinkEngine _autoLink = new();
+        private readonly Moto.Core.AI.AutoLink.AutoLinkEngine _autoLink = new();
         private readonly ProjectUnderstandingEngine _understanding = new();
         private readonly PatternDetectorEngine _patterns = new();
 

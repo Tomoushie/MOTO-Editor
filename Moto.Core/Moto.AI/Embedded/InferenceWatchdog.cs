@@ -48,4 +48,10 @@ public sealed class InferenceWatchdog : IDisposable
         }
         catch { }
     }
+
+    public void Dispose()
+    {
+        // ... (libération des ressources existantes, ex. timer / hôte)
+        OnStateChanged = null;
+    }
 }

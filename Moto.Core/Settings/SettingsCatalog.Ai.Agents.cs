@@ -2,7 +2,7 @@ namespace Moto.Core.Settings;
 
 public partial class SettingsCatalog
 {
-    public AiAgentsSettings AiAgents { get; } = new();
+    public static AiAgentsSettings AiAgents { get; } = new();
 
     public partial class AiAgentsSettings
     {

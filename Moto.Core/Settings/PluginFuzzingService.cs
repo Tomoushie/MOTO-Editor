@@ -23,10 +23,10 @@ public sealed class PluginFuzzingService
     }
 
     /// <summary>Génère des entrées aléatoires pour sonder la robustesse d'un plugin.</summary>
-    public async Task<List<string>> FuzzPluginAsync(IMotoPlugin plugin, int iterations = 100)
+    public async Task<List<string>> FuzzPluginAsync(IPlugin plugin, int iterations = 100)
     {
         var crashes = new List<string>();
-        if (!_settings.Shared.DevOps.PluginFuzzingEnabled.Value) return crashes;
+        if (!SettingsCatalog.DevOps.PluginFuzzingEnabled.Value) return crashes;
 
         for (int i = 0; i < iterations; i++)
         {
@@ -39,10 +39,10 @@ public sealed class PluginFuzzingService
             catch (Exception ex)
             {
                 crashes.Add($"Iter {i} : {ex.GetType().Name} — {ex.Message}");
-                _log.Warning("PluginFuzzing", "Crash fuzz détecté", new { plugin.Name, input });
+                _log.Warning("PluginFuzzing", "Crash fuzz détecté", new { plugin.DisplayName, input });
             }
         }
-        _log.Info("PluginFuzzing", "Fuzzing terminé", new { plugin.Name, crashes = crashes.Count });
+        _log.Info("PluginFuzzing", "Fuzzing terminé", new { plugin.DisplayName, crashes = crashes.Count });
         return crashes;
     }
 

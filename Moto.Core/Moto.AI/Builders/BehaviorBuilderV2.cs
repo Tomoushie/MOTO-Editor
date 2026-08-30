@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
+using Moto.Editor.AI.Builders;
 
 namespace Moto.Core.AI.Builders
 {
@@ -150,7 +151,7 @@ namespace {ns}
             if (!_component.IsActive) return;
 
             // TODO: implémenter {action} vers {target}.
-            // var direction = GetDirectionTowards{_targetPlaceholder}();
+            // var direction = GetDirectionTowards{{_targetPlaceholder}}();
             // Move(direction * _component.Speed * deltaTime);
         }}
     }}

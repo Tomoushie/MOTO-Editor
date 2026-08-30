@@ -16,7 +16,7 @@ public sealed class AiModePreset
     public GovernorMode ForcedMode { get; init; } = GovernorMode.Balanced;
     public ResourceBudget BudgetOverride { get; init; } = ResourceBudget.Balanced;
     public bool AllowAutoUpgrade { get; init; } = false;
-    public bool GpuOnly { get; init; } = false;
+    public bool IsGpuOnly { get; init; } = false;
     public bool NightlyOnly { get; init; } = false;
 
     public static AiModePreset Eco => new()
@@ -80,7 +80,7 @@ public sealed class AiModePreset
             AllowGpu = true,
             MaxCpuPercent = 20
         },
-        GpuOnly = true
+        IsGpuOnly = true
     };
 
     public static AiModePreset NightlyHeavy => new()

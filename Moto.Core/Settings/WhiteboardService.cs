@@ -39,7 +39,7 @@ public sealed class WhiteboardService
 
     public void AddElement(WhiteboardElement element)
     {
-        if (!_settings.Shared.Collab.WhiteboardEnabled.Value) return;
+        if (!SettingsCatalog.Collab.WhiteboardEnabled.Value) return;
         lock (_lock) _elements.Add(element);
         WhiteboardChanged?.Invoke(this, EventArgs.Empty);
     }

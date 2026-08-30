@@ -3,12 +3,53 @@
 
 using System;
 using System.IO;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace Moto.Core.Platform
 {
     public partial class PlatformDetector
     {
+    /// <summary>
+    /// Analyse basique du workspace : repère le .csproj principal, détecte si c'est un
+    /// projet MAUI et extrait les TargetFramework(s) actuels. Base minimale sur laquelle
+    /// PlatformEngine (portages, CI) s'appuie ; les détections fines (2) restent à enrichir.
+    /// </summary>
+    public PlatformReport Analyze(string workspace)
+    {
+        var report = new PlatformReport();
+
+        try
+        {
+            var csproj = Directory.Exists(workspace)
+                ? Directory.EnumerateFiles(workspace, "*.csproj", SearchOption.AllDirectories).FirstOrDefault()
+                : null;
+
+            if (csproj != null)
+            {
+                report.CsprojPath = csproj;
+                var content = File.ReadAllText(csproj);
+
+                report.IsMauiProject = content.Contains("<UseMaui>true</UseMaui>", StringComparison.OrdinalIgnoreCase)
+                    || content.Contains("Microsoft.Maui.Controls", StringComparison.OrdinalIgnoreCase);
+
+                var tfmMatch = Regex.Match(content, @"<TargetFrameworks?>([^<]+)</TargetFrameworks?>");
+                if (tfmMatch.Success)
+                    report.CurrentTargetFrameworks = tfmMatch.Groups[1].Value.Trim();
+
+                var nsMatch = Regex.Match(content, @"<RootNamespace>([^<]+)</RootNamespace>");
+                report.RootNamespace = nsMatch.Success
+                    ? nsMatch.Groups[1].Value.Trim()
+                    : Path.GetFileNameWithoutExtension(csproj);
+            }
+        }
+        catch
+        {
+            // Analyse best-effort : un workspace illisible ne doit pas planter l'appelant.
+        }
+
+        return report;
+    }
 
     /// <summary>Regex combinée : tout pattern plateforme connu.</summary>
 private static readonly Regex CombinedSignal = new Regex(

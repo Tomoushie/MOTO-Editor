@@ -40,7 +40,7 @@ public sealed class LocalModelResourceGovernor : IDisposable
         _log = log;
 
         var interval = TimeSpan.FromSeconds(
-            Math.Max(2, _settings.Shared.Ai.Advanced.CooperativeScanIntervalSeconds.Value));
+            Math.Max(2, SettingsCatalog.Ai.Advanced.CooperativeScanIntervalSeconds.Value));
 
         // Timer debouncé : jamais de travail inutile (règle PerformanceEngine)
         _scanTimer = new Timer(_ => ScanAndAdapt(), null, interval, interval);
@@ -52,7 +52,7 @@ public sealed class LocalModelResourceGovernor : IDisposable
         if (_disposed) return;
         try
         {
-            if (!_settings.Shared.Ai.Advanced.CooperativeResourceMode.Value)
+            if (!SettingsCatalog.Ai.Advanced.CooperativeResourceMode.Value)
             {
                 if (IsCooperativeModeActive) ExitCooperativeMode("désactivé par l'utilisateur");
                 return;
@@ -108,12 +108,12 @@ public sealed class LocalModelResourceGovernor : IDisposable
             var current = Process.GetCurrentProcess();
             _originalPriority = current.PriorityClass;
 
-            if (_settings.Shared.Ai.Advanced.LowerPriorityOnCooperative.Value)
+            if (SettingsCatalog.Ai.Advanced.LowerPriorityOnCooperative.Value)
                 current.PriorityClass = ProcessPriorityClass.BelowNormal;
 
             PerformanceEngine.EnterEcoMode();
 
-            if (_settings.Shared.Ai.Advanced.TrimMemoryOnCooperative.Value)
+            if (SettingsCatalog.Ai.Advanced.TrimMemoryOnCooperative.Value)
                 TrimWorkingSet();
 
             _cooperativeActive = true;

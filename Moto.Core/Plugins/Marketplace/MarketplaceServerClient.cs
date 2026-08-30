@@ -14,7 +14,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Moto.Core.Plugins.Marketplace
 {
-    public sealed class MarketplaceAccount
+    public sealed class MarketplaceServerAccount
     {
         public string Username { get; init; } = string.Empty;
         public string Token { get; init; } = string.Empty;

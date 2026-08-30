@@ -9,11 +9,16 @@ using Moto.Core.Services;
 
 namespace Moto.Core.Platform
 {
-    public class PlatformEngine
+    public class PlatformEngine : IDisposable
     {
         private readonly PlatformDetector _detector = new();
         private readonly BuildEngine _build = new();
         private readonly System.Timers.Timer _redetectTimer;
+
+        public void Dispose()
+        {
+            _redetectTimer?.Dispose();
+        }
 
         private string _workspace;
         private List<string> _addedTfms = new();

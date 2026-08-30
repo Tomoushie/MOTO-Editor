@@ -17,7 +17,11 @@ namespace Moto.Core.AI.Cortex
         int TotalPatterns,     // patterns de code/style détectés
         int TotalCorrections,  // corrections appliquées via StyleLearner
         double ConfidenceAvg   // confiance moyenne [0..1]
-    );
+    )
+    {
+        /// <summary>Horodatage de la dernière activité Cortex (utilisé par AIWorkspace.WorkspaceStats).</summary>
+        public DateTime LastActivity { get; init; } = DateTime.UtcNow;
+    }
 
     /// <summary>
     /// MOTO AI v3 — Cortex Engine : cerveau logique évolutif.
@@ -148,7 +152,7 @@ namespace Moto.Core.AI.Cortex
         private string GenerateBase(string intent, string context) => $"// Génération pour : {intent}";
         private string ApplyNamingConventions(string code, Dictionary<string, string> conventions) => code;
         private string ApplyTypePreferences(string code, Dictionary<string, double> habits) => code;
-        private string ApplyPatternPreferences(string code, List<PatternRecord> patterns) => code;
+        private string ApplyPatternPreferences(string code, List<PatternRecordLegacy> patterns) => code;
 
         private List<string> FindNonCamelCaseVariables(string content)
         {
@@ -176,5 +180,8 @@ namespace Moto.Core.AI.Cortex
         public double Confidence { get; set; }
         public string FilePath { get; set; } = string.Empty;
         public int Line { get; set; }
+
+        /// <summary>Extrait de code généré associé à la suggestion (snippet), si applicable.</summary>
+        public string? GeneratedContent { get; set; }
     }
 }

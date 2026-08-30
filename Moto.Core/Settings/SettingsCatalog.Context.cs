@@ -3,6 +3,8 @@ namespace Moto.Core.Settings
 {
     public static partial class SettingsCatalog
     {
+        static partial void RegisterContext();
+
         static partial void RegisterContext()
         {
             T("context_engine_enabled", "Agent", "Context Engine", "Context Engine activé",

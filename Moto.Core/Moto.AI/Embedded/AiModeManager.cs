@@ -41,7 +41,7 @@ public sealed class AiModeManager
         _governor.ForceMode(preset.ForcedMode);
 
         // Applique le budget override
-        if (preset.GpuOnly)
+        if (preset.IsGpuOnly)
         {
             // Active GPU, réduit CPU
             ApplyGpuOnlyMode();

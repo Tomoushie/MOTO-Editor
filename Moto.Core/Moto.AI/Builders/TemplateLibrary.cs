@@ -1,5 +1,6 @@
 // Moto.Core/AI/Builders/TemplateLibrary.cs
 using System.Collections.Generic;
+using Moto.Editor.AI.Builders;
 
 namespace Moto.Core.AI.Builders
 {

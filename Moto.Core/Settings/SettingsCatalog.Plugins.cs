@@ -19,7 +19,7 @@ namespace Moto.Core.Settings
         public static IReadOnlyList<SettingDefinition> GetAll()
         {
             var all = new List<SettingDefinition>();
-            all.AddRange(GetStaticSettings()); // méthode existante
+            all.AddRange(All); // liste statique (T(...)/E(...) enregistrés dans SettingsCatalog.cs)
             all.AddRange(_dynamicSettings);
             return all;
         }

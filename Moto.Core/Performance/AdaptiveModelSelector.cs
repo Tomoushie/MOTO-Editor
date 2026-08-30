@@ -16,9 +16,9 @@ public sealed class AdaptiveModelSelector
     /// <summary>
     /// Sélectionne le modèle optimal pour une tâche.
     /// </summary>
-    public AiModel SelectModel(AiTask task)
+    public AiModel SelectModel(TaskComplexity complexity)
     {
-        return task.Complexity switch
+        return complexity switch
         {
             TaskComplexity.Simple => AiModel.Small, // 0.5B params
             TaskComplexity.Medium => AiModel.Medium, // 3B params
@@ -26,13 +26,6 @@ public sealed class AdaptiveModelSelector
             _ => AiModel.Medium
         };
     }
-}
-
-public enum AiTask
-{
-    Simple,
-    Medium,
-    Complex
 }
 
 public enum TaskComplexity

@@ -8,16 +8,8 @@ using Moto.Core.AI.Cortex;
 
 namespace Moto.Core.AI.Orchestration
 {
-    /// <summary>Suggestion combinée produite par le pipeline multi-agents.</summary>
-    public sealed class CombinedSuggestion
-    {
-        public string Id { get; init; } = string.Empty;
-        public string Title { get; init; } = string.Empty;
-        public string Description { get; init; } = string.Empty;
-        public string Source { get; init; } = string.Empty;
-        public double Score { get; init; }
-        public string Command { get; init; } = string.Empty;
-    }
+    // NOTE : CombinedSuggestion est déjà défini dans AgentOrchestrator.cs (même namespace,
+    // même forme) ; on réutilise ce type ici plutôt que d'en redéclarer un second (CS0101).
 
     /// <summary>Contexte fourni à l'Agent Scorer pour la pondération.</summary>
     public sealed class ScoringContext

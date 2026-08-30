@@ -29,10 +29,10 @@ public sealed class SubagentOrchestrator
         int currentDepth = 0,
         CancellationToken ct = default)
     {
-        if (!_settings.Shared.Mcp.SubagentsEnabled.Value)
+        if (!SettingsCatalog.Mcp.SubagentsEnabled.Value)
             return await _registry.DispatchAsync(rootAgentId, request, ct);
 
-        int maxDepth = _settings.Shared.Mcp.MaxSubagentDepth.Value;
+        int maxDepth = SettingsCatalog.Mcp.MaxSubagentDepth.Value;
         if (currentDepth > maxDepth)
         {
             _log.Warning("SubagentOrchestrator", "Profondeur max atteinte", new { currentDepth, maxDepth });

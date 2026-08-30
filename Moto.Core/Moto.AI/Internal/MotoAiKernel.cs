@@ -1,55 +1,79 @@
-// ⚠️ NE PAS SUPPRIMER LES MÉTHODES EXISTANTES
-// Ajout du handler pour le moteur embarqué
+// Moto.Core/AI/Internal/MotoAiKernel.cs
+// Routeur central des requêtes IA : Ollama en priorité, réponse de repli sinon.
+// Le routage vers un moteur embarqué (EmbeddedModelRouter/DualModelIntegration)
+// est mis de côté pour cette passe (voir Moto.Core.csproj) ; RouteAsync reste
+// l'unique point d'entrée utilisé par les agents (LlmBackedAgents, etc.).
+using Moto.Core.AI.Internal.Models;
 
 namespace Moto.Core.AI.Internal;
 
 public partial class MotoAiKernel
 {
-    private readonly EmbeddedModelRouter? _embeddedRouter;
+    private readonly OllamaClient _ollama;
+    private readonly string _workspace;
 
-    /// <summary>
-    /// Constructeur étendu (injection du routeur embarqué).
-    /// Les constructeurs existants restent fonctionnels.
-    /// </summary>
-    public MotoAiKernel(
-        /* paramètres existants à conserver */
-        EmbeddedModelRouter? embeddedRouter = null)
+    public MotoAiKernel(OllamaClient? ollama = null)
+        : this(string.Empty, ollama)
     {
-        // ... initialisation existante ...
-        _embeddedRouter = embeddedRouter;
+    }
+
+    /// <summary>Surcharge liée à un workspace (utilisée par MotoAiService côté éditeur).</summary>
+    public MotoAiKernel(string workspace, OllamaClient? ollama = null)
+    {
+        _workspace = workspace ?? string.Empty;
+        _ollama = ollama ?? new OllamaClient();
     }
 
     /// <summary>
     /// Route une requête vers le meilleur provider disponible.
-    /// Ordre : Ollama → Embarqué → Fallback.
+    /// Ordre : Ollama → réponse de repli.
     /// </summary>
     public async Task<AiResponse?> RouteAsync(
         string prompt,
         int maxTokens = 256,
         CancellationToken ct = default)
     {
-        // 1. Tentative Ollama (existant)
         var ollamaResult = await TryOllamaAsync(prompt, maxTokens, ct);
         if (ollamaResult is not null) return ollamaResult;
 
-        // 2. Tentative moteur embarqué (nouveau)
-        if (_embeddedRouter is not null && await _embeddedRouter.CanHandleAsync(ct))
-        {
-            var embeddedResult = await _embeddedRouter.CompleteAsync(prompt, maxTokens, ct);
-            if (embeddedResult is not null) return embeddedResult;
-        }
-
-        // 3. Fallback existant
         return await FallbackAsync(prompt, maxTokens, ct);
     }
 
-    // Moto.Core/AI/Internal/MotoAiKernel.cs (à vérifier)
+    /// <summary>Variante texte simple, utilisée par les agents spécialisés.</summary>
     public async Task<string> RouteAsync(string prompt, CancellationToken ct = default)
     {
         var result = await RouteAsync(prompt, 256, ct);
-        return result ?? string.Empty;
+        return result?.Content ?? string.Empty;
     }
 
-    // Les méthodes TryOllamaAsync et FallbackAsync existent déjà
-    // et ne doivent PAS être modifiées.
+    private async Task<AiResponse?> TryOllamaAsync(string prompt, int maxTokens, CancellationToken ct)
+    {
+        try
+        {
+            if (!await _ollama.IsAvailableAsync(ct)) return null;
+
+            var content = await _ollama.GenerateAsync(prompt, ct);
+            return new AiResponse
+            {
+                Success = true,
+                Content = content,
+                Provider = "ollama",
+            };
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    private Task<AiResponse?> FallbackAsync(string prompt, int maxTokens, CancellationToken ct)
+    {
+        return Task.FromResult<AiResponse?>(new AiResponse
+        {
+            Success = false,
+            Content = string.Empty,
+            Provider = "none",
+            Summary = "Aucun moteur IA disponible (Ollama injoignable).",
+        });
+    }
 }

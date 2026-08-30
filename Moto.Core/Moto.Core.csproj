@@ -21,10 +21,84 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
     <PackageReference Include="NSec.Cryptography" Version="22.4.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.0" />
+    <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="10.0.11" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\Snake2000.Engine\Snake2000.Engine.csproj" />
+  </ItemGroup>
+
+  <!--
+    Mis de côté pour cette passe (rien n'est perdu, juste exclu de la compilation) :
+    des briques jamais compilées qui ont besoin de paquets NuGet lourds pas encore
+    ajoutés (ONNX Runtime pour l'IA embarquée, Roslyn pour le refactor, OmniSharp
+    pour le LSP), ou d'un projet hors périmètre (Moto.Plugin.SDK), ou de code
+    WinForms hérité de l'ancienne UI. Le chemin Ollama (déjà fonctionnel, sans
+    paquet supplémentaire) reste la voie IA active. À reprendre plus tard.
+  -->
+  <ItemGroup>
+    <!-- IA embarquée (ONNX) : jamais compilé, doublons internes non réconciliés -->
+    <Compile Remove="Moto.AI\Embedded\EmbeddedLlmEngine.cs" />
+    <Compile Remove="Moto.AI\Internal\EmbeddedLlmEngine.cs" />
+    <Compile Remove="Moto.AI\Internal\OnnxSessionManager.cs" />
+    <Compile Remove="Moto.AI\Embedded\InferenceThrottler.cs" />
+    <Compile Remove="Moto.AI\Embedded\IsolatedInferenceHost.cs" />
+    <Compile Remove="Moto.AI\Embedded\AdaptiveResourceGovernor.cs" />
+    <Compile Remove="Moto.AI\Embedded\AiAutoBenchmark.cs" />
+    <Compile Remove="Moto.AI\Embedded\DualModelRouter.cs" />
+    <Compile Remove="Moto.AI\Embedded\LayeredActivationService.cs" />
+    <Compile Remove="Moto.AI\Embedded\ModelBundleManager.cs" />
+    <Compile Remove="Moto.AI\Embedded\ModelDownloader.cs" />
+    <Compile Remove="Moto.AI\Embedded\SmartModelManager.cs" />
+    <Compile Remove="Moto.AI\Embedded\SpeculativeActivationService.cs" />
+    <Compile Remove="Moto.AI\Embedded\SpeculativeDecoder.cs" />
+    <Compile Remove="Moto.AI\Internal\AiOptimizationsBenchmark.cs" />
+    <Compile Remove="Moto.AI\Internal\HybridAiRouter.cs" />
+    <Compile Remove="Moto.AI\Internal\QuantizationSwitcher.cs" />
+    <Compile Remove="Moto.AI\Internal\SpeculativeDecoder.cs" />
+    <Compile Remove="Performance\LayeredModelLoader.cs" />
+    <Compile Remove="Services\RiskMitigationService.cs" />
+    <!-- Refactor Roslyn : v1.0 sur la Roadmap, pas encore -->
+    <Compile Remove="Refactor\RefactorAnalyzer.cs" />
+    <Compile Remove="Refactor\RefactorEngine.cs" />
+    <!-- LSP Roslyn (OmniSharp) : explicitement "à venir (v1.0)" dans Docs/Roadmap.txt -->
+    <Compile Remove="LSP\LspSessionManager.cs" />
+    <Compile Remove="LSP\RoslynLanguageServerClient.cs" />
+    <Compile Remove="LSP\RoslynLspClient.cs" />
+    <Compile Remove="LSP\LanguageServerManager.cs" />
+    <Compile Remove="Performance\PerFileServiceManager.cs" />
+    <!-- Marketplace de plugins : hors périmètre de cette passe (Moto.Plugin.SDK non référencé) -->
+    <Compile Remove="Plugins\SdkAdapter.cs" />
+    <Compile Remove="Plugins\Marketplace\MarketplaceServerClient.cs" />
+    <Compile Remove="Settings\PluginSandboxService.cs" />
+    <!-- Coloration syntaxique WinForms héritée de l'ancienne UI (RichTextBox) -->
+    <Compile Remove="Moto.Core.Syntax\SyntaxEngine.cs" />
+    <!-- Ordre des sessions par section : fichier "additions" sans la classe de base (SessionSection/_gate/Save() introuvables) -->
+    <Compile Remove="Settings\WorkspaceStateService.cs" />
+    <!-- Suite du même cluster IA embarquée, découverte par cascade -->
+    <Compile Remove="Moto.AI\Internal\DualModelIntegration.cs" />
+    <Compile Remove="Moto.AI\Internal\EmbeddedModelRouter.cs" />
+    <Compile Remove="Moto.AI\Internal\InferenceHostClient.cs" />
+    <Compile Remove="LSP\InlayHints\RoslynInlayHintProvider.cs" />
+    <Compile Remove="Security\PluginSandboxMinimalService.cs" />
+    <Compile Remove="Moto.AI\Embedded\AiModeManager.cs" />
+    <Compile Remove="Moto.AI\Embedded\AiModePreset.cs" />
+    <Compile Remove="Moto.AI\Embedded\AiOptimizationsBenchmark.cs" />
+    <Compile Remove="Moto.AI\Embedded\DualModelIntegration.cs" />
+    <!-- Paramètres du moteur IA embarqué : style d'enregistrement incompatible avec
+         SettingDefinition/SettingsCatalog actuels (Register() jamais défini) -->
+    <Compile Remove="Settings\SettingsCatalog.Ai.Embedded.cs" />
+    <Compile Remove="Moto.AI\Embedded\LayeredModelLoader.cs" />
+    <Compile Remove="Moto.AI\Embedded\InferenceWatchdog.cs" />
+    <Compile Remove="Moto.AI\Embedded\ModelSecurityService.cs" />
+    <!-- Synthèse/reconnaissance vocale WinRT : désactivée par défaut, API SpeakTextAsync
+         inexistante sur SpeechSynthesizer (nécessiterait un flux + MediaPlayer) -->
+    <Compile Remove="Voice\VoiceEngine.cs" />
+    <!-- Fusion Cortex+Neural+Workspace : API (RecallAsync/SearchAsync/SuggestProactiveActionAsync)
+         jamais implementee sur les moteurs cibles -->
+    <Compile Remove="Moto.AI\Orchestration\MultiAgentSuggestionEngine.cs" />
   </ItemGroup>
 
 </Project>

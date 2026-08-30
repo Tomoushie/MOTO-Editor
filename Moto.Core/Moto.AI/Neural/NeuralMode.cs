@@ -30,19 +30,6 @@ namespace Moto.Core.AI.Neural
             _retrieval.IndexWorkspace(_workspace);
         }
 
-        // NeuralMode(string workspace, CortexMemory memory)
-        public NeuralMode(string workspace, CortexMemory memory)
-        {
-            _workspace = workspace;
-            _memory = memory;
-        }
-
-        // AIWorkspace(string workspace)
-        public AIWorkspace(string workspace)
-        {
-            _workspace = workspace;
-        }
-
         /// <summary>
         /// Génère du code basé sur les patterns apprisis du projet.
         /// </summary>

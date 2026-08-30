@@ -46,7 +46,7 @@ public sealed class CoherenceGuardService
     public IReadOnlyList<CoherenceViolation> ValidateCoherence(string code, string filePath)
     {
         var violations = new List<CoherenceViolation>();
-        if (!_settings.Shared.Ai.Profiles.CoherenceContract.Value)
+        if (!SettingsCatalog.Ai.Profiles.CoherenceContract.Value)
             return violations;
 
         var lines = code.Split('\n');
@@ -88,7 +88,7 @@ public sealed class CoherenceGuardService
     public IReadOnlyList<string> AuditDependencies(string workspacePath)
     {
         var issues = new List<string>();
-        if (!_settings.Shared.Ai.Profiles.DependencyAudit.Value)
+        if (!SettingsCatalog.Ai.Profiles.DependencyAudit.Value)
             return issues;
 
         // Scan simplifié : compte les using directives
@@ -112,7 +112,7 @@ public sealed class CoherenceGuardService
     public IReadOnlyList<ResponsibilityMapEntry> GenerateResponsibilityMap(string workspacePath)
     {
         var map = new List<ResponsibilityMapEntry>();
-        if (!_settings.Shared.Ai.Profiles.ResponsibilityMap.Value)
+        if (!SettingsCatalog.Ai.Profiles.ResponsibilityMap.Value)
             return map;
 
         var files = Directory.GetFiles(workspacePath, "*.cs", SearchOption.AllDirectories);
@@ -150,7 +150,7 @@ public sealed class CoherenceGuardService
     public IReadOnlyList<CoherenceViolation> DetectMagicCode(string code, string filePath)
     {
         var violations = new List<CoherenceViolation>();
-        if (!_settings.Shared.Ai.Profiles.MagicCodeDetection.Value)
+        if (!SettingsCatalog.Ai.Profiles.MagicCodeDetection.Value)
             return violations;
 
         var lines = code.Split('\n');
@@ -178,7 +178,7 @@ public sealed class CoherenceGuardService
     public IReadOnlyList<string> DetectLogicalDuplication(string workspacePath)
     {
         var duplicates = new List<string>();
-        if (!_settings.Shared.Ai.Profiles.LogicalDuplicationControl.Value)
+        if (!SettingsCatalog.Ai.Profiles.LogicalDuplicationControl.Value)
             return duplicates;
 
         // Simplifié : détecte méthodes avec signatures similaires
@@ -213,7 +213,7 @@ public sealed class CoherenceGuardService
     /// <summary>Idée "API contract first" — aide à définir interfaces.</summary>
     public string SuggestApiContract(string intent)
     {
-        if (!_settings.Shared.Ai.Profiles.ApiContractFirst.Value)
+        if (!SettingsCatalog.Ai.Profiles.ApiContractFirst.Value)
             return "";
 
         return $"Interface suggérée pour '{intent}' :\n" +
@@ -227,7 +227,7 @@ public sealed class CoherenceGuardService
     /// <summary>Idée "Journal de décisions architecturales".</summary>
     public void LogArchitectureDecision(string decision, string rationale)
     {
-        if (!_settings.Shared.Ai.Profiles.ArchitectureJournal.Value)
+        if (!SettingsCatalog.Ai.Profiles.ArchitectureJournal.Value)
             return;
 
         try

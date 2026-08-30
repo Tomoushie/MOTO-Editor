@@ -1,4 +1,5 @@
 // Mise à jour partielle de Moto.Core/AI/Embedded/ModelSecurityService.cs
+using Moto.Core.AI.Embedded; // ModelTier
 using Moto.Core.Security; // Ajout du namespace
 
 public sealed class ModelSecurityService

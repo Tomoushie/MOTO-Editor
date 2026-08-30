@@ -1,5 +1,6 @@
 using Microsoft.Extensions.Logging;
 using Microsoft.ML.OnnxRuntime;
+using Moto.Core.Settings;
 using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.X86;
 

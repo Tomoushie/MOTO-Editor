@@ -2,8 +2,12 @@ namespace Moto.Core.Settings;
 
 public partial class SettingsCatalog
 {
+    public static AiSettings Ai { get; } = new();
+
     public partial class AiSettings
     {
+        public AdvancedSettings Advanced { get; } = new();
+
         public partial class AdvancedSettings
         {
             // 1 ligne = 1 paramètre (Règle d'or SettingsCatalog)

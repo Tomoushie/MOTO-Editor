@@ -30,8 +30,8 @@ public sealed class PresenceAwareSuggestionGate
     /// <summary>Retourne false si l'IA lourde doit être suspendue.</summary>
     public bool ShouldRunHeavyAi()
     {
-        if (!_settings.Shared.Collab.PresenceAwareSuggestions.Value) return true;
-        int threshold = _settings.Shared.Collab.PresenceHeavyAiThreshold.Value;
+        if (!SettingsCatalog.Collab.PresenceAwareSuggestions.Value) return true;
+        int threshold = SettingsCatalog.Collab.PresenceHeavyAiThreshold.Value;
         bool allowed = _activeCollaborators < threshold;
         if (!allowed)
             _log.Info("PresenceGate", "IA lourde suspendue (forte présence)",

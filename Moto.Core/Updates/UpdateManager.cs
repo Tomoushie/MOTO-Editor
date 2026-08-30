@@ -134,15 +134,15 @@ namespace Moto.Core.Updates
         {
             _checkTimer?.Dispose();
 
-            var intervalMs = _interval switch
+            long intervalMs = _interval switch
             {
-                UpdateInterval.Hour1 => 3600_000,
-                UpdateInterval.Hour3 => 10800_000,
-                UpdateInterval.Hour6 => 21600_000,
-                UpdateInterval.Hour12 => 43200_000,
-                UpdateInterval.Hour24 => 86400_000,
-                UpdateInterval.Week1 => 604800_000,
-                UpdateInterval.Month1 => 2592000_000,
+                UpdateInterval.Hour1 => 3600_000L,
+                UpdateInterval.Hour3 => 10800_000L,
+                UpdateInterval.Hour6 => 21600_000L,
+                UpdateInterval.Hour12 => 43200_000L,
+                UpdateInterval.Hour24 => 86400_000L,
+                UpdateInterval.Week1 => 604800_000L,
+                UpdateInterval.Month1 => 2592000_000L,
                 _ => Timeout.Infinite
             };
 

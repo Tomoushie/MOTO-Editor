@@ -2,7 +2,7 @@ namespace Moto.Core.Settings;
 
 public partial class SettingsCatalog
 {
-    public CollabSettings Collab { get; } = new();
+    public static CollabSettings Collab { get; } = new();
 
     public partial class CollabSettings
     {

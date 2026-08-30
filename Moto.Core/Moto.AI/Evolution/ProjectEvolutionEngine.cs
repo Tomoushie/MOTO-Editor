@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text.Json;
 using System.Timers;
 using Moto.Core.AI.Internal;
+using Moto.Core.AI.Internal.Models;
 
 namespace Moto.Core.AI.Evolution
 {
@@ -40,7 +41,7 @@ namespace Moto.Core.AI.Evolution
         private readonly CodeImprovementEngine _improvement = new();
         private readonly PatternDetectorEngine _patterns = new();
         private readonly HealthMetricsEngine _metrics = new();
-        private readonly Timer _timer = new();
+        private readonly System.Timers.Timer _timer = new();
         private History _history = new();
 
         /// <summary>Déclenché quand de nouvelles évolutions sont prêtes.</summary>

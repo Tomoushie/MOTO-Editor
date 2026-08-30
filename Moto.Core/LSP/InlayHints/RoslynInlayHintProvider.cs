@@ -1,9 +1,8 @@
 // Moto.Core/LSP/InlayHints/RoslynLspInlayHintProvider.cs
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Moto.Core.LSP.InlayHints;
 
-namespace Moto.Core.LSP
+namespace Moto.Core.LSP.InlayHints
 {
     /// <summary>
     /// Fournisseur d'inlay hints basé sur le LSP Roslyn réel.

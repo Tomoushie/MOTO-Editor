@@ -22,13 +22,13 @@ public sealed class AdaptivePrefetchService
     {
         _settings = settings;
         _log = log;
-        _currentConcurrency = _settings.Shared.Ai.Advanced.MaxConcurrentPrefetch.Value;
+        _currentConcurrency = SettingsCatalog.Ai.Advanced.MaxConcurrentPrefetch.Value;
         _gate = new SemaphoreSlim(_currentConcurrency, _currentConcurrency);
     }
 
     public async Task RunPrefetchAsync(Func<CancellationToken, Task> work, CancellationToken ct = default)
     {
-        if (!_settings.Shared.Ai.Advanced.AdaptivePrefetchEnabled.Value)
+        if (!SettingsCatalog.Ai.Advanced.AdaptivePrefetchEnabled.Value)
         {
             await work(ct);
             return;

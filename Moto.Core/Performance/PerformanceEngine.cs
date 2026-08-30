@@ -182,9 +182,24 @@ namespace Moto.Core.Performance
     public class PerformanceEngine
     {
         private readonly List<IPerformanceConsumer> _consumers = new();
+        private AiPowerMode _modeBeforeEco = AiPowerMode.Balanced;
+
+        /// <summary>Instance partagée, utilisée par les appels statiques EnterEcoMode/ExitEcoMode.</summary>
+        public static PerformanceEngine Shared { get; } = new();
 
         public PerformanceProfile Current { get; private set; } =
             PerformanceProfile.ForMode(AiPowerMode.Balanced);
+
+        /// <summary>Bascule en mode Eco (ex: un modèle local externe tourne, cf. LocalModelResourceGovernor).</summary>
+        public static void EnterEcoMode()
+        {
+            if (Shared.Current.Mode != AiPowerMode.Eco)
+                Shared._modeBeforeEco = Shared.Current.Mode;
+            Shared.SetMode(AiPowerMode.Eco);
+        }
+
+        /// <summary>Revient au mode de puissance précédent (avant EnterEcoMode).</summary>
+        public static void ExitEcoMode() => Shared.SetMode(Shared._modeBeforeEco);
 
         /// <summary>Déclenché à chaque changement de profil.</summary>
         public event Action<PerformanceProfile> ProfileChanged;

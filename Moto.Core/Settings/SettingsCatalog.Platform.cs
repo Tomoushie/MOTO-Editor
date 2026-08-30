@@ -3,6 +3,8 @@ namespace Moto.Core.Settings
 {
     public static partial class SettingsCatalog
     {
+        static partial void RegisterPlatform();
+
         static partial void RegisterPlatform()
         {
             T("platform_auto_detect", "Agent", "Platform Engine", "Détection auto des portages",

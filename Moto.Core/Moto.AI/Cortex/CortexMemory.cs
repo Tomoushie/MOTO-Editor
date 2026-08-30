@@ -72,14 +72,13 @@ namespace Moto.Core.AI.Cortex
         {
             lock (_lock)
             {
-                var patternRecord = new PatternRecord
+                var patternRecord = new PatternRecordLegacy
                 {
                     Signature = signature,
                     Example = example,
                     Context = context,
                     Timestamp = DateTime.UtcNow,
                     Frequency = _state.Patterns.Count(p => p.Signature == signature) + 1,
-                    Confidence = 0.8 // Confiance par défaut
                 };
 
                 _state.Patterns.Add(patternRecord);
@@ -93,7 +92,7 @@ namespace Moto.Core.AI.Cortex
         {
             lock (_lock)
             {
-                var correctionRecord = new CorrectionRecord
+                var correctionRecord = new CorrectionRecordLegacy
                 {
                     Before = before,
                     After = after,
@@ -285,14 +284,5 @@ namespace Moto.Core.AI.Cortex
     public record PatternRecord(string Signature, string Example, string Context, double Confidence);
     public record CorrectionRecord(string Before, string After, string Reason, DateTime TimestampUtc);
 
-    /// <summary>
-    /// Stats agrégées du moteur cognitif.
-    /// Utilisé par CortexEngine.GetStats() et affiché dans HomeView.
-    /// </summary>
-    public sealed record CortexStats(
-        int TotalHabits,
-        int TotalPatterns,
-        int TotalCorrections,
-        double ConfidenceAvg
-    );
+    // CortexStats est défini dans CortexEngine.cs (même namespace) : pas de redéfinition ici.
 }

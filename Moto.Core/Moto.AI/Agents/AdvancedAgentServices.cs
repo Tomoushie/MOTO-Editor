@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Moto.Core.Logging;
 using Moto.Core.Settings;
 
 namespace Moto.Core.AI.Agents;
@@ -39,7 +40,7 @@ public sealed class LocalLlmSandbox
 
     public async Task<string> RunAsync(Func<CancellationToken, Task<string>> work, CancellationToken ct = default)
     {
-        int timeoutSec = _settings.Shared.AiAgents.SandboxTimeoutSeconds.Value;
+        int timeoutSec = SettingsCatalog.AiAgents.SandboxTimeoutSeconds.Value;
         using var timeoutCts = CancellationTokenSource.CreateLinkedTokenSource(ct);
         timeoutCts.CancelAfter(TimeSpan.FromSeconds(timeoutSec));
 
@@ -88,7 +89,7 @@ public sealed class LocalRlFeedbackLoop
 
     public void RecordFeedback(string agentId, bool accepted)
     {
-        if (!_settings.Shared.AiAgents.LocalRlEnabled.Value) return;
+        if (!SettingsCatalog.AiAgents.LocalRlEnabled.Value) return;
         var (reward, pulls) = _weights.GetValueOrDefault(agentId);
         reward += accepted ? 1.0 : 0.0;
         _weights[agentId] = (reward, pulls + 1);
@@ -97,7 +98,7 @@ public sealed class LocalRlFeedbackLoop
     /// <summary>Bonus de classement UCB-lite pour le tri des suggestions.</summary>
     public double GetRankingBoost(string agentId)
     {
-        if (!_settings.Shared.AiAgents.LocalRlEnabled.Value) return 0;
+        if (!SettingsCatalog.AiAgents.LocalRlEnabled.Value) return 0;
         if (!_weights.TryGetValue(agentId, out var w) || w.pulls == 0) return 0;
         double mean = w.reward / w.pulls;
         return mean; // peut être combiné à CommandPaletteHistoryService

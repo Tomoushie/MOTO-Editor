@@ -6,18 +6,6 @@ using Moto.Core.Settings;
 
 namespace Moto.Core.Plugins
 {
-    /// <summary>
-    /// Contrat minimal pour la galerie de plugins.
-    /// Peut être étendu ensuite vers Moto.Plugin.SDK sans casser la galerie.
-    /// </summary>
-    public interface IPlugin
-    {
-        string Id { get; }
-        string DisplayName { get; }
-        string Version { get; }
-        string Description { get; }
-    }
-
     public sealed class PluginRegistry
     {
         private readonly SettingsEngine _settings;

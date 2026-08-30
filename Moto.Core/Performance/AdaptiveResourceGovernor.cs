@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Logging;
+using Moto.Core.Settings;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 

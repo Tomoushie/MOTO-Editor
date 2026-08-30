@@ -33,20 +33,20 @@ public sealed class AiProfileService
 
     public AiProfile GetActiveProfile()
     {
-        if (_settings.Shared.Ai.Profiles.MinimalistMode.Value) return AiProfile.Minimalist;
-        if (_settings.Shared.Ai.Profiles.RefactorOnlyMode.Value) return AiProfile.RefactorOnly;
-        if (_settings.Shared.Ai.Profiles.SilentArchitectMode.Value) return AiProfile.SilentArchitect;
-        if (_settings.Shared.Ai.Profiles.StrictCSharpMode.Value) return AiProfile.StrictCSharp;
-        if (_settings.Shared.Ai.Profiles.GameEngineFocus.Value) return AiProfile.GameEngineFocus;
-        if (_settings.Shared.Ai.Profiles.NoExternalDeps.Value) return AiProfile.NoExternalDeps;
-        if (_settings.Shared.Ai.Profiles.DebuggingCoachMode.Value) return AiProfile.DebuggingCoach;
+        if (SettingsCatalog.Ai.Profiles.MinimalistMode.Value) return AiProfile.Minimalist;
+        if (SettingsCatalog.Ai.Profiles.RefactorOnlyMode.Value) return AiProfile.RefactorOnly;
+        if (SettingsCatalog.Ai.Profiles.SilentArchitectMode.Value) return AiProfile.SilentArchitect;
+        if (SettingsCatalog.Ai.Profiles.StrictCSharpMode.Value) return AiProfile.StrictCSharp;
+        if (SettingsCatalog.Ai.Profiles.GameEngineFocus.Value) return AiProfile.GameEngineFocus;
+        if (SettingsCatalog.Ai.Profiles.NoExternalDeps.Value) return AiProfile.NoExternalDeps;
+        if (SettingsCatalog.Ai.Profiles.DebuggingCoachMode.Value) return AiProfile.DebuggingCoach;
         return AiProfile.Default;
     }
 
     /// <summary>Idée "Minimaliste" — limite la taille des suggestions.</summary>
     public string EnforceMinimalist(string suggestion)
     {
-        if (!_settings.Shared.Ai.Profiles.MinimalistMode.Value)
+        if (!SettingsCatalog.Ai.Profiles.MinimalistMode.Value)
             return suggestion;
 
         var lines = suggestion.Split('\n');
@@ -56,13 +56,13 @@ public sealed class AiProfileService
     /// <summary>Idée "Refactor-only" — refuse la génération nouvelle.</summary>
     public bool AllowsNewCodeGeneration()
     {
-        return !_settings.Shared.Ai.Profiles.RefactorOnlyMode.Value;
+        return !SettingsCatalog.Ai.Profiles.RefactorOnlyMode.Value;
     }
 
     /// <summary>Idée "Architecte silencieux" — génère des diagrammes textuels.</summary>
     public string GenerateArchitectureDiagram(string workspacePath)
     {
-        if (!_settings.Shared.Ai.Profiles.SilentArchitectMode.Value)
+        if (!SettingsCatalog.Ai.Profiles.SilentArchitectMode.Value)
             return "";
 
         return "Diagramme d'architecture :\n" +
@@ -83,7 +83,7 @@ public sealed class AiProfileService
     public IReadOnlyList<string> ValidateCSharpIdiomatic(string code)
     {
         var issues = new List<string>();
-        if (!_settings.Shared.Ai.Profiles.StrictCSharpMode.Value)
+        if (!SettingsCatalog.Ai.Profiles.StrictCSharpMode.Value)
             return issues;
 
         if (code.Contains("var ") && !code.Contains("async "))
@@ -99,7 +99,7 @@ public sealed class AiProfileService
     /// <summary>Idée "Game Engine focus" — privilégie ECS/pipelines.</summary>
     public string SuggestGameEnginePattern(string context)
     {
-        if (!_settings.Shared.Ai.Profiles.GameEngineFocus.Value)
+        if (!SettingsCatalog.Ai.Profiles.GameEngineFocus.Value)
             return "";
 
         return "Pattern recommandé : ECS (Entity-Component-System)\n" +
@@ -111,7 +111,7 @@ public sealed class AiProfileService
     /// <summary>Idée "No external deps" — refuse les libs externes.</summary>
     public bool AllowsExternalDependency(string packageName)
     {
-        if (!_settings.Shared.Ai.Profiles.NoExternalDeps.Value)
+        if (!SettingsCatalog.Ai.Profiles.NoExternalDeps.Value)
             return true;
 
         // Liste blanche BCL
@@ -122,7 +122,7 @@ public sealed class AiProfileService
     /// <summary>Idée "Debugging coach" — guide plutôt que fix direct.</summary>
     public string CoachDebugging(string exceptionMessage, string stackTrace)
     {
-        if (!_settings.Shared.Ai.Profiles.DebuggingCoachMode.Value)
+        if (!SettingsCatalog.Ai.Profiles.DebuggingCoachMode.Value)
             return "";
 
         return $"🔍 Analyse de l'exception :\n" +

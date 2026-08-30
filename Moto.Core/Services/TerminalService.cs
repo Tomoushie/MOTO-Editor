@@ -1,8 +1,17 @@
 // Services/TerminalService.cs
 using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace Moto.Editor.Services
 {
+    /// <summary>Résultat d'une commande one-shot exécutée via <see cref="TerminalService.ExecuteAsync"/>.</summary>
+    public sealed class TerminalCommandResult
+    {
+        public int ExitCode { get; init; }
+        public string Output { get; init; } = string.Empty;
+        public string Error { get; init; } = string.Empty;
+    }
+
     /// <summary>
     /// Service terminal portable.
     /// La logique Process n'est pas liée à MAUI.
@@ -11,6 +20,50 @@ namespace Moto.Editor.Services
     public class TerminalService
     {
         private Process _process;
+
+        /// <summary>
+        /// Exécute une commande unique (one-shot, hors du shell interactif Start/Stop)
+        /// et attend sa terminaison. Utilisé par GitService et consorts.
+        /// </summary>
+        public async Task<TerminalCommandResult> ExecuteAsync(string command, string? workingDirectory = null)
+        {
+            var shell = OperatingSystem.IsWindows() ? "cmd.exe" : "/bin/bash";
+            var args = OperatingSystem.IsWindows() ? $"/c {command}" : $"-c \"{command}\"";
+
+            var psi = new ProcessStartInfo
+            {
+                FileName = shell,
+                Arguments = args,
+                WorkingDirectory = string.IsNullOrWhiteSpace(workingDirectory)
+                    ? Environment.CurrentDirectory
+                    : workingDirectory,
+                RedirectStandardOutput = true,
+                RedirectStandardError = true,
+                UseShellExecute = false,
+                CreateNoWindow = true
+            };
+
+            using var process = new Process { StartInfo = psi };
+
+            try
+            {
+                process.Start();
+                var stdOutTask = process.StandardOutput.ReadToEndAsync();
+                var stdErrTask = process.StandardError.ReadToEndAsync();
+                await process.WaitForExitAsync();
+
+                return new TerminalCommandResult
+                {
+                    ExitCode = process.ExitCode,
+                    Output = await stdOutTask,
+                    Error = await stdErrTask,
+                };
+            }
+            catch (Exception ex)
+            {
+                return new TerminalCommandResult { ExitCode = -1, Output = string.Empty, Error = ex.Message };
+            }
+        }
 
         /// <summary>
         /// Déclenché quand une ligne sort du shell.

@@ -31,7 +31,7 @@ public sealed class ModelProfileService
     /// <summary>Idée "3B par défaut, 7B sur demande".</summary>
     public ModelSize GetDefaultModelSize()
     {
-        if (_settings.Shared.Ai.Profiles.Use3BByDefault.Value)
+        if (SettingsCatalog.Ai.Profiles.Use3BByDefault.Value)
             return ModelSize.Small3B;
         return ModelSize.Large7B;
     }
@@ -39,11 +39,11 @@ public sealed class ModelProfileService
     /// <summary>Idée "Low-RAM" — refuse 7B si RAM insuffisante.</summary>
     public bool CanLoadLargeModel()
     {
-        if (!_settings.Shared.Ai.Profiles.LowRamMode.Value)
+        if (!SettingsCatalog.Ai.Profiles.LowRamMode.Value)
             return true;
 
         var totalRamGb = GetTotalRamGb();
-        int threshold = _settings.Shared.Ai.Profiles.RamThresholdGb.Value;
+        int threshold = SettingsCatalog.Ai.Profiles.RamThresholdGb.Value;
         return totalRamGb >= threshold;
     }
 
@@ -79,7 +79,7 @@ public sealed class ModelProfileService
     /// <summary>Idée "Shared model" — partage multi-instance.</summary>
     public bool ShouldShareModel()
     {
-        if (!_settings.Shared.Ai.Profiles.SharedModelMode.Value)
+        if (!SettingsCatalog.Ai.Profiles.SharedModelMode.Value)
             return false;
 
         // Vérifie si d'autres instances MOTO tournent
@@ -90,13 +90,13 @@ public sealed class ModelProfileService
     /// <summary>Idée "No GPU" — force CPU-only.</summary>
     public bool ShouldUseGpu()
     {
-        return !_settings.Shared.Ai.Profiles.NoGpuMode.Value;
+        return !SettingsCatalog.Ai.Profiles.NoGpuMode.Value;
     }
 
     /// <summary>Idée "Nightly heavy" — planifie tâches lourdes.</summary>
     public bool ShouldRunHeavyTaskNow()
     {
-        if (!_settings.Shared.Ai.Profiles.NightlyHeavyMode.Value)
+        if (!SettingsCatalog.Ai.Profiles.NightlyHeavyMode.Value)
             return true; // Pas de restriction
 
         // Vérifie si l'éditeur est idle (simplifié)

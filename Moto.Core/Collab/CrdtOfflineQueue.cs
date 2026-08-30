@@ -38,7 +38,7 @@ namespace Moto.Core.Collab
     public sealed class CrdtOfflineQueue
     {
         private readonly string _queuePath;
-        private readonly List<QueuedOperator> _queue = new();
+        private readonly List<QueuedOperation> _queue = new();
         private readonly SemaphoreSlim _gate = new(1, 1);
         private const int MaxRetries = 5;
 
@@ -60,7 +60,7 @@ namespace Moto.Core.Collab
             }
         }
 
-        public async Task EnqueueAsync(QueuedOperator op)
+        public async Task EnqueueAsync(QueuedOperation op)
         {
             await _gate.WaitAsync().ConfigureAwait(false);
             try
@@ -75,7 +75,7 @@ namespace Moto.Core.Collab
             }
         }
 
-        public async Task<IReadOnlyList<QueuedOperator>> DequeueAllAsync(CancellationToken ct = default)
+        public async Task<IReadOnlyList<QueuedOperation>> DequeueAllAsync(CancellationToken ct = default)
         {
             await _gate.WaitAsync(ct).ConfigureAwait(false);
             try
@@ -95,7 +95,7 @@ namespace Moto.Core.Collab
             }
         }
 
-        public async Task RequeueFailedAsync(QueuedOperator op)
+        public async Task RequeueFailedAsync(QueuedOperation op)
         {
             if (op.RetryCount >= MaxRetries) return; // abandon
 
@@ -119,8 +119,8 @@ namespace Moto.Core.Collab
         /// </summary>
         public ConflictResolution ResolveConflicts(
             string localContent,
-            IReadOnlyList<QueuedOperator> localOps,
-            IReadOnlyList<QueuedOperator> remoteOps)
+            IReadOnlyList<QueuedOperation> localOps,
+            IReadOnlyList<QueuedOperation> remoteOps)
         {
             var all = localOps
                 .Concat(remoteOps)
@@ -167,7 +167,7 @@ namespace Moto.Core.Collab
                 if (File.Exists(_queuePath))
                 {
                     var json = File.ReadAllText(_queuePath);
-                    var loaded = JsonSerializer.Deserialize<List<QueuedOperator>>(json);
+                    var loaded = JsonSerializer.Deserialize<List<QueuedOperation>>(json);
                     if (loaded != null) _queue.AddRange(loaded);
                 }
             }

@@ -70,7 +70,7 @@ namespace Moto.Core.AI.Context
     public class ContextReport
     {
         public string FilePath { get; set; } = string.Empty;
-        public System.Collections.Generic.List<ContextSuggestion> Suggestions { get; } = new();
+        public System.Collections.Generic.List<ContextSuggestion> Suggestions { get; set; } = new();
         public int TotalIssues { get; set; }
         public DateTime AnalyzedAt { get; set; } = DateTime.UtcNow;
     }

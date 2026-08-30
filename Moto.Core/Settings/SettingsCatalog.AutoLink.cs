@@ -3,6 +3,8 @@ namespace Moto.Core.Settings
 {
     public static partial class SettingsCatalog
     {
+        static partial void RegisterAutoLink();
+
         static partial void RegisterAutoLink()
         {
             T("autolink_enabled", "Agent", "AutoLink", "AutoLink activé",

@@ -28,7 +28,7 @@ public sealed class TelemetryPrivacyService
     /// <summary>Crée un bundle anonymisé (sans chemin utilisateur, sans nom machine).</summary>
     public async Task<string?> CreateAnonymizedBundleAsync()
     {
-        if (!_settings.Shared.DevOps.TelemetryPrivacySandbox.Value)
+        if (!SettingsCatalog.DevOps.TelemetryPrivacySandbox.Value)
         {
             _log.Info("TelemetryPrivacy", "Sandbox désactivé par l'utilisateur.");
             return null;

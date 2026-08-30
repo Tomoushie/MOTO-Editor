@@ -3,6 +3,8 @@ namespace Moto.Core.Settings
 {
     public static partial class SettingsCatalog
     {
+        static partial void RegisterDoc();
+
         static partial void RegisterDoc()
         {
             T("doc_auto_update", "Agent", "Documentation", "Mise à jour auto de la doc",

@@ -14,14 +14,14 @@ public sealed class DualModelIntegration
     private readonly SettingsEngine _settings;
     private readonly MotoAiKernel _kernel;
     private readonly EmbeddedModelRouter _embeddedRouter;
-    private readonly OllamaClient _ollamaClient;
+    private readonly DualModelOllamaClient _ollamaClient;
 
     public DualModelIntegration(
         ILogger<DualModelIntegration> logger,
         SettingsEngine settings,
         MotoAiKernel kernel,
         EmbeddedModelRouter embeddedRouter,
-        OllamaClient ollamaClient)
+        DualModelOllamaClient ollamaClient)
     {
         _logger = logger;
         _settings = settings;
@@ -93,12 +93,14 @@ public class DualModelStats
 
 /// <summary>
 /// Client Ollama minimal pour l'intégration dual-model.
+/// Nommé différemment de <see cref="Moto.Core.AI.Internal.OllamaClient"/> (le client "historique,
+/// préservé") pour éviter un doublon de type : les deux coexistent, chacun avec son usage.
 /// </summary>
-public sealed class OllamaClient
+public sealed class DualModelOllamaClient
 {
     private readonly HttpClient _httpClient;
 
-    public OllamaClient()
+    public DualModelOllamaClient()
     {
         _httpClient = new HttpClient { Timeout = TimeSpan.FromSeconds(30) };
     }
@@ -138,13 +140,12 @@ public sealed class OllamaClient
             if (!response.IsSuccessStatusCode) return null;
 
             var responseJson = await response.Content.ReadAsStringAsync(ct);
-            var result = System.Text.Json.JsonSerializer.Deserialize<OllamaResponse>(responseJson);
+            var result = System.Text.Json.JsonSerializer.Deserialize<OllamaGenerateResponse>(responseJson);
 
             return new AiResponse
             {
-                Content = result?.response ?? string.Empty,
-                Provider = "ollama",
-                LatencyMs = 0
+                Success = true,
+                Summary = result?.response ?? string.Empty,
             };
         }
         catch
@@ -152,10 +153,10 @@ public sealed class OllamaClient
             return null;
         }
     }
-}
 
-public class OllamaResponse
-{
-    public string? response { get; set; }
-    public bool done { get; set; }
+    private sealed class OllamaGenerateResponse
+    {
+        public string? response { get; set; }
+        public bool done { get; set; }
+    }
 }

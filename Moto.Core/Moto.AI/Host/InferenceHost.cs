@@ -49,7 +49,7 @@ public class InferenceHost
                         Status = "OK",
                         UptimeSeconds = (DateTime.UtcNow - _startTime).TotalSeconds,
                         WorkingSetMB = Process.GetCurrentProcess().WorkingSet64 / (1024 * 1024),
-                        MaxPrefetchSlots = _settings.Shared.Ai.Advanced.MaxConcurrentPrefetch.Value,
+                        MaxPrefetchSlots = SettingsCatalog.Ai.Advanced.MaxConcurrentPrefetch.Value,
                         CircuitState = "Closed" // À relier à InferenceWatchdog
                     };
                     await writer.WriteLineAsync(JsonSerializer.Serialize(health));

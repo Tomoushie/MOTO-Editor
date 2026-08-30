@@ -134,9 +134,9 @@ namespace Moto.Core.Settings.Profiles
 
             foreach (var def in allSettings)
             {
-                var value = _settings.GetRaw(def.Key);
+                var value = _settings.GetRaw(def.Id);
                 if (value != null)
-                    currentSettings[def.Key] = value;
+                    currentSettings[def.Id] = value;
             }
 
             var profile = new ConfigurationProfile(

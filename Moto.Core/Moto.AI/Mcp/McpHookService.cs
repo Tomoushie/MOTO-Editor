@@ -32,7 +32,7 @@ public sealed class McpHookService
 
     public async Task RunHooksAsync(McpHookPhase phase, string toolName)
     {
-        if (!_settings.Shared.McpAdvanced.HooksEnabled.Value) return;
+        if (!SettingsCatalog.McpAdvanced.HooksEnabled.Value) return;
         foreach (var hook in _hooks[phase])
         {
             try { await hook(toolName); }

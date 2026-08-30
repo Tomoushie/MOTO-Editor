@@ -47,7 +47,7 @@ public sealed class AiUxService
     /// <summary>Idée "Timeline IA" — trace des interventions.</summary>
     public void RecordAction(string action, string details, double costMs = 0)
     {
-        if (!_settings.Shared.Ai.Profiles.TimelineEnabled.Value)
+        if (!SettingsCatalog.Ai.Profiles.TimelineEnabled.Value)
             return;
 
         var entry = new AiTimelineEntry
@@ -66,18 +66,18 @@ public sealed class AiUxService
     public IReadOnlyList<AiTimelineEntry> GetTimeline() => _timeline;
 
     /// <summary>Idée "Zen IA" — mode épuré.</summary>
-    public bool IsZenModeActive() => _settings.Shared.Ai.Profiles.ZenAiMode.Value;
+    public bool IsZenModeActive() => SettingsCatalog.Ai.Profiles.ZenAiMode.Value;
 
     /// <summary>Idée "No suggestions, only answers" — désactive suggestions proactives.</summary>
     public bool AllowsProactiveSuggestions()
     {
-        return !_settings.Shared.Ai.Profiles.NoSuggestionsOnlyAnswers.Value;
+        return !SettingsCatalog.Ai.Profiles.NoSuggestionsOnlyAnswers.Value;
     }
 
     /// <summary>Idée "Affichage coûts estimés" — calcule le coût d'une action.</summary>
     public AiCostEstimate EstimateCost(string actionType, int inputSize)
     {
-        if (!_settings.Shared.Ai.Profiles.ShowCostEstimates.Value)
+        if (!SettingsCatalog.Ai.Profiles.ShowCostEstimates.Value)
             return new AiCostEstimate();
 
         // Estimation heuristique
@@ -101,7 +101,7 @@ public sealed class AiUxService
         {
             RamMb = ramMb,
             TimeMs = timeMs,
-            Model = _settings.Shared.Ai.Profiles.Use3BByDefault.Value ? "3B" : "7B"
+            Model = SettingsCatalog.Ai.Profiles.Use3BByDefault.Value ? "3B" : "7B"
         };
     }
 

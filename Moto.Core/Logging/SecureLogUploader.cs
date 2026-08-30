@@ -25,7 +25,7 @@ public sealed class SecureLogUploader
 
     public async Task<bool> UploadAsync(string endpoint, CancellationToken ct = default)
     {
-        if (!_settings.Shared.Ai.Advanced.TelemetryEnabled.Value)
+        if (!SettingsCatalog.Ai.Advanced.TelemetryEnabled.Value)
         {
             _log.Info("LogUploader", "Upload annulé : télémétrie désactivée (opt-in).");
             return false;

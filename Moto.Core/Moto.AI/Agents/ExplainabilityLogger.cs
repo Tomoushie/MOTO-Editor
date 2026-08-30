@@ -29,7 +29,7 @@ public sealed class ExplainabilityLogger
     public void LogDecision(string agentId, SpecializedAgentRequest request,
                             string rationale, string output)
     {
-        if (!_settings.Shared.AiAgents.ExplainabilityEnabled.Value) return;
+        if (!SettingsCatalog.AiAgents.ExplainabilityEnabled.Value) return;
 
         var record = new
         {

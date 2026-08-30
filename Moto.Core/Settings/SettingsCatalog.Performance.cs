@@ -3,6 +3,8 @@ namespace Moto.Core.Settings
 {
     public static partial class SettingsCatalog
     {
+        static partial void RegisterPerformance();
+
         static partial void RegisterPerformance()
         {
             E("power_mode", "Agent", "Performance", "Mode de puissance",

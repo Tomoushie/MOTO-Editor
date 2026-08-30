@@ -29,7 +29,7 @@ public abstract class LlmBackedAgent : ISpecializedAgent
     public virtual async Task<SpecializedAgentResult> ExecuteAsync(
         SpecializedAgentRequest request, CancellationToken ct = default)
     {
-        if (!Settings.Shared.AiAgents.AgentsEnabled.Value)
+        if (!SettingsCatalog.AiAgents.AgentsEnabled.Value)
             return SpecializedAgentResult.Fail("Agents désactivés par l'utilisateur.");
 
         try

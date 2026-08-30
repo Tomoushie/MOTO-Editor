@@ -2,6 +2,8 @@ namespace Moto.Core.Settings;
 
 public partial class SettingsCatalog
 {
+    public static EditorSettings Editor { get; } = new();
+
     public partial class EditorSettings
     {
         public UpdateSettings Update { get; } = new();

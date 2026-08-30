@@ -4,7 +4,6 @@
 // Sur autres plateformes : MAUI gère via Focused + événements.
 using System;
 using Microsoft.Maui.Controls;
-using Microsoft.Maui.Input;
 
 namespace Moto.Core.Behaviors
 {
@@ -99,11 +98,11 @@ namespace Moto.Core.Behaviors
             var modifiers = ShortcutModifiers.None;
             var kbState = Microsoft.UI.Input.InputKeyboardSource.GetKeyStateForCurrentThread;
 
-            if (kbState(Windows.System.VirtualKey.Control).HasFlag(Windows.UI.Core.CoreVirtualKeyStates.Down))
+            if (kbState(global::Windows.System.VirtualKey.Control).HasFlag(global::Windows.UI.Core.CoreVirtualKeyStates.Down))
                 modifiers |= ShortcutModifiers.Ctrl;
-            if (kbState(Windows.System.VirtualKey.Shift).HasFlag(Windows.UI.Core.CoreVirtualKeyStates.Down))
+            if (kbState(global::Windows.System.VirtualKey.Shift).HasFlag(global::Windows.UI.Core.CoreVirtualKeyStates.Down))
                 modifiers |= ShortcutModifiers.Shift;
-            if (kbState(Windows.System.VirtualKey.Menu).HasFlag(Windows.UI.Core.CoreVirtualKeyStates.Down))
+            if (kbState(global::Windows.System.VirtualKey.Menu).HasFlag(global::Windows.UI.Core.CoreVirtualKeyStates.Down))
                 modifiers |= ShortcutModifiers.Alt;
 
             if (modifiers == Modifiers)

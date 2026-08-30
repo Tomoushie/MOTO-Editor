@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Moto.Core.Logging;
 using Moto.Core.Services;
 using Moto.Core.Settings;
+using Moto.Editor.Services;
 
 namespace Moto.Core.Collab;
 
@@ -33,21 +34,21 @@ public sealed class LightweightPrService
 
     public async Task OpenPrAsync(string title, string branch)
     {
-        if (!_settings.Shared.Collab.LightweightPrEnabled.Value) return;
+        if (!SettingsCatalog.Collab.LightweightPrEnabled.Value) return;
         await _terminal.ExecuteAsync($"gh pr create --title \"{title}\" --head {branch}");
         _log.Info("LightweightPr", "PR ouverte", new { title, branch });
     }
 
     public async Task ClosePrAsync(int number)
     {
-        if (!_settings.Shared.Collab.LightweightPrEnabled.Value) return;
+        if (!SettingsCatalog.Collab.LightweightPrEnabled.Value) return;
         await _terminal.ExecuteAsync($"gh pr close {number}");
         _log.Info("LightweightPr", "PR fermée", new { number });
     }
 
     public async Task CommentPrAsync(int number, string comment)
     {
-        if (!_settings.Shared.Collab.LightweightPrEnabled.Value) return;
+        if (!SettingsCatalog.Collab.LightweightPrEnabled.Value) return;
         await _terminal.ExecuteAsync($"gh pr comment {number} --body \"{comment}\"");
         _log.Info("LightweightPr", "PR commentée", new { number });
     }

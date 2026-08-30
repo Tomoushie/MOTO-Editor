@@ -18,7 +18,7 @@ namespace Moto.Core.AI.Context
     public class ContextEngine : IDisposable
     {
         private readonly ContextAnalyzer _analyzer = new();
-        private readonly Timer _scanTimer = new();
+        private readonly System.Timers.Timer _scanTimer = new();
         private readonly List<ContextSuggestion> _dismissedSuggestions = new();
         private readonly string _historyPath;
 

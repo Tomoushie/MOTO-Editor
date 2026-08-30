@@ -40,7 +40,7 @@ public sealed class PluginSandboxService
 
     public async Task ExecuteSandboxedAsync(IMotoPlugin plugin, Func<Task> action)
     {
-        if (!_settings.Shared.Marketplace.PluginSandboxEnabled.Value)
+        if (!SettingsCatalog.Marketplace.PluginSandboxEnabled.Value)
         {
             await action();
             return;

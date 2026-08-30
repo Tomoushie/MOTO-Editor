@@ -4,6 +4,8 @@ namespace Moto.Core.Settings
     /// <summary>Paramètres des 4 modes débutants.</summary>
     public static partial class SettingsCatalog
     {
+        static partial void RegisterBeginner();
+
         static partial void RegisterBeginner()
         {
             T("explain_everything", "Débutant", "Modes", "Explain Everything", "Explique chaque fichier, ligne, erreur, système, dépendance.", false);

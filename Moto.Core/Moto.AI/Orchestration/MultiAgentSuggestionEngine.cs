@@ -1,5 +1,6 @@
 using Moto.Core.AI.Cortex;
 using Moto.Core.AI.Neural;
+using Moto.Core.AI.Workspace;
 
 namespace Moto.Core.AI.Orchestration;
 

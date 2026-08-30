@@ -10,7 +10,7 @@ using Microsoft.Extensions.Logging;
 
 namespace Moto.Core.Cloud
 {
-    public sealed class CloudSyncConfig
+    public sealed class CloudSyncServiceConfig
     {
         public CloudProvider Provider { get; set; } = CloudProvider.None;
         public string? AccessToken { get; set; }
@@ -30,7 +30,7 @@ namespace Moto.Core.Cloud
         private readonly ILogger<CloudSyncService> _logger;
         private readonly CloudProviderClient _client;
         private readonly string _configPath;
-        private CloudSyncConfig _config = new();
+        private CloudSyncServiceConfig _config = new();
         private Timer? _syncTimer;
         private readonly SemaphoreSlim _syncGate = new(1, 1);
 
@@ -47,7 +47,7 @@ namespace Moto.Core.Cloud
             LoadConfig();
         }
 
-        public CloudSyncConfig GetConfig() => _config;
+        public CloudSyncServiceConfig GetConfig() => _config;
 
         /// <summary>
         /// Configure le provider cloud et démarre la synchronisation.
@@ -147,7 +147,7 @@ namespace Moto.Core.Cloud
 
         public void Disconnect()
         {
-            _config = new CloudSyncConfig();
+            _config = new CloudSyncServiceConfig();
             StopAutoSync();
             SaveConfig();
             SyncProgress?.Invoke("Déconnecté du cloud");
@@ -168,7 +168,7 @@ namespace Moto.Core.Cloud
                 if (File.Exists(_configPath))
                 {
                     var json = File.ReadAllText(_configPath);
-                    _config = System.Text.Json.JsonSerializer.Deserialize<CloudSyncConfig>(json) ?? new();
+                    _config = System.Text.Json.JsonSerializer.Deserialize<CloudSyncServiceConfig>(json) ?? new();
 
                     if (!string.IsNullOrEmpty(_config.AccessToken))
                         _client.SetTokens(_config.AccessToken, _config.RefreshToken);

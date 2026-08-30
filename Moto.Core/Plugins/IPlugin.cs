@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Moto.Core.Settings;
 
 namespace Moto.Core.Plugins
 {

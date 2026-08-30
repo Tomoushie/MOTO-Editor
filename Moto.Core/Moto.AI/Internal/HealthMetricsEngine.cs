@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Moto.Core.AI.Internal.Models;
 
 namespace Moto.Core.AI.Internal
 {

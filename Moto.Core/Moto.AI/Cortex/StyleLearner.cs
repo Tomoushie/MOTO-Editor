@@ -19,6 +19,14 @@ namespace Moto.Core.AI.Cortex
             _memory = memory;
         }
 
+        /// <summary>Nombre de corrections utilisateur enregistrées (pour CortexEngine.GetStats()).</summary>
+        public int CorrectionsApplied => _memory.GetCorrections(int.MaxValue).Count;
+
+        /// <summary>Confiance moyenne des patterns appris (pour CortexEngine.GetStats()).</summary>
+        public double AverageConfidence => _memory.Patterns.Count > 0
+            ? _memory.Patterns.Average(p => p.Confidence)
+            : 0.0;
+
         /// <summary>Analyse un fichier et apprend le style de l'utilisateur.</summary>
         public void LearnFromFile(string filePath, string content)
         {

@@ -43,9 +43,9 @@ namespace Moto.Core.Debug
 
     /// <summary>
     /// Debugger Pro : breakpoints conditionnels, watch, call stack avancé, step-out.
-    /// Étend DebugEngine (DAP). En production : pilote netcoredbg/lldb via stdio.
+    /// Complète DebugEngine (DAP), qui est scellée. En production : pilote netcoredbg/lldb via stdio.
     /// </summary>
-    public sealed class DebugEnginePro : DebugEngine
+    public sealed class DebugEnginePro
     {
         private readonly List<ConditionalBreakpoint> _breakpoints = new();
         private readonly List<WatchExpression> _watches = new();

@@ -16,7 +16,7 @@ public sealed class CollabRoleService
     private readonly StructuredLogCollector _log;
     private CollabRole _currentRole = CollabRole.Editor;
 
-    public CollabRole CurrentRole => _settings.Shared.Collab.RoleBasedUiEnabled.Value ? _currentRole : CollabRole.Editor;
+    public CollabRole CurrentRole => SettingsCatalog.Collab.RoleBasedUiEnabled.Value ? _currentRole : CollabRole.Editor;
     public event EventHandler<CollabRole>? RoleChanged;
 
     public CollabRoleService(SettingsEngine settings, StructuredLogCollector log)

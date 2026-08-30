@@ -45,10 +45,10 @@ public sealed class PerfGateService
     /// <summary>Item 92 — Vérifie les seuils (utilisé en CI pour fail le PR).</summary>
     public bool PassesGate(PerfMetrics metrics)
     {
-        if (!_settings.Shared.DevOps.PerfGateEnabled.Value) return true;
+        if (!SettingsCatalog.DevOps.PerfGateEnabled.Value) return true;
 
-        bool startupOk = metrics.StartupTimeMs <= _settings.Shared.DevOps.StartupTimeThresholdMs.Value;
-        bool memoryOk = metrics.PeakMemoryMb <= _settings.Shared.DevOps.MemoryThresholdMb.Value;
+        bool startupOk = metrics.StartupTimeMs <= SettingsCatalog.DevOps.StartupTimeThresholdMs.Value;
+        bool memoryOk = metrics.PeakMemoryMb <= SettingsCatalog.DevOps.MemoryThresholdMb.Value;
 
         if (!startupOk || !memoryOk)
             _log.Warning("PerfGate", "Seuils dépassés", new { metrics.StartupTimeMs, metrics.PeakMemoryMb });
@@ -62,7 +62,7 @@ public sealed class PerfGateService
     public void CheckRegression(PerfMetrics current)
     {
         if (_baseline is null) return;
-        double threshold = _settings.Shared.DevOps.PerfRegressionThresholdPercent.Value;
+        double threshold = SettingsCatalog.DevOps.PerfRegressionThresholdPercent.Value;
 
         double startupDrift = ((current.StartupTimeMs - _baseline.StartupTimeMs) / _baseline.StartupTimeMs) * 100;
         double memoryDrift = ((current.PeakMemoryMb - _baseline.PeakMemoryMb) / _baseline.PeakMemoryMb) * 100;

@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using Moto.Core.AI.Builders;
+using Moto.Core.AI.Internal;
 using Moto.Core.AI.Internal.Models;
 
 namespace Moto.Core.AI.Story

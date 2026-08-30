@@ -2,7 +2,7 @@ namespace Moto.Core.Settings;
 
 public partial class SettingsCatalog
 {
-    public McpSettings Mcp { get; } = new();
+    public static McpSettings Mcp { get; } = new();
 
     public partial class McpSettings
     {

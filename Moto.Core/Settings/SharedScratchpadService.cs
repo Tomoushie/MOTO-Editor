@@ -40,7 +40,7 @@ public sealed class SharedScratchpadService
 
     public void AppendSnippet(ScratchpadSnippet snippet)
     {
-        if (!_settings.Shared.Collab.SharedScratchpadsEnabled.Value) return;
+        if (!SettingsCatalog.Collab.SharedScratchpadsEnabled.Value) return;
         lock (_lock) _snippets.Add(snippet);
         Persist();
         ScratchpadChanged?.Invoke(this, EventArgs.Empty);

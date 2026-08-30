@@ -4,7 +4,11 @@ namespace Moto.Core.Settings
     /// <summary>Paramètres des modes Story / Evolution.</summary>
     public static partial class SettingsCatalog
     {
-        // Déclaration : appelée depuis RegisterExtensions() (une ligne à ajouter).
+        // Déclaration de la méthode partielle (requise par le compilateur ;
+        // absente ailleurs dans la classe partielle) — appelée depuis
+        // RegisterExtensions() (une ligne à ajouter, voir note en fin de fichier).
+        static partial void RegisterEvolution();
+
         static partial void RegisterEvolution()
         {
             T("evolution_enabled", "Agent", "Évolution", "Évolution proactive",

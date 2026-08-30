@@ -43,7 +43,7 @@ public sealed class SyntheticJourneyService
     public async Task<List<JourneyResult>> RunAllAsync()
     {
         var results = new List<JourneyResult>();
-        if (!_settings.Shared.DevOps.SyntheticJourneysEnabled.Value) return results;
+        if (!SettingsCatalog.DevOps.SyntheticJourneysEnabled.Value) return results;
 
         foreach (var (name, steps) in _journeys)
         {

@@ -2,7 +2,7 @@ namespace Moto.Core.Settings;
 
 public partial class SettingsCatalog
 {
-    public DevOpsSettings DevOps { get; } = new();
+    public static DevOpsSettings DevOps { get; } = new();
 
     public partial class DevOpsSettings
     {

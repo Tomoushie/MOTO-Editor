@@ -20,7 +20,7 @@ namespace Moto.Core.Doc
         private readonly ProjectUnderstandingEngine _understanding = new();
         private readonly PatternDetectorEngine _patterns = new();
         private readonly FileSystemWatcher _watcher;
-        private readonly Timer _debounceTimer;
+        private readonly System.Timers.Timer _debounceTimer;
         private DateTime _lastUpdate = DateTime.MinValue;
 
         /// <summary>Déclenché après chaque régénération de documentation.</summary>
@@ -57,7 +57,7 @@ namespace Moto.Core.Doc
             _watcher.Renamed += OnProjectChanged;
 
             // Debounce : attend 3 secondes sans modification avant de régénérer
-            _debounceTimer = new Timer(3000) { AutoReset = false };
+            _debounceTimer = new System.Timers.Timer(3000) { AutoReset = false };
             _debounceTimer.Elapsed += (s, e) => RegenerateAsync().ConfigureAwait(false);
         }
 

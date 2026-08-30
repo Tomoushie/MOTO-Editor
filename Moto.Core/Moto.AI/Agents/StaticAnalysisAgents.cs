@@ -20,7 +20,7 @@ public abstract class HeuristicAgent : ISpecializedAgent
 
     public Task<SpecializedAgentResult> ExecuteAsync(SpecializedAgentRequest request, CancellationToken ct = default)
     {
-        if (!Settings.Shared.AiAgents.AgentsEnabled.Value)
+        if (!SettingsCatalog.AiAgents.AgentsEnabled.Value)
             return Task.FromResult(SpecializedAgentResult.Fail("Agents désactivés."));
 
         var findings = Analyze(request);

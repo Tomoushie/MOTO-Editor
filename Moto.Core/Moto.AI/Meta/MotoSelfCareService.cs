@@ -49,7 +49,7 @@ public sealed class MotoSelfCareService
         var diagnostics = new List<ConfigDiagnostic>();
 
         // Vérifie les paramètres incohérents
-        if (_settings.Shared.Ai.Advanced.MaxConcurrentPrefetch.Value > 10)
+        if (SettingsCatalog.Ai.Advanced.MaxConcurrentPrefetch.Value > 10)
         {
             diagnostics.Add(new ConfigDiagnostic
             {
@@ -95,10 +95,10 @@ public sealed class MotoSelfCareService
     /// <summary>Idée "Minimal install" — config ultra-minimale pour machines faibles.</summary>
     public void ApplyMinimalConfig()
     {
-        _settings.Shared.Ai.Profiles.Use3BByDefault.Value = true;
-        _settings.Shared.Ai.Profiles.LowRamMode.Value = true;
-        _settings.Shared.Editor.UxAdvanced.MicroUxAnimations.Value = false;
-        _settings.Shared.Editor.UxAdvanced.FluidInteractions.Value = false;
+        SettingsCatalog.Ai.Profiles.Use3BByDefault.Value = true;
+        SettingsCatalog.Ai.Profiles.LowRamMode.Value = true;
+        SettingsCatalog.Editor.UxAdvanced.MicroUxAnimations.Value = false;
+        SettingsCatalog.Editor.UxAdvanced.FluidInteractions.Value = false;
         _log.Info("MotoSelfCare", "Configuration minimale appliquée");
     }
 

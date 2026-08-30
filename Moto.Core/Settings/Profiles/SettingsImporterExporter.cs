@@ -13,7 +13,7 @@ namespace Moto.Core.Settings
     /// DTO pour l'export/import de paramètres.
     /// Inclut version + checksum pour validation.
     /// </summary>
-    public sealed class SettingsExport
+    public sealed record SettingsExport
     {
         public int Version { get; init; } = 1;
         public DateTime ExportedUtc { get; init; } = DateTime.UtcNow;
@@ -50,12 +50,12 @@ namespace Moto.Core.Settings
             foreach (var def in allSettings)
             {
                 // Skip les paramètres sensibles (tokens, passwords) sauf si explicitement demandé
-                if (!includeSensitive && IsSensitiveKey(def.Key))
+                if (!includeSensitive && IsSensitiveKey(def.Id))
                     continue;
 
-                var value = _settings.GetRaw(def.Key);
+                var value = _settings.GetRaw(def.Id);
                 if (value != null)
-                    export.Settings[def.Key] = value;
+                    export.Settings[def.Id] = value;
             }
 
             // Calcule le checksum pour validation à l'import
@@ -97,7 +97,7 @@ namespace Moto.Core.Settings
                 // Validation du schéma (clés connues)
                 var knownKeys = new HashSet<string>();
                 foreach (var def in SettingsCatalog.GetAll())
-                    knownKeys.Add(def.Key);
+                    knownKeys.Add(def.Id);
 
                 var unknownKeys = new List<string>();
                 foreach (var key in export.Settings.Keys)
@@ -145,7 +145,7 @@ namespace Moto.Core.Settings
         }
     }
 
-    public sealed record ImportResult(bool Success, int AppliedCount, int SkippedCount, string? ErrorMessage)
+    public sealed record ImportResult(bool IsSuccess, int AppliedCount, int SkippedCount, string? ErrorMessage)
     {
         public static ImportResult Success(int applied, int skipped)
             => new(true, applied, skipped, null);

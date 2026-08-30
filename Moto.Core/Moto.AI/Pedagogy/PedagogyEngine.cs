@@ -54,7 +54,7 @@ public sealed class PedagogyEngine
     /// <summary>Idée "Assistant Premier projet" — guide de création.</summary>
     public IReadOnlyList<string> GetFirstProjectQuestions()
     {
-        if (!_settings.Shared.Ai.Profiles.PedagogyMode.Value)
+        if (!SettingsCatalog.Ai.Profiles.PedagogyMode.Value)
             return Array.Empty<string>();
 
         return new[]
@@ -70,7 +70,7 @@ public sealed class PedagogyEngine
     /// <summary>Idée "Explain-only" — explique sans générer.</summary>
     public string ExplainCode(string code, string context)
     {
-        if (!_settings.Shared.Ai.Profiles.ExplainOnlyMode.Value)
+        if (!SettingsCatalog.Ai.Profiles.ExplainOnlyMode.Value)
             return "";
 
         // Analyse simple : compte classes, méthodes, complexité
@@ -84,7 +84,7 @@ public sealed class PedagogyEngine
     /// <summary>Idée "Tutoriel interactif" — missions guidées.</summary>
     public IReadOnlyList<TutorialMission> GetMissions()
     {
-        if (!_settings.Shared.Ai.Profiles.InteractiveTutorial.Value)
+        if (!SettingsCatalog.Ai.Profiles.InteractiveTutorial.Value)
             return Array.Empty<TutorialMission>();
         return _missions;
     }
@@ -108,7 +108,7 @@ public sealed class PedagogyEngine
     public IReadOnlyList<GlossaryEntry> GenerateGlossary(string workspacePath)
     {
         var entries = new List<GlossaryEntry>();
-        if (!_settings.Shared.Ai.Profiles.PedagogyMode.Value)
+        if (!SettingsCatalog.Ai.Profiles.PedagogyMode.Value)
             return entries;
 
         // Scan simplifié des fichiers pour extraire les concepts
@@ -139,7 +139,7 @@ public sealed class PedagogyEngine
     /// <summary>Idée "Anti-magie noire" — explications obligatoires.</summary>
     public string AddExplanation(string generatedCode, string explanation)
     {
-        if (!_settings.Shared.Ai.Profiles.AntiMagicMode.Value)
+        if (!SettingsCatalog.Ai.Profiles.AntiMagicMode.Value)
             return generatedCode;
 
         return $"// 💡 {explanation}\n{generatedCode}";

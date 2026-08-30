@@ -52,6 +52,13 @@ namespace Moto.Core.AI.Internal.Models
         public List<AiFileChange> FileChanges { get; } = new List<AiFileChange>();
         public List<AiSuggestion> Suggestions { get; } = new List<AiSuggestion>();
         public List<NavigationTarget> NavigationTargets { get; } = new List<NavigationTarget>();
+
+        // Champs additionnels côté complétion IA brute (Ollama/embarqué), utilisés
+        // par InferenceHostClient/TimeMachineEngine/AiProfileService en plus des
+        // champs "rapport structuré" ci-dessus.
+        public string Content { get; set; } = string.Empty;
+        public string Provider { get; set; } = string.Empty;
+        public long LatencyMs { get; set; }
     }
 
     public class AiStep

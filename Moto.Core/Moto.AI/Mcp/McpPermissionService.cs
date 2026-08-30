@@ -54,7 +54,7 @@ public sealed class McpPermissionService
 
     private void LoadPolicy()
     {
-        string path = _settings.Shared.McpAdvanced.ManagedPolicyPath.Value;
+        string path = SettingsCatalog.McpAdvanced.ManagedPolicyPath.Value;
         if (!File.Exists(path)) return;
         try
         {
@@ -69,7 +69,7 @@ public sealed class McpPermissionService
 
     public McpPermissionMode GetMode()
     {
-        return _settings.Shared.McpAdvanced.PermissionMode.Value.ToLowerInvariant() switch
+        return SettingsCatalog.McpAdvanced.PermissionMode.Value.ToLowerInvariant() switch
         {
             "auto" => McpPermissionMode.Auto,
             "deny" => McpPermissionMode.Deny,

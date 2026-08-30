@@ -51,11 +51,11 @@ public sealed class ReviewLaneService
 
     public void AddComment(ReviewComment comment)
     {
-        if (!_settings.Shared.Collab.ReviewLanesEnabled.Value) return;
+        if (!SettingsCatalog.Collab.ReviewLanesEnabled.Value) return;
 
         lock (_lock)
         {
-            if (!IsOnline && _settings.Shared.Collab.OfflineReviewQueueEnabled.Value)
+            if (!IsOnline && SettingsCatalog.Collab.OfflineReviewQueueEnabled.Value)
             {
                 _offlineQueue.Enqueue(comment);
                 _log.Info("ReviewLane", "Commentaire mis en file hors-ligne", new { comment.FilePath });

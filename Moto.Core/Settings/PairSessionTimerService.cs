@@ -29,8 +29,8 @@ public sealed class PairSessionTimerService : IDisposable
 
     public void StartSession(int? minutesOverride = null)
     {
-        if (!_settings.Shared.Collab.PairSessionsEnabled.Value) return;
-        int minutes = minutesOverride ?? _settings.Shared.Collab.PairSessionDefaultMinutes.Value;
+        if (!SettingsCatalog.Collab.PairSessionsEnabled.Value) return;
+        int minutes = minutesOverride ?? SettingsCatalog.Collab.PairSessionDefaultMinutes.Value;
 
         _endsAtUtc = DateTime.UtcNow.AddMinutes(minutes);
         IsActive = true;

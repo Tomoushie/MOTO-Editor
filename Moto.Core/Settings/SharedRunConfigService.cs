@@ -36,7 +36,7 @@ public sealed class SharedRunConfigService
 
     public void Save(IReadOnlyList<RunConfiguration> configs)
     {
-        if (!_settings.Shared.Collab.SharedRunConfigsEnabled.Value) return;
+        if (!SettingsCatalog.Collab.SharedRunConfigsEnabled.Value) return;
         Directory.CreateDirectory(ConfigDir);
         File.WriteAllText(Path.Combine(ConfigDir, "run-configs.json"),
                           JsonSerializer.Serialize(configs));

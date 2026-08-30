@@ -58,7 +58,7 @@ public sealed class TrialLicenseManager
 
     private LicenseInfo CreateTrial()
     {
-        int days = _settings.Shared.Marketplace.TrialDays.Value;
+        int days = SettingsCatalog.Marketplace.TrialDays.Value;
         var license = new LicenseInfo
         {
             State = LicenseState.Trial,

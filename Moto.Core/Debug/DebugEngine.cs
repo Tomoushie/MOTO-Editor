@@ -12,14 +12,6 @@ using System.Threading.Tasks;
 
 namespace Moto.Core.Debug
 {
-    public sealed class BreakpointInfo
-    {
-        public int Id { get; init; }
-        public string FilePath { get; init; } = string.Empty;
-        public int Line { get; init; }
-        public bool Verified { get; init; }
-    }
-
     public sealed class StackFrameInfo
     {
         public int Id { get; init; }

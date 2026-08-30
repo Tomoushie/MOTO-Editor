@@ -40,12 +40,12 @@ namespace Moto.Core.Cloud
     public sealed class CloudProviderClient : IDisposable
     {
         private readonly HttpClient _http;
-        private readonly ILogger<CloudProviderClient> _logger;
+        private readonly ILogger _logger;
         private readonly CloudProvider _provider;
         private string? _accessToken;
         private string? _refreshToken;
 
-        public CloudProviderClient(CloudProvider provider, ILogger<CloudProviderClient> logger)
+        public CloudProviderClient(CloudProvider provider, ILogger logger)
         {
             _provider = provider;
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));

@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using Moto.Core.AI.Internal;
+using Moto.Core.AI.Internal.Models;
 
 namespace Moto.Core.Doc
 {

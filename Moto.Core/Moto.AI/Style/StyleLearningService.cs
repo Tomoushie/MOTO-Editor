@@ -48,7 +48,7 @@ public sealed class StyleLearningService
     /// <summary>Idée "Style learning local-only" — apprend sans cloud.</summary>
     public void LearnFromCode(string code, string filePath)
     {
-        if (!_settings.Shared.Ai.Profiles.StyleLearningLocal.Value)
+        if (!SettingsCatalog.Ai.Profiles.StyleLearningLocal.Value)
             return;
 
         // Extrait conventions de nommage
@@ -75,7 +75,7 @@ public sealed class StyleLearningService
     /// <summary>Idée "Imiter ton ancien code" — base sur fichiers anciens.</summary>
     public string ImitateOldStyle(string workspacePath, string intent)
     {
-        if (!_settings.Shared.Ai.Profiles.ImitateOldCode.Value)
+        if (!SettingsCatalog.Ai.Profiles.ImitateOldCode.Value)
             return "";
 
         var files = Directory.GetFiles(workspacePath, "*.cs", SearchOption.AllDirectories)
@@ -100,7 +100,7 @@ public sealed class StyleLearningService
     /// <summary>Idée "Score de cohérence stylistique" — calcule 0-100.</summary>
     public double CalculateConsistencyScore(string aiSuggestion, string userCode)
     {
-        if (!_settings.Shared.Ai.Profiles.StyleConsistencyScore.Value)
+        if (!SettingsCatalog.Ai.Profiles.StyleConsistencyScore.Value)
             return 100;
 
         double score = 100;
@@ -146,13 +146,13 @@ public sealed class StyleLearningService
     /// <summary>Idée "Strict no auto-format" — pas de formatage.</summary>
     public bool AllowsAutoFormat()
     {
-        return !_settings.Shared.Ai.Profiles.StrictNoAutoFormat.Value;
+        return !SettingsCatalog.Ai.Profiles.StrictNoAutoFormat.Value;
     }
 
     /// <summary>Idée "Style mentor" — explique les choix.</summary>
     public string ExplainStyleChoice(string suggestion, string alternative)
     {
-        if (!_settings.Shared.Ai.Profiles.StyleMentorMode.Value)
+        if (!SettingsCatalog.Ai.Profiles.StyleMentorMode.Value)
             return "";
 
         return $"Pourquoi ce style ?\n" +

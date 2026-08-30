@@ -35,7 +35,7 @@ public sealed class SpeculativeLogitsVerifier
 
         float pDraft = SoftmaxProbability(draftLogits, draftTokenId);
         float pTarget = SoftmaxProbability(targetLogits, draftTokenId);
-        double threshold = _settings.Shared.Ai.Advanced.SpeculativeAcceptThreshold.Value;
+        double threshold = SettingsCatalog.Ai.Advanced.SpeculativeAcceptThreshold.Value;
 
         // Acceptation probabiliste réelle : accepte si target >= draft * seuil
         bool accepted = pTarget >= pDraft * threshold;

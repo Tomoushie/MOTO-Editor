@@ -23,8 +23,17 @@ namespace Moto.Core.Plugins.Marketplace
         public string VersionRange { get; init; } = string.Empty;
     }
 
-    public sealed class MarketplaceEntryPro : MarketplaceEntry
+    public sealed class MarketplaceEntryPro
     {
+        public string Id { get; init; } = string.Empty;
+        public string Name { get; init; } = string.Empty;
+        public string Author { get; init; } = string.Empty;
+        public string Version { get; init; } = string.Empty;
+        public string Description { get; init; } = string.Empty;
+        public string DownloadUrl { get; init; } = string.Empty;
+        public string Sha256 { get; init; } = string.Empty;
+        public long DownloadCount { get; init; }
+        public double Rating { get; init; }
         public string? Signature { get; init; }
         public IReadOnlyList<PluginDependency> Dependencies { get; init; } = Array.Empty<PluginDependency>();
         public DateTime PublishedUtc { get; init; }

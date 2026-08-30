@@ -31,7 +31,7 @@ public sealed class PromptInjectionProtector
 
     public bool IsSafe(string prompt)
     {
-        if (!_settings.Shared.Mcp.PromptInjectionProtection.Value) return true;
+        if (!SettingsCatalog.Mcp.PromptInjectionProtection.Value) return true;
 
         foreach (var pattern in DangerousPatterns)
         {

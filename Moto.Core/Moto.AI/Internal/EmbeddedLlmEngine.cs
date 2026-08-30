@@ -1,6 +1,7 @@
 using System.IO.MemoryMappedFiles;
 using Microsoft.Extensions.Logging;
 using Microsoft.ML.OnnxRuntime;
+using Moto.Core.Settings;
 
 namespace Moto.Core.AI.Internal;
 

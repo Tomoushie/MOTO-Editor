@@ -45,7 +45,7 @@ public sealed class PluginSandboxMinimalService
     public async Task<bool> RunGuardedAsync(string pluginId, SandboxCapability required,
                                             Func<Task> action, int timeoutMs = 5000)
     {
-        if (!_settings.Shared.Marketplace.PluginSandboxEnabled.Value)
+        if (!SettingsCatalog.Marketplace.PluginSandboxEnabled.Value)
         {
             await action();
             return true;
