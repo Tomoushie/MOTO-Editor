@@ -24,8 +24,17 @@
     <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</SupportedOSPlatformVersion>
     <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">13.1</SupportedOSPlatformVersion>
 
-    <!-- Appli Windows non empaquetée (pas de MSIX/AppxManifest) : la plus simple pour dev/test local -->
-    <WindowsPackageType Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">None</WindowsPackageType>
+    <!--
+      Non empaquetée par défaut (pas de MSIX) : la plus simple pour dev/test local
+      (dotnet run / F5). Un Package.appxmanifest existe quand même (Platforms/Windows/)
+      pour pouvoir produire un MSIX à la demande — passer WindowsPackageType=UAP en
+      ligne de commande (ou via "Publier → Associer au Store" dans Visual Studio)
+      sans toucher ce fichier, ex. :
+        dotnet publish -f net8.0-windows10.0.19041.0 -p:WindowsPackageType=MSIX -p:RuntimeIdentifierOverride=win10-x64
+      La condition ci-dessous ne fixe "None" que si rien n'a été précisé ailleurs.
+      (Valeurs acceptées par WindowsPackageType : None, MSIX, Sparse — pas "UAP".)
+    -->
+    <WindowsPackageType Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows' AND '$(WindowsPackageType)' == ''">None</WindowsPackageType>
 
     <!--
       Self-contained WinAppSDK : filet de sécurité, harmless même sur net8 où le
