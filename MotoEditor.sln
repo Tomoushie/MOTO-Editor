@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Moto.Editor", "Moto.Editor\Moto.Editor.csproj", "{F1DED9DD-F5E2-42C3-89A0-714B9BD218A6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Moto.Core", "Moto.Core\Moto.Core.csproj", "{EFE2C1BB-8116-4297-B3FD-5DBCD1D3A8CE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Snake2000.Engine", "Snake2000.Engine\Snake2000.Engine.csproj", "{297D62F5-C6DB-44E1-94E5-EF77E904A036}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F1DED9DD-F5E2-42C3-89A0-714B9BD218A6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F1DED9DD-F5E2-42C3-89A0-714B9BD218A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F1DED9DD-F5E2-42C3-89A0-714B9BD218A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F1DED9DD-F5E2-42C3-89A0-714B9BD218A6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EFE2C1BB-8116-4297-B3FD-5DBCD1D3A8CE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EFE2C1BB-8116-4297-B3FD-5DBCD1D3A8CE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EFE2C1BB-8116-4297-B3FD-5DBCD1D3A8CE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EFE2C1BB-8116-4297-B3FD-5DBCD1D3A8CE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{297D62F5-C6DB-44E1-94E5-EF77E904A036}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{297D62F5-C6DB-44E1-94E5-EF77E904A036}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{297D62F5-C6DB-44E1-94E5-EF77E904A036}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{297D62F5-C6DB-44E1-94E5-EF77E904A036}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
