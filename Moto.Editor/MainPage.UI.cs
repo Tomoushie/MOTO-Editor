@@ -7,6 +7,7 @@ using Microsoft.Maui.Storage;
 using Moto.Core.Export;
 using Moto.Core.Remote;
 using Moto.Core.Collab;
+using Moto.Editor.Models;
 
 namespace Moto.Editor
 {

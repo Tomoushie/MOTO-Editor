@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using Moto.Core.Settings;
 
 namespace Moto.Editor.Services;
 

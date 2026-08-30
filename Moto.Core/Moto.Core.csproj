@@ -75,8 +75,6 @@
     <Compile Remove="Settings\PluginSandboxService.cs" />
     <!-- Coloration syntaxique WinForms héritée de l'ancienne UI (RichTextBox) -->
     <Compile Remove="Moto.Core.Syntax\SyntaxEngine.cs" />
-    <!-- Ordre des sessions par section : fichier "additions" sans la classe de base (SessionSection/_gate/Save() introuvables) -->
-    <Compile Remove="Settings\WorkspaceStateService.cs" />
     <!-- Suite du même cluster IA embarquée, découverte par cascade -->
     <Compile Remove="Moto.AI\Internal\DualModelIntegration.cs" />
     <Compile Remove="Moto.AI\Internal\EmbeddedModelRouter.cs" />

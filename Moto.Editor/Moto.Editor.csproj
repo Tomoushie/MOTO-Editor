@@ -24,6 +24,9 @@
     <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">10.0.17763.0</SupportedOSPlatformVersion>
     <SupportedOSPlatformVersion Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'maccatalyst'">13.1</SupportedOSPlatformVersion>
 
+    <!-- Appli Windows non empaquetée (pas de MSIX/AppxManifest) : la plus simple pour dev/test local -->
+    <WindowsPackageType Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">None</WindowsPackageType>
+
     <!--
       MauiVersion : épingle sur la version du workload MAUI réellement installé
       sur cette machine (Microsoft.Maui.Sdk 10.0.20), pour éviter tout écart
@@ -50,6 +53,40 @@
   <ItemGroup>
     <ProjectReference Include="..\Moto.Core\Moto.Core.csproj" />
     <ProjectReference Include="..\Snake2000.Engine\Snake2000.Engine.csproj" />
+  </ItemGroup>
+
+  <!--
+    Mis de côté pour cette passe (rien n'est perdu, juste exclu de la compilation) :
+    CommandPaletteService (4 fichiers "additions" sans classe de base, jamais
+    instanciée nulle part dans le code réel — voir Moto.Core.csproj pour le
+    même genre d'exclusions côté Core).
+  -->
+  <ItemGroup>
+    <Compile Remove="Services\CommandPaletteService.cs" />
+    <Compile Remove="Services\CommandPaletteService.AdaptiveRanking.cs" />
+    <Compile Remove="Services\CommandPaletteService.Extensions.cs" />
+    <Compile Remove="Services\CommandPaletteService.Ranking.cs" />
+    <!-- CollabView (curseurs CRDT temps réel) : fragment "AJOUTS" sans classe de base,
+         jamais referencee ailleurs dans le code reel -->
+    <Compile Remove="Views\CollabView.xaml.cs" />
+    <MauiXaml Remove="Views\CollabView.xaml" />
+    <!-- Vues liées au cluster IA embarquée / marketplace / refactor Roslyn / voix,
+         tous mis de côté côté Moto.Core (voir Moto.Core.csproj) -->
+    <Compile Remove="Views\AdvancedAiSettingsView.xaml.cs" />
+    <MauiXaml Remove="Views\AdvancedAiSettingsView.xaml" />
+    <Compile Remove="Views\BenchmarkComparisonView.xaml.cs" />
+    <MauiXaml Remove="Views\BenchmarkComparisonView.xaml" />
+    <Compile Remove="Views\MarketplaceDashboardView.xaml.cs" />
+    <MauiXaml Remove="Views\MarketplaceDashboardView.xaml" />
+    <Compile Remove="Views\ModelConsentDialog.xaml.cs" />
+    <MauiXaml Remove="Views\ModelConsentDialog.xaml" />
+    <Compile Remove="Views\ModelManagerView.xaml.cs" />
+    <MauiXaml Remove="Views\ModelManagerView.xaml" />
+    <Compile Remove="Views\RefactorPanel.xaml.cs" />
+    <MauiXaml Remove="Views\RefactorPanel.xaml" />
+    <Compile Remove="Controls\VoiceButton.xaml.cs" />
+    <MauiXaml Remove="Controls\VoiceButton.xaml" />
+    <Compile Remove="Controls\EditorPaneView.Lsp.cs" />
   </ItemGroup>
 
 </Project>

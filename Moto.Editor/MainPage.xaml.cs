@@ -5,11 +5,15 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Maui.Controls;
+using Moto.Core.AI.Builders;
 using Moto.Core.AI.Cortex;
 using Moto.Core.AI.Neural;
 using Moto.Core.AI.Workspace;
 using Moto.Core.Collab;
 using Moto.Core.Doc;
+using Moto.Core.Export;
+using Moto.Core.Remote;
+using Moto.Core.Security;
 using Moto.Core.Services;
 using Moto.Core.Settings;
 using Moto.Editor.Services;
@@ -47,8 +51,8 @@ namespace Moto.Editor
 
         // ── Panneaux & moteurs IA ──
         private PlatformView _platformPanel;
-        private AiMonitorPage _aiMonitorPage;
-        private AiMonitorView _aiMonitorPanel;
+        private AiMonitoringView _aiMonitorPage;
+        private AiMonitoringView _aiMonitorPanel;
         private CortexEngine _cortex;
         private NeuralMode _neural;
         private AIWorkspace _workspace;
@@ -56,11 +60,9 @@ namespace Moto.Editor
         private CortexView _cortexPanel;
         private NeuralView _neuralPanel;
         private AIWorkspaceView _workspacePanel;
-        private PluginGalleryView _pluginGallery;
-        private AnalyticsDashboardView _analyticsDashboard;
+        // _pluginGallery / _analyticsDashboard / _aiSettings : déclarés dans MainPage.Extensions.cs
+        // _globalUsage : déclaré dans MainPage.UI.cs
         private DebugPanelView _debugPanel;
-        private Moto.Core.Settings.AiSettingsService _aiSettings;
-        private Moto.Core.Monitoring.GlobalUsageService _globalUsage;
 
         // ── État ──
         private bool _inSandbox;
@@ -336,17 +338,11 @@ namespace Moto.Editor
             catch { return false; }
         }
 
-        private async Task NavigateToModelManagerAsync()
+        private Task NavigateToModelManagerAsync()
         {
-            try
-            {
-                var view = Resolve<Views.ModelManagerView>();
-                if (view != null) await Navigation.PushAsync(view);
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"[MainPage] Failed to open ModelManagerView: {ex.Message}");
-            }
+            // Gestion du modèle IA embarqué : mise de côté pour cette passe (voir Moto.Core.csproj).
+            StatusBar.SetStatus("Le moteur IA embarqué n'est pas encore disponible dans cette version.");
+            return Task.CompletedTask;
         }
 
         private async void CheckForUpdatesOnStartup()

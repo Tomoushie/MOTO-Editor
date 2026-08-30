@@ -16,7 +16,7 @@ namespace Moto.Editor.Platforms.Windows;
 /// </summary>
 public static class SnapLayoutsHelper
 {
-    public static void ConfigureSnapLayouts(Window window,
+    public static void ConfigureSnapLayouts(Microsoft.UI.Xaml.Window window,
         FrameworkElement btnMin, FrameworkElement btnMax, FrameworkElement btnClose,
         FrameworkElement dragZone)
     {
@@ -88,10 +88,10 @@ public static class SnapLayoutsHelper
         );
     }
 
-    private static Microsoft.UI.Color ToColor(string hex)
+    private static global::Windows.UI.Color ToColor(string hex)
     {
         hex = hex.TrimStart('#');
-        return Microsoft.UI.Color.FromArgb(255,
+        return global::Windows.UI.Color.FromArgb(255,
             Convert.ToByte(hex[..2], 16),
             Convert.ToByte(hex[2..4], 16),
             Convert.ToByte(hex[4..6], 16));
@@ -101,7 +101,7 @@ public static class SnapLayoutsHelper
 /// <summary>Helper pour convertir (X,Y,W,H) en RectInt32.</summary>
 internal readonly struct RectInt32
 {
-    public static Windows.Graphics.RectInt32 From((int X, int Y, int W, int H) r)
+    public static global::Windows.Graphics.RectInt32 From((int X, int Y, int W, int H) r)
         => new(r.X, r.Y, r.W, r.H);
 }
 #endif

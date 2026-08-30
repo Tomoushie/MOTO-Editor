@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using Microsoft.Maui.Controls;
 using Microsoft.Maui.Graphics;
-using Moto.Core.LSP;
+using Moto.Core.LSP.InlayHints;
 
 namespace Moto.Editor.Controls
 {

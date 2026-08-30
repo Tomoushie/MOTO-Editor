@@ -18,11 +18,20 @@ using Moto.Core.AI.Commands;
 using Moto.Core.AI.Context;
 using Moto.Core.AI.Cortex;
 using Moto.Core.AI.Embedded;
+using Moto.Core.AI.Catalog;
+using Moto.Core.AI.Coherence;
+using Moto.Core.AI.GameDev;
 using Moto.Core.AI.Internal;
+using Moto.Core.AI.Mcp;
+using Moto.Core.AI.Meta;
+using Moto.Core.AI.Models;
 using Moto.Core.AI.Neural;
 using Moto.Core.AI.Orchestration;
+using Moto.Core.AI.Profiles;
 using Moto.Core.AI.Speculative;
+using Moto.Core.AI.Style;
 using Moto.Core.AI.Suggestions;
+using Moto.Core.AI.Ux;
 using Moto.Core.AI.Workspace;
 
 // ── Core Services
@@ -43,7 +52,6 @@ using Moto.Core.Services;
 using Moto.Core.Settings;
 using Moto.Core.Settings.Profiles;
 using Moto.Core.Themes;
-using Moto.Core.Voice;
 using Moto.Core.Licensing;
 
 // ── Editor
@@ -51,8 +59,6 @@ using Moto.Editor.Services;
 using Moto.Editor.Views;
 using Moto.Editor.Windows;
 
-// ── API / Marketplace
-using Moto.Marketplace.Api.Services;
 
 // ── XENO
 using Snake2000.Engine.AgentIntegrated.Pipeline;
@@ -93,33 +99,25 @@ namespace Moto.Editor.DependencyInjection
 #if MACOS || MACCATALYST
             services.AddSingleton<Moto.Editor.Platforms.Mac.MacShellAdapter>();
 #endif
-            services.AddSingleton<Moto.Editor.Platforms.Linux.LinuxShellAdapter>();
+            // Linux : MAUI n'est pas supporté sur Linux (voir Docs/Moto.Editor.build-pipeline.md,
+            // "Linux → Core uniquement"), donc Moto.Editor.Platforms.Linux n'est jamais compilé
+            // dans cette TFM — pas de branche Linux ici.
 
             services.AddSingleton<Moto.Core.Platform.IPlatformShell>(sp =>
             {
-                switch (Moto.Core.Platform.HostPlatformDetector.Current)
-                {
 #if WINDOWS
-                    case Moto.Core.Platform.MotoHostOs.Windows:
-                        return sp.GetRequiredService<Moto.Editor.Platforms.Windows.WindowsShellAdapter>();
+                return sp.GetRequiredService<Moto.Editor.Platforms.Windows.WindowsShellAdapter>();
+#elif MACOS || MACCATALYST
+                return sp.GetRequiredService<Moto.Editor.Platforms.Mac.MacShellAdapter>();
+#else
+                throw new PlatformNotSupportedException("Aucun IPlatformShell pour cette plateforme.");
 #endif
-#if MACOS || MACCATALYST
-                    case Moto.Core.Platform.MotoHostOs.MacOS:
-                        return sp.GetRequiredService<Moto.Editor.Platforms.Mac.MacShellAdapter>();
-#endif
-                    case Moto.Core.Platform.MotoHostOs.Linux:
-                        return sp.GetRequiredService<Moto.Editor.Platforms.Linux.LinuxShellAdapter>();
-                    default:
-                        return sp.GetRequiredService<Moto.Editor.Platforms.Linux.LinuxShellAdapter>();
-                }
             });
 
             // ══════════════════════════════════════════════════════════════
             // 1. Configuration & Utilitaires de base (Aucune dépendance)
             // ══════════════════════════════════════════════════════════════
-            var embeddedConfig = new EmbeddedLlmConfig();
-            services.AddSingleton<EmbeddedLlmConfig>(_ => embeddedConfig);
-            services.AddSingleton<ModelDownloader>();
+            // EmbeddedLlmConfig / ModelDownloader : cluster IA embarquée mis de côté (voir Moto.Core.csproj)
             services.AddSingleton<ModelCompressionService>();
             services.AddSingleton<MemoryMappedModelLoader>();
             services.AddSingleton<KvCacheManager>();
@@ -132,7 +130,7 @@ namespace Moto.Editor.DependencyInjection
             // 2. Services de base (v24-v31) - Fondations
             // ══════════════════════════════════════════════════════════════
             services.AddSingleton<Ed25519Signer>(sp => new Ed25519Signer(sp.GetRequiredService<ILogger<Ed25519Signer>>()));
-            services.AddSingleton<ChatService>(sp => new ChatService(workspaceRoot, null, null, sp.GetRequiredService<ILogger<ChatService>>()));
+            services.AddSingleton<Moto.Editor.Services.ChatService>(sp => new Moto.Editor.Services.ChatService(workspaceRoot, null, null, sp.GetRequiredService<ILogger<Moto.Editor.Services.ChatService>>()));
             services.AddSingleton<CortexEngine>(_ => new CortexEngine(workspaceRoot));
             services.AddSingleton<WorkspaceStateService>(sp => new WorkspaceStateService(workspaceRoot, sp.GetRequiredService<ILogger<WorkspaceStateService>>()));
             services.AddSingleton<SettingsEngine>(_ => SettingsEngine.Shared);
@@ -145,114 +143,41 @@ namespace Moto.Editor.DependencyInjection
             services.AddSingleton<ContextualActionsEngine>();
             services.AddSingleton<AiConfirmationService>();
             services.AddSingleton<ProactiveAnalyticsEngine>(_ => new ProactiveAnalyticsEngine(workspaceRoot));
-            services.AddSingleton<LanguageServerManager>();
+            // LanguageServerManager : LSP mis de côté pour cette passe (voir Moto.Core.csproj)
             services.AddSingleton<ConfirmationPolicyEngine>(sp => new ConfirmationPolicyEngine(sp.GetRequiredService<SettingsEngine>()));
             services.AddSingleton<DismissPersistenceEngine>(_ => new DismissPersistenceEngine(workspaceRoot));
             services.AddSingleton<AgentScorer>();
             services.AddSingleton<WindowManager>();
             services.AddSingleton<ThemeManager>(sp => new ThemeManager(sp.GetRequiredService<ILogger<ThemeManager>>()));
             services.AddSingleton<PluginMalwareScanner>(sp => new PluginMalwareScanner(sp.GetRequiredService<ILogger<PluginMalwareScanner>>()));
-            services.AddSingleton<AnalyticsWebSocketServer>(sp => new AnalyticsWebSocketServer(sp.GetRequiredService<ILogger<AnalyticsWebSocketServer>>()));
+            // AnalyticsWebSocketServer : jamais implémenté
 
             // Services de base avec dépendances internes
             services.AddSingleton<CommandPaletteEngine>(sp => new CommandPaletteEngine(sp.GetRequiredService<ContextualActionsEngine>()));
             services.AddSingleton<ProactiveSuggestionsEngine>(sp => new ProactiveSuggestionsEngine(sp.GetRequiredService<ContextualActionsEngine>(), sp.GetRequiredService<ProactiveAnalyticsEngine>()));
-            services.AddSingleton<IInlayHintProvider, RoslynInlayHintProvider>();
-            services.AddSingleton<InlayHintService>(sp => new InlayHintService(sp.GetRequiredService<IInlayHintProvider>()));
+            // IInlayHintProvider/InlayHintService : LSP mis de côté pour cette passe
             services.AddSingleton<AgentOrchestratorV3>(sp => new AgentOrchestratorV3(sp.GetRequiredService<ContextualActionsEngine>(), sp.GetRequiredService<ProactiveAnalyticsEngine>(), sp.GetRequiredService<CortexEngine>()));
 
             // ══════════════════════════════════════════════════════════════
-            // ★ v40 : IA embarquée + optimisations avancées
+            // ★ v40 / v37 : IA embarquée + optimisations avancées + modes IA
+            // Cluster entier mis de côté pour cette passe (voir Moto.Core.csproj) :
+            // HeavyProcessLauncher/IsolatedInferenceHost/SmartModelManager/EmbeddedLlmEngine/
+            // ModelSecurityService/DualModelRouter/DualModelIntegration/SpeculativeDecoder/
+            // SpeculativeActivationService/LayeredModelLoader/LayeredActivationService/
+            // ModelBundleManager/AiOptimizationsBenchmark/InferenceThrottler/
+            // AdaptiveResourceGovernor/InferenceWatchdog/AiModeManager/AiAutoBenchmark.
+            // Le chemin Ollama (MotoAiKernel) reste la voie IA active.
             // ══════════════════════════════════════════════════════════════
-            services.AddSingleton<HeavyProcessLauncher>(sp =>
-                new HeavyProcessLauncher(Process.GetCurrentProcess().MainModule?.FileName ?? "Moto.Editor.exe"));
-            services.AddSingleton<IsolatedInferenceHost>(sp =>
-                new IsolatedInferenceHost(sp.GetRequiredService<HeavyProcessLauncher>()));
-
-            services.AddSingleton<SmartModelManager>(sp =>
-                new SmartModelManager(
-                    sp.GetRequiredService<ModelCompressionService>(),
-                    sp.GetRequiredService<IsolatedInferenceHost>(),
-                    sp.GetRequiredService<ModelDownloader>()));
-
-            services.AddSingleton<EmbeddedLlmEngine>(sp =>
-                new EmbeddedLlmEngine(embeddedConfig, sp.GetRequiredService<SmartModelManager>()));
-
-            services.AddSingleton<ModelSecurityService>(sp =>
-                new ModelSecurityService(sp.GetRequiredService<Ed25519Signer>()));
-
-            services.AddSingleton<DualModelRouter>(sp =>
-                new DualModelRouter(
-                    sp.GetRequiredService<EmbeddedLlmEngine>(),
-                    sp.GetRequiredService<EmbeddedLlmEngine>(),
-                    new DualModelConfig()));
-            services.AddSingleton<DualModelIntegration>(sp =>
-                new DualModelIntegration(
-                    sp.GetRequiredService<DualModelRouter>(),
-                    sp.GetRequiredService<SmartModelManager>()));
-            services.AddSingleton<SpeculativeDecoder>(sp =>
-                new SpeculativeDecoder(
-                    sp.GetRequiredService<EmbeddedLlmEngine>(),
-                    sp.GetRequiredService<EmbeddedLlmEngine>(),
-                    new SpeculativeConfig()));
-            services.AddSingleton<SpeculativeActivationService>(sp =>
-                new SpeculativeActivationService(
-                    sp.GetRequiredService<SpeculativeDecoder>(),
-                    sp.GetRequiredService<ModelDownloader>(),
-                    new EmbeddedLlmConfig { ModelFileName = "qwen2.5-0.5b-q4.onnx" }));
-            services.AddSingleton<LayeredModelLoader>(sp =>
-            {
-                var modelPath = ModelPaths.GetModelPath(embeddedConfig.ModelFileName);
-                return new LayeredModelLoader(modelPath, new LayeredModelConfig());
-            });
-            services.AddSingleton<LayeredActivationService>(sp =>
-                new LayeredActivationService(
-                    sp.GetRequiredService<LayeredModelLoader>(),
-                    sp.GetRequiredService<EmbeddedLlmConfig>()));
-            services.AddSingleton<ModelBundleManager>(sp =>
-                new ModelBundleManager(sp.GetRequiredService<ModelDownloader>()));
-            services.AddSingleton<AiOptimizationsBenchmark>(sp =>
-                new AiOptimizationsBenchmark(
-                    sp.GetRequiredService<DualModelIntegration>(),
-                    sp.GetRequiredService<SpeculativeActivationService>(),
-                    sp.GetRequiredService<LayeredActivationService>(),
-                    sp.GetRequiredService<SmartModelManager>()));
-
             services.AddSingleton<SystemLoadMonitor>();
-            services.AddSingleton<InferenceThrottler>(sp => new InferenceThrottler(ResourceBudget.Minimal));
-            services.AddSingleton<AdaptiveResourceGovernor>(sp =>
-                new AdaptiveResourceGovernor(
-                    sp.GetRequiredService<SystemLoadMonitor>(),
-                    sp.GetRequiredService<InferenceThrottler>(),
-                    sp.GetRequiredService<IsolatedInferenceHost>()));
-            services.AddSingleton<InferenceWatchdog>(sp =>
-                new InferenceWatchdog(
-                    sp.GetRequiredService<IsolatedInferenceHost>(),
-                    sp.GetRequiredService<SystemLoadMonitor>()));
             services.AddSingleton<AiObservabilityService>();
-
-            // ══════════════════════════════════════════════════════════════
-            // ★ v37 : Modes IA + Monitoring + Auto-Benchmark
-            // ══════════════════════════════════════════════════════════════
-            services.AddSingleton<AiModeManager>(sp =>
-                new AiModeManager(
-                    sp.GetRequiredService<AdaptiveResourceGovernor>(),
-                    sp.GetRequiredService<SystemLoadMonitor>()));
-            services.AddSingleton<AiAutoBenchmark>(sp =>
-                new AiAutoBenchmark(
-                    sp.GetRequiredService<SmartModelManager>(),
-                    sp.GetRequiredService<SystemLoadMonitor>(),
-                    sp.GetRequiredService<IsolatedInferenceHost>()));
 
             // ══════════════════════════════════════════════════════════════
             // ★ v32 / v33 / v34 : Performance, Refactor, UI, Marketplace
             // ══════════════════════════════════════════════════════════════
-            services.AddSingleton<RefactorEngine>();
-            services.AddSingleton<RefactorAnalyzer>();
+            // RefactorEngine/RefactorAnalyzer/PerFileServiceManager : mis de côté (voir Moto.Core.csproj)
             services.AddSingleton<RefactorFixer>();
             services.AddSingleton<RefactorLearningStore>();
             services.AddSingleton<ProfilingHeatmapExporter>(sp => new ProfilingHeatmapExporter(sp.GetRequiredService<PerformanceProfiler>()));
-            services.AddSingleton<PerFileServiceManager>();
             services.AddSingleton<MemoryPressureMonitor>(sp => new MemoryPressureMonitor(sp.GetRequiredService<UltraLiteMode>()));
             services.AddSingleton<IncrementalIndexer>(_ => new IncrementalIndexer(Path.Combine(cacheDirectory, "index")));
             services.AddSingleton<SymbolCacheManager>(_ => new SymbolCacheManager(Path.Combine(cacheDirectory, "symbols")));
@@ -260,7 +185,7 @@ namespace Moto.Editor.DependencyInjection
             services.AddSingleton<SmallFileFastPath>();
             services.AddSingleton<AdaptiveModelSelector>();
             services.AddSingleton<UiCompressor>();
-            services.AddSingleton<VoiceEngine>();
+            // VoiceEngine mis de côté pour cette passe (voir Moto.Core.csproj)
             services.AddSingleton<LicenseValidator>();
             services.AddSingleton<PluginRatingService>();
             services.AddSingleton<MarketplaceAccountService>();
@@ -274,11 +199,7 @@ namespace Moto.Editor.DependencyInjection
             services.AddSingleton<AIWorkspace>(sp =>
                 new AIWorkspace(workspaceRoot));
 
-            services.AddSingleton<MultiAgentSuggestionEngine>(sp =>
-                new MultiAgentSuggestionEngine(
-                    sp.GetRequiredService<CortexEngine>(),
-                    sp.GetRequiredService<NeuralMode>(),
-                    sp.GetRequiredService<AIWorkspace>()));
+            // MultiAgentSuggestionEngine : mis de côté (API Cortex/Neural/Workspace jamais implémentée)
 
             // ══════════════════════════════════════════════════════════════
             // ★ ContextEngine avec hooks PresenceAware + FeatureFlag
@@ -286,9 +207,9 @@ namespace Moto.Editor.DependencyInjection
             services.AddSingleton<PresenceAwareSuggestionGate>();
             services.AddSingleton<FeatureFlagService>();
 
-            services.AddSingleton<ContextEngine>(sp =>
-                new ContextEngine(workspaceRoot,
-                    sp.GetRequiredService<Moto.Core.Collab.PresenceAwareSuggestionGate>(),
+            services.AddSingleton<Moto.Core.AI.Context.ContextEngine>(sp =>
+                new Moto.Core.AI.Context.ContextEngine(workspaceRoot,
+                    sp.GetRequiredService<PresenceAwareSuggestionGate>(),
                     sp.GetRequiredService<FeatureFlagService>()));
 
             // ══════════════════════════════════════════════════════════════
@@ -298,10 +219,7 @@ namespace Moto.Editor.DependencyInjection
                 sp.GetRequiredService<LazyLoadingManager>().Get(
                     "xeno",
                     () => ActivatorUtilities.CreateInstance<XenoPipelineV5>(sp)));
-            services.AddSingleton<XenoPipelineV5_Optimized>(sp =>
-                new XenoPipelineV5_Optimized(
-                    sp.GetRequiredService<LazyLoadingManager>(),
-                    sp.GetRequiredService<AggressiveCacheManager>()));
+            // XenoPipelineV5_Optimized : prototype incomplet mis de côté (voir Snake2000.Engine.csproj)
             services.AddSingleton<NeuralMode_Optimized>(sp =>
                 new NeuralMode_Optimized(sp.GetRequiredService<AggressiveCacheManager>()));
 
@@ -313,7 +231,7 @@ namespace Moto.Editor.DependencyInjection
             services.AddTransient<CrdtSession>();
             services.AddTransient<ThemePreviewView>();
             services.AddTransient<ThemeSelectorView>();
-            services.AddScoped<IRefundService, StripeRefundService>();
+            // IRefundService/StripeRefundService : jamais implémentés (feature paiement non construite)
 
             // ══════════════════════════════════════════════════════════════
             // Views (transient)
@@ -328,10 +246,8 @@ namespace Moto.Editor.DependencyInjection
             services.AddTransient<ProactivePanel>(sp => new ProactivePanel(sp.GetRequiredService<ProactiveSuggestionsEngine>()));
             services.AddTransient<PluginGalleryView>(sp => new PluginGalleryView(sp.GetRequiredService<PluginRegistry>(), sp.GetRequiredService<MarketplaceClient>(), pluginsDirectory));
 
-            services.AddTransient<AdminDashboardView>();
-            services.AddTransient<AdvancedAiSettingsView>();
-            services.AddTransient<ModelManagerView>();
-            services.AddTransient<ModelConsentDialog>();
+            // AdminDashboardView : jamais implémentée. AdvancedAiSettingsView/ModelManagerView/
+            // ModelConsentDialog : mises de côté avec le cluster IA embarquée (voir Moto.Editor.csproj)
             services.AddTransient<PerformanceDashboardView>();
             services.AddTransient<SubscriptionOverlay>();
             services.AddTransient<AiMonitoringView>();

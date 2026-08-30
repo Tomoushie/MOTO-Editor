@@ -100,7 +100,7 @@ public partial class GitPanelView : ContentView
     private async void OnBranchesClicked(object? sender, EventArgs e)
     {
         var branches = await _git.ListBranchesAsync();
-        StatusLabel.Text = branches.Count > 0 ? $"🌿 {string.Join(", ", branches)" : "Aucune branche";
+        StatusLabel.Text = branches.Count > 0 ? $"🌿 {string.Join(", ", branches)}" : "Aucune branche";
     }
 
     private async void OnLogClicked(object? sender, EventArgs e)

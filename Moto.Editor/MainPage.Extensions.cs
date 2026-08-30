@@ -7,9 +7,11 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Maui.ApplicationModel;
 using Microsoft.Maui.Controls;
+using Moto.Core.AI;
 using Moto.Core.AI.Actions;
 using Moto.Core.AI.Commands;
 using Moto.Core.AI.Suggestions;
+using Moto.Core.I18n;
 using Moto.Core.Plugins;
 using Moto.Core.Plugins.Marketplace;
 using Moto.Core.Settings;
@@ -177,6 +179,27 @@ namespace Moto.Editor
                 };
                 AddMotoOverlay(_proactiveActions);
                 _proactiveActions.ActionSelected += command => OnAiCommandSubmitted(command);
+
+                // ── ★ i18n + TAB variants ──
+                _liveLanguageSwitcher = services.GetService<LiveLanguageSwitcher>();
+                _translationAdvisor = services.GetService<DocumentTranslationAdvisor>();
+                _tabVariantsEngine = services.GetService<TabVariantsEngine>();
+
+                // Initialiser TAB variants dans EditorPane
+                if (_tabVariantsEngine != null)
+                {
+                    EditorPane.InitializeTabVariants(_tabVariantsEngine);
+                }
+
+                // Handler pour TAB
+                EditorPane.Editor.KeyPressed += (s, e) =>
+                {
+                    if (e.Key == Microsoft.Maui.Controls.Keyboard.Tab)
+                    {
+                        _ = EditorPane.TriggerTabVariantsAsync();
+                        e.Handled = true;
+                    }
+                };
             }
             catch (Exception ex)
             {
@@ -471,27 +494,6 @@ namespace Moto.Editor
         private LiveLanguageSwitcher? _liveLanguageSwitcher;
         private DocumentTranslationAdvisor? _translationAdvisor;
         private TabVariantsEngine? _tabVariantsEngine;
-
-        // Dans ResolveExtensionServices(), ajouter :
-        _liveLanguageSwitcher = services.GetService<LiveLanguageSwitcher>();
-        _translationAdvisor = services.GetService<DocumentTranslationAdvisor>();
-        _tabVariantsEngine = services.GetService<TabVariantsEngine>();
-
-        // Initialiser TAB variants dans EditorPane
-        if (_tabVariantsEngine != null)
-        {
-            EditorPane.InitializeTabVariants(_tabVariantsEngine);
-        }
-
-        // Handler pour TAB
-        EditorPane.Editor.KeyPressed += (s, e) =>
-        {
-            if (e.Key == Microsoft.Maui.Controls.Keyboard.Tab)
-            {
-                _ = EditorPane.TriggerTabVariantsAsync();
-                e.Handled = true;
-            }
-        };
 
         // ------------------------------------------------------------------
         // AI settings avec confirmation (via AiConfirmationService v27)

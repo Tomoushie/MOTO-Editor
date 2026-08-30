@@ -127,7 +127,7 @@ public class PluginManifest
     public bool RequiresRestart { get; set; }
 }
 
-public record PluginInstallResult(bool Success, string PluginId, string? Message)
+public record PluginInstallResult(bool IsSuccess, string PluginId, string? Message)
 {
     public string? DisplayName { get; init; }
     public string? Version { get; init; }

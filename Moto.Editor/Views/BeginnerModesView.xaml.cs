@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Microsoft.Maui.Controls;
 using Moto.Core.AI.Beginner;
+using Moto.Core.AI.Builders;
 using Moto.Core.AI.Internal;
 using Moto.Core.AI.Internal.Models;
 using Moto.Core.Integration;

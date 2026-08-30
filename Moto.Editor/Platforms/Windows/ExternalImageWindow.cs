@@ -59,12 +59,12 @@ public static class ExternalImageWindow
         }
     }
 
-    private static Windows.UI.Color ResolveMauiColor(string key, string fallback)
+    private static global::Windows.UI.Color ResolveMauiColor(string key, string fallback)
     {
         if (Microsoft.Maui.Controls.Application.Current?.Resources.TryGetValue(key, out var res) == true
             && res is Microsoft.Maui.Graphics.Color mauiColor)
         {
-            return Windows.UI.Color.FromArgb(
+            return global::Windows.UI.Color.FromArgb(
                 (byte)(mauiColor.Alpha * 255),
                 (byte)(mauiColor.Red * 255),
                 (byte)(mauiColor.Green * 255),
@@ -73,10 +73,10 @@ public static class ExternalImageWindow
         return ParseHex(fallback);
     }
 
-    private static Windows.UI.Color ParseHex(string hex)
+    private static global::Windows.UI.Color ParseHex(string hex)
     {
         hex = hex.TrimStart('#');
-        return Windows.UI.Color.FromArgb(255,
+        return global::Windows.UI.Color.FromArgb(255,
             Convert.ToByte(hex.Substring(0, 2), 16),
             Convert.ToByte(hex.Substring(2, 2), 16),
             Convert.ToByte(hex.Substring(4, 2), 16));

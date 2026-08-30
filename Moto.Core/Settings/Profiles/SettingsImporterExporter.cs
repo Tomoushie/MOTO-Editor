@@ -6,8 +6,9 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Text.Json;
 using Microsoft.Extensions.Logging;
+using Moto.Core.Settings;
 
-namespace Moto.Core.Settings
+namespace Moto.Core.Settings.Profiles
 {
     /// <summary>
     /// DTO pour l'export/import de paramètres.

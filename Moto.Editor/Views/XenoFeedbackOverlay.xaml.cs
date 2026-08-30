@@ -5,6 +5,7 @@ using Microsoft.Maui.Controls;
 using Microsoft.Maui.Graphics;
 using Snake2000.Engine.AgentIntegrated.Learning;
 using Snake2000.Engine.AgentIntegrated.Pipeline;
+using Snake2000.Engine.AgentIntegrated.Specialized;
 
 namespace Moto.Editor.Views
 {

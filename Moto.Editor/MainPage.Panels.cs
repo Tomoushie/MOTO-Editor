@@ -169,28 +169,8 @@ namespace Moto.Editor
             WireAiPanels();
         }
 
-        // ★ Phase 1 : LSP Roslyn complet
-        var lspManager = Microsoft.Extensions.DependencyInjection.ServiceProviderServiceExtensions
-            .GetService<LanguageServerManager>(Application.Current.Handler.MauiContext.Services);
-
-        if (lspManager != null)
-        {
-            EditorPane.InitializeLsp(lspManager);
-
-            // Ouvre le document dans le LSP quand un fichier est chargé
-            EditorPane.TabSelected += async doc =>
-            {
-                if (doc?.Path != null)
-                    await EditorPane.OpenDocumentWithLspAsync(doc.Path, doc.Text);
-            };
-
-            // Met à jour le LSP quand le texte change
-            EditorPane.EditorChanged += async (s, text) =>
-            {
-                if (_viewModel.SelectedDocument?.Path != null)
-                    await EditorPane.UpdateDocumentWithLspAsync(_viewModel.SelectedDocument.Path, text);
-            };
-        }
+        // ★ LSP Roslyn (OmniSharp) : mis de côté pour cette passe (voir Moto.Core.csproj),
+        // ce bloc de câblage se raccrochait à LanguageServerManager, exclu de la build.
 
         // ------------------------------------------------------------------
         // Stats réelles

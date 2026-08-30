@@ -11,7 +11,7 @@ namespace Moto.Editor.Services
     /// Service d'arborescence : lecture paresseuse des dossiers,
     /// aplatissement pour CollectionView (MAUI n'a pas de TreeView natif).
     /// </summary>
-    public class FileTreeService
+    public partial class FileTreeService
     {
         private static readonly HashSet<string> Excluded = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {

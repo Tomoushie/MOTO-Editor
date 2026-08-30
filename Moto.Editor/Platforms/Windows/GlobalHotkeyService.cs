@@ -11,7 +11,7 @@ namespace Moto.Editor.Platforms.Windows
     /// Enregistre CTRL+SHIFT+I et l'activation de la fenêtre (clic icône barre des tâches).
     /// Utilise KeyboardAccelerator WinUI : fonctionne quand la fenêtre a le focus.
     /// </summary>
-    public static class GlobalHotkeyService
+    public partial class GlobalHotkeyService
     {
         /// <summary>
         /// À appeler une fois la fenêtre native disponible.
