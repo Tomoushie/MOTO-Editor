@@ -250,11 +250,13 @@ namespace Moto.Editor
             }
 
             // ── Commandes normales ──
+            App.Breadcrumb($"OnAiCommandSubmitted — entrée : \"{text}\"");
             AiBar.SetBusy(true);
             try
             {
                 if (AutoProjectBuilder.ShouldHandle(text))
                 {
+                    App.Breadcrumb("OnAiCommandSubmitted — route : AutoProjectBuilder");
                     var root = string.IsNullOrWhiteSpace(_currentRoot)
                         ? Path.Combine(Environment.GetFolderPath(
                             Environment.SpecialFolder.MyDocuments), "MotoProjects")
@@ -269,7 +271,10 @@ namespace Moto.Editor
                     RefreshHomeStats();
                     return;
                 }
+
+                App.Breadcrumb("OnAiCommandSubmitted — route : chat (avant SendAsync)");
                 await _chatService.SendAsync(text);
+                App.Breadcrumb("OnAiCommandSubmitted — chat.SendAsync OK");
 
                 // ★ CORRECTION (30/08) : la réponse était calculée et comptée dans les
                 // stats (Threads/Messages) mais jamais affichée nulle part — repéré par
@@ -280,6 +285,7 @@ namespace Moto.Editor
                 // existant et testé (_viewModel.OpenFilePath), plutôt que de construire un
                 // nouveau modèle de "document en mémoire sans fichier" en urgence.
                 var reply = _chatService.CurrentThread?.Messages?.LastOrDefault(m => m.Role == "ai")?.Content;
+                App.Breadcrumb($"OnAiCommandSubmitted — reply longueur={reply?.Length ?? -1}");
                 if (!string.IsNullOrWhiteSpace(reply))
                 {
                     var repliesDir = Path.Combine(Path.GetTempPath(), "MotoEditor-Reponses-IA");
@@ -290,7 +296,22 @@ namespace Moto.Editor
                     if (_viewModel.SelectedDocument != null)
                         _viewModel.SelectedDocument.Text = reply;
                     StatusBar.SetStatus("✔ Réponse IA générée.");
+                    App.Breadcrumb("OnAiCommandSubmitted — onglet ouvert avec succès");
                 }
+                else
+                {
+                    StatusBar.SetStatus("⚠ L'IA n'a rien répondu.");
+                }
+            }
+            catch (Exception ex)
+            {
+                // ★ AJOUT (30/08) : ce bloc n'avait AUCUN catch — une exception ici
+                // (ex. Ollama injoignable levant au lieu de renvoyer un texte de repli)
+                // se propage hors d'un "async void" et ne montre RIEN à l'écran (juste
+                // le filet WinUI global qui journalise), ce qui ressemble exactement à
+                // "je tape, rien ne se passe" (repéré par Tom).
+                App.LogCrash("OnAiCommandSubmitted", ex);
+                StatusBar.SetStatus("⚠ Erreur IA : " + ex.Message);
             }
             finally
             {

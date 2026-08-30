@@ -345,6 +345,7 @@ namespace Moto.Editor
         private void OnMaximizeToggled()
         {
             _maximized = !_maximized;
+            EditorPane.SetMaximizeIcon(_maximized);
             ThreadHost.IsVisible = !_maximized;
             ChatHost.IsVisible = !_maximized;
             ExplorerPanel.IsVisible = !_maximized;

@@ -36,15 +36,19 @@
                        FontSize="26" HorizontalOptions="Center" />
 
                 <!-- Stats (sessions, messages, tokens…) -->
+                <!-- ★ CORRECTION (30/08) : WidthRequest fixe ajouté — sans largeur
+                     explicite, ce Border (et celui de la saisie juste en dessous) se
+                     redimensionnait au contenu (le texte tapé dans PromptEntry
+                     l'élargissait visiblement) au lieu de rester stable, repéré par Tom. -->
                 <Border Stroke="{StaticResource BorderCol}" StrokeShape="RoundRectangle 12"
-                        BackgroundColor="{StaticResource BgPanel}" Padding="16">
+                        BackgroundColor="{StaticResource BgPanel}" Padding="16" WidthRequest="560">
                     <Grid x:Name="StatsGrid" ColumnDefinitions="*,*,*,*" RowDefinitions="Auto,Auto"
                           ColumnSpacing="10" RowSpacing="10" />
                 </Border>
 
                 <!-- Input central style ChatGPT/Claude -->
                 <Border Stroke="{StaticResource BorderCol}" StrokeShape="RoundRectangle 24"
-                        BackgroundColor="{StaticResource BgPanel}" Padding="6,2">
+                        BackgroundColor="{StaticResource BgPanel}" Padding="6,2" WidthRequest="560">
                     <Grid ColumnDefinitions="Auto,*,Auto">
                         <Button Grid.Column="0" Text="＋" WidthRequest="36"
                                 Clicked="OnAttachClicked" />

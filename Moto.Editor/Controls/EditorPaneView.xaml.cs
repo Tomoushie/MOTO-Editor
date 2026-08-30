@@ -132,6 +132,19 @@ namespace Moto.Editor.Controls
             AiStatus.Text = message;
         }
 
+        /// <summary>
+        /// ★ AJOUT (30/08) : reflète l'état plein écran sur le bouton lui-même —
+        /// Tom ne retrouvait pas comment revenir en arrière (rien n'indiquait que
+        /// recliquer le même bouton fonctionnait).
+        /// </summary>
+        public void SetMaximizeIcon(bool maximized)
+        {
+            BtnMaximize.Text = maximized ? "⛝" : "⛶";
+            ToolTipProperties.SetText(BtnMaximize, maximized
+                ? "Revenir à la disposition normale"
+                : "Agrandir la zone (plein écran)");
+        }
+
         // ------------------------------------------------------------------
         // Handlers des boutons de la toolbar (colonne 0)
         // ------------------------------------------------------------------

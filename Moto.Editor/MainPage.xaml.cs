@@ -294,6 +294,12 @@ namespace Moto.Editor
             LocationMenu.IsVisible = true;
         }
 
+        /// <summary>
+        /// ★ CORRECTION (30/08) : "local" ne faisait RIEN de visible (le menu se
+        /// contentait de se fermer) — Tom a interprété ça comme "impossible de
+        /// sélectionner les options". Chaque choix affiche maintenant une confirmation
+        /// dans la barre de statut, y compris "Local" (déjà le cas actuel).
+        /// </summary>
         private void OnLocationSelected(string id)
         {
             LocationMenu.IsVisible = false;
@@ -302,12 +308,15 @@ namespace Moto.Editor
                 case "remote":
                 case "ssh":
                     RemotePanel.IsVisible = true;
+                    StatusBar.SetStatus($"🖱️ Contrôle à distance : {id}");
                     break;
                 case "cloud":
                 case "wsl":
                     StatusBar.SetStatus($"{id} : pas encore disponible.");
                     break;
-                // "local" : déjà en local, rien à faire.
+                case "local":
+                    StatusBar.SetStatus("💻 Déjà en local.");
+                    break;
             }
         }
 
