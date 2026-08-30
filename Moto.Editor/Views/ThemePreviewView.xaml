@@ -6,7 +6,7 @@
              BackgroundColor="#80000000">
     <Border BackgroundColor="{StaticResource BgPanel}"
             Stroke="{StaticResource BgHover}" StrokeThickness="1"
-            StrokeShape="RoundRectangle CornerRadius=12"
+            StrokeShape="RoundRectangle 12"
             Padding="20" WidthRequest="600" HeightRequest="500"
             HorizontalOptions="Center" VerticalOptions="Center">
         <Grid RowDefinitions="Auto,*,Auto" RowSpacing="12">
@@ -24,7 +24,7 @@
             <Border Grid.Row="1" x:Name="PreviewContainer"
                     BackgroundColor="{StaticResource BgSide}"
                     Stroke="{StaticResource BgHover}" StrokeThickness="1"
-                    StrokeShape="RoundRectangle CornerRadius=8"
+                    StrokeShape="RoundRectangle 8"
                     Padding="16">
                 <VerticalStackLayout Spacing="8">
                     <Label Text="Aperçu du thème" FontSize="14" FontAttributes="Bold"

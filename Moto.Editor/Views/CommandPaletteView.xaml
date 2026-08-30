@@ -6,14 +6,14 @@
              BackgroundColor="#99000000">
 
     <Border WidthRequest="640"
-            MaxHeight="480"
+            MaximumHeightRequest="480"
             HorizontalOptions="Center"
             VerticalOptions="Start"
             Margin="0,80,0,0"
             BackgroundColor="{StaticResource BgPanel}"
             Stroke="{StaticResource BgHover}"
             StrokeThickness="1"
-            StrokeShape="RoundRectangle CornerRadius=12"
+            StrokeShape="RoundRectangle 12"
             Padding="12">
 
         <Grid RowDefinitions="Auto,*" RowSpacing="10">
@@ -22,7 +22,7 @@
             <Border BackgroundColor="{StaticResource BgSide}"
                     Stroke="{StaticResource BgHover}"
                     StrokeThickness="1"
-                    StrokeShape="RoundRectangle CornerRadius=8"
+                    StrokeShape="RoundRectangle 8"
                     Padding="8">
                 <Entry x:Name="SearchEntry"
                        Placeholder="Rechercher une commande…"

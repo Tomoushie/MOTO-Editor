@@ -8,8 +8,7 @@
             Stroke="#3A3B40"
             BackgroundColor="#202126"
             Padding="14,8"
-            WidthRequest="560"
-            Shadow="4,4,12,0.4">
+            WidthRequest="560">
 
         <Grid ColumnDefinitions="Auto,*,Auto">
 

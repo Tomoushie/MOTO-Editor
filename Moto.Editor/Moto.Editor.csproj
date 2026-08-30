@@ -2,8 +2,8 @@
 
   <!-- ══════════════ Ciblage : Windows par défaut, macOS si build sur macOS ══════════════ -->
   <PropertyGroup>
-    <TargetFrameworks>net10.0-windows10.0.19041.0</TargetFrameworks>
-    <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('osx'))">$(TargetFrameworks);net10.0-maccatalyst</TargetFrameworks>
+    <TargetFrameworks>net8.0-windows10.0.19041.0</TargetFrameworks>
+    <TargetFrameworks Condition="$([MSBuild]::IsOSPlatform('osx'))">$(TargetFrameworks);net8.0-maccatalyst</TargetFrameworks>
 
     <OutputType>Exe</OutputType>
     <RootNamespace>Moto.Editor</RootNamespace>
@@ -28,20 +28,24 @@
     <WindowsPackageType Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">None</WindowsPackageType>
 
     <!--
-      Non empaquetée = le Windows App SDK doit être déployé "self-contained" avec
-      l'appli, sinon le bootstrap WinAppSDK échoue silencieusement si le runtime
-      n'est pas déjà installé sur la machine (constaté : l'exe se lance et se
-      referme immédiatement, code de sortie 0, sans fenêtre ni erreur visible —
-      %ProgramFiles%\WindowsApps ne contient aucun package Microsoft.WindowsAppRuntime).
+      Self-contained WinAppSDK : filet de sécurité, harmless même sur net8 où le
+      combo unpackaged+WinAppSDK est nettement plus éprouvé qu'en net10.
     -->
     <WindowsAppSDKSelfContained Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">true</WindowsAppSDKSelfContained>
 
     <!--
-      MauiVersion : épingle sur la version du workload MAUI réellement installé
-      sur cette machine (Microsoft.Maui.Sdk 10.0.20), pour éviter tout écart
-      entre les paquets NuGet et les cibles de build du workload.
+      30/08 : repli sur net8.0 (retour arrière depuis net10.0) — après une longue
+      session de diagnostic, l'appli non empaquetée ne dépassait jamais le tout
+      début du bootstrap WinUI sur net10.0-windows (breakpoint dans MauiProgram.
+      CreateMauiApp() jamais atteint, aucune exception, code de sortie 0), un
+      problème documenté et non résolu de .NET MAUI + net10.0 en mode non
+      empaquetée (dotnet/maui#28373 et proches). net8.0 + MAUI 8.0.100 est la
+      combinaison la plus éprouvée pour ce mode de lancement précis.
+      MauiVersion : épingle sur le workload maui-windows 8.0.100 installé pour
+      la bande de SDK 8.0.4xx (voir global.json), pour éviter tout écart entre
+      les paquets NuGet et les cibles de build du workload.
     -->
-    <MauiVersion>10.0.20</MauiVersion>
+    <MauiVersion>8.0.100</MauiVersion>
 
     <!--
       Icône/splash/logos : pas encore livrés dans le dépôt (Resources/ et
@@ -59,19 +63,11 @@
     <!-- FolderPicker.Default (FileExplorerView/MainPage.UI : ouvrir un dossier) -->
     <PackageReference Include="CommunityToolkit.Maui" Version="9.1.0" />
     <!--
-      Override explicite : Microsoft.Maui.Controls 10.0.20 tire Microsoft.WindowsAppSDK
-      1.5.240607001 en transitif. Sur cette machine, le paquet Framework 1.5 est bien
-      installé mais pas ses paquets Main/DDLM associés (seuls Main/DDLM 1.8 et 2.x le
-      sont) — Bootstrap.TryInitialize échoue donc avec 0x80670016 ("Package dependency
-      criteria could not be resolved"), l'appli se ferme aussitôt sans fenêtre ni erreur
-      visible (constaté par test direct : diagnostic Bootstrap.TryInitialize manuel).
-      1.8.260804001 précisément : sa contrainte de version minimale du paquet Main
-      (8000.946.1701.0, voir microsoft.windowsappsdk.runtime/.../WindowsAppSDK-VersionInfo.cs)
-      correspond EXACTEMENT au paquet MicrosoftCorporationII.WinAppRuntime.Main.1.8
-      déjà installé sur cette machine (vérifié via Get-AppxPackage) — pas seulement
-      "une version 1.8", cette version précise.
+      Pas d'override explicite de Microsoft.WindowsAppSDK ici (contrairement à la
+      tentative net10.0, voir git log) : la version que Microsoft.Maui.Controls
+      8.0.100 tire en transitif (~1.4.x) est la combinaison la plus éprouvée avec
+      MAUI 8 et n'a montré aucun signe du problème de bootstrap rencontré en net10.
     -->
-    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.260804001" />
   </ItemGroup>
 
   <!-- ══════════════ Références projets ══════════════ -->

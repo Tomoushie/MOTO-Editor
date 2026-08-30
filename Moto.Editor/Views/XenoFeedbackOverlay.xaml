@@ -6,7 +6,7 @@
              BackgroundColor="#80000000">
     <Border BackgroundColor="{StaticResource BgPanel}"
             Stroke="{StaticResource BgHover}" StrokeThickness="1"
-            StrokeShape="RoundRectangle CornerRadius=12"
+            StrokeShape="RoundRectangle 12"
             Padding="16" WidthRequest="520"
             HorizontalOptions="Center" VerticalOptions="Center">
         <VerticalStackLayout Spacing="12">

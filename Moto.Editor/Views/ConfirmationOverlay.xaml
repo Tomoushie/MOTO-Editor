@@ -11,7 +11,7 @@
             BackgroundColor="{StaticResource BgPanel}"
             Stroke="{StaticResource BgHover}"
             StrokeThickness="1"
-            StrokeShape="RoundRectangle CornerRadius=12"
+            StrokeShape="RoundRectangle 12"
             Padding="20">
 
         <Grid RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="12">
@@ -34,7 +34,7 @@
                     BackgroundColor="{StaticResource BgSide}"
                     Stroke="{StaticResource BgHover}"
                     StrokeThickness="1"
-                    StrokeShape="RoundRectangle CornerRadius=8"
+                    StrokeShape="RoundRectangle 8"
                     Padding="12">
                 <Label x:Name="DetailsLabel"
                        FontSize="12"

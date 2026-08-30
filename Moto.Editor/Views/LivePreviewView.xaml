@@ -27,7 +27,7 @@
         <!-- WebView sandbox offline -->
         <Border Grid.Row="1" BackgroundColor="White"
                 Stroke="{StaticResource BgHover}" StrokeThickness="1"
-                StrokeShape="RoundRectangle CornerRadius=6">
+                StrokeShape="RoundRectangle 6">
             <WebView x:Name="PreviewBrowser"
                      BackgroundColor="White"/>
         </Border>

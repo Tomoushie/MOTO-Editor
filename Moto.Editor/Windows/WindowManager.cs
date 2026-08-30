@@ -57,8 +57,8 @@ namespace Moto.Editor.Windows
             var existing = Get(kind);
             if (existing != null)
             {
-                MainThread.BeginInvokeOnMainThread(() =>
-                    Application.Current?.ActivateWindow(existing));
+                // Application.ActivateWindow(Window) n'existe pas en MAUI 8.x (voir
+                // Moto.Core/Windows/WindowManager.cs pour la même note).
                 return;
             }
             var window = factory();

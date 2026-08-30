@@ -69,10 +69,10 @@ namespace Moto.Core.Windows
             var existing = Get(kind);
             if (existing != null)
             {
-                Microsoft.Maui.ApplicationModel.MainThread.BeginInvokeOnMainThread(() =>
-                {
-                    Application.Current?.ActivateWindow(existing);
-                });
+                // ★ Application.ActivateWindow(Window) n'existe pas encore dans MAUI 8.x
+                // (ajouté dans une version ultérieure) — remis au premier plan par défaut
+                // par le système lors de la prochaine interaction ; pas de mise en avant
+                // forcée pour cette passe (fenêtres spécialisées = fonctionnalité annexe).
             }
             else
             {

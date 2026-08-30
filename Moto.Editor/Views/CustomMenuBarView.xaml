@@ -27,7 +27,7 @@
         <Border Grid.Column="2" x:Name="UpdateBadge"
                 BackgroundColor="{StaticResource Accent}"
                 Stroke="Transparent" StrokeThickness="0"
-                StrokeShape="RoundRectangle CornerRadius=12"
+                StrokeShape="RoundRectangle 12"
                 Padding="8,4" Margin="0,0,8,0"
                 IsVisible="False">
             <Border.GestureRecognizers>

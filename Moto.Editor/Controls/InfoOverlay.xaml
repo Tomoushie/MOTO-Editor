@@ -6,7 +6,7 @@
              BackgroundColor="#80000000">
     <Border BackgroundColor="{StaticResource BgPanel}"
             Stroke="{StaticResource BgHover}" StrokeThickness="1"
-            StrokeShape="RoundRectangle CornerRadius=12"
+            StrokeShape="RoundRectangle 12"
             Padding="20" WidthRequest="420"
             HorizontalOptions="Center" VerticalOptions="Center">
         <VerticalStackLayout Spacing="12">
@@ -21,7 +21,7 @@
 
             <Border BackgroundColor="{StaticResource BgSide}"
                     Stroke="Transparent" StrokeThickness="0"
-                    StrokeShape="RoundRectangle CornerRadius=8"
+                    StrokeShape="RoundRectangle 8"
                     Padding="12">
                 <VerticalStackLayout Spacing="4">
                     <Label x:Name="VersionLabel" Text="Version 1.0.0"
