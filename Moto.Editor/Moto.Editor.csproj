@@ -79,11 +79,22 @@
     <!-- FolderPicker.Default (FileExplorerView/MainPage.UI : ouvrir un dossier) -->
     <PackageReference Include="CommunityToolkit.Maui" Version="9.1.0" />
     <!--
-      Pas d'override explicite de Microsoft.WindowsAppSDK ici (contrairement à la
-      tentative net10.0, voir git log) : la version que Microsoft.Maui.Controls
-      8.0.100 tire en transitif (~1.4.x) est la combinaison la plus éprouvée avec
-      MAUI 8 et n'a montré aucun signe du problème de bootstrap rencontré en net10.
+      ★ CORRECTION (30/08, après coup) : le commentaire précédent affirmait que
+      Microsoft.Maui.Controls 8.0.100 tirait ~1.4.x en transitif "sans souci" —
+      FAUX, vérifié directement : il tire en réalité 1.5.240802000
+      (obj/project.assets.json), qui n'est PAS ce que Tom a d'installé en version
+      complète sur sa machine (Framework 1.5 présent, mais pas les paquets
+      Main/Singleton/DDLM correspondants — seule la 1.8 a le jeu complet, voir
+      diagnostic net10.0 précédent, Get-AppxPackage). Résultat : exactement le
+      même code d'erreur qu'en net10.0 (0x80670016, "Package dependency criteria
+      could not be resolved") + la boîte de dialogue Windows "This application
+      requires the Windows App Runtime Version 1.5 ... install a compatible
+      Windows App Runtime now?" — cliquer "Oui" renvoie vers la page de
+      téléchargement du SDK, pas un vrai installeur du runtime 1.5 exact.
+      Fix : épingler explicitement sur 1.8.260804001, la version dont Tom a le
+      jeu complet et fonctionnel installé.
     -->
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.260804001" Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'" />
   </ItemGroup>
 
   <!-- ══════════════ Références projets ══════════════ -->
