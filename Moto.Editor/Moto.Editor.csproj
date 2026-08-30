@@ -37,10 +37,17 @@
     <WindowsPackageType Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows' AND '$(WindowsPackageType)' == ''">None</WindowsPackageType>
 
     <!--
-      Self-contained WinAppSDK : filet de sécurité, harmless même sur net8 où le
-      combo unpackaged+WinAppSDK est nettement plus éprouvé qu'en net10.
+      ★ CORRECTION (30/08, après coup) : WindowsAppSDKSelfContained=true — ajouté
+      pendant la tentative net10.0 — casse le build unpackaged (WindowsPackageType=None)
+      dès qu'un Package.appxmanifest existe : la cible GenerateAppManifestFromAppx
+      (Microsoft.WindowsAppSDK.SelfContained.targets) tourne toujours dès que cette
+      propriété est "true", et suppose un obj\...\MsixContent\AppxManifest.xml qui
+      n'est généré qu'en mode réellement empaqueté — DirectoryNotFoundException sinon.
+      Pas nécessaire sur net8 (contrairement à net10, où le paquet Windows App
+      Runtime installé sur cette machine était incomplet pour la version demandée) :
+      retiré ici. Un futur build MSIX explicite peut le repasser à true seulement
+      si besoin (-p:WindowsAppSDKSelfContained=true), inutile par défaut.
     -->
-    <WindowsAppSDKSelfContained Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">true</WindowsAppSDKSelfContained>
 
     <!--
       30/08 : repli sur net8.0 (retour arrière depuis net10.0) — après une longue
