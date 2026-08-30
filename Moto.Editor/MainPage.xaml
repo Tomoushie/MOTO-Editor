@@ -42,21 +42,35 @@
              ChatService/CortexEngine/WorkspaceStateService, disponibles seulement
              après InitializeComponent()). Elle occupe la même cellule Row=1,Col=2. -->
 
-        <!-- ══════════════════ Colonne 3 : dock IA (placeholders) ══════════════════ -->
-        <VerticalStackLayout Grid.Row="1" Grid.Column="3" Spacing="8" Padding="8" BackgroundColor="#17181C">
-            <Border x:Name="AiHost" IsVisible="False" Padding="10"
-                    BackgroundColor="{StaticResource BgPanel}" StrokeShape="RoundRectangle 8">
-                <Label Text="🤖 Panneau IA" FontSize="12" TextColor="{StaticResource Txt2}" />
-            </Border>
-            <Border x:Name="ChatHost" IsVisible="False" Padding="10"
-                    BackgroundColor="{StaticResource BgPanel}" StrokeShape="RoundRectangle 8">
-                <Label Text="💬 Chat" FontSize="12" TextColor="{StaticResource Txt2}" />
-            </Border>
-            <Border x:Name="ThreadHost" IsVisible="False" Padding="10"
-                    BackgroundColor="{StaticResource BgPanel}" StrokeShape="RoundRectangle 8">
-                <Label Text="🧵 Threads" FontSize="12" TextColor="{StaticResource Txt2}" />
-            </Border>
-        </VerticalStackLayout>
+        <!-- ══════════════════ Colonne 3 : dock IA (placeholders) + panneaux ══════════════════ -->
+        <!-- ★ CORRECTION (30/08) : cette colonne (300px, déjà existante) devient l'ancrage
+             réel des panneaux IA (Cortex/Neural/Workspace/etc.), au lieu qu'ils flottent
+             tous par-dessus le contenu au même endroit (superposés entre eux, repéré par
+             Tom : "les icônes... se chevauchent"). AiHost/ChatHost/ThreadHost inchangés
+             (utilisés ailleurs, OnMaximizeToggled notamment) — juste enveloppés dans un
+             Grid pour ajouter PanelHost à côté sans occuper la même cellule (même piège
+             que l'indicateur IA corrigé plus tôt : deux éléments dans la même cellule se
+             superposent). -->
+        <Grid Grid.Row="1" Grid.Column="3" RowDefinitions="Auto,*" BackgroundColor="#17181C">
+            <VerticalStackLayout Grid.Row="0" Spacing="8" Padding="8">
+                <Border x:Name="AiHost" IsVisible="False" Padding="10"
+                        BackgroundColor="{StaticResource BgPanel}" StrokeShape="RoundRectangle 8">
+                    <Label Text="🤖 Panneau IA" FontSize="12" TextColor="{StaticResource Txt2}" />
+                </Border>
+                <Border x:Name="ChatHost" IsVisible="False" Padding="10"
+                        BackgroundColor="{StaticResource BgPanel}" StrokeShape="RoundRectangle 8">
+                    <Label Text="💬 Chat" FontSize="12" TextColor="{StaticResource Txt2}" />
+                </Border>
+                <Border x:Name="ThreadHost" IsVisible="False" Padding="10"
+                        BackgroundColor="{StaticResource BgPanel}" StrokeShape="RoundRectangle 8">
+                    <Label Text="🧵 Threads" FontSize="12" TextColor="{StaticResource Txt2}" />
+                </Border>
+            </VerticalStackLayout>
+
+            <ScrollView Grid.Row="1">
+                <VerticalStackLayout x:Name="PanelHost" Spacing="8" Padding="8" />
+            </ScrollView>
+        </Grid>
 
         <!-- ══════════════════ Barre de statut ══════════════════ -->
         <views:StatusBarPanelView x:Name="StatusBar" Grid.Row="2" Grid.ColumnSpan="4" />

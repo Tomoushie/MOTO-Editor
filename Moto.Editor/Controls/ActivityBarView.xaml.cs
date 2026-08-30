@@ -14,9 +14,9 @@ namespace Moto.Editor.Controls
             InitializeComponent();
         }
 
-        private void OnClicked(object sender, EventArgs e)
+        private void OnItemTapped(object sender, TappedEventArgs e)
         {
-            if (sender is Button b && b.CommandParameter is string id)
+            if (e.Parameter is string id)
             {
                 ActivitySelected?.Invoke(id);
             }

@@ -1,22 +1,65 @@
 <?xml version="1.0" encoding="utf-8" ?>
+<!--
+  Moto.Editor/Controls/ActivityBarView.xaml
+  ★ CORRECTION (30/08) : chaque icône avait uniquement une infobulle au survol
+  (ToolTipProperties.Text) — pas assez clair selon Tom. Un petit libellé texte
+  est maintenant affiché en permanence sous chaque icône.
+-->
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="Moto.Editor.Controls.ActivityBarView"
              WidthRequest="48" BackgroundColor="{StaticResource BgSide}">
 
-    <VerticalStackLayout Spacing="2" Padding="0,8">
-        <Button Text="📁" HeightRequest="40" CommandParameter="explorer" Clicked="OnClicked"
-                ToolTipProperties.Text="Explorateur" />
-        <Button Text="🔍" HeightRequest="40" CommandParameter="search" Clicked="OnClicked"
-                ToolTipProperties.Text="Recherche" />
-        <Button Text="🤖" HeightRequest="40" CommandParameter="ai" Clicked="OnClicked"
-                ToolTipProperties.Text="Chat IA" />
-        <Button Text="🧠" HeightRequest="40" CommandParameter="cortex" Clicked="OnClicked"
-                ToolTipProperties.Text="Cortex" />
-        <Button Text="👥" HeightRequest="40" CommandParameter="collab" Clicked="OnClicked"
-                ToolTipProperties.Text="Collaboration" />
-        <Button Text="⚙️" HeightRequest="40" CommandParameter="settings" Clicked="OnClicked"
-                ToolTipProperties.Text="Paramètres" />
+    <VerticalStackLayout Spacing="6" Padding="0,8">
+
+        <VerticalStackLayout Spacing="1">
+            <VerticalStackLayout.GestureRecognizers>
+                <TapGestureRecognizer Tapped="OnItemTapped" CommandParameter="explorer" />
+            </VerticalStackLayout.GestureRecognizers>
+            <Label Text="📁" FontSize="16" HorizontalOptions="Center" />
+            <Label Text="Fichiers" FontSize="8" Opacity="0.7" HorizontalOptions="Center" />
+        </VerticalStackLayout>
+
+        <VerticalStackLayout Spacing="1">
+            <VerticalStackLayout.GestureRecognizers>
+                <TapGestureRecognizer Tapped="OnItemTapped" CommandParameter="search" />
+            </VerticalStackLayout.GestureRecognizers>
+            <Label Text="🔍" FontSize="16" HorizontalOptions="Center" />
+            <Label Text="Recherche" FontSize="8" Opacity="0.7" HorizontalOptions="Center" />
+        </VerticalStackLayout>
+
+        <VerticalStackLayout Spacing="1">
+            <VerticalStackLayout.GestureRecognizers>
+                <TapGestureRecognizer Tapped="OnItemTapped" CommandParameter="ai" />
+            </VerticalStackLayout.GestureRecognizers>
+            <Label Text="🤖" FontSize="16" HorizontalOptions="Center" />
+            <Label Text="IA" FontSize="8" Opacity="0.7" HorizontalOptions="Center" />
+        </VerticalStackLayout>
+
+        <VerticalStackLayout Spacing="1">
+            <VerticalStackLayout.GestureRecognizers>
+                <TapGestureRecognizer Tapped="OnItemTapped" CommandParameter="cortex" />
+            </VerticalStackLayout.GestureRecognizers>
+            <Label Text="🧠" FontSize="16" HorizontalOptions="Center" />
+            <Label Text="Cortex" FontSize="8" Opacity="0.7" HorizontalOptions="Center" />
+        </VerticalStackLayout>
+
+        <VerticalStackLayout Spacing="1">
+            <VerticalStackLayout.GestureRecognizers>
+                <TapGestureRecognizer Tapped="OnItemTapped" CommandParameter="collab" />
+            </VerticalStackLayout.GestureRecognizers>
+            <Label Text="👥" FontSize="16" HorizontalOptions="Center" />
+            <Label Text="Collab" FontSize="8" Opacity="0.7" HorizontalOptions="Center" />
+        </VerticalStackLayout>
+
+        <VerticalStackLayout Spacing="1">
+            <VerticalStackLayout.GestureRecognizers>
+                <TapGestureRecognizer Tapped="OnItemTapped" CommandParameter="settings" />
+            </VerticalStackLayout.GestureRecognizers>
+            <Label Text="⚙️" FontSize="16" HorizontalOptions="Center" />
+            <Label Text="Réglages" FontSize="8" Opacity="0.7" HorizontalOptions="Center" />
+        </VerticalStackLayout>
+
     </VerticalStackLayout>
 
 </ContentView>

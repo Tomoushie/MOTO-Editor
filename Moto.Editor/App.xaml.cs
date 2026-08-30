@@ -24,6 +24,22 @@ namespace Moto.Editor
             TaskScheduler.UnobservedTaskException += (s, e) =>
                 LogCrash("TaskScheduler.UnobservedTaskException", e.Exception);
 
+            // ★ AJOUT (30/08, suggestion externe vérifiée et retenue) : filet
+            // supplémentaire au niveau WinUI natif. Une exception levée sur le thread UI
+            // (ex. un gestionnaire de bouton défectueux) peut ne JAMAIS atteindre
+            // AppDomain.UnhandledException ni TaskScheduler.UnobservedTaskException —
+            // c'est ce genre de cas qui a produit un vrai crash chez Tom (clic sur
+            // "Providers IA", cause racine réglée par ailleurs via NavigationPage, mais
+            // ce filet reste utile pour toute AUTRE exception UI future du même genre).
+            // e.Handled = true empêche la fermeture de l'appli ; loggé comme les autres.
+#if WINDOWS
+            global::Microsoft.UI.Xaml.Application.Current.UnhandledException += (s, e) =>
+            {
+                LogCrash("Microsoft.UI.Xaml.Application.UnhandledException", e.Exception);
+                e.Handled = true;
+            };
+#endif
+
             try
             {
                 Breadcrumb("App() — avant InitializeComponent");

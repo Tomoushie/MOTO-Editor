@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Maui.Controls;
+using Microsoft.Maui.Controls.Shapes;
 using Microsoft.Maui.ApplicationModel;
 using Moto.Core.AI.Cortex;
 using Moto.Core.AI.Neural;
@@ -96,15 +97,59 @@ namespace Moto.Editor
             }
         }
 
+        /// <summary>Titre affiché dans l'en-tête de chaque panneau ancré (PanelHost).</summary>
+        private static string TitleFor(ContentView panel) => panel switch
+        {
+            PlatformView => "🖥️ Plateforme",
+            CortexView => "🧠 Cortex",
+            NeuralView => "🤖 Neural",
+            AIWorkspaceView => "🧩 Workspace",
+            PluginGalleryView => "🧱 Plugins",
+            AnalyticsDashboardView => "📊 Analytics",
+            DebugPanelView => "🐞 Debug",
+            _ => panel.GetType().Name
+        };
+
+        /// <summary>
+        /// ★ CORRECTION (30/08) : les panneaux flottaient tous au même endroit
+        /// (par-dessus le contenu, même marge) et se superposaient entre eux — repéré
+        /// par Tom. Ancrés maintenant dans PanelHost (colonne 3, déjà existante), un
+        /// par un, avec un en-tête titré + bouton ✕ pour fermer (aucun panneau flottant
+        /// de ce projet n'avait de bouton fermer jusqu'ici). La visibilité de l'en-tête
+        /// suit automatiquement celle du panneau (liaison IsVisible) : tout le code
+        /// existant qui fait `_xPanel.IsVisible = ...` continue de fonctionner tel quel.
+        /// </summary>
         private void AddFloatingPanel(ContentView panel)
         {
-            RootGrid.Children.Add(panel);
-            Grid.SetRow(panel, 1);
-            Grid.SetColumnSpan(panel, 4);
-            panel.HorizontalOptions = LayoutOptions.End;
-            panel.VerticalOptions = LayoutOptions.Start;
-            panel.Margin = new Thickness(0, 40, 60, 0);
+            var close = new Button
+            {
+                Text = "✕", WidthRequest = 28, HeightRequest = 24, FontSize = 12,
+                Padding = 0, BackgroundColor = Colors.Transparent,
+                TextColor = (Color)Application.Current!.Resources["Txt2"]
+            };
+            close.Clicked += (s, e) => panel.IsVisible = false;
+
+            var header = new Grid { ColumnDefinitions = { new ColumnDefinition(GridLength.Star), new ColumnDefinition(GridLength.Auto) } };
+            header.Add(new Label
+            {
+                Text = TitleFor(panel), FontSize = 13, FontAttributes = FontAttributes.Bold,
+                VerticalOptions = LayoutOptions.Center,
+                TextColor = (Color)Application.Current!.Resources["Txt1"]
+            });
+            header.Add(close, 1);
+
+            var wrapper = new Border
+            {
+                Stroke = (Color)Application.Current!.Resources["BorderCol"],
+                BackgroundColor = (Color)Application.Current!.Resources["BgPanel"],
+                StrokeShape = new RoundRectangle { CornerRadius = 8 },
+                Padding = 8,
+                Content = new VerticalStackLayout { Spacing = 6, Children = { header, panel } }
+            };
+            wrapper.SetBinding(IsVisibleProperty, new Binding(nameof(IsVisible), source: panel));
+
             panel.IsVisible = false;
+            PanelHost.Children.Add(wrapper);
         }
 
         // ------------------------------------------------------------------
@@ -150,23 +195,36 @@ namespace Moto.Editor
             StatusBar.SetStatus($"🧠 Cortex + 🧬 Neural + 🏗 Workspace initialisés.");
         }
 
+        /// <summary>Retire de PanelHost l'en-tête (Border) qui enveloppe ce panneau.</summary>
+        private void RemoveFloatingPanel(ContentView panel)
+        {
+            // panel.Parent = VerticalStackLayout (Content du Border) ; son propre
+            // Parent = le Border ajouté à PanelHost.Children (voir AddFloatingPanel).
+            if (panel.Parent?.Parent is Border wrapper)
+                PanelHost.Children.Remove(wrapper);
+        }
+
         private void RebindPanels()
         {
-            if (_cortexPanel.Parent is Grid root1)
+            // ★ CORRECTION (30/08) : la détection "déjà ajouté" testait
+            // `panel.Parent is Grid` (vrai avant, quand les panneaux flottaient
+            // directement dans RootGrid). Ils sont maintenant enveloppés dans un
+            // Border ajouté à PanelHost (VerticalStackLayout) — voir AddFloatingPanel.
+            if (_cortexPanel.Parent != null)
             {
-                root1.Children.Remove(_cortexPanel);
+                RemoveFloatingPanel(_cortexPanel);
                 _cortexPanel = new CortexView(_cortex);
                 AddFloatingPanel(_cortexPanel);
             }
-            if (_neuralPanel.Parent is Grid root2)
+            if (_neuralPanel.Parent != null)
             {
-                root2.Children.Remove(_neuralPanel);
+                RemoveFloatingPanel(_neuralPanel);
                 _neuralPanel = new NeuralView(_neural);
                 AddFloatingPanel(_neuralPanel);
             }
-            if (_workspacePanel.Parent is Grid root3)
+            if (_workspacePanel.Parent != null)
             {
-                root3.Children.Remove(_workspacePanel);
+                RemoveFloatingPanel(_workspacePanel);
                 _workspacePanel = new AIWorkspaceView(_workspace);
                 AddFloatingPanel(_workspacePanel);
             }
