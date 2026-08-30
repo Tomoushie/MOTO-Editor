@@ -3,30 +3,30 @@
   Moto.Editor/Controls/ExecutionLocationMenu.xaml
   Ajouté le 30/08 : menu custom pour le chip "💻 Local" de l'accueil, en
   remplacement de DisplayActionSheet (menu natif Windows — pas custom, mal
-  aligné, repéré par Tom). Ajouté comme panneau flottant de MainPage (même
-  convention que ConfirmationOverlay : centré, par-dessus RootGrid).
+  aligné, repéré par Tom).
+  ★ CORRECTION (30/08, 2e passe) : la 1ère version (fond semi-transparent
+  plein écran + ferme au clic en dehors) ne s'affichait pas correctement chez
+  Tom (bandes non couvertes, deux essais). Remplacée par le MÊME modèle
+  simple, prouvé fiable, que TOUS les autres panneaux flottants de ce projet
+  (SettingsMenu, RemotePanel, CollabPanel...) : ancré en haut à droite, sans
+  fond plein écran. Fermeture via un bouton ✕ dans l'en-tête au lieu du clic
+  en dehors.
 -->
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="Moto.Editor.Controls.ExecutionLocationMenu"
-             HorizontalOptions="Fill" VerticalOptions="Fill"
-             BackgroundColor="#66000000">
-
-    <!-- Fond semi-transparent plein écran : cliquer en dehors du menu le ferme
-         (aucun des autres panneaux flottants n'a ce comportement — repéré par
-         Tom, "pas de bouton pour fermer" — corrigé ici au minimum). -->
-    <ContentView.GestureRecognizers>
-        <TapGestureRecognizer Tapped="OnBackdropTapped" />
-    </ContentView.GestureRecognizers>
+             x:Class="Moto.Editor.Controls.ExecutionLocationMenu">
 
     <Border Stroke="{StaticResource BorderCol}" StrokeShape="RoundRectangle 12"
-            BackgroundColor="{StaticResource BgPanel}" Padding="8" WidthRequest="260"
-            HorizontalOptions="Center" VerticalOptions="Center">
+            BackgroundColor="{StaticResource BgPanel}" Padding="8" WidthRequest="260">
 
         <VerticalStackLayout Spacing="2">
 
-            <Label Text="Emplacement d'exécution" FontSize="12" FontAttributes="Bold"
-                   Margin="6,2,6,6" TextColor="{StaticResource Txt2}" />
+            <Grid ColumnDefinitions="*,Auto" Margin="6,2,2,6">
+                <Label Text="Emplacement d'exécution" FontSize="12" FontAttributes="Bold"
+                       TextColor="{StaticResource Txt2}" VerticalOptions="Center" />
+                <Button Grid.Column="1" Text="✕" WidthRequest="26" HeightRequest="22" FontSize="11"
+                        Padding="0" BackgroundColor="Transparent" Clicked="OnCloseClicked" />
+            </Grid>
 
             <Border x:Name="RowLocal" BackgroundColor="Transparent" Padding="10,8">
                 <Border.GestureRecognizers>

@@ -18,8 +18,7 @@ namespace Moto.Editor.Controls
             InitializeComponent();
         }
 
-        /// <summary>Fond semi-transparent tapé (en dehors du menu) : referme sans choix.</summary>
-        private void OnBackdropTapped(object sender, EventArgs e) => IsVisible = false;
+        private void OnCloseClicked(object sender, EventArgs e) => IsVisible = false;
 
         private void OnRowTapped(object sender, EventArgs e)
         {

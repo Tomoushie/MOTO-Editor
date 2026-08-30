@@ -75,17 +75,47 @@ namespace Moto.Editor
         // ------------------------------------------------------------------
         // Activity bar
         // ------------------------------------------------------------------
+        /// <summary>
+        /// ★ CORRECTION (30/08) : chaque panneau ne fermait que QUELQUES autres
+        /// panneaux (listes codées en dur dans OnCortexClicked/OnGalleryClicked...),
+        /// et "ai" (AiHost) / "collab" (CollabPanel) / "settings" (SettingsMenu)
+        /// n'en fermaient AUCUN — repéré par Tom : ouvrir Cortex après IA laissait
+        /// les deux superposés. Un seul point centralisé ferme maintenant TOUJOURS
+        /// tout le reste avant d'afficher le panneau demandé.
+        /// </summary>
         private void OnActivitySelected(string id)
         {
+            if (id == "explorer") { ToggleSide(isExplorer: true); return; }
+            if (id == "search") { AiBar.Toggle(); return; }
+
+            bool showAi = id == "ai" && !AiHost.IsVisible;
+            bool showCortex = id == "cortex" && !_cortexPanel.IsVisible;
+            bool showCollab = id == "collab" && !CollabPanel.IsVisible;
+            bool showSettings = id == "settings" && !SettingsMenu.IsVisible;
+
+            AiHost.IsVisible = false;
+            _cortexPanel.IsVisible = false;
+            _neuralPanel.IsVisible = false;
+            _workspacePanel.IsVisible = false;
+            _pluginGallery.IsVisible = false;
+            _analyticsDashboard.IsVisible = false;
+            CollabPanel.IsVisible = false;
+            SettingsMenu.IsVisible = false;
+
             switch (id)
             {
-                case "explorer": ToggleSide(isExplorer: true); break;
-                case "ai": AiHost.IsVisible = !AiHost.IsVisible; break;
-                case "search": AiBar.Toggle(); break;
-                case "cortex": OnCortexClicked(null, null); break;
-                case "collab": OnCollabClicked(null, null); break;
-                case "gallery": OnGalleryClicked(); break;
-                case "settings": SettingsMenu.IsVisible = !SettingsMenu.IsVisible; break;
+                case "ai": AiHost.IsVisible = showAi; break;
+                case "cortex":
+                    _cortexPanel.IsVisible = showCortex;
+                    if (showCortex && _viewModel.SelectedDocument != null)
+                        _cortexPanel.LoadSuggestions(_viewModel.SelectedDocument.Path, _viewModel.SelectedDocument.Text);
+                    break;
+                case "collab": CollabPanel.IsVisible = showCollab; break;
+                case "gallery":
+                    _pluginGallery.IsVisible = !_pluginGallery.IsVisible;
+                    if (_pluginGallery.IsVisible) _pluginGallery.LoadGallery();
+                    break;
+                case "settings": SettingsMenu.IsVisible = showSettings; break;
             }
         }
 
