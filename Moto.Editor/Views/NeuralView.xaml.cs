@@ -11,12 +11,17 @@ namespace Moto.Editor.Views
     /// </summary>
     public partial class NeuralView : ContentView
     {
-        private readonly NeuralMode _neural;
+        private readonly NeuralMode? _neural;
 
         /// <summary>Déclenché quand le modèle génère du code.</summary>
         public event Action<string> CodeGenerated;
 
-        public NeuralView(NeuralMode neural)
+        // ★ CORRECTION (30/08) : neural désormais nullable — voir le même
+        // commentaire dans CortexView.xaml.cs. Ce constructeur ne déréférençait déjà
+        // pas `neural` directement, donc pas de plantage ici, mais le type doit
+        // rester cohérent avec l'appel MainPage.WirePanels() qui passe null au tout
+        // premier lancement (avant l'ouverture d'un dossier).
+        public NeuralView(NeuralMode? neural)
         {
             InitializeComponent();
             _neural = neural;
@@ -24,6 +29,8 @@ namespace Moto.Editor.Views
 
         private async void OnGenerateClicked(object sender, EventArgs e)
         {
+            if (_neural is null) { StatusLabel.Text = "❌ Aucun dossier de travail ouvert."; return; }
+
             var intent = IntentEntry.Text?.Trim();
 
             if (string.IsNullOrWhiteSpace(intent)) return;
@@ -49,6 +56,8 @@ namespace Moto.Editor.Views
 
         private async void OnRetrainClicked(object sender, EventArgs e)
         {
+            if (_neural is null) { StatusLabel.Text = "❌ Aucun dossier de travail ouvert."; return; }
+
             StatusLabel.Text = "🔄 Ré-entraînement en cours…";
 
             try

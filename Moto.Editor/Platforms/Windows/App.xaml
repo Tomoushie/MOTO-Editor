@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Moto.Editor/Platforms/Windows/App.xaml (+ App.xaml.cs)
+  Ajouté le 30/08 : fichier manquant depuis le début de la reconstruction du
+  projet. Toute appli .NET MAUI a besoin, en plus de la classe App partagée
+  (celle à la racine du projet, Moto.Editor.App : Application), d'une classe
+  App SPÉCIFIQUE à Windows qui hérite de MauiWinUIApplication — c'est CETTE
+  classe-là que le programme généré par le SDK instancie réellement au
+  démarrage (Application.Start(...) -> new App()). Sans elle, le SDK ne
+  génère qu'un Main() vide (vérifié par décompilation) : le programme se
+  termine aussitôt, proprement, sans erreur ni fenêtre — exactement le
+  symptôme "code 0 silencieux" observé sur net10.0 puis net8.0.
+-->
+<maui:MauiWinUIApplication
+    x:Class="Moto.Editor.WinUI.App"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:maui="using:Microsoft.Maui"
+    xmlns:local="using:Moto.Editor.WinUI">
+
+</maui:MauiWinUIApplication>

@@ -13,16 +13,21 @@ namespace Moto.Editor.Views
     /// </summary>
     public partial class AIWorkspaceView : ContentView
     {
-        private readonly AIWorkspace _workspace;
+        private readonly AIWorkspace? _workspace;
         private List<WorkspaceSuggestion> _suggestions = new();
 
         /// <summary>Déclenché quand l'utilisateur applique une suggestion.</summary>
         public event Action<WorkspaceSuggestion> ApplyRequested;
 
-        public AIWorkspaceView(AIWorkspace workspace)
+        // ★ CORRECTION (30/08) : workspace désormais nullable — voir le même
+        // commentaire dans CortexView.xaml.cs (MainPage.WirePanels() construit ce
+        // panneau sans moteur réel avant l'ouverture d'un dossier).
+        public AIWorkspaceView(AIWorkspace? workspace)
         {
             InitializeComponent();
             _workspace = workspace;
+
+            if (_workspace is null) return;
 
             _workspace.StatusUpdated += msg =>
                 MainThread.BeginInvokeOnMainThread(() => StatusFooter.Text = msg);
@@ -31,6 +36,8 @@ namespace Moto.Editor.Views
         /// <summary>Lance l'analyse asynchrone du workspace.</summary>
         public async void Analyze()
         {
+            if (_workspace is null) return;
+
             SummaryLabel.Text = "Analyse en cours…";
 
             try
@@ -51,6 +58,8 @@ namespace Moto.Editor.Views
         /// <summary>Met à jour les stats affichées.</summary>
         public void RefreshStats()
         {
+            if (_workspace is null) return;
+
             var stats = _workspace.GetStats();
             StatusFooter.Text =
                 $"💡 Cortex : {stats.CortexHabits} hab · {stats.CortexPatterns} patterns · " +

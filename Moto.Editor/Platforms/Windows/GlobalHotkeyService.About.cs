@@ -18,10 +18,14 @@ public partial class GlobalHotkeyService
     /// <summary>Déclenché quand Ctrl+Shift+A est pressé.</summary>
     public event Action? AboutHotkeyPressed;
 
-    // P/Invoke nommés différemment pour éviter tout conflit avec la classe de base
-    [DllImport("user32.dll")] private static extern bool NativeRegisterHotKey(IntPtr hWnd, int id, uint fsModifiers, uint vk);
-    [DllImport("user32.dll")] private static extern bool NativeUnregisterHotKey(IntPtr hWnd, int id);
-    [DllImport("user32.dll")] private static extern int NativeGetMessage(out MSG lpMsg, IntPtr hWnd, uint min, uint max);
+    // P/Invoke nommés différemment pour éviter tout conflit avec la classe de base.
+    // ★ CORRECTION (30/08) : il manquait `EntryPoint = "..."` — sans lui, P/Invoke
+    // cherchait une fonction appelée littéralement "NativeRegisterHotKey" dans
+    // user32.dll (qui n'existe pas) au lieu de la vraie "RegisterHotKey" ⇒
+    // EntryPointNotFoundException au premier déclenchement du thread du raccourci.
+    [DllImport("user32.dll", EntryPoint = "RegisterHotKey")] private static extern bool NativeRegisterHotKey(IntPtr hWnd, int id, uint fsModifiers, uint vk);
+    [DllImport("user32.dll", EntryPoint = "UnregisterHotKey")] private static extern bool NativeUnregisterHotKey(IntPtr hWnd, int id);
+    [DllImport("user32.dll", EntryPoint = "GetMessageW")] private static extern int NativeGetMessage(out MSG lpMsg, IntPtr hWnd, uint min, uint max);
 
     [StructLayout(LayoutKind.Sequential)]
     private struct MSG { public IntPtr hwnd; public uint message; public IntPtr wParam; public IntPtr lParam; public uint time; public IntPtr pt; }

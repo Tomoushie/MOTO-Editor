@@ -12,15 +12,23 @@ namespace Moto.Editor.Views
     /// </summary>
     public partial class CortexView : ContentView
     {
-        private readonly CortexEngine _engine;
+        private readonly CortexEngine? _engine;
 
         /// <summary>Déclenché quand l'utilisateur change de mode.</summary>
         public event Action<CortexBehaviorMode> ModeChanged;
 
-        public CortexView(CortexEngine engine)
+        // ★ CORRECTION (30/08) : engine désormais nullable. MainPage.WirePanels()
+        // construit ce panneau AVANT qu'un dossier de travail soit ouvert (donc sans
+        // moteur réel) ; MainPage.RebindPanels() le reconstruit avec le vrai moteur
+        // une fois un dossier ouvert. Le déréférencement inconditionnel de `engine`
+        // ici plantait au tout premier lancement (NullReferenceException) — c'est ce
+        // qui bloquait le démarrage de MOTO Editor.
+        public CortexView(CortexEngine? engine)
         {
             InitializeComponent();
             _engine = engine;
+
+            if (_engine is null) return;
 
             _engine.BehaviorChanged += config => MainThread.BeginInvokeOnMainThread(() =>
                 UpdateBehaviorUI(config.Mode));
@@ -34,6 +42,8 @@ namespace Moto.Editor.Views
         /// <summary>Rafraîchit l'affichage des stats et suggestions.</summary>
         public void Refresh()
         {
+            if (_engine is null) return;
+
             var stats = _engine.GetStats();
 
             StatsLabel.Text =
@@ -70,12 +80,16 @@ namespace Moto.Editor.Views
         /// <summary>Charge les suggestions pour un fichier actif.</summary>
         public void LoadSuggestions(string filePath, string content)
         {
+            if (_engine is null) return;
+
             var suggestions = _engine.GetSuggestions(filePath, content);
             SuggestionsList.ItemsSource = suggestions;
         }
 
         private void OnModeClicked(object sender, EventArgs e)
         {
+            if (_engine is null) return;
+
             var mode =
                 sender == BtnBeginner ? CortexBehaviorMode.Beginner :
                 sender == BtnExpert ? CortexBehaviorMode.Expert :
