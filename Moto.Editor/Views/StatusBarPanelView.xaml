@@ -11,7 +11,7 @@
              x:Class="Moto.Editor.Views.StatusBarPanelView"
              HeightRequest="26"
              BackgroundColor="#17181C">
-    <Grid ColumnDefinitions="*,Auto,Auto,Auto,Auto" Padding="10,0">
+    <Grid ColumnDefinitions="*,Auto,Auto,Auto,Auto,Auto" Padding="10,0">
 
         <Label Grid.Column="0" x:Name="StatusLabel" Text="Prêt."
                FontSize="11" VerticalOptions="Center"
@@ -34,6 +34,21 @@
                 <TapGestureRecognizer Tapped="OnInfoTapped" />
             </Border.GestureRecognizers>
             <Label Text="ℹ️ Infos" FontSize="12" VerticalOptions="Center" />
+        </Border>
+
+        <!-- ★ CORRECTION (30/08) : déplacé ici depuis MainPage.xaml (Grid.Row="2"
+             Grid.Column="3"), où il se superposait littéralement à cette barre de
+             statut (StatusBarPanelView occupe TOUTE la ligne 2 via ColumnSpan="4") —
+             c'est ce qui causait le chevauchement d'icônes/texte repéré par Tom. -->
+        <Border Grid.Column="5" BackgroundColor="Transparent" Padding="4" Margin="16,0,0,0">
+            <Border.GestureRecognizers>
+                <TapGestureRecognizer Tapped="OnAiMonitorTapped" />
+            </Border.GestureRecognizers>
+            <HorizontalStackLayout Spacing="4" ToolTipProperties.Text="Monitoring IA — Cliquez pour ouvrir">
+                <Label x:Name="AiStatusIcon" Text="🧠" FontSize="12" VerticalOptions="Center" />
+                <Label x:Name="AiStatusLabel" Text="Idle" FontSize="10"
+                       TextColor="{StaticResource Txt2}" VerticalOptions="Center" />
+            </HorizontalStackLayout>
         </Border>
 
     </Grid>

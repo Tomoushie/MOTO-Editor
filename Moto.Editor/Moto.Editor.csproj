@@ -104,6 +104,18 @@
   </ItemGroup>
 
   <!--
+    ★ CORRECTION (30/08) : bloc standard que le modèle "dotnet new maui" écrit
+    automatiquement, mais qui n'a jamais existé dans ce projet (reconstruit à
+    la main, morceau par morceau, sans passer par ce modèle). Sans lui, AUCUNE
+    image n'est jamais réellement empaquetée (vérifié : `MauiImage` évaluait à
+    une liste VIDE malgré la présence physique des fichiers dans Resources/Images)
+    — c'est la vraie cause du logo resté invisible, pas un souci de fichier PNG.
+  -->
+  <ItemGroup>
+    <MauiImage Include="Resources\Images\*" />
+  </ItemGroup>
+
+  <!--
     Mis de côté pour cette passe (rien n'est perdu, juste exclu de la compilation) :
     CommandPaletteService (4 fichiers "additions" sans classe de base, jamais
     instanciée nulle part dans le code réel — voir Moto.Core.csproj pour le

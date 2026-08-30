@@ -12,9 +12,22 @@ namespace Moto.Editor.Views
     {
         private InfoOverlay? _infoOverlay;
 
+        /// <summary>Indicateur IA (🧠) tapé — MainPage ouvre le monitoring.</summary>
+        public event Action? AiMonitorTapped;
+
         public StatusBarPanelView()
         {
             InitializeComponent();
+        }
+
+        /// <summary>Met à jour l'icône + le texte de l'indicateur IA.</summary>
+        public void SetAiStatus(string state)
+        {
+            AiStatusLabel.Text = state;
+            AiStatusIcon.Text = state switch
+            {
+                "Idle" => "🧠", "Inferring" => "⚡", "Throttled" => "🐢", "Error" => "❌", _ => "🧠"
+            };
         }
 
         /// <summary>Message principal affiché à gauche de la barre.</summary>
@@ -59,5 +72,7 @@ namespace Moto.Editor.Views
         }
 
         private void OnInfoTapped(object? sender, EventArgs e) => _infoOverlay?.Show();
+
+        private void OnAiMonitorTapped(object? sender, EventArgs e) => AiMonitorTapped?.Invoke();
     }
 }

@@ -259,6 +259,8 @@ namespace Moto.Editor
 
             // Panneaux Présentation / Remote / Collab : handlers déjà écrits dans
             // MainPage.UI.cs, jamais branchés faute de MainPage.xaml — câblés ici.
+            StatusBar.AiMonitorTapped += () => OnAiMonitorTapped(this, EventArgs.Empty);
+            LocationMenu.LocationSelected += OnLocationSelected;
             PresentationPanel.GenerateRequested += OnPresentationGenerate;
             RemotePanel.ConnectRequested += OnRemoteConnect;
             CollabPanel.ChatSubmitted += OnCollabChat;
@@ -267,24 +269,29 @@ namespace Moto.Editor
         /// <summary>
         /// Chip "💻 Local" de l'accueil : choix façon Claude Code entre Local/Cloud/
         /// Contrôle à distance/WSL/SSH (capture d'écran fournie par Tom, 30/08).
+        /// ★ CORRECTION (30/08) : DisplayActionSheet (menu natif Windows, pas custom,
+        /// mal aligné — repéré par Tom) remplacé par ExecutionLocationMenu (design maison).
         /// Cloud et WSL n'ont pas encore d'implémentation dans ce dépôt.
         /// </summary>
-        private async void OnHomeLocalChipRequested()
+        private void OnHomeLocalChipRequested()
         {
-            var choix = await DisplayActionSheet("Emplacement d'exécution", "Annuler", null,
-                "💻 Local", "☁️ Cloud", "🖱️ Contrôle à distance", "🪟 WSL", "✉️ SSH");
+            LocationMenu.IsVisible = true;
+        }
 
-            switch (choix)
+        private void OnLocationSelected(string id)
+        {
+            LocationMenu.IsVisible = false;
+            switch (id)
             {
-                case "🖱️ Contrôle à distance":
-                case "✉️ SSH":
+                case "remote":
+                case "ssh":
                     RemotePanel.IsVisible = true;
                     break;
-                case "☁️ Cloud":
-                case "🪟 WSL":
-                    StatusBar.SetStatus($"{choix} : pas encore disponible.");
+                case "cloud":
+                case "wsl":
+                    StatusBar.SetStatus($"{id} : pas encore disponible.");
                     break;
-                // "💻 Local", "Annuler" ou null (fermé sans choix) : déjà en local, rien à faire.
+                // "local" : déjà en local, rien à faire.
             }
         }
 
@@ -310,6 +317,16 @@ namespace Moto.Editor
             {
                 Platforms.Windows.SnapLayoutsHelper.ConfigureSnapLayouts(
                     nativeWindow, nativeBtnMin, nativeBtnMax, nativeBtnClose, nativeDragZone);
+                App.Breadcrumb("OnPageLoaded — ConfigureSnapLayouts appelé");
+            }
+            else
+            {
+                App.Breadcrumb("OnPageLoaded — ConfigureSnapLayouts IGNORÉ : "
+                    + $"nativeWindow={nativeWindow != null}, "
+                    + $"BtnMin={MenuBar.BtnMin.Handler?.PlatformView is Microsoft.UI.Xaml.FrameworkElement}, "
+                    + $"BtnMax={MenuBar.BtnMax.Handler?.PlatformView is Microsoft.UI.Xaml.FrameworkElement}, "
+                    + $"BtnClose={MenuBar.BtnClose.Handler?.PlatformView is Microsoft.UI.Xaml.FrameworkElement}, "
+                    + $"DragZone={MenuBar.TitleBarDragZone.Handler?.PlatformView is Microsoft.UI.Xaml.FrameworkElement}");
             }
 #endif
         }
@@ -384,11 +401,9 @@ namespace Moto.Editor
         {
             MainThread.BeginInvokeOnMainThread(() =>
             {
-                AiStatusLabel.Text = state;
-                AiStatusIcon.Text = state switch
-                {
-                    "Idle" => "🧠", "Inferring" => "⚡", "Throttled" => "🐢", "Error" => "❌", _ => "🧠"
-                };
+                // ★ CORRECTION (30/08) : AiStatusLabel/AiStatusIcon ont déménagé dans
+                // StatusBarPanelView (voir MainPage.xaml).
+                StatusBar.SetAiStatus(state);
             });
         }
 

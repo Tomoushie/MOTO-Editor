@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+  Moto.Editor/Controls/ExecutionLocationMenu.xaml
+  Ajouté le 30/08 : menu custom pour le chip "💻 Local" de l'accueil, en
+  remplacement de DisplayActionSheet (menu natif Windows — pas custom, mal
+  aligné, repéré par Tom). Ajouté comme panneau flottant de MainPage (même
+  convention que ConfirmationOverlay : centré, par-dessus RootGrid).
+-->
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Moto.Editor.Controls.ExecutionLocationMenu"
+             HorizontalOptions="Fill" VerticalOptions="Fill"
+             BackgroundColor="#66000000">
+
+    <!-- Fond semi-transparent plein écran : cliquer en dehors du menu le ferme
+         (aucun des autres panneaux flottants n'a ce comportement — repéré par
+         Tom, "pas de bouton pour fermer" — corrigé ici au minimum). -->
+    <ContentView.GestureRecognizers>
+        <TapGestureRecognizer Tapped="OnBackdropTapped" />
+    </ContentView.GestureRecognizers>
+
+    <Border Stroke="{StaticResource BorderCol}" StrokeShape="RoundRectangle 12"
+            BackgroundColor="{StaticResource BgPanel}" Padding="8" WidthRequest="260"
+            HorizontalOptions="Center" VerticalOptions="Center">
+
+        <VerticalStackLayout Spacing="2">
+
+            <Label Text="Emplacement d'exécution" FontSize="12" FontAttributes="Bold"
+                   Margin="6,2,6,6" TextColor="{StaticResource Txt2}" />
+
+            <Border x:Name="RowLocal" BackgroundColor="Transparent" Padding="10,8">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnRowTapped" />
+                </Border.GestureRecognizers>
+                <Grid ColumnDefinitions="Auto,*,Auto">
+                    <Label Text="💻" FontSize="14" />
+                    <Label Grid.Column="1" Text="Local" FontSize="13" Margin="8,0" />
+                    <Label Grid.Column="2" Text="✓" TextColor="{StaticResource Accent}" />
+                </Grid>
+            </Border>
+
+            <Border x:Name="RowCloud" BackgroundColor="Transparent" Padding="10,8">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnRowTapped" />
+                </Border.GestureRecognizers>
+                <Grid ColumnDefinitions="Auto,*,Auto">
+                    <Label Text="☁️" FontSize="14" />
+                    <Label Grid.Column="1" Text="Cloud" FontSize="13" Margin="8,0" />
+                </Grid>
+            </Border>
+
+            <Border x:Name="RowRemote" BackgroundColor="Transparent" Padding="10,8">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnRowTapped" />
+                </Border.GestureRecognizers>
+                <Grid ColumnDefinitions="Auto,*,Auto">
+                    <Label Text="🖱️" FontSize="14" />
+                    <Label Grid.Column="1" Text="Contrôle à distance" FontSize="13" Margin="8,0" />
+                </Grid>
+            </Border>
+
+            <Border x:Name="RowWsl" BackgroundColor="Transparent" Padding="10,8">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnRowTapped" />
+                </Border.GestureRecognizers>
+                <Grid ColumnDefinitions="Auto,*,Auto">
+                    <Label Text="🐧" FontSize="14" />
+                    <Label Grid.Column="1" Text="WSL" FontSize="13" Margin="8,0" />
+                </Grid>
+            </Border>
+
+            <Border x:Name="RowSsh" BackgroundColor="Transparent" Padding="10,8">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnRowTapped" />
+                </Border.GestureRecognizers>
+                <Grid ColumnDefinitions="Auto,*,Auto">
+                    <Label Text="🔐" FontSize="14" />
+                    <Label Grid.Column="1" Text="SSH" FontSize="13" Margin="8,0" />
+                </Grid>
+            </Border>
+
+        </VerticalStackLayout>
+    </Border>
+</ContentView>

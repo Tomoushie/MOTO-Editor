@@ -98,28 +98,27 @@
         <!-- Écran de verrouillage (projet protégé par mot de passe) -->
         <views:PasswordGateView x:Name="PasswordGate" Grid.Row="1" Grid.ColumnSpan="4" IsVisible="False" />
 
+        <!-- Menu custom "Emplacement d'exécution" (chip "💻 Local" de l'accueil) -->
+        <controls:ExecutionLocationMenu x:Name="LocationMenu" Grid.Row="1" Grid.ColumnSpan="4" IsVisible="False" />
+
         <!-- SettingsMenu (x:Name="SettingsMenu") est ajouté par code : SettingsMenuView
              a besoin de PluginRegistry/ProfileManager/SettingsImporterExporter en
              constructeur (résolus via DI dans MainPage.xaml.cs). -->
 
-        <!-- ══════════════════ Logo + statut IA (coin haut-gauche du contenu) ══════════════════ -->
-        <HorizontalStackLayout Grid.Row="1" Grid.Column="0" Spacing="4"
+        <!-- ══════════════════ Logo (coin haut-gauche de l'Explorateur) ══════════════════ -->
+        <!-- ★ CORRECTION (30/08) : Grid.Column="0" → "1" — cette colonne est devenue la
+             barre d'activité après la permutation des colonnes ; le petit logo s'y
+             superposait à ses icônes (repéré par Tom). -->
+        <HorizontalStackLayout Grid.Row="1" Grid.Column="1" Spacing="4"
                                 HorizontalOptions="Start" VerticalOptions="Start" Margin="6,6,0,0"
                                 InputTransparent="False">
             <controls:MotoLogoView Size="20" Margin="4,2" />
         </HorizontalStackLayout>
 
-        <Border Grid.Row="2" Grid.Column="3" BackgroundColor="Transparent" Padding="4"
-                HorizontalOptions="End" VerticalOptions="Center">
-            <Border.GestureRecognizers>
-                <TapGestureRecognizer Tapped="OnAiMonitorTapped" />
-            </Border.GestureRecognizers>
-            <HorizontalStackLayout Spacing="4" ToolTipProperties.Text="Monitoring IA — Cliquez pour ouvrir">
-                <Label x:Name="AiStatusIcon" Text="🧠" FontSize="12" VerticalOptions="Center" />
-                <Label x:Name="AiStatusLabel" Text="Idle" FontSize="10"
-                       TextColor="{StaticResource Txt2}" VerticalOptions="Center" />
-            </HorizontalStackLayout>
-        </Border>
+        <!-- ★ CORRECTION (30/08) : l'indicateur IA (🧠 Idle) a déménagé DANS
+             StatusBarPanelView (voir ce fichier) — il se superposait littéralement à
+             elle ici, puisque StatusBarPanelView occupe déjà toute la ligne 2 via
+             Grid.ColumnSpan="4" (repéré par Tom : icônes/texte qui se chevauchent). -->
 
     </Grid>
 

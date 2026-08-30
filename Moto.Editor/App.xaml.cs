@@ -29,7 +29,17 @@ namespace Moto.Editor
                 Breadcrumb("App() — avant InitializeComponent");
                 InitializeComponent();
                 Breadcrumb("App() — avant new MainPage()");
-                MainPage = new MainPage();
+                // ★ CORRECTION (30/08) : MainPage doit être hébergée dans une NavigationPage.
+                // Sans ça, Navigation.PushAsync (utilisé par "Providers IA" dans les
+                // paramètres et par le clic sur l'indicateur IA 🧠) lève une exception au
+                // premier appel — Tom a eu un vrai crash au clic sur "Providers IA (clés API)".
+                // NavigationPage.SetHasNavigationBar(false) masque sa barre à elle (celle de
+                // MAUI, indépendante de la barre de titre Windows gérée par SnapLayoutsHelper)
+                // pour ne rien changer visuellement — MainPage garde son chrome 100% custom.
+                var mainPage = new MainPage();
+                var navigationPage = new NavigationPage(mainPage);
+                NavigationPage.SetHasNavigationBar(mainPage, false);
+                MainPage = navigationPage;
                 Breadcrumb("App() — MainPage créée avec succès");
             }
             catch (Exception ex)

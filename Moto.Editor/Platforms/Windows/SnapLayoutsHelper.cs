@@ -34,9 +34,20 @@ public static class SnapLayoutsHelper
         appWindow.TitleBar.ExtendsContentIntoTitleBar = true;
 
         // 2) Couleurs de la title bar cohérentes avec MotoTheme
+        // ★ CORRECTION (30/08) : BackgroundColor/InactiveBackgroundColor/
+        // ButtonInactiveBackgroundColor manquaient — ExtendsContentIntoTitleBar=true
+        // ne rend PAS la barre transparente à lui seul, il fait juste passer notre
+        // contenu DESSOUS ; sans ces 3 propriétés, Windows continue de peindre la
+        // barre de titre dans sa couleur par défaut (le bandeau bleu vu par Tom,
+        // par-dessus notre CustomMenuBarView). Confirmé sur learn.microsoft.com.
+        var bg = ToColor("#17181C"); // même couleur que CustomMenuBarView
+        appWindow.TitleBar.BackgroundColor = bg;
+        appWindow.TitleBar.InactiveBackgroundColor = bg;
         appWindow.TitleBar.ButtonBackgroundColor = Microsoft.UI.Colors.Transparent;
+        appWindow.TitleBar.ButtonInactiveBackgroundColor = Microsoft.UI.Colors.Transparent;
         appWindow.TitleBar.ButtonHoverBackgroundColor = ToColor("#2A2C31"); // BgHover
         appWindow.TitleBar.ButtonForegroundColor = ToColor("#E5E7EB");
+        appWindow.TitleBar.ButtonInactiveForegroundColor = ToColor("#E5E7EB");
         appWindow.TitleBar.ButtonHoverForegroundColor = ToColor("#D97757"); // Accent
 
         // 3) Zone de drag : UNIQUEMENT la zone centrale
