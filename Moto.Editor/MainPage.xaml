@@ -94,7 +94,13 @@
         <views:StatusBarPanelView x:Name="StatusBar" Grid.Row="3" Grid.ColumnSpan="3" />
 
         <!-- ══════════════════ Bandeau IA flottant (Ctrl+Shift+I) ══════════════════ -->
-        <views:AiCommandBarView x:Name="AiBar" Grid.Row="2" Grid.ColumnSpan="3"
+        <!-- ★ CORRECTION (30/08, 2e passe) : centré sur les 3 colonnes (dock IA +
+             centre + arborescence), ce bandeau se retrouvait décalé/coupé dès que le
+             dock IA (colonne 0) s'ouvrait à gauche — repéré par Tom ("le bouton pour
+             lui écrire est mal aligné et coupé par le bandeau"). Restreint à la seule
+             colonne centrale : il suit désormais la zone Accueil/Éditeur, peu importe
+             ce qui est ouvert à gauche ou à droite. -->
+        <views:AiCommandBarView x:Name="AiBar" Grid.Row="2" Grid.Column="1"
                                  HorizontalOptions="Center" VerticalOptions="End"
                                  Margin="0,0,0,40" IsVisible="False" />
 

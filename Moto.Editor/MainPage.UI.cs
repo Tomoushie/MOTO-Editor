@@ -280,11 +280,26 @@ namespace Moto.Editor
             switch (key)
             {
                 case "theme":
+                    // ★ CORRECTION (30/08, 2e passe) : MotoTheme.xaml ne définit QUE
+                    // des couleurs fixes (BgApp/Txt1/...), jamais de variante claire
+                    // (AppThemeBinding Light=.../Dark=...). ThemeService.SetLight()
+                    // change bien Application.Current.UserAppTheme, mais ça ne fait
+                    // que basculer les couleurs PAR DÉFAUT (non explicites) de MAUI —
+                    // nos fonds restent sombres (codés en dur) pendant que le texte
+                    // par défaut passe au noir (couleur claire par défaut) : texte
+                    // noir sur fond noir, repéré par Tom. Aucun thème clair n'existe
+                    // réellement dans ce dépôt (nécessite une vraie palette claire,
+                    // décision de design avec Tom) — en attendant, "Clair"/"Système"
+                    // restent sans effet visible plutôt que de casser la lisibilité.
                     switch ((int)value)
                     {
-                        case 0: ThemeService.SetDark(); break;
-                        case 1: ThemeService.SetLight(); break;
-                        default: ThemeService.FollowSystem(); break;
+                        case 0:
+                            ThemeService.SetDark();
+                            break;
+                        default:
+                            ThemeService.SetDark();
+                            StatusBar.SetStatus("🎨 Thème clair : pas encore conçu (reste en sombre pour l'instant).");
+                            break;
                     }
                     break;
                 case "minimap":

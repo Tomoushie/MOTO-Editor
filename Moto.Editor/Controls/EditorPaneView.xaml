@@ -15,11 +15,18 @@
               BackgroundColor="#17181C" Padding="6,4" ColumnSpacing="4">
 
             <!-- Navigation historique -->
-            <Button Grid.Column="0" Text="←" Padding="8,2" FontSize="12"
+            <!-- ★ CORRECTION (30/08, 2e passe) : héritaient du style Button par défaut
+                 (fond gris #202126, App.xaml) — trop discrètes selon Tom ("les flèches
+                 devraient être plus grandes, plus visibles et supprimer le fond gris").
+                 Fond transparent + police agrandie, ICI seulement (pas touché au style
+                 par défaut, utilisé par beaucoup d'autres boutons dans toute l'appli). -->
+            <Button Grid.Column="0" Text="←" Padding="8,2" FontSize="18"
+                    BackgroundColor="Transparent" TextColor="{StaticResource Txt1}"
                     ToolTipProperties.Text="Fichier précédent"
                     Clicked="OnBackClicked" />
 
-            <Button Grid.Column="1" Text="→" Padding="8,2" FontSize="12"
+            <Button Grid.Column="1" Text="→" Padding="8,2" FontSize="18"
+                    BackgroundColor="Transparent" TextColor="{StaticResource Txt1}"
                     ToolTipProperties.Text="Fichier suivant"
                     Clicked="OnForwardClicked" />
 

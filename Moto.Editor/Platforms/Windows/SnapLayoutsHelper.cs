@@ -21,25 +21,25 @@ namespace Moto.Editor.Platforms.Windows;
 /// </summary>
 public static class SnapLayoutsHelper
 {
-    public static void ConfigureSnapLayouts(Microsoft.UI.Xaml.Window window,
-        FrameworkElement btnMin, FrameworkElement btnMax, FrameworkElement btnClose,
-        FrameworkElement dragZone)
+    /// <summary>
+    /// ★ AJOUT (30/08, 2e passe) : extrait de ConfigureSnapLayouts pour pouvoir être
+    /// appelé TRÈS TÔT (App.xaml.cs, OnWindowsWindowCreated — dès window.Created),
+    /// au lieu d'attendre MainPage.OnPageLoaded (qui ne s'exécute qu'après le
+    /// premier rendu de la page, laissant le temps à Windows d'afficher/figer la
+    /// barre de titre native bleue par défaut — repéré par Tom). Ne dépend d'aucun
+    /// FrameworkElement MAUI (juste l'AppWindow), donc appelable immédiatement.
+    /// </summary>
+    public static void ApplyTitleBarColors(AppWindow appWindow)
     {
-        var hwnd = WindowNative.GetWindowHandle(window);
-        var windowId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(hwnd);
-        var appWindow = AppWindow.GetFromWindowId(windowId);
-        var nonClientSource = InputNonClientPointerSource.GetForWindowId(windowId);
-
         // 1) Titre étendu
         appWindow.TitleBar.ExtendsContentIntoTitleBar = true;
 
         // 2) Couleurs de la title bar cohérentes avec MotoTheme
-        // ★ CORRECTION (30/08) : BackgroundColor/InactiveBackgroundColor/
-        // ButtonInactiveBackgroundColor manquaient — ExtendsContentIntoTitleBar=true
-        // ne rend PAS la barre transparente à lui seul, il fait juste passer notre
-        // contenu DESSOUS ; sans ces 3 propriétés, Windows continue de peindre la
-        // barre de titre dans sa couleur par défaut (le bandeau bleu vu par Tom,
-        // par-dessus notre CustomMenuBarView). Confirmé sur learn.microsoft.com.
+        // ExtendsContentIntoTitleBar=true ne rend PAS la barre transparente à lui
+        // seul, il fait juste passer notre contenu DESSOUS ; sans ces propriétés,
+        // Windows continue de peindre la barre de titre dans sa couleur par défaut
+        // (le bandeau bleu vu par Tom, par-dessus notre CustomMenuBarView).
+        // Confirmé sur learn.microsoft.com.
         var bg = ToColor("#17181C"); // même couleur que CustomMenuBarView
         appWindow.TitleBar.BackgroundColor = bg;
         appWindow.TitleBar.InactiveBackgroundColor = bg;
@@ -49,11 +49,26 @@ public static class SnapLayoutsHelper
         appWindow.TitleBar.ButtonForegroundColor = ToColor("#E5E7EB");
         appWindow.TitleBar.ButtonInactiveForegroundColor = ToColor("#E5E7EB");
         appWindow.TitleBar.ButtonHoverForegroundColor = ToColor("#D97757"); // Accent
+    }
 
-        // 3) Zone de drag : UNIQUEMENT la zone centrale
+    public static void ConfigureSnapLayouts(Microsoft.UI.Xaml.Window window,
+        FrameworkElement btnMin, FrameworkElement btnMax, FrameworkElement btnClose,
+        FrameworkElement dragZone)
+    {
+        var hwnd = WindowNative.GetWindowHandle(window);
+        var windowId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(hwnd);
+        var appWindow = AppWindow.GetFromWindowId(windowId);
+        var nonClientSource = InputNonClientPointerSource.GetForWindowId(windowId);
+
+        // Redondant avec l'appel fait dès OnWindowsWindowCreated (App.xaml.cs), mais
+        // sans coût : ré-appliquer les mêmes valeurs ne fait rien de plus que les
+        // reconfirmer — gardé pour que ConfigureSnapLayouts reste utilisable seule.
+        ApplyTitleBarColors(appWindow);
+
+        // Zone de drag : UNIQUEMENT la zone centrale
         SetRegion(nonClientSource, NonClientRegionKind.Caption, dragZone);
 
-        // 4) Zones des boutons : interactives ET reconnues par Windows (survol
+        // Zones des boutons : interactives ET reconnues par Windows (survol
         // Maximiser -> flyout Snap Layouts) grâce au bon NonClientRegionKind.
         SetRegion(nonClientSource, NonClientRegionKind.Minimize, btnMin);
         SetRegion(nonClientSource, NonClientRegionKind.Maximize, btnMax);

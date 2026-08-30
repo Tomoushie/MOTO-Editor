@@ -2,9 +2,33 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="Moto.Editor.Pages.AiSettingsPage"
-             Title="Paramètres IA">
+             Title="Paramètres IA"
+             BackgroundColor="{StaticResource BgApp}">
 
-    <ScrollView Padding="20">
+    <!--
+      ★ CORRECTION (30/08) : cette page n'avait ni fond ni en-tête custom — elle
+      s'affichait avec la barre de titre Windows native (bleue) ET sa flèche de
+      retour système, incohérentes avec le reste de l'appli (repéré par Tom :
+      "toujours la barre Windows 11", "flèche dans la barre bleue en haut à
+      gauche alors qu'elle devrait se trouver à l'intérieur"). MainPage masque
+      déjà sa propre barre de nav MAUI (NavigationPage.SetHasNavigationBar,
+      voir le constructeur ci-dessous) et dessine SA barre custom — cette page
+      fait maintenant pareil : en-tête sombre avec un vrai bouton "← Retour".
+    -->
+    <Grid RowDefinitions="Auto,*">
+
+        <Border Grid.Row="0" BackgroundColor="{StaticResource BgSide}" Padding="12,10">
+            <Grid ColumnDefinitions="Auto,*">
+                <Button Grid.Column="0" Text="← Retour" Clicked="OnBackClicked"
+                        BackgroundColor="Transparent" TextColor="{StaticResource Txt1}"
+                        Padding="8,4" FontSize="13" />
+                <Label Grid.Column="1" Text="Paramètres IA" FontSize="16" FontAttributes="Bold"
+                       TextColor="{StaticResource Txt1}" VerticalOptions="Center"
+                       HorizontalOptions="Center" />
+            </Grid>
+        </Border>
+
+    <ScrollView Grid.Row="1" Padding="20">
 
         <VerticalStackLayout Spacing="20">
 
@@ -203,5 +227,7 @@
         </VerticalStackLayout>
 
     </ScrollView>
+
+    </Grid>
 
 </ContentPage>

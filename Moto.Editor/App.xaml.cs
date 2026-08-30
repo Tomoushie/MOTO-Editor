@@ -130,8 +130,20 @@ namespace Moto.Editor
                 var windowId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(hwnd);
                 var appWindow = Microsoft.UI.Windowing.AppWindow.GetFromWindowId(windowId);
 
-                // Titre de la fenêtre
-                appWindow.Title = "MOTO Editor";
+                // ★ CORRECTION (30/08, 2e passe) : Tom veut ce texte retiré de
+                // l'intérieur de l'appli (déjà redondant avec le nom affiché par
+                // Windows sur la barre des tâches/Alt-Tab, lui-même tiré de
+                // ApplicationTitle dans le .csproj — pas besoin de le redire ici).
+                appWindow.Title = string.Empty;
+
+                // ★ CORRECTION (30/08, 2e passe) : couleurs/extension de la title bar
+                // appliquées ICI, dès la création de la fenêtre — avant, elles
+                // n'étaient posées que dans MainPage.OnPageLoaded (bien plus tard,
+                // après le premier rendu), laissant Windows afficher/figer la barre
+                // bleue par défaut entre-temps (repéré par Tom). Ce qui dépend des
+                // FrameworkElement de MainPage (zone de drag, boutons) reste posé
+                // plus tard par SnapLayoutsHelper.ConfigureSnapLayouts.
+                Platforms.Windows.SnapLayoutsHelper.ApplyTitleBarColors(appWindow);
 
                 // ★ CORRECTION (30/08) : aucune taille n'était fixée nulle part — la
                 // fenêtre s'ouvrait à la taille par défaut de WinUI (bien plus large que

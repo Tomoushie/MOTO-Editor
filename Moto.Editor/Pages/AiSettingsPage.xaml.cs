@@ -22,6 +22,12 @@ namespace Moto.Editor.Pages
         {
             InitializeComponent();
 
+            // ★ CORRECTION (30/08) : masque la barre de nav MAUI native (avec sa
+            // flèche de retour intégrée à la barre de titre Windows) — même patron
+            // que MainPage (App.xaml.cs) ; la page dessine désormais son propre
+            // en-tête sombre avec un bouton "← Retour" (voir AiSettingsPage.xaml).
+            NavigationPage.SetHasNavigationBar(this, false);
+
             _fallbackEngine = fallbackEngine ?? new FallbackEngine();
             _providerStatus = new ObservableCollection<ProviderStatusItem>();
 
@@ -29,6 +35,8 @@ namespace Moto.Editor.Pages
 
             LoadExistingConfig();
         }
+
+        private async void OnBackClicked(object sender, EventArgs e) => await Navigation.PopAsync();
 
         /// <summary>
         /// Charge la configuration existante.
