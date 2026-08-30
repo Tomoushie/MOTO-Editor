@@ -65,8 +65,11 @@
       sont) — Bootstrap.TryInitialize échoue donc avec 0x80670016 ("Package dependency
       criteria could not be resolved"), l'appli se ferme aussitôt sans fenêtre ni erreur
       visible (constaté par test direct : diagnostic Bootstrap.TryInitialize manuel).
-      Passer en 1.8, dont le jeu Framework+Main est complet et cohérent ici, résout le
-      blocage sans rien installer de plus sur la machine.
+      1.8.260804001 précisément : sa contrainte de version minimale du paquet Main
+      (8000.946.1701.0, voir microsoft.windowsappsdk.runtime/.../WindowsAppSDK-VersionInfo.cs)
+      correspond EXACTEMENT au paquet MicrosoftCorporationII.WinAppRuntime.Main.1.8
+      déjà installé sur cette machine (vérifié via Get-AppxPackage) — pas seulement
+      "une version 1.8", cette version précise.
     -->
     <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.260804001" />
   </ItemGroup>
