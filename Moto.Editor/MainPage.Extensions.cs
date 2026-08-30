@@ -133,10 +133,17 @@ namespace Moto.Editor
                 _pluginRegistry = services.GetService<PluginRegistry>();
                 _marketplaceClient = services.GetService<MarketplaceClient>();
 
-                // Galerie de plugins
-                _pluginGallery = services.GetService<PluginGalleryView>()
-                    ?? new PluginGalleryView(_pluginRegistry, _marketplaceClient, GetPluginsDirectory());
-                AddMotoOverlay(_pluginGallery);
+                // ★ CORRECTION : cette méthode construisait ICI une première
+                // PluginGalleryView (DI-résolue ou neuve) et l'ajoutait en overlay
+                // plein-écran via AddMotoOverlay — mais WirePanels() (MainPage.xaml.cs,
+                // appelée juste après dans le constructeur) écrase TOUJOURS le champ
+                // _pluginGallery avec une toute nouvelle instance, enveloppée et
+                // ancrée dans PanelHost via AddFloatingPanel. La première instance ne
+                // devenait donc jamais visible ni pilotable (aucun code ne la
+                // référence plus une fois écrasée) : un objet fantôme, doublon mort.
+                // _pluginRegistry/_marketplaceClient restent résolus ci-dessus (utiles
+                // ailleurs, ex. SettingsMenuView) ; seule la construction en double de
+                // la galerie est retirée.
 
                 // AI Settings
                 _aiSettings = new AiSettingsService(SettingsEngine.Shared, GetWorkspaceRoot());
