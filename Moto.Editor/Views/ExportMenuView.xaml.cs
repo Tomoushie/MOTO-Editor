@@ -42,6 +42,8 @@ namespace Moto.Editor.Views
             ExportRequested?.Invoke(format, author);
         }
 
+        private void OnCloseClicked(object s, EventArgs e) => IsVisible = false;
+
         public void ShowStatus(string msg) => StatusLabel.Text = msg;
     }
 }

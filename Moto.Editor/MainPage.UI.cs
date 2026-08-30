@@ -47,19 +47,40 @@ namespace Moto.Editor
         // ------------------------------------------------------------------
         // Toolbar handlers
         // ------------------------------------------------------------------
+        private bool _pickingFolder;
+
+        /// <summary>
+        /// ★ CORRECTION (30/08) : plusieurs clics rapides sur "Projet logiciel"
+        /// ouvraient chacun leur propre fenêtre d'explorateur Windows (repéré par
+        /// Tom) — FolderPicker.Default.PickAsync() n'empêche pas les appels
+        /// concurrents à lui tout seul. Garde de ré-entrance ajoutée.
+        /// </summary>
         private async void OnImportClicked(object sender, EventArgs e)
         {
-            var result = await FolderPicker.Default.PickAsync();
-            if (!result.IsSuccessful) return;
-
-            var report = _import.Analyze(result.Folder.Path);
-            if (_lock.IsLocked(result.Folder.Path))
+            if (_pickingFolder) return;
+            _pickingFolder = true;
+            try
             {
-                PasswordGate.Lock(result.Folder.Path);
-                PasswordGate.Unlocked += () => LoadWorkspace(result.Folder.Path);
+                var result = await FolderPicker.Default.PickAsync();
+                if (!result.IsSuccessful) return;
+                HandleImportedFolder(result.Folder.Path);
+            }
+            finally
+            {
+                _pickingFolder = false;
+            }
+        }
+
+        private void HandleImportedFolder(string folderPath)
+        {
+            var report = _import.Analyze(folderPath);
+            if (_lock.IsLocked(folderPath))
+            {
+                PasswordGate.Lock(folderPath);
+                PasswordGate.Unlocked += () => LoadWorkspace(folderPath);
                 return;
             }
-            LoadWorkspace(result.Folder.Path);
+            LoadWorkspace(folderPath);
             StatusBar.SetStatus($"Import : {report.DetectedIde} / {report.ProjectKind}");
         }
 

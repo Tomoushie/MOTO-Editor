@@ -23,8 +23,9 @@
                     ToolTipProperties.Text="Fichier suivant"
                     Clicked="OnForwardClicked" />
 
-            <!-- ★ NOUVEAU : bouton Export -->
-            <Button Grid.Column="2" Text="⬇" Padding="8,2" FontSize="12"
+            <!-- ★ CORRECTION (30/08) : la simple flèche "⬇" n'était pas assez claire
+                 selon Tom ("personne ne sait ce qu'elle représente") -->
+            <Button Grid.Column="2" Text="⬇ Exporter" Padding="8,2" FontSize="12"
                     ToolTipProperties.Text="Exporter (txt, md, html, pdf, docx, odt, rtf...)"
                     Clicked="OnExportClicked" />
 

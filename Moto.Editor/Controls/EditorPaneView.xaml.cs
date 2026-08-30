@@ -81,6 +81,19 @@ namespace Moto.Editor.Controls
         }
 
         /// <summary>
+        /// ★ AJOUT (30/08) : synchronise visuellement l'onglet sélectionné dans le
+        /// CollectionView. Nécessaire car un fichier peut être sélectionné par un
+        /// chemin AUTRE qu'un clic sur un onglet déjà visible (explorateur, réponse
+        /// IA auto-ouverte) — sans ça, le CollectionView ne montre jamais l'onglet
+        /// comme actif et un futur clic dessus ne redéclenche rien (déjà "sélectionné"
+        /// à ses yeux, alors qu'aucun contenu n'a jamais été chargé).
+        /// </summary>
+        public void SelectTab(object document)
+        {
+            TabsList.SelectedItem = document;
+        }
+
+        /// <summary>
         /// Met à jour le breadcrumb avec le chemin complet du fichier.
         /// Remplace les \ par " \ " pour un rendu lisible type Zed.
         /// </summary>

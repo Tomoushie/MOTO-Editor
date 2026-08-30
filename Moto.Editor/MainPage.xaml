@@ -113,7 +113,11 @@
         <views:PasswordGateView x:Name="PasswordGate" Grid.Row="1" Grid.ColumnSpan="4" IsVisible="False" />
 
         <!-- Menu custom "Emplacement d'exécution" (chip "💻 Local" de l'accueil) -->
-        <controls:ExecutionLocationMenu x:Name="LocationMenu" Grid.Row="1" Grid.ColumnSpan="4" IsVisible="False" />
+        <!-- ★ CORRECTION (30/08) : RowSpan="3" + Column/ColumnSpan explicites — le fond
+             semi-transparent ne couvrait pas tout l'écran (bandes non couvertes vues
+             par Tom) avec seulement Grid.Row="1". -->
+        <controls:ExecutionLocationMenu x:Name="LocationMenu" Grid.Row="0" Grid.RowSpan="3"
+                                          Grid.Column="0" Grid.ColumnSpan="4" IsVisible="False" />
 
         <!-- SettingsMenu (x:Name="SettingsMenu") est ajouté par code : SettingsMenuView
              a besoin de PluginRegistry/ProfileManager/SettingsImporterExporter en

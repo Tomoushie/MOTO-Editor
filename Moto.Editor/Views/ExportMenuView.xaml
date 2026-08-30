@@ -9,7 +9,14 @@
 
         <VerticalStackLayout Spacing="8">
 
-            <Label Text="⬇ Exporter le fichier" FontAttributes="Bold" />
+            <!-- ★ CORRECTION (30/08) : bouton fermer ✕ ajouté — le seul moyen de
+                 fermer ce panneau était de recliquer sur le bouton Exporter de la
+                 barre d'outils (repéré par Tom). -->
+            <Grid ColumnDefinitions="*,Auto">
+                <Label Text="⬇ Exporter le fichier" FontAttributes="Bold" VerticalOptions="Center" />
+                <Button Grid.Column="1" Text="✕" WidthRequest="28" HeightRequest="24" FontSize="12"
+                        Padding="0" BackgroundColor="Transparent" Clicked="OnCloseClicked" />
+            </Grid>
 
             <Picker x:Name="FormatPicker" FontSize="12">
                 <Picker.ItemsSource>

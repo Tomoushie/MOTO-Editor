@@ -89,11 +89,21 @@ public sealed class StructuredLogCollector : IDisposable
     }
 
     /// <summary>Item 52 — Crée une archive .zip des logs pour upload sécurisé.</summary>
+    /// <summary>
+    /// ★ CORRECTION (30/08) : l'archive était créée DANS _logDirectory (le dossier
+    /// qu'elle compresse elle-même) — ZipFile.CreateFromDirectory ouvre la
+    /// destination en écriture PUIS énumère le dossier source, qui contient
+    /// désormais ce même fichier .zip encore ouvert -> IOException ("utilisé par
+    /// un autre processus"), reproduit par Tom via le bouton "Collecter les logs".
+    /// L'archive est maintenant placée dans le dossier PARENT de _logDirectory.
+    /// </summary>
     public async Task<string> CreateArchiveAsync(CancellationToken ct = default)
     {
         Flush();
         await Task.Yield();
-        string archivePath = Path.Combine(_logDirectory, $"moto-logs-{DateTime.Now:yyyyMMdd-HHmmss}.zip");
+        string archiveDir = Path.GetDirectoryName(_logDirectory.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar))
+            ?? _logDirectory;
+        string archivePath = Path.Combine(archiveDir, $"moto-logs-{DateTime.Now:yyyyMMdd-HHmmss}.zip");
         System.IO.Compression.ZipFile.CreateFromDirectory(_logDirectory, archivePath);
         return archivePath;
     }

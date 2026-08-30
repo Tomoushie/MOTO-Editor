@@ -178,6 +178,22 @@ namespace Moto.Editor
         {
             EditorPane.BindTabs(_viewModel.Documents);
             EditorPane.TabSelected += doc => { _viewModel.SelectedDocument = doc; LoadDocumentIntoEditor(doc); };
+
+            // ★ CORRECTION (30/08) : source unique de vérité pour "un document a été
+            // sélectionné" — couvre TOUS les chemins (clic sur un onglet déjà visible,
+            // ouverture depuis l'explorateur, ouverture automatique d'une réponse IA,
+            // etc.), pas seulement le clic sur onglet ci-dessus. Sans ça, un document
+            // ouvert par un autre chemin ne charge jamais son contenu dans l'éditeur
+            // ("Aucun fichier ouvert" reste affiché) et son onglet n'apparaît jamais
+            // visuellement sélectionné (un futur clic dessus ne redéclenche donc rien).
+            _viewModel.PropertyChanged += (s, e) =>
+            {
+                if (e.PropertyName == nameof(_viewModel.SelectedDocument))
+                {
+                    EditorPane.SelectTab(_viewModel.SelectedDocument);
+                    LoadDocumentIntoEditor(_viewModel.SelectedDocument);
+                }
+            };
             EditorPane.BackRequested += OnNavBack;
             EditorPane.ForwardRequested += OnNavForward;
             EditorPane.MaximizeRequested += OnMaximizeToggled;
