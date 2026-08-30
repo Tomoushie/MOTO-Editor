@@ -239,11 +239,11 @@
          "fenêtre externe" (dépendait d'ExternalImageWindow, ci-dessus). -->
     <Compile Remove="Services\ImageOpenerService.cs" />
 
-    <!-- Snap Layouts (survol du bouton Maximiser) : plus appelé nulle part
-         depuis que MainPage.OnPageLoaded a mis ConfigureSnapLayouts de côté
-         (types WinUI incompatibles avec les Border MAUI de CustomMenuBarView). -->
-    <Compile Remove="Platforms\Windows\SnapLayoutsHelper.cs" />
-    <Compile Remove="Helpers\DragZoneHelper.cs" />
+    <!-- ★ CORRECTION (30/08) : SnapLayoutsHelper + DragZoneHelper réintégrés — le
+         commentaire ci-dessous n'est plus vrai, MainPage.OnPageLoaded appelle de
+         nouveau ConfigureSnapLayouts (conversion Border MAUI → FrameworkElement
+         WinUI via Handler.PlatformView, corrige aussi la barre de titre bleue
+         par défaut restée visible en plus de CustomMenuBarView). -->
   </ItemGroup>
 
 </Project>

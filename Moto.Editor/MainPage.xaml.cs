@@ -239,6 +239,13 @@ namespace Moto.Editor
                 recents: new() { "Estimer la valeur du projet" });
 
             Home.HomePromptSubmitted += text => OnAiCommandSubmitted(text);
+            // ★ AJOUT (30/08) : chips "Local"/"Projet logiciel" de l'accueil, jusqu'ici
+            // décoratifs (repérés par Tom au premier lancement réel). "Projet logiciel"
+            // réutilise le même flux que le bouton Importer existant (OnImportClicked,
+            // MainPage.UI.cs). "Local" ouvre un choix façon Claude Code (capture d'écran
+            // fournie par Tom : Local/Cloud/Contrôle à distance/WSL/SSH).
+            Home.ProjectChipTapped += () => OnImportClicked(this, EventArgs.Empty);
+            Home.LocalChipTapped += OnHomeLocalChipRequested;
             Home.SetStats(
                 values: new[] { "0", "0", "0", "0" },
                 titles: new[] { "Sessions", "Messages", "Tokens", "Patterns appris" });
@@ -257,6 +264,30 @@ namespace Moto.Editor
             CollabPanel.ChatSubmitted += OnCollabChat;
         }
 
+        /// <summary>
+        /// Chip "💻 Local" de l'accueil : choix façon Claude Code entre Local/Cloud/
+        /// Contrôle à distance/WSL/SSH (capture d'écran fournie par Tom, 30/08).
+        /// Cloud et WSL n'ont pas encore d'implémentation dans ce dépôt.
+        /// </summary>
+        private async void OnHomeLocalChipRequested()
+        {
+            var choix = await DisplayActionSheet("Emplacement d'exécution", "Annuler", null,
+                "💻 Local", "☁️ Cloud", "🖱️ Contrôle à distance", "🪟 WSL", "✉️ SSH");
+
+            switch (choix)
+            {
+                case "🖱️ Contrôle à distance":
+                case "✉️ SSH":
+                    RemotePanel.IsVisible = true;
+                    break;
+                case "☁️ Cloud":
+                case "🪟 WSL":
+                    StatusBar.SetStatus($"{choix} : pas encore disponible.");
+                    break;
+                // "💻 Local", "Annuler" ou null (fermé sans choix) : déjà en local, rien à faire.
+            }
+        }
+
         // ══════════════ Cycle de vie ══════════════
 
         private void OnPageLoaded(object sender, EventArgs e)
@@ -266,11 +297,20 @@ namespace Moto.Editor
                 as Microsoft.UI.Xaml.Window;
             GlobalHotkeyService.Register(nativeWindow, onHotkey: () => AiBar.Toggle(), onWindowActivated: () => AiBar.Show());
 
-            // ★ Snap Layouts (survol du bouton Maximiser) mis de côté pour cette passe :
-            // SnapLayoutsHelper attend des Microsoft.UI.Xaml.FrameworkElement (WinUI natif),
-            // alors que MenuBar.BtnMin/BtnMax/BtnClose et TitleBarDragZone sont des Border
-            // MAUI — types incompatibles sans passer par leur Handler.PlatformView. La
-            // fenêtre garde son comportement de snap standard (survol du bouton système).
+            // ★ CORRECTION (30/08) : barre de titre Windows par défaut visible en plus de
+            // notre CustomMenuBarView (repéré par Tom au premier lancement réel). Le
+            // convertisseur MAUI→WinUI natif manquait ici (SnapLayoutsHelper attend des
+            // Microsoft.UI.Xaml.FrameworkElement, MenuBar.BtnMin/BtnMax/BtnClose/
+            // TitleBarDragZone sont des Border MAUI) — via leur Handler.PlatformView.
+            if (nativeWindow != null
+                && MenuBar.BtnMin.Handler?.PlatformView is Microsoft.UI.Xaml.FrameworkElement nativeBtnMin
+                && MenuBar.BtnMax.Handler?.PlatformView is Microsoft.UI.Xaml.FrameworkElement nativeBtnMax
+                && MenuBar.BtnClose.Handler?.PlatformView is Microsoft.UI.Xaml.FrameworkElement nativeBtnClose
+                && MenuBar.TitleBarDragZone.Handler?.PlatformView is Microsoft.UI.Xaml.FrameworkElement nativeDragZone)
+            {
+                Platforms.Windows.SnapLayoutsHelper.ConfigureSnapLayouts(
+                    nativeWindow, nativeBtnMin, nativeBtnMax, nativeBtnClose, nativeDragZone);
+            }
 #endif
         }
 

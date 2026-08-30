@@ -23,17 +23,17 @@
 
     <Grid x:Name="RootGrid"
           RowDefinitions="34,*,26"
-          ColumnDefinitions="260,48,*,300">
+          ColumnDefinitions="48,260,*,300">
 
         <!-- ══════════════════ Barre de titre / menu ══════════════════ -->
         <views:CustomMenuBarView x:Name="MenuBar" Grid.Row="0" Grid.ColumnSpan="4" />
 
-        <!-- ══════════════════ Colonne 0 : Explorateur / Sidebar ══════════════════ -->
-        <views:FileExplorerView x:Name="ExplorerPanel" Grid.Row="1" Grid.Column="0" />
-        <views:SidebarView x:Name="Sidebar" Grid.Row="1" Grid.Column="0" IsVisible="False" />
+        <!-- ══════════════════ Colonne 0 : Barre d'activité ══════════════════ -->
+        <controls:ActivityBarView x:Name="ActivityBar" Grid.Row="1" Grid.Column="0" />
 
-        <!-- ══════════════════ Colonne 1 : Barre d'activité ══════════════════ -->
-        <controls:ActivityBarView x:Name="ActivityBar" Grid.Row="1" Grid.Column="1" />
+        <!-- ══════════════════ Colonne 1 : Explorateur / Sidebar ══════════════════ -->
+        <views:FileExplorerView x:Name="ExplorerPanel" Grid.Row="1" Grid.Column="1" />
+        <views:SidebarView x:Name="Sidebar" Grid.Row="1" Grid.Column="1" IsVisible="False" />
 
         <!-- ══════════════════ Colonne 2 : Accueil / Éditeur ══════════════════ -->
         <controls:EditorPaneView x:Name="EditorPane" Grid.Row="1" Grid.Column="2" IsVisible="False" />

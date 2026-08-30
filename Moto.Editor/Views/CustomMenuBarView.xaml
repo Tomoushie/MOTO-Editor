@@ -19,7 +19,7 @@
                VerticalOptions="Center" Margin="12,0"/>
 
         <!-- Zone de drag (le reste de l'espace disponible) -->
-        <Border x:Name="TitleBarDragZone" Grid.Column="1"
+        <Border x:Name="TitleBarDragZone" x:FieldModifier="Public" Grid.Column="1"
                 BackgroundColor="Transparent"
                 HorizontalOptions="Fill" VerticalOptions="Fill" />
 
@@ -41,7 +41,7 @@
         </Border>
 
         <!-- Boutons fenêtre -->
-        <Border x:Name="BtnMin" Grid.Column="3" WidthRequest="46"
+        <Border x:Name="BtnMin" x:FieldModifier="Public" Grid.Column="3" WidthRequest="46"
                 BackgroundColor="Transparent" StrokeThickness="0">
             <Label Text="─" HorizontalOptions="Center" VerticalOptions="Center"
                    FontSize="12" TextColor="{StaticResource Txt1}" />
@@ -50,7 +50,7 @@
             </Border.GestureRecognizers>
         </Border>
 
-        <Border x:Name="BtnMax" Grid.Column="4" WidthRequest="46"
+        <Border x:Name="BtnMax" x:FieldModifier="Public" Grid.Column="4" WidthRequest="46"
                 BackgroundColor="Transparent" StrokeThickness="0">
             <Label Text="□" HorizontalOptions="Center" VerticalOptions="Center"
                    FontSize="12" TextColor="{StaticResource Txt1}" />
@@ -59,7 +59,7 @@
             </Border.GestureRecognizers>
         </Border>
 
-        <Border x:Name="BtnClose" Grid.Column="5" WidthRequest="46"
+        <Border x:Name="BtnClose" x:FieldModifier="Public" Grid.Column="5" WidthRequest="46"
                 BackgroundColor="Transparent" StrokeThickness="0">
             <Label Text="×" HorizontalOptions="Center" VerticalOptions="Center"
                    FontSize="14" TextColor="{StaticResource Txt1}" />

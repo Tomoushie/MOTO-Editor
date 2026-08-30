@@ -24,16 +24,16 @@
 
         <Label Grid.Column="2" x:Name="SandboxLabel" Text="🧪 Sandbox"
                FontSize="11" TextColor="{StaticResource Accent}"
-               VerticalOptions="Center" Margin="10,0" IsVisible="False" />
+               VerticalOptions="Center" Margin="16,0,0,0" IsVisible="False" />
 
-        <Label Grid.Column="3" x:Name="LockedLabel" Text="🔒"
-               FontSize="12" VerticalOptions="Center" Margin="6,0" IsVisible="False" />
+        <Label Grid.Column="3" x:Name="LockedLabel" Text="🔒 Verrouillé"
+               FontSize="12" VerticalOptions="Center" Margin="16,0,0,0" IsVisible="False" />
 
-        <Border Grid.Column="4" BackgroundColor="Transparent" Padding="4">
+        <Border Grid.Column="4" BackgroundColor="Transparent" Padding="4" Margin="16,0,0,0">
             <Border.GestureRecognizers>
                 <TapGestureRecognizer Tapped="OnInfoTapped" />
             </Border.GestureRecognizers>
-            <Label Text="ℹ️" FontSize="12" VerticalOptions="Center" />
+            <Label Text="ℹ️ Infos" FontSize="12" VerticalOptions="Center" />
         </Border>
 
     </Grid>

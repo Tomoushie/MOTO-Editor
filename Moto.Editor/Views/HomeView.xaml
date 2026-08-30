@@ -62,10 +62,16 @@
                     <Border Stroke="{StaticResource BorderCol}" StrokeShape="RoundRectangle 8"
                             Padding="10,4" BackgroundColor="{StaticResource BgPanel}">
                         <Label Text="💻 Local" FontSize="11" />
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnLocalChipTapped" />
+                        </Border.GestureRecognizers>
                     </Border>
                     <Border Stroke="{StaticResource BorderCol}" StrokeShape="RoundRectangle 8"
                             Padding="10,4" BackgroundColor="{StaticResource BgPanel}">
                         <Label Text="📁 Projet logiciel" FontSize="11" />
+                        <Border.GestureRecognizers>
+                            <TapGestureRecognizer Tapped="OnProjectChipTapped" />
+                        </Border.GestureRecognizers>
                     </Border>
                 </HorizontalStackLayout>
 

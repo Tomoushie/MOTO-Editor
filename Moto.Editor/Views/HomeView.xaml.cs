@@ -1,4 +1,3 @@
-// Moto.Editor/Views/HomeView.xaml.cs
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -27,6 +26,12 @@ namespace Moto.Editor.Views
 
         /// <summary>Notifie le parent qu'une session a changé de section.</summary>
         public event Action<string, string>? SessionMoved;
+
+        /// <summary>Événement déclenché lorsqu'une chip '💻 Local' est tapée.</summary>
+        public event Action? LocalChipTapped;
+
+        /// <summary>Événement déclenché lorsqu'une chip '📁 Projet logiciel' est tapée.</summary>
+        public event Action? ProjectChipTapped;
 
         /// <summary>
         /// Le constructeur reçoit les services via Injection de Dépendances (DI).
@@ -180,6 +185,22 @@ namespace Moto.Editor.Views
                 System.Diagnostics.Debug.WriteLine($"[HomeView] Échec RefreshHomeStats: {ex.Message}");
             }
             await Task.CompletedTask;
+        }
+
+        /// <summary>
+        /// Gestionnaire d'événement pour la chip '💻 Local'.
+        /// </summary>
+        private void OnLocalChipTapped(object sender, EventArgs e)
+        {
+            LocalChipTapped?.Invoke();
+        }
+
+        /// <summary>
+        /// Gestionnaire d'événement pour la chip '📁 Projet logiciel'.
+        /// </summary>
+        private void OnProjectChipTapped(object sender, EventArgs e)
+        {
+            ProjectChipTapped?.Invoke();
         }
     }
 }
