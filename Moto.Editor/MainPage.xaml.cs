@@ -49,6 +49,9 @@ namespace Moto.Editor
         private readonly ChatService _chatService;
         private readonly CollabSession _collabSession = new();
         private readonly Moto.Core.Platform.PlatformEngine _platformEngine = new();
+        // ★ AJOUT (30/08, 3e passe) : moteur de prévisualisation (existait déjà dans
+        // Moto.Core, complet, jamais instancié nulle part — voir OnPreviewRequested).
+        private readonly Moto.Core.Preview.PreviewEngine _previewEngine = new();
         private RemoteClient _remoteClient;
 
         // ── Panneaux & moteurs IA ──
@@ -206,6 +209,13 @@ namespace Moto.Editor
             EditorPane.OpenFileRequested += () => _viewModel.OpenFileCommand.Execute(null);
             EditorPane.AiPromptSubmitted += OnAiBandPrompt;
             EditorPane.ExportRequested += () => ExportMenu.IsVisible = !ExportMenu.IsVisible;
+            EditorPane.PreviewRequested += OnPreviewRequested;
+            LivePreview.SetPreviewEngine(_previewEngine);
+            // Le "Live" de Live Preview : répercute chaque frappe si le panneau est ouvert.
+            EditorPane.EditorChanged += (s, text) =>
+            {
+                if (LivePreview.IsVisible) _ = LivePreview.UpdatePreviewAsync(text);
+            };
             EditorPane.EditorChanged += (s, text) =>
             {
                 if (_viewModel.SelectedDocument is { } doc)
@@ -371,6 +381,7 @@ namespace Moto.Editor
             _cortex?.Dispose();
             _workspace?.Dispose();
             _docEngine?.Dispose();
+            _previewEngine?.Dispose();
             base.OnDisappearing();
         }
 
@@ -402,6 +413,28 @@ namespace Moto.Editor
             {
                 EditorPane.SetAiStatus("Erreur IA : " + ex.Message);
             }
+        }
+
+        /// <summary>
+        /// ★ AJOUT (30/08, 3e passe) : bouton 🌐 de EditorPaneView — ouvre LivePreviewView
+        /// sur le fichier actuellement sélectionné. "text" est passé comme langage : le
+        /// PreviewEngine détecte déjà lui-même html/css/js/java via l'EXTENSION du
+        /// fichier (voir PreviewEngine.WrapIfNeeded) — "text" ne correspond à aucun de
+        /// ces cas spéciaux, donc les fichiers .cs/.xaml/etc. tombent proprement dans le
+        /// repli générique (contenu échappé, affiché dans un &lt;pre&gt;) plutôt que
+        /// d'être mal interprétés comme du HTML.
+        /// </summary>
+        private async void OnPreviewRequested()
+        {
+            var doc = _viewModel.SelectedDocument;
+            if (doc == null)
+            {
+                StatusBar.SetStatus("Ouvre un fichier à prévisualiser.");
+                return;
+            }
+
+            await LivePreview.StartPreviewAsync(doc.Path ?? doc.Title, doc.Text ?? string.Empty, "text");
+            LivePreview.IsVisible = true;
         }
 
         private static string? ExtractCodeBlock(string answer)

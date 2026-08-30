@@ -43,6 +43,12 @@ namespace Moto.Editor.Controls
         public event Action ExportRequested;
 
         /// <summary>
+        /// ★ AJOUT (30/08, 3e passe) : demande de prévisualisation du fichier actif
+        /// (bouton 🌐). Consommée par MainPage qui pilote LivePreviewView.
+        /// </summary>
+        public event Action PreviewRequested;
+
+        /// <summary>
         /// (modèle, prompt) envoyés depuis le bandeau IA pour modification du code.
         /// </summary>
         public event Action<string, string> AiPromptSubmitted;
@@ -160,6 +166,9 @@ namespace Moto.Editor.Controls
         /// MainPage écoute ExportRequested pour ouvrir le ExportMenuView.
         /// </summary>
         private void OnExportClicked(object s, EventArgs e) => ExportRequested?.Invoke();
+
+        /// <summary>Bouton 🌐 : demande de prévisualisation du fichier actif.</summary>
+        private void OnPreviewClicked(object s, EventArgs e) => PreviewRequested?.Invoke();
 
         // ------------------------------------------------------------------
         // Handlers bandeau IA

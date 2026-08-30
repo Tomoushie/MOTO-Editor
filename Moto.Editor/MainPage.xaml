@@ -133,6 +133,14 @@
                                 HorizontalOptions="End" VerticalOptions="Start"
                                 Margin="0,10,60,0" IsVisible="False" />
 
+        <!-- ══════════════════ Live Preview (bouton 🌐 de EditorPaneView) ══════════════════ -->
+        <!-- ★ AJOUT (30/08, 3e passe) : LivePreviewView/PreviewEngine existaient déjà,
+             complets, mais jamais atteignables (point 18 de Tom) — câblés ici. Centré
+             (fenêtre de prévisualisation), pas ancré à un coin comme les autres menus. -->
+        <views:LivePreviewView x:Name="LivePreview" Grid.Row="2" Grid.ColumnSpan="3"
+                                HorizontalOptions="Center" VerticalOptions="Center"
+                                HeightRequest="500" IsVisible="False" />
+
         <!-- Écran de verrouillage (projet protégé par mot de passe) -->
         <views:PasswordGateView x:Name="PasswordGate" Grid.Row="2" Grid.ColumnSpan="3" IsVisible="False" />
 

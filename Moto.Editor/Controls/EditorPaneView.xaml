@@ -11,7 +11,7 @@
         <!-- Ligne 1 : Toolbar (flèches ← →, export, onglets, actions)    -->
         <!-- ============================================================ -->
         <Grid Grid.Row="0"
-              ColumnDefinitions="Auto,Auto,Auto,*,Auto,Auto,Auto"
+              ColumnDefinitions="Auto,Auto,Auto,*,Auto,Auto,Auto,Auto"
               BackgroundColor="#17181C" Padding="6,4" ColumnSpacing="4">
 
             <!-- Navigation historique -->
@@ -73,6 +73,14 @@
             <Button Grid.Column="6" Text="🤖" Padding="8,2" FontSize="12"
                     ToolTipProperties.Text="Bandeau IA (modèle + prompts)"
                     Clicked="OnAiClicked" />
+
+            <!-- ★ AJOUT (30/08, 3e passe) : "menu de prévisualisation" demandé par
+                 Tom (point 18) — LivePreviewView + PreviewEngine existaient déjà dans
+                 le dépôt (complets, fonctionnels), mais n'étaient jamais atteignables
+                 par aucun bouton ni menu. Câblé ici, au plus près du fichier ouvert. -->
+            <Button Grid.Column="7" Text="🌐" Padding="8,2" FontSize="12"
+                    ToolTipProperties.Text="Prévisualiser le fichier"
+                    Clicked="OnPreviewClicked" />
 
         </Grid>
 
