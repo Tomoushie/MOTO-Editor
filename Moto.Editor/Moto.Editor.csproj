@@ -28,6 +28,15 @@
     <WindowsPackageType Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">None</WindowsPackageType>
 
     <!--
+      Non empaquetée = le Windows App SDK doit être déployé "self-contained" avec
+      l'appli, sinon le bootstrap WinAppSDK échoue silencieusement si le runtime
+      n'est pas déjà installé sur la machine (constaté : l'exe se lance et se
+      referme immédiatement, code de sortie 0, sans fenêtre ni erreur visible —
+      %ProgramFiles%\WindowsApps ne contient aucun package Microsoft.WindowsAppRuntime).
+    -->
+    <WindowsAppSDKSelfContained Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows'">true</WindowsAppSDKSelfContained>
+
+    <!--
       MauiVersion : épingle sur la version du workload MAUI réellement installé
       sur cette machine (Microsoft.Maui.Sdk 10.0.20), pour éviter tout écart
       entre les paquets NuGet et les cibles de build du workload.

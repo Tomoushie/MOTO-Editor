@@ -8,10 +8,40 @@ namespace Moto.Editor
 {
     public partial class App : Application
     {
+        // ★ Filet de sécurité (30/08) : capture toute exception non gérée au démarrage
+        // dans %TEMP%\moto-editor-crash.log. Une appli WinUI qui plante au lancement
+        // ne montre souvent ni fenêtre ni message en console — ce fichier est le seul
+        // moyen de savoir ce qui a échoué (utile à Tom comme à moi).
+        private static readonly string CrashLogPath =
+            System.IO.Path.Combine(System.IO.Path.GetTempPath(), "moto-editor-crash.log");
+
         public App()
         {
-            InitializeComponent();
-            MainPage = new MainPage();
+            AppDomain.CurrentDomain.UnhandledException += (s, e) =>
+                LogCrash("AppDomain.UnhandledException", e.ExceptionObject as Exception);
+            TaskScheduler.UnobservedTaskException += (s, e) =>
+                LogCrash("TaskScheduler.UnobservedTaskException", e.Exception);
+
+            try
+            {
+                InitializeComponent();
+                MainPage = new MainPage();
+            }
+            catch (Exception ex)
+            {
+                LogCrash("App() constructeur", ex);
+                throw;
+            }
+        }
+
+        private static void LogCrash(string source, Exception? ex)
+        {
+            try
+            {
+                System.IO.File.AppendAllText(CrashLogPath,
+                    $"[{DateTime.Now:O}] {source}\n{ex}\n\n");
+            }
+            catch { /* ne doit jamais planter la capture elle-même */ }
         }
 
         protected override Window CreateWindow(IActivationState activationState)
