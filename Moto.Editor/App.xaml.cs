@@ -17,6 +17,8 @@ namespace Moto.Editor
 
         public App()
         {
+            Breadcrumb("App() — entrée");
+
             AppDomain.CurrentDomain.UnhandledException += (s, e) =>
                 LogCrash("AppDomain.UnhandledException", e.ExceptionObject as Exception);
             TaskScheduler.UnobservedTaskException += (s, e) =>
@@ -24,8 +26,11 @@ namespace Moto.Editor
 
             try
             {
+                Breadcrumb("App() — avant InitializeComponent");
                 InitializeComponent();
+                Breadcrumb("App() — avant new MainPage()");
                 MainPage = new MainPage();
+                Breadcrumb("App() — MainPage créée avec succès");
             }
             catch (Exception ex)
             {
@@ -34,7 +39,7 @@ namespace Moto.Editor
             }
         }
 
-        private static void LogCrash(string source, Exception? ex)
+        internal static void LogCrash(string source, Exception? ex)
         {
             try
             {
@@ -44,13 +49,35 @@ namespace Moto.Editor
             catch { /* ne doit jamais planter la capture elle-même */ }
         }
 
+        /// <summary>Trace inconditionnelle (pas seulement en cas d'exception) pour localiser où l'exécution s'arrête.</summary>
+        internal static void Breadcrumb(string message)
+        {
+            try
+            {
+                System.IO.File.AppendAllText(CrashLogPath, $"[{DateTime.Now:O}] {message}\n");
+            }
+            catch { }
+        }
+
         protected override Window CreateWindow(IActivationState activationState)
         {
-            var window = base.CreateWindow(activationState);
+            Breadcrumb("CreateWindow — entrée");
+            Window window;
+            try
+            {
+                window = base.CreateWindow(activationState);
+                Breadcrumb("CreateWindow — base.CreateWindow OK");
+            }
+            catch (Exception ex)
+            {
+                LogCrash("CreateWindow — base.CreateWindow", ex);
+                throw;
+            }
 
 #if WINDOWS
             window.HandlerChanged += (s, e) =>
             {
+                Breadcrumb("Window.HandlerChanged");
                 if (window.Handler?.PlatformView is Microsoft.UI.Xaml.Window native)
                 {
                     // Masque la barre de titre native : le contenu s'étend dessous.
@@ -59,6 +86,7 @@ namespace Moto.Editor
             };
             window.Created += OnWindowsWindowCreated;
 #endif
+            Breadcrumb("CreateWindow — sortie");
             return window;
         }
 

@@ -58,6 +58,17 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.0" />
     <!-- FolderPicker.Default (FileExplorerView/MainPage.UI : ouvrir un dossier) -->
     <PackageReference Include="CommunityToolkit.Maui" Version="9.1.0" />
+    <!--
+      Override explicite : Microsoft.Maui.Controls 10.0.20 tire Microsoft.WindowsAppSDK
+      1.5.240607001 en transitif. Sur cette machine, le paquet Framework 1.5 est bien
+      installé mais pas ses paquets Main/DDLM associés (seuls Main/DDLM 1.8 et 2.x le
+      sont) — Bootstrap.TryInitialize échoue donc avec 0x80670016 ("Package dependency
+      criteria could not be resolved"), l'appli se ferme aussitôt sans fenêtre ni erreur
+      visible (constaté par test direct : diagnostic Bootstrap.TryInitialize manuel).
+      Passer en 1.8, dont le jeu Framework+Main est complet et cohérent ici, résout le
+      blocage sans rien installer de plus sur la machine.
+    -->
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.8.260804001" />
   </ItemGroup>
 
   <!-- ══════════════ Références projets ══════════════ -->

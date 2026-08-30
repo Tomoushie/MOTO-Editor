@@ -15,6 +15,8 @@ namespace Moto.Editor
     {
         public static MauiApp CreateMauiApp()
         {
+            App.Breadcrumb("MauiProgram.CreateMauiApp — entrée");
+
             // ── Hook de migration AVANT toute résolution de SettingsEngine.Shared ──
             var settingsPath = Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
@@ -34,6 +36,8 @@ namespace Moto.Editor
                 System.Diagnostics.Debug.WriteLine($"[Migration] {migrationResult.Message}");
             }
 
+            App.Breadcrumb("MauiProgram — avant MauiApp.CreateBuilder()");
+
             // ── Construction de l'application MAUI ──
             var builder = MauiApp.CreateBuilder();
             builder
@@ -44,6 +48,8 @@ namespace Moto.Editor
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
                 });
+
+            App.Breadcrumb("MauiProgram — builder configuré (fonts/toolkit OK)");
 
             // ── Logging ──
             builder.Logging.AddDebug();
@@ -82,10 +88,31 @@ namespace Moto.Editor
             // ══════════════════════════════════════════════════════════════
             // ★ Tous les services MOTO via RegisterMotoServices (source unique de vérité)
             // ══════════════════════════════════════════════════════════════
-            builder.Services.RegisterMotoServices();
+            App.Breadcrumb("MauiProgram — avant RegisterMotoServices()");
+            try
+            {
+                builder.Services.RegisterMotoServices();
+            }
+            catch (Exception ex)
+            {
+                App.LogCrash("MauiProgram — RegisterMotoServices()", ex);
+                throw;
+            }
+            App.Breadcrumb("MauiProgram — RegisterMotoServices() OK");
 
             // ── Build de l'application ──
-            var app = builder.Build();
+            App.Breadcrumb("MauiProgram — avant builder.Build()");
+            MauiApp app;
+            try
+            {
+                app = builder.Build();
+            }
+            catch (Exception ex)
+            {
+                App.LogCrash("MauiProgram — builder.Build()", ex);
+                throw;
+            }
+            App.Breadcrumb("MauiProgram — builder.Build() OK");
 
             // ══════════════════════════════════════════════════════════════
             // ★ Bindings FeatureFlag → Settings : mis de côté pour cette passe.
