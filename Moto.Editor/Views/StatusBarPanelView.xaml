@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+  Moto.Editor/Views/StatusBarPanelView.xaml
+  Barre de statut MAUI (bas de fenêtre). Nouveau fichier : aucune classe existante
+  ne réunissait SetStatus/SetCounts/SetSandbox/SetLocked/InitializeInfoOverlay —
+  Controls/StatusBarView.xaml.cs porte un nom proche mais c'est un UserControl
+  WinUI natif (mauvaise techno pour une ContentPage MAUI), gardé tel quel ailleurs.
+-->
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Moto.Editor.Views.StatusBarPanelView"
+             HeightRequest="26"
+             BackgroundColor="#17181C">
+    <Grid ColumnDefinitions="*,Auto,Auto,Auto,Auto" Padding="10,0">
+
+        <Label Grid.Column="0" x:Name="StatusLabel" Text="Prêt."
+               FontSize="11" VerticalOptions="Center"
+               TextColor="{StaticResource Txt2}" LineBreakMode="TailTruncation" />
+
+        <HorizontalStackLayout Grid.Column="1" Spacing="10" VerticalOptions="Center">
+            <Label x:Name="ErrorsLabel" Text="✅ 0" FontSize="11" TextColor="{StaticResource Txt2}" />
+            <Label x:Name="WarningsLabel" Text="⚠ 0" FontSize="11" TextColor="{StaticResource Txt2}" IsVisible="False" />
+        </HorizontalStackLayout>
+
+        <Label Grid.Column="2" x:Name="SandboxLabel" Text="🧪 Sandbox"
+               FontSize="11" TextColor="{StaticResource Accent}"
+               VerticalOptions="Center" Margin="10,0" IsVisible="False" />
+
+        <Label Grid.Column="3" x:Name="LockedLabel" Text="🔒"
+               FontSize="12" VerticalOptions="Center" Margin="6,0" IsVisible="False" />
+
+        <Border Grid.Column="4" BackgroundColor="Transparent" Padding="4">
+            <Border.GestureRecognizers>
+                <TapGestureRecognizer Tapped="OnInfoTapped" />
+            </Border.GestureRecognizers>
+            <Label Text="ℹ️" FontSize="12" VerticalOptions="Center" />
+        </Border>
+
+    </Grid>
+</ContentView>

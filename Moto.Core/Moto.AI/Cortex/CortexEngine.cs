@@ -21,6 +21,9 @@ namespace Moto.Core.AI.Cortex
     {
         /// <summary>Horodatage de la dernière activité Cortex (utilisé par AIWorkspace.WorkspaceStats).</summary>
         public DateTime LastActivity { get; init; } = DateTime.UtcNow;
+
+        /// <summary>Nombre de conventions de code détectées (utilisé par CortexView).</summary>
+        public int TotalConventions { get; init; }
     }
 
     /// <summary>

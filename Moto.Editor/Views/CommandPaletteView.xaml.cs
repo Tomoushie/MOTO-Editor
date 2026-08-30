@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Maui.Controls;
 using Microsoft.Maui.Graphics;
+using Microsoft.Maui.Controls.Shapes;
 using Moto.Core.AI.Actions;
 using Moto.Core.AI.Commands;
 

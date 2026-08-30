@@ -44,7 +44,7 @@ namespace Moto.Editor
                 // Récupère l'AppWindow WinUI 3 via le HWND
                 IntPtr hwnd = WindowNative.GetWindowHandle(nativeWindow);
                 var windowId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(hwnd);
-                var appWindow = Microsoft.UI.AppWindow.GetFromWindowId(windowId);
+                var appWindow = Microsoft.UI.Windowing.AppWindow.GetFromWindowId(windowId);
 
                 // Titre de la fenêtre
                 appWindow.Title = "MOTO Editor";

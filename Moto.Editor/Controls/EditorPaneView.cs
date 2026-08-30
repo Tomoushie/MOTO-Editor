@@ -6,7 +6,6 @@ using Microsoft.Maui.Controls;
 using Moto.Core.Collab;
 using Moto.Editor.Models;
 using Moto.Editor.Views;
-using Moto.Editor.Services;
 
 namespace Moto.Editor.Controls;
 
@@ -20,12 +19,6 @@ public partial class EditorPaneView
     private CrdtCollabSession? _crdtSession;
     private CrdtCursorRenderer? _cursorRenderer;
     private RemoteCursorOverlay? _cursorOverlay;
-
-    // ── Image viewer ──
-    private ImageOpenerService? _imageOpener;
-
-    /// <summary>Injection différée du service d'ouverture d'images.</summary>
-    public void AttachImageOpener(ImageOpenerService opener) => _imageOpener = opener;
 
     /// <summary>
     /// Initialise le support CRDT multi-curseurs.
@@ -42,7 +35,9 @@ public partial class EditorPaneView
             VerticalOptions = LayoutOptions.Fill
         };
 
-        if (this is Grid rootGrid)
+        // ★ CORRECTION : EditorPaneView est un ContentView, jamais un Grid — c'est son
+        // Content (le Grid racine du .xaml) qu'il faut viser pour ajouter l'overlay.
+        if (Content is Grid rootGrid)
             rootGrid.Children.Add(_cursorOverlay);
 
         // S'abonner aux événements
@@ -99,11 +94,9 @@ public partial class EditorPaneView
         var viewer = new ImageViewerView();
         viewer.LoadDocument(doc);
 
-        // Câble le bouton ⛶ → fenêtre externe thémée
-        viewer.OpenExternalRequested += async d =>
-        {
-            if (_imageOpener != null) await _imageOpener.OpenExternalAsync(d);
-        };
+        // Fenêtre externe thémée (Windows) : mise de côté pour cette passe — voir
+        // Moto.Editor.csproj (ExternalImageWindow a des ambiguïtés de types MAUI/WinUI
+        // jamais résolues). Le bouton ⛶ reste sans effet tant que ce n'est pas rebranché.
 
         // Ajoute un onglet via le mécanisme existant des tabs
         AddTabForImage(doc, viewer);

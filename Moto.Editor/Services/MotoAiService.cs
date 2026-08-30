@@ -30,9 +30,12 @@ namespace Moto.Editor.Services
             }
         }
 
-        public Task<AiResponse> ExecuteAsync(AiRequest request)
+        public async Task<AiResponse> ExecuteAsync(AiRequest request)
         {
-            return Task.Run(() => Kernel.Execute(request));
+            // ★ CORRECTION : MotoAiKernel n'a pas de méthode Execute(AiRequest) —
+            // son seul point d'entrée est RouteAsync(string, ...).
+            var response = await Kernel.RouteAsync(request.UserText, 256, System.Threading.CancellationToken.None);
+            return response ?? new AiResponse { Success = false, Summary = "Aucune réponse du moteur IA." };
         }
     }
 }

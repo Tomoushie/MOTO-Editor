@@ -5,8 +5,8 @@ using System.Threading.Tasks;
 using Microsoft.Maui.Controls;
 using Microsoft.Maui.Graphics;
 using Moto.Core.AI.Cortex;
-using Moto.Core.Chat;
 using Moto.Core.Settings;
+using Moto.Editor.Services;
 
 namespace Moto.Editor.Views
 {
@@ -17,8 +17,8 @@ namespace Moto.Editor.Views
     public partial class HomeView : ContentView
     {
         private readonly ChatService _chatService;
-        private readonly CortexEngine _cortexEngine;
-        private readonly WorkspaceStateService _workspaceState;
+        private CortexEngine? _cortexEngine;
+        private WorkspaceStateService? _workspaceState;
         private CancellationTokenSource _refreshStatsCts;
         private readonly TimeSpan _debounceDelay = TimeSpan.FromMilliseconds(150);
 
@@ -30,13 +30,23 @@ namespace Moto.Editor.Views
 
         /// <summary>
         /// Le constructeur reçoit les services via Injection de Dépendances (DI).
+        /// cortexEngine/workspaceState sont nullables : au premier lancement (aucun
+        /// workspace encore ouvert), MainPage construit Home avant que ces moteurs
+        /// existent — voir MainPage.SetCoreServices / RebindHome.
         /// </summary>
-        public HomeView(ChatService chatService, CortexEngine cortexEngine, WorkspaceStateService workspaceState)
+        public HomeView(ChatService chatService, CortexEngine? cortexEngine = null, WorkspaceStateService? workspaceState = null)
         {
             InitializeComponent();
             _chatService = chatService ?? throw new ArgumentNullException(nameof(chatService));
-            _cortexEngine = cortexEngine ?? throw new ArgumentNullException(nameof(cortexEngine));
-            _workspaceState = workspaceState ?? throw new ArgumentNullException(nameof(workspaceState));
+            _cortexEngine = cortexEngine;
+            _workspaceState = workspaceState;
+        }
+
+        /// <summary>Rebranche les moteurs une fois un workspace ouvert (LoadWorkspace).</summary>
+        public void SetCoreServices(CortexEngine? cortexEngine, WorkspaceStateService? workspaceState)
+        {
+            _cortexEngine = cortexEngine;
+            _workspaceState = workspaceState;
         }
 
         /// <summary>Remplit la grille de stats (8 tuiles max).</summary>
@@ -110,7 +120,8 @@ namespace Moto.Editor.Views
             };
 
             // Debounce déjà géré dans WorkspaceStateService.SetSessionSectionAsync
-            await _workspaceState.SetSessionSectionAsync(sessionId, section);
+            if (_workspaceState != null)
+                await _workspaceState.SetSessionSectionAsync(sessionId, section);
 
             // Refresh stats avec debounce
             await DebouncedRefreshHomeStatsAsync();
@@ -146,14 +157,14 @@ namespace Moto.Editor.Views
             try
             {
                 var threads = _chatService.Threads;
-                var cortex = _cortexEngine.GetStats();
+                var cortex = _cortexEngine?.GetStats();
 
                 var values = new[]
                 {
                     threads.Count.ToString(),
-                    cortex.TotalHabits.ToString(),
-                    cortex.TotalPatterns.ToString(),
-                    cortex.TotalCorrections.ToString(),
+                    (cortex?.TotalHabits ?? 0).ToString(),
+                    (cortex?.TotalPatterns ?? 0).ToString(),
+                    (cortex?.TotalCorrections ?? 0).ToString(),
                     "0", "0", "0", "0" // Padding pour maintenir la grille 4x2
                 };
                 var titles = new[]

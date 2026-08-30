@@ -37,12 +37,18 @@ public sealed class AutoUpdateService
     /// <summary>Vérifie si une mise à jour est disponible.</summary>
     public async Task<UpdateInfo> CheckAsync()
     {
-        if (!_settings.Shared.Editor.Update.AutoCheck.Value)
+        // ★ CORRECTION : _settings.Shared.Editor.Update.X.Value supposait une API de
+        // réglages typés imbriqués qui n'a jamais été construite — SettingsEngine
+        // n'expose que l'API plate Get/Set/GetBool/GetString (voir SettingsEngineCore.cs).
+        if (!_settings.GetBool("editor.update.autocheck", defaultValue: true))
             return new UpdateInfo { IsAvailable = false };
 
         try
         {
-            string url = _settings.Shared.Editor.Update.ReleaseUrl.Value;
+            string url = _settings.GetString("editor.update.releaseUrl") ?? string.Empty;
+            if (string.IsNullOrWhiteSpace(url))
+                return new UpdateInfo { IsAvailable = false };
+
             string json = await Http.GetStringAsync(url);
             using var doc = JsonDocument.Parse(json);
 

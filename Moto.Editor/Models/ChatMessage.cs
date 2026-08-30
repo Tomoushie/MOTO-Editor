@@ -20,10 +20,10 @@ namespace Moto.Editor.Models
 
         /// <summary>Couleur de la bulle selon le rôle.</summary>
         public Color BubbleColor => IsUser
-            ? Color.FromArgb(0, 122, 204)
+            ? Color.FromRgb(0, 122, 204)
             : Role == "system"
-                ? Color.FromArgb(60, 50, 20)
-                : Color.FromArgb(32, 33, 38);
+                ? Color.FromRgb(60, 50, 20)
+                : Color.FromRgb(32, 33, 38);
 
         /// <summary>Alignement : utilisateur à droite, IA à gauche.</summary>
         public LayoutOptions Alignment => IsUser ? LayoutOptions.End : LayoutOptions.Start;

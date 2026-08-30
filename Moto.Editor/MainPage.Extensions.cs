@@ -15,6 +15,8 @@ using Moto.Core.I18n;
 using Moto.Core.Plugins;
 using Moto.Core.Plugins.Marketplace;
 using Moto.Core.Settings;
+using Moto.Editor.Models;
+using Moto.Editor.Settings;
 using Moto.Editor.Views;
 
 namespace Moto.Editor
@@ -94,6 +96,18 @@ namespace Moto.Editor
             RootGrid.Children.Add(overlay);
             Grid.SetRow(overlay, 1);
             Grid.SetColumnSpan(overlay, 4);
+        }
+
+        /// <summary>
+        /// Affiche une vue (À propos, etc.) en overlay par-dessus le contenu principal.
+        /// Référencée par MainPage.AboutCommand.cs / MainPage.AboutShortcuts.cs comme
+        /// "méthode d'overlay existante" — elle n'existait nulle part, ajoutée ici.
+        /// </summary>
+        private void ShowInOverlay(ContentView view)
+        {
+            if (!RootGrid.Children.Contains(view))
+                AddMotoOverlay(view);
+            view.IsVisible = true;
         }
 
         // ------------------------------------------------------------------
@@ -191,15 +205,11 @@ namespace Moto.Editor
                     EditorPane.InitializeTabVariants(_tabVariantsEngine);
                 }
 
-                // Handler pour TAB
-                EditorPane.Editor.KeyPressed += (s, e) =>
-                {
-                    if (e.Key == Microsoft.Maui.Controls.Keyboard.Tab)
-                    {
-                        _ = EditorPane.TriggerTabVariantsAsync();
-                        e.Handled = true;
-                    }
-                };
+                // ★ Déclenchement au clavier (Tab → variantes) mis de côté pour cette passe :
+                // CodeEditorView est un WebView (éditeur HTML/JS maison) sans évènement
+                // KeyPressed exposé côté MAUI, et Keyboard.Tab n'existe pas dans l'API MAUI
+                // (Keyboard y désigne le type de clavier virtuel, pas une touche physique).
+                // TriggerTabVariantsAsync() reste appelable manuellement (ex: bouton futur).
             }
             catch (Exception ex)
             {
@@ -214,10 +224,10 @@ namespace Moto.Editor
         {
             if (_migrationOverlay is null) return;
 
-            if (Application.Current.Properties.TryGetValue("MigrationResult", out var resultObj) &&
-                resultObj is MigrationResult migrationResult &&
-                migrationResult.Success &&
-                migrationResult.MigratedKeys > 0)
+            // ★ CORRECTION : Application.Properties (Xamarin.Forms) n'existe plus en MAUI.
+            // MauiProgram.cs enregistre déjà le résultat de migration en DI quand il y en a un.
+            var migrationResult = Resolve<MigrationResult>();
+            if (migrationResult is { Success: true, MigratedKeys: > 0 })
             {
                 _ = _migrationOverlay.ShowAsync(migrationResult.MigratedKeys, migrationResult.BackupPath);
             }
@@ -313,15 +323,17 @@ namespace Moto.Editor
 #if WINDOWS
         private void OnWindowsPreviewKeyDown(object sender, Microsoft.UI.Xaml.Input.KeyRoutedEventArgs e)
         {
-            if (e.Key != Windows.System.VirtualKey.P) return;
+            // ★ global:: nécessaire : "Windows" est aussi un namespace de ce projet
+            // (Moto.Editor.Windows), qui masquerait sinon la racine WinRT "Windows.*".
+            if (e.Key != global::Windows.System.VirtualKey.P) return;
 
             var ctrl = Microsoft.UI.Input.InputKeyboardSource
-                .GetKeyStateForCurrentThread(Windows.System.VirtualKey.Control)
-                .HasFlag(Windows.UI.Core.CoreVirtualKeyStates.Down);
+                .GetKeyStateForCurrentThread(global::Windows.System.VirtualKey.Control)
+                .HasFlag(global::Windows.UI.Core.CoreVirtualKeyStates.Down);
 
             var shift = Microsoft.UI.Input.InputKeyboardSource
-                .GetKeyStateForCurrentThread(Windows.System.VirtualKey.Shift)
-                .HasFlag(Windows.UI.Core.CoreVirtualKeyStates.Down);
+                .GetKeyStateForCurrentThread(global::Windows.System.VirtualKey.Shift)
+                .HasFlag(global::Windows.UI.Core.CoreVirtualKeyStates.Down);
 
             if (ctrl && shift)
             {

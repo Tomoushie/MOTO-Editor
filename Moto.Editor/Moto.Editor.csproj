@@ -47,6 +47,8 @@
     <PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)" />
     <PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="$(MauiVersion)" />
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="10.0.0" />
+    <!-- FolderPicker.Default (FileExplorerView/MainPage.UI : ouvrir un dossier) -->
+    <PackageReference Include="CommunityToolkit.Maui" Version="9.1.0" />
   </ItemGroup>
 
   <!-- ══════════════ Références projets ══════════════ -->
@@ -87,6 +89,115 @@
     <Compile Remove="Controls\VoiceButton.xaml.cs" />
     <MauiXaml Remove="Controls\VoiceButton.xaml" />
     <Compile Remove="Controls\EditorPaneView.Lsp.cs" />
+
+    <!--
+      XAML au format WinUI (UserControl, xmlns winfx/2006) glissé par erreur dans
+      Views/Controls MAUI (xmlns dotnet/2021/maui) : le compilateur XAML MAUI ne
+      sait pas les interpréter ("method or operation is not implemented"). Aucun
+      n'est instancié dans le code réel (AdminDashboardView : jamais implémentée
+      d'après son propre commentaire dans MotoServiceCollectionExtensions.cs ;
+      PerformanceDashboardView/SubscriptionOverlay : enregistrées en DI mais
+      jamais résolues — voir les 2 lignes commentées ci-dessous).
+    -->
+    <Compile Remove="Controls\StatusBarView.xaml.cs" />
+    <MauiXaml Remove="Controls\StatusBarView.xaml" />
+    <Compile Remove="Controls\XenoFeedbackControl.xaml.cs" />
+    <MauiXaml Remove="Controls\XenoFeedbackControl.xaml" />
+    <Compile Remove="Views\AdminDashboardView.xaml.cs" />
+    <MauiXaml Remove="Views\AdminDashboardView.xaml" />
+    <Compile Remove="Views\PerformanceDashboardView.xaml.cs" />
+    <MauiXaml Remove="Views\PerformanceDashboardView.xaml" />
+    <Compile Remove="Views\SubscriptionOverlay.xaml.cs" />
+    <MauiXaml Remove="Views\SubscriptionOverlay.xaml" />
+
+    <!-- Fragments "Ajout" orphelins (pas de racine valide, jamais mergés nulle part) -->
+    <Compile Remove="Views\ResourceGovernorView.xaml.cs" />
+    <MauiXaml Remove="Views\ResourceGovernorView.xaml" />
+    <MauiXaml Remove="Views\ChipStyle.xaml" />
+  </ItemGroup>
+
+  <!--
+    Deuxième vague d'exclusions (30/08) : fonctionnalités jamais reliées à
+    MainPage ni résolues nulle part dans le code réel, chacune avec ses propres
+    erreurs de compilation (API supposée mais jamais écrite, classe de base
+    manquante...). Comme toujours : rien n'est perdu, juste mis de côté ; les
+    enregistrements DI correspondants sont commentés dans
+    MotoServiceCollectionExtensions.cs.
+  -->
+  <ItemGroup>
+    <!-- Jamais résolues (juste enregistrées en DI) : API de settings imaginaire
+         (SettingsEngine.Editor.Ux.X.Value / .Editor.Update.X.Value) qui n'a
+         jamais été construite — seule l'API plate Get/Set/GetBool existe. -->
+    <Compile Remove="Services\SessionBookmarkService.cs" />
+    <Compile Remove="Services\Moto.EditorServicesInlineDiffPreviewService.cs" />
+    <Compile Remove="Services\UxModeService.cs" />
+    <Compile Remove="Services\UxEnchancementService.cs" />
+
+    <!-- Vues jamais instanciées ni enregistrées, chacune avec un .xaml.cs qui
+         suppose des éléments x:Name absents de son propre .xaml (même motif
+         "AJOUT sans base" que partout ailleurs dans ce dépôt). -->
+    <Compile Remove="Views\AiChatView.xaml.cs" />
+    <MauiXaml Remove="Views\AiChatView.xaml" />
+    <Compile Remove="Views\ConditionalBreakpointDialog.xaml.cs" />
+    <MauiXaml Remove="Views\ConditionalBreakpointDialog.xaml" />
+    <Compile Remove="Views\GlobalDashboardView.xaml.cs" />
+    <MauiXaml Remove="Views\GlobalDashboardView.xaml" />
+    <Compile Remove="Views\HealthMonitorView.xaml.cs" />
+    <MauiXaml Remove="Views\HealthMonitorView.xaml" />
+    <Compile Remove="Views\LanguageSelectorView.xaml.cs" />
+    <MauiXaml Remove="Views\LanguageSelectorView.xaml" />
+    <Compile Remove="Views\MarketplaceView.xaml.cs" />
+    <MauiXaml Remove="Views\MarketplaceView.xaml" />
+    <Compile Remove="Views\SnippetCreatorView.xaml.cs" />
+    <MauiXaml Remove="Views\SnippetCreatorView.xaml" />
+    <Compile Remove="Views\ThreadListView.xaml.cs" />
+    <MauiXaml Remove="Views\ThreadListView.xaml" />
+    <Compile Remove="Views\TranslationOverlay.xaml.cs" />
+    <MauiXaml Remove="Views\TranslationOverlay.xaml" />
+    <Compile Remove="Views\StatusBarView.xaml.cs" />
+    <MauiXaml Remove="Views\StatusBarView.xaml" />
+
+    <!-- Enregistrées en DI mais jamais résolues -->
+    <Compile Remove="Views\ThemeSelectorView.xaml.cs" />
+    <MauiXaml Remove="Views\ThemeSelectorView.xaml" />
+    <Compile Remove="Views\WhiteboardView.xaml.cs" />
+    <MauiXaml Remove="Views\WhiteboardView.xaml" />
+    <Compile Remove="Views\PerformanceStatusBarView.xaml.cs" />
+    <MauiXaml Remove="Views\PerformanceStatusBarView.xaml" />
+    <Compile Remove="Views\XenoFeedbackOverlay.xaml.cs" />
+    <MauiXaml Remove="Views\XenoFeedbackOverlay.xaml" />
+
+    <!-- Pages jamais navigables (ni DI, ni Navigation.PushAsync nulle part) -->
+    <Compile Remove="Pages\MotoAiPage.xaml.cs" />
+    <MauiXaml Remove="Pages\MotoAiPage.xaml" />
+    <Compile Remove="Pages\SettingsPage.xaml.cs" />
+    <MauiXaml Remove="Pages\SettingsPage.xaml" />
+
+    <!-- Overlays/gutter de debug jamais reliés (référencés uniquement depuis
+         EditorPaneView.Lsp.cs, déjà exclu ci-dessus) -->
+    <Compile Remove="Controls\BreakpointGutterOverlay.cs" />
+    <!-- Doublon : EditorPaneView.InlayHints.cs utilise InlayHintOverlay (singulier) -->
+    <Compile Remove="Controls\InlayHintsOverlay.cs" />
+
+    <!-- Onglets image dans l'éditeur : suppose des membres (OpenTabs/SelectedTab/
+         AddTab) jamais déclarés nulle part ; EditorPaneView.cs garde sa propre
+         méthode partielle AddTabForImage (2 arguments) qui devient un no-op
+         une fois cette implémentation retirée — comportement C# normal pour
+         une méthode partielle jamais implémentée. -->
+    <Compile Remove="Controls\EditorPaneView.ImageTabs.cs" />
+    <Compile Remove="Controls\EditorPaneView.ImageIntegration.cs" />
+    <Compile Remove="Services\FileTreeService.Images.cs" />
+    <Compile Remove="Platforms\Windows\ExternalImageWindow.xaml.cs" Condition="Exists('Platforms\Windows\ExternalImageWindow.xaml.cs')" />
+    <Compile Remove="Platforms\Windows\ExternalImageWindow.cs" />
+    <!-- N'a plus d'appelant depuis qu'EditorPaneView.OpenImage ne câble plus le bouton
+         "fenêtre externe" (dépendait d'ExternalImageWindow, ci-dessus). -->
+    <Compile Remove="Services\ImageOpenerService.cs" />
+
+    <!-- Snap Layouts (survol du bouton Maximiser) : plus appelé nulle part
+         depuis que MainPage.OnPageLoaded a mis ConfigureSnapLayouts de côté
+         (types WinUI incompatibles avec les Border MAUI de CustomMenuBarView). -->
+    <Compile Remove="Platforms\Windows\SnapLayoutsHelper.cs" />
+    <Compile Remove="Helpers\DragZoneHelper.cs" />
   </ItemGroup>
 
 </Project>

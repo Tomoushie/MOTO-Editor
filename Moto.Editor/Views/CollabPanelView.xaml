@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+  Moto.Editor/Views/CollabPanelView.xaml
+  Panneau de collaboration temps réel (chat + présence), affiché en overlay
+  flottant par MainPage (x:Name="CollabPanel"). Nouveau fichier : la seule
+  vue "collab" qui existait (Views/CollabView.xaml.cs) est un fragment CRDT
+  orphelin sans classe de base, toujours exclu de la compilation.
+-->
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Moto.Editor.Views.CollabPanelView"
+             WidthRequest="320" HeightRequest="380">
+    <Border BackgroundColor="{StaticResource BgPanel}"
+            Stroke="{StaticResource BgHover}" StrokeThickness="1"
+            StrokeShape="RoundRectangle CornerRadius=12"
+            Padding="12">
+        <Grid RowDefinitions="Auto,Auto,*,Auto" RowSpacing="8">
+
+            <Label Grid.Row="0" Text="👥 Collaboration" FontAttributes="Bold" FontSize="14"
+                   TextColor="{StaticResource Txt1}" />
+
+            <Label Grid.Row="1" x:Name="PeersLabel" Text="👥 0 en ligne"
+                   FontSize="11" TextColor="{StaticResource Txt2}" />
+
+            <ScrollView Grid.Row="2" x:Name="ChatScroll">
+                <VerticalStackLayout x:Name="ChatLog" Spacing="4" />
+            </ScrollView>
+
+            <Grid Grid.Row="3" ColumnDefinitions="*,Auto" ColumnSpacing="6">
+                <Entry Grid.Column="0" x:Name="ChatEntry"
+                       Placeholder="Message…" FontSize="12"
+                       Completed="OnSendClicked" />
+                <Button Grid.Column="1" Text="➤" Padding="10,4" Clicked="OnSendClicked" />
+            </Grid>
+
+        </Grid>
+    </Border>
+</ContentView>

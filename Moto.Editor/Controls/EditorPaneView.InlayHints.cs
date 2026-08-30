@@ -25,7 +25,8 @@ namespace Moto.Editor.Controls
                 VerticalOptions = LayoutOptions.Fill
             };
 
-            if (this is Grid grid)
+            // ★ CORRECTION : voir EditorPaneView.cs (même motif : viser Content, pas this).
+            if (Content is Grid grid)
                 grid.Children.Add(_inlayOverlay);
 
             _inlayHintService.HintsUpdated += hints =>

@@ -1,54 +1,85 @@
-<!-- Ajouts au MotoTheme.xaml : états hover/focus custom -->
-<Style TargetType="Button">
-    <Setter Property="BackgroundColor" Value="Transparent" />
-    <Setter Property="TextColor" Value="{StaticResource Txt1}" />
-    <Setter Property="BorderWidth" Value="0" />
-    <Setter Property="CornerRadius" Value="8" />
-    <Setter Property="FontSize" Value="12" />
-    <Setter Property="Padding" Value="10,6" />
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+  Moto.Editor/Themes/MotoTheme.xaml
+  Reconstruit en ResourceDictionary complet et valide : le fichier ne contenait
+  plus qu'un fragment "Ajouts" (styles hover Button/Entry) sans racine
+  ResourceDictionary, avec deux <Color x:Key="..."> égarés à l'intérieur d'un
+  <Style> (emplacement invalide). La palette de base (BgApp/BgPanel/Txt1/...)
+  utilisée par toutes les vues via {StaticResource ...} n'existait nulle part —
+  ajoutée ici en reprenant les couleurs déjà codées en dur dans les vues
+  existantes (EditorPaneView, SnapLayoutsHelper, AiCommandBarView...).
+  Fusionné dans App.xaml via ResourceDictionary.MergedDictionaries.
+-->
+<ResourceDictionary xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+                     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
 
-    <!-- MotoTheme.xaml -->
-        <Color x:Key="MotoLogoBackground">#0B1526</Color>
-        <Color x:Key="MotoAccentBlue">#2E9BFF</Color>
+    <!-- ══════════════════ Palette de base ══════════════════ -->
+    <Color x:Key="BgApp">#1E2025</Color>
+    <Color x:Key="BgPanel">#202126</Color>
+    <Color x:Key="BgSide">#17181C</Color>
+    <Color x:Key="BgHover">#2A2C31</Color>
+    <Color x:Key="Txt1">#E5E7EB</Color>
+    <Color x:Key="Txt2">#9CA3AF</Color>
+    <Color x:Key="Accent">#D97757</Color>
+    <Color x:Key="BorderCol">#3A3B40</Color>
+    <Color x:Key="MotoLogoBackground">#0B1526</Color>
+    <Color x:Key="MotoAccentBlue">#2E9BFF</Color>
 
-    <Setter Property="VisualStateManager.VisualStateGroups">
-        <VisualStateGroupList>
-            <VisualStateGroup x:Name="CommonStates">
-                <VisualState x:Name="Normal" />
-                <VisualState x:Name="PointerOver">
-                    <VisualState.Setters>
-                        <Setter Property="BackgroundColor" Value="{StaticResource BgHover}" />
-                    </VisualState.Setters>
-                </VisualState>
-                <VisualState x:Name="Pressed">
-                    <VisualState.Setters>
-                        <Setter Property="BackgroundColor" Value="{StaticResource BgPanel}" />
-                    </VisualState.Setters>
-                </VisualState>
-            </VisualStateGroup>
-        </VisualStateGroupList>
-    </Setter>
-</Style>
+    <!-- ══════════════════ Styles ══════════════════ -->
+    <Style x:Key="TxtSecondary" TargetType="Label">
+        <Setter Property="TextColor" Value="{StaticResource Txt2}" />
+        <Setter Property="FontSize" Value="11" />
+    </Style>
 
-<Style TargetType="Entry">
-    <Setter Property="BackgroundColor" Value="{StaticResource BgPanel}" />
-    <Setter Property="TextColor" Value="{StaticResource Txt1}" />
-    <Setter Property="PlaceholderColor" Value="{StaticResource Txt2}" />
-    <Setter Property="VisualStateManager.VisualStateGroups">
-        <VisualStateGroupList>
-            <VisualStateGroup x:Name="CommonStates">
-                <VisualState x:Name="Normal" />
-                <VisualState x:Name="PointerOver">
-                    <VisualState.Setters>
-                        <Setter Property="BackgroundColor" Value="{StaticResource BgHover}" />
-                    </VisualState.Setters>
-                </VisualState>
-                <VisualState x:Name="Focused">
-                    <VisualState.Setters>
-                        <Setter Property="BackgroundColor" Value="{StaticResource BgHover}" />
-                    </VisualState.Setters>
-                </VisualState>
-            </VisualStateGroup>
-        </VisualStateGroupList>
-    </Setter>
-</Style>
+    <!-- Styles opt-in (x:Key, pas implicites) pour ne pas entrer en conflit
+         avec les styles Button/Entry par défaut déjà posés dans App.xaml. -->
+    <Style x:Key="MotoHoverButton" TargetType="Button">
+        <Setter Property="BackgroundColor" Value="Transparent" />
+        <Setter Property="TextColor" Value="{StaticResource Txt1}" />
+        <Setter Property="BorderWidth" Value="0" />
+        <Setter Property="CornerRadius" Value="8" />
+        <Setter Property="FontSize" Value="12" />
+        <Setter Property="Padding" Value="10,6" />
+        <Setter Property="VisualStateManager.VisualStateGroups">
+            <VisualStateGroupList>
+                <VisualStateGroup x:Name="CommonStates">
+                    <VisualState x:Name="Normal" />
+                    <VisualState x:Name="PointerOver">
+                        <VisualState.Setters>
+                            <Setter Property="BackgroundColor" Value="{StaticResource BgHover}" />
+                        </VisualState.Setters>
+                    </VisualState>
+                    <VisualState x:Name="Pressed">
+                        <VisualState.Setters>
+                            <Setter Property="BackgroundColor" Value="{StaticResource BgPanel}" />
+                        </VisualState.Setters>
+                    </VisualState>
+                </VisualStateGroup>
+            </VisualStateGroupList>
+        </Setter>
+    </Style>
+
+    <Style x:Key="MotoHoverEntry" TargetType="Entry">
+        <Setter Property="BackgroundColor" Value="{StaticResource BgPanel}" />
+        <Setter Property="TextColor" Value="{StaticResource Txt1}" />
+        <Setter Property="PlaceholderColor" Value="{StaticResource Txt2}" />
+        <Setter Property="VisualStateManager.VisualStateGroups">
+            <VisualStateGroupList>
+                <VisualStateGroup x:Name="CommonStates">
+                    <VisualState x:Name="Normal" />
+                    <VisualState x:Name="PointerOver">
+                        <VisualState.Setters>
+                            <Setter Property="BackgroundColor" Value="{StaticResource BgHover}" />
+                        </VisualState.Setters>
+                    </VisualState>
+                    <VisualState x:Name="Focused">
+                        <VisualState.Setters>
+                            <Setter Property="BackgroundColor" Value="{StaticResource BgHover}" />
+                        </VisualState.Setters>
+                    </VisualState>
+                </VisualStateGroup>
+            </VisualStateGroupList>
+        </Setter>
+    </Style>
+
+</ResourceDictionary>

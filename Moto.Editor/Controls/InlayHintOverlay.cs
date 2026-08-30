@@ -1,6 +1,7 @@
 // Moto.Editor/Controls/InlayHintOverlay.cs
 using Microsoft.Maui.Controls;
 using Microsoft.Maui.Graphics;
+using Microsoft.Maui.Controls.Shapes;
 using Moto.Core.LSP.InlayHints;
 using System.Collections.Generic;
 

@@ -1,15 +1,126 @@
-<!-- ★ À insérer EN HAUT de la barre latérale (avant les icônes d'outils) -->
-<controls:MotoLogoView Size="36" Margin="6,10,6,14" />
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+  Moto.Editor/MainPage.xaml
+  Reconstruit intégralement (29-30/08/2026) : le fichier ne contenait plus
+  qu'un fragment d'insertion orphelin (pas de racine ContentPage, pas de
+  x:Class) — la mise en page réelle de la fenêtre principale avait disparu.
+  Chaque élément nommé ci-dessous a été retrouvé en lisant tous les
+  MainPage.*.cs (partial class) pour savoir quel type/membre chacun exige.
 
-<!-- ═══ Monitoring IA (nouveau) ═══ -->
-<Border Grid.Column="0" BackgroundColor="Transparent" Padding="4">
-    <Border.GestureRecognizers>
-        <TapGestureRecognizer Tapped="OnAiMonitorTapped" />
-    </Border.GestureRecognizers>
-    <HorizontalStackLayout Spacing="4" ToolTipProperties.Text="Monitoring IA — Cliquez pour ouvrir">
-        <Label x:Name="AiStatusIcon" Text="🧠" FontSize="14" VerticalOptions="Center" />
-        <Label x:Name="AiStatusLabel" Text="Idle" FontSize="11"
-               TextColor="{StaticResource MotoSecondaryTextColor}" VerticalOptions="Center" />
-    </HorizontalStackLayout>
-    <Button Text="ℹ️ À propos de MOTO Editor" Clicked="OnAboutClicked" />
-</Border>
+  Disposition façon IDE : barre de titre (haut) / [Explorateur|Sidebar]
+  [Barre d'activité] [Éditeur|Accueil] [dock droit IA] (milieu) / barre de
+  statut (bas). Les panneaux flottants (Cortex, Neural, Workspace, Command
+  Palette, etc.) sont ajoutés par-dessus au démarrage via du code
+  (MainPage.Panels.cs / MainPage.Extensions.cs, AddFloatingPanel/AddMotoOverlay).
+-->
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:Moto.Editor.Controls"
+             xmlns:views="clr-namespace:Moto.Editor.Views"
+             x:Class="Moto.Editor.MainPage"
+             BackgroundColor="#1E2025"
+             Loaded="OnPageLoaded">
+
+    <Grid x:Name="RootGrid"
+          RowDefinitions="34,*,26"
+          ColumnDefinitions="260,48,*,300">
+
+        <!-- ══════════════════ Barre de titre / menu ══════════════════ -->
+        <views:CustomMenuBarView x:Name="MenuBar" Grid.Row="0" Grid.ColumnSpan="4" />
+
+        <!-- ══════════════════ Colonne 0 : Explorateur / Sidebar ══════════════════ -->
+        <views:FileExplorerView x:Name="ExplorerPanel" Grid.Row="1" Grid.Column="0" />
+        <views:SidebarView x:Name="Sidebar" Grid.Row="1" Grid.Column="0" IsVisible="False" />
+
+        <!-- ══════════════════ Colonne 1 : Barre d'activité ══════════════════ -->
+        <controls:ActivityBarView x:Name="ActivityBar" Grid.Row="1" Grid.Column="1" />
+
+        <!-- ══════════════════ Colonne 2 : Accueil / Éditeur ══════════════════ -->
+        <controls:EditorPaneView x:Name="EditorPane" Grid.Row="1" Grid.Column="2" IsVisible="False" />
+        <!-- Home (x:Name="Home") est ajouté ici par code dans MainPage.xaml.cs :
+             HomeView n'a pas de constructeur sans paramètre (elle a besoin de
+             ChatService/CortexEngine/WorkspaceStateService, disponibles seulement
+             après InitializeComponent()). Elle occupe la même cellule Row=1,Col=2. -->
+
+        <!-- ══════════════════ Colonne 3 : dock IA (placeholders) ══════════════════ -->
+        <VerticalStackLayout Grid.Row="1" Grid.Column="3" Spacing="8" Padding="8" BackgroundColor="#17181C">
+            <Border x:Name="AiHost" IsVisible="False" Padding="10"
+                    BackgroundColor="{StaticResource BgPanel}" StrokeShape="RoundRectangle 8">
+                <Label Text="🤖 Panneau IA" FontSize="12" TextColor="{StaticResource Txt2}" />
+            </Border>
+            <Border x:Name="ChatHost" IsVisible="False" Padding="10"
+                    BackgroundColor="{StaticResource BgPanel}" StrokeShape="RoundRectangle 8">
+                <Label Text="💬 Chat" FontSize="12" TextColor="{StaticResource Txt2}" />
+            </Border>
+            <Border x:Name="ThreadHost" IsVisible="False" Padding="10"
+                    BackgroundColor="{StaticResource BgPanel}" StrokeShape="RoundRectangle 8">
+                <Label Text="🧵 Threads" FontSize="12" TextColor="{StaticResource Txt2}" />
+            </Border>
+        </VerticalStackLayout>
+
+        <!-- ══════════════════ Barre de statut ══════════════════ -->
+        <views:StatusBarPanelView x:Name="StatusBar" Grid.Row="2" Grid.ColumnSpan="4" />
+
+        <!-- ══════════════════ Bandeau IA flottant (Ctrl+Shift+I) ══════════════════ -->
+        <views:AiCommandBarView x:Name="AiBar" Grid.Row="1" Grid.ColumnSpan="4"
+                                 HorizontalOptions="Center" VerticalOptions="End"
+                                 Margin="0,0,0,40" IsVisible="False" />
+
+        <!-- ══════════════════ Panneaux flottants (toggle IsVisible) ══════════════════ -->
+        <views:ExportMenuView x:Name="ExportMenu" Grid.Row="1" Grid.ColumnSpan="4"
+                               HorizontalOptions="End" VerticalOptions="Start"
+                               Margin="0,10,60,0" IsVisible="False" />
+
+        <views:AutoLinkView x:Name="AutoLinkPanel" Grid.Row="1" Grid.ColumnSpan="4"
+                             HorizontalOptions="End" VerticalOptions="Start"
+                             Margin="0,10,60,0" IsVisible="False" />
+
+        <views:ContextSuggestionsView x:Name="ContextPanel" Grid.Row="1" Grid.ColumnSpan="4"
+                                       HorizontalOptions="End" VerticalOptions="Start"
+                                       Margin="0,10,60,0" IsVisible="False" />
+
+        <views:DocPanelView x:Name="DocPanel" Grid.Row="1" Grid.ColumnSpan="4"
+                             HorizontalOptions="End" VerticalOptions="Start"
+                             Margin="0,10,60,0" IsVisible="False" />
+
+        <views:PresentationView x:Name="PresentationPanel" Grid.Row="1" Grid.ColumnSpan="4"
+                                 HorizontalOptions="End" VerticalOptions="Start"
+                                 Margin="0,10,60,0" IsVisible="False" />
+
+        <views:RemoteConnectView x:Name="RemotePanel" Grid.Row="1" Grid.ColumnSpan="4"
+                                  HorizontalOptions="End" VerticalOptions="Start"
+                                  Margin="0,10,60,0" IsVisible="False" />
+
+        <views:CollabPanelView x:Name="CollabPanel" Grid.Row="1" Grid.ColumnSpan="4"
+                                HorizontalOptions="End" VerticalOptions="Start"
+                                Margin="0,10,60,0" IsVisible="False" />
+
+        <!-- Écran de verrouillage (projet protégé par mot de passe) -->
+        <views:PasswordGateView x:Name="PasswordGate" Grid.Row="1" Grid.ColumnSpan="4" IsVisible="False" />
+
+        <!-- SettingsMenu (x:Name="SettingsMenu") est ajouté par code : SettingsMenuView
+             a besoin de PluginRegistry/ProfileManager/SettingsImporterExporter en
+             constructeur (résolus via DI dans MainPage.xaml.cs). -->
+
+        <!-- ══════════════════ Logo + statut IA (coin haut-gauche du contenu) ══════════════════ -->
+        <HorizontalStackLayout Grid.Row="1" Grid.Column="0" Spacing="4"
+                                HorizontalOptions="Start" VerticalOptions="Start" Margin="6,6,0,0"
+                                InputTransparent="False">
+            <controls:MotoLogoView Size="20" Margin="4,2" />
+        </HorizontalStackLayout>
+
+        <Border Grid.Row="2" Grid.Column="3" BackgroundColor="Transparent" Padding="4"
+                HorizontalOptions="End" VerticalOptions="Center">
+            <Border.GestureRecognizers>
+                <TapGestureRecognizer Tapped="OnAiMonitorTapped" />
+            </Border.GestureRecognizers>
+            <HorizontalStackLayout Spacing="4" ToolTipProperties.Text="Monitoring IA — Cliquez pour ouvrir">
+                <Label x:Name="AiStatusIcon" Text="🧠" FontSize="12" VerticalOptions="Center" />
+                <Label x:Name="AiStatusLabel" Text="Idle" FontSize="10"
+                       TextColor="{StaticResource Txt2}" VerticalOptions="Center" />
+            </HorizontalStackLayout>
+        </Border>
+
+    </Grid>
+
+</ContentPage>

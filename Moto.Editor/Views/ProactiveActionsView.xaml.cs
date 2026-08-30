@@ -38,7 +38,6 @@ namespace Moto.Editor.Views
                     BackgroundColor = (Color)Application.Current.Resources["BgSide"],
                     TextColor = (Color)Application.Current.Resources["Txt1"],
                     HorizontalOptions = LayoutOptions.Fill,
-                    HorizontalTextAlignment = TextAlignment.Start,
                     CornerRadius = 8
                 };
 

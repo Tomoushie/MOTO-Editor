@@ -16,7 +16,9 @@ using Moto.Core.Remote;
 using Moto.Core.Security;
 using Moto.Core.Services;
 using Moto.Core.Settings;
+using Moto.Editor.Controls;
 using Moto.Editor.Services;
+using Moto.Editor.Settings;
 using Moto.Editor.ViewModels;
 using Moto.Editor.Views;
 #if WINDOWS
@@ -63,6 +65,12 @@ namespace Moto.Editor
         // _pluginGallery / _analyticsDashboard / _aiSettings : déclarés dans MainPage.Extensions.cs
         // _globalUsage : déclaré dans MainPage.UI.cs
         private DebugPanelView _debugPanel;
+        private InfoOverlay? _infoOverlay;
+
+        // ── Home / SettingsMenu : pas de constructeur sans paramètre, donc pas
+        // déclarables en XAML — construits ici et ajoutés au visuel à la main. ──
+        private Views.HomeView Home;
+        private Views.SettingsMenuView SettingsMenu;
 
         // ── État ──
         private bool _inSandbox;
@@ -90,6 +98,8 @@ namespace Moto.Editor
             _chatService = new ChatService(_currentRoot, _aiService.Fallback, _aiService.Kernel);
             _chatService.SelectionProvider = () => EditorPane.GetSelectedText();
 
+            CreateHomeAndSettingsMenu();
+
             WireEditorPane();
             WireSettings();
             WirePanels();
@@ -110,17 +120,43 @@ namespace Moto.Editor
 
         private void InitializeInfoOverlayAndUpdates()
         {
-            var infoOverlay = Resolve<InfoOverlay>();
-            if (infoOverlay is null) return;
+            _infoOverlay = Resolve<InfoOverlay>() ?? new InfoOverlay();
+            RootGrid.Children.Add(_infoOverlay);
+            Grid.SetRow(_infoOverlay, 1);
+            Grid.SetColumnSpan(_infoOverlay, 4);
 
             var updateManager = Resolve<Moto.Core.Updates.UpdateManager>();
             if (updateManager != null)
             {
-                infoOverlay.SetUpdateManager(updateManager);
+                _infoOverlay.SetUpdateManager(updateManager);
                 MenuBar.SetUpdateManager(updateManager);
                 updateManager.StartAutoCheck();
             }
-            StatusBar.InitializeInfoOverlay(infoOverlay);
+            StatusBar.InitializeInfoOverlay(_infoOverlay);
+        }
+
+        /// <summary>
+        /// Construit Home et SettingsMenu : ni l'une ni l'autre n'ont de constructeur
+        /// sans paramètre, donc impossible de les déclarer en XAML. Ajoutées ici à la
+        /// cellule Row=1,Col=2 (Home, même emplacement qu'EditorPane) et en overlay
+        /// flottant (SettingsMenu) juste après la création de _chatService.
+        /// </summary>
+        private void CreateHomeAndSettingsMenu()
+        {
+            Home = new Views.HomeView(_chatService, _cortex, _workspaceState);
+            Grid.SetRow(Home, 1);
+            Grid.SetColumn(Home, 2);
+            RootGrid.Children.Add(Home);
+
+            SettingsMenu = new Views.SettingsMenuView
+            {
+                IsVisible = false,
+                HorizontalOptions = LayoutOptions.End,
+                VerticalOptions = LayoutOptions.Start
+            };
+            Grid.SetRow(SettingsMenu, 1);
+            Grid.SetColumnSpan(SettingsMenu, 4);
+            RootGrid.Children.Add(SettingsMenu);
         }
 
         private void WireInlayHints()
@@ -213,6 +249,12 @@ namespace Moto.Editor
                 Home.IsVisible = !hasDocs;
                 EditorPane.IsVisible = hasDocs;
             };
+
+            // Panneaux Présentation / Remote / Collab : handlers déjà écrits dans
+            // MainPage.UI.cs, jamais branchés faute de MainPage.xaml — câblés ici.
+            PresentationPanel.GenerateRequested += OnPresentationGenerate;
+            RemotePanel.ConnectRequested += OnRemoteConnect;
+            CollabPanel.ChatSubmitted += OnCollabChat;
         }
 
         // ══════════════ Cycle de vie ══════════════
@@ -224,8 +266,11 @@ namespace Moto.Editor
                 as Microsoft.UI.Xaml.Window;
             GlobalHotkeyService.Register(nativeWindow, onHotkey: () => AiBar.Toggle(), onWindowActivated: () => AiBar.Show());
 
-            if (this.Window is Window window)
-                SnapLayoutsHelper.ConfigureSnapLayouts(window, MenuBar.BtnMin, MenuBar.BtnMax, MenuBar.BtnClose, TitleBarDragZone);
+            // ★ Snap Layouts (survol du bouton Maximiser) mis de côté pour cette passe :
+            // SnapLayoutsHelper attend des Microsoft.UI.Xaml.FrameworkElement (WinUI natif),
+            // alors que MenuBar.BtnMin/BtnMax/BtnClose et TitleBarDragZone sont des Border
+            // MAUI — types incompatibles sans passer par leur Handler.PlatformView. La
+            // fenêtre garde son comportement de snap standard (survol du bouton système).
 #endif
         }
 
@@ -281,7 +326,8 @@ namespace Moto.Editor
             {
                 var monitoringView = Resolve<Views.AiMonitoringView>();
                 if (monitoringView != null)
-                    await Navigation.PushAsync(monitoringView);
+                    // AiMonitoringView est un ContentView, pas une Page : on l'enveloppe.
+                    await Navigation.PushAsync(new ContentPage { Title = "Monitoring IA", Content = monitoringView });
                 else if (_aiMonitorPage != null)
                 {
                     _aiMonitorPage.IsVisible = true;
@@ -315,7 +361,9 @@ namespace Moto.Editor
             {
                 if (!await CheckOllamaAvailabilityAsync())
                 {
-                    bool download = await DisplayDialog("🧠 Moteur IA non détecté",
+                    // ★ CORRECTION : DisplayDialog n'existe pas dans l'API MAUI (ContentPage
+                    // n'expose que DisplayAlert) — probablement une confusion avec une autre techno.
+                    bool download = await DisplayAlert("🧠 Moteur IA non détecté",
                         "Ollama n'est pas installé. Souhaitez-vous télécharger un modèle embarqué ?", "Oui", "Non");
                     if (download) await NavigateToModelManagerAsync();
                 }

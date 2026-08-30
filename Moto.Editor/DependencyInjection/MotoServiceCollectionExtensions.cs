@@ -230,7 +230,7 @@ namespace Moto.Editor.DependencyInjection
             services.AddTransient<DebugEnginePro>();
             services.AddTransient<CrdtSession>();
             services.AddTransient<ThemePreviewView>();
-            services.AddTransient<ThemeSelectorView>();
+            // EXCLU (voir Moto.Editor.csproj, 2e vague) : services.AddTransient<ThemeSelectorView>();
             // IRefundService/StripeRefundService : jamais implémentés (feature paiement non construite)
 
             // ══════════════════════════════════════════════════════════════
@@ -248,8 +248,9 @@ namespace Moto.Editor.DependencyInjection
 
             // AdminDashboardView : jamais implémentée. AdvancedAiSettingsView/ModelManagerView/
             // ModelConsentDialog : mises de côté avec le cluster IA embarquée (voir Moto.Editor.csproj)
-            services.AddTransient<PerformanceDashboardView>();
-            services.AddTransient<SubscriptionOverlay>();
+            // PerformanceDashboardView/SubscriptionOverlay : XAML au format WinUI (pas MAUI),
+            // jamais résolues nulle part dans le code réel — exclues de la compilation
+            // (voir Moto.Editor.csproj), donc plus enregistrables ici.
             services.AddTransient<AiMonitoringView>();
             services.AddTransient<AboutView>();
 
@@ -279,13 +280,13 @@ namespace Moto.Editor.DependencyInjection
             services.AddSingleton<LocalModelResourceGovernor>();
 
             // ══════════════ PHASE 3 : MANAGER ══════════════
-            services.AddSingleton<SessionBookmarkService>();
+            // EXCLU (voir Moto.Editor.csproj, 2e vague) : services.AddSingleton<SessionBookmarkService>();
             services.AddSingleton<SharedRunConfigService>();
             services.AddSingleton<SharedScratchpadService>();
 
             // ══════════════ PHASE 4 : ENGINE ══════════════
-            services.AddSingleton<UxModeService>();
-            services.AddSingleton<InlineDiffPreviewService>();
+            // EXCLU (voir Moto.Editor.csproj, 2e vague) : services.AddSingleton<UxModeService>();
+            // EXCLU (voir Moto.Editor.csproj, 2e vague) : services.AddSingleton<InlineDiffPreviewService>();
             services.AddSingleton<CollabRoleService>();
             services.AddSingleton<ReviewLaneService>();
             services.AddSingleton<AnnotationLayerService>();
@@ -344,7 +345,7 @@ namespace Moto.Editor.DependencyInjection
 
             // Vues associées
             services.AddTransient<ReviewLaneView>();
-            services.AddTransient<WhiteboardView>();
+            // EXCLU (voir Moto.Editor.csproj, 2e vague) : services.AddTransient<WhiteboardView>();
 
             return services;
         }
@@ -367,7 +368,7 @@ namespace Moto.Editor.DependencyInjection
             services.AddSingleton<LicenseTransferService>();
 
             // Security
-            services.AddSingleton<PluginSandboxService>();
+            // EXCLU (voir Moto.Editor.csproj, 2e vague) : services.AddSingleton<PluginSandboxService>();
             services.AddSingleton<VulnerabilityScannerService>();
             services.AddSingleton<VerifiedPublisherService>();
 
@@ -405,7 +406,7 @@ namespace Moto.Editor.DependencyInjection
 
             // Vues
             services.AddTransient<DevOpsDashboardView>();
-            services.AddTransient<PerformanceStatusBarView>();
+            // EXCLU (voir Moto.Editor.csproj, 2e vague) : services.AddTransient<PerformanceStatusBarView>();
 
             return services;
         }
@@ -440,7 +441,7 @@ namespace Moto.Editor.DependencyInjection
         public static IServiceCollection AddMotoFinalWaveServices(this IServiceCollection services)
         {
             // BONUS UX (Vague B/C)
-            services.AddSingleton<UxEnhancementService>();
+            // EXCLU (voir Moto.Editor.csproj, 2e vague) : services.AddSingleton<UxEnhancementService>();
 
             // Snake2000
             services.AddSingleton<SnakeAssistantService>();

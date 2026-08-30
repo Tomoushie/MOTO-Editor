@@ -1,66 +1,77 @@
-<!-- Moto.Editor/Views/HomeView.xaml -->
 <?xml version="1.0" encoding="utf-8" ?>
+<!--
+  Moto.Editor/Views/HomeView.xaml
+  Corrigé : ContentView n'accepte qu'un seul enfant direct, or ce fichier en
+  avait trois côte à côte (un MotoLogoView de 36px visiblement destiné à
+  SidebarView d'après son propre commentaire "à insérer EN HAUT de la barre
+  latérale" — retiré d'ici — puis un VerticalStackLayout et un ScrollView
+  jamais réunis). Regroupés dans un seul Grid (en-tête + contenu déroulant).
+  xmlns:controls manquait aussi (MotoLogoView est dans Moto.Editor.Controls).
+-->
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:Moto.Editor.Controls"
              x:Class="Moto.Editor.Views.HomeView"
              BackgroundColor="{StaticResource BgApp}">
 
-    <!-- ★ À insérer EN HAUT de la barre latérale (avant les icônes d'outils) -->
-    <controls:MotoLogoView Size="36" Margin="6,10,6,14" />
+    <Grid RowDefinitions="Auto,*">
 
-    <VerticalStackLayout Spacing="10" HorizontalOptions="Center" VerticalOptions="Center">
-    <controls:MotoLogoView Size="112" HorizontalOptions="Center" />
-    <Label Text="MOTO Editor"
-           FontSize="30" FontAttributes="Bold"
-           HorizontalOptions="Center" />
-    <Label Text="Léger. Rapide. Sans dépendance. Tout fait maison."
-           FontSize="13" Opacity="0.7"
-           HorizontalOptions="Center" />
-</VerticalStackLayout>
-
-    <ScrollView>
-        <VerticalStackLayout HorizontalOptions="Center" VerticalOptions="Center"
-                             Spacing="22" Padding="40" MaximumWidthRequest="760">
-
-            <!-- Greeting style Claude Code -->
-            <Label x:Name="GreetingLabel" Text="Quoi de prévu, Tom ?"
-                   FontSize="26" HorizontalOptions="Center" />
-
-            <!-- Stats (sessions, messages, tokens…) -->
-            <Border Stroke="{StaticResource BorderCol}" StrokeShape="RoundRectangle 12"
-                    BackgroundColor="{StaticResource BgPanel}" Padding="16">
-                <Grid x:Name="StatsGrid" ColumnDefinitions="*,*,*,*" RowDefinitions="Auto,Auto"
-                      ColumnSpacing="10" RowSpacing="10" />
-            </Border>
-
-            <!-- Input central style ChatGPT/Claude -->
-            <Border Stroke="{StaticResource BorderCol}" StrokeShape="RoundRectangle 24"
-                    BackgroundColor="{StaticResource BgPanel}" Padding="6,2">
-                <Grid ColumnDefinitions="Auto,*,Auto">
-                    <Button Grid.Column="0" Text="＋" WidthRequest="36"
-                            Clicked="OnAttachClicked" />
-                    <Entry Grid.Column="1" x:Name="PromptEntry"
-                           Placeholder="Décris une tâche ou pose une question."
-                           BackgroundColor="Transparent"
-                           Completed="OnPromptSubmitted" />
-                    <Button Grid.Column="2" Text="➤" WidthRequest="36"
-                            Clicked="OnPromptSubmitted" />
-                </Grid>
-            </Border>
-
-            <!-- Chips contexte (Local / Projet / +) -->
-            <HorizontalStackLayout HorizontalOptions="Center" Spacing="8">
-                <Border Stroke="{StaticResource BorderCol}" StrokeShape="RoundRectangle 8"
-                        Padding="10,4" BackgroundColor="{StaticResource BgPanel}">
-                    <Label Text="💻 Local" FontSize="11" />
-                </Border>
-                <Border Stroke="{StaticResource BorderCol}" StrokeShape="RoundRectangle 8"
-                        Padding="10,4" BackgroundColor="{StaticResource BgPanel}">
-                    <Label Text="📁 Projet logiciel" FontSize="11" />
-                </Border>
-            </HorizontalStackLayout>
-
+        <VerticalStackLayout Grid.Row="0" Spacing="10" Margin="0,40,0,0"
+                              HorizontalOptions="Center" VerticalOptions="Start">
+            <controls:MotoLogoView Size="112" HorizontalOptions="Center" />
+            <Label Text="MOTO Editor"
+                   FontSize="30" FontAttributes="Bold"
+                   HorizontalOptions="Center" />
+            <Label Text="Léger. Rapide. Sans dépendance. Tout fait maison."
+                   FontSize="13" Opacity="0.7"
+                   HorizontalOptions="Center" />
         </VerticalStackLayout>
-    </ScrollView>
+
+        <ScrollView Grid.Row="1">
+            <VerticalStackLayout HorizontalOptions="Center" VerticalOptions="Center"
+                                 Spacing="22" Padding="40" MaximumWidthRequest="760">
+
+                <!-- Greeting style Claude Code -->
+                <Label x:Name="GreetingLabel" Text="Quoi de prévu, Tom ?"
+                       FontSize="26" HorizontalOptions="Center" />
+
+                <!-- Stats (sessions, messages, tokens…) -->
+                <Border Stroke="{StaticResource BorderCol}" StrokeShape="RoundRectangle 12"
+                        BackgroundColor="{StaticResource BgPanel}" Padding="16">
+                    <Grid x:Name="StatsGrid" ColumnDefinitions="*,*,*,*" RowDefinitions="Auto,Auto"
+                          ColumnSpacing="10" RowSpacing="10" />
+                </Border>
+
+                <!-- Input central style ChatGPT/Claude -->
+                <Border Stroke="{StaticResource BorderCol}" StrokeShape="RoundRectangle 24"
+                        BackgroundColor="{StaticResource BgPanel}" Padding="6,2">
+                    <Grid ColumnDefinitions="Auto,*,Auto">
+                        <Button Grid.Column="0" Text="＋" WidthRequest="36"
+                                Clicked="OnAttachClicked" />
+                        <Entry Grid.Column="1" x:Name="PromptEntry"
+                               Placeholder="Décris une tâche ou pose une question."
+                               BackgroundColor="Transparent"
+                               Completed="OnPromptSubmitted" />
+                        <Button Grid.Column="2" Text="➤" WidthRequest="36"
+                                Clicked="OnPromptSubmitted" />
+                    </Grid>
+                </Border>
+
+                <!-- Chips contexte (Local / Projet / +) -->
+                <HorizontalStackLayout HorizontalOptions="Center" Spacing="8">
+                    <Border Stroke="{StaticResource BorderCol}" StrokeShape="RoundRectangle 8"
+                            Padding="10,4" BackgroundColor="{StaticResource BgPanel}">
+                        <Label Text="💻 Local" FontSize="11" />
+                    </Border>
+                    <Border Stroke="{StaticResource BorderCol}" StrokeShape="RoundRectangle 8"
+                            Padding="10,4" BackgroundColor="{StaticResource BgPanel}">
+                        <Label Text="📁 Projet logiciel" FontSize="11" />
+                    </Border>
+                </HorizontalStackLayout>
+
+            </VerticalStackLayout>
+        </ScrollView>
+
+    </Grid>
 
 </ContentView>

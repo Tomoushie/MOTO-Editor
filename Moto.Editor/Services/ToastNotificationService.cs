@@ -64,15 +64,17 @@ public sealed class ToastNotificationService
     private static async Task ShowWindowsToastAsync(string title, string message)
     {
         // WinUI 3 Toast Notification
-        var toastNotifier = Windows.UI.Notifications.ToastNotificationManager.CreateToastNotifier();
-        var toastXml = Windows.UI.Notifications.ToastNotificationManager.GetTemplateContent(
-            Windows.UI.Notifications.ToastTemplateType.ToastText02);
+        // ★ global:: nécessaire : "Windows" est aussi un namespace de ce projet
+        // (Moto.Editor.Windows), qui masquerait sinon la racine WinRT "Windows.UI".
+        var toastNotifier = global::Windows.UI.Notifications.ToastNotificationManager.CreateToastNotifier();
+        var toastXml = global::Windows.UI.Notifications.ToastNotificationManager.GetTemplateContent(
+            global::Windows.UI.Notifications.ToastTemplateType.ToastText02);
 
         var toastText = toastXml.GetElementsByTagName("text");
         toastText[0].AppendChild(toastXml.CreateTextNode(title));
         toastText[1].AppendChild(toastXml.CreateTextNode(message));
 
-        var toast = new Windows.UI.Notifications.ToastNotification(toastXml);
+        var toast = new global::Windows.UI.Notifications.ToastNotification(toastXml);
         toastNotifier.Show(toast);
 
         await Task.CompletedTask;

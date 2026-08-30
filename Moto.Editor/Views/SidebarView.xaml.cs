@@ -4,8 +4,11 @@ using System.Collections.Generic;
 using Microsoft.Maui.Controls;
 using Microsoft.Maui.Graphics;
 
-namespace Moto.Editor.Views.Sidebar
+namespace Moto.Editor.Views
 {
+    // Corrigé : ce fichier déclarait "Moto.Editor.Views.Sidebar" alors que
+    // SidebarView.xaml déclare x:Class="Moto.Editor.Views.SidebarView" —
+    // le code-behind ne correspondait donc jamais réellement au XAML.
     public partial class SidebarView : ContentView
     {
         public event Action<string> ThreadSelected;
@@ -16,10 +19,15 @@ namespace Moto.Editor.Views.Sidebar
         /// </summary>
         public event Action<string, string> SessionMoved;
 
+        /// <summary>Déclenché quand l'utilisateur clique "＋ Nouveau chat".</summary>
+        public event Action? NewChatRequested;
+
         public SidebarView()
         {
             InitializeComponent();
         }
+
+        private void OnNewChat(object sender, EventArgs e) => NewChatRequested?.Invoke();
 
         /// <summary>Remplit les listes de la sidebar et attache les gestionnaires de drag/drop.</summary>
         public void Refresh(List<string> pinned, List<string> projects, List<string> recents)
@@ -34,11 +42,11 @@ namespace Moto.Editor.Views.Sidebar
             host.Children.Clear();
 
             // ── Cible de drop sur la section ──
-            host.AllowDrop = true;
+            // (AllowDrop n'existe pas côté MAUI : ajouter un DropGestureRecognizer suffit.)
             var drop = new DropGestureRecognizer();
-            drop.Drop += (s, e) =>
+            drop.Drop += async (s, e) =>
             {
-                var name = e.Data?.Text;
+                var name = e.Data != null ? await e.Data.GetTextAsync() : null;
                 if (!string.IsNullOrWhiteSpace(name))
                 {
                     // Invocation du contrat pour remonter l'info au ViewModel/Parent

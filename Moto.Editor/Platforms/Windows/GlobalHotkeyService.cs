@@ -29,7 +29,7 @@ namespace Moto.Editor.Platforms.Windows
             // 1. Raccourci CTRL+SHIFT+I
             if (window.Content is Microsoft.UI.Xaml.UIElement root)
             {
-                var accelerator = new KeyboardAccelerator
+                var accelerator = new Microsoft.UI.Xaml.Input.KeyboardAccelerator
                 {
                     Modifiers = VirtualKeyModifiers.Control | VirtualKeyModifiers.Shift,
                     Key = VirtualKey.I

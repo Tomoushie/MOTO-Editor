@@ -1,6 +1,7 @@
 // Moto.Editor/MauiProgram.cs (v31 — DI centralisée + FeatureFlag bindings)
 using System;
 using System.IO;
+using CommunityToolkit.Maui;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Maui.Hosting;
@@ -37,6 +38,7 @@ namespace Moto.Editor
             var builder = MauiApp.CreateBuilder();
             builder
                 .UseMauiApp<App>()
+                .UseMauiCommunityToolkit() // FolderPicker.Default (FileExplorerView/MainPage.UI)
                 .ConfigureFonts(fonts =>
                 {
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
@@ -86,17 +88,14 @@ namespace Moto.Editor
             var app = builder.Build();
 
             // ══════════════════════════════════════════════════════════════
-            // ★ Bindings FeatureFlag → Settings (APRÈS le build, quand les services sont disponibles)
+            // ★ Bindings FeatureFlag → Settings : mis de côté pour cette passe.
+            // Le code supposait une API de réglages typés imbriqués
+            // (settings.Shared.Editor.Ux.X, un objet "bindable") qui n'a jamais
+            // été construite — SettingsEngine n'expose que Get/Set/GetBool à
+            // plat (voir Moto.Core/Settings/SettingsEngineCore.cs). Les feature
+            // flags gardent donc leurs valeurs par défaut tant que
+            // FeatureFlagService n'a pas un vrai binding vers cette API plate.
             // ══════════════════════════════════════════════════════════════
-            var serviceProvider = app.Services;
-            var flags = serviceProvider.GetRequiredService<FeatureFlagService>();
-            var settings = SettingsEngine.Shared;
-
-            flags.BindToSetting("feature.command_palette",       settings.Shared.Editor.Ux.CommandPaletteEnabled);
-            flags.BindToSetting("feature.proactive_suggestions", settings.Shared.Editor.Ux.ProactiveSuggestionsEnabled);
-            flags.BindToSetting("feature.context_engine",        settings.Shared.Editor.Ux.ContextEngineEnabled);
-
-            System.Diagnostics.Debug.WriteLine("[FeatureFlags] Bindings attachés aux settings.");
 
             return app;
         }

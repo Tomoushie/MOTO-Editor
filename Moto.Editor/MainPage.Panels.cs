@@ -9,6 +9,8 @@ using Moto.Core.AI.Cortex;
 using Moto.Core.AI.Neural;
 using Moto.Core.AI.Workspace;
 using Moto.Core.Doc;
+using Moto.Core.Settings;
+using Moto.Editor.Views;
 
 namespace Moto.Editor
 {
@@ -130,6 +132,8 @@ namespace Moto.Editor
             _neural = new NeuralMode(path, new CortexMemory(path));
             _workspace = new AIWorkspace(path);
             _docEngine = new DocEngine(path);
+
+            Home.SetCoreServices(_cortex, _workspaceState);
 
             RebindPanels();
 

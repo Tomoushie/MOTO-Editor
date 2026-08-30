@@ -5,8 +5,10 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Maui.Controls;
 using Moto.Core.AI.Analytics;
+using Moto.Core.AI.Builders;
 using Moto.Core.Export;
 using Moto.Core.Settings;
+using Moto.Editor.Services;
 
 namespace Moto.Editor
 {

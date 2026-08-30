@@ -13,46 +13,11 @@ namespace Moto.Editor.Models
         public string Path { get; set; } = string.Empty;
     }
 
-    /// <summary>
-    /// Document ouvert dans un onglet.
-    /// </summary>
-    public class EditorDocument : INotifyPropertyChanged
-    {
-        private string _title = string.Empty;
-        private string _text = string.Empty;
-        private string _path = string.Empty;
-
-        public string Title
-        {
-            get => _title;
-            set => SetField(ref _title, value);
-        }
-
-        public string Text
-        {
-            get => _text;
-            set => SetField(ref _text, value);
-        }
-
-        public string Path
-        {
-            get => _path;
-            set => SetField(ref _path, value);
-        }
-
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        private void SetField<T>(ref T field, T value, [System.Runtime.CompilerServices.CallerMemberName] string propertyName = null)
-        {
-            if (EqualityComparer<T>.Default.Equals(field, value))
-            {
-                return;
-            }
-
-            field = value;
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
-        }
-    }
+    // EditorDocument : retiré d'ici (30/08) — doublon de Moto.Editor/Models/EditorDocument.cs
+    // (celui-là a ErrorCount/HasErrors/ErrorBadge, requis par EditorPaneView/MainPage).
+    // Comme MainViewModel.cs vit maintenant physiquement dans Moto.Editor (voir plus bas),
+    // garder les deux créait un conflit de type entre assemblies (Moto.Core.dll vs
+    // Moto.Editor.dll) pour un nom de type identique.
 
     /// <summary>
     /// Ligne du terminal intégré.

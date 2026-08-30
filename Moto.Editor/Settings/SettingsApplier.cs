@@ -1,6 +1,7 @@
 // Moto.Editor/Settings/SettingsApplier.cs (régénéré — application étendue)
 using Moto.Core.Settings;
 using Moto.Editor.Controls;
+using Moto.Editor.Services;
 using Moto.Editor.ViewModels;
 using Moto.Editor.Views;
 

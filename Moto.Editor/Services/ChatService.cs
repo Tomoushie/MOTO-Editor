@@ -88,7 +88,9 @@ namespace Moto.Editor.Services
         /// <summary>Route un prompt vers Ollama (MotoAiKernel) puis, en repli, vers le FallbackEngine.</summary>
         private async Task<string> RouteAsync(string prompt)
         {
-            var kernelResponse = await _kernel.RouteAsync(prompt, ct: default);
+            // Surcharge (string, int, CancellationToken) qui renvoie AiResponse (pas
+            // la variante texte simple (string, CancellationToken) qui renvoie string).
+            var kernelResponse = await _kernel.RouteAsync(prompt, 256, default);
             if (kernelResponse is { Success: true } && !string.IsNullOrWhiteSpace(kernelResponse.Content))
                 return kernelResponse.Content;
 

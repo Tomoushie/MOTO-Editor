@@ -1,29 +1,72 @@
-<!-- Ajouter dans CustomMenuBarView.xaml, avant les boutons Min/Max/Close -->
-<Grid ColumnDefinitions="*,Auto,Auto,Auto,Auto" Grid.Column="1">
-    <!-- Titre / zone de drag -->
-    <Label Grid.Column="0" Text="MOTO Editor"
-           TextColor="{StaticResource Txt2}" FontSize="12"
-           VerticalOptions="Center" Margin="12,0"/>
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+  Moto.Editor/Views/CustomMenuBarView.xaml
+  Avant correction, ce fichier ne contenait qu'un fragment "AJOUT" (pas de
+  racine ContentView, pas de x:Class) destiné à être inséré dans une barre
+  de titre déjà existante — reconstruit ici en fichier complet et autonome.
+  Barre de titre custom : titre + badge de mise à jour + boutons fenêtre.
+-->
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Moto.Editor.Views.CustomMenuBarView"
+             HeightRequest="34"
+             BackgroundColor="#17181C">
+    <Grid ColumnDefinitions="Auto,*,Auto,Auto,Auto,Auto">
 
-    <!-- ★ Bouton Update (visible seulement si MAJ disponible) -->
-    <Border Grid.Column="1" x:Name="UpdateBadge"
-            BackgroundColor="{StaticResource Accent}"
-            Stroke="Transparent" StrokeThickness="0"
-            StrokeShape="RoundRectangle CornerRadius=12"
-            Padding="8,4" Margin="0,0,8,0"
-            IsVisible="False">
-        <Border.GestureRecognizers>
-            <TapGestureRecognizer Tapped="OnUpdateClicked"/>
-        </Border.GestureRecognizers>
-        <HorizontalStackLayout Spacing="4">
-            <Label Text="🔄" FontSize="11"/>
-            <Label x:Name="UpdateLabel" Text="MAJ" FontSize="11"
-                   TextColor="White" FontAttributes="Bold"/>
-        </HorizontalStackLayout>
-    </Border>
+        <!-- Titre / zone de drag -->
+        <Label Grid.Column="0" Text="MOTO Editor"
+               TextColor="{StaticResource Txt2}" FontSize="12"
+               VerticalOptions="Center" Margin="12,0"/>
 
-    <!-- Boutons fenêtre -->
-    <Button Grid.Column="2" x:Name="BtnMin" Text="−" .../>
-    <Button Grid.Column="3" x:Name="BtnMax" Text="□" .../>
-    <Button Grid.Column="4" x:Name="BtnClose" Text="✕" .../>
-</Grid>
+        <!-- Zone de drag (le reste de l'espace disponible) -->
+        <Border x:Name="TitleBarDragZone" Grid.Column="1"
+                BackgroundColor="Transparent"
+                HorizontalOptions="Fill" VerticalOptions="Fill" />
+
+        <!-- ★ Bouton Update (visible seulement si MAJ disponible) -->
+        <Border Grid.Column="2" x:Name="UpdateBadge"
+                BackgroundColor="{StaticResource Accent}"
+                Stroke="Transparent" StrokeThickness="0"
+                StrokeShape="RoundRectangle CornerRadius=12"
+                Padding="8,4" Margin="0,0,8,0"
+                IsVisible="False">
+            <Border.GestureRecognizers>
+                <TapGestureRecognizer Tapped="OnUpdateClicked"/>
+            </Border.GestureRecognizers>
+            <HorizontalStackLayout Spacing="4">
+                <Label Text="🔄" FontSize="11"/>
+                <Label x:Name="UpdateLabel" Text="MAJ" FontSize="11"
+                       TextColor="White" FontAttributes="Bold"/>
+            </HorizontalStackLayout>
+        </Border>
+
+        <!-- Boutons fenêtre -->
+        <Border x:Name="BtnMin" Grid.Column="3" WidthRequest="46"
+                BackgroundColor="Transparent" StrokeThickness="0">
+            <Label Text="─" HorizontalOptions="Center" VerticalOptions="Center"
+                   FontSize="12" TextColor="{StaticResource Txt1}" />
+            <Border.GestureRecognizers>
+                <TapGestureRecognizer Tapped="OnMinClicked" />
+            </Border.GestureRecognizers>
+        </Border>
+
+        <Border x:Name="BtnMax" Grid.Column="4" WidthRequest="46"
+                BackgroundColor="Transparent" StrokeThickness="0">
+            <Label Text="□" HorizontalOptions="Center" VerticalOptions="Center"
+                   FontSize="12" TextColor="{StaticResource Txt1}" />
+            <Border.GestureRecognizers>
+                <TapGestureRecognizer Tapped="OnMaxClicked" />
+            </Border.GestureRecognizers>
+        </Border>
+
+        <Border x:Name="BtnClose" Grid.Column="5" WidthRequest="46"
+                BackgroundColor="Transparent" StrokeThickness="0">
+            <Label Text="×" HorizontalOptions="Center" VerticalOptions="Center"
+                   FontSize="14" TextColor="{StaticResource Txt1}" />
+            <Border.GestureRecognizers>
+                <TapGestureRecognizer Tapped="OnCloseClicked" />
+            </Border.GestureRecognizers>
+        </Border>
+
+    </Grid>
+</ContentView>
