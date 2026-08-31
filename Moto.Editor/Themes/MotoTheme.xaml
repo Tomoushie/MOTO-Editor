@@ -25,6 +25,17 @@
     <Color x:Key="MotoLogoBackground">#0B1526</Color>
     <Color x:Key="MotoAccentBlue">#2E9BFF</Color>
 
+    <!-- ══════════════════ Tailles de police de l'interface (hors éditeur) ══════════════════ -->
+    <!-- ★ AJOUT (31/08) : demandé par Tom (point 9) — le curseur "taille de police"
+         des Réglages ne changeait que le contenu des fichiers ouverts. Ces 2 valeurs
+         sont recalculées par SettingsApplier à partir du même réglage
+         (buffer_font_size) et réinjectées ici — tout élément qui utilise
+         {DynamicResource FontSizeUiText}/{DynamicResource FontSizeUiSmall} au lieu
+         d'un FontSize codé en dur suit donc le curseur. Valeurs par défaut ci-dessous
+         (utilisées avant la première application des réglages). -->
+    <x:Double x:Key="FontSizeUiText">13</x:Double>
+    <x:Double x:Key="FontSizeUiSmall">11</x:Double>
+
     <!-- ══════════════════ Styles ══════════════════ -->
     <Style x:Key="TxtSecondary" TargetType="Label">
         <Setter Property="TextColor" Value="{StaticResource Txt2}" />

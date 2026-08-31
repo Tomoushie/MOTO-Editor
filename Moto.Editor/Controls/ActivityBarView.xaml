@@ -20,7 +20,7 @@
             <Border.GestureRecognizers>
                 <TapGestureRecognizer Tapped="OnItemTapped" CommandParameter="explorer" />
             </Border.GestureRecognizers>
-            <Label Text="Fichiers" FontSize="13" FontFamily="Segoe UI Variable Text"
+            <Label Text="Fichiers" FontSize="{DynamicResource FontSizeUiText}" FontFamily="Segoe UI Variable Text"
                    TextColor="{StaticResource Txt1}" />
         </Border>
 
@@ -28,7 +28,7 @@
             <Border.GestureRecognizers>
                 <TapGestureRecognizer Tapped="OnItemTapped" CommandParameter="search" />
             </Border.GestureRecognizers>
-            <Label Text="Recherche" FontSize="13" FontFamily="Segoe UI Variable Text"
+            <Label Text="Recherche" FontSize="{DynamicResource FontSizeUiText}" FontFamily="Segoe UI Variable Text"
                    TextColor="{StaticResource Txt1}" />
         </Border>
 
@@ -36,7 +36,7 @@
             <Border.GestureRecognizers>
                 <TapGestureRecognizer Tapped="OnItemTapped" CommandParameter="ai" />
             </Border.GestureRecognizers>
-            <Label Text="IA" FontSize="13" FontFamily="Segoe UI Variable Text"
+            <Label Text="IA" FontSize="{DynamicResource FontSizeUiText}" FontFamily="Segoe UI Variable Text"
                    TextColor="{StaticResource Txt1}" />
         </Border>
 
@@ -44,7 +44,7 @@
             <Border.GestureRecognizers>
                 <TapGestureRecognizer Tapped="OnItemTapped" CommandParameter="cortex" />
             </Border.GestureRecognizers>
-            <Label Text="Cortex" FontSize="13" FontFamily="Segoe UI Variable Text"
+            <Label Text="Cortex" FontSize="{DynamicResource FontSizeUiText}" FontFamily="Segoe UI Variable Text"
                    TextColor="{StaticResource Txt1}" />
         </Border>
 
@@ -52,7 +52,7 @@
             <Border.GestureRecognizers>
                 <TapGestureRecognizer Tapped="OnItemTapped" CommandParameter="collab" />
             </Border.GestureRecognizers>
-            <Label Text="Collab" FontSize="13" FontFamily="Segoe UI Variable Text"
+            <Label Text="Collab" FontSize="{DynamicResource FontSizeUiText}" FontFamily="Segoe UI Variable Text"
                    TextColor="{StaticResource Txt1}" />
         </Border>
 
@@ -60,7 +60,7 @@
             <Border.GestureRecognizers>
                 <TapGestureRecognizer Tapped="OnItemTapped" CommandParameter="settings" />
             </Border.GestureRecognizers>
-            <Label Text="Réglages" FontSize="13" FontFamily="Segoe UI Variable Text"
+            <Label Text="Réglages" FontSize="{DynamicResource FontSizeUiText}" FontFamily="Segoe UI Variable Text"
                    TextColor="{StaticResource Txt1}" />
         </Border>
 

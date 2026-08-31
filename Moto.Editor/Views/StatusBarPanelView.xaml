@@ -14,28 +14,28 @@
     <Grid ColumnDefinitions="*,Auto,Auto,Auto,Auto,Auto" Padding="10,0">
 
         <Label Grid.Column="0" x:Name="StatusLabel" Text="Prêt."
-               FontSize="11" VerticalOptions="Center"
+               FontSize="{DynamicResource FontSizeUiSmall}" VerticalOptions="Center"
                TextColor="{StaticResource Txt2}" LineBreakMode="TailTruncation" />
 
         <!-- ★ CORRECTION (31/08) : icônes retirées ("le texte suffit amplement", Tom)
              — le code couleur (gris/orange) reste le vrai signal réussite/échec. -->
         <HorizontalStackLayout Grid.Column="1" Spacing="10" VerticalOptions="Center">
-            <Label x:Name="ErrorsLabel" Text="0 erreur" FontSize="11" TextColor="{StaticResource Txt2}" />
-            <Label x:Name="WarningsLabel" Text="0 avertissement" FontSize="11" TextColor="{StaticResource Txt2}" IsVisible="False" />
+            <Label x:Name="ErrorsLabel" Text="0 erreur" FontSize="{DynamicResource FontSizeUiSmall}" TextColor="{StaticResource Txt2}" />
+            <Label x:Name="WarningsLabel" Text="0 avertissement" FontSize="{DynamicResource FontSizeUiSmall}" TextColor="{StaticResource Txt2}" IsVisible="False" />
         </HorizontalStackLayout>
 
         <Label Grid.Column="2" x:Name="SandboxLabel" Text="🧪 Sandbox"
-               FontSize="11" TextColor="{StaticResource Accent}"
+               FontSize="{DynamicResource FontSizeUiSmall}" TextColor="{StaticResource Accent}"
                VerticalOptions="Center" Margin="16,0,0,0" IsVisible="False" />
 
         <Label Grid.Column="3" x:Name="LockedLabel" Text="🔒 Verrouillé"
-               FontSize="12" VerticalOptions="Center" Margin="16,0,0,0" IsVisible="False" />
+               FontSize="{DynamicResource FontSizeUiSmall}" VerticalOptions="Center" Margin="16,0,0,0" IsVisible="False" />
 
         <Border Grid.Column="4" BackgroundColor="Transparent" Padding="4" Margin="16,0,0,0">
             <Border.GestureRecognizers>
                 <TapGestureRecognizer Tapped="OnInfoTapped" />
             </Border.GestureRecognizers>
-            <Label Text="Infos" FontSize="12" VerticalOptions="Center" />
+            <Label Text="Infos" FontSize="{DynamicResource FontSizeUiSmall}" VerticalOptions="Center" />
         </Border>
 
         <!-- ★ CORRECTION (30/08) : déplacé ici depuis MainPage.xaml (Grid.Row="2"
@@ -50,7 +50,7 @@
                  c'est cliquable et mène au Monitoring IA (Tom l'a découvert par
                  hasard) — préfixe "Monitoring :" ajouté (voir aussi SetAiStatus). -->
             <HorizontalStackLayout Spacing="4" ToolTipProperties.Text="Monitoring IA — Cliquez pour ouvrir">
-                <Label x:Name="AiStatusLabel" Text="Monitoring : Idle" FontSize="10"
+                <Label x:Name="AiStatusLabel" Text="Monitoring : Idle" FontSize="{DynamicResource FontSizeUiSmall}"
                        TextColor="{StaticResource Txt2}" VerticalOptions="Center" />
             </HorizontalStackLayout>
         </Border>
