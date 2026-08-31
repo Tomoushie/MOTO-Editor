@@ -172,9 +172,9 @@
         <views:PasswordGateView x:Name="PasswordGate" Grid.Row="2" Grid.ColumnSpan="3" IsVisible="False" />
 
         <!-- Menu custom "Emplacement d'exécution" (chip "💻 Local" de l'accueil) -->
-        <controls:ExecutionLocationMenu x:Name="LocationMenu" Grid.Row="2" Grid.ColumnSpan="3"
-                                          HorizontalOptions="End" VerticalOptions="Start"
-                                          Margin="0,10,60,0" IsVisible="False" />
+        <!-- ★ RETRAIT (31/08, point 1 de Tom) : LocationMenu a déménagé DANS HomeView
+             (ancré juste au-dessus de la chip "Local", façon Claude Code, au lieu
+             d'en haut à droite de toute la fenêtre). Voir HomeView.xaml. -->
 
         <!-- SettingsMenu (x:Name="SettingsMenu") est ajouté par code : SettingsMenuView
              a besoin de PluginRegistry/ProfileManager/SettingsImporterExporter en

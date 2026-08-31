@@ -319,7 +319,9 @@ namespace Moto.Editor
             // MainPage.UI.cs). "Local" ouvre un choix façon Claude Code (capture d'écran
             // fournie par Tom : Local/Cloud/Contrôle à distance/WSL/SSH).
             Home.ProjectChipTapped += () => OnImportClicked(this, EventArgs.Empty);
-            Home.LocalChipTapped += OnHomeLocalChipRequested;
+            // ★ RETRAIT (31/08, point 1) : LocationMenu vit maintenant dans Home
+            // elle-même (ancrée au-dessus de la chip "Local") — seul le résultat du
+            // choix remonte encore jusqu'ici (voir HomeView.LocationSelected plus bas).
             Home.SetStats(
                 values: new[] { "0", "0", "0", "0" },
                 titles: new[] { "Sessions", "Messages", "Tokens", "Patterns appris" });
@@ -334,22 +336,14 @@ namespace Moto.Editor
             // Panneaux Présentation / Remote / Collab : handlers déjà écrits dans
             // MainPage.UI.cs, jamais branchés faute de MainPage.xaml — câblés ici.
             StatusBar.AiMonitorTapped += () => OnAiMonitorTapped(this, EventArgs.Empty);
-            LocationMenu.LocationSelected += OnLocationSelected;
+            Home.LocationSelected += OnLocationSelected;
+            // ★ AJOUT (31/08, point 5) : "IA"/"Cortex" de la barre du bas (ComposerBar,
+            // sous la zone de saisie de l'Accueil) — réutilise OnActivitySelected tel
+            // quel, retirés de la barre du haut pour ne pas être dupliqués.
+            Home.ComposerPanelRequested += OnActivitySelected;
             PresentationPanel.GenerateRequested += OnPresentationGenerate;
             RemotePanel.ConnectRequested += OnRemoteConnect;
             CollabPanel.ChatSubmitted += OnCollabChat;
-        }
-
-        /// <summary>
-        /// Chip "💻 Local" de l'accueil : choix façon Claude Code entre Local/Cloud/
-        /// Contrôle à distance/WSL/SSH (capture d'écran fournie par Tom, 30/08).
-        /// ★ CORRECTION (30/08) : DisplayActionSheet (menu natif Windows, pas custom,
-        /// mal aligné — repéré par Tom) remplacé par ExecutionLocationMenu (design maison).
-        /// Cloud et WSL n'ont pas encore d'implémentation dans ce dépôt.
-        /// </summary>
-        private void OnHomeLocalChipRequested()
-        {
-            LocationMenu.IsVisible = true;
         }
 
         /// <summary>
@@ -357,10 +351,12 @@ namespace Moto.Editor
         /// contentait de se fermer) — Tom a interprété ça comme "impossible de
         /// sélectionner les options". Chaque choix affiche maintenant une confirmation
         /// dans la barre de statut, y compris "Local" (déjà le cas actuel).
+        /// ★ CORRECTION (31/08, point 1) : LocationMenu.IsVisible=false géré par Home
+        /// elle-même maintenant (la fenêtre vit là-bas) — cette méthode ne reçoit plus
+        /// que le résultat final du choix.
         /// </summary>
         private void OnLocationSelected(string id)
         {
-            LocationMenu.IsVisible = false;
             switch (id)
             {
                 case "remote":

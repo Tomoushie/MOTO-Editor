@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <!--
   Moto.Editor/Views/CustomMenuBarView.xaml
-  Barre de titre custom : nav (Fichiers/Recherche/IA/Cortex/Collab) + zone de
-  drag + badge de mise à jour + avatar + engrenage + boutons fenêtre, TOUT sur
-  UNE seule ligne. C'est LA vraie barre utilisée par MainPage (x:Name="MenuBar",
+  Barre de titre custom : nav (Fichiers/Recherche/Collab) + zone de drag +
+  badge de mise à jour + avatar + engrenage + boutons fenêtre, TOUT sur UNE
+  seule ligne. C'est LA vraie barre utilisée par MainPage (x:Name="MenuBar",
   balise <views:CustomMenuBarView>) — voir l'avertissement dans
   Controls/CustomMenuBarView.xaml(.cs) : NE PAS confondre avec ce fichier-là.
 
@@ -11,9 +11,15 @@
   Collab" soit sur la MÊME ligne que l'engrenage/Réduire/Agrandir/Fermer,
   au lieu d'une 2e ligne en dessous (ActivityBarView, désormais retirée de
   MainPage.xaml — son code C# reste dans Controls/ActivityBarView.xaml(.cs)
-  pour référence mais n'est plus instancié). Les 5 items lèvent MenuCommanded
-  avec les mêmes id qu'avant ("explorer","search","ai","cortex","collab") ;
-  MainPage.Routing.cs les route vers OnActivitySelected (code inchangé).
+  pour référence mais n'est plus instancié).
+  ★ RETRAIT (31/08, point 5 de Tom) : "IA" et "Cortex" ont ensuite déménagé
+  d'ici vers la nouvelle barre sous la zone de saisie de l'Accueil
+  (Controls/AiComposerBarView), demandé explicitement ("bouger... et le
+  mettre... dans la même ligne" que le "+"/effort/micro). Reste : Fichiers,
+  Recherche, Collab. Colonnes renumérotées en conséquence.
+  Ces items lèvent MenuCommanded avec les mêmes id qu'avant
+  ("explorer","search","collab") ; MainPage.Routing.cs les route vers
+  OnActivitySelected (code inchangé).
   ★ CORRECTION (31/08) : boutons agrandis (46→52px, police 12/14→14/16) et
   survol/clic ajoutés (AttachButtonFeedback) — demandé par Tom, gris neutre
   pour Réduire/Plein écran, rouge pour Fermer.
@@ -29,7 +35,7 @@
              x:Class="Moto.Editor.Views.CustomMenuBarView"
              HeightRequest="38"
              BackgroundColor="#17181C">
-    <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,*,Auto,Auto,Auto,Auto,Auto,Auto">
+    <Grid ColumnDefinitions="Auto,Auto,Auto,*,Auto,Auto,Auto,Auto,Auto,Auto">
 
         <!-- Nav (ex-ActivityBarView, maintenant sur la même ligne) -->
         <Border Grid.Column="0" Padding="12,6" Margin="14,0,0,0" StrokeThickness="0" BackgroundColor="Transparent">
@@ -49,22 +55,6 @@
         </Border>
 
         <Border Grid.Column="2" Padding="12,6" StrokeThickness="0" BackgroundColor="Transparent">
-            <Label Text="IA" FontSize="{DynamicResource FontSizeUiText}" FontFamily="Segoe UI Variable Text"
-                   TextColor="{StaticResource Txt1}" />
-            <Border.GestureRecognizers>
-                <TapGestureRecognizer Tapped="OnNavTapped" CommandParameter="ai" />
-            </Border.GestureRecognizers>
-        </Border>
-
-        <Border Grid.Column="3" Padding="12,6" StrokeThickness="0" BackgroundColor="Transparent">
-            <Label Text="Cortex" FontSize="{DynamicResource FontSizeUiText}" FontFamily="Segoe UI Variable Text"
-                   TextColor="{StaticResource Txt1}" />
-            <Border.GestureRecognizers>
-                <TapGestureRecognizer Tapped="OnNavTapped" CommandParameter="cortex" />
-            </Border.GestureRecognizers>
-        </Border>
-
-        <Border Grid.Column="4" Padding="12,6" StrokeThickness="0" BackgroundColor="Transparent">
             <Label Text="Collab" FontSize="{DynamicResource FontSizeUiText}" FontFamily="Segoe UI Variable Text"
                    TextColor="{StaticResource Txt1}" />
             <Border.GestureRecognizers>
@@ -73,12 +63,12 @@
         </Border>
 
         <!-- Zone de drag (tout l'espace libre) -->
-        <Border x:Name="TitleBarDragZone" x:FieldModifier="Public" Grid.Column="5"
+        <Border x:Name="TitleBarDragZone" x:FieldModifier="Public" Grid.Column="3"
                 BackgroundColor="Transparent"
                 HorizontalOptions="Fill" VerticalOptions="Fill" />
 
         <!-- ★ Bouton Update (visible seulement si MAJ disponible) -->
-        <Border Grid.Column="6" x:Name="UpdateBadge"
+        <Border Grid.Column="4" x:Name="UpdateBadge"
                 BackgroundColor="{StaticResource Accent}"
                 Stroke="Transparent" StrokeThickness="0"
                 StrokeShape="RoundRectangle 12"
@@ -97,7 +87,7 @@
         <!-- Avatar (placeholder photo utilisateur) — point 11. Remplacé par du
              texte plutôt qu'une icône ambiguë (🙂 seul ne disait rien — repéré
              par Tom) : label court "Moi" au lieu d'un émoji visage. -->
-        <Border Grid.Column="7" Padding="8,4" Margin="0,0,4,0" StrokeThickness="0"
+        <Border Grid.Column="5" Padding="8,4" Margin="0,0,4,0" StrokeThickness="0"
                 BackgroundColor="{StaticResource BgSide}"
                 StrokeShape="RoundRectangle 8" VerticalOptions="Center">
             <Label Text="Moi" FontSize="12" TextColor="{StaticResource Txt1}"
@@ -109,7 +99,7 @@
 
         <!-- ★ CORRECTION (31/08) : icône ⚙ remplacée par le texte "Paramètres" —
              demandé par Tom après coup ("ce sera mieux"). -->
-        <Border Grid.Column="8" Padding="10,6"
+        <Border Grid.Column="6" Padding="10,6"
                 Margin="0,0,4,0" StrokeThickness="0" BackgroundColor="Transparent">
             <Label Text="Paramètres" FontSize="{DynamicResource FontSizeUiText}"
                    TextColor="{StaticResource Txt1}"
@@ -120,7 +110,7 @@
         </Border>
 
         <!-- Boutons fenêtre -->
-        <Border x:Name="BtnMin" x:FieldModifier="Public" Grid.Column="9" WidthRequest="52"
+        <Border x:Name="BtnMin" x:FieldModifier="Public" Grid.Column="7" WidthRequest="52"
                 BackgroundColor="Transparent" StrokeThickness="0">
             <Label Text="─" HorizontalOptions="Center" VerticalOptions="Center"
                    FontSize="14" TextColor="{StaticResource Txt1}" />
@@ -129,7 +119,7 @@
             </Border.GestureRecognizers>
         </Border>
 
-        <Border x:Name="BtnMax" x:FieldModifier="Public" Grid.Column="10" WidthRequest="52"
+        <Border x:Name="BtnMax" x:FieldModifier="Public" Grid.Column="8" WidthRequest="52"
                 BackgroundColor="Transparent" StrokeThickness="0">
             <Label Text="□" HorizontalOptions="Center" VerticalOptions="Center"
                    FontSize="14" TextColor="{StaticResource Txt1}" />
@@ -138,7 +128,7 @@
             </Border.GestureRecognizers>
         </Border>
 
-        <Border x:Name="BtnClose" x:FieldModifier="Public" Grid.Column="11" WidthRequest="52"
+        <Border x:Name="BtnClose" x:FieldModifier="Public" Grid.Column="9" WidthRequest="52"
                 BackgroundColor="Transparent" StrokeThickness="0">
             <Label Text="×" HorizontalOptions="Center" VerticalOptions="Center"
                    FontSize="16" TextColor="{StaticResource Txt1}" />

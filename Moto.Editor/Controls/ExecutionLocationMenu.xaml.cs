@@ -33,7 +33,14 @@ namespace Moto.Editor.Controls
             };
 
             if (id != null)
+            {
+                // ★ AJOUT (31/08) : le menu se ferme lui-même désormais — auparavant
+                // c'était MainPage qui le fermait après coup ; depuis que ce menu vit
+                // dans HomeView (point 1 de Tom), c'est plus simple qu'il gère sa
+                // propre fermeture, quel que soit le futur écouteur.
+                IsVisible = false;
                 LocationSelected?.Invoke(id);
+            }
         }
     }
 }

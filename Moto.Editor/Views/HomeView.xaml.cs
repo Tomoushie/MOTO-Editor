@@ -30,6 +30,23 @@ namespace Moto.Editor.Views
         /// <summary>Événement déclenché lorsqu'une chip '💻 Local' est tapée.</summary>
         public event Action? LocalChipTapped;
 
+        /// <summary>
+        /// ★ AJOUT (31/08, point 1 de Tom) : le menu "Emplacement d'exécution" a
+        /// déménagé ICI (directement au-dessus de la chip "Local", façon Claude
+        /// Code) — auparavant ancré en haut à droite de toute la fenêtre par
+        /// MainPage. MainPage n'a plus besoin de connaître LocationMenu.IsVisible,
+        /// seulement le résultat du choix (relayé par cet événement).
+        /// </summary>
+        public event Action<string>? LocationSelected;
+
+        /// <summary>
+        /// ★ AJOUT (31/08, point 5 de Tom) : "IA"/"Cortex" de la barre du bas
+        /// (ComposerBar) — relayé tel quel, MainPage route vers OnActivitySelected
+        /// (exactement comme les items équivalents de la barre du haut, retirés de
+        /// là pour ne pas être dupliqués).
+        /// </summary>
+        public event Action<string>? ComposerPanelRequested;
+
         /// <summary>Événement déclenché lorsqu'une chip '📁 Projet logiciel' est tapée.</summary>
         public event Action? ProjectChipTapped;
 
@@ -45,6 +62,8 @@ namespace Moto.Editor.Views
             _chatService = chatService ?? throw new ArgumentNullException(nameof(chatService));
             _cortexEngine = cortexEngine;
             _workspaceState = workspaceState;
+            LocationMenu.LocationSelected += id => LocationSelected?.Invoke(id);
+            ComposerBar.PanelRequested += id => ComposerPanelRequested?.Invoke(id);
         }
 
         /// <summary>Rebranche les moteurs une fois un workspace ouvert (LoadWorkspace).</summary>
@@ -192,6 +211,7 @@ namespace Moto.Editor.Views
         /// </summary>
         private void OnLocalChipTapped(object sender, EventArgs e)
         {
+            LocationMenu.IsVisible = !LocationMenu.IsVisible;
             LocalChipTapped?.Invoke();
         }
 
