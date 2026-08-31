@@ -37,6 +37,20 @@
     <WindowsPackageType Condition="$([MSBuild]::GetTargetPlatformIdentifier('$(TargetFramework)')) == 'windows' AND '$(WindowsPackageType)' == ''">None</WindowsPackageType>
 
     <!--
+      ★ AJOUT (31/08) : signature MSIX pour le sideload local (test réel sur la
+      machine de Tom, sans passer par le Store). Certificat auto-signé généré
+      pour CN=Tom Nowak (doit correspondre exactement à Publisher dans
+      Package.appxmanifest), déposé dans Cert:\CurrentUser\My ET fait confiance
+      dans Cert:\CurrentUser\TrustedPeople (sinon Windows refuse l'installation
+      du paquet, même correctement signé). Uniquement actif quand
+      WindowsPackageType=MSIX est explicitement demandé — n'affecte jamais le
+      mode non empaqueté (None) utilisé au quotidien.
+    -->
+    <PackageCertificateThumbprint Condition="'$(WindowsPackageType)' == 'MSIX'">2F7676F8C2943D5A9B6D290FD826A2B941D16325</PackageCertificateThumbprint>
+    <AppxPackageSigningEnabled Condition="'$(WindowsPackageType)' == 'MSIX'">true</AppxPackageSigningEnabled>
+    <AppxPackageSigningTimestampDigestAlgorithm Condition="'$(WindowsPackageType)' == 'MSIX'">SHA256</AppxPackageSigningTimestampDigestAlgorithm>
+
+    <!--
       ★ CORRECTION (30/08, après coup) : WindowsAppSDKSelfContained=true — ajouté
       pendant la tentative net10.0 — casse le build unpackaged (WindowsPackageType=None)
       dès qu'un Package.appxmanifest existe : la cible GenerateAppManifestFromAppx

@@ -3,12 +3,18 @@ bin/
 obj/
 dist/
 *.user
+AppPackages/
 
 ## Secrets — ne jamais committer
 keys/
 *.priv
 *.pfx
 *.pem
+
+## Certificat de dev MSIX (auto-signé, généré localement — voir Moto.Editor.csproj,
+## PackageCertificateThumbprint). Pas un secret (clé publique uniquement), mais
+## propre à la machine qui l'a généré — pas versionné.
+*.cer
 
 ## OS / IDE
 .vs/
