@@ -131,6 +131,13 @@ namespace Moto.Editor
 #if WINDOWS
         private void OnWindowsWindowCreated(object? sender, EventArgs e)
         {
+            // ★ AJOUT (01/09) : diagnostic de la barre bleue MSIX persistante. Ce bloc
+            // entier (couleurs/extension de titlebar incluses) était entouré d'un
+            // catch MUET (voir plus bas) — impossible jusqu'ici de savoir si une
+            // exception l'interrompait avant d'atteindre ApplyTitleBarColors. Ces
+            // deux traces ne changent rien visuellement, elles servent uniquement à
+            // lire le vrai déroulement dans %TEMP%\moto-editor-crash.log.
+            Breadcrumb("OnWindowsWindowCreated — entrée");
             try
             {
                 if (sender is not Window mauiWindow) return;
@@ -204,10 +211,16 @@ namespace Moto.Editor
                         hotkey.AboutHotkeyPressed += () => Moto.Editor.Services.AboutLauncher.RequestShow();
                     }
                 }
+
+                Breadcrumb("OnWindowsWindowCreated — sortie (succès, ApplyTitleBarColors exécuté)");
             }
-            catch
+            catch (Exception ex)
             {
-                // Le branding ne doit jamais empêcher le démarrage.
+                // Le branding ne doit jamais empêcher le démarrage — on continue de ne
+                // jamais relancer l'exception. Mais on la trace désormais réellement :
+                // avant cet ajout, un échec ici (donc AUCUNE barre custom appliquée)
+                // était strictement indiscernable d'une réussite dans le journal.
+                LogCrash("OnWindowsWindowCreated (bloc titlebar/taille/icône)", ex);
             }
         }
 #endif

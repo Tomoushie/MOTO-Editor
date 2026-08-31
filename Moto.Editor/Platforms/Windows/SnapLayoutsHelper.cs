@@ -31,6 +31,16 @@ public static class SnapLayoutsHelper
     /// </summary>
     public static void ApplyTitleBarColors(AppWindow appWindow)
     {
+        // ★ AJOUT (01/09) : diagnostic direct de la barre bleue persistante. Si
+        // IsCustomizationSupported() vaut false dans l'environnement réel, TOUT ce
+        // qui suit dans cette méthode est un no-op silencieux documenté par
+        // Microsoft (aucune exception levée, la barre native reste affichée
+        // par-dessus) — exactement le symptôme signalé par Tom, dans les deux modes
+        // (unpackaged ET MSIX). Le code de l'app ne vérifiait jusqu'ici jamais
+        // cette condition avant d'appliquer les réglages.
+        Moto.Editor.App.Breadcrumb(
+            $"ApplyTitleBarColors — IsCustomizationSupported = {AppWindowTitleBar.IsCustomizationSupported()}");
+
         // 1) Titre étendu
         appWindow.TitleBar.ExtendsContentIntoTitleBar = true;
 
