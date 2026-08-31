@@ -3,7 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="Moto.Editor.Views.FileExplorerView">
 
-    <Grid RowDefinitions="Auto,*" BackgroundColor="#17181C">
+    <Grid RowDefinitions="Auto,Auto,*" BackgroundColor="#17181C">
 
         <!-- Barre d'outils de l'explorateur -->
         <HorizontalStackLayout Grid.Row="0" Padding="8,6" Spacing="6">
@@ -37,11 +37,25 @@
 
         </HorizontalStackLayout>
 
+        <!-- ★ AJOUT (31/08, point 8) : nom du projet + branche Git, dès qu'un
+             dossier est ouvert. Lu directement dans <dossier>/.git/HEAD (pas de
+             dépendance Git installée nécessaire) — masqué si .git n'existe pas
+             (dossier sans dépôt Git). -->
+        <HorizontalStackLayout Grid.Row="1" x:Name="ProjectInfoBar"
+                                Padding="8,0,8,8" Spacing="6" IsVisible="False">
+            <Label x:Name="ProjectNameLabel" FontSize="12" FontAttributes="Bold"
+                   TextColor="{StaticResource Txt1}" />
+            <Border BackgroundColor="{StaticResource BgSide}" Padding="6,1"
+                    StrokeThickness="0" StrokeShape="RoundRectangle 8">
+                <Label x:Name="BranchLabel" FontSize="11" TextColor="{StaticResource Txt2}" />
+            </Border>
+        </HorizontalStackLayout>
+
         <!-- Arborescence -->
         <!-- ★ CORRECTION (30/08) : sans dossier ouvert, ce panneau ne montrait qu'une
              fine barre d'outils sur fond vide — facile à manquer, donnait l'impression
              que le bouton "Fichiers" n'ouvrait "rien du tout" (repéré par Tom). -->
-        <CollectionView Grid.Row="1"
+        <CollectionView Grid.Row="2"
                         x:Name="TreeList"
                         SelectionMode="Single"
                         SelectionChanged="OnSelectionChanged">

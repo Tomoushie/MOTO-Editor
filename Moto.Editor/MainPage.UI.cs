@@ -368,6 +368,7 @@ namespace Moto.Editor
             ThreadHost.IsVisible = !_maximized;
             ChatHost.IsVisible = !_maximized;
             ExplorerPanel.IsVisible = !_maximized;
+            RefreshExplorerHandleVisibility();
 
             if (_maximized)
             {

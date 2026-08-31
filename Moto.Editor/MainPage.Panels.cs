@@ -103,6 +103,43 @@ namespace Moto.Editor
             AiDockPanel.IsVisible = any;
         }
 
+        // ------------------------------------------------------------------
+        // ★ AJOUT (31/08, point 7) : étirement de l'explorateur/sidebar à la souris
+        // ------------------------------------------------------------------
+        private double _explorerStartWidth;
+
+        /// <summary>
+        /// Appelé partout où ExplorerPanel/Sidebar.IsVisible change, pour que la
+        /// poignée d'étirement n'apparaisse (et ne réagisse) que quand l'un des deux
+        /// est réellement affiché — même patron que RefreshAiDockColumnWidth.
+        /// </summary>
+        private void RefreshExplorerHandleVisibility()
+        {
+            ExplorerResizeHandle.IsVisible = ExplorerPanel.IsVisible || Sidebar.IsVisible;
+        }
+
+        /// <summary>
+        /// Redimensionne ExplorerPanel ET Sidebar ensemble (même largeur, qu'ils
+        /// soient visibles ou non tous les deux) — sinon changer de panneau
+        /// (Fichiers/Sessions) ferait sauter la largeur de la colonne à chaque fois.
+        /// Glisser vers la GAUCHE (TotalX négatif) doit AGRANDIR le panneau
+        /// (il est sur le bord droit de la fenêtre) : d'où le signe "moins".
+        /// </summary>
+        private void OnExplorerResizePanUpdated(object sender, PanUpdatedEventArgs e)
+        {
+            switch (e.StatusType)
+            {
+                case GestureStatus.Started:
+                    _explorerStartWidth = ExplorerPanel.WidthRequest > 0 ? ExplorerPanel.WidthRequest : 260;
+                    break;
+                case GestureStatus.Running:
+                    var newWidth = Math.Clamp(_explorerStartWidth - e.TotalX, 180, 640);
+                    ExplorerPanel.WidthRequest = newWidth;
+                    Sidebar.WidthRequest = newWidth;
+                    break;
+            }
+        }
+
         private void OnWorkspaceApply(Moto.Core.AI.Workspace.WorkspaceSuggestion suggestion)
         {
             if (!string.IsNullOrWhiteSpace(suggestion.FilePath) && File.Exists(suggestion.FilePath))
@@ -191,6 +228,7 @@ namespace Moto.Editor
             // "Projet logiciel", bouton Importer, AutoProjectBuilder) → on l'affiche.
             ExplorerPanel.IsVisible = true;
             Sidebar.IsVisible = false;
+            RefreshExplorerHandleVisibility();
             _searchPanel.SetRoot(path);
 
             StatusBar.SetLocked(_lock.IsLocked(path));

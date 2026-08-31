@@ -92,6 +92,19 @@
         <views:SidebarView x:Name="Sidebar" Grid.Row="2" Grid.Column="2"
                             WidthRequest="260" IsVisible="False" />
 
+        <!-- ★ AJOUT (31/08, point 7) : poignée d'étirement sur le bord gauche de
+             l'explorateur/sidebar (même cellule de grille, ancrée à gauche, dessinée
+             par-dessus — même patron que le coin de redimensionnement de
+             SettingsWindowView). Redimensionne les DEUX vues ensemble pour qu'elles
+             restent alignées, qu'on bascule de l'une à l'autre ou non. -->
+        <Border x:Name="ExplorerResizeHandle" Grid.Row="2" Grid.Column="2"
+                WidthRequest="6" HorizontalOptions="Start" VerticalOptions="Fill"
+                BackgroundColor="Transparent" StrokeThickness="0" IsVisible="False">
+            <Border.GestureRecognizers>
+                <PanGestureRecognizer PanUpdated="OnExplorerResizePanUpdated" />
+            </Border.GestureRecognizers>
+        </Border>
+
         <!-- ══════════════════ Barre de statut ══════════════════ -->
         <views:StatusBarPanelView x:Name="StatusBar" Grid.Row="3" Grid.ColumnSpan="3" />
 

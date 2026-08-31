@@ -44,6 +44,45 @@ namespace Moto.Editor.Views
             _root = _treeService.CreateRoot(rootPath);
             _treeService.LoadChildren(_root);
             Refresh();
+            RefreshProjectInfo(rootPath);
+        }
+
+        /// <summary>
+        /// ★ AJOUT (31/08, point 8) : nom du dossier ouvert + branche Git courante,
+        /// affichés en haut de l'explorateur (Tom : "que 'main'/'master' apparaisse
+        /// [...] dans l'explorateur à droite"). Lecture directe de .git/HEAD — pas
+        /// besoin d'appeler l'exécutable git, juste un fichier texte au format
+        /// "ref: refs/heads/<branche>" (ou un hash brut en HEAD détachée).
+        /// </summary>
+        private void RefreshProjectInfo(string rootPath)
+        {
+            ProjectNameLabel.Text = "📁 " + Path.GetFileName(rootPath.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
+
+            var branch = ReadGitBranch(rootPath);
+            BranchLabel.Text = branch is null ? "" : $"🌿 {branch}";
+            ((Border)BranchLabel.Parent).IsVisible = branch is not null; // masque juste la puce si pas un dépôt Git
+            ProjectInfoBar.IsVisible = true;
+        }
+
+        private static string? ReadGitBranch(string rootPath)
+        {
+            try
+            {
+                var headPath = Path.Combine(rootPath, ".git", "HEAD");
+                if (!File.Exists(headPath)) return null;
+
+                var content = File.ReadAllText(headPath).Trim();
+                const string refPrefix = "ref: refs/heads/";
+                if (content.StartsWith(refPrefix, StringComparison.Ordinal))
+                    return content.Substring(refPrefix.Length);
+
+                // HEAD détachée : le fichier contient directement un hash de commit.
+                return content.Length >= 7 ? content.Substring(0, 7) + " (détaché)" : content;
+            }
+            catch
+            {
+                return null; // dossier sans accès/.git corrompu : pas grave, on masque juste la branche.
+            }
         }
 
         private void Refresh()

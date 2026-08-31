@@ -181,6 +181,7 @@ namespace Moto.Editor
                 ExplorerPanel.IsVisible = false;
                 Sidebar.IsVisible = true;
             }
+            RefreshExplorerHandleVisibility();
         }
 
         // ------------------------------------------------------------------
