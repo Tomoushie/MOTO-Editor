@@ -24,6 +24,8 @@ namespace Moto.Editor.Controls
         /// </summary>
         public event Action? AttachRequested;
 
+        private readonly BudgetRingDrawable _budgetDrawable = new();
+
         public AiComposerBarView()
         {
             InitializeComponent();
@@ -36,6 +38,20 @@ namespace Moto.Editor.Controls
 
             var currentEffort = SettingsEngine.Shared.GetString("power_mode", "Balanced");
             EffortLabel.Text = $"Puissance · {currentEffort}";
+
+            BudgetRing.Drawable = _budgetDrawable;
+
+            // ★ AJOUT (31/08, points 1/3) : zone grise arrondie au survol/clic. Les
+            // boutons qui ont déjà un fond BgPanel au repos (IA/Cortex/Modèle/
+            // Puissance) reviennent à BgPanel en sortie de survol, pas à Transparent.
+            var bgPanel = (Color)Application.Current!.Resources["BgPanel"];
+            HoverEffects.Attach(BtnAttach);
+            HoverEffects.Attach(BtnMic);
+            HoverEffects.Attach(BtnMicChevron);
+            HoverEffects.Attach(BtnAi, idleColor: bgPanel);
+            HoverEffects.Attach(BtnCortex, idleColor: bgPanel);
+            HoverEffects.Attach(BtnModel, idleColor: bgPanel);
+            HoverEffects.Attach(BtnEffort, idleColor: bgPanel);
         }
 
         private void BuildModelList()

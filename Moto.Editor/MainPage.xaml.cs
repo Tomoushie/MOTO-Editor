@@ -288,9 +288,13 @@ namespace Moto.Editor
             foreach (var panel in new ContentView[]
             {
                 _platformPanel, _cortexPanel, _neuralPanel, _workspacePanel,
-                _pluginGallery, _analyticsDashboard, _debugPanel, _searchPanel
+                _pluginGallery, _analyticsDashboard, _debugPanel
             })
                 AddFloatingPanel(panel);
+
+            // ★ CORRECTION (31/08, point 16) : Recherche en superposition centrée,
+            // pas dans le dock IA à gauche comme les autres panneaux ci-dessus.
+            AddFloatingPanel(_searchPanel, asCenteredOverlay: true);
 
             WireAiPanels();
         }

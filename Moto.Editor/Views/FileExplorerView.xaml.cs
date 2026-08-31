@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.Maui.Controls;
 using Microsoft.Maui.Storage;
 using CommunityToolkit.Maui.Storage;
+using Moto.Editor.Controls;
 using Moto.Editor.Models;
 using Moto.Editor.Services;
 
@@ -35,6 +36,12 @@ namespace Moto.Editor.Views
         {
             InitializeComponent();
             TreeList.ItemsSource = _visibleNodes;
+
+            // ★ AJOUT (31/08, points 1/3/17) : zone grise arrondie au survol/clic.
+            HoverEffects.Attach(BtnOpenFolder);
+            HoverEffects.Attach(BtnNewFile);
+            HoverEffects.Attach(BtnRefresh);
+            HoverEffects.Attach(BtnToggleSide);
         }
 
         /// <summary>Charge un dossier racine dans l'explorateur.</summary>

@@ -32,6 +32,7 @@
 -->
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:Moto.Editor.Controls"
              x:Class="Moto.Editor.Views.CustomMenuBarView"
              HeightRequest="38"
              BackgroundColor="#17181C">
@@ -87,10 +88,16 @@
         <!-- Avatar (placeholder photo utilisateur) — point 11. Remplacé par du
              texte plutôt qu'une icône ambiguë (🙂 seul ne disait rien — repéré
              par Tom) : label court "Moi" au lieu d'un émoji visage. -->
-        <Border Grid.Column="5" Padding="8,4" Margin="0,0,4,0" StrokeThickness="0"
+        <!-- ★ REFONTE (31/08, point 14) : "Moi" (texte) → avatar rond avec
+             placeholder (glyphe silhouette) — Tom veut un vrai rond, pas une
+             pastille rectangulaire. Une vraie photo personnalisable (via les
+             Réglages) serait la suite logique — pas construite dans cette passe
+             (upload/persistance d'image), signalé à Tom plutôt que bâclé. -->
+        <Border Grid.Column="5" WidthRequest="30" HeightRequest="30" Margin="0,0,4,0" StrokeThickness="0"
                 BackgroundColor="{StaticResource BgSide}"
-                StrokeShape="RoundRectangle 8" VerticalOptions="Center">
-            <Label Text="Moi" FontSize="12" TextColor="{StaticResource Txt1}"
+                StrokeShape="RoundRectangle 15" VerticalOptions="Center">
+            <Label Text="{x:Static controls:MotoIcons.Person}" FontFamily="{x:Static controls:MotoIcons.FontFamily}"
+                   FontSize="14" TextColor="{StaticResource Txt1}"
                    HorizontalOptions="Center" VerticalOptions="Center" />
             <Border.GestureRecognizers>
                 <TapGestureRecognizer Tapped="OnGearOrAvatarTapped" />

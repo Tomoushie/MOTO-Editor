@@ -16,27 +16,37 @@
 
             <!-- ★ CORRECTION (31/08) : emojis → glyphes vectoriels Segoe Fluent Icons
                  (codepoints vérifiés visuellement, voir Controls/MotoIcons.cs) —
-                 demandé par Tom ("rendu jouet"). -->
-            <Button Text="{x:Static controls:MotoIcons.Folder}" FontFamily="{x:Static controls:MotoIcons.FontFamily}"
+                 demandé par Tom ("rendu jouet").
+                 ★ CORRECTION (31/08, point 17) : fond gris/blanc natif Windows retiré
+                 (BackgroundColor/BorderWidth explicites — un Button MAUI sans ces
+                 réglages garde le chrome natif WinUI, contrairement aux Border+Label
+                 utilisés partout ailleurs dans ce projet) + zone grise arrondie au
+                 survol/clic ajoutée (HoverEffects, voir .xaml.cs), demandé aussi
+                 point 1/3. -->
+            <Button x:Name="BtnOpenFolder" Text="{x:Static controls:MotoIcons.Folder}" FontFamily="{x:Static controls:MotoIcons.FontFamily}"
                     ToolTipProperties.Text="Ouvrir un dossier"
                     Clicked="OnOpenFolderClicked"
+                    BackgroundColor="Transparent" BorderWidth="0" CornerRadius="8"
                     Padding="6,2" FontSize="13" />
 
             <!-- ★ AJOUT (31/08) : "Nouveau fichier" n'avait jamais été construit
                  (confirmé, pas un bug) — demandé par Tom. -->
-            <Button Text="{x:Static controls:MotoIcons.Add}" FontFamily="{x:Static controls:MotoIcons.FontFamily}"
+            <Button x:Name="BtnNewFile" Text="{x:Static controls:MotoIcons.Add}" FontFamily="{x:Static controls:MotoIcons.FontFamily}"
                     ToolTipProperties.Text="Nouveau fichier"
                     Clicked="OnNewFileClicked"
+                    BackgroundColor="Transparent" BorderWidth="0" CornerRadius="8"
                     Padding="6,2" FontSize="13" />
 
-            <Button Text="{x:Static controls:MotoIcons.Refresh}" FontFamily="{x:Static controls:MotoIcons.FontFamily}"
+            <Button x:Name="BtnRefresh" Text="{x:Static controls:MotoIcons.Refresh}" FontFamily="{x:Static controls:MotoIcons.FontFamily}"
                     ToolTipProperties.Text="Actualiser"
                     Clicked="OnRefreshClicked"
+                    BackgroundColor="Transparent" BorderWidth="0" CornerRadius="8"
                     Padding="6,2" FontSize="13" />
 
-            <Button Text="🡺"
+            <Button x:Name="BtnToggleSide" Text="🡺"
                     ToolTipProperties.Text="Changer de côté"
                     Clicked="OnToggleSideClicked"
+                    BackgroundColor="Transparent" BorderWidth="0" CornerRadius="8"
                     Padding="6,2" FontSize="12" />
 
         </HorizontalStackLayout>

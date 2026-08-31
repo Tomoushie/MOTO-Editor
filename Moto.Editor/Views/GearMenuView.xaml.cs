@@ -10,7 +10,11 @@ namespace Moto.Editor.Views
     /// </summary>
     public partial class GearMenuView : ContentView
     {
-        /// <summary>Id choisi : "user","org","settings","keymap","theme","icontheme","extensions","panellayout","signout".</summary>
+        /// <summary>
+        /// Id choisi : "user","org","settings","keymap","theme","extensions","panellayout","signout".
+        /// ★ RETRAIT (31/08, point 14) : "icontheme" fusionné dans "theme" (doublon
+        /// repéré par Tom).
+        /// </summary>
         public event Action<string>? ItemSelected;
 
         public GearMenuView()
@@ -27,7 +31,6 @@ namespace Moto.Editor.Views
                 var s when s == RowSettings => "settings",
                 var s when s == RowKeymap => "keymap",
                 var s when s == RowTheme => "theme",
-                var s when s == RowIconTheme => "icontheme",
                 var s when s == RowExtensions => "extensions",
                 var s when s == RowPanelLayout => "panellayout",
                 var s when s == RowSignOut => "signout",

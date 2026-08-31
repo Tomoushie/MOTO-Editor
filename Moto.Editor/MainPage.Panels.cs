@@ -96,10 +96,14 @@ namespace Moto.Editor
         /// </summary>
         private void RefreshAiDockColumnWidth()
         {
+            // ★ CORRECTION (31/08, point 16) : _searchPanel retiré de ce calcul —
+            // Recherche vit maintenant en superposition centrée, plus dans ce dock
+            // (voir AddFloatingPanel, asCenteredOverlay). La laisser ici aurait rouvert
+            // inutilement la colonne de gauche (vide) à chaque recherche.
             bool any = AiHost.IsVisible || ChatHost.IsVisible || ThreadHost.IsVisible
                 || _platformPanel.IsVisible || _cortexPanel.IsVisible || _neuralPanel.IsVisible
                 || _workspacePanel.IsVisible || _pluginGallery.IsVisible || _analyticsDashboard.IsVisible
-                || _debugPanel.IsVisible || _searchPanel.IsVisible;
+                || _debugPanel.IsVisible;
             AiDockPanel.IsVisible = any;
         }
 
@@ -178,7 +182,14 @@ namespace Moto.Editor
         /// suit automatiquement celle du panneau (liaison IsVisible) : tout le code
         /// existant qui fait `_xPanel.IsVisible = ...` continue de fonctionner tel quel.
         /// </summary>
-        private void AddFloatingPanel(ContentView panel)
+        /// <summary>
+        /// ★ CORRECTION (31/08, point 16) : "asCenteredOverlay" ajouté — Tom veut que
+        /// Recherche s'ouvre en superposition centrée dans la fenêtre principale,
+        /// pas dans le dock IA à gauche comme les autres panneaux de cette liste
+        /// (Neural/Workspace/Gallery/Analytics/Debug restent inchangés, à gauche).
+        /// Même en-tête (titre + ✕), juste un parent différent.
+        /// </summary>
+        private void AddFloatingPanel(ContentView panel, bool asCenteredOverlay = false)
         {
             var close = new Button
             {
@@ -208,7 +219,19 @@ namespace Moto.Editor
             wrapper.SetBinding(IsVisibleProperty, new Binding(nameof(IsVisible), source: panel));
 
             panel.IsVisible = false;
-            PanelHost.Children.Add(wrapper);
+
+            if (asCenteredOverlay)
+            {
+                Grid.SetRow(wrapper, 2);
+                Grid.SetColumnSpan(wrapper, 3);
+                wrapper.HorizontalOptions = LayoutOptions.Center;
+                wrapper.VerticalOptions = LayoutOptions.Center;
+                RootGrid.Children.Add(wrapper);
+            }
+            else
+            {
+                PanelHost.Children.Add(wrapper);
+            }
         }
 
         // ------------------------------------------------------------------

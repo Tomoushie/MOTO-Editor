@@ -38,12 +38,16 @@
                 </Grid>
             </Border>
 
+            <!-- ★ CORRECTION (31/08, point 13) : 🏢 remplacé par un glyphe vectoriel
+                 (People, vérifié visuellement) — Tom trouvait l'emoji "tâche",
+                 pas cohérent avec les autres lignes du menu. -->
             <Border x:Name="RowOrg" BackgroundColor="Transparent" Padding="10,8">
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Tapped="OnRowTapped" />
                 </Border.GestureRecognizers>
                 <Grid ColumnDefinitions="Auto,*">
-                    <Label Text="🏢" FontSize="13" />
+                    <Label Text="{x:Static controls:MotoIcons.People}" FontFamily="{x:Static controls:MotoIcons.FontFamily}"
+                           FontSize="13" TextColor="{StaticResource Txt1}" />
                     <Label Grid.Column="1" Text="Organisation" FontSize="13" Margin="8,0"
                            TextColor="{StaticResource Txt1}" />
                 </Grid>
@@ -87,17 +91,9 @@
                 </Grid>
             </Border>
 
-            <Border x:Name="RowIconTheme" BackgroundColor="Transparent" Padding="10,8">
-                <Border.GestureRecognizers>
-                    <TapGestureRecognizer Tapped="OnRowTapped" />
-                </Border.GestureRecognizers>
-                <Grid ColumnDefinitions="Auto,*">
-                    <Label Text="{x:Static controls:MotoIcons.Photo}" FontFamily="{x:Static controls:MotoIcons.FontFamily}"
-                           FontSize="15" TextColor="{StaticResource Txt1}" />
-                    <Label Grid.Column="1" Text="Thèmes d'icônes" FontSize="13" Margin="8,0"
-                           TextColor="{StaticResource Txt1}" />
-                </Grid>
-            </Border>
+            <!-- ★ RETRAIT (31/08, point 14) : "Thèmes d'icônes" faisait doublon avec
+                 "Thèmes" (repéré par Tom) — intégré dedans plutôt que gardé comme
+                 ligne séparée. -->
 
             <Border x:Name="RowExtensions" BackgroundColor="Transparent" Padding="10,8">
                 <Border.GestureRecognizers>

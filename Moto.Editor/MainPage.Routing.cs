@@ -120,9 +120,6 @@ namespace Moto.Editor
                 case "org":
                     await DisplayAlert("Organisation", "Pas encore disponible.", "OK");
                     break;
-                case "icontheme":
-                    await DisplayAlert("Thèmes d'icônes", "Pas encore disponible.", "OK");
-                    break;
                 case "panellayout":
                     await DisplayAlert("Disposition des panneaux", "Pas encore disponible.", "OK");
                     break;

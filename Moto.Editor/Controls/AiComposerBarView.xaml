@@ -8,21 +8,31 @@
   PAS les couleurs inventées par une proposition de Qwen sur ce même sujet :
   MotoSubtleBackground/MotoCardBorder/MotoAccentBlue n'existent pas ici) et
   sans reprendre son code (juste la disposition/l'esprit).
+  ★ CORRECTION (31/08, points 6/8) : la ligne 0 (popups) a maintenant EXACTEMENT
+  les mêmes colonnes que la ligne 1 (la barre) — chaque popup vit dans la MÊME
+  colonne que son bouton déclencheur, au lieu de marges en pixels devinées à la
+  main (qui tombaient légèrement à côté, repéré par Tom). L'alignement suit
+  maintenant automatiquement le bouton, quoi qu'il arrive à la largeur de la barre.
+  ★ CORRECTION (31/08, point 2) : micro emoji 🎤 → glyphe vectoriel vérifié
+  (Controls/MotoIcons.Mic).
+  ★ AJOUT (31/08, points 1/3) : zone grise arrondie au survol/clic sur tous les
+  boutons (HoverEffects, voir .xaml.cs).
   - "+" : action honnête (ouvre le sélecteur de dossier, comme "Rechercher
     projet" — pas de vrai système de pièces jointes/connecteurs dans MOTO
     Editor pour l'instant).
   - Micro + flèche : liste de VRAIS micros détectés (Windows.Devices.
     Enumeration) ; la dictée elle-même n'est pas câblée (honnêteté, voir .cs).
-  - IA / Cortex : rapatriés depuis la barre du haut (point 5).
+  - IA / Cortex : rapatriés depuis la barre du haut (point 5) — ★ portée
+    honnête : Tom demande maintenant que ces deux ouvrent un petit menu
+    déroulant plutôt que le grand panneau de gauche actuel. C'est un
+    changement d'architecture plus profond (ces panneaux vivent dans
+    MainPage, pas ici) — pas fait dans cette passe, gardé pour un prochain
+    tour dédié plutôt que bâclé.
   - Modèle : affiche le choix actuel (réglage réel ai.default_model), avec
-    "MOTO AI — Par défaut" en première option (demandé explicitement par Tom
-    pour le cas où rien n'est choisi).
+    "MOTO AI — Par défaut" en première option.
   - Puissance : bouton (pas du texte) affichant le réglage réel power_mode.
   - Pastille ronde : ouvre un petit résumé honnête (les mêmes 4 statistiques
-    déjà affichées au-dessus, toutes à 0 pour l'instant — pas de fenêtre de
-    contexte/limite fictive, MOTO Editor n'a rien de tel).
-  Popups dans une ligne séparée au-dessus de la barre (pas de superposition
-  à gérer, s'affichent directement au-dessus du bouton concerné).
+    déjà affichées au-dessus, toutes à 0 pour l'instant).
 -->
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
@@ -31,28 +41,28 @@
 
     <Grid RowDefinitions="Auto,Auto" RowSpacing="6">
 
-        <!-- ══ Ligne 0 : popups (un seul visible à la fois) ══ -->
-        <Grid Grid.Row="0">
+        <!-- ══ Ligne 0 : popups (mêmes colonnes que la ligne 1, un seul visible à la fois) ══ -->
+        <Grid Grid.Row="0" ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,*,Auto,Auto,Auto">
 
-            <Border x:Name="ModelPopup" IsVisible="False" HorizontalOptions="End"
-                    Stroke="{StaticResource BorderCol}" StrokeShape="RoundRectangle 10"
-                    BackgroundColor="{StaticResource BgPanel}" Padding="6" WidthRequest="240">
-                <VerticalStackLayout x:Name="ModelList" Spacing="1" />
-            </Border>
-
-            <Border x:Name="EffortPopup" IsVisible="False" HorizontalOptions="End" Margin="0,0,80,0"
-                    Stroke="{StaticResource BorderCol}" StrokeShape="RoundRectangle 10"
-                    BackgroundColor="{StaticResource BgPanel}" Padding="6" WidthRequest="180">
-                <VerticalStackLayout x:Name="EffortList" Spacing="1" />
-            </Border>
-
-            <Border x:Name="MicPopup" IsVisible="False" HorizontalOptions="Start"
+            <Border x:Name="MicPopup" Grid.Column="1" IsVisible="False" HorizontalOptions="Start"
                     Stroke="{StaticResource BorderCol}" StrokeShape="RoundRectangle 10"
                     BackgroundColor="{StaticResource BgPanel}" Padding="6" WidthRequest="260">
                 <VerticalStackLayout x:Name="MicList" Spacing="1" />
             </Border>
 
-            <Border x:Name="BudgetPopup" IsVisible="False" HorizontalOptions="End"
+            <Border x:Name="ModelPopup" Grid.Column="6" IsVisible="False" HorizontalOptions="End"
+                    Stroke="{StaticResource BorderCol}" StrokeShape="RoundRectangle 10"
+                    BackgroundColor="{StaticResource BgPanel}" Padding="6" WidthRequest="240">
+                <VerticalStackLayout x:Name="ModelList" Spacing="1" />
+            </Border>
+
+            <Border x:Name="EffortPopup" Grid.Column="7" IsVisible="False" HorizontalOptions="End"
+                    Stroke="{StaticResource BorderCol}" StrokeShape="RoundRectangle 10"
+                    BackgroundColor="{StaticResource BgPanel}" Padding="6" WidthRequest="180">
+                <VerticalStackLayout x:Name="EffortList" Spacing="1" />
+            </Border>
+
+            <Border x:Name="BudgetPopup" Grid.Column="8" IsVisible="False" HorizontalOptions="End"
                     Stroke="{StaticResource BorderCol}" StrokeShape="RoundRectangle 10"
                     BackgroundColor="{StaticResource BgPanel}" Padding="14" WidthRequest="240">
                 <VerticalStackLayout Spacing="6">
@@ -66,8 +76,8 @@
         <!-- ══ Ligne 1 : la barre elle-même ══ -->
         <Grid Grid.Row="1" ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,*,Auto,Auto,Auto" ColumnSpacing="4">
 
-            <Border Grid.Column="0" WidthRequest="30" HeightRequest="30" StrokeThickness="0"
-                    BackgroundColor="Transparent">
+            <Border x:Name="BtnAttach" Grid.Column="0" WidthRequest="30" HeightRequest="30" StrokeThickness="0"
+                    BackgroundColor="Transparent" StrokeShape="RoundRectangle 8">
                 <Label Text="＋" FontSize="16" TextColor="{StaticResource Txt1}"
                        HorizontalOptions="Center" VerticalOptions="Center" />
                 <Border.GestureRecognizers>
@@ -75,18 +85,18 @@
                 </Border.GestureRecognizers>
             </Border>
 
-            <!-- ★ Emoji gardé ici (pas d'icône vectorielle micro vérifiée). -->
-            <Border Grid.Column="1" WidthRequest="30" HeightRequest="30" StrokeThickness="0"
-                    BackgroundColor="Transparent">
-                <Label Text="🎤" FontSize="13"
+            <Border x:Name="BtnMic" Grid.Column="1" WidthRequest="30" HeightRequest="30" StrokeThickness="0"
+                    BackgroundColor="Transparent" StrokeShape="RoundRectangle 8">
+                <Label Text="{x:Static controls:MotoIcons.Mic}" FontFamily="{x:Static controls:MotoIcons.FontFamily}"
+                       FontSize="14" TextColor="{StaticResource Txt1}"
                        HorizontalOptions="Center" VerticalOptions="Center" />
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Tapped="OnMicButtonTapped" />
                 </Border.GestureRecognizers>
             </Border>
 
-            <Border Grid.Column="2" WidthRequest="20" HeightRequest="30" StrokeThickness="0"
-                    BackgroundColor="Transparent">
+            <Border x:Name="BtnMicChevron" Grid.Column="2" WidthRequest="20" HeightRequest="30" StrokeThickness="0"
+                    BackgroundColor="Transparent" StrokeShape="RoundRectangle 8">
                 <Label Text="⌄" FontSize="12" TextColor="{StaticResource Txt2}"
                        HorizontalOptions="Center" VerticalOptions="Center" />
                 <Border.GestureRecognizers>
@@ -94,7 +104,7 @@
                 </Border.GestureRecognizers>
             </Border>
 
-            <Border Grid.Column="3" Padding="10,5" StrokeThickness="0"
+            <Border x:Name="BtnAi" Grid.Column="3" Padding="10,5" StrokeThickness="0"
                     BackgroundColor="{StaticResource BgPanel}" StrokeShape="RoundRectangle 8">
                 <Label Text="IA" FontSize="11" TextColor="{StaticResource Txt1}" />
                 <Border.GestureRecognizers>
@@ -102,7 +112,7 @@
                 </Border.GestureRecognizers>
             </Border>
 
-            <Border Grid.Column="4" Padding="10,5" StrokeThickness="0"
+            <Border x:Name="BtnCortex" Grid.Column="4" Padding="10,5" StrokeThickness="0"
                     BackgroundColor="{StaticResource BgPanel}" StrokeShape="RoundRectangle 8">
                 <Label Text="Cortex" FontSize="11" TextColor="{StaticResource Txt1}" />
                 <Border.GestureRecognizers>
@@ -113,7 +123,7 @@
             <!-- Colonne 5 = espace libre ("*") -->
 
             <!-- Modèle actuel — clic = changer -->
-            <Border Grid.Column="6" Padding="10,5" StrokeThickness="0"
+            <Border x:Name="BtnModel" Grid.Column="6" Padding="10,5" StrokeThickness="0"
                     BackgroundColor="{StaticResource BgPanel}" StrokeShape="RoundRectangle 8">
                 <Label x:Name="ModelLabel" Text="MOTO AI" FontSize="11" TextColor="{StaticResource Txt1}" />
                 <Border.GestureRecognizers>
@@ -122,7 +132,7 @@
             </Border>
 
             <!-- Puissance — bouton, pas du texte -->
-            <Border Grid.Column="7" Padding="10,5" StrokeThickness="0"
+            <Border x:Name="BtnEffort" Grid.Column="7" Padding="10,5" StrokeThickness="0"
                     BackgroundColor="{StaticResource BgPanel}" StrokeShape="RoundRectangle 8">
                 <Label x:Name="EffortLabel" Text="Puissance · Balanced" FontSize="11" TextColor="{StaticResource Txt1}" />
                 <Border.GestureRecognizers>
@@ -130,14 +140,14 @@
                 </Border.GestureRecognizers>
             </Border>
 
-            <!-- Pastille budget (ronde, cliquable) -->
-            <Border Grid.Column="8" WidthRequest="16" HeightRequest="16" Margin="4,0,0,0"
-                    StrokeThickness="0" BackgroundColor="{StaticResource Accent}"
-                    StrokeShape="RoundRectangle 8" VerticalOptions="Center">
-                <Border.GestureRecognizers>
+            <!-- Pastille budget (ronde, cliquable) — voir .xaml.cs pour le dessin
+                 (GraphicsView/IDrawable, gris transparent → se remplit, point 7). -->
+            <GraphicsView x:Name="BudgetRing" Grid.Column="8" WidthRequest="16" HeightRequest="16"
+                          Margin="4,0,0,0" VerticalOptions="Center">
+                <GraphicsView.GestureRecognizers>
                     <TapGestureRecognizer Tapped="OnBudgetTapped" />
-                </Border.GestureRecognizers>
-            </Border>
+                </GraphicsView.GestureRecognizers>
+            </GraphicsView>
 
         </Grid>
     </Grid>

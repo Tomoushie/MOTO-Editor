@@ -7,8 +7,8 @@
 // autre chose que prévu (ex. "AI"=E946 est en réalité une icône "Info", pas
 // du tout liée à l'IA) et ont été écartés. Seuls les emojis remplacés ci-
 // dessous ont un glyphe confirmé correspondre visuellement à son usage ;
-// les autres (🤖 Panneau IA, 🧵 Threads, 🏢 Organisation, 🡺 changer de côté)
-// restent en emoji faute d'un glyphe vérifié qui leur corresponde vraiment.
+// les autres (🤖 Panneau IA, 🧵 Threads, 🡺 changer de côté) restent en emoji
+// faute d'un glyphe vérifié qui leur corresponde vraiment.
 using System;
 
 namespace Moto.Editor.Controls
@@ -31,5 +31,7 @@ namespace Moto.Editor.Controls
         public const string Puzzle    = ""; // "Extensions"
         public const string Tiles     = ""; // "Disposition des panneaux"
         public const string Comment   = ""; // "Chat"
+        public const string People    = ""; // "Organisation" (2 silhouettes, vérifié — plus adapté que Person pour ce sens)
+        public const string Mic       = ""; // Microphone (vérifié — glyphe propre, remplace l'emoji 🎤)
     }
 }

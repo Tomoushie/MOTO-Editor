@@ -85,7 +85,15 @@
                          comportement précisé par Tom pour l'instant).
                          ★ CORRECTION (31/08, point 1) : LocationMenu (Emplacement
                          d'exécution) ancré juste AU-DESSUS de la chip "Local". -->
-                    <Grid>
+                    <!-- ★ CORRECTION (31/08, point 9) : HeightRequest FIXE sur ce Grid
+                         (juste assez pour la ligne de chips) — sans ça, ce Grid grandit
+                         avec LocationMenu quand elle s'ouvre (hauteur "Auto" par défaut,
+                         basée sur le plus grand enfant), ce qui repoussait la saisie et
+                         la barre du dessous (repéré par Tom : "changera la taille du
+                         reste"). Un Grid MAUI n'est PAS automatiquement rogné à ses
+                         limites : avec une hauteur fixe, LocationMenu peut déborder
+                         par-dessus sans agrandir ce Grid ni rien pousser en dessous. -->
+                    <Grid HeightRequest="48">
                         <controls:ExecutionLocationMenu x:Name="LocationMenu"
                                                          HorizontalOptions="Start" VerticalOptions="End"
                                                          Margin="0,0,0,50" IsVisible="False" />
@@ -122,10 +130,17 @@
                                     <TapGestureRecognizer Tapped="OnProjectChipTapped" />
                                 </Border.GestureRecognizers>
                             </Border>
+                            <!-- ★ AJOUT (31/08, point 11) : petit "+" superposé sur le
+                                 dossier (glyphes Folder+Add, tous deux déjà vérifiés). -->
                             <Border Stroke="{StaticResource BorderCol}" StrokeShape="RoundRectangle 10"
                                     Padding="12,10" BackgroundColor="{StaticResource BgPanel}">
-                                <Label Text="{x:Static controls:MotoIcons.Folder}" FontFamily="{x:Static controls:MotoIcons.FontFamily}"
-                                       FontSize="13" TextColor="{StaticResource Txt1}" />
+                                <Grid>
+                                    <Label Text="{x:Static controls:MotoIcons.Folder}" FontFamily="{x:Static controls:MotoIcons.FontFamily}"
+                                           FontSize="13" TextColor="{StaticResource Txt1}" />
+                                    <Label Text="{x:Static controls:MotoIcons.Add}" FontFamily="{x:Static controls:MotoIcons.FontFamily}"
+                                           FontSize="7" TextColor="{StaticResource Txt1}"
+                                           HorizontalOptions="End" VerticalOptions="End" Margin="0,0,-3,-3" />
+                                </Grid>
                                 <Border.GestureRecognizers>
                                     <TapGestureRecognizer Tapped="OnProjectChipTapped" />
                                 </Border.GestureRecognizers>
