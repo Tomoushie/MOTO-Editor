@@ -84,6 +84,14 @@ public static class SnapLayoutsHelper
         {
             var rect = GetScaledRect(element, scale);
             source.SetRegionRects(kind, new[] { RectInt32From(rect) });
+            // ★ AJOUT (31/08, 3e passe) : journalise le rectangle réellement enregistré
+            // — après 2 correctifs sans effet confirmé par Tom, plus la peine de deviner
+            // à l'aveugle : ce breadcrumb permet de lire directement dans le journal
+            // (%TEMP%\moto-editor-crash.log, même machine) ce qui a été appliqué et
+            // quand, sans dépendre d'un nouveau tour d'aller-retour.
+            Moto.Editor.App.Breadcrumb(
+                $"SnapLayouts.Appliquer — {kind} : X={rect.X} Y={rect.Y} W={rect.W} H={rect.H} " +
+                $"(élément chargé={element.IsLoaded}, ActualSize={element.ActualSize.X}x{element.ActualSize.Y})");
         }
 
         // ★ CORRECTION (31/08) : ConfigureSnapLayouts n'est appelée qu'après

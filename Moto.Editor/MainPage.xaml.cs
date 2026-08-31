@@ -372,6 +372,28 @@ namespace Moto.Editor
                     + $"BtnClose={MenuBar.BtnClose.Handler?.PlatformView is Microsoft.UI.Xaml.FrameworkElement}, "
                     + $"DragZone={MenuBar.TitleBarDragZone.Handler?.PlatformView is Microsoft.UI.Xaml.FrameworkElement}");
             }
+
+            // ★ AJOUT (31/08, 3e passe) : point de déclenchement supplémentaire, distinct
+            // de Page.Loaded — Window.Activated est un signal natif WinUI (la fenêtre
+            // devient la fenêtre active), potentiellement plus fiable que le cycle de vie
+            // MAUI si c'est LUI le problème. Ré-appliquer est sans risque (juste redéfinir
+            // les mêmes rectangles). Idée reprise d'une piste externe (Qwen), adaptée à
+            // notre vraie implémentation (InputNonClientPointerSource, pas de subclass
+            // Win32 ici malgré ce que cette piste supposait à tort).
+            if (nativeWindow != null)
+            {
+                nativeWindow.Activated += (s, e) =>
+                {
+                    App.Breadcrumb($"Window.Activated ({e.WindowActivationState}) — réapplique ConfigureSnapLayouts");
+                    if (MenuBar.BtnMin.Handler?.PlatformView is Microsoft.UI.Xaml.FrameworkElement bMin
+                        && MenuBar.BtnMax.Handler?.PlatformView is Microsoft.UI.Xaml.FrameworkElement bMax
+                        && MenuBar.BtnClose.Handler?.PlatformView is Microsoft.UI.Xaml.FrameworkElement bClose
+                        && MenuBar.TitleBarDragZone.Handler?.PlatformView is Microsoft.UI.Xaml.FrameworkElement bDrag)
+                    {
+                        Platforms.Windows.SnapLayoutsHelper.ConfigureSnapLayouts(nativeWindow, bMin, bMax, bClose, bDrag);
+                    }
+                };
+            }
 #endif
         }
 
