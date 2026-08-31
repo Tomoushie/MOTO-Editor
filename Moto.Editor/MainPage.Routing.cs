@@ -321,12 +321,23 @@ namespace Moto.Editor
                 {
                     var repliesDir = Path.Combine(Path.GetTempPath(), "MotoEditor-Reponses-IA");
                     Directory.CreateDirectory(repliesDir);
-                    var replyPath = Path.Combine(repliesDir, $"Reponse-IA-{DateTime.Now:yyyyMMdd-HHmmss}.md");
-                    File.WriteAllText(replyPath, reply);
+
+                    // ★ AJOUT (31/08) : si la réponse contient un bloc de code, on ouvre
+                    // CE code (avec la bonne extension) plutôt que le message entier —
+                    // repéré par Tom : "demander du code ne fonctionne pas, il se
+                    // contente d'ouvrir un fichier" (le fichier s'ouvrait bel et bien,
+                    // mais avec les explications de l'IA mélangées au code, à l'intérieur
+                    // d'un simple .md — peu engageant, lu comme "ça ne marche pas").
+                    var extracted = ExtractCodeBlockWithLanguage(reply);
+                    var content = extracted?.Code ?? reply;
+                    var extension = extracted?.Extension ?? ".md";
+
+                    var replyPath = Path.Combine(repliesDir, $"Reponse-IA-{DateTime.Now:yyyyMMdd-HHmmss}{extension}");
+                    File.WriteAllText(replyPath, content);
                     _viewModel.OpenFilePath(replyPath);
                     if (_viewModel.SelectedDocument != null)
-                        _viewModel.SelectedDocument.Text = reply;
-                    StatusBar.SetStatus("✔ Réponse IA générée.");
+                        _viewModel.SelectedDocument.Text = content;
+                    StatusBar.SetStatus(extracted != null ? "✔ Code généré." : "✔ Réponse IA générée.");
                     App.Breadcrumb("OnAiCommandSubmitted — onglet ouvert avec succès");
                 }
                 else

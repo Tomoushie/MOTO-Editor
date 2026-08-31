@@ -1,6 +1,7 @@
 // Moto.Editor/Views/FileExplorerView.xaml.cs
 using System;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Threading.Tasks;
 using Microsoft.Maui.Controls;
 using Microsoft.Maui.Storage;
@@ -69,6 +70,41 @@ namespace Moto.Editor.Views
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine($"Explorer error: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// ★ AJOUT (31/08) : "Nouveau fichier" — confirmé jamais construit (pas un bug).
+        /// Demande un nom, crée un fichier vide à la racine ouverte, l'ouvre et
+        /// rafraîchit l'arborescence.
+        /// </summary>
+        private async void OnNewFileClicked(object sender, EventArgs e)
+        {
+            var page = Application.Current?.Windows.Count > 0 ? Application.Current.Windows[0].Page : null;
+            if (page is null) return;
+
+            if (string.IsNullOrWhiteSpace(CurrentRoot))
+            {
+                await page.DisplayAlert("Nouveau fichier", "Ouvre d'abord un dossier.", "OK");
+                return;
+            }
+
+            var name = await page.DisplayPromptAsync(
+                "Nouveau fichier", "Nom du fichier (avec extension) :", initialValue: "nouveau.txt");
+            if (string.IsNullOrWhiteSpace(name)) return;
+
+            try
+            {
+                var path = Path.Combine(CurrentRoot, name);
+                if (!File.Exists(path))
+                    File.WriteAllText(path, string.Empty);
+
+                LoadFolder(CurrentRoot);
+                FileOpened?.Invoke(path);
+            }
+            catch (Exception ex)
+            {
+                await page.DisplayAlert("Nouveau fichier", $"Impossible de créer le fichier : {ex.Message}", "OK");
             }
         }
 

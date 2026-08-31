@@ -18,6 +18,13 @@
                     Clicked="OnOpenFolderClicked"
                     Padding="6,2" FontSize="12" />
 
+            <!-- ★ AJOUT (31/08) : "Nouveau fichier" n'avait jamais été construit
+                 (confirmé, pas un bug) — demandé par Tom. -->
+            <Button Text="📄+"
+                    ToolTipProperties.Text="Nouveau fichier"
+                    Clicked="OnNewFileClicked"
+                    Padding="6,2" FontSize="12" />
+
             <Button Text="⟳"
                     ToolTipProperties.Text="Actualiser"
                     Clicked="OnRefreshClicked"

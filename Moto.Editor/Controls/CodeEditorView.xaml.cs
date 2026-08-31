@@ -41,6 +41,13 @@ namespace Moto.Editor.Controls
         private bool _loaded;
         private bool _suppress;
         private double _pendingFontSize = 14.0;
+        // ★ AJOUT (31/08) : même piège que _pendingFontSize, jamais corrigé pour la
+        // mini-map — SetMinimapVisible ne faisait rien tant que le WebView n'avait pas
+        // fini de charger (_loaded), SANS jamais rattraper la valeur ensuite. Comme
+        // WireSettings() (MainPage) applique les réglages au tout début du
+        // constructeur, bien avant que le WebView ait fini de charger, cette perte se
+        // produisait quasi systématiquement — "aucune mini-map ne fonctionne" (Tom).
+        private bool _pendingMinimapVisible = true;
         private string _lastSelection = string.Empty;
 
         public CodeEditorView()
@@ -71,6 +78,7 @@ namespace Moto.Editor.Controls
                 _loaded = true;
                 await PushContentAsync();
                 await Web.EvaluateJavaScriptAsync($"setFontSize({_pendingFontSize})");
+                await Web.EvaluateJavaScriptAsync($"setMini({(_pendingMinimapVisible ? "true" : "false")})");
             };
         }
 
@@ -87,6 +95,10 @@ namespace Moto.Editor.Controls
         /// <summary>Affiche/masque la mini-map (paramètre minimap_show).</summary>
         public async void SetMinimapVisible(bool visible)
         {
+            // ★ CORRECTION (31/08) : mémorisée AVANT le if — sinon perdue pour de bon
+            // si appelée avant la fin du chargement du WebView (voir Navigated ci-dessus
+            // et le commentaire sur _pendingMinimapVisible).
+            _pendingMinimapVisible = visible;
             if (_loaded)
                 await Web.EvaluateJavaScriptAsync($"setMini({(visible ? "true" : "false")})");
         }

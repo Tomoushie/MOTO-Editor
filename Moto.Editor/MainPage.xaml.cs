@@ -469,6 +469,41 @@ namespace Moto.Editor
             return match.Success ? match.Groups[1].Value.TrimEnd() : null;
         }
 
+        /// <summary>
+        /// ★ AJOUT (31/08) : comme ExtractCodeBlock, mais garde aussi l'étiquette de
+        /// langage (```csharp, ```python...) pour choisir une extension de fichier
+        /// sensée. Utilisé par OnAiCommandSubmitted (MainPage.Routing.cs) — "demander
+        /// du code ne fonctionne pas" (Tom) : le fichier s'ouvrait bien, mais avec le
+        /// message entier (explications + code mélangés) plutôt que le code seul.
+        /// </summary>
+        private static (string Code, string Extension)? ExtractCodeBlockWithLanguage(string answer)
+        {
+            if (string.IsNullOrWhiteSpace(answer)) return null;
+            var match = System.Text.RegularExpressions.Regex.Match(answer, "```(\\w*)\\r?\\n([\\s\\S]*?)```");
+            if (!match.Success) return null;
+
+            var code = match.Groups[2].Value.TrimEnd();
+            if (string.IsNullOrWhiteSpace(code)) return null;
+
+            var extension = match.Groups[1].Value.ToLowerInvariant() switch
+            {
+                "csharp" or "cs" => ".cs",
+                "python" or "py" => ".py",
+                "javascript" or "js" => ".js",
+                "typescript" or "ts" => ".ts",
+                "html" => ".html",
+                "css" => ".css",
+                "json" => ".json",
+                "xml" or "xaml" => ".xml",
+                "sql" => ".sql",
+                "bash" or "shell" or "sh" or "powershell" or "ps1" => ".sh",
+                "java" => ".java",
+                "cpp" or "c++" or "c" => ".cpp",
+                _ => ".txt"
+            };
+            return (code, extension);
+        }
+
         private async void OnAiMonitorTapped(object? sender, EventArgs e)
         {
             try
