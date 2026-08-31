@@ -249,7 +249,11 @@ namespace Moto.Editor
         {
             Sidebar.SessionMoved += OnSidebarSessionMovedPersist;
             MenuBar.MenuCommanded += OnExtensionsMenuCommanded;
-            ActivityBar.ActivitySelected += OnExtensionsActivitySelected;
+            // ★ RETRAIT (31/08) : ActivityBar a quitté MainPage.xaml (voir
+            // WireMenusAndSidebar, MainPage.xaml.cs) — OnExtensionsActivitySelected
+            // n'a plus de source ; ses cases ("palette"/"gallery"/"proactive")
+            // n'étaient de toute façon déjà atteintes par aucun bouton visible
+            // (ActivityBarView ne les a jamais émises).
         }
 
         private void OnExtensionsMenuCommanded(string id)
@@ -262,6 +266,9 @@ namespace Moto.Editor
             }
         }
 
+        // ★ Plus abonnée à rien (voir AttachExtensionsEventHandlers ci-dessus) — gardée
+        // telle quelle, inoffensive, au cas où une vraie palette/proactive/galerie
+        // aurait un jour un bouton dédié qui voudrait réutiliser ces id.
         private void OnExtensionsActivitySelected(string id)
         {
             switch (id)

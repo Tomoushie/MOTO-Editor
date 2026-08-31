@@ -71,6 +71,19 @@ namespace Moto.Editor.Views
         /// </summary>
         private void OnGearOrAvatarTapped(object? sender, TappedEventArgs e) => MenuCommanded?.Invoke("gear.toggle");
 
+        /// <summary>
+        /// ★ AJOUT (31/08) : Fichiers/Recherche/IA/Cortex/Collab, rapatriés ici depuis
+        /// ActivityBarView (retirée de MainPage.xaml — Tom veut tout sur une seule
+        /// ligne). Même id qu'avant ("explorer","search","ai","cortex","collab") ;
+        /// MainPage.Routing.cs (OnMenuCommanded) les route vers OnActivitySelected,
+        /// code de panneau inchangé.
+        /// </summary>
+        private void OnNavTapped(object? sender, TappedEventArgs e)
+        {
+            if (e.Parameter is string id)
+                MenuCommanded?.Invoke(id);
+        }
+
         public void SetUpdateManager(UpdateManager manager)
         {
             _updateManager = manager;

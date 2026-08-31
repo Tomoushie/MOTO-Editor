@@ -45,13 +45,17 @@
     -->
     <!-- ★ CORRECTION (31/08) : ligne 0 34→38 pour accueillir CustomMenuBarView agrandie
          (boutons min/max/close plus grands, demandé par Tom). -->
-    <Grid x:Name="RootGrid" RowDefinitions="38,38,*,26" ColumnDefinitions="Auto,*,Auto">
+    <!-- ★ CORRECTION (31/08) : ligne 1 38→0 — Fichiers/Recherche/IA/Cortex/Collab ont
+         déménagé DANS CustomMenuBarView (ligne 0), sur la même ligne que
+         l'engrenage/Min/Max/Fermer (Tom : "sur la même ligne"). Ligne gardée à 0 (pas
+         supprimée) pour ne PAS avoir à renuméroter tous les Grid.Row="2"/"3" du
+         reste de ce fichier — une ligne à hauteur 0 sans aucun enfant est sans
+         risque (contrairement au bug historique d'une CollectionView arrangée dans
+         un rectangle dégénéré, documenté plus bas : ici, rien n'y est placé du tout). -->
+    <Grid x:Name="RootGrid" RowDefinitions="38,0,*,26" ColumnDefinitions="Auto,*,Auto">
 
-        <!-- ══════════════════ Barre de titre / menu ══════════════════ -->
+        <!-- ══════════════════ Barre de titre / menu (+ nav, même ligne) ══════════════════ -->
         <views:CustomMenuBarView x:Name="MenuBar" Grid.Row="0" Grid.ColumnSpan="3" />
-
-        <!-- ══════════════════ Barre de navigation horizontale (ex-barre d'activité) ══════════════════ -->
-        <controls:ActivityBarView x:Name="ActivityBar" Grid.Row="1" Grid.ColumnSpan="3" />
 
         <!-- ══════════════════ Colonne 0 : dock IA (placeholders) + panneaux ══════════════════ -->
         <!-- Ancre réelle des panneaux IA (Cortex/Neural/Workspace/etc.), un par un

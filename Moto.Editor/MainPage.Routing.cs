@@ -70,10 +70,19 @@ namespace Moto.Editor
                 case "help.doc": DocPanel.IsVisible = true; break;
                 case "help.about": StatusBar.SetStatus("MOTO Editor v0.5 — AI Workspace"); break;
 
-                // ★ AJOUT (31/08) : engrenage ⚙ ou avatar 🙂 de la barre de titre
+                // ★ AJOUT (31/08) : engrenage ⚙ ou avatar "Moi" de la barre de titre
                 // (points 1, 2, 11 de Tom) — CustomMenuBarView lève cet id via
                 // MenuCommanded (événement déjà existant, jamais utilisé jusqu'ici).
                 case "gear.toggle": GearMenu.IsVisible = !GearMenu.IsVisible; break;
+
+                // ★ AJOUT (31/08) : Fichiers/Recherche/IA/Cortex/Collab, rapatriés dans
+                // la barre de titre (Tom veut tout sur une seule ligne — voir
+                // CustomMenuBarView.xaml, ActivityBarView retirée de MainPage.xaml).
+                // Réutilise OnActivitySelected tel quel : même id, même logique
+                // d'ouverture/fermeture des panneaux, rien d'autre à changer.
+                case "explorer": case "search": case "ai": case "cortex": case "collab":
+                    OnActivitySelected(id);
+                    break;
             }
         }
 

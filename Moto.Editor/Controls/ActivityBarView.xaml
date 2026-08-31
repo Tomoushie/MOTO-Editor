@@ -1,12 +1,19 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <!--
   Moto.Editor/Controls/ActivityBarView.xaml
+  ⚠️ N'EST PLUS INSTANCIÉE NULLE PART (31/08) — Tom a demandé que Fichiers/
+  Recherche/IA/Cortex/Collab passent sur la même ligne que l'engrenage ; ces
+  5 items vivent maintenant DANS Views/CustomMenuBarView.xaml. Retirée de
+  MainPage.xaml (grep vérifié : plus aucune balise <controls:ActivityBarView>
+  ni "new ActivityBarView()" nulle part). Conservée telle quelle (suppression
+  bloquée par le système de permissions comme pour Controls/CustomMenuBarView)
+  au cas où elle resservirait un jour telle quelle.
   ★ REFONTE (30/08, 2e passe) : demande explicite de Tom — se rapprocher d'un
   visuel façon "Zen Code" minimaliste : plus d'icônes, la barre bascule de
   colonne verticale (gauche, 48px) à ligne horizontale sous la barre de titre,
   espacée, police système moderne (Segoe UI Variable — native Windows 11).
   Le code-behind (ActivityBarView.xaml.cs) n'a PAS changé : mêmes
-  CommandParameter ("explorer","search","ai","cortex","collab","settings"),
+  CommandParameter ("explorer","search","ai","cortex","collab"),
   même événement ActivitySelected — seul l'habillage visuel change.
 -->
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"

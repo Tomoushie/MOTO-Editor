@@ -162,6 +162,20 @@ namespace Moto.Editor
             Grid.SetRow(Home, 2);
             Grid.SetColumn(Home, 1);
             RootGrid.Children.Add(Home);
+            // ★ CORRECTION (31/08) : CAUSE RÉELLE du "l'engrenage n'ouvre rien" — Home
+            // est ajouté ICI, EN CODE, donc APRÈS tout ce qui est déclaré dans
+            // MainPage.xaml (GearMenu, SettingsWindow, CollabPanel, etc.). Dans un Grid
+            // MAUI/WinUI, l'ordre d'ajout fait l'ordre d'empilement visuel : le dernier
+            // ajouté s'affiche PAR-DESSUS. Résultat, tant qu'aucun fichier n'est ouvert
+            // (Home.IsVisible=true — le cas de TOUTES les captures de Tom), Home
+            // recouvre entièrement l'engrenage/la fenêtre de Réglages/tous les menus
+            // flottants : ils s'ouvrent bel et bien (IsVisible=true), juste cachés
+            // derrière un écran opaque. Mes 3 corrections précédentes du même bug
+            // (fichier dupliqué, double abonnement Loaded, remise à zéro de
+            // Show()) étaient de vrais bugs mais pas CELUI-LÀ. ZIndex négatif = Home
+            // reste toujours dessous, quel que soit l'ordre d'ajout (touche TOUS les
+            // menus flottants du XAML d'un coup, pas seulement GearMenu).
+            Home.ZIndex = -1; // propriété directe sur VisualElement en MAUI (pas Grid.SetZIndex, qui n'existe pas ici)
 
             SettingsMenu = new Views.SettingsMenuView
             {
@@ -283,8 +297,12 @@ namespace Moto.Editor
 
         private void WireMenusAndSidebar()
         {
+            // ★ RETRAIT (31/08) : ActivityBar (Fichiers/Recherche/IA/Cortex/Collab) a
+            // quitté MainPage.xaml — ces 5 items vivent maintenant dans CustomMenuBarView
+            // (même ligne que l'engrenage), routés via MenuBar.MenuCommanded ci-dessous
+            // (voir OnMenuCommanded, cases "explorer"/"search"/"ai"/"cortex"/"collab").
+            // OnActivitySelected n'est plus abonné à un événement : appelé directement.
             MenuBar.MenuCommanded += OnMenuCommanded;
-            ActivityBar.ActivitySelected += OnActivitySelected;
             GearMenu.ItemSelected += OnGearMenuItemSelected;
             Sidebar.NewChatRequested += () => { };
             Sidebar.ThreadSelected += name => StatusBar.SetStatus($"Ouverture : {name}");

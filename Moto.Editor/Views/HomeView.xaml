@@ -62,17 +62,24 @@
                 </Border>
 
                 <!-- Chips contexte (Local / Projet / +) -->
-                <HorizontalStackLayout HorizontalOptions="Center" Spacing="8">
-                    <Border Stroke="{StaticResource BorderCol}" StrokeShape="RoundRectangle 8"
-                            Padding="10,4" BackgroundColor="{StaticResource BgPanel}">
-                        <Label Text="💻 Local" FontSize="11" />
+                <!-- ★ CORRECTION (31/08, point 3) : chips agrandies (Padding 10,4→16,10,
+                     FontSize 11→13 — Tom les trouvait trop petites). "📁 Projet logiciel"
+                     renommé "🔍 Rechercher projet" : ce bouton ouvre en réalité le
+                     sélecteur de dossier (OnImportClicked, voir MainPage.xaml.cs) — ce
+                     n'est PAS un raccourci vers un projet précis nommé "Projet logiciel"
+                     déjà sélectionné par défaut, contrairement à ce que le texte laissait
+                     penser (repéré par Tom). -->
+                <HorizontalStackLayout HorizontalOptions="Center" Spacing="10">
+                    <Border Stroke="{StaticResource BorderCol}" StrokeShape="RoundRectangle 10"
+                            Padding="16,10" BackgroundColor="{StaticResource BgPanel}">
+                        <Label Text="💻 Local" FontSize="13" />
                         <Border.GestureRecognizers>
                             <TapGestureRecognizer Tapped="OnLocalChipTapped" />
                         </Border.GestureRecognizers>
                     </Border>
-                    <Border Stroke="{StaticResource BorderCol}" StrokeShape="RoundRectangle 8"
-                            Padding="10,4" BackgroundColor="{StaticResource BgPanel}">
-                        <Label Text="📁 Projet logiciel" FontSize="11" />
+                    <Border Stroke="{StaticResource BorderCol}" StrokeShape="RoundRectangle 10"
+                            Padding="16,10" BackgroundColor="{StaticResource BgPanel}">
+                        <Label Text="🔍 Rechercher projet" FontSize="13" />
                         <Border.GestureRecognizers>
                             <TapGestureRecognizer Tapped="OnProjectChipTapped" />
                         </Border.GestureRecognizers>
