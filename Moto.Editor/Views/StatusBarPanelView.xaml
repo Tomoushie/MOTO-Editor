@@ -46,8 +46,11 @@
             <Border.GestureRecognizers>
                 <TapGestureRecognizer Tapped="OnAiMonitorTapped" />
             </Border.GestureRecognizers>
+            <!-- ★ CORRECTION (31/08) : "Idle" seul ne laissait pas deviner que
+                 c'est cliquable et mène au Monitoring IA (Tom l'a découvert par
+                 hasard) — préfixe "Monitoring :" ajouté (voir aussi SetAiStatus). -->
             <HorizontalStackLayout Spacing="4" ToolTipProperties.Text="Monitoring IA — Cliquez pour ouvrir">
-                <Label x:Name="AiStatusLabel" Text="Idle" FontSize="10"
+                <Label x:Name="AiStatusLabel" Text="Monitoring : Idle" FontSize="10"
                        TextColor="{StaticResource Txt2}" VerticalOptions="Center" />
             </HorizontalStackLayout>
         </Border>

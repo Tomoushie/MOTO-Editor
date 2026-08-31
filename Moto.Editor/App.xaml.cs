@@ -98,7 +98,12 @@ namespace Moto.Editor
                 // le .csproj) et la re-synchronise vers l'AppWindow natif après coup,
                 // écrasant silencieusement ce qu'on avait posé. Vidée ici, au niveau que
                 // MAUI lui-même contrôle, pour que ça tienne.
-                window.Title = string.Empty;
+                // ★ CORRECTION (31/08, 2e passe) : string.Empty ne suffisait pas — Tom
+                // voit toujours "MOTO Editor" après 2 tentatives (ici + AppWindow.Title
+                // plus bas). Hypothèse : MAUI traite un titre vide comme "non défini" et
+                // retombe sur ApplicationTitle (.csproj) au lieu de le laisser vide. Un
+                // espace n'est PAS vide pour cette logique, mais reste visuellement blanc.
+                window.Title = " ";
                 Breadcrumb("CreateWindow — base.CreateWindow OK");
             }
             catch (Exception ex)
@@ -137,11 +142,12 @@ namespace Moto.Editor
                 var windowId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(hwnd);
                 var appWindow = Microsoft.UI.Windowing.AppWindow.GetFromWindowId(windowId);
 
-                // ★ CORRECTION (30/08, 2e passe) : Tom veut ce texte retiré de
-                // l'intérieur de l'appli (déjà redondant avec le nom affiché par
-                // Windows sur la barre des tâches/Alt-Tab, lui-même tiré de
-                // ApplicationTitle dans le .csproj — pas besoin de le redire ici).
-                appWindow.Title = string.Empty;
+                // ★ CORRECTION (30/08, 2e passe ; 31/08, 3e passe) : Tom veut ce texte
+                // retiré de l'intérieur de l'appli — déjà redondant avec le nom affiché
+                // par Windows sur la barre des tâches/Alt-Tab (ApplicationTitle, .csproj).
+                // string.Empty seul ne suffisait pas (persistait après 2 tentatives) —
+                // espace au lieu de vide, même correctif que window.Title plus haut.
+                appWindow.Title = " ";
 
                 // ★ CORRECTION (30/08, 2e passe) : couleurs/extension de la title bar
                 // appliquées ICI, dès la création de la fenêtre — avant, elles

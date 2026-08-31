@@ -27,7 +27,7 @@ namespace Moto.Editor.Views
         /// </summary>
         public void SetAiStatus(string state)
         {
-            AiStatusLabel.Text = state;
+            AiStatusLabel.Text = $"Monitoring : {state}";
         }
 
         /// <summary>Message principal affiché à gauche de la barre.</summary>

@@ -131,9 +131,14 @@
                                   HorizontalOptions="End" VerticalOptions="Start"
                                   Margin="0,10,60,0" IsVisible="False" />
 
-        <views:CollabPanelView x:Name="CollabPanel" Grid.Row="2" Grid.ColumnSpan="3"
+        <!-- ★ CORRECTION (31/08) : restreint à la colonne centrale (comme AiBar) —
+             Tom a signalé "Collab ne s'ouvre pas" ; ancré sur les 3 colonnes, son
+             alignement "End" se calculait par rapport à un bord droit qui bouge
+             selon que le dock IA/l'arborescence sont ouverts (même piège qu'AiBar,
+             déjà corrigé). Colonne 1 = bord stable quoi qu'il y ait d'ouvert ailleurs. -->
+        <views:CollabPanelView x:Name="CollabPanel" Grid.Row="2" Grid.Column="1"
                                 HorizontalOptions="End" VerticalOptions="Start"
-                                Margin="0,10,60,0" IsVisible="False" />
+                                Margin="0,10,20,0" IsVisible="False" />
 
         <!-- ══════════════════ Live Preview (bouton 🌐 de EditorPaneView) ══════════════════ -->
         <!-- ★ AJOUT (30/08, 3e passe) : LivePreviewView/PreviewEngine existaient déjà,

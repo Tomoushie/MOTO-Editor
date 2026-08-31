@@ -97,7 +97,20 @@ public static class SnapLayoutsHelper
         // écran" — Maximiser déclenche un SizeChanged qui appliquait enfin la région.
         // Appelé immédiatement en plus des abonnements (qui restent utiles pour les
         // futurs redimensionnements/changements de DPI).
+        //
+        // ★ CORRECTION (31/08, 2e passe) : l'appel immédiat seul ne suffisait pas —
+        // Tom a confirmé que la fenêtre restait non-déplaçable INDÉFINIMENT (pas
+        // juste 30s-1min) tant qu'aucun redimensionnement réel ne survenait. Cause
+        // probable : à l'instant précis de cet appel (dans OnPageLoaded), la passe de
+        // mise en page de la fenêtre peut ne pas être totalement terminée — lire
+        // ActualSize/TransformToVisual trop tôt donne un rectangle à 0 ou mal placé,
+        // enregistré comme "la" zone de drag alors qu'il ne correspond à rien de
+        // visible. En plus de l'appel synchrone, un second appel est maintenant
+        // reporté via DispatcherQueue (priorité basse : après que toute mise en page
+        // en attente soit terminée) pour corriger avec des mesures forcément à jour.
         Appliquer();
+        element.DispatcherQueue?.TryEnqueue(
+            Microsoft.UI.Dispatching.DispatcherQueuePriority.Low, () => Appliquer());
         element.Loaded += (_, _) => Appliquer();
         element.SizeChanged += (_, _) => Appliquer();
     }

@@ -40,7 +40,10 @@
                     Clicked="OnExportClicked" />
 
             <!-- Onglets (nom + badge d'erreurs) -->
-            <CollectionView Grid.Column="3" x:Name="TabsList"
+            <!-- ★ CORRECTION (31/08) : fond forcé à transparent — Tom signale que le
+                 nom du fichier garde un fond gris malgré le Border transparent du
+                 DataTemplate (ci-dessous) ; peut venir du CollectionView lui-même. -->
+            <CollectionView Grid.Column="3" x:Name="TabsList" BackgroundColor="Transparent"
                             SelectionMode="Single" HeightRequest="34"
                             SelectionChanged="OnTabSelected">
                 <CollectionView.ItemsLayout>
