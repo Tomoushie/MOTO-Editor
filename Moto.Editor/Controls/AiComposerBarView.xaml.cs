@@ -1,5 +1,5 @@
 // Moto.Editor/Controls/AiComposerBarView.xaml.cs
-// ★ AJOUT (31/08) : voir le commentaire du .xaml pour le contexte complet.
+// ★ AJOUT/RÉVISION (31/08) : voir le commentaire du .xaml pour le contexte complet.
 using System;
 using Microsoft.Maui.Controls;
 using Moto.Core.Settings;
@@ -8,11 +8,21 @@ namespace Moto.Editor.Controls
 {
     public partial class AiComposerBarView : ContentView
     {
-        private static readonly string[] Models = { "MOTO interne", "Ollama", "OpenAI", "Anthropic", "Mistral" };
+        // ★ "MOTO AI — Par défaut" ajouté en tête, demandé explicitement par Tom pour
+        // le cas où aucun modèle n'est choisi. Correspond à la valeur par défaut déjà
+        // réelle du réglage (ai.default_model = "MOTO interne").
+        private static readonly string[] Models = { "MOTO AI — Par défaut", "Ollama", "OpenAI", "Anthropic", "Mistral" };
         private static readonly string[] EffortLevels = { "Éco", "Balanced", "Ultra" };
 
         /// <summary>Levée pour "ai"/"cortex" — MainPage route vers OnActivitySelected (code inchangé).</summary>
         public event Action<string>? PanelRequested;
+
+        /// <summary>
+        /// ★ AJOUT (31/08) : "+" — pas de vrai système de pièces jointes/connecteurs
+        /// dans MOTO Editor ; relayé vers la même action que "Rechercher projet"
+        /// (sélecteur de dossier) plutôt qu'un bouton qui ne ferait rien.
+        /// </summary>
+        public event Action? AttachRequested;
 
         public AiComposerBarView()
         {
@@ -21,18 +31,25 @@ namespace Moto.Editor.Controls
             BuildEffortList();
             _ = BuildMicListAsync();
 
+            var currentModel = SettingsEngine.Shared.GetString("ai.default_model", "MOTO interne");
+            ModelLabel.Text = currentModel == "MOTO interne" ? "MOTO AI" : currentModel;
+
             var currentEffort = SettingsEngine.Shared.GetString("power_mode", "Balanced");
-            EffortLabel.Text = $"Effort · {currentEffort}";
+            EffortLabel.Text = $"Puissance · {currentEffort}";
         }
 
         private void BuildModelList()
         {
             var current = SettingsEngine.Shared.GetString("ai.default_model", "MOTO interne");
+            ModelList.Children.Clear();
             foreach (var model in Models)
             {
-                ModelList.Children.Add(MakeRow(model, model == current, () =>
+                // "MOTO AI — Par défaut" représente la valeur réelle "MOTO interne".
+                var realValue = model == "MOTO AI — Par défaut" ? "MOTO interne" : model;
+                ModelList.Children.Add(MakeRow(model, realValue == current, () =>
                 {
-                    SettingsEngine.Shared.Set("ai.default_model", model);
+                    SettingsEngine.Shared.Set("ai.default_model", realValue);
+                    ModelLabel.Text = realValue == "MOTO interne" ? "MOTO AI" : realValue;
                     ClosePopups();
                     BuildModelList(); // rafraîchit la coche
                 }));
@@ -42,12 +59,13 @@ namespace Moto.Editor.Controls
         private void BuildEffortList()
         {
             var current = SettingsEngine.Shared.GetString("power_mode", "Balanced");
+            EffortList.Children.Clear();
             foreach (var level in EffortLevels)
             {
                 EffortList.Children.Add(MakeRow(level, level == current, () =>
                 {
                     SettingsEngine.Shared.Set("power_mode", level);
-                    EffortLabel.Text = $"Effort · {level}";
+                    EffortLabel.Text = $"Puissance · {level}";
                     ClosePopups();
                     BuildEffortList();
                 }));
@@ -56,11 +74,10 @@ namespace Moto.Editor.Controls
 
         /// <summary>
         /// ★ Honnêteté sur la portée : cette liste énumère les VRAIS micros détectés par
-        /// Windows (Windows.Devices.Enumeration, API vérifiée — pas la méthode inventée
-        /// par une proposition de Qwen, MediaDevice.GetAvailableAudioCaptureDevices(),
-        /// qui n'existe pas sous cette forme). En revanche, choisir un micro ici ne fait
-        /// encore RIEN de réel : la dictée elle-même (bouton micro) n'est pas câblée à une
-        /// vraie reconnaissance vocale dans cette passe — voir OnMicButtonTapped.
+        /// Windows (Windows.Devices.Enumeration, API vérifiée). Choisir un micro ici ne
+        /// fait encore RIEN de réel : la dictée elle-même (bouton micro) n'est pas
+        /// câblée à une vraie reconnaissance vocale dans cette passe — voir
+        /// OnMicButtonTapped.
         /// </summary>
         private async System.Threading.Tasks.Task BuildMicListAsync()
         {
@@ -118,6 +135,7 @@ namespace Moto.Editor.Controls
             ModelPopup.IsVisible = false;
             EffortPopup.IsVisible = false;
             MicPopup.IsVisible = false;
+            BudgetPopup.IsVisible = false;
         }
 
         private void Toggle(Border popup)
@@ -130,6 +148,13 @@ namespace Moto.Editor.Controls
         private void OnModelButtonTapped(object sender, TappedEventArgs e) => Toggle(ModelPopup);
         private void OnEffortButtonTapped(object sender, TappedEventArgs e) => Toggle(EffortPopup);
         private void OnMicChevronTapped(object sender, TappedEventArgs e) => Toggle(MicPopup);
+        private void OnBudgetTapped(object sender, TappedEventArgs e) => Toggle(BudgetPopup);
+
+        private void OnAttachTapped(object sender, TappedEventArgs e)
+        {
+            ClosePopups();
+            AttachRequested?.Invoke();
+        }
 
         /// <summary>
         /// ★ Honnêteté sur la portée (point 4 de Tom) : pas de vraie reconnaissance

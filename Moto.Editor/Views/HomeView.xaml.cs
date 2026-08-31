@@ -64,6 +64,10 @@ namespace Moto.Editor.Views
             _workspaceState = workspaceState;
             LocationMenu.LocationSelected += id => LocationSelected?.Invoke(id);
             ComposerBar.PanelRequested += id => ComposerPanelRequested?.Invoke(id);
+            // ★ AJOUT (31/08) : "+" de la barre du bas — pas de vrai système de pièces
+            // jointes dans MOTO Editor, relayé vers la même action que "Rechercher
+            // projet" (sélecteur de dossier) plutôt qu'un bouton qui ne ferait rien.
+            ComposerBar.AttachRequested += () => ProjectChipTapped?.Invoke();
         }
 
         /// <summary>Rebranche les moteurs une fois un workspace ouvert (LoadWorkspace).</summary>

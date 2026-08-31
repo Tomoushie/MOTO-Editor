@@ -1,20 +1,28 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <!--
   Moto.Editor/Controls/AiComposerBarView.xaml
-  ★ AJOUT (31/08) : barre sous la zone de saisie de l'Accueil, demandée par Tom
-  (points 2 à 5, captures de l'app Claude Code fournies en référence) :
-  - "+" : modèle utilisé (réutilise le vrai réglage ai.default_model,
-    catégorie "AI" de la fenêtre de Réglages — mêmes 5 choix).
-  - Effort : réutilise le vrai réglage power_mode (Éco/Balanced/Ultra).
-  - Micro + flèche : bouton dictée (honnêteté : pas encore câblé à une vraie
-    reconnaissance vocale, message clair plutôt qu'un effet simulé) + liste
-    des micros réellement détectés sur la machine (Windows.Devices.Enumeration,
-    avec repli propre si indisponible).
-  - IA / Cortex : rapatriés ici depuis la barre du haut (point 5 — "bouger").
-  - Pastille de droite : "Token : infini" — texte fixe proposé par Tom
-    lui-même (tout est local ou MOTO AI, pas de budget à afficher).
-  Popups dans une ligne SÉPARÉE au-dessus de la barre (pas de superposition à
-  gérer) — s'affichent directement au-dessus du bouton concerné.
+  ★ RÉVISION (31/08) : Tom a précisé la disposition exacte voulue (captures de
+  l'app Claude Code) — le modèle actuel affiché à DROITE (pas un "+" muet),
+  un bouton "Puissance" (pas un simple texte), et la pastille budget ronde,
+  reconstruits avec le vrai thème MOTO (Txt1/Txt2/BgPanel/BorderCol/Accent —
+  PAS les couleurs inventées par une proposition de Qwen sur ce même sujet :
+  MotoSubtleBackground/MotoCardBorder/MotoAccentBlue n'existent pas ici) et
+  sans reprendre son code (juste la disposition/l'esprit).
+  - "+" : action honnête (ouvre le sélecteur de dossier, comme "Rechercher
+    projet" — pas de vrai système de pièces jointes/connecteurs dans MOTO
+    Editor pour l'instant).
+  - Micro + flèche : liste de VRAIS micros détectés (Windows.Devices.
+    Enumeration) ; la dictée elle-même n'est pas câblée (honnêteté, voir .cs).
+  - IA / Cortex : rapatriés depuis la barre du haut (point 5).
+  - Modèle : affiche le choix actuel (réglage réel ai.default_model), avec
+    "MOTO AI — Par défaut" en première option (demandé explicitement par Tom
+    pour le cas où rien n'est choisi).
+  - Puissance : bouton (pas du texte) affichant le réglage réel power_mode.
+  - Pastille ronde : ouvre un petit résumé honnête (les mêmes 4 statistiques
+    déjà affichées au-dessus, toutes à 0 pour l'instant — pas de fenêtre de
+    contexte/limite fictive, MOTO Editor n'a rien de tel).
+  Popups dans une ligne séparée au-dessus de la barre (pas de superposition
+  à gérer, s'affichent directement au-dessus du bouton concerné).
 -->
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
@@ -24,51 +32,51 @@
     <Grid RowDefinitions="Auto,Auto" RowSpacing="6">
 
         <!-- ══ Ligne 0 : popups (un seul visible à la fois) ══ -->
-        <Grid Grid.Row="0" HorizontalOptions="Start">
+        <Grid Grid.Row="0">
 
-            <Border x:Name="ModelPopup" IsVisible="False"
+            <Border x:Name="ModelPopup" IsVisible="False" HorizontalOptions="End"
                     Stroke="{StaticResource BorderCol}" StrokeShape="RoundRectangle 10"
-                    BackgroundColor="{StaticResource BgPanel}" Padding="6" WidthRequest="230">
+                    BackgroundColor="{StaticResource BgPanel}" Padding="6" WidthRequest="240">
                 <VerticalStackLayout x:Name="ModelList" Spacing="1" />
             </Border>
 
-            <Border x:Name="EffortPopup" IsVisible="False"
+            <Border x:Name="EffortPopup" IsVisible="False" HorizontalOptions="End" Margin="0,0,80,0"
                     Stroke="{StaticResource BorderCol}" StrokeShape="RoundRectangle 10"
-                    BackgroundColor="{StaticResource BgPanel}" Padding="6" WidthRequest="200">
+                    BackgroundColor="{StaticResource BgPanel}" Padding="6" WidthRequest="180">
                 <VerticalStackLayout x:Name="EffortList" Spacing="1" />
             </Border>
 
-            <Border x:Name="MicPopup" IsVisible="False"
+            <Border x:Name="MicPopup" IsVisible="False" HorizontalOptions="Start"
                     Stroke="{StaticResource BorderCol}" StrokeShape="RoundRectangle 10"
                     BackgroundColor="{StaticResource BgPanel}" Padding="6" WidthRequest="260">
                 <VerticalStackLayout x:Name="MicList" Spacing="1" />
             </Border>
 
+            <Border x:Name="BudgetPopup" IsVisible="False" HorizontalOptions="End"
+                    Stroke="{StaticResource BorderCol}" StrokeShape="RoundRectangle 10"
+                    BackgroundColor="{StaticResource BgPanel}" Padding="14" WidthRequest="240">
+                <VerticalStackLayout Spacing="6">
+                    <Label Text="Token : infini · 100% local" FontSize="12" FontAttributes="Bold" TextColor="{StaticResource Txt1}" />
+                    <Label x:Name="BudgetStatsLabel" Text="Sessions 0 · Messages 0 · Patterns 0" FontSize="11" TextColor="{StaticResource Txt2}" />
+                </VerticalStackLayout>
+            </Border>
+
         </Grid>
 
         <!-- ══ Ligne 1 : la barre elle-même ══ -->
-        <Grid Grid.Row="1" ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,Auto,*,Auto" ColumnSpacing="4">
+        <Grid Grid.Row="1" ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,*,Auto,Auto,Auto" ColumnSpacing="4">
 
             <Border Grid.Column="0" WidthRequest="30" HeightRequest="30" StrokeThickness="0"
                     BackgroundColor="Transparent">
                 <Label Text="＋" FontSize="16" TextColor="{StaticResource Txt1}"
                        HorizontalOptions="Center" VerticalOptions="Center" />
                 <Border.GestureRecognizers>
-                    <TapGestureRecognizer Tapped="OnModelButtonTapped" />
+                    <TapGestureRecognizer Tapped="OnAttachTapped" />
                 </Border.GestureRecognizers>
             </Border>
 
-            <Border Grid.Column="1" Padding="10,5" StrokeThickness="0"
-                    BackgroundColor="{StaticResource BgPanel}" StrokeShape="RoundRectangle 8">
-                <Label x:Name="EffortLabel" Text="Effort · Balanced" FontSize="11" TextColor="{StaticResource Txt1}" />
-                <Border.GestureRecognizers>
-                    <TapGestureRecognizer Tapped="OnEffortButtonTapped" />
-                </Border.GestureRecognizers>
-            </Border>
-
-            <!-- ★ Emoji gardé ici (pas d'icône vectorielle micro vérifiée dans
-                 Controls/MotoIcons.cs — plutôt ça qu'un glyphe deviné sans rapport). -->
-            <Border Grid.Column="2" WidthRequest="30" HeightRequest="30" StrokeThickness="0"
+            <!-- ★ Emoji gardé ici (pas d'icône vectorielle micro vérifiée). -->
+            <Border Grid.Column="1" WidthRequest="30" HeightRequest="30" StrokeThickness="0"
                     BackgroundColor="Transparent">
                 <Label Text="🎤" FontSize="13"
                        HorizontalOptions="Center" VerticalOptions="Center" />
@@ -77,7 +85,7 @@
                 </Border.GestureRecognizers>
             </Border>
 
-            <Border Grid.Column="3" WidthRequest="20" HeightRequest="30" StrokeThickness="0"
+            <Border Grid.Column="2" WidthRequest="20" HeightRequest="30" StrokeThickness="0"
                     BackgroundColor="Transparent">
                 <Label Text="⌄" FontSize="12" TextColor="{StaticResource Txt2}"
                        HorizontalOptions="Center" VerticalOptions="Center" />
@@ -86,7 +94,7 @@
                 </Border.GestureRecognizers>
             </Border>
 
-            <Border Grid.Column="4" Padding="10,5" StrokeThickness="0"
+            <Border Grid.Column="3" Padding="10,5" StrokeThickness="0"
                     BackgroundColor="{StaticResource BgPanel}" StrokeShape="RoundRectangle 8">
                 <Label Text="IA" FontSize="11" TextColor="{StaticResource Txt1}" />
                 <Border.GestureRecognizers>
@@ -94,7 +102,7 @@
                 </Border.GestureRecognizers>
             </Border>
 
-            <Border Grid.Column="5" Padding="10,5" StrokeThickness="0"
+            <Border Grid.Column="4" Padding="10,5" StrokeThickness="0"
                     BackgroundColor="{StaticResource BgPanel}" StrokeShape="RoundRectangle 8">
                 <Label Text="Cortex" FontSize="11" TextColor="{StaticResource Txt1}" />
                 <Border.GestureRecognizers>
@@ -102,11 +110,34 @@
                 </Border.GestureRecognizers>
             </Border>
 
-            <HorizontalStackLayout Grid.Column="7" Spacing="6" VerticalOptions="Center">
-                <Border WidthRequest="7" HeightRequest="7" StrokeThickness="0"
-                        BackgroundColor="{StaticResource Accent}" StrokeShape="RoundRectangle 4" />
-                <Label Text="Token : infini · 100% local" FontSize="11" TextColor="{StaticResource Txt2}" />
-            </HorizontalStackLayout>
+            <!-- Colonne 5 = espace libre ("*") -->
+
+            <!-- Modèle actuel — clic = changer -->
+            <Border Grid.Column="6" Padding="10,5" StrokeThickness="0"
+                    BackgroundColor="{StaticResource BgPanel}" StrokeShape="RoundRectangle 8">
+                <Label x:Name="ModelLabel" Text="MOTO AI" FontSize="11" TextColor="{StaticResource Txt1}" />
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnModelButtonTapped" />
+                </Border.GestureRecognizers>
+            </Border>
+
+            <!-- Puissance — bouton, pas du texte -->
+            <Border Grid.Column="7" Padding="10,5" StrokeThickness="0"
+                    BackgroundColor="{StaticResource BgPanel}" StrokeShape="RoundRectangle 8">
+                <Label x:Name="EffortLabel" Text="Puissance · Balanced" FontSize="11" TextColor="{StaticResource Txt1}" />
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnEffortButtonTapped" />
+                </Border.GestureRecognizers>
+            </Border>
+
+            <!-- Pastille budget (ronde, cliquable) -->
+            <Border Grid.Column="8" WidthRequest="16" HeightRequest="16" Margin="4,0,0,0"
+                    StrokeThickness="0" BackgroundColor="{StaticResource Accent}"
+                    StrokeShape="RoundRectangle 8" VerticalOptions="Center">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnBudgetTapped" />
+                </Border.GestureRecognizers>
+            </Border>
 
         </Grid>
     </Grid>

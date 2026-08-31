@@ -66,76 +66,93 @@
                           ColumnSpacing="10" RowSpacing="10" />
                 </Border>
 
-                <!-- Input central style ChatGPT/Claude -->
-                <Border Stroke="{StaticResource BorderCol}" StrokeShape="RoundRectangle 24"
-                        BackgroundColor="{StaticResource BgPanel}" Padding="6,2" WidthRequest="560">
-                    <Grid ColumnDefinitions="Auto,*,Auto">
-                        <Button Grid.Column="0" Text="＋" WidthRequest="36"
-                                Clicked="OnAttachClicked" />
-                        <Entry Grid.Column="1" x:Name="PromptEntry"
-                               Placeholder="Décris une tâche ou pose une question."
-                               BackgroundColor="Transparent"
-                               Completed="OnPromptSubmitted" />
-                        <Button Grid.Column="2" Text="➤" WidthRequest="36"
-                                Clicked="OnPromptSubmitted" />
+                <!-- ★ RÉORGANISÉ (31/08, points 3/4 de Tom) : ordre calqué sur la
+                     référence Claude Code — chips AU-DESSUS de la saisie (petit
+                     écart), barre de contrôles (+/micro/IA/Cortex/modèle/Puissance/
+                     budget) COLLÉE juste EN DESSOUS. Regroupés dans leur propre
+                     VerticalStackLayout à espacement réduit (10, au lieu des 22 du
+                     reste de la page) — ces 3 blocs forment un seul ensemble visuel. -->
+                <VerticalStackLayout Spacing="10">
+
+                    <!-- Chips contexte (Local / Rechercher projet / dossier) -->
+                    <!-- ★ CORRECTION (31/08, point 3 précédent) : chips agrandies,
+                         "📁 Projet logiciel" renommé "🔍 Rechercher projet" : ce
+                         bouton ouvre en réalité le sélecteur de dossier — ce n'est
+                         PAS un raccourci vers un projet précis déjà sélectionné par
+                         défaut, contrairement à ce que le texte laissait penser.
+                         ★ AJOUT (31/08, point 4) : 3e chip "dossier" (icône seule,
+                         même action que "Rechercher projet" — pas d'autre
+                         comportement précisé par Tom pour l'instant).
+                         ★ CORRECTION (31/08, point 1) : LocationMenu (Emplacement
+                         d'exécution) ancré juste AU-DESSUS de la chip "Local". -->
+                    <Grid>
+                        <controls:ExecutionLocationMenu x:Name="LocationMenu"
+                                                         HorizontalOptions="Start" VerticalOptions="End"
+                                                         Margin="0,0,0,50" IsVisible="False" />
+                        <HorizontalStackLayout HorizontalOptions="Center" Spacing="10">
+                            <!-- ★ CORRECTION (31/08) : emojis → glyphes vectoriels (Segoe
+                                 Fluent Icons, codepoints vérifiés visuellement) —
+                                 FormattedText/Span nécessaire pour mélanger la police
+                                 d'icône et le texte normal dans un même Label. -->
+                            <Border Stroke="{StaticResource BorderCol}" StrokeShape="RoundRectangle 10"
+                                    Padding="16,10" BackgroundColor="{StaticResource BgPanel}">
+                                <Label FontSize="13">
+                                    <Label.FormattedText>
+                                        <FormattedString>
+                                            <Span Text="{x:Static controls:MotoIcons.Devices}" FontFamily="{x:Static controls:MotoIcons.FontFamily}" />
+                                            <Span Text="  Local" />
+                                        </FormattedString>
+                                    </Label.FormattedText>
+                                </Label>
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnLocalChipTapped" />
+                                </Border.GestureRecognizers>
+                            </Border>
+                            <Border Stroke="{StaticResource BorderCol}" StrokeShape="RoundRectangle 10"
+                                    Padding="16,10" BackgroundColor="{StaticResource BgPanel}">
+                                <Label FontSize="13">
+                                    <Label.FormattedText>
+                                        <FormattedString>
+                                            <Span Text="{x:Static controls:MotoIcons.Search}" FontFamily="{x:Static controls:MotoIcons.FontFamily}" />
+                                            <Span Text="  Rechercher projet" />
+                                        </FormattedString>
+                                    </Label.FormattedText>
+                                </Label>
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnProjectChipTapped" />
+                                </Border.GestureRecognizers>
+                            </Border>
+                            <Border Stroke="{StaticResource BorderCol}" StrokeShape="RoundRectangle 10"
+                                    Padding="12,10" BackgroundColor="{StaticResource BgPanel}">
+                                <Label Text="{x:Static controls:MotoIcons.Folder}" FontFamily="{x:Static controls:MotoIcons.FontFamily}"
+                                       FontSize="13" TextColor="{StaticResource Txt1}" />
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnProjectChipTapped" />
+                                </Border.GestureRecognizers>
+                            </Border>
+                        </HorizontalStackLayout>
                     </Grid>
-                </Border>
 
-                <!-- ★ AJOUT (31/08, points 2/3/4/5 de Tom) : barre façon Claude Code
-                     sous la zone de saisie — voir Controls/AiComposerBarView. -->
-                <controls:AiComposerBarView x:Name="ComposerBar" WidthRequest="560" />
+                    <!-- Input central style ChatGPT/Claude -->
+                    <Border Stroke="{StaticResource BorderCol}" StrokeShape="RoundRectangle 24"
+                            BackgroundColor="{StaticResource BgPanel}" Padding="6,2" WidthRequest="560">
+                        <Grid ColumnDefinitions="Auto,*,Auto">
+                            <Button Grid.Column="0" Text="＋" WidthRequest="36"
+                                    Clicked="OnAttachClicked" />
+                            <Entry Grid.Column="1" x:Name="PromptEntry"
+                                   Placeholder="Décris une tâche ou pose une question."
+                                   BackgroundColor="Transparent"
+                                   Completed="OnPromptSubmitted" />
+                            <Button Grid.Column="2" Text="➤" WidthRequest="36"
+                                    Clicked="OnPromptSubmitted" />
+                        </Grid>
+                    </Border>
 
-                <!-- Chips contexte (Local / Projet / +) -->
-                <!-- ★ CORRECTION (31/08, point 3) : chips agrandies (Padding 10,4→16,10,
-                     FontSize 11→13 — Tom les trouvait trop petites). "📁 Projet logiciel"
-                     renommé "🔍 Rechercher projet" : ce bouton ouvre en réalité le
-                     sélecteur de dossier (OnImportClicked, voir MainPage.xaml.cs) — ce
-                     n'est PAS un raccourci vers un projet précis nommé "Projet logiciel"
-                     déjà sélectionné par défaut, contrairement à ce que le texte laissait
-                     penser (repéré par Tom). -->
-                <!-- ★ CORRECTION (31/08, point 1 de Tom) : LocationMenu (Emplacement
-                     d'exécution) déménagé ici, ancré juste AU-DESSUS de la chip "Local"
-                     (façon Claude Code) — auparavant en haut à droite de toute la
-                     fenêtre (MainPage.xaml). Voir HomeView.xaml.cs pour le câblage. -->
-                <Grid>
-                    <controls:ExecutionLocationMenu x:Name="LocationMenu"
-                                                     HorizontalOptions="Start" VerticalOptions="End"
-                                                     Margin="0,0,0,50" IsVisible="False" />
-                    <HorizontalStackLayout HorizontalOptions="Center" Spacing="10">
-                        <!-- ★ CORRECTION (31/08) : emojis → glyphes vectoriels (Segoe Fluent
-                             Icons, codepoints vérifiés visuellement) — FormattedText/Span
-                             nécessaire pour mélanger la police d'icône et le texte normal
-                             dans un même Label. -->
-                        <Border Stroke="{StaticResource BorderCol}" StrokeShape="RoundRectangle 10"
-                                Padding="16,10" BackgroundColor="{StaticResource BgPanel}">
-                            <Label FontSize="13">
-                                <Label.FormattedText>
-                                    <FormattedString>
-                                        <Span Text="{x:Static controls:MotoIcons.Devices}" FontFamily="{x:Static controls:MotoIcons.FontFamily}" />
-                                        <Span Text="  Local" />
-                                    </FormattedString>
-                                </Label.FormattedText>
-                            </Label>
-                            <Border.GestureRecognizers>
-                                <TapGestureRecognizer Tapped="OnLocalChipTapped" />
-                            </Border.GestureRecognizers>
-                        </Border>
-                        <Border Stroke="{StaticResource BorderCol}" StrokeShape="RoundRectangle 10"
-                                Padding="16,10" BackgroundColor="{StaticResource BgPanel}">
-                            <Label FontSize="13">
-                                <Label.FormattedText>
-                                    <FormattedString>
-                                        <Span Text="{x:Static controls:MotoIcons.Search}" FontFamily="{x:Static controls:MotoIcons.FontFamily}" />
-                                        <Span Text="  Rechercher projet" />
-                                    </FormattedString>
-                                </Label.FormattedText>
-                            </Label>
-                            <Border.GestureRecognizers>
-                                <TapGestureRecognizer Tapped="OnProjectChipTapped" />
-                            </Border.GestureRecognizers>
-                        </Border>
-                    </HorizontalStackLayout>
-                </Grid>
+                    <!-- ★ AJOUT (31/08, points 2/3/4/5 de Tom) : barre façon Claude Code
+                         collée sous la zone de saisie — voir Controls/AiComposerBarView. -->
+                    <controls:AiComposerBarView x:Name="ComposerBar" WidthRequest="560" />
+
+                </VerticalStackLayout>
 
             </VerticalStackLayout>
         </ScrollView>

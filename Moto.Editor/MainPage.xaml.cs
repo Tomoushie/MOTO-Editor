@@ -381,7 +381,16 @@ namespace Moto.Editor
 #if WINDOWS
             var nativeWindow = Application.Current.Windows[0].Handler.PlatformView
                 as Microsoft.UI.Xaml.Window;
-            GlobalHotkeyService.Register(nativeWindow, onHotkey: () => AiBar.Toggle(), onWindowActivated: () => AiBar.Show());
+            // ★ CORRECTION (31/08) : CAUSE RÉELLE de la "double barre de discussion" et
+            // des chips Local/Rechercher projet coupées, signalées par Tom. AiBar
+            // (bandeau IA flottant, Ctrl+Shift+I, pensé pour être utilisé PENDANT
+            // l'édition) se réaffichait à CHAQUE réactivation de la fenêtre
+            // (onWindowActivated), y compris sur l'Accueil — qui a maintenant sa
+            // propre barre équivalente (ComposerBar). Les deux se superposaient
+            // exactement là où Tom voyait ses chips coupées. Suppression sur l'Accueil
+            // uniquement (Home.IsVisible) — le raccourci Ctrl+Shift+I et le bouton
+            // dédié continuent de fonctionner normalement pendant l'édition.
+            GlobalHotkeyService.Register(nativeWindow, onHotkey: () => AiBar.Toggle(), onWindowActivated: () => { if (!Home.IsVisible) AiBar.Show(); });
 
             // ★ CORRECTION (30/08) : barre de titre Windows par défaut visible en plus de
             // notre CustomMenuBarView (repéré par Tom au premier lancement réel). Le
