@@ -202,6 +202,9 @@ namespace Moto.Editor
                     LoadDocumentIntoEditor(_viewModel.SelectedDocument);
                 }
             };
+            // ★ AJOUT (31/08) : "impossible de revenir au menu principal une fois qu'un
+            // fichier est ouvert" (Tom) — aucun moyen de fermer un onglet n'existait.
+            EditorPane.TabClosed += doc => _viewModel.RemoveDocument(doc);
             EditorPane.BackRequested += OnNavBack;
             EditorPane.ForwardRequested += OnNavForward;
             EditorPane.MaximizeRequested += OnMaximizeToggled;

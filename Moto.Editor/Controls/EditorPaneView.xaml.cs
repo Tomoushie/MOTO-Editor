@@ -57,6 +57,12 @@ namespace Moto.Editor.Controls
         public event Action<EditorDocument> TabSelected;
 
         /// <summary>
+        /// ★ AJOUT (31/08) : fermeture d'un onglet via son ✕ → transmise à MainPage
+        /// (qui retire le document du ViewModel). Voir MainViewModel.RemoveDocument.
+        /// </summary>
+        public event Action<EditorDocument> TabClosed;
+
+        /// <summary>
         /// Modification du texte par l'utilisateur.
         /// Branché sur CodeEditorView.EditorChanged.
         /// </summary>
@@ -207,6 +213,15 @@ namespace Moto.Editor.Controls
             if (e.CurrentSelection.Count > 0 && e.CurrentSelection[0] is EditorDocument doc)
             {
                 TabSelected?.Invoke(doc);
+            }
+        }
+
+        /// <summary>Bouton ✕ d'un onglet : ferme le document (voir TabClosed).</summary>
+        private void OnTabCloseTapped(object s, TappedEventArgs e)
+        {
+            if (e.Parameter is EditorDocument doc)
+            {
+                TabClosed?.Invoke(doc);
             }
         }
     }

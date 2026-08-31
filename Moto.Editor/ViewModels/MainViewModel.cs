@@ -240,6 +240,23 @@ namespace Moto.Editor.ViewModels
         }
 
         /// <summary>Crée l'onglet SANS lire le fichier (lazy).</summary>
+        /// <summary>
+        /// ★ AJOUT (31/08) : ferme un document ouvert. Aucun moyen de fermer un onglet
+        /// n'existait auparavant — une fois un fichier ouvert, impossible de revenir à
+        /// l'Accueil (Home ne se réaffiche que quand Documents est vide). Repéré par
+        /// Tom : "impossible de revenir au menu principal une fois qu'un fichier est
+        /// ouvert".
+        /// </summary>
+        public void RemoveDocument(EditorDocument doc)
+        {
+            if (doc is null) return;
+            var wasSelected = ReferenceEquals(SelectedDocument, doc);
+            Documents.Remove(doc);
+
+            if (wasSelected)
+                SelectedDocument = Documents.Count > 0 ? Documents[^1] : null;
+        }
+
         public void OpenFilePath(string path)
         {
             if (string.IsNullOrWhiteSpace(path) || !File.Exists(path))

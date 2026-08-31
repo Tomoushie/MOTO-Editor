@@ -56,12 +56,21 @@
                         <Border StrokeShape="RoundRectangle 8" BackgroundColor="Transparent"
                                 Stroke="{StaticResource BorderCol}" StrokeThickness="1"
                                 Padding="12,6">
-                            <HorizontalStackLayout Spacing="6">
+                            <HorizontalStackLayout Spacing="8">
                                 <Label Text="{Binding Title}" FontSize="13" VerticalOptions="Center"
                                        TextColor="{StaticResource Txt1}" />
                                 <Label Text="{Binding ErrorBadge}" TextColor="OrangeRed"
                                        FontSize="12" IsVisible="{Binding HasErrors}"
                                        VerticalOptions="Center" />
+                                <!-- ★ AJOUT (31/08) : aucun moyen de fermer un onglet n'existait —
+                                     impossible de revenir à l'Accueil une fois un fichier ouvert
+                                     (repéré par Tom). -->
+                                <Label Text="✕" FontSize="12" TextColor="{StaticResource Txt2}"
+                                       VerticalOptions="Center">
+                                    <Label.GestureRecognizers>
+                                        <TapGestureRecognizer Tapped="OnTabCloseTapped" CommandParameter="{Binding .}" />
+                                    </Label.GestureRecognizers>
+                                </Label>
                             </HorizontalStackLayout>
                         </Border>
                     </DataTemplate>
