@@ -92,6 +92,13 @@ namespace Moto.Editor
             try
             {
                 window = base.CreateWindow(activationState);
+                // ★ CORRECTION (31/08) : "MOTO Editor" restait visible dans la barre de
+                // titre malgré appWindow.Title = "" (posé plus bas, niveau natif) — MAUI
+                // gère SA PROPRE propriété Window.Title (dérivée d'ApplicationTitle dans
+                // le .csproj) et la re-synchronise vers l'AppWindow natif après coup,
+                // écrasant silencieusement ce qu'on avait posé. Vidée ici, au niveau que
+                // MAUI lui-même contrôle, pour que ça tienne.
+                window.Title = string.Empty;
                 Breadcrumb("CreateWindow — base.CreateWindow OK");
             }
             catch (Exception ex)

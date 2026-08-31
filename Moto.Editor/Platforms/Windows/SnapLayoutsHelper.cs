@@ -86,6 +86,18 @@ public static class SnapLayoutsHelper
             source.SetRegionRects(kind, new[] { RectInt32From(rect) });
         }
 
+        // ★ CORRECTION (31/08) : ConfigureSnapLayouts n'est appelée qu'après
+        // MainPage.OnPageLoaded — à ce stade, TitleBarDragZone/BtnMin/BtnMax/BtnClose
+        // ont déjà eu largement le temps de déclencher LEUR PROPRE Loaded avant qu'on
+        // s'y abonne ici. Résultat : Appliquer() n'était jamais appelée tant qu'aucun
+        // redimensionnement ne survenait ensuite (ex. Maximiser) — la fenêtre restait
+        // non-déplaçable et la barre de titre native ne se réduisait jamais vraiment
+        // tant que la zone "Caption" n'avait pas de région enregistrée. Repéré par
+        // Tom : "impossible de déplacer la fenêtre... sauf si on clique sur Plein
+        // écran" — Maximiser déclenche un SizeChanged qui appliquait enfin la région.
+        // Appelé immédiatement en plus des abonnements (qui restent utiles pour les
+        // futurs redimensionnements/changements de DPI).
+        Appliquer();
         element.Loaded += (_, _) => Appliquer();
         element.SizeChanged += (_, _) => Appliquer();
     }

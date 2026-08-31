@@ -277,6 +277,11 @@ namespace Moto.Editor
 
             // ── Commandes normales ──
             App.Breadcrumb($"OnAiCommandSubmitted — entrée : \"{text}\"");
+            // ★ AJOUT (31/08) : AiBar.SetBusy(true) ne montre rien quand la demande
+            // vient du prompt de l'Accueil (AiBar, le bandeau flottant, n'est alors pas
+            // visible) — l'attente (parfois 1 min+ avec un modèle local) semblait donc
+            // "figée"/anormale à Tom. La barre de statut, elle, est TOUJOURS visible.
+            StatusBar.SetStatus("🧠 Réflexion de l'IA en cours…");
             AiBar.SetBusy(true);
             try
             {

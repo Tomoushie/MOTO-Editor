@@ -17,9 +17,11 @@
                FontSize="11" VerticalOptions="Center"
                TextColor="{StaticResource Txt2}" LineBreakMode="TailTruncation" />
 
+        <!-- ★ CORRECTION (31/08) : icônes retirées ("le texte suffit amplement", Tom)
+             — le code couleur (gris/orange) reste le vrai signal réussite/échec. -->
         <HorizontalStackLayout Grid.Column="1" Spacing="10" VerticalOptions="Center">
-            <Label x:Name="ErrorsLabel" Text="✅ 0" FontSize="11" TextColor="{StaticResource Txt2}" />
-            <Label x:Name="WarningsLabel" Text="⚠ 0" FontSize="11" TextColor="{StaticResource Txt2}" IsVisible="False" />
+            <Label x:Name="ErrorsLabel" Text="0 erreur" FontSize="11" TextColor="{StaticResource Txt2}" />
+            <Label x:Name="WarningsLabel" Text="0 avertissement" FontSize="11" TextColor="{StaticResource Txt2}" IsVisible="False" />
         </HorizontalStackLayout>
 
         <Label Grid.Column="2" x:Name="SandboxLabel" Text="🧪 Sandbox"
@@ -33,7 +35,7 @@
             <Border.GestureRecognizers>
                 <TapGestureRecognizer Tapped="OnInfoTapped" />
             </Border.GestureRecognizers>
-            <Label Text="ℹ️ Infos" FontSize="12" VerticalOptions="Center" />
+            <Label Text="Infos" FontSize="12" VerticalOptions="Center" />
         </Border>
 
         <!-- ★ CORRECTION (30/08) : déplacé ici depuis MainPage.xaml (Grid.Row="2"
@@ -45,7 +47,6 @@
                 <TapGestureRecognizer Tapped="OnAiMonitorTapped" />
             </Border.GestureRecognizers>
             <HorizontalStackLayout Spacing="4" ToolTipProperties.Text="Monitoring IA — Cliquez pour ouvrir">
-                <Label x:Name="AiStatusIcon" Text="🧠" FontSize="12" VerticalOptions="Center" />
                 <Label x:Name="AiStatusLabel" Text="Idle" FontSize="10"
                        TextColor="{StaticResource Txt2}" VerticalOptions="Center" />
             </HorizontalStackLayout>

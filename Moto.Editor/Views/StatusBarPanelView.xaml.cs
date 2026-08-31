@@ -20,14 +20,14 @@ namespace Moto.Editor.Views
             InitializeComponent();
         }
 
-        /// <summary>Met à jour l'icône + le texte de l'indicateur IA.</summary>
+        /// <summary>
+        /// Met à jour le texte de l'indicateur IA.
+        /// ★ CORRECTION (31/08) : icône (🧠/⚡/🐢/❌) retirée du XAML — "le texte
+        /// suffit amplement" (Tom). Le mot d'état ("Idle"/"Inferring"/...) reste seul.
+        /// </summary>
         public void SetAiStatus(string state)
         {
             AiStatusLabel.Text = state;
-            AiStatusIcon.Text = state switch
-            {
-                "Idle" => "🧠", "Inferring" => "⚡", "Throttled" => "🐢", "Error" => "❌", _ => "🧠"
-            };
         }
 
         /// <summary>Message principal affiché à gauche de la barre.</summary>
@@ -39,13 +39,15 @@ namespace Moto.Editor.Views
         /// <summary>Compteurs d'erreurs/avertissements (dernier build).</summary>
         public void SetCounts(int errors, int warnings)
         {
-            ErrorsLabel.Text = errors == 0 ? "✅ 0" : $"❌ {errors}";
+            // ★ CORRECTION (31/08) : icônes retirées ("le texte suffit amplement",
+            // Tom) — la couleur (gris/orange) reste le signal réussite/échec.
+            ErrorsLabel.Text = errors == 0 ? "0 erreur" : $"{errors} erreur(s)";
             ErrorsLabel.TextColor = errors == 0
                 ? (Color)Application.Current!.Resources["Txt2"]
                 : Colors.OrangeRed;
 
             WarningsLabel.IsVisible = warnings > 0;
-            WarningsLabel.Text = $"⚠ {warnings}";
+            WarningsLabel.Text = $"{warnings} avertissement(s)";
         }
 
         /// <summary>Affiche/masque l'indicateur "mode sandbox".</summary>

@@ -31,8 +31,11 @@
                     Clicked="OnForwardClicked" />
 
             <!-- ★ CORRECTION (30/08) : la simple flèche "⬇" n'était pas assez claire
-                 selon Tom ("personne ne sait ce qu'elle représente") -->
-            <Button Grid.Column="2" Text="⬇ Exporter" Padding="8,2" FontSize="12"
+                 selon Tom ("personne ne sait ce qu'elle représente")
+                 ★ CORRECTION (31/08) : fond gris par défaut retiré + agrandi, même
+                 traitement que les flèches ← → ("tout est trop petit", Tom). -->
+            <Button Grid.Column="2" Text="⬇ Exporter" Padding="10,4" FontSize="14"
+                    BackgroundColor="Transparent" TextColor="{StaticResource Txt1}"
                     ToolTipProperties.Text="Exporter (txt, md, html, pdf, docx, odt, rtf...)"
                     Clicked="OnExportClicked" />
 
@@ -45,12 +48,16 @@
                 </CollectionView.ItemsLayout>
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
-                        <Border StrokeShape="RoundRectangle 8" BackgroundColor="#202126"
-                                Padding="10,5">
+                        <!-- ★ CORRECTION (31/08) : fond plein retiré (juste un contour
+                             discret) + agrandi ("tout est trop petit", Tom). -->
+                        <Border StrokeShape="RoundRectangle 8" BackgroundColor="Transparent"
+                                Stroke="{StaticResource BorderCol}" StrokeThickness="1"
+                                Padding="12,6">
                             <HorizontalStackLayout Spacing="6">
-                                <Label Text="{Binding Title}" FontSize="12" VerticalOptions="Center" />
+                                <Label Text="{Binding Title}" FontSize="13" VerticalOptions="Center"
+                                       TextColor="{StaticResource Txt1}" />
                                 <Label Text="{Binding ErrorBadge}" TextColor="OrangeRed"
-                                       FontSize="11" IsVisible="{Binding HasErrors}"
+                                       FontSize="12" IsVisible="{Binding HasErrors}"
                                        VerticalOptions="Center" />
                             </HorizontalStackLayout>
                         </Border>
@@ -58,19 +65,20 @@
                 </CollectionView.ItemTemplate>
             </CollectionView>
 
-            <!-- Actions : split / plein écran / IA -->
-            <Button Grid.Column="4" Text="⧉" Padding="8,2" FontSize="12"
+            <!-- Actions : split / plein écran / IA / preview
+                 ★ CORRECTION (31/08) : les 4 icônes agrandies ("trop petites", Tom). -->
+            <Button Grid.Column="4" Text="⧉" Padding="10,4" FontSize="16"
                     ToolTipProperties.Text="Partager l'écran"
                     Clicked="OnSplitClicked" />
 
             <!-- ★ CORRECTION (30/08) : icône désormais mise à jour par MainPage
                  (SetMaximizeIcon) — Tom ne retrouvait pas comment revenir en arrière
                  une fois en plein écran. -->
-            <Button x:Name="BtnMaximize" Grid.Column="5" Text="⛶" Padding="8,2" FontSize="12"
+            <Button x:Name="BtnMaximize" Grid.Column="5" Text="⛶" Padding="10,4" FontSize="16"
                     ToolTipProperties.Text="Agrandir la zone (plein écran)"
                     Clicked="OnMaximizeClicked" />
 
-            <Button Grid.Column="6" Text="🤖" Padding="8,2" FontSize="12"
+            <Button Grid.Column="6" Text="🤖" Padding="10,4" FontSize="16"
                     ToolTipProperties.Text="Bandeau IA (modèle + prompts)"
                     Clicked="OnAiClicked" />
 
@@ -78,7 +86,7 @@
                  Tom (point 18) — LivePreviewView + PreviewEngine existaient déjà dans
                  le dépôt (complets, fonctionnels), mais n'étaient jamais atteignables
                  par aucun bouton ni menu. Câblé ici, au plus près du fichier ouvert. -->
-            <Button Grid.Column="7" Text="🌐" Padding="8,2" FontSize="12"
+            <Button Grid.Column="7" Text="🌐" Padding="10,4" FontSize="16"
                     ToolTipProperties.Text="Prévisualiser le fichier"
                     Clicked="OnPreviewClicked" />
 

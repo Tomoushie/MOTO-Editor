@@ -1,8 +1,15 @@
 <!-- Moto.Editor/Controls/CustomMenuBarView.xaml -->
+<!--
+  ★ CORRECTION (31/08) : boutons agrandis (46→52px, police 12/14→14/16) et
+  survol/clic ajoutés en code-behind (AttachButtonFeedback) — demandé par Tom
+  ("agrandir... et leur donner des animations au survol et après clic, comme
+  pour Windows par défaut" : gris neutre pour Réduire/Plein écran, rouge pour
+  Fermer, exactement la convention native Windows).
+-->
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="Moto.Editor.Controls.CustomMenuBarView"
-             HeightRequest="32">
+             HeightRequest="36">
     <Grid ColumnDefinitions="*,Auto,Auto,Auto">
         <!-- Zone de drag (title bar custom) -->
         <Border x:Name="TitleBarDragZone"
@@ -14,39 +21,39 @@
         <!-- Bouton Minimiser -->
         <Border x:Name="BtnMin"
                 Grid.Column="1"
-                WidthRequest="46"
+                WidthRequest="52"
                 BackgroundColor="Transparent"
                 StrokeThickness="0">
             <Label Text="─"
                    HorizontalOptions="Center"
                    VerticalOptions="Center"
-                   FontSize="12"
+                   FontSize="14"
                    TextColor="{StaticResource Txt1}" />
         </Border>
 
         <!-- Bouton Maximiser -->
         <Border x:Name="BtnMax"
                 Grid.Column="2"
-                WidthRequest="46"
+                WidthRequest="52"
                 BackgroundColor="Transparent"
                 StrokeThickness="0">
             <Label Text="□"
                    HorizontalOptions="Center"
                    VerticalOptions="Center"
-                   FontSize="12"
+                   FontSize="14"
                    TextColor="{StaticResource Txt1}" />
         </Border>
 
         <!-- Bouton Fermer -->
         <Border x:Name="BtnClose"
                 Grid.Column="3"
-                WidthRequest="46"
+                WidthRequest="52"
                 BackgroundColor="Transparent"
                 StrokeThickness="0">
             <Label Text="×"
                    HorizontalOptions="Center"
                    VerticalOptions="Center"
-                   FontSize="14"
+                   FontSize="16"
                    TextColor="{StaticResource Txt1}" />
         </Border>
     </Grid>

@@ -43,7 +43,9 @@
       complètement ignoré par le moteur de layout (contribution 0,0), au lieu
       d'être mesuré puis arrangé dans un rectangle dégénéré.
     -->
-    <Grid x:Name="RootGrid" RowDefinitions="34,38,*,26" ColumnDefinitions="Auto,*,Auto">
+    <!-- ★ CORRECTION (31/08) : ligne 0 34→38 pour accueillir CustomMenuBarView agrandie
+         (boutons min/max/close plus grands, demandé par Tom). -->
+    <Grid x:Name="RootGrid" RowDefinitions="38,38,*,26" ColumnDefinitions="Auto,*,Auto">
 
         <!-- ══════════════════ Barre de titre / menu ══════════════════ -->
         <views:CustomMenuBarView x:Name="MenuBar" Grid.Row="0" Grid.ColumnSpan="3" />
