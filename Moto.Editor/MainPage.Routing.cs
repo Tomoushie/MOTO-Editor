@@ -2,7 +2,9 @@
 using System;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Maui.ApplicationModel;
 using Microsoft.Maui.Controls;
 using Moto.Core.AI.Analytics;
 using Moto.Core.AI.Builders;
@@ -17,6 +19,10 @@ namespace Moto.Editor
     /// </summary>
     public partial class MainPage
     {
+        // ★ AJOUT (01/09, point 10) : connexion GitHub réelle (device flow OAuth).
+        private readonly GitHubAccountService _gitHubAccount = new();
+        private CancellationTokenSource? _gitHubConnectCts;
+
         // ------------------------------------------------------------------
         // Routeur des menus custom
         // ------------------------------------------------------------------
@@ -114,27 +120,83 @@ namespace Moto.Editor
                 case "theme": SettingsWindow.Show("Appearance"); break;
                 case "keymap": SettingsWindow.Show("Keymap"); break;
                 case "extensions": OnGalleryClicked(); break;
-                // ★ CORRECTION (31/08, point 10) : message précisé selon ce que Tom a
-                // décrit — connecter un compte GitHub permettra de publier des projets
-                // directement sur GitHub, d'en importer depuis GitHub, de télécharger
-                // les mises à jour du logiciel depuis le dépôt officiel, et d'accéder
-                // au lien du dépôt. Vrai chantier OAuth (device flow) à construire —
-                // nécessite d'abord que Tom enregistre une "OAuth App" sur
-                // github.com/settings/developers pour obtenir un Client ID : sans ça,
-                // aucun code de connexion ne peut fonctionner, même bien écrit.
-                case "user":
-                    await DisplayAlert("Utilisateur", "Pas encore disponible : ce bouton connectera un compte GitHub — publier vos projets directement sur GitHub, en importer depuis GitHub, télécharger les mises à jour du logiciel depuis le dépôt officiel, et accéder au lien du dépôt. Ça demande d'abord d'enregistrer une application OAuth sur GitHub pour obtenir un identifiant technique.", "OK");
-                    break;
+                // ★ AJOUT (01/09, point 10) : connexion GitHub réelle (device flow OAuth,
+                // Client ID fourni par Tom — app "MOTO Editor Local"). Honnêteté sur la
+                // portée : la CONNEXION est réelle (jeton obtenu, nom d'utilisateur
+                // vérifié) ; publier/importer un projet sur GitHub, télécharger les MAJ
+                // depuis le dépôt ne sont PAS construits — chantiers séparés, plus gros,
+                // qui s'appuieront sur cette connexion une fois qu'elle existe.
+                case "user": await OnGitHubUserClickedAsync(); break;
                 case "org":
                     await DisplayAlert("Organisation", "Pas encore disponible.", "OK");
                     break;
                 case "panellayout":
                     await DisplayAlert("Disposition des panneaux", "Pas encore disponible.", "OK");
                     break;
-                case "signout":
-                    await DisplayAlert("Se déconnecter", "Pas encore disponible (aucun compte n'est encore relié — voir \"Utilisateur\").", "OK");
-                    break;
+                case "signout": await OnGitHubSignOutAsync(); break;
             }
+        }
+
+        /// <summary>
+        /// ★ AJOUT (01/09) : "Utilisateur" — si déjà connecté, affiche qui ; sinon
+        /// démarre le device flow (code affiché, navigateur ouvert, sondage en tâche
+        /// de fond jusqu'à validation par Tom dans son navigateur).
+        /// </summary>
+        private async Task OnGitHubUserClickedAsync()
+        {
+            if (_gitHubAccount.IsConnected)
+            {
+                await DisplayAlert("Utilisateur", $"Connecté en tant que {_gitHubAccount.Username} sur GitHub.\n\nPublier/importer un projet et télécharger les mises à jour depuis le dépôt ne sont pas encore câblés — la connexion elle-même est la première brique.", "OK");
+                return;
+            }
+
+            try
+            {
+                var info = await _gitHubAccount.StartDeviceFlowAsync();
+                var openBrowser = await DisplayAlert("Connexion GitHub",
+                    $"Code à saisir : {info.UserCode}\n\nOuvrir {info.VerificationUri} dans le navigateur pour le valider ?",
+                    "Ouvrir le navigateur", "Annuler");
+                if (!openBrowser) return;
+
+                await Launcher.OpenAsync(info.VerificationUri);
+                StatusBar.SetStatus("GitHub : en attente de validation dans le navigateur…");
+
+                _gitHubConnectCts?.Cancel();
+                _gitHubConnectCts = new CancellationTokenSource();
+                var token = await _gitHubAccount.PollForTokenAsync(info, _gitHubConnectCts.Token);
+
+                if (token is null)
+                {
+                    StatusBar.SetStatus("GitHub : connexion annulée ou expirée.");
+                    return;
+                }
+
+                var username = await _gitHubAccount.FetchUsernameAsync(token);
+                _gitHubAccount.SaveConnection(token, username);
+                StatusBar.SetStatus($"GitHub : connecté en tant que {username}.");
+                await DisplayAlert("Utilisateur", $"Connecté en tant que {username} sur GitHub.", "OK");
+            }
+            catch (Exception ex)
+            {
+                App.LogCrash("OnGitHubUserClickedAsync", ex);
+                await DisplayAlert("Utilisateur", $"Échec de la connexion GitHub : {ex.Message}", "OK");
+            }
+        }
+
+        /// <summary>★ AJOUT (01/09) : "Se déconnecter" — efface la connexion GitHub réelle.</summary>
+        private async Task OnGitHubSignOutAsync()
+        {
+            if (!_gitHubAccount.IsConnected)
+            {
+                await DisplayAlert("Se déconnecter", "Aucun compte GitHub relié pour l'instant.", "OK");
+                return;
+            }
+
+            _gitHubConnectCts?.Cancel();
+            var username = _gitHubAccount.Username;
+            _gitHubAccount.Disconnect();
+            StatusBar.SetStatus("GitHub : déconnecté.");
+            await DisplayAlert("Se déconnecter", $"Compte GitHub ({username}) déconnecté.", "OK");
         }
 
         // ------------------------------------------------------------------
