@@ -56,11 +56,13 @@
                    TextColor="{StaticResource Txt1}" />
         </Border>
 
+        <!-- ★ CORRECTION (31/08) : remplace le texte "Réglages" par une icône
+             engrenage, sur demande explicite de Tom (façon Zed). -->
         <Border Padding="12,6" StrokeThickness="0" BackgroundColor="Transparent">
             <Border.GestureRecognizers>
                 <TapGestureRecognizer Tapped="OnItemTapped" CommandParameter="settings" />
             </Border.GestureRecognizers>
-            <Label Text="Réglages" FontSize="{DynamicResource FontSizeUiText}" FontFamily="Segoe UI Variable Text"
+            <Label Text="⚙" FontSize="16" ToolTipProperties.Text="Réglages"
                    TextColor="{StaticResource Txt1}" />
         </Border>
 

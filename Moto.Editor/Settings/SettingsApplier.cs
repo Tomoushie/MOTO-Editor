@@ -19,11 +19,18 @@ namespace Moto.Editor.Settings
         public static void ApplyAll(MainViewModel vm, CodeEditorView editor, SettingsEngine s)
         {
             // Thème
+            // ★ CORRECTION (31/08) : "Light"/"System" appelaient réellement
+            // ThemeService.SetLight()/FollowSystem() ici — un CHEMIN SÉPARÉ de celui
+            // déjà corrigé dans MainPage.UI.cs (OnSettingChanged, déclenché par
+            // l'ancien SettingsMenuView). La nouvelle fenêtre de Réglages passe par
+            // CE chemin-ci (SettingsEngine.Set → SettingChanged → ApplyAll) : sans ce
+            // correctif, le bug "texte noir sur fond noir" revenait par cette porte.
+            // Aucune palette claire n'existe réellement — voir l'explication déjà
+            // donnée à Tom.
             switch (s.GetString("theme_mode"))
             {
-                case "Light": ThemeService.SetLight(); break;
                 case "Dark": ThemeService.SetDark(); break;
-                default: ThemeService.FollowSystem(); break;
+                default: ThemeService.SetDark(); break;
             }
 
             // Éditeur

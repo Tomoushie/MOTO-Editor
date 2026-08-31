@@ -160,6 +160,12 @@
              a besoin de PluginRegistry/ProfileManager/SettingsImporterExporter en
              constructeur (résolus via DI dans MainPage.xaml.cs). -->
 
+        <!-- ══════════════════ Fenêtre de Réglages (façon Zed) ══════════════════ -->
+        <!-- ★ AJOUT (31/08) : remplace SettingsMenu comme cible de l'icône ⚙ —
+             demandé par Tom sur le modèle exact de Zed (fenêtre flottante centrée,
+             déplaçable, redimensionnable, catégories + détail). -->
+        <views:SettingsWindowView x:Name="SettingsWindow" Grid.Row="2" Grid.ColumnSpan="3" />
+
     </Grid>
 
 </ContentPage>

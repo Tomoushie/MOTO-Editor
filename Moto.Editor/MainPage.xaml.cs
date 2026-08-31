@@ -238,6 +238,16 @@ namespace Moto.Editor
             SettingsApplier.ApplyAll(_viewModel, EditorPane.Editor, SettingsEngine.Shared);
             SettingsApplier.Subscribe(_viewModel, EditorPane.Editor, SettingsEngine.Shared);
             ApplyLayoutSettings();
+
+            // ★ AJOUT (31/08) : nouvelle fenêtre de Réglages — thème/police/mini-map
+            // sont déjà repris automatiquement par SettingsApplier.Subscribe ci-dessus
+            // (tout SettingsEngine.Set(...) déclenche ApplyAll). Seul "terminal_show"
+            // n'a aucun abonné ailleurs : câblé ici explicitement.
+            SettingsWindow.RealSettingChanged += (key, value) =>
+            {
+                if (key == "terminal_show" && value is bool visible)
+                    _viewModel.IsTerminalVisible = visible;
+            };
         }
 
         private void WirePanels()

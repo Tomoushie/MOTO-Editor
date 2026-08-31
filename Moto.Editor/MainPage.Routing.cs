@@ -90,7 +90,9 @@ namespace Moto.Editor
             bool showAi = id == "ai" && !AiHost.IsVisible;
             bool showCortex = id == "cortex" && !_cortexPanel.IsVisible;
             bool showCollab = id == "collab" && !CollabPanel.IsVisible;
-            bool showSettings = id == "settings" && !SettingsMenu.IsVisible;
+            // ★ CORRECTION (31/08) : l'icône ⚙ ouvre désormais la nouvelle fenêtre de
+            // Réglages (SettingsWindow, façon Zed) au lieu de l'ancien SettingsMenu.
+            bool showSettings = id == "settings" && !SettingsWindow.IsVisible;
             // ★ AJOUT (30/08, 2e passe) : "Recherche" ouvrait le bandeau IA sans
             // rapport — ouvre maintenant une vraie recherche de fichiers par nom
             // (voir SearchView.xaml.cs), sur le même patron que les autres panneaux.
@@ -104,7 +106,7 @@ namespace Moto.Editor
             _analyticsDashboard.IsVisible = false;
             _searchPanel.IsVisible = false;
             CollabPanel.IsVisible = false;
-            SettingsMenu.IsVisible = false;
+            SettingsWindow.IsVisible = false;
 
             switch (id)
             {
@@ -116,11 +118,11 @@ namespace Moto.Editor
                     break;
                 case "collab": CollabPanel.IsVisible = showCollab; break;
                 case "search": _searchPanel.IsVisible = showSearch; break;
+                case "settings": if (showSettings) SettingsWindow.Show(); break;
                 case "gallery":
                     _pluginGallery.IsVisible = !_pluginGallery.IsVisible;
                     if (_pluginGallery.IsVisible) _pluginGallery.LoadGallery();
                     break;
-                case "settings": SettingsMenu.IsVisible = showSettings; break;
             }
 
             // ★ AJOUT (30/08, refonte Zen) : la colonne 0 (dock IA) est repliée à 0

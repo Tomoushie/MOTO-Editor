@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+  Moto.Editor/Views/SettingsWindowView.xaml
+  ★ AJOUT (31/08) : nouvelle fenêtre de Réglages, demandée par Tom sur le
+  modèle exact de Zed (capture d'écran fournie) — une fenêtre flottante AU
+  MILIEU du logiciel, déplaçable et redimensionnable à la souris, avec une
+  liste de catégories à gauche et le détail à droite. Remplace SettingsMenuView
+  comme cible du bouton Réglages (devenu une icône ⚙, voir ActivityBarView).
+-->
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Moto.Editor.Views.SettingsWindowView"
+             IsVisible="False">
+
+    <!-- Voile de fond semi-transparent : clic dehors = ne ferme PAS (comme Zed,
+         qui garde sa fenêtre de réglages ouverte tant qu'on ne clique pas ✕) ;
+         sert juste à assombrir légèrement le reste du logiciel. -->
+    <Grid BackgroundColor="#66000000">
+
+        <Border x:Name="WindowFrame"
+                WidthRequest="900" HeightRequest="620"
+                MinimumWidthRequest="560" MinimumHeightRequest="380"
+                HorizontalOptions="Center" VerticalOptions="Center"
+                BackgroundColor="{StaticResource BgApp}"
+                Stroke="{StaticResource BorderCol}" StrokeThickness="1"
+                StrokeShape="RoundRectangle 10">
+
+            <Grid RowDefinitions="40,*">
+
+                <!-- ══ Barre de titre : zone de déplacement + titre + fermer ══ -->
+                <Border x:Name="DragHandle" Grid.Row="0"
+                        BackgroundColor="{StaticResource BgSide}" StrokeThickness="0">
+                    <Grid ColumnDefinitions="*,Auto" Padding="14,0">
+                        <Label Text="⚙ Réglages" FontAttributes="Bold"
+                               FontSize="{DynamicResource FontSizeUiText}"
+                               TextColor="{StaticResource Txt1}" VerticalOptions="Center" />
+                        <Button Grid.Column="1" Text="✕" WidthRequest="32" HeightRequest="32"
+                                Padding="0" BackgroundColor="Transparent"
+                                TextColor="{StaticResource Txt2}" Clicked="OnCloseClicked" />
+                    </Grid>
+                    <Border.GestureRecognizers>
+                        <PanGestureRecognizer PanUpdated="OnDragPanUpdated" />
+                    </Border.GestureRecognizers>
+                </Border>
+
+                <!-- ══ Corps : catégories (gauche) + détail (droite) ══ -->
+                <Grid Grid.Row="1" ColumnDefinitions="200,*">
+
+                    <CollectionView Grid.Column="0" x:Name="CategoryList"
+                                    BackgroundColor="{StaticResource BgSide}"
+                                    SelectionMode="Single"
+                                    SelectionChanged="OnCategorySelected">
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <Border BackgroundColor="Transparent" Padding="14,10" StrokeThickness="0">
+                                    <Label Text="{Binding}" FontSize="{DynamicResource FontSizeUiText}"
+                                           TextColor="{StaticResource Txt1}" />
+                                </Border>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+
+                    <ScrollView Grid.Column="1">
+                        <VerticalStackLayout x:Name="DetailHost" Padding="24,18" Spacing="18" />
+                    </ScrollView>
+
+                </Grid>
+            </Grid>
+
+            <!-- ══ Poignée de redimensionnement (coin bas-droit) ══ -->
+            <Border x:Name="ResizeGrip"
+                    WidthRequest="18" HeightRequest="18"
+                    HorizontalOptions="End" VerticalOptions="End"
+                    BackgroundColor="Transparent" StrokeThickness="0">
+                <Label Text="◢" FontSize="14" TextColor="{StaticResource Txt2}"
+                       HorizontalOptions="End" VerticalOptions="End" />
+                <Border.GestureRecognizers>
+                    <PanGestureRecognizer PanUpdated="OnResizePanUpdated" />
+                </Border.GestureRecognizers>
+            </Border>
+
+        </Border>
+    </Grid>
+</ContentView>

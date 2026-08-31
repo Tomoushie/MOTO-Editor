@@ -134,6 +134,20 @@
   </ItemGroup>
 
   <!--
+    ★ AJOUT (31/08) : manquait — c'est CE bloc (MauiIcon/MauiSplashScreen) que
+    MAUI utilise pour remplacer les jetons "$placeholder$.png" de
+    Package.appxmanifest par les vraies images de tuile MSIX (Square150x150,
+    Square44x44, SplashScreen, etc., générées en plusieurs tailles à partir de
+    ces deux sources). Sans lui, ces jetons restent tels quels dans le
+    manifeste final → l'installation MSIX échoue ("image de l'écran de
+    démarrage introuvable"), confirmé lors du sideload chez Tom.
+  -->
+  <ItemGroup>
+    <MauiIcon Include="Resources\AppIcon\appicon.png" />
+    <MauiSplashScreen Include="Resources\Splash\splash.png" Color="#0B1526" />
+  </ItemGroup>
+
+  <!--
     ★ AJOUT (30/08) : copie le .ico brut à côté du .exe — OnWindowsWindowCreated
     (App.xaml.cs) le cherche via AppContext.BaseDirectory + "appicon.ico" pour
     l'icône de la barre de titre/taskbar AU RUNTIME. ApplicationIcon (ci-dessus)
