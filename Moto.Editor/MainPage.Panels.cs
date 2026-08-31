@@ -222,8 +222,16 @@ namespace Moto.Editor
 
             if (asCenteredOverlay)
             {
+                // ★ CORRECTION (31/08, point 12) : Column="1" (colonne centrale) plutôt
+                // que ColumnSpan="3" — Tom trouvait la Recherche "pas totalement au
+                // milieu". Avec ColumnSpan="3", le centre calculé inclut les colonnes
+                // 0/2 (dock IA / explorateur), qui ne font PAS toujours 0px (dès qu'un
+                // dossier est ouvert, l'explorateur a une vraie largeur) — le "milieu"
+                // se décale alors visiblement du vrai centre de la fenêtre. Même
+                // correctif déjà appliqué à AiBar/CollabPanel plus tôt cette session,
+                // pour exactement la même raison.
                 Grid.SetRow(wrapper, 2);
-                Grid.SetColumnSpan(wrapper, 3);
+                Grid.SetColumn(wrapper, 1);
                 wrapper.HorizontalOptions = LayoutOptions.Center;
                 wrapper.VerticalOptions = LayoutOptions.Center;
                 RootGrid.Children.Add(wrapper);

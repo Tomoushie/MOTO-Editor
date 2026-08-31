@@ -114,8 +114,16 @@ namespace Moto.Editor
                 case "theme": SettingsWindow.Show("Appearance"); break;
                 case "keymap": SettingsWindow.Show("Keymap"); break;
                 case "extensions": OnGalleryClicked(); break;
+                // ★ CORRECTION (31/08, point 10) : message précisé selon ce que Tom a
+                // décrit — connecter un compte GitHub permettra de publier des projets
+                // directement sur GitHub, d'en importer depuis GitHub, de télécharger
+                // les mises à jour du logiciel depuis le dépôt officiel, et d'accéder
+                // au lien du dépôt. Vrai chantier OAuth (device flow) à construire —
+                // nécessite d'abord que Tom enregistre une "OAuth App" sur
+                // github.com/settings/developers pour obtenir un Client ID : sans ça,
+                // aucun code de connexion ne peut fonctionner, même bien écrit.
                 case "user":
-                    await DisplayAlert("Utilisateur", "Pas encore disponible : ce bouton connectera un compte GitHub, pour la mise à jour automatique du logiciel et l'accès au dépôt une fois publié.", "OK");
+                    await DisplayAlert("Utilisateur", "Pas encore disponible : ce bouton connectera un compte GitHub — publier vos projets directement sur GitHub, en importer depuis GitHub, télécharger les mises à jour du logiciel depuis le dépôt officiel, et accéder au lien du dépôt. Ça demande d'abord d'enregistrer une application OAuth sur GitHub pour obtenir un identifiant technique.", "OK");
                     break;
                 case "org":
                     await DisplayAlert("Organisation", "Pas encore disponible.", "OK");

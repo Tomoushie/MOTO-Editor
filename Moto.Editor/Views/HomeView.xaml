@@ -29,16 +29,11 @@
 
         <VerticalStackLayout Grid.Row="0" Spacing="10" Margin="0,40,0,0"
                               HorizontalOptions="Center" VerticalOptions="Start">
-            <!-- ★ AJOUT (31/08) : halo doux derrière le logo (effet "spotlight" façon
-                 Zed/Qwen) — un Border circulaire semi-transparent plutôt qu'un
-                 dégradé radial (RadialGradientBrush non testé dans ce fichier,
-                 préféré rester sur des éléments déjà éprouvés dans ce projet). -->
-            <Grid HorizontalOptions="Center" VerticalOptions="Center" WidthRequest="160" HeightRequest="160">
-                <Border WidthRequest="160" HeightRequest="160" StrokeThickness="0"
-                        BackgroundColor="{StaticResource Accent}" Opacity="0.12"
-                        StrokeShape="RoundRectangle 80" HorizontalOptions="Center" VerticalOptions="Center" />
-                <controls:MotoLogoView Size="112" HorizontalOptions="Center" VerticalOptions="Center" />
-            </Grid>
+            <!-- ★ RETRAIT (31/08, point 7) : le halo ajouté au tour précédent était
+                 perçu par Tom comme le même "fond gris/noir derrière le logo" qu'il
+                 avait déjà fait enlever une fois (MotoLogoBackground, un tour encore
+                 plus tôt) — retiré pour de bon, fond transparent, sans exception. -->
+            <controls:MotoLogoView Size="112" HorizontalOptions="Center" />
             <Label Text="MOTO Editor"
                    FontSize="30" FontAttributes="Bold"
                    HorizontalOptions="Center" />
@@ -47,9 +42,12 @@
                    HorizontalOptions="Center" />
         </VerticalStackLayout>
 
+        <!-- ★ CORRECTION (31/08, point 6) : padding haut réduit (40→15) — Tom voulait
+             tout le contenu à partir de "Quoi de prévu" remonté de ~20-30px, sans
+             bouger le logo (Row 0, inchangé). -->
         <ScrollView Grid.Row="1">
             <VerticalStackLayout HorizontalOptions="Center" VerticalOptions="Center"
-                                 Spacing="22" Padding="40" MaximumWidthRequest="760">
+                                 Spacing="22" Padding="40,15,40,40" MaximumWidthRequest="760">
 
                 <!-- Greeting style Claude Code -->
                 <Label x:Name="GreetingLabel" Text="Quoi de prévu, Tom ?"
@@ -59,11 +57,13 @@
                 <!-- ★ CORRECTION (30/08) : WidthRequest fixe ajouté — sans largeur
                      explicite, ce Border (et celui de la saisie juste en dessous) se
                      redimensionnait au contenu (le texte tapé dans PromptEntry
-                     l'élargissait visiblement) au lieu de rester stable, repéré par Tom. -->
+                     l'élargissait visiblement) au lieu de rester stable, repéré par Tom.
+                     ★ CORRECTION (31/08, point 1) : légèrement plus compacte
+                     (Padding 16→13,12, ColumnSpacing/RowSpacing 10→8). -->
                 <Border Stroke="{StaticResource BorderCol}" StrokeShape="RoundRectangle 12"
-                        BackgroundColor="{StaticResource BgPanel}" Padding="16" WidthRequest="560">
+                        BackgroundColor="{StaticResource BgPanel}" Padding="13,12" WidthRequest="555">
                     <Grid x:Name="StatsGrid" ColumnDefinitions="*,*,*,*" RowDefinitions="Auto,Auto"
-                          ColumnSpacing="10" RowSpacing="10" />
+                          ColumnSpacing="8" RowSpacing="8" />
                 </Border>
 
                 <!-- ★ RÉORGANISÉ (31/08, points 3/4 de Tom) : ordre calqué sur la
@@ -93,11 +93,15 @@
                          reste"). Un Grid MAUI n'est PAS automatiquement rogné à ses
                          limites : avec une hauteur fixe, LocationMenu peut déborder
                          par-dessus sans agrandir ce Grid ni rien pousser en dessous. -->
-                    <Grid HeightRequest="48">
+                    <!-- ★ CORRECTION (31/08, point 4) : 48→44 (les chips avaient quelques
+                         px de trop en bas) + VerticalOptions="Center" explicite sur la
+                         ligne de chips (sans ça, l'alignement par défaut du Grid pouvait
+                         laisser un espace résiduel en bas plutôt que centrer). -->
+                    <Grid HeightRequest="44">
                         <controls:ExecutionLocationMenu x:Name="LocationMenu"
                                                          HorizontalOptions="Start" VerticalOptions="End"
-                                                         Margin="0,0,0,50" IsVisible="False" />
-                        <HorizontalStackLayout HorizontalOptions="Center" Spacing="10">
+                                                         Margin="0,0,0,46" IsVisible="False" />
+                        <HorizontalStackLayout HorizontalOptions="Center" VerticalOptions="Center" Spacing="10">
                             <!-- ★ CORRECTION (31/08) : emojis → glyphes vectoriels (Segoe
                                  Fluent Icons, codepoints vérifiés visuellement) —
                                  FormattedText/Span nécessaire pour mélanger la police
@@ -137,9 +141,11 @@
                                 <Grid>
                                     <Label Text="{x:Static controls:MotoIcons.Folder}" FontFamily="{x:Static controls:MotoIcons.FontFamily}"
                                            FontSize="13" TextColor="{StaticResource Txt1}" />
+                                    <!-- ★ CORRECTION (31/08, point 3) : repositionné en haut à
+                                         droite, marge minimale (1px) comme demandé. -->
                                     <Label Text="{x:Static controls:MotoIcons.Add}" FontFamily="{x:Static controls:MotoIcons.FontFamily}"
                                            FontSize="7" TextColor="{StaticResource Txt1}"
-                                           HorizontalOptions="End" VerticalOptions="End" Margin="0,0,-3,-3" />
+                                           HorizontalOptions="End" VerticalOptions="Start" Margin="0,1,1,0" />
                                 </Grid>
                                 <Border.GestureRecognizers>
                                     <TapGestureRecognizer Tapped="OnProjectChipTapped" />
@@ -149,17 +155,28 @@
                     </Grid>
 
                     <!-- Input central style ChatGPT/Claude -->
+                    <!-- ★ RETRAIT (31/08, point 5) : "+" à l'intérieur de la saisie
+                         supprimé — doublon avec le "+" de la barre de contrôles
+                         juste en dessous (ComposerBar). -->
                     <Border Stroke="{StaticResource BorderCol}" StrokeShape="RoundRectangle 24"
-                            BackgroundColor="{StaticResource BgPanel}" Padding="6,2" WidthRequest="560">
-                        <Grid ColumnDefinitions="Auto,*,Auto">
-                            <Button Grid.Column="0" Text="＋" WidthRequest="36"
-                                    Clicked="OnAttachClicked" />
-                            <Entry Grid.Column="1" x:Name="PromptEntry"
+                            BackgroundColor="{StaticResource BgPanel}" Padding="14,2,6,2" WidthRequest="560">
+                        <Grid ColumnDefinitions="*,Auto">
+                            <Entry Grid.Column="0" x:Name="PromptEntry"
                                    Placeholder="Décris une tâche ou pose une question."
                                    BackgroundColor="Transparent"
                                    Completed="OnPromptSubmitted" />
-                            <Button Grid.Column="2" Text="➤" WidthRequest="36"
-                                    Clicked="OnPromptSubmitted" />
+                            <!-- ★ AJOUT (31/08, point 2) : fond + animation au survol
+                                 (voir .xaml.cs, HoverEffects + ScaleTo). -->
+                            <Border x:Name="SendArrowHost" Grid.Column="1"
+                                    WidthRequest="34" HeightRequest="34"
+                                    BackgroundColor="Transparent" StrokeThickness="0"
+                                    StrokeShape="RoundRectangle 17">
+                                <Label x:Name="SendArrowLabel" Text="➤" FontSize="14" TextColor="{StaticResource Txt1}"
+                                       HorizontalOptions="Center" VerticalOptions="Center" />
+                                <Border.GestureRecognizers>
+                                    <TapGestureRecognizer Tapped="OnSendArrowTapped" />
+                                </Border.GestureRecognizers>
+                            </Border>
                         </Grid>
                     </Border>
 

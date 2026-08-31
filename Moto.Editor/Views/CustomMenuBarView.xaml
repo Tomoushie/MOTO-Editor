@@ -36,7 +36,7 @@
              x:Class="Moto.Editor.Views.CustomMenuBarView"
              HeightRequest="38"
              BackgroundColor="#17181C">
-    <Grid ColumnDefinitions="Auto,Auto,Auto,*,Auto,Auto,Auto,Auto,Auto,Auto">
+    <Grid ColumnDefinitions="Auto,Auto,Auto,*,Auto,Auto,Auto,Auto,Auto">
 
         <!-- Nav (ex-ActivityBarView, maintenant sur la même ligne) -->
         <Border Grid.Column="0" Padding="12,6" Margin="14,0,0,0" StrokeThickness="0" BackgroundColor="Transparent">
@@ -56,7 +56,7 @@
         </Border>
 
         <Border Grid.Column="2" Padding="12,6" StrokeThickness="0" BackgroundColor="Transparent">
-            <Label Text="Collab" FontSize="{DynamicResource FontSizeUiText}" FontFamily="Segoe UI Variable Text"
+            <Label Text="Collaboration" FontSize="{DynamicResource FontSizeUiText}" FontFamily="Segoe UI Variable Text"
                    TextColor="{StaticResource Txt1}" />
             <Border.GestureRecognizers>
                 <TapGestureRecognizer Tapped="OnNavTapped" CommandParameter="collab" />
@@ -104,20 +104,12 @@
             </Border.GestureRecognizers>
         </Border>
 
-        <!-- ★ CORRECTION (31/08) : icône ⚙ remplacée par le texte "Paramètres" —
-             demandé par Tom après coup ("ce sera mieux"). -->
-        <Border Grid.Column="6" Padding="10,6"
-                Margin="0,0,4,0" StrokeThickness="0" BackgroundColor="Transparent">
-            <Label Text="Paramètres" FontSize="{DynamicResource FontSizeUiText}"
-                   TextColor="{StaticResource Txt1}"
-                   HorizontalOptions="Center" VerticalOptions="Center" />
-            <Border.GestureRecognizers>
-                <TapGestureRecognizer Tapped="OnGearOrAvatarTapped" />
-            </Border.GestureRecognizers>
-        </Border>
+        <!-- ★ RETRAIT (31/08, point 9) : bouton texte "Paramètres" supprimé — il
+             ouvrait le même menu que l'avatar rond juste à côté (doublon inutile,
+             repéré par Tom). L'avatar seul suffit désormais comme point d'entrée. -->
 
         <!-- Boutons fenêtre -->
-        <Border x:Name="BtnMin" x:FieldModifier="Public" Grid.Column="7" WidthRequest="52"
+        <Border x:Name="BtnMin" x:FieldModifier="Public" Grid.Column="6" WidthRequest="52"
                 BackgroundColor="Transparent" StrokeThickness="0">
             <Label Text="─" HorizontalOptions="Center" VerticalOptions="Center"
                    FontSize="14" TextColor="{StaticResource Txt1}" />
@@ -126,7 +118,7 @@
             </Border.GestureRecognizers>
         </Border>
 
-        <Border x:Name="BtnMax" x:FieldModifier="Public" Grid.Column="8" WidthRequest="52"
+        <Border x:Name="BtnMax" x:FieldModifier="Public" Grid.Column="7" WidthRequest="52"
                 BackgroundColor="Transparent" StrokeThickness="0">
             <Label Text="□" HorizontalOptions="Center" VerticalOptions="Center"
                    FontSize="14" TextColor="{StaticResource Txt1}" />
@@ -135,7 +127,7 @@
             </Border.GestureRecognizers>
         </Border>
 
-        <Border x:Name="BtnClose" x:FieldModifier="Public" Grid.Column="9" WidthRequest="52"
+        <Border x:Name="BtnClose" x:FieldModifier="Public" Grid.Column="8" WidthRequest="52"
                 BackgroundColor="Transparent" StrokeThickness="0">
             <Label Text="×" HorizontalOptions="Center" VerticalOptions="Center"
                    FontSize="16" TextColor="{StaticResource Txt1}" />

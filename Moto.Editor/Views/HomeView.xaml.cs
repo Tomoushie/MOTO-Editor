@@ -5,6 +5,7 @@ using Microsoft.Maui.Controls;
 using Microsoft.Maui.Graphics;
 using Moto.Core.AI.Cortex;
 using Moto.Core.Settings;
+using Moto.Editor.Controls;
 using Moto.Editor.Services;
 
 namespace Moto.Editor.Views
@@ -68,7 +69,20 @@ namespace Moto.Editor.Views
             // jointes dans MOTO Editor, relayé vers la même action que "Rechercher
             // projet" (sélecteur de dossier) plutôt qu'un bouton qui ne ferait rien.
             ComposerBar.AttachRequested += () => ProjectChipTapped?.Invoke();
+
+            // ★ AJOUT (31/08, point 2) : fond gris arrondi + léger agrandissement au
+            // survol sur la flèche d'envoi (elle était un Button nu, sans retour visuel).
+            HoverEffects.Attach(SendArrowHost);
+            var hoverIn = new PointerGestureRecognizer();
+            hoverIn.PointerEntered += (_, _) => SendArrowLabel.ScaleTo(1.15, 120, Easing.CubicOut);
+            hoverIn.PointerExited += (_, _) => SendArrowLabel.ScaleTo(1.0, 120, Easing.CubicIn);
+            SendArrowHost.GestureRecognizers.Add(hoverIn);
         }
+
+        /// <summary>★ AJOUT (31/08, point 2) : la flèche d'envoi est un Border+Label
+        /// (survol/animation), pas un Button — TapGestureRecognizer.Tapped passe un
+        /// TappedEventArgs, transmis tel quel à OnPromptSubmitted (qui n'utilise pas e).</summary>
+        private void OnSendArrowTapped(object sender, TappedEventArgs e) => OnPromptSubmitted(sender, e);
 
         /// <summary>Rebranche les moteurs une fois un workspace ouvert (LoadWorkspace).</summary>
         public void SetCoreServices(CortexEngine? cortexEngine, WorkspaceStateService? workspaceState)
