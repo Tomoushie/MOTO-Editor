@@ -11,14 +11,34 @@
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:controls="clr-namespace:Moto.Editor.Controls"
-             x:Class="Moto.Editor.Views.HomeView"
-             BackgroundColor="{StaticResource BgApp}">
+             x:Class="Moto.Editor.Views.HomeView">
+
+    <!-- ★ CORRECTION (31/08) : léger dégradé au lieu d'un fond plat — proposé par
+         Qwen, syntaxe MAUI standard vérifiée (LinearGradientBrush/GradientStop
+         existent dans l'espace de noms par défaut, contrairement à Ellipse/formes
+         qui en ont un séparé — non utilisé ici pour rester prudent sur un premier
+         essai). Très subtil : mêmes teintes que BgApp, juste une variation légère. -->
+    <ContentView.Background>
+        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#171B21" Offset="0" />
+            <GradientStop Color="#111419" Offset="1" />
+        </LinearGradientBrush>
+    </ContentView.Background>
 
     <Grid RowDefinitions="Auto,*">
 
         <VerticalStackLayout Grid.Row="0" Spacing="10" Margin="0,40,0,0"
                               HorizontalOptions="Center" VerticalOptions="Start">
-            <controls:MotoLogoView Size="112" HorizontalOptions="Center" />
+            <!-- ★ AJOUT (31/08) : halo doux derrière le logo (effet "spotlight" façon
+                 Zed/Qwen) — un Border circulaire semi-transparent plutôt qu'un
+                 dégradé radial (RadialGradientBrush non testé dans ce fichier,
+                 préféré rester sur des éléments déjà éprouvés dans ce projet). -->
+            <Grid HorizontalOptions="Center" VerticalOptions="Center" WidthRequest="160" HeightRequest="160">
+                <Border WidthRequest="160" HeightRequest="160" StrokeThickness="0"
+                        BackgroundColor="{StaticResource Accent}" Opacity="0.12"
+                        StrokeShape="RoundRectangle 80" HorizontalOptions="Center" VerticalOptions="Center" />
+                <controls:MotoLogoView Size="112" HorizontalOptions="Center" VerticalOptions="Center" />
+            </Grid>
             <Label Text="MOTO Editor"
                    FontSize="30" FontAttributes="Bold"
                    HorizontalOptions="Center" />
@@ -70,16 +90,34 @@
                      déjà sélectionné par défaut, contrairement à ce que le texte laissait
                      penser (repéré par Tom). -->
                 <HorizontalStackLayout HorizontalOptions="Center" Spacing="10">
+                    <!-- ★ CORRECTION (31/08) : emojis → glyphes vectoriels (Segoe Fluent
+                         Icons, codepoints vérifiés visuellement) — FormattedText/Span
+                         nécessaire pour mélanger la police d'icône et le texte normal
+                         dans un même Label. -->
                     <Border Stroke="{StaticResource BorderCol}" StrokeShape="RoundRectangle 10"
                             Padding="16,10" BackgroundColor="{StaticResource BgPanel}">
-                        <Label Text="💻 Local" FontSize="13" />
+                        <Label FontSize="13">
+                            <Label.FormattedText>
+                                <FormattedString>
+                                    <Span Text="{x:Static controls:MotoIcons.Devices}" FontFamily="{x:Static controls:MotoIcons.FontFamily}" />
+                                    <Span Text="  Local" />
+                                </FormattedString>
+                            </Label.FormattedText>
+                        </Label>
                         <Border.GestureRecognizers>
                             <TapGestureRecognizer Tapped="OnLocalChipTapped" />
                         </Border.GestureRecognizers>
                     </Border>
                     <Border Stroke="{StaticResource BorderCol}" StrokeShape="RoundRectangle 10"
                             Padding="16,10" BackgroundColor="{StaticResource BgPanel}">
-                        <Label Text="🔍 Rechercher projet" FontSize="13" />
+                        <Label FontSize="13">
+                            <Label.FormattedText>
+                                <FormattedString>
+                                    <Span Text="{x:Static controls:MotoIcons.Search}" FontFamily="{x:Static controls:MotoIcons.FontFamily}" />
+                                    <Span Text="  Rechercher projet" />
+                                </FormattedString>
+                            </Label.FormattedText>
+                        </Label>
                         <Border.GestureRecognizers>
                             <TapGestureRecognizer Tapped="OnProjectChipTapped" />
                         </Border.GestureRecognizers>

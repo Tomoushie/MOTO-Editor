@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:Moto.Editor.Controls"
              x:Class="Moto.Editor.Views.FileExplorerView">
 
     <Grid RowDefinitions="Auto,Auto,*" BackgroundColor="#17181C">
@@ -13,22 +14,25 @@
                    FontSize="12"
                    VerticalOptions="Center" />
 
-            <Button Text="📁"
+            <!-- ★ CORRECTION (31/08) : emojis → glyphes vectoriels Segoe Fluent Icons
+                 (codepoints vérifiés visuellement, voir Controls/MotoIcons.cs) —
+                 demandé par Tom ("rendu jouet"). -->
+            <Button Text="{x:Static controls:MotoIcons.Folder}" FontFamily="{x:Static controls:MotoIcons.FontFamily}"
                     ToolTipProperties.Text="Ouvrir un dossier"
                     Clicked="OnOpenFolderClicked"
-                    Padding="6,2" FontSize="12" />
+                    Padding="6,2" FontSize="13" />
 
             <!-- ★ AJOUT (31/08) : "Nouveau fichier" n'avait jamais été construit
                  (confirmé, pas un bug) — demandé par Tom. -->
-            <Button Text="📄+"
+            <Button Text="{x:Static controls:MotoIcons.Add}" FontFamily="{x:Static controls:MotoIcons.FontFamily}"
                     ToolTipProperties.Text="Nouveau fichier"
                     Clicked="OnNewFileClicked"
-                    Padding="6,2" FontSize="12" />
+                    Padding="6,2" FontSize="13" />
 
-            <Button Text="⟳"
+            <Button Text="{x:Static controls:MotoIcons.Refresh}" FontFamily="{x:Static controls:MotoIcons.FontFamily}"
                     ToolTipProperties.Text="Actualiser"
                     Clicked="OnRefreshClicked"
-                    Padding="6,2" FontSize="12" />
+                    Padding="6,2" FontSize="13" />
 
             <Button Text="🡺"
                     ToolTipProperties.Text="Changer de côté"
