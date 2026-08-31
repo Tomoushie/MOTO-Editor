@@ -17,6 +17,20 @@
          sert juste à assombrir légèrement le reste du logiciel. -->
     <Grid BackgroundColor="#66000000">
 
+        <!-- ★ CORRECTION (31/08) : CAUSE RÉELLE de "la fenêtre de Réglages s'ouvre
+             mais rien ne s'affiche + impossible de la fermer". Un Border MAUI n'a
+             qu'UN SEUL enfant possible (Content) — cette Border (WindowFrame)
+             contenait DEUX enfants directs (le Grid principal ET ResizeGrip). Le
+             compilateur XAML ne l'a pas signalé (pas d'erreur de compilation), mais
+             à l'exécution le second enfant déclaré écrasait silencieusement le
+             premier : SEUL ResizeGrip devenait le contenu réel de WindowFrame — tout
+             le reste (barre de titre, ✕, catégories, réglages) était construit en
+             mémoire (aucune exception, x:Name valides) mais jamais accroché à
+             l'arbre visuel, donc invisible ET jamais atteint par un clic. D'où :
+             fenêtre visible (juste la Border + son fond), redimensionnement
+             fonctionnel (ResizeGrip, seul vrai contenu), mais aucun texte, aucune
+             catégorie, ✕ inopérant. Corrigé en mettant les DEUX dans un Grid
+             (qui, lui, supporte plusieurs enfants superposés). -->
         <Border x:Name="WindowFrame"
                 WidthRequest="900" HeightRequest="620"
                 MinimumWidthRequest="560" MinimumHeightRequest="380"
@@ -25,59 +39,61 @@
                 Stroke="{StaticResource BorderCol}" StrokeThickness="1"
                 StrokeShape="RoundRectangle 10">
 
-            <Grid RowDefinitions="40,*">
+            <Grid>
+                <Grid RowDefinitions="40,*">
 
-                <!-- ══ Barre de titre : zone de déplacement + titre + fermer ══ -->
-                <Border x:Name="DragHandle" Grid.Row="0"
-                        BackgroundColor="{StaticResource BgSide}" StrokeThickness="0">
-                    <Grid ColumnDefinitions="*,Auto" Padding="14,0">
-                        <Label Text="⚙ Réglages" FontAttributes="Bold"
-                               FontSize="{DynamicResource FontSizeUiText}"
-                               TextColor="{StaticResource Txt1}" VerticalOptions="Center" />
-                        <Button Grid.Column="1" Text="✕" WidthRequest="32" HeightRequest="32"
-                                Padding="0" BackgroundColor="Transparent"
-                                TextColor="{StaticResource Txt2}" Clicked="OnCloseClicked" />
+                    <!-- ══ Barre de titre : zone de déplacement + titre + fermer ══ -->
+                    <Border x:Name="DragHandle" Grid.Row="0"
+                            BackgroundColor="{StaticResource BgSide}" StrokeThickness="0">
+                        <Grid ColumnDefinitions="*,Auto" Padding="14,0">
+                            <Label Text="⚙ Réglages" FontAttributes="Bold"
+                                   FontSize="{DynamicResource FontSizeUiText}"
+                                   TextColor="{StaticResource Txt1}" VerticalOptions="Center" />
+                            <Button Grid.Column="1" Text="✕" WidthRequest="32" HeightRequest="32"
+                                    Padding="0" BackgroundColor="Transparent"
+                                    TextColor="{StaticResource Txt2}" Clicked="OnCloseClicked" />
+                        </Grid>
+                        <Border.GestureRecognizers>
+                            <PanGestureRecognizer PanUpdated="OnDragPanUpdated" />
+                        </Border.GestureRecognizers>
+                    </Border>
+
+                    <!-- ══ Corps : catégories (gauche) + détail (droite) ══ -->
+                    <Grid Grid.Row="1" ColumnDefinitions="200,*">
+
+                        <CollectionView Grid.Column="0" x:Name="CategoryList"
+                                        BackgroundColor="{StaticResource BgSide}"
+                                        SelectionMode="Single"
+                                        SelectionChanged="OnCategorySelected">
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate>
+                                    <Border BackgroundColor="Transparent" Padding="14,10" StrokeThickness="0">
+                                        <Label Text="{Binding}" FontSize="{DynamicResource FontSizeUiText}"
+                                               TextColor="{StaticResource Txt1}" />
+                                    </Border>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+
+                        <ScrollView Grid.Column="1">
+                            <VerticalStackLayout x:Name="DetailHost" Padding="24,18" Spacing="18" />
+                        </ScrollView>
+
                     </Grid>
+                </Grid>
+
+                <!-- ══ Poignée de redimensionnement (coin bas-droit) ══ -->
+                <Border x:Name="ResizeGrip"
+                        WidthRequest="18" HeightRequest="18"
+                        HorizontalOptions="End" VerticalOptions="End"
+                        BackgroundColor="Transparent" StrokeThickness="0">
+                    <Label Text="◢" FontSize="14" TextColor="{StaticResource Txt2}"
+                           HorizontalOptions="End" VerticalOptions="End" />
                     <Border.GestureRecognizers>
-                        <PanGestureRecognizer PanUpdated="OnDragPanUpdated" />
+                        <PanGestureRecognizer PanUpdated="OnResizePanUpdated" />
                     </Border.GestureRecognizers>
                 </Border>
-
-                <!-- ══ Corps : catégories (gauche) + détail (droite) ══ -->
-                <Grid Grid.Row="1" ColumnDefinitions="200,*">
-
-                    <CollectionView Grid.Column="0" x:Name="CategoryList"
-                                    BackgroundColor="{StaticResource BgSide}"
-                                    SelectionMode="Single"
-                                    SelectionChanged="OnCategorySelected">
-                        <CollectionView.ItemTemplate>
-                            <DataTemplate>
-                                <Border BackgroundColor="Transparent" Padding="14,10" StrokeThickness="0">
-                                    <Label Text="{Binding}" FontSize="{DynamicResource FontSizeUiText}"
-                                           TextColor="{StaticResource Txt1}" />
-                                </Border>
-                            </DataTemplate>
-                        </CollectionView.ItemTemplate>
-                    </CollectionView>
-
-                    <ScrollView Grid.Column="1">
-                        <VerticalStackLayout x:Name="DetailHost" Padding="24,18" Spacing="18" />
-                    </ScrollView>
-
-                </Grid>
             </Grid>
-
-            <!-- ══ Poignée de redimensionnement (coin bas-droit) ══ -->
-            <Border x:Name="ResizeGrip"
-                    WidthRequest="18" HeightRequest="18"
-                    HorizontalOptions="End" VerticalOptions="End"
-                    BackgroundColor="Transparent" StrokeThickness="0">
-                <Label Text="◢" FontSize="14" TextColor="{StaticResource Txt2}"
-                       HorizontalOptions="End" VerticalOptions="End" />
-                <Border.GestureRecognizers>
-                    <PanGestureRecognizer PanUpdated="OnResizePanUpdated" />
-                </Border.GestureRecognizers>
-            </Border>
 
         </Border>
     </Grid>

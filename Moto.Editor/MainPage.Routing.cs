@@ -96,7 +96,16 @@ namespace Moto.Editor
         /// pas de système de compte dans MOTO Editor — message honnête plutôt que
         /// simuler un effet qui n'existe pas.
         /// </summary>
-        private void OnGearMenuItemSelected(string id)
+        // ★ CORRECTION (31/08) : les 5 items sans fonctionnalité réelle passaient par
+        // StatusBar.SetStatus — trop discret en bas de fenêtre, Tom avait l'impression
+        // que "rien ne s'ouvrait" alors que ça changeait bien le texte (repéré :
+        // "Organisation n'ouvre rien" / "tous les autres n'ouvrent rien"). Remplacé
+        // par une vraie boîte de dialogue (DisplayAlert), impossible à manquer.
+        // "Utilisateur" reformulé selon ce que Tom a précisé vouloir en faire
+        // (connexion GitHub pour mise à jour auto + accès dépôt une fois publié) —
+        // pas encore construit, mais le message dit maintenant CE VERS QUOI ça va,
+        // pas juste "pas disponible".
+        private async void OnGearMenuItemSelected(string id)
         {
             GearMenu.IsVisible = false;
             switch (id)
@@ -105,11 +114,21 @@ namespace Moto.Editor
                 case "theme": SettingsWindow.Show("Appearance"); break;
                 case "keymap": SettingsWindow.Show("Keymap"); break;
                 case "extensions": OnGalleryClicked(); break;
-                case "user": StatusBar.SetStatus("Compte utilisateur : pas encore disponible (pas de système de compte dans MOTO Editor)."); break;
-                case "org": StatusBar.SetStatus("Organisation : pas encore disponible."); break;
-                case "icontheme": StatusBar.SetStatus("Thèmes d'icônes : pas encore disponible."); break;
-                case "panellayout": StatusBar.SetStatus("Disposition des panneaux : pas encore disponible."); break;
-                case "signout": StatusBar.SetStatus("Se déconnecter : pas encore disponible."); break;
+                case "user":
+                    await DisplayAlert("Utilisateur", "Pas encore disponible : ce bouton connectera un compte GitHub, pour la mise à jour automatique du logiciel et l'accès au dépôt une fois publié.", "OK");
+                    break;
+                case "org":
+                    await DisplayAlert("Organisation", "Pas encore disponible.", "OK");
+                    break;
+                case "icontheme":
+                    await DisplayAlert("Thèmes d'icônes", "Pas encore disponible.", "OK");
+                    break;
+                case "panellayout":
+                    await DisplayAlert("Disposition des panneaux", "Pas encore disponible.", "OK");
+                    break;
+                case "signout":
+                    await DisplayAlert("Se déconnecter", "Pas encore disponible (aucun compte n'est encore relié — voir \"Utilisateur\").", "OK");
+                    break;
             }
         }
 

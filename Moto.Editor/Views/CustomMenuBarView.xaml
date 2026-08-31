@@ -107,10 +107,11 @@
             </Border.GestureRecognizers>
         </Border>
 
-        <!-- Engrenage — point 1 -->
-        <Border Grid.Column="8" WidthRequest="34" HeightRequest="34"
+        <!-- ★ CORRECTION (31/08) : icône ⚙ remplacée par le texte "Paramètres" —
+             demandé par Tom après coup ("ce sera mieux"). -->
+        <Border Grid.Column="8" Padding="10,6"
                 Margin="0,0,4,0" StrokeThickness="0" BackgroundColor="Transparent">
-            <Label Text="⚙" FontSize="15" ToolTipProperties.Text="Réglages"
+            <Label Text="Paramètres" FontSize="{DynamicResource FontSizeUiText}"
                    TextColor="{StaticResource Txt1}"
                    HorizontalOptions="Center" VerticalOptions="Center" />
             <Border.GestureRecognizers>
