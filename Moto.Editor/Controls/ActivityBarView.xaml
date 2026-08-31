@@ -56,15 +56,10 @@
                    TextColor="{StaticResource Txt1}" />
         </Border>
 
-        <!-- ★ CORRECTION (31/08) : remplace le texte "Réglages" par une icône
-             engrenage, sur demande explicite de Tom (façon Zed). -->
-        <Border Padding="12,6" StrokeThickness="0" BackgroundColor="Transparent">
-            <Border.GestureRecognizers>
-                <TapGestureRecognizer Tapped="OnItemTapped" CommandParameter="settings" />
-            </Border.GestureRecognizers>
-            <Label Text="⚙" FontSize="16" ToolTipProperties.Text="Réglages"
-                   TextColor="{StaticResource Txt1}" />
-        </Border>
+        <!-- ★ RETRAIT (31/08) : l'engrenage "Réglages" a déménagé dans la barre de
+             titre (CustomMenuBarView), à droite à côté de Min/Max/Fermer — demandé
+             explicitement par Tom (point 1 : "remplacer" le bouton ici par celui
+             d'en haut, pas dupliquer). -->
 
     </HorizontalStackLayout>
 

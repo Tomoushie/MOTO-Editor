@@ -59,11 +59,28 @@ namespace Moto.Editor.Views
             RenderSection("General");
         }
 
-        public void Show()
+        /// <summary>
+        /// ★ CORRECTION (31/08) : Tom signale que l'engrenage n'ouvrait "aucune
+        /// fenêtre" — aucun bug trouvé dans le chemin d'ouverture lui-même (vérifié
+        /// ligne par ligne), mais WindowFrame.TranslationX/Y (glisser) et
+        /// WidthRequest/HeightRequest (redimensionner) ne sont RÉINITIALISÉS nulle
+        /// part : un seul glissement accidentel avant que Tom ne comprenne que rien
+        /// n'était encore ouvert aurait suffi à repositionner la fenêtre hors-écran
+        /// pour TOUTES les ouvertures suivantes (IsVisible=true, mais invisible à
+        /// l'œil). Réinitialisé par précaution à chaque Show(), que ce soit la
+        /// cause réelle ou non — de toute façon la bonne pratique pour un "rouvrir".
+        /// Accepte aussi une catégorie cible (utilisé par le menu ⚙ : "Thèmes" ouvre
+        /// direct sur Appearance, "Raccourcis" sur Keymap, etc.).
+        /// </summary>
+        public void Show(string category = "General")
         {
+            WindowFrame.TranslationX = 0;
+            WindowFrame.TranslationY = 0;
+            WindowFrame.WidthRequest = 900;
+            WindowFrame.HeightRequest = 620;
             IsVisible = true;
-            if (CategoryList.SelectedItem is null)
-                CategoryList.SelectedItem = "General";
+            CategoryList.SelectedItem = category;
+            RenderSection(category);
         }
 
         private void OnCloseClicked(object sender, EventArgs e) => IsVisible = false;

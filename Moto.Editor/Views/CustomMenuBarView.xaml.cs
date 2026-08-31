@@ -38,7 +38,38 @@ namespace Moto.Editor.Views
         public CustomMenuBarView()
         {
             InitializeComponent();
+
+            // ★ CORRECTION (31/08) : survol/clic façon Windows par défaut — gris
+            // neutre pour Réduire/Plein écran, rouge pour Fermer. Demandé par Tom ;
+            // une première tentative avait été écrite dans Controls/CustomMenuBarView
+            // (fichier homonyme jamais instancié) et n'avait donc jamais été visible.
+            AttachButtonFeedback(BtnMin, hoverColor: Color.FromArgb("#2A2C31"), pressColor: Color.FromArgb("#34363C"));
+            AttachButtonFeedback(BtnMax, hoverColor: Color.FromArgb("#2A2C31"), pressColor: Color.FromArgb("#34363C"));
+            AttachButtonFeedback(BtnClose, hoverColor: Color.FromArgb("#E81123"), pressColor: Color.FromArgb("#C50E1F"));
         }
+
+        /// <summary>
+        /// Colore le fond du bouton au survol/clic. Nos boutons sont des Border/Label
+        /// dessinés par MAUI (pas des boutons système), donc Windows ne les recolore
+        /// jamais tout seul — il faut le faire nous-mêmes (même patron que
+        /// HomeView.AttachChipHover).
+        /// </summary>
+        private static void AttachButtonFeedback(Border button, Color hoverColor, Color pressColor)
+        {
+            var pointer = new PointerGestureRecognizer();
+            pointer.PointerEntered += (_, _) => button.BackgroundColor = hoverColor;
+            pointer.PointerExited += (_, _) => button.BackgroundColor = Colors.Transparent;
+            pointer.PointerPressed += (_, _) => button.BackgroundColor = pressColor;
+            pointer.PointerReleased += (_, _) => button.BackgroundColor = hoverColor;
+            button.GestureRecognizers.Add(pointer);
+        }
+
+        /// <summary>
+        /// ★ AJOUT (31/08) : engrenage (point 1) et avatar (point 11) ouvrent le même
+        /// petit menu déroulant — un seul id d'événement, MainPage bascule
+        /// GearMenu.IsVisible (voir MainPage.Routing.cs, OnMenuCommanded).
+        /// </summary>
+        private void OnGearOrAvatarTapped(object? sender, TappedEventArgs e) => MenuCommanded?.Invoke("gear.toggle");
 
         public void SetUpdateManager(UpdateManager manager)
         {

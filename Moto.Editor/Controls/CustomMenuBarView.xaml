@@ -1,10 +1,11 @@
 <!-- Moto.Editor/Controls/CustomMenuBarView.xaml -->
 <!--
-  ★ CORRECTION (31/08) : boutons agrandis (46→52px, police 12/14→14/16) et
-  survol/clic ajoutés en code-behind (AttachButtonFeedback) — demandé par Tom
-  ("agrandir... et leur donner des animations au survol et après clic, comme
-  pour Windows par défaut" : gris neutre pour Réduire/Plein écran, rouge pour
-  Fermer, exactement la convention native Windows).
+  ⚠️ FICHIER MORT CONFIRMÉ (31/08) — voir l'avertissement complet dans le
+  .xaml.cs du même dossier. Aucune page n'utilise <controls:CustomMenuBarView>
+  (grep vérifié) ; la vraie barre de titre est Moto.Editor/Views/CustomMenuBarView.
+  La correction "boutons agrandis + survol/clic" ci-dessous a été appliquée ICI
+  PAR ERREUR à l'origine et n'a donc jamais été visible pour Tom — corrigée
+  pour de vrai dans Views/CustomMenuBarView.xaml.
 -->
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"

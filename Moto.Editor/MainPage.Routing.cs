@@ -69,6 +69,38 @@ namespace Moto.Editor
                 case "term.open": _viewModel.IsTerminalVisible = true; break;
                 case "help.doc": DocPanel.IsVisible = true; break;
                 case "help.about": StatusBar.SetStatus("MOTO Editor v0.5 — AI Workspace"); break;
+
+                // ★ AJOUT (31/08) : engrenage ⚙ ou avatar 🙂 de la barre de titre
+                // (points 1, 2, 11 de Tom) — CustomMenuBarView lève cet id via
+                // MenuCommanded (événement déjà existant, jamais utilisé jusqu'ici).
+                case "gear.toggle": GearMenu.IsVisible = !GearMenu.IsVisible; break;
+            }
+        }
+
+        /// <summary>
+        /// ★ AJOUT (31/08) : choix fait dans GearMenu (voir MainPage.xaml.cs pour
+        /// l'abonnement GearMenu.ItemSelected). Réglages/Thèmes/Raccourcis ouvrent la
+        /// fenêtre de Réglages directement sur la bonne catégorie ; Extensions
+        /// réutilise la vraie Galerie de plugins déjà câblée ailleurs. Les autres
+        /// (Utilisateur/Organisation/Thèmes d'icônes/Disposition des
+        /// panneaux/Se déconnecter) n'ont pas de fonctionnalité réelle derrière —
+        /// pas de système de compte dans MOTO Editor — message honnête plutôt que
+        /// simuler un effet qui n'existe pas.
+        /// </summary>
+        private void OnGearMenuItemSelected(string id)
+        {
+            GearMenu.IsVisible = false;
+            switch (id)
+            {
+                case "settings": SettingsWindow.Show("General"); break;
+                case "theme": SettingsWindow.Show("Appearance"); break;
+                case "keymap": SettingsWindow.Show("Keymap"); break;
+                case "extensions": OnGalleryClicked(); break;
+                case "user": StatusBar.SetStatus("Compte utilisateur : pas encore disponible (pas de système de compte dans MOTO Editor)."); break;
+                case "org": StatusBar.SetStatus("Organisation : pas encore disponible."); break;
+                case "icontheme": StatusBar.SetStatus("Thèmes d'icônes : pas encore disponible."); break;
+                case "panellayout": StatusBar.SetStatus("Disposition des panneaux : pas encore disponible."); break;
+                case "signout": StatusBar.SetStatus("Se déconnecter : pas encore disponible."); break;
             }
         }
 
@@ -90,9 +122,6 @@ namespace Moto.Editor
             bool showAi = id == "ai" && !AiHost.IsVisible;
             bool showCortex = id == "cortex" && !_cortexPanel.IsVisible;
             bool showCollab = id == "collab" && !CollabPanel.IsVisible;
-            // ★ CORRECTION (31/08) : l'icône ⚙ ouvre désormais la nouvelle fenêtre de
-            // Réglages (SettingsWindow, façon Zed) au lieu de l'ancien SettingsMenu.
-            bool showSettings = id == "settings" && !SettingsWindow.IsVisible;
             // ★ AJOUT (30/08, 2e passe) : "Recherche" ouvrait le bandeau IA sans
             // rapport — ouvre maintenant une vraie recherche de fichiers par nom
             // (voir SearchView.xaml.cs), sur le même patron que les autres panneaux.
@@ -106,7 +135,6 @@ namespace Moto.Editor
             _analyticsDashboard.IsVisible = false;
             _searchPanel.IsVisible = false;
             CollabPanel.IsVisible = false;
-            SettingsWindow.IsVisible = false;
 
             switch (id)
             {
@@ -118,7 +146,9 @@ namespace Moto.Editor
                     break;
                 case "collab": CollabPanel.IsVisible = showCollab; break;
                 case "search": _searchPanel.IsVisible = showSearch; break;
-                case "settings": if (showSettings) SettingsWindow.Show(); break;
+                // ★ RETRAIT (31/08) : "settings" n'est plus émis par ActivityBarView —
+                // l'engrenage a déménagé dans la barre de titre (point 1 de Tom), voir
+                // OnMenuCommanded ("gear.toggle") / OnGearMenuItemSelected ("settings").
                 case "gallery":
                     _pluginGallery.IsVisible = !_pluginGallery.IsVisible;
                     if (_pluginGallery.IsVisible) _pluginGallery.LoadGallery();

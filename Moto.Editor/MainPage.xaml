@@ -160,6 +160,11 @@
              a besoin de PluginRegistry/ProfileManager/SettingsImporterExporter en
              constructeur (résolus via DI dans MainPage.xaml.cs). -->
 
+        <!-- ══════════════════ Menu déroulant engrenage/avatar (points 2, 11) ══════════════════ -->
+        <views:GearMenuView x:Name="GearMenu" Grid.Row="2" Grid.ColumnSpan="3"
+                             HorizontalOptions="End" VerticalOptions="Start"
+                             Margin="0,6,8,0" IsVisible="False" />
+
         <!-- ══════════════════ Fenêtre de Réglages (façon Zed) ══════════════════ -->
         <!-- ★ AJOUT (31/08) : remplace SettingsMenu comme cible de l'icône ⚙ —
              demandé par Tom sur le modèle exact de Zed (fenêtre flottante centrée,

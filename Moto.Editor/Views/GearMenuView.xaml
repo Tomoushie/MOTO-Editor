@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+  Moto.Editor/Views/GearMenuView.xaml
+  ★ AJOUT (31/08) : petit menu déroulant ouvert par l'engrenage ⚙ OU l'avatar
+  🙂 de la barre de titre (points 2 et 11 de Tom — un seul menu partagé, comme
+  demandé au point 11 : "ajoute le menu déroulant et les paramètres cité au
+  point 2"). Même patron visuel que ExecutionLocationMenu (ancré en haut à
+  droite, pas de fond plein écran — modèle éprouvé sur ce projet).
+  Liste calquée sur la capture d'écran de Zed fournie par Tom : Utilisateur /
+  Organisation / Réglages / Raccourcis / Thèmes / Thèmes d'icônes / Extensions
+  / Disposition des panneaux / Se déconnecter.
+  Honnêteté sur la portée : seuls Réglages, Thèmes, Raccourcis et Extensions
+  ouvrent une vraie fonctionnalité existante (fenêtre de Réglages sur la bonne
+  catégorie, ou la Galerie de plugins déjà réelle). Les 5 autres n'ont pas de
+  fonctionnalité derrière (pas de système de compte dans MOTO Editor) — ils
+  affichent un message honnête dans la barre de statut plutôt que de simuler
+  un effet qui n'existe pas.
+-->
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Moto.Editor.Views.GearMenuView">
+
+    <Border Stroke="{StaticResource BorderCol}" StrokeShape="RoundRectangle 10"
+            BackgroundColor="{StaticResource BgPanel}" Padding="6" WidthRequest="230">
+
+        <VerticalStackLayout Spacing="1">
+
+            <Border x:Name="RowUser" BackgroundColor="Transparent" Padding="10,8">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnRowTapped" />
+                </Border.GestureRecognizers>
+                <Grid ColumnDefinitions="Auto,*">
+                    <Label Text="👤" FontSize="13" />
+                    <Label Grid.Column="1" Text="Utilisateur" FontSize="13" Margin="8,0"
+                           TextColor="{StaticResource Txt1}" />
+                </Grid>
+            </Border>
+
+            <Border x:Name="RowOrg" BackgroundColor="Transparent" Padding="10,8">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnRowTapped" />
+                </Border.GestureRecognizers>
+                <Grid ColumnDefinitions="Auto,*">
+                    <Label Text="🏢" FontSize="13" />
+                    <Label Grid.Column="1" Text="Organisation" FontSize="13" Margin="8,0"
+                           TextColor="{StaticResource Txt1}" />
+                </Grid>
+            </Border>
+
+            <BoxView HeightRequest="1" Color="{StaticResource BorderCol}" Margin="4,4" />
+
+            <Border x:Name="RowSettings" BackgroundColor="Transparent" Padding="10,8">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnRowTapped" />
+                </Border.GestureRecognizers>
+                <Grid ColumnDefinitions="Auto,*">
+                    <Label Text="⚙" FontSize="13" />
+                    <Label Grid.Column="1" Text="Réglages" FontSize="13" Margin="8,0"
+                           TextColor="{StaticResource Txt1}" />
+                </Grid>
+            </Border>
+
+            <Border x:Name="RowKeymap" BackgroundColor="Transparent" Padding="10,8">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnRowTapped" />
+                </Border.GestureRecognizers>
+                <Grid ColumnDefinitions="Auto,*">
+                    <Label Text="⌨" FontSize="13" />
+                    <Label Grid.Column="1" Text="Raccourcis" FontSize="13" Margin="8,0"
+                           TextColor="{StaticResource Txt1}" />
+                </Grid>
+            </Border>
+
+            <Border x:Name="RowTheme" BackgroundColor="Transparent" Padding="10,8">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnRowTapped" />
+                </Border.GestureRecognizers>
+                <Grid ColumnDefinitions="Auto,*">
+                    <Label Text="🎨" FontSize="13" />
+                    <Label Grid.Column="1" Text="Thèmes" FontSize="13" Margin="8,0"
+                           TextColor="{StaticResource Txt1}" />
+                </Grid>
+            </Border>
+
+            <Border x:Name="RowIconTheme" BackgroundColor="Transparent" Padding="10,8">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnRowTapped" />
+                </Border.GestureRecognizers>
+                <Grid ColumnDefinitions="Auto,*">
+                    <Label Text="🖼" FontSize="13" />
+                    <Label Grid.Column="1" Text="Thèmes d'icônes" FontSize="13" Margin="8,0"
+                           TextColor="{StaticResource Txt1}" />
+                </Grid>
+            </Border>
+
+            <Border x:Name="RowExtensions" BackgroundColor="Transparent" Padding="10,8">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnRowTapped" />
+                </Border.GestureRecognizers>
+                <Grid ColumnDefinitions="Auto,*">
+                    <Label Text="🧩" FontSize="13" />
+                    <Label Grid.Column="1" Text="Extensions" FontSize="13" Margin="8,0"
+                           TextColor="{StaticResource Txt1}" />
+                </Grid>
+            </Border>
+
+            <Border x:Name="RowPanelLayout" BackgroundColor="Transparent" Padding="10,8">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnRowTapped" />
+                </Border.GestureRecognizers>
+                <Grid ColumnDefinitions="Auto,*">
+                    <Label Text="🗂" FontSize="13" />
+                    <Label Grid.Column="1" Text="Disposition des panneaux" FontSize="13" Margin="8,0"
+                           TextColor="{StaticResource Txt1}" />
+                </Grid>
+            </Border>
+
+            <BoxView HeightRequest="1" Color="{StaticResource BorderCol}" Margin="4,4" />
+
+            <Border x:Name="RowSignOut" BackgroundColor="Transparent" Padding="10,8">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnRowTapped" />
+                </Border.GestureRecognizers>
+                <Grid ColumnDefinitions="Auto,*">
+                    <Label Text="🚪" FontSize="13" />
+                    <Label Grid.Column="1" Text="Se déconnecter" FontSize="13" Margin="8,0"
+                           TextColor="{StaticResource Txt1}" />
+                </Grid>
+            </Border>
+
+        </VerticalStackLayout>
+    </Border>
+</ContentView>

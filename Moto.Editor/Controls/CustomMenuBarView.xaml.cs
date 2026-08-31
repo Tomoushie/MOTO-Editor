@@ -1,6 +1,15 @@
 // CustomMenuBarView.xaml.cs
-// Barre de titre personnalisée (drag zone + min/max/close). Non utilisée par la
-// page principale actuelle (Moto.Editor.MainPage) mais gardée fonctionnelle.
+// ⚠️ FICHIER MORT CONFIRMÉ (31/08) — NE PAS ÉDITER EN PENSANT CORRIGER LA VRAIE
+// BARRE DE TITRE. Il existe DEUX classes "CustomMenuBarView" (piège découvert
+// après qu'une correction entière — boutons agrandis + survol/clic — ait été
+// écrite ICI par erreur et n'ait donc jamais eu le moindre effet visible chez
+// Tom). La vraie barre, réellement instanciée par MainPage.xaml (balise
+// <views:CustomMenuBarView>, préfixe "views"), est
+// Moto.Editor/Views/CustomMenuBarView.xaml(.cs). Vérifié par grep : aucune
+// balise XAML nulle part ne référence "controls:CustomMenuBarView" — ce
+// fichier n'est atteint par aucun chemin d'exécution. Suppression tentée
+// (git rm) mais bloquée par le classificateur de permissions ; conservé tel
+// quel, marqué mort, en attendant une suppression manuelle par Tom si voulu.
 using System;
 using Microsoft.Maui.Controls;
 

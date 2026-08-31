@@ -111,7 +111,14 @@ namespace Moto.Editor
             WireInlayHints();
 
             // ── Chargement : stats + provider IA + mises à jour ──
-            Loaded += OnPageLoaded;
+            // ★ CORRECTION (31/08) : OnPageLoaded était abonné ICI *et* déclarativement
+            // dans MainPage.xaml ("Loaded=\"OnPageLoaded\"") — double abonnement, donc
+            // double exécution à chaque Loaded, donc DEUX abonnements indépendants à
+            // Window.Activated (chacun avec son propre anti-rebond, incapable de se
+            // voir l'un l'autre) — trouvé en lisant le journal : "ConfigureSnapLayouts
+            // appelé" apparaissait deux fois d'affilée au démarrage. Retrait de ce
+            // doublon (l'abonnement XAML suffit) plutôt que de rajouter un anti-rebond
+            // par-dessus le symptôme.
             Loaded += async (s, e) =>
             {
                 RefreshHomeStats();
@@ -278,6 +285,7 @@ namespace Moto.Editor
         {
             MenuBar.MenuCommanded += OnMenuCommanded;
             ActivityBar.ActivitySelected += OnActivitySelected;
+            GearMenu.ItemSelected += OnGearMenuItemSelected;
             Sidebar.NewChatRequested += () => { };
             Sidebar.ThreadSelected += name => StatusBar.SetStatus($"Ouverture : {name}");
             Sidebar.SessionMoved += (session, section) => StatusBar.SetStatus($"📌 {session} → {section}");
@@ -395,8 +403,20 @@ namespace Moto.Editor
             // Win32 ici malgré ce que cette piste supposait à tort).
             if (nativeWindow != null)
             {
+                // ★ CORRECTION (31/08) : le journal de Tom montre CE handler se
+                // redéclencher en rafale (7+ fois en moins de 200ms) — Activated peut
+                // apparemment se re-déclencher en cascade (peut-être en réaction à
+                // SetRegionRects lui-même). Anti-rebond ajouté par précaution : sans
+                // rapport confirmé avec "l'icône ⚙ n'ouvre rien", mais un
+                // déclenchement en boucle qui accapare le thread UI juste au moment
+                // d'un clic est une piste raisonnable à éliminer.
+                var lastActivated = DateTime.MinValue;
                 nativeWindow.Activated += (s, e) =>
                 {
+                    var now = DateTime.UtcNow;
+                    if ((now - lastActivated).TotalMilliseconds < 250) return;
+                    lastActivated = now;
+
                     App.Breadcrumb($"Window.Activated ({e.WindowActivationState}) — réapplique ConfigureSnapLayouts");
                     if (MenuBar.BtnMin.Handler?.PlatformView is Microsoft.UI.Xaml.FrameworkElement bMin
                         && MenuBar.BtnMax.Handler?.PlatformView is Microsoft.UI.Xaml.FrameworkElement bMax

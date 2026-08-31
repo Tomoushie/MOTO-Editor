@@ -1,30 +1,35 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <!--
   Moto.Editor/Views/CustomMenuBarView.xaml
-  Avant correction, ce fichier ne contenait qu'un fragment "AJOUT" (pas de
-  racine ContentView, pas de x:Class) destiné à être inséré dans une barre
-  de titre déjà existante — reconstruit ici en fichier complet et autonome.
-  Barre de titre custom : titre + badge de mise à jour + boutons fenêtre.
+  Barre de titre custom : zone de drag + badge de mise à jour + avatar + engrenage
+  + boutons fenêtre. C'est LA vraie barre utilisée par MainPage (x:Name="MenuBar",
+  balise <views:CustomMenuBarView>) — voir l'avertissement dans
+  Controls/CustomMenuBarView.xaml(.cs) : NE PAS confondre avec ce fichier-là.
+
+  ★ CORRECTION (31/08, cette fois dans le bon fichier) : boutons agrandis
+  (46→52px, police 12/14→14/16) et survol/clic ajoutés (AttachButtonFeedback)
+  — demandé par Tom, gris neutre pour Réduire/Plein écran, rouge pour Fermer.
+  ★ CORRECTION (31/08) : Label "MOTO Editor" supprimé (point 4 de Tom).
+  ★ AJOUT (31/08) : avatar (placeholder) + engrenage ⚙, tous deux ouvrent le
+  même petit menu déroulant (GearMenuView, câblé par MainPage) — point 1
+  (engrenage déplacé ici depuis la barre d'activité, qui ne l'a plus),
+  point 11 (avatar). Chaque tap lève MenuCommanded("gear.toggle") : un seul
+  point d'entrée, MainPage bascule GearMenu.IsVisible.
 -->
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="Moto.Editor.Views.CustomMenuBarView"
-             HeightRequest="34"
+             HeightRequest="38"
              BackgroundColor="#17181C">
-    <Grid ColumnDefinitions="Auto,*,Auto,Auto,Auto,Auto">
+    <Grid ColumnDefinitions="*,Auto,Auto,Auto,Auto,Auto,Auto">
 
-        <!-- Titre / zone de drag -->
-        <Label Grid.Column="0" Text="MOTO Editor"
-               TextColor="{StaticResource Txt2}" FontSize="12"
-               VerticalOptions="Center" Margin="12,0"/>
-
-        <!-- Zone de drag (le reste de l'espace disponible) -->
-        <Border x:Name="TitleBarDragZone" x:FieldModifier="Public" Grid.Column="1"
+        <!-- Zone de drag (tout l'espace libre — plus de titre texte, point 4) -->
+        <Border x:Name="TitleBarDragZone" x:FieldModifier="Public" Grid.Column="0"
                 BackgroundColor="Transparent"
                 HorizontalOptions="Fill" VerticalOptions="Fill" />
 
         <!-- ★ Bouton Update (visible seulement si MAJ disponible) -->
-        <Border Grid.Column="2" x:Name="UpdateBadge"
+        <Border Grid.Column="1" x:Name="UpdateBadge"
                 BackgroundColor="{StaticResource Accent}"
                 Stroke="Transparent" StrokeThickness="0"
                 StrokeShape="RoundRectangle 12"
@@ -40,29 +45,51 @@
             </HorizontalStackLayout>
         </Border>
 
+        <!-- Avatar (placeholder photo utilisateur) — point 11 -->
+        <Border Grid.Column="2" WidthRequest="26" HeightRequest="26"
+                Margin="0,0,4,0" StrokeThickness="0"
+                BackgroundColor="{StaticResource BgSide}"
+                StrokeShape="RoundRectangle 13" VerticalOptions="Center">
+            <Label Text="🙂" FontSize="14" HorizontalOptions="Center" VerticalOptions="Center" />
+            <Border.GestureRecognizers>
+                <TapGestureRecognizer Tapped="OnGearOrAvatarTapped" />
+            </Border.GestureRecognizers>
+        </Border>
+
+        <!-- Engrenage — point 1 (déplacé ici depuis la barre d'activité) -->
+        <Border Grid.Column="3" WidthRequest="34" HeightRequest="34"
+                Margin="0,0,4,0" StrokeThickness="0" BackgroundColor="Transparent">
+            <Label Text="⚙" FontSize="15" ToolTipProperties.Text="Réglages"
+                   TextColor="{StaticResource Txt1}"
+                   HorizontalOptions="Center" VerticalOptions="Center" />
+            <Border.GestureRecognizers>
+                <TapGestureRecognizer Tapped="OnGearOrAvatarTapped" />
+            </Border.GestureRecognizers>
+        </Border>
+
         <!-- Boutons fenêtre -->
-        <Border x:Name="BtnMin" x:FieldModifier="Public" Grid.Column="3" WidthRequest="46"
+        <Border x:Name="BtnMin" x:FieldModifier="Public" Grid.Column="4" WidthRequest="52"
                 BackgroundColor="Transparent" StrokeThickness="0">
             <Label Text="─" HorizontalOptions="Center" VerticalOptions="Center"
-                   FontSize="12" TextColor="{StaticResource Txt1}" />
+                   FontSize="14" TextColor="{StaticResource Txt1}" />
             <Border.GestureRecognizers>
                 <TapGestureRecognizer Tapped="OnMinClicked" />
             </Border.GestureRecognizers>
         </Border>
 
-        <Border x:Name="BtnMax" x:FieldModifier="Public" Grid.Column="4" WidthRequest="46"
+        <Border x:Name="BtnMax" x:FieldModifier="Public" Grid.Column="5" WidthRequest="52"
                 BackgroundColor="Transparent" StrokeThickness="0">
             <Label Text="□" HorizontalOptions="Center" VerticalOptions="Center"
-                   FontSize="12" TextColor="{StaticResource Txt1}" />
+                   FontSize="14" TextColor="{StaticResource Txt1}" />
             <Border.GestureRecognizers>
                 <TapGestureRecognizer Tapped="OnMaxClicked" />
             </Border.GestureRecognizers>
         </Border>
 
-        <Border x:Name="BtnClose" x:FieldModifier="Public" Grid.Column="5" WidthRequest="46"
+        <Border x:Name="BtnClose" x:FieldModifier="Public" Grid.Column="6" WidthRequest="52"
                 BackgroundColor="Transparent" StrokeThickness="0">
             <Label Text="×" HorizontalOptions="Center" VerticalOptions="Center"
-                   FontSize="14" TextColor="{StaticResource Txt1}" />
+                   FontSize="16" TextColor="{StaticResource Txt1}" />
             <Border.GestureRecognizers>
                 <TapGestureRecognizer Tapped="OnCloseClicked" />
             </Border.GestureRecognizers>
