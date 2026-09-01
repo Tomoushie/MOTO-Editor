@@ -53,6 +53,21 @@
          BorderCol reste utilisé ailleurs (retouche complète = chantier séparé). -->
     <Color x:Key="BorderSoft">#1AFFFFFF</Color>
 
+    <!-- ══════════════════ Espacement ══════════════════ -->
+    <!-- ★ AJOUT (01/09, direction "Hybride Claude") : échelle officielle, à
+         utiliser pour tout NOUVEAU travail (Spacing/RowSpacing/ColumnSpacing,
+         et les Padding/Margin à valeur unique et uniforme). Ne remplace PAS
+         rétroactivement les valeurs déjà réglées au pixel près par Tom au fil
+         de ses retours (ex. HomeView) — les reprendre casserait un réglage déjà
+         approuvé pour un gain de cohérence abstrait. Une passe de nettoyage
+         plus large sur le reste du dépôt reste un chantier séparé, à faire
+         plus tard si besoin (même logique que les rayons d'arrondi). -->
+    <x:Double x:Key="SpaceXs">4</x:Double>
+    <x:Double x:Key="SpaceSm">8</x:Double>
+    <x:Double x:Key="SpaceMd">16</x:Double>
+    <x:Double x:Key="SpaceLg">24</x:Double>
+    <x:Double x:Key="SpaceXl">32</x:Double>
+
     <!-- ══════════════════ Ombres (élévation) ══════════════════ -->
     <!-- ★ AJOUT (01/09, direction "Hybride Claude") : jusqu'ici AUCUNE ombre nulle
          part dans MOTO Editor (vérifié : 0 usage réel) — c'est une grande partie

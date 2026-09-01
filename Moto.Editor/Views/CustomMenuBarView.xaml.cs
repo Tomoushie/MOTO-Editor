@@ -7,6 +7,7 @@
 using System;
 using Microsoft.Maui.Controls;
 using Moto.Core.Updates;
+using Moto.Editor.Controls;
 
 namespace Moto.Editor.Views
 {
@@ -56,11 +57,17 @@ namespace Moto.Editor.Views
         /// </summary>
         private static void AttachButtonFeedback(Border button, Color hoverColor, Color pressColor)
         {
+            // ★ RETOUCHE (01/09, direction "Hybride Claude") : fondu court (120ms)
+            // au lieu d'un changement instantané — réutilise l'animation partagée
+            // de Controls/HoverEffects.cs (ce fichier garde son propre mécanisme
+            // d'attache pour les 3 boutons de fenêtre spécifiquement, voir
+            // commentaire de classe plus haut, mais pas de raison de dupliquer
+            // aussi l'interpolation de couleur).
             var pointer = new PointerGestureRecognizer();
-            pointer.PointerEntered += (_, _) => button.BackgroundColor = hoverColor;
-            pointer.PointerExited += (_, _) => button.BackgroundColor = Colors.Transparent;
-            pointer.PointerPressed += (_, _) => button.BackgroundColor = pressColor;
-            pointer.PointerReleased += (_, _) => button.BackgroundColor = hoverColor;
+            pointer.PointerEntered += (_, _) => HoverEffects.AnimateBackgroundColor(button, hoverColor);
+            pointer.PointerExited += (_, _) => HoverEffects.AnimateBackgroundColor(button, Colors.Transparent);
+            pointer.PointerPressed += (_, _) => HoverEffects.AnimateBackgroundColor(button, pressColor);
+            pointer.PointerReleased += (_, _) => HoverEffects.AnimateBackgroundColor(button, hoverColor);
             button.GestureRecognizers.Add(pointer);
         }
 

@@ -34,14 +34,38 @@ namespace Moto.Editor.Controls
             element.GestureRecognizers.Add(pointer);
         }
 
+        // ★ RETOUCHE (01/09, direction "Hybride Claude") : changement de couleur
+        // instantané remplacé par un fondu court (120ms) — principe emprunté à
+        // VS Code/Zed (transitions rares mais réelles, jamais de rebond) plutôt
+        // qu'un simple SetBackground(). MAUI n'a PAS de "BackgroundColorTo" natif
+        // (contrairement à FadeTo/ScaleTo) — implémenté ici à la main via
+        // VisualElement.Animate (le mécanisme bas niveau sur lequel FadeTo/ScaleTo
+        // eux-mêmes reposent), en interpolant chaque canal R/G/B/A.
         private static void SetBackground(View element, Color color)
         {
-            switch (element)
-            {
-                case Button b: b.BackgroundColor = color; break;
-                case Border bo: bo.BackgroundColor = color; break;
-                default: element.BackgroundColor = color; break;
-            }
+            if (element is VisualElement ve)
+                AnimateBackgroundColor(ve, color);
+            else
+                element.BackgroundColor = color;
+        }
+
+        /// <summary>
+        /// Exposée publique : réutilisée par CustomMenuBarView.xaml.cs (boutons
+        /// Min/Max/Fermer, patron d'attache séparé — voir le commentaire de cette
+        /// classe) pour ne pas dupliquer une 2e fois la même interpolation R/G/B/A.
+        /// </summary>
+        public static void AnimateBackgroundColor(VisualElement element, Color target, uint length = 120)
+        {
+            var start = element.BackgroundColor ?? Colors.Transparent;
+            element.Animate(
+                name: "HoverEffects.BackgroundColor",
+                callback: t => element.BackgroundColor = new Color(
+                    (float)(start.Red + (target.Red - start.Red) * t),
+                    (float)(start.Green + (target.Green - start.Green) * t),
+                    (float)(start.Blue + (target.Blue - start.Blue) * t),
+                    (float)(start.Alpha + (target.Alpha - start.Alpha) * t)),
+                length: length,
+                easing: Easing.Linear);
         }
     }
 }
