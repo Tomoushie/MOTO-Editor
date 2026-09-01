@@ -1,0 +1,969 @@
+
+<!DOCTYPE html>
+<html lang="en-US" prefix="og: https://ogp.me/ns#">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+                            <script>
+                            /* You can add more configuration options to webfontloader by previously defining the WebFontConfig with your options */
+                            if ( typeof WebFontConfig === "undefined" ) {
+                                WebFontConfig = new Object();
+                            }
+                            /* WGL CUSTOM TYPOGRAPHY FIX */
+                            WebFontConfig['google'] = {families: ['Titillium+Web:400,700,600,700', 'Muli:600,400,900,700,']};
+                            /* \ WGL CUSTOM TYPOGRAPHY FIX */
+
+                            (function() {
+                                var wf = document.createElement( 'script' );
+                                wf.src = 'https://ajax.googleapis.com/ajax/libs/webfont/1.5.3/webfont.js';
+                                wf.type = 'text/javascript';
+                                wf.async = 'true';
+                                var s = document.getElementsByTagName( 'script' )[0];
+                                s.parentNode.insertBefore( wf, s );
+                            })();
+                        </script>
+
+<!-- Search Engine Optimization by Rank Math - https://rankmath.com/ -->
+<title>Zencode</title>
+<meta name="description" content="We help people to solve non-standard problems easily! We create products that work and makes business operations efficient. It’s as simple as that."/>
+<meta name="robots" content="follow, index, max-snippet:-1, max-video-preview:-1, max-image-preview:large"/>
+<link rel="canonical" href="https://zencode.io/"/>
+<meta property="og:locale" content="en_US"/>
+<meta property="og:type" content="website"/>
+<meta property="og:title" content="Zencode"/>
+<meta property="og:description" content="We help people to solve non-standard problems easily! We create products that work and makes business operations efficient. It’s as simple as that."/>
+<meta property="og:url" content="https://zencode.io/"/>
+<meta property="og:site_name" content="Zencode"/>
+<meta property="og:updated_time" content="2022-06-06T17:28:36+04:00"/>
+<meta property="og:image" content="https://zencode.io/app/uploads/2022/03/zencode-home_main-c.jpg"/>
+<meta property="og:image:secure_url" content="https://zencode.io/app/uploads/2022/03/zencode-home_main-c.jpg"/>
+<meta property="og:image:width" content="1920"/>
+<meta property="og:image:height" content="1172"/>
+<meta property="og:image:alt" content="zencode"/>
+<meta property="og:image:type" content="image/jpeg"/>
+<meta property="article:published_time" content="2019-05-06T07:38:22+04:00"/>
+<meta property="article:modified_time" content="2022-06-06T17:28:36+04:00"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:title" content="Zencode"/>
+<meta name="twitter:description" content="We help people to solve non-standard problems easily! We create products that work and makes business operations efficient. It’s as simple as that."/>
+<meta name="twitter:image" content="https://zencode.io/app/uploads/2022/03/zencode-home_main-c.jpg"/>
+<meta name="twitter:label1" content="Written by"/>
+<meta name="twitter:data1" content="admin"/>
+<meta name="twitter:label2" content="Time to read"/>
+<meta name="twitter:data2" content="16 minutes"/>
+<script type="application/ld+json" class="rank-math-schema">{"@context":"https://schema.org","@graph":[{"@type":["ProfessionalService","Organization"],"@id":"https://zencode.io/#organization","name":"ZenCode","url":"https://zencode.io","logo":{"@type":"ImageObject","@id":"https://zencode.io/#logo","url":"https://zencode.io/app/uploads/2022/06/zencode-logo-sq.jpg","contentUrl":"https://zencode.io/app/uploads/2022/06/zencode-logo-sq.jpg","caption":"Zencode","inLanguage":"en-US","width":"1080","height":"1080"},"openingHours":["Monday,Tuesday,Wednesday,Thursday,Friday,Saturday,Sunday 09:00-17:00"],"image":{"@id":"https://zencode.io/#logo"}},{"@type":"WebSite","@id":"https://zencode.io/#website","url":"https://zencode.io","name":"Zencode","publisher":{"@id":"https://zencode.io/#organization"},"inLanguage":"en-US","potentialAction":{"@type":"SearchAction","target":"https://zencode.io/?s={search_term_string}","query-input":"required name=search_term_string"}},{"@type":"ImageObject","@id":"https://zencode.io/app/uploads/2022/03/zencode-home_main-c.jpg","url":"https://zencode.io/app/uploads/2022/03/zencode-home_main-c.jpg","width":"1920","height":"1172","inLanguage":"en-US"},{"@type":"WebPage","@id":"https://zencode.io/#webpage","url":"https://zencode.io/","name":"Zencode","datePublished":"2019-05-06T07:38:22+04:00","dateModified":"2022-06-06T17:28:36+04:00","about":{"@id":"https://zencode.io/#organization"},"isPartOf":{"@id":"https://zencode.io/#website"},"primaryImageOfPage":{"@id":"https://zencode.io/app/uploads/2022/03/zencode-home_main-c.jpg"},"inLanguage":"en-US"},{"@type":"Person","@id":"https://zencode.io/#author","name":"admin","image":{"@type":"ImageObject","@id":"https://secure.gravatar.com/avatar/ad625d652f43cb46501917bc1e63ed7e?s=96&amp;d=mm&amp;r=g","url":"https://secure.gravatar.com/avatar/ad625d652f43cb46501917bc1e63ed7e?s=96&amp;d=mm&amp;r=g","caption":"admin","inLanguage":"en-US"},"sameAs":["https://zencode.io"],"worksFor":{"@id":"https://zencode.io/#organization"}},{"@type":"Article","headline":"Zencode","keywords":"zencode","datePublished":"2019-05-06T07:38:22+04:00","dateModified":"2022-06-06T17:28:36+04:00","author":{"@id":"https://zencode.io/#author","name":"admin"},"publisher":{"@id":"https://zencode.io/#organization"},"description":"We help people to solve non-standard problems easily! We create products that work and makes business operations efficient. It\u2019s as simple as that.","name":"Zencode","@id":"https://zencode.io/#richSnippet","isPartOf":{"@id":"https://zencode.io/#webpage"},"image":{"@id":"https://zencode.io/app/uploads/2022/03/zencode-home_main-c.jpg"},"inLanguage":"en-US","mainEntityOfPage":{"@id":"https://zencode.io/#webpage"}}]}</script>
+<!-- /Rank Math WordPress SEO plugin -->
+
+<link rel="alternate" type="application/rss+xml" title="Zencode &raquo; Feed" href="https://zencode.io/feed/"/>
+<link rel="alternate" type="application/rss+xml" title="Zencode &raquo; Comments Feed" href="https://zencode.io/comments/feed/"/>
+<script type="text/javascript">
+window._wpemojiSettings = {"baseUrl":"https:\/\/s.w.org\/images\/core\/emoji\/14.0.0\/72x72\/","ext":".png","svgUrl":"https:\/\/s.w.org\/images\/core\/emoji\/14.0.0\/svg\/","svgExt":".svg","source":{"concatemoji":"https:\/\/zencode.io\/wp\/wp-includes\/js\/wp-emoji-release.min.js"}};
+/*! This file is auto-generated */
+!function(i,n){var o,s,e;function c(e){try{var t={supportTests:e,timestamp:(new Date).valueOf()};sessionStorage.setItem(o,JSON.stringify(t))}catch(e){}}function p(e,t,n){e.clearRect(0,0,e.canvas.width,e.canvas.height),e.fillText(t,0,0);var t=new Uint32Array(e.getImageData(0,0,e.canvas.width,e.canvas.height).data),r=(e.clearRect(0,0,e.canvas.width,e.canvas.height),e.fillText(n,0,0),new Uint32Array(e.getImageData(0,0,e.canvas.width,e.canvas.height).data));return t.every(function(e,t){return e===r[t]})}function u(e,t,n){switch(t){case"flag":return n(e,"\ud83c\udff3\ufe0f\u200d\u26a7\ufe0f","\ud83c\udff3\ufe0f\u200b\u26a7\ufe0f")?!1:!n(e,"\ud83c\uddfa\ud83c\uddf3","\ud83c\uddfa\u200b\ud83c\uddf3")&&!n(e,"\ud83c\udff4\udb40\udc67\udb40\udc62\udb40\udc65\udb40\udc6e\udb40\udc67\udb40\udc7f","\ud83c\udff4\u200b\udb40\udc67\u200b\udb40\udc62\u200b\udb40\udc65\u200b\udb40\udc6e\u200b\udb40\udc67\u200b\udb40\udc7f");case"emoji":return!n(e,"\ud83e\udef1\ud83c\udffb\u200d\ud83e\udef2\ud83c\udfff","\ud83e\udef1\ud83c\udffb\u200b\ud83e\udef2\ud83c\udfff")}return!1}function f(e,t,n){var r="undefined"!=typeof WorkerGlobalScope&&self instanceof WorkerGlobalScope?new OffscreenCanvas(300,150):i.createElement("canvas"),a=r.getContext("2d",{willReadFrequently:!0}),o=(a.textBaseline="top",a.font="600 32px Arial",{});return e.forEach(function(e){o[e]=t(a,e,n)}),o}function t(e){var t=i.createElement("script");t.src=e,t.defer=!0,i.head.appendChild(t)}"undefined"!=typeof Promise&&(o="wpEmojiSettingsSupports",s=["flag","emoji"],n.supports={everything:!0,everythingExceptFlag:!0},e=new Promise(function(e){i.addEventListener("DOMContentLoaded",e,{once:!0})}),new Promise(function(t){var n=function(){try{var e=JSON.parse(sessionStorage.getItem(o));if("object"==typeof e&&"number"==typeof e.timestamp&&(new Date).valueOf()<e.timestamp+604800&&"object"==typeof e.supportTests)return e.supportTests}catch(e){}return null}();if(!n){if("undefined"!=typeof Worker&&"undefined"!=typeof OffscreenCanvas&&"undefined"!=typeof URL&&URL.createObjectURL&&"undefined"!=typeof Blob)try{var e="postMessage("+f.toString()+"("+[JSON.stringify(s),u.toString(),p.toString()].join(",")+"));",r=new Blob([e],{type:"text/javascript"}),a=new Worker(URL.createObjectURL(r),{name:"wpTestEmojiSupports"});return void(a.onmessage=function(e){c(n=e.data),a.terminate(),t(n)})}catch(e){}c(n=f(s,u,p))}t(n)}).then(function(e){for(var t in e)n.supports[t]=e[t],n.supports.everything=n.supports.everything&&n.supports[t],"flag"!==t&&(n.supports.everythingExceptFlag=n.supports.everythingExceptFlag&&n.supports[t]);n.supports.everythingExceptFlag=n.supports.everythingExceptFlag&&!n.supports.flag,n.DOMReady=!1,n.readyCallback=function(){n.DOMReady=!0}}).then(function(){return e}).then(function(){var e;n.supports.everything||(n.readyCallback(),(e=n.source||{}).concatemoji?t(e.concatemoji):e.wpemoji&&e.twemoji&&(t(e.twemoji),t(e.wpemoji)))}))}((window,document),window._wpemojiSettings);
+</script>
+<style type="text/css">img.wp-smiley,img.emoji{display:inline!important;border:none!important;box-shadow:none!important;height:1em!important;width:1em!important;margin:0 .07em!important;vertical-align:-.1em!important;background:none!important;padding:0!important}</style>
+	<style id='safe-svg-svg-icon-style-inline-css' type='text/css'>.safe-svg-cover{text-align:center}.safe-svg-cover .safe-svg-inside{display:inline-block;max-width:100%}.safe-svg-cover svg{height:100%;max-height:100%;max-width:100%;width:100%}</style>
+<link rel='stylesheet' id='contact-form-7-css' href='https://zencode.io/app/plugins/contact-form-7/includes/css/A.styles.css.pagespeed.cf.BWVnRDAE9I.css' type='text/css' media='all'/>
+<link rel='stylesheet' id='cmplz-general-css' href='https://zencode.io/app/plugins/complianz-gdpr/assets/css/A.cookieblocker.min.css.pagespeed.cf.FoQn8Qj9S2.css' type='text/css' media='all'/>
+<link rel='stylesheet' id='wgl-parent-style-css' href='https://zencode.io/app/themes/integrio/A.style.css.pagespeed.cf.1B2M2Y8Asg.css' type='text/css' media='all'/>
+<link rel='stylesheet' id='integrio-default-style-css' href='https://zencode.io/app/themes/zencode/A.style.css.pagespeed.cf.yocOLrxcKa.css' type='text/css' media='all'/>
+<link rel='stylesheet' id='flaticon-css' href='https://zencode.io/app/themes/integrio/fonts/flaticon/A.flaticon.css.pagespeed.cf.0VScYBGtKi.css' type='text/css' media='all'/>
+<link rel='stylesheet' id='vc_font_awesome_5_shims-css' href='https://zencode.io/app/plugins/js_composer/assets/lib/bower/font-awesome/css/A.v4-shims.min.css.pagespeed.cf.RnyYON69M9.css' type='text/css' media='all'/>
+<link rel='stylesheet' id='vc_font_awesome_5-css' href='https://zencode.io/app/plugins/js_composer/assets/lib/bower/font-awesome/css/A.all.min.css.pagespeed.cf.ryywc-vmtj.css' type='text/css' media='all'/>
+<link rel='stylesheet' id='integrio-main-css' href='https://zencode.io/app/themes/integrio/css/A.main.css.pagespeed.cf.T1aGi7vsdw.css' type='text/css' media='all'/>
+<style id='integrio-main-inline-css' type='text/css'>body{font-family:Titillium\ Web;font-size:16px;line-height:1.875;font-weight:400;color:#616161}#comments .commentlist .comment_info .meta-wrapper *,.author-info_name,blockquote cite,.blog-post_info-wrap>.meta-wrapper *,.integrio_module_time_line_vertical .time_line-title,.isotope-filter a .number_filter,.integrio-post-navigation .meta-wrapper span,.author-widget_text,body .comment-form-cookies-consent>label{font-family:Titillium\ Web}select,blockquote cite,body .footer .select__field:before,body input:not([type='checkbox']):not([type='submit'])::placeholder,ul.wgl-pagination li span,select::placeholder,textarea::placeholder,.integrio_module_message_box .message_content .message_text,.vc_wp_custommenu .menu .menu-item.current-menu-item > a,.blog-post.format-quote .blog-post_quote-author-pos,.integrio_module_testimonials .testimonials_quote,.recent-posts-widget .meta-wrapper a:hover,.vc_row .vc_toggle .vc_toggle_icon,.tagcloud a,.isotope-filter a,.integrio_module_pricing_plan .pricing_price_wrap .pricing_desc {color:#616161}.integrio_module_title .external_link .button-read-more{line-height:1.875}h1,h2,h3,h4,h5,h6,h1 span,h2 span,h3 span,h4 span,h5 span,h6 span,h1 a,h2 a,h3 a,h4 a,h5 a,h6 a,.blog-post_cats,.column1 .item_title a,.integrio_twitter .twitt_title,.tagcloud-wrapper .title_tags,.strip_template .strip-item a span,.single_team_page .team-single_speaches-info .speech-info_desc span,.shortcode_tab_item_title,.index_number,.primary-nav.footer-menu .menu-item a{font-family:Titillium\ Web;font-weight:700}#comments .comment-reply-link,#comments .commentlist .comment_author_says,input[type="submit"],button,body .widget,body .widget .widget-title,body .widget_rss ul li .rss-date,body .widget .widget-title .widget-title_wrapper:before,body .widget_categories a,body .widget_product_categories a,body .widget_meta a,body .widget_archive a,body .widget_categories .post_count,body .widget_product_categories .post_count,body .widget_meta .post_count,body .widget_archive .post_count,label,legend,.wgl-social-share_pages.hovered_style .share_social-title,.blog-post_text-bg,.author-info_content .author-info_name,.button-read-more,.blog-post_meta_share .share_title,.blog-post_meta-date .date_post span,.blog-post_meta-categories a,.blog-post_meta-categories span,.blog-post_meta-date .date_post,.theme-header-font,.countdown-section .countdown-amount,.comments-title .number-comments,.integrio_module_progress_bar .progress_label,.integrio_module_double_headings,.integrio_module_infobox .infobox_icon_container .infobox_icon_number,.integrio_module_button.wgl_button .wgl_button_link,.integrio_module_pricing_plan .pricing_cur,.integrio_module_pricing_plan .pricing_price .price_decimal,.integrio_module_testimonials .testimonials_item:before,.integrio_module_testimonials .testimonials_status,.integrio_module_counter .counter_title,.integrio_module_videobox .title,.integrio_module_progress_bar .progress_value,.integrio_module_progress_bar .progress_units,.integrio_module_counter .counter_value_wrapper,.integrio_module_counter .counter_value_placeholder,.integrio_module_pricing_plan .pricing_plan_wrap .pricing_price_wrap,.integrio_module_ico_progress .progress_value_completed,.integrio_module_ico_progress .progress_value_min,.integrio_module_ico_progress .progress_value_max,.integrio_module_ico_progress .progress_point,.mashsb-count .counts,.mashsb-box .mashsb-buttons a .text,.prev-link,.next-link,.vc_row .vc_tta.vc_general.vc_tta-style-accordion_bordered .vc_tta-panel-title>a span,.widget.integrio_widget.integrio_banner-widget .banner-widget_text,.widget.integrio_widget.integrio_banner-widget .banner-widget_text_bg,.widget.integrio_widget.integrio_banner-widget .banner-widget_button,.widget.widget_wgl_posts .recent-posts-widget li > .recent-posts-content .post_title,.heading_subtitle,.info_prev-link_wrapper a,.info_next-link_wrapper a,.single_meta .single_info-share_social-wpapper > span.share_title,.single_team_page .team-single_speaches-info .speech-info_day,.single_team_page .team-info_wrapper .team-info_item,.single_info-share_social-wpapper > span,.single-portfolio .wgl_portfolio_item-meta,.portfolio_info_item-info_desc h5,.wgl_portfolio_item-meta .post_cats,.wgl_portfolio_item-cats,.wgl-pagination .page-numbers,.wpb-js-composer .wgl-container .vc_row .vc_general.vc_tta.vc_tta-tabs .vc_tta-tabs-container .vc_tta-tabs-list .vc_tta-tab > a,.wpb-js-composer .wgl-container .vc_chart.vc_round-chart[data-vc-legend="1"] .vc_chart-legend li,.isotope-filter a,body input:not([type='checkbox']):not([type='submit']),select,textarea,.blog-post.format-quote .blog-post_quote-author,body .comment-respond .comment-reply-title,.page-header_title,.wgl_module_team .team-department,.integrio_module_services_2 .services_link,.integrio_module_pricing_plan .pricing_content,.integrio_module_testimonials.type_inline_top .testimonials_meta_wrap:after,.integrio_module_testimonials .testimonials_position,.integrio_module_services_4 .services_subtitle,.dropcap,.dropcap-bg,.portfolio_info_item-info_desc span,.integrio_module_countdown .countdown-section .countdown-period,ul.wp-block-archives.wp-block-archives-list li a,ul.wp-block-categories.wp-block-categories-list li a,ul.wp-block-categories.wp-block-categories-list li .post_count,ul.wp-block-latest-posts li a{font-family:Titillium\ Web}.banner_404,.load_more_item,.integrio_module_time_line_horizontal .tlh_date,.wgl_portfolio_single-item .tagcloud .tagcloud_desc,.wgl_timetabs .timetabs_data .timetabs_item .item_time,.wgl_timetabs .timetabs_data .timetabs_item .content-wrapper .item_title,.wpb-js-composer .wgl-container .vc_row .vc_pie_chart .vc_pie_chart_value,.isotope-filter a.active,.isotope-filter a:hover,.wgl_timetabs .timetabs_headings .wgl_tab,blockquote{font-family:Titillium\ Web;color:#5e60ce}body .footer select option,body .widget_wgl_posts .recent-posts-widget .post_title a,body .widget .widget-title .widget-title_wrapper,button,h1,h2,h3,h4,h5,h6,h1 span,h2 span,h3 span,h4 span,h5 span,h6 span,h1 a,h2 a,h3 a,h4 a,h5 a,h6 a,h3#reply-title a,.calendar_wrap tbody,.comment_author_says,.comment_author_says a,.tagcloud-wrapper .title_tags,.theme-header-color,.integrio_module_double_headings .heading_title,.integrio_module_testimonials .testimonials_item .testimonials_content_wrap .testimonials_name,.integrio_module_pricing_plan .pricing_plan_wrap .pricing_content > ul > li > b,.integrio_module_social .soc_icon,.integrio_module_counter .counter_value_wrapper,.integrio_module_carousel .slick-arrow,.integrio_module_message_box .message_close_button:hover,.prev-link-info_wrapper,.next-link-info_wrapper,.item_title a,.share_post-container:hover > a,.single_meta .blog-post_share-wrap > span.share_title,.single_meta .single_info-share_social-wpapper > span.share_title,.single_info-share_social-wpapper > span,.integrio_module_counter .counter_value_wrapper,.wgl_module_title.item_title .carousel_arrows a span:after,.wgl_module_team.info_under_image .team-department,.wgl_portfolio_item-wrapper .portfolio_link,.widget_product_search .woocommerce-product-search:after,.widget.integrio_widget.integrio_banner-widget .banner-widget_text,.wpb-js-composer .wgl-container .vc_row .vc_general.vc_tta.vc_tta-tabs .vc_tta-panels-container .vc_tta-panels .vc_tta-panel:not(.vc_active) .vc_tta-panel-heading .vc_tta-panel-title,.wpb-js-composer .wgl-container .vc_row .vc_general.vc_tta.vc_tta-tabs .vc_tta-tabs-container .vc_tta-tabs-list .vc_tta-tab:not(.vc_active) > a,.wpb-js-composer .wgl-container .vc_row .vc_toggle.vc_toggle_color_check.vc_toggle_active .vc_toggle_title .vc_toggle_icon,.under_image .wgl_portfolio_item-title .title a,.wpb-js-composer .wgl-container .vc_row .vc_toggle .vc_toggle_title,.button-read-more:hover,.wgl-pagination .page .current,.wgl-pagination .page-numbers:hover,body .widget_categories ul li a,body .widget_product_categories ul li a,body .widget_meta ul li a,body .widget_archive ul li a,.integrio_module_services_2 .services_link,ul.wp-block-archives.wp-block-archives-list li a,ul.wp-block-categories.wp-block-categories-list li a,ul.wp-block-latest-posts li a,.integrio_module_demo_item .di_title{color:#5e60ce}.integrio_module_title .carousel_arrows a span{background:#5e60ce}.integrio_module_infobox.infobox_alignment_left.title_divider .infobox_title:before,.integrio_module_infobox.infobox_alignment_right.title_divider .infobox_title:before,.integrio_module_carousel .slick-arrow:hover{background-color:#5e60ce}.integrio_module_title .carousel_arrows a span:before,.integrio_module_pricing_plan .pricing_highlighter,.wgl-pagination .page .current,.wgl-pagination .page-numbers:hover{border-color:#5e60ce}.wgl-theme-header .wgl-sticky-header .header_search{height:100px!important}#scroll_up{background-color:#5e60ce;color:#fff}.primary-nav>div>ul,.primary-nav>ul,.sitepress_container>.wpml-ls li,.primary-nav ul li.mega-menu-links>ul>li{font-family:Muli;font-weight:600;line-height:32px;font-size:17px}.primary-nav ul li ul,.wpml-ls,.sitepress_container>.wpml-ls ul ul li,.primary-nav ul li div.mega-menu-container{font-family:Muli;font-weight:400;line-height:30px;font-size:16px}.wgl-theme-header .header_search-field,.primary-nav ul li ul,.primary-nav ul li div.mega-menu-container,.wgl-theme-header .woo_mini_cart,.wpml-ls-legacy-dropdown .wpml-ls-current-language .wpml-ls-sub-menu{background-color:rgba(81,82,160,1);color:#fff}.mobile_nav_wrapper,.wgl-menu_outer,.mobile_nav_wrapper .primary-nav ul li ul.sub-menu,.mobile_nav_wrapper .primary-nav ul li.mega-menu-links>ul.mega-menu>li>ul>li ul,.mobile_nav_wrapper .primary-nav ul li.mega-menu-links>ul.mega-menu>li>ul{background-color:rgba(255,255,255,1);color:#5152a0}a,a:hover .wgl-icon,body ol>li:before,blockquote:before,button,button:focus,button:active,h3#reply-title a:hover,input[type="submit"]:hover,.mobile_nav_wrapper .primary-nav ul li ul .menu-item.current-menu-item>a,.mobile_nav_wrapper .primary-nav ul ul li.menu-item.current-menu-ancestor>a,.mobile_nav_wrapper .primary-nav>ul>li.current-menu-item>a,.mobile_nav_wrapper .primary-nav>ul>li.current_page_item>a,.mobile_nav_wrapper .primary-nav>ul>li.current-menu-ancestor>a,.mobile_nav_wrapper .primary-nav>ul>li.current-menu-parent>a,.mobile_nav_wrapper .primary-nav>ul>li.current_page_parent>a,.mobile_nav_wrapper .primary-nav>ul>li.current_page_ancestor>a,.author-info_social-wrapper,.blog-post_link:before,.blog-post_meta-categories span,.blog-post_title i,.blog-style-standard .blog-post:hover .blog-post_wrapper .blog-post_meta_info .meta-wrapper span,.blog-post_link>.link_post:hover,.blog-post.format-standard.link .blog-post_title:before,.blog-post_cats span,.blog-post_title a:hover,.button-read-more,.comment-respond .button__wrapper:hover input[type="submit"],.calendar_wrap thead,.copyright a:hover,.comment_author_says a:hover,.dropcap,.footer .wpcf7 input[type="submit"],.integrio_submit_wrapper:hover>i,.integrio_custom_button i,.integrio_custom_text a,.integrio_module_button .wgl_button_link:hover,.integrio_module_button.effect_3d .link_wrapper,.integrio_module_counter .counter_icon,.integrio_module_demo_item .di_button a:hover,.integrio_module_demo_item .di_title_wrap a:hover .di_title,.integrio_module_demo_item .di_title-wrap .di_subtitle,.integrio_module_social .soc_icon:hover,.integrio_twitter a,.integrio_module_testimonials.type_author_top_inline .testimonials_meta_wrap:after,.integrio_module_testimonials .testimonials_status,.integrio_module_circuit_services .services_subtitle,.integrio_module_circuit_services .services_item-icon,.integrio_module_flipbox .flipbox_front .flipbox_front_content,.integrio_module_services_3 .services_icon_wrapper,.integrio_module_services_4 .services_icon,.integrio_module_services_4:hover .services_number,.integrio_module_pricing_plan .pricing_plan_wrap .pricing_price_wrap,.load_more_works:hover,.load_more_wrapper .load_more_item:before,.load_more_wrapper .load_more_item:hover,.header_search .header_search-button>i:hover,.header_search-field .search-form:after,.page_404_wrapper .integrio_404_button .wgl_button_link:hover,.mc_form_inside #mc_signup_submit:hover,.share_post-container .share_social-wpapper ul li .share_post span.fa:hover,.share_link span.fa:hover,.share_post span.fa:hover,.share_post-container,.single_team_page .team-single_speaches-info .speech-info_desc span,.single_team_page .team-info_wrapper .team-info_item a:hover,.single-member-page .member-icon:hover,.single-member-page .team-link:hover,.single_team_page .team-single_speaches-info .speech-info_day,.single_team_page .team-info_icons a:hover,.team-icons .member-icon:hover,.vc_wp_custommenu .menu .menu-item.current-menu-item>a,.vc_wp_custommenu .menu .menu-item.current-menu-ancestor>a,.wpml-ls a:hover,.wpml-ls-legacy-dropdown .wpml-ls-current-language:hover>a,.wpml-ls-legacy-dropdown .wpml-ls-current-language a:hover,.wgl-container ul li:before,.wgl_portfolio_item-meta a:hover,.wgl_timetabs .timetabs_headings .wgl_tab.active .tab_subtitle,.wgl_timetabs .timetabs_headings .wgl_tab:hover .tab_subtitle,.wgl_portfolio_category-wrapper a:hover,.wgl_module_team .team-item_info .team-item_titles .team-title:hover,.wgl-icon:hover,.wgl-theme-color,.wgl_portfolio_item-wrapper .portfolio_link-icon:hover,.wgl_portfolio_item-corners,.wgl_portfolio_item-cats,.wpb-js-composer .vc_row .vc_tta.vc_general .vc_active .vc_tta-panel-title>a:before,.wgl-social-share_pages.hovered_style ul li a:hover,.integrio_module_time_line_horizontal .tlh_check_wrap,.integrio_module_testimonials .testimonials_item:before,.isotope-filter a:after,.wgl-container ul.integrio_slash li:before,.post_featured_bg .single_meta .author_post a:hover,.single_type-1 .single_meta .author_post a:hover,.single_type-2 .single_meta .author_post a:hover,.info_prev-link_wrapper>a,.info_next-link_wrapper>a,#comments .comment-reply-link,#comments .comment-reply-link:hover:before,#comments .commentlist .comment_info .meta-wrapper .comment-edit-link,.blog-style-standard .blog-post_meta-categories span+span:before,.blog-post_meta-categories span,.blog-post_meta-categories span:after,.meta-wrapper a:hover,.single-team .single_team_page .team-info_icons .team-icon:hover,.integrio_module_services_2 .services_link:hover,.integrio_module_services_2 .services_wrapper i,.integrio_module_double_headings .heading_subtitle,.integrio_module_counter .counter_value_wrapper .counter_value_suffix,.integrio_module_counter .counter_value_placeholder .counter_value_suffix,.wgl_portfolio_list-container .integrio_module_carousel.arrows_center_mode .slick-prev:hover:after,.wgl_portfolio_list-container .integrio_module_carousel.arrows_center_mode .slick-next:hover:after,.wgl_timetabs .timetabs_headings .wgl_tab .services_icon,ul.wp-block-archives.wp-block-archives-list li a:hover,ul.wp-block-categories.wp-block-categories-list li a:hover,ul.wp-block-categories.wp-block-categories-list li a:hover+.post_count,ul.wp-block-latest-posts li a:hover,.integrio_module_demo_item .di_title:before,.integrio_module_demo_item .di_title:after{color:#5152a0}header .header-link:hover,.hover_links a:hover{color:#5152a0!important}body .widget_nav_menu .current-menu-ancestor>a,body .widget_nav_menu .current-menu-item>a,body .widget_recent_entriesul li .post-date,body .widget_rss ul li .rss-date,body .widget_meta ul li .post_count,body .widget_archive ul li>a:before,body .widget_product_categories ul li a:hover+.post_count,body .widget_archive ul li a:hover+.post_count,body .widget .widget-title .widget-title_wrapper:before,.recent-posts-widget .meta-wrapper a,.widget.integrio_widget.integrio_banner-widget .banner-widget_text .tags_title:after,.widget.widget_archive ul li a:hover,.widget.widget_categories ul li a:hover,.widget.widget_categories ul li a:hover+span,.widget.widget_recent_comments ul li a,.widget.widget_pages ul li a:hover,.widget.widget_meta ul li a:hover,.author-widget_social a:hover,.widget.widget_recent_comments ul li span.comment-author-link a:hover,.widget.widget_recent_comments ul li a:hover,.widget.widget_recent_entries ul li a:hover,.widget.widget_nav_menu ul li a:hover,.widget.widget_wgl_posts .recent-posts-widget li>.recent-posts-content .post_title a:hover,.recent-posts-widget .meta-wrapper a,.isotope-filter a .number_filter{color:#5152a0}.single_team_page .team-title:before,.slick-dots li button,.integrio_module_double_headings .heading_title .heading_divider,.integrio_module_double_headings .heading_title .heading_divider:before,.integrio_module_double_headings .heading_title .heading_divider:after,.wpml-ls-legacy-dropdown .wpml-ls-sub-menu .wpml-ls-item a span:before,.wgl-container ul.integrio_plus li:after,.wgl-container ul.integrio_plus li:before,.wgl-container ul.integrio_dash li:before,#multiscroll-nav span,#multiscroll-nav li .active span,input[type="submit"],.button-read-more:before,ul.wp-block-categories.wp-block-categories-list li a:hover:after{background:#5152a0}::selection,#comments>h3:after,button:hover,mark,span.highlighter,.vc_wp_custommenu .menu .menu-item a:before,.primary-nav ul li.mega-menu.mega-cat div.mega-menu-container ul.mega-menu.cats-horizontal>li.is-active>a,.primary-nav .lavalamp-object,.sitepress_container>.wpml-ls ul ul li a:hover,.blog-post_cats span a,.button__wrapper:hover:after,.calendar_wrap caption,.comment-reply-title:after,.footer .wpcf7 input[type="submit"]:hover,.integrio_divider .integrio_divider_line .integrio_divider_custom .divider_line,.integrio_module_cats .cats_item-count,.integrio_module_progress_bar .progress_bar,.integrio_module_infobox.type_tile:hover:before,.integrio_module_social.with_bg .soc_icon,.integrio_module_title:after,.integrio_module_title .carousel_arrows a:hover span,.integrio_module_videobox .videobox_link,.integrio_module_carousel.pagination_circle_border .slick-dots li.slick-active button,.integrio_module_carousel.pagination_line .slick-dots li button:before,.integrio_module_carousel.pagination_square .slick-dots li,.integrio_module_ico_progress .progress_completed,.integrio_module_services_3 .services_icon_wrapper .services_circle_wrapper .services_circle,.integrio_module_time_line_horizontal .tlh_check_wrap,.load_more_works,.load_more_wrapper .load_more_item,.mc_form_inside #mc_signup_submit,.wgl-social-share_pages.hovered_style .share_social-icon-plus:before,.wgl-social-share_pages.hovered_style .share_social-icon-plus:after,.wgl-ellipsis span,.wgl_module_title.item_title .carousel_arrows a:hover,.wgl_timetabs .timetabs_headings .wgl_tab.active:after,.wgl-container ul.integrio_plus li:before,.wgl-container ul li:before,.wgl-social-share_pages.standard_style a:before,.meta-wrapper span+span:before,.tagcloud a:hover,.blog-post_quote-text:before,body .widget_categories ul li a:hover:after,body .widget_product_categories ul li a:hover:after,body .widget_meta ul li a:hover:after,body .widget_archive ul li a:hover:after,.dropcap-bg{background-color:#5152a0}aside>.widget+.widget:before,.widget .calendar_wrap table td#today:before,.widget .calendar_wrap tbody td>a:before,.widget .counter_posts,.widget.widget_pages ul li a:before,.widget.widget_nav_menu ul li a:before,.widget_nav_menu .menu .menu-item:before,.widget_postshero .recent-posts-widget .post_cat a,.widget_categories ul li>a:before,.widget_meta ul li>a:before,.widget_archive ul li>a:before{background-color:#5152a0}.blog-post_meta-date,.integrio_module_carousel.navigation_offset_element .slick-prev:hover,.integrio_module_carousel.navigation_offset_element .slick-next:hover,.integrio_module_demo_item .di_button a,.integrio_module_button.wgl_button:not(.btn-gradient) .wgl_button_link,.next-link:hover,.prev-link:hover,.single-team .single_team_page .team-info_icons .team-icon{border-color:#5152a0;background:#5152a0}input[type="submit"],.integrio_module_carousel.pagination_circle_border .slick-dots li button,.integrio_module_title .carousel_arrows a:hover span:before,.load_more_works,.load_more_wrapper .button_wrapper:before,.load_more_wrapper .load_more_item,.author-info_social-link:after,.author-widget_social a span,.single_info-share_social-wpapper .share_link .share-icon_animation,.single-team .single_team_page .team-image,.wgl_module_team .team-image,.inside_image.offset_animation:before,.integrio_module_videobox .videobox_link,.integrio_module_products_special_cats .product_special_cats-image_wrap:before,.footer .wpcf7 input[type="submit"]:hover{border-color:#5152a0}.wgl-theme-header .header_search .header_search-field:after{border-bottom-color:rgba(81,82,160,.9)}.theme_color_shadow{box-shadow:0 9px 30px 0 rgba(81,82,160,.4)}.inside_image .overlay:before,.inside_image.always_info_animation:hover .overlay:before{box-shadow:inset 0 0 0 0 rgba(81,82,160,1)}.inside_image:hover .overlay:before,.inside_image.always_info_animation .overlay:before{box-shadow:inset 0 0 0 10px rgba(81,82,160,1)}blockquote cite a,.wgl-secondary-color,.wpb-js-composer .wgl-container .vc_row .vc_toggle.vc_toggle_active .vc_toggle_title,.wpb-js-composer .wgl-container .vc_row .vc_toggle .vc_toggle_title:hover,.wpb-js-composer .wgl-container .vc_row .vc_general.vc_tta.vc_tta-accordion .vc_tta-panels-container .vc_tta-panel.vc_active .vc_tta-panel-title,.wpb-js-composer .wgl-container .vc_row .vc_general.vc_tta.vc_tta-accordion .vc_tta-panels-container .vc_tta-panel .vc_tta-panel-title:hover>a{color:#5152a0}.footer .mc4wp-form-fields input[type="submit"]:hover,.footer .mc4wp-form-fields input[type="submit"]:focus,.footer .mc4wp-form-fields input[type="submit"]:active,.footer_top-area .widget.widget_archive ul li>a:hover,.footer_top-area .widget.widget_archive ul li>a:hover,.footer_top-area .widget.widget_categories ul li>a:hover,.footer_top-area .widget.widget_categories ul li>a:hover,.footer_top-area .widget.widget_pages ul li>a:hover,.footer_top-area .widget.widget_pages ul li>a:hover,.footer_top-area .widget.widget_meta ul li>a:hover,.footer_top-area .widget.widget_meta ul li>a:hover,.footer_top-area .widget.widget_recent_comments ul li>a:hover,.footer_top-area .widget.widget_recent_comments ul li>a:hover,.footer_top-area .widget.widget_recent_entries ul li>a:hover,.footer_top-area .widget.widget_recent_entries ul li>a:hover,.footer_top-area .widget.widget_nav_menu ul li>a:hover,.footer_top-area .widget.widget_nav_menu ul li>a:hover,.footer_top-area .widget.widget_wgl_posts .recent-posts-widget li>.recent-posts-content .post_title a:hover,.footer_top-area .widget.widget_wgl_posts .recent-posts-widget li>.recent-posts-content .post_title a:hover{color:#5152a0}.footer ul li:before,.footer ul li:before,.footer_top-area a:hover,.footer_top-area a:hover{color:#5152a0}.footer_top-area .widget-title,.footer_top-area .widget-title .rsswidget,.footer_top-area .widget.widget_pages ul li a,.footer_top-area .widget.widget_nav_menu ul li a,.footer_top-area .widget.widget_wgl_posts .recent-posts-widget li>.recent-posts-content .post_title a,.footer_top-area .widget.widget_archive ul li>a,.footer_top-area .widget.widget_categories ul li>a,.footer_top-area .widget.widget_pages ul li>a,.footer_top-area .widget.widget_meta ul li>a,.footer_top-area .widget.widget_recent_comments ul li>a,.footer_top-area .widget.widget_recent_entries ul li>a,.footer_top-area .widget.widget_archive ul li:before,.footer_top-area .widget.widget_meta ul li:before,.footer_top-area .widget.widget_categories ul li:before,.footer_top-area strong,.footer_top-area h1,.footer_top-area h2,.footer_top-area h3,.footer_top-area h4,.footer_top-area h5,.footer_top-area h6{color:#fff}.footer_top-area{color:#ccc}.footer_top-area .widget.widget_archive ul li:after,.footer_top-area .widget.widget_pages ul li:after,.footer_top-area .widget.widget_meta ul li:after,.footer_top-area .widget.widget_recent_comments ul li:after,.footer_top-area .widget.widget_recent_entries ul li:after,.footer_top-area .widget.widget_nav_menu ul li:after,.footer_top-area .widget.widget_categories ul li:after{background-color:#ccc}.footer .copyright{color:#96a1b6}.footer .mc4wp-form-fields input[type="submit"]{background-color:#5152a0;border-color:#5152a0}body{background:#fff}ol.commentlist:after{background:#fff}h1,h1 a,h1 span{font-family:Muli;font-weight:900;font-size:48px;line-height:52px}h2,h2 a,h2 span{font-family:Muli;font-weight:900;font-size:42px;line-height:48px}h3,h3 a,h3 span{font-family:Muli;font-weight:900;font-size:36px;line-height:46px}h4,h4 a,h4 span{font-family:Muli;font-weight:900;font-size:30px;line-height:38px}h5,h5 a,h5 span{font-family:Muli;font-weight:700;font-size:24px;line-height:29px}h6,h6 a,h6 span{font-family:Muli;font-weight:700;font-size:20px;line-height:24px}@media only screen and (max-width:1260px){.wgl-theme-header{background-color:rgba(81,82,160,1)!important;color:#fff!important}.hamburger-inner,.hamburger-inner:before,.hamburger-inner:after{background-color:#fff}.wgl-theme-header .wgl-mobile-header{display:block}.wgl-site-header{display:none}.wgl-theme-header .mobile-hamburger-toggle{display:inline-block}.wgl-theme-header .primary-nav{display:none}header.wgl-theme-header .mobile_nav_wrapper .primary-nav{display:block}.wgl-theme-header .wgl-sticky-header{display:none}body.mobile_switch_on .wgl-menu_outer{height:calc(100vh - 100px)}.mobile_nav_wrapper .primary-nav{min-height:calc(100vh - 100px - 30px)}.wgl-social-share_pages{display:none}body .wgl-theme-header.header_overlap{position:relative;z-index:2}}@media only screen and (max-width:768px){.page-header{padding-top:15px!important;padding-bottom:40px!important;height:230px!important}.page-header_content .page-header_title{color:#fff!important;font-size:42px!important;line-height:60px!important}.page-header_content .page-header_breadcrumbs{color:#fff!important;font-size:14px!important;line-height:24px!important}}.vc_custom_1645517650995{background-color:#262860!important}.vc_custom_1646574245536{margin-top:-200px!important;background-color:rgba(255,255,255,.1)!important;*background-color: rgb(255,255,255) !important}.vc_custom_1556896473088{padding-top:10px!important;padding-bottom:10px!important}.theme-gradient input[type="submit"],.rev_slider .rev-btn.gradient-button,.blog-post_meta-categories a,.wgl_portfolio_single-item .portfolio-category,body .widget .widget-title .widget-title_wrapper:before,.inside_image.sub_layer_animation .wgl_portfolio_item-description,.inside_image.always_info_animation .wgl_portfolio_item-description,.wgl_module_team .team-info_icons,.wpb-js-composer .wgl-container .vc_row .vc_general.vc_tta.vc_tta-tabs .vc_tta-tabs-container .vc_tta-tabs-list .vc_tta-tab:before,.wpb-js-composer .wgl-container .vc_row .vc_general.vc_tta.vc_tta-tabs .vc_tta-panels-container .vc_tta-panels .vc_tta-panel .vc_tta-panel-heading .vc_tta-panel-title:before,.integrio_module_progress_bar .progress_bar,.integrio_module_testimonials.type_inline_top .testimonials_meta_wrap:after,.page_404_wrapper .integrio_404_button.wgl_button .wgl_button_link,.banner-widget_button,.load_more_wrapper .load_more_item,.woocommerce .widget_price_filter .price_slider_amount .button,.widget_shopping_cart .buttons a:not(.checkout),.wgl-theme-header .woo_mini_cart .woocommerce-mini-cart__buttons a:not(.checkout),.woocommerce div.product form.cart .button,.woocommerce #review_form #respond .form-submit input,.theme-gradient .woocommerce-message a.button,.woocommerce table.shop_table.cart input.button,.woocommerce button.button[name="update_cart"],.theme-gradient.woocommerce-cart .wc-proceed-to-checkout a.checkout-button,.woocommerce form.checkout_coupon .form-row button.button,.woocommerce-page #payment #place_order,.integrio_module_demo_item .di_button .wgl_button_link{background:-webkit-linear-gradient(left,#6568d5 0%,#5152a0 50%,#6568d5 100%);background:-ms-linear-gradient(left,#6568d5 0%,#5152a0 50%,#6568d5 100%);background-size:300% , 1px;background-position:0%}</style>
+<link rel='stylesheet' id='swipebox-css' href='https://zencode.io/app/themes/integrio/js/swipebox/css/A.swipebox.min.css.pagespeed.cf.tgAQ9huRch.css' type='text/css' media='all'/>
+<link rel='stylesheet' id='js_composer_front-css' href='https://zencode.io/app/plugins/js_composer/assets/css/A.js_composer.min.css.pagespeed.cf.PqdqAuKXZx.css' type='text/css' media='all'/>
+<script type='text/javascript' src='https://zencode.io/wp/wp-includes/js/jquery/jquery.min.js.pagespeed.ce._wTdHvXGeZ.js' id='jquery-core-js'></script>
+<script src="https://zencode.io/wp,_wp-includes,_js,_jquery,_jquery-migrate.min.js+app,_themes,_integrio,_js,_swipebox,_js,_jquery.swipebox.min.js.pagespeed.jc.bdg-HhtJae.js"></script><script>eval(mod_pagespeed_4B07BF9HIy);</script>
+<script>eval(mod_pagespeed_MzAEC4i4zD);</script>
+<script type='text/javascript' id='whp3184front.js9419-js-extra'>
+/* <![CDATA[ */
+var whp_local_data = {"add_url":"https:\/\/zencode.io\/wp-admin\/post-new.php?post_type=event","ajaxurl":"https:\/\/zencode.io\/wp\/wp-admin\/admin-ajax.php"};
+/* ]]> */
+</script>
+<script type='text/javascript' src='https://zencode.io/app/plugins/_wp-security-hardening/modules/js/front.js.pagespeed.ce.FZx1xoJL1t.js' id='whp3184front.js9419-js'></script>
+<link rel="https://api.w.org/" href="https://zencode.io/wp-json/"/><link rel="alternate" type="application/json" href="https://zencode.io/wp-json/wp/v2/pages/378"/><link rel="EditURI" type="application/rsd+xml" title="RSD" href="https://zencode.io/wp/xmlrpc.php?rsd"/>
+
+<link rel='shortlink' href='https://zencode.io/'/>
+<link rel="alternate" type="application/json+oembed" href="https://zencode.io/wp-json/oembed/1.0/embed?url=https%3A%2F%2Fzencode.io%2F"/>
+<link rel="alternate" type="text/xml+oembed" href="https://zencode.io/wp-json/oembed/1.0/embed?url=https%3A%2F%2Fzencode.io%2F&#038;format=xml"/>
+<style>.cmplz-hidden{display:none!important}</style><meta name="generator" content="Powered by WPBakery Page Builder - drag and drop page builder for WordPress."/>
+<script data-service="google-analytics" data-category="statistics" id="google_gtagjs" data-cmplz-src="https://www.googletagmanager.com/gtag/js?id=G-1YX6LSC7K0" async="async" type="text/plain"></script>
+<script id="google_gtagjs-inline" type="text/javascript">
+window.dataLayer = window.dataLayer || [];function gtag(){dataLayer.push(arguments);}gtag('js', new Date());gtag('config', 'G-1YX6LSC7K0', {} );
+</script>
+<link rel="icon" href="https://zencode.io/app/uploads/2022/03/cropped-icon-32x32.png.pagespeed.ce.O5q1wPvYL3.png" sizes="32x32"/>
+<link rel="icon" href="https://zencode.io/app/uploads/2022/03/cropped-icon-192x192.png.pagespeed.ce.xhDh45ZA7M.png" sizes="192x192"/>
+<link rel="apple-touch-icon" href="https://zencode.io/app/uploads/2022/03/cropped-icon-180x180.png.pagespeed.ce.CLdX0nl5Hu.png"/>
+<meta name="msapplication-TileImage" content="https://zencode.io/app/uploads/2022/03/cropped-icon-270x270.png"/>
+<script type="text/javascript">function setREVStartSize(e){
+			//window.requestAnimationFrame(function() {
+				window.RSIW = window.RSIW===undefined ? window.innerWidth : window.RSIW;
+				window.RSIH = window.RSIH===undefined ? window.innerHeight : window.RSIH;
+				try {
+					var pw = document.getElementById(e.c).parentNode.offsetWidth,
+						newh;
+					pw = pw===0 || isNaN(pw) ? window.RSIW : pw;
+					e.tabw = e.tabw===undefined ? 0 : parseInt(e.tabw);
+					e.thumbw = e.thumbw===undefined ? 0 : parseInt(e.thumbw);
+					e.tabh = e.tabh===undefined ? 0 : parseInt(e.tabh);
+					e.thumbh = e.thumbh===undefined ? 0 : parseInt(e.thumbh);
+					e.tabhide = e.tabhide===undefined ? 0 : parseInt(e.tabhide);
+					e.thumbhide = e.thumbhide===undefined ? 0 : parseInt(e.thumbhide);
+					e.mh = e.mh===undefined || e.mh=="" || e.mh==="auto" ? 0 : parseInt(e.mh,0);
+					if(e.layout==="fullscreen" || e.l==="fullscreen")
+						newh = Math.max(e.mh,window.RSIH);
+					else{
+						e.gw = Array.isArray(e.gw) ? e.gw : [e.gw];
+						for (var i in e.rl) if (e.gw[i]===undefined || e.gw[i]===0) e.gw[i] = e.gw[i-1];
+						e.gh = e.el===undefined || e.el==="" || (Array.isArray(e.el) && e.el.length==0)? e.gh : e.el;
+						e.gh = Array.isArray(e.gh) ? e.gh : [e.gh];
+						for (var i in e.rl) if (e.gh[i]===undefined || e.gh[i]===0) e.gh[i] = e.gh[i-1];
+
+						var nl = new Array(e.rl.length),
+							ix = 0,
+							sl;
+						e.tabw = e.tabhide>=pw ? 0 : e.tabw;
+						e.thumbw = e.thumbhide>=pw ? 0 : e.thumbw;
+						e.tabh = e.tabhide>=pw ? 0 : e.tabh;
+						e.thumbh = e.thumbhide>=pw ? 0 : e.thumbh;
+						for (var i in e.rl) nl[i] = e.rl[i]<window.RSIW ? 0 : e.rl[i];
+						sl = nl[0];
+						for (var i in nl) if (sl>nl[i] && nl[i]>0) { sl = nl[i]; ix=i;}
+						var m = pw>(e.gw[ix]+e.tabw+e.thumbw) ? 1 : (pw-(e.tabw+e.thumbw)) / (e.gw[ix]);
+						newh =  (e.gh[ix] * m) + (e.tabh + e.thumbh);
+					}
+					var el = document.getElementById(e.c);
+					if (el!==null && el) el.style.height = newh+"px";
+					el = document.getElementById(e.c+"_wrapper");
+					if (el!==null && el) {
+						el.style.height = newh+"px";
+						el.style.display = "block";
+					}
+				} catch(e){
+					console.log("Failure at Presize of Slider:" + e)
+				}
+			//});
+		  };</script>
+<style type="text/css" title="dynamic-css" class="options-output">.wgl-footer{padding-top:100px;padding-right:0;padding-bottom:0;padding-left:0}</style><script type='text/javascript'></script><style type="text/css" data-type="vc_custom-css">.shadow img{box-shadow:11px 11px 38px rgba(0,0,0,.2)}.shadow-1{box-shadow:11px 11px 38px rgba(0,0,0,.2)}</style><style type="text/css" data-type="vc_shortcodes-custom-css">.vc_custom_1557129160340{margin-top:-40px!important}.vc_custom_1645483835825{background-color:#f8f8f8!important;background-position:center!important;background-repeat:no-repeat!important;background-size:cover!important}.vc_custom_1646657336324{padding-right:25px!important;padding-left:25px!important;background-color:#5152a0!important}.vc_custom_1647103400189{background-image:url(https://zencode.io/app/uploads/2022/03/zencode-testimonials-1.jpg,qid=2771.pagespeed.ce.NSGv7plLk8.jpg)!important;background-position:center!important;background-repeat:no-repeat!important;background-size:cover!important}.vc_custom_1646307351701{background-image:url(https://zencode.io/app/uploads/2022/02/contact-bg.jpg,qid=2150.pagespeed.ce.AUahDnhVyV.jpg)!important;background-position:center!important;background-repeat:no-repeat!important;background-size:cover!important}.vc_custom_1647101867000{border-radius:5px!important}.vc_custom_1646753650651{padding-right:15px!important;padding-left:15px!important}.vc_custom_1646753586888{border-top-width:1px!important;border-right-width:1px!important;border-bottom-width:1px!important;border-left-width:1px!important;padding-top:30px!important;padding-right:40px!important;padding-bottom:30px!important;padding-left:40px!important;border-left-color:#e6e6e6!important;border-left-style:solid!important;border-right-color:#e6e6e6!important;border-right-style:solid!important;border-top-color:#e6e6e6!important;border-top-style:solid!important;border-bottom-color:#e6e6e6!important;border-bottom-style:solid!important;border-radius:5px!important}.vc_custom_1646753576870{border-top-width:1px!important;border-right-width:1px!important;border-bottom-width:1px!important;border-left-width:1px!important;padding-top:30px!important;padding-right:40px!important;padding-bottom:30px!important;padding-left:40px!important;border-left-color:#e6e6e6!important;border-left-style:solid!important;border-right-color:#e6e6e6!important;border-right-style:solid!important;border-top-color:#e6e6e6!important;border-top-style:solid!important;border-bottom-color:#e6e6e6!important;border-bottom-style:solid!important}.vc_custom_1646753599250{border-top-width:1px!important;border-right-width:1px!important;border-bottom-width:1px!important;border-left-width:1px!important;padding-top:30px!important;padding-right:40px!important;padding-bottom:30px!important;padding-left:40px!important;border-left-color:#e6e6e6!important;border-left-style:solid!important;border-right-color:#e6e6e6!important;border-right-style:solid!important;border-top-color:#e6e6e6!important;border-top-style:solid!important;border-bottom-color:#e6e6e6!important;border-bottom-style:solid!important}.vc_custom_1646753608654{border-top-width:1px!important;border-right-width:1px!important;border-bottom-width:1px!important;border-left-width:1px!important;padding-top:30px!important;padding-right:40px!important;padding-bottom:30px!important;padding-left:40px!important;border-left-color:#e6e6e6!important;border-left-style:solid!important;border-right-color:#e6e6e6!important;border-right-style:solid!important;border-top-color:#e6e6e6!important;border-top-style:solid!important;border-bottom-color:#e6e6e6!important;border-bottom-style:solid!important}.vc_custom_1646401369750{padding-left:100px!important}.vc_custom_1557303704869{padding-top:0!important;background-position:center!important;background-repeat:no-repeat!important;background-size:cover!important}.vc_custom_1645488124562{border-radius:5px!important}.vc_custom_1557305794504{padding-top:0!important}.vc_custom_1557305557507{padding-top:0!important}</style><noscript><style>.wpb_animate_when_almost_visible{opacity:1}</style></noscript></head>
+
+<body data-cmplz=1 class="home page-template-default page page-id-378 wpb-js-composer js-comp-ver-6.7.0 vc_responsive theme-gradient">
+    <header class='wgl-theme-header header_overlap'><div class='wgl-site-header mobile_header_custom'><div class='container-wrapper'><div class="wgl-header-row wgl-header-row-section_middle" style="background-color: rgba(255,255,255,0);color: rgba(255,255,255,1);"><div class="fullwidth-wrapper"><div class="wgl-header-row_wrapper" style="height:100px;"><div class='position_left_middle header_side display_normal v_align_middle h_align_left'><div class='header_area_container'><div class='wgl-logotype-container logo-sticky_enable logo-mobile_enable'>
+            <a href='https://zencode.io/'>
+									<img class="default_logo" src="https://zencode.io/app/uploads/2022/02/zencode-logo-w.png.pagespeed.ce.Ku2BI6sudm.png" alt="" style="height:53px;">
+					            </a>
+            </div>
+            </div></div><div class='position_center_middle header_side display_normal v_align_middle h_align_left'><div class='header_area_container'><nav class='primary-nav' style="height:100px;"><ul id="menu-zencode" class="menu"><li id="menu-item-2292" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-home current-menu-item page_item page-item-378 current_page_item menu-item-2292"><a href="https://zencode.io/"><span>HOME<span class="menu-item_plus"></span></span></a></li><li id="menu-item-2434" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-2434"><a href="https://zencode.io/case-studies/"><span>CASE STUDIES<span class="menu-item_plus"></span></span></a></li><li id="menu-item-2293" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-2293"><a href="https://zencode.io/zenframework/"><span>ZENFRAMEWORK<span class="menu-item_plus"></span></span></a></li><li id="menu-item-2343" class="menu-item menu-item-type-post_type menu-item-object-page menu-item-2343"><a href="https://zencode.io/company/"><span>COMPANY<span class="menu-item_plus"></span></span></a></li></ul></nav><div class="mobile-hamburger-toggle"><div class="hamburger-box"><div class="hamburger-inner"></div></div></div></div></div><div class='position_right_middle header_side display_normal v_align_middle h_align_right'><div class='header_area_container'><div class='header_spacing spacer_4' style='width:25px;'></div><div class='header_spacing spacer_5' style='width:30px;'></div><div class="header_button"><div class="wrapper"><div id=integrio_button_6a94a61672e6b class="integrio_module_button wgl_button wgl_button-m aleft"><a class="wgl_button_link" href="#contact-footer" title='Contact'>Contact</a></div>
+</div></div></div></div></div></div></div></div></div><div class='wgl-sticky-header header_sticky_shadow' style="background-color: rgba(255,255,255,1);color: #5152a0;" data-style="standard"><div class='container-wrapper'><div class="wgl-header-row wgl-header-row-section_middle"><div class="fullwidth-wrapper"><div class="wgl-header-row_wrapper" style="height:100px;"><div class='position_left_middle header_side display_normal v_align_middle h_align_left'><div class='header_area_container'><div class='wgl-logotype-container logo-sticky_enable logo-mobile_enable'>
+            <a href='https://zencode.io/'>
+								<img class="logo-sticky" src="https://zencode.io/app/uploads/2022/02/zencode-logo-p.png.pagespeed.ce.FqbbQthKuj.png" alt="" style="height:53px;">
+					            </a>
+            </div>
+            </div></div><div class='position_center_middle header_side display_normal v_align_middle h_align_left'><div class='header_area_container'><nav class='primary-nav' style="height:100px;"><ul id="menu-zencode-1" class="menu"><li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-home current-menu-item page_item page-item-378 current_page_item menu-item-2292"><a href="https://zencode.io/"><span>HOME<span class="menu-item_plus"></span></span></a></li><li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-2434"><a href="https://zencode.io/case-studies/"><span>CASE STUDIES<span class="menu-item_plus"></span></span></a></li><li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-2293"><a href="https://zencode.io/zenframework/"><span>ZENFRAMEWORK<span class="menu-item_plus"></span></span></a></li><li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-2343"><a href="https://zencode.io/company/"><span>COMPANY<span class="menu-item_plus"></span></span></a></li></ul></nav><div class="mobile-hamburger-toggle"><div class="hamburger-box"><div class="hamburger-inner"></div></div></div></div></div><div class='position_right_middle header_side display_normal v_align_middle h_align_right'><div class='header_area_container'><div class='header_spacing spacer_4' style='width:25px;'></div><div class='header_spacing spacer_5' style='width:30px;'></div><div class="header_button"><div class="wrapper"><div id=integrio_button_6a94a61674931 class="integrio_module_button wgl_button wgl_button-m aleft"><a class="wgl_button_link" href="#contact-footer" title='Contact'>Contact</a></div>
+</div></div></div></div></div></div></div></div></div><div class='wgl-mobile-header' style="background-color: rgba(81,82,160,1);color: #ffffff;"><div class='container-wrapper'><div class="wgl-header-row wgl-header-row-section"><div class="wgl-container"><div class="wgl-header-row_wrapper" style="height:100px;"><div class='position_left header_side'><div class='header_area_container'><nav class='primary-nav' style="height:100px;"><ul id="menu-zencode-2" class="menu"><li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-home current-menu-item page_item page-item-378 current_page_item menu-item-2292"><a href="https://zencode.io/"><span>HOME<span class="menu-item_plus"></span></span></a></li><li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-2434"><a href="https://zencode.io/case-studies/"><span>CASE STUDIES<span class="menu-item_plus"></span></span></a></li><li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-2293"><a href="https://zencode.io/zenframework/"><span>ZENFRAMEWORK<span class="menu-item_plus"></span></span></a></li><li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-2343"><a href="https://zencode.io/company/"><span>COMPANY<span class="menu-item_plus"></span></span></a></li></ul></nav><div class="mobile-hamburger-toggle"><div class="hamburger-box"><div class="hamburger-inner"></div></div></div></div></div><div class='position_center header_side'><div class='header_area_container'><div class='wgl-logotype-container logo-sticky_enable logo-mobile_enable'>
+            <a href='https://zencode.io/'>
+								<img class="logo-mobile" src="https://zencode.io/app/uploads/2022/02/zencode-logo-w.png.pagespeed.ce.Ku2BI6sudm.png" alt="" style="height:53px;">
+					            </a>
+            </div>
+            </div></div><div class='position_right header_side'><div class='header_area_container'><div class='header_spacing spacer_1' style='width:25px;'></div></div></div></div></div></div><div class='mobile_nav_wrapper' data-mobile-width='1260'><div class='container-wrapper'><div class='wgl-menu_outer'><nav class='primary-nav'><ul id="menu-zencode-3" class="menu"><li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-home current-menu-item page_item page-item-378 current_page_item menu-item-2292"><a href="https://zencode.io/"><span>HOME<span class="menu-item_plus"></span></span></a></li><li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-2434"><a href="https://zencode.io/case-studies/"><span>CASE STUDIES<span class="menu-item_plus"></span></span></a></li><li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-2293"><a href="https://zencode.io/zenframework/"><span>ZENFRAMEWORK<span class="menu-item_plus"></span></span></a></li><li class="menu-item menu-item-type-post_type menu-item-object-page menu-item-2343"><a href="https://zencode.io/company/"><span>COMPANY<span class="menu-item_plus"></span></span></a></li></ul></nav></div></div></div></div></div></header>    <main id="main"><div class="wgl-container">
+    <div class="row ">
+        <div id='main-content' class="wgl_col-12">
+        <div class="vc_row wpb_row vc_row-fluid vc_custom_1557129160340"><div class="wpb_column vc_column_container vc_col-sm-12"><div class="vc_column-inner "><div class="wpb_wrapper"><div class="wpb_revslider_element wpb_content_element">
+			<!-- START home 1 REVOLUTION SLIDER 6.5.11 --><p class="rs-p-wp-fix"></p>
+			<rs-module-wrap id="rev_slider_1_1_wrapper" data-source="gallery" style="visibility:hidden;background:transparent;padding:0;margin:0px auto;margin-top:0;margin-bottom:0;">
+				<rs-module id="rev_slider_1_1" style="" data-version="6.5.11">
+					<rs-slides>
+						<rs-slide style="position: absolute;" data-key="rs-1" data-title="Slide" data-in="o:0;" data-out="a:false;">
+							<img src="//zencode.io/app/plugins/revslider/public/assets/assets/dummy.png.pagespeed.ce.KmN9PYJWc8.png" title="homepage-slider" width="1920" height="950" class="rev-slidebg tp-rs-img rs-lazyload" data-lazyload="//zencode.io/app/uploads/2022/02/homepage-slider.jpg" data-parallax="off" data-no-retina>
+<!--
+							--><rs-layer id="slider-1-slide-1-layer-2" data-type="text" data-rsp_ch="on" data-xy="x:l,l,l,c;xo:15px,15px,15px,0;y:t,t,t,b;yo:242px,206px,208px,290px;" data-text="w:normal;s:120,100,54,42;l:120,100,38,34;fw:700;a:inherit,left,left,center;" data-dim="w:738px,538px,327px,294px;" data-frame_0="y:50px;" data-frame_1="st:540;sp:1100;sR:540;" data-frame_999="o:0;st:w;sR:7360;" style="z-index:12;font-family:'Titillium Web';">At its Finest
+							</rs-layer><!--
+
+							--><rs-layer id="slider-1-slide-1-layer-21" data-type="text" data-color="#ffffff||#ffffff||#ffffff||#616161" data-rsp_ch="on" data-xy="xo:15px,19px,15px,-326px;yo:382px,329px,272px,351px;" data-text="w:normal;s:30,26,24,16;l:40,32,32,24;a:inherit,left,left,left;" data-dim="w:526px,443px,399px,294px;" data-vbility="t,t,t,f" data-frame_0="y:50px;" data-frame_1="st:1540;sp:1100;sR:1540;" data-frame_999="o:0;st:w;sR:6360;" style="z-index:14;font-family:'Titillium Web';">for Small, Mid-sized & Enterprise
+							</rs-layer><!--
+
+							--><rs-layer id="slider-1-slide-1-layer-28" data-type="text" data-rsp_ch="on" data-xy="x:l,l,l,c;xo:15px,15px,15px,0;yo:190px,166px,161px,135px;" data-text="w:normal;s:30,26,24,16;l:40,32,32,24;a:inherit,left,left,center;" data-dim="w:526px,443px,399px,294px;" data-frame_0="y:-50px;" data-frame_1="st:1040;sp:1100;sR:1040;" data-frame_999="o:0;st:w;sR:6860;" style="z-index:13;font-family:'Titillium Web';">The Code
+							</rs-layer><!--
+
+							--><a id="slider-1-slide-1-layer-30" class="rs-layer rev-btn" href="#contact-footer" target="_self" rel="nofollow" data-type="button" data-color="rgba(255,255,255,1)" data-rsp_ch="on" data-xy="x:l,l,l,c;xo:12px,17px,12px,-1px;y:t,t,t,b;yo:478px,400px,323px,215px;" data-text="s:16,16,16,10;l:16;ls:1px;fw:700;a:inherit;" data-dim="w:auto,auto,auto,117px;" data-padding="t:19,20,20,10;r:28,36,36,26;b:19,20,20,10;l:28,36,36,26;" data-border="bos:solid;boc:#9fa3a7;bow:1px,1px,1px,1px;bor:5px,5px,5px,5px;" data-frame_1="st:2230;sp:1100;sR:2230;" data-frame_999="o:0;st:w;sR:5670;" data-frame_hover="c:#5e60ce;bgc:#fff;boc:#fff;bor:5px,5px,5px,5px;bos:solid;bow:1,1,1,1;oX:50;oY:50;e:none;" style="z-index:15;background-color:rgba(16,40,184,0);font-family:'Titillium Web';cursor:pointer;outline:none;box-shadow:none;box-sizing:border-box;-moz-box-sizing:border-box;-webkit-box-sizing:border-box;">Get in Touch <i class="flaticon-right-arrow"></i>
+							</a><!--
+
+							--><rs-layer id="slider-1-slide-1-layer-31" data-type="image" data-rsp_ch="on" data-xy="xo:-71px,-60px,-60px,-60px;yo:173px,178px,178px,178px;" data-text="l:22;a:inherit;" data-dim="w:['9px','9px','9px','9px'];h:['9px','9px','9px','9px'];" data-frame_1="sR:10;" data-frame_999="o:0;st:w;sR:8690;" data-loop_999="y:600;sp:20000;yym:t;yys:t;yyf:t;" style="z-index:9;"><img src="//zencode.io/app/plugins/revslider/public/assets/assets/dummy.png.pagespeed.ce.KmN9PYJWc8.png" class="tp-rs-img rs-lazyload" width="9" height="9" data-lazyload="//zencode.io/app/uploads/2019/05/home-rev-shape.png" data-no-retina>
+							</rs-layer><!--
+
+							--><rs-layer id="slider-1-slide-1-layer-32" data-type="image" data-rsp_ch="on" data-xy="xo:595px,507px,384px,235px;yo:620px,608px,547px,350px;" data-text="l:22;a:inherit;" data-dim="w:['9px','9px','9px','9px'];h:['9px','9px','9px','9px'];" data-frame_1="sR:10;" data-frame_999="o:0;st:w;sR:8690;" data-loop_999="y:-300;sp:28000;yym:t;yys:t;yyf:t;" style="z-index:10;"><img src="//zencode.io/app/plugins/revslider/public/assets/assets/dummy.png.pagespeed.ce.KmN9PYJWc8.png" class="tp-rs-img rs-lazyload" width="9" height="9" data-lazyload="//zencode.io/app/uploads/2019/05/home-rev-shape.png" data-no-retina>
+							</rs-layer><!--
+
+							--><rs-layer id="slider-1-slide-1-layer-34" data-type="image" data-rsp_ch="on" data-xy="xo:1261px,1075px,1075px,1075px;yo:325px,297px,297px,297px;" data-text="l:22;a:inherit;" data-dim="w:['9px','9px','9px','9px'];h:['9px','9px','9px','9px'];" data-frame_1="sR:10;" data-frame_999="o:0;st:w;sR:8690;" data-loop_999="y:500;sp:24000;yym:t;yys:t;yyf:t;" style="z-index:11;"><img src="//zencode.io/app/plugins/revslider/public/assets/assets/dummy.png.pagespeed.ce.KmN9PYJWc8.png" class="tp-rs-img rs-lazyload" width="9" height="9" data-lazyload="//zencode.io/app/uploads/2019/05/home-rev-shape.png" data-no-retina>
+							</rs-layer><!--
+
+							--><rs-layer id="slider-1-slide-1-layer-35" class="rs-pxl-1" data-type="image" data-rsp_ch="on" data-xy="xo:-375px,-11px,-11px,-11px;y:b;yo:73px,55px,55px,55px;" data-text="w:normal;l:22;a:inherit;" data-dim="w:60px,42px,42px,42px;h:60px,42px,42px,42px;" data-frame_0="x:-50px;" data-frame_1="st:2300;sp:1100;sR:2300;" data-frame_999="o:0;st:w;sR:5600;" data-loop_0="sX:0.8;sY:0.8;" data-loop_999="sp:4000;yym:t;yys:t;yyf:t;" style="z-index:16;"><img src="//zencode.io/app/plugins/revslider/public/assets/assets/dummy.png.pagespeed.ce.KmN9PYJWc8.png" class="tp-rs-img rs-lazyload" width="60" height="60" data-lazyload="//zencode.io/app/uploads/2019/05/home-rev-rect-1-1.png" data-no-retina>
+							</rs-layer><!--
+
+							--><rs-layer id="slider-1-slide-1-layer-36" class="rs-pxl-2" data-type="image" data-rsp_ch="on" data-xy="xo:-297px,52px,52px,52px;y:b;yo:-6px,-5px,-5px,-5px;" data-text="w:normal;l:22;a:inherit;" data-dim="w:48px,36px,36px,36px;h:48px,36px,36px,36px;" data-frame_0="y:50px;" data-frame_1="st:2700;sp:1100;sR:2700;" data-frame_999="o:0;st:w;sR:5200;" data-loop_0="sX:0.6;sY:0.6;" data-loop_999="sp:6000;yym:t;yys:t;yyf:t;" style="z-index:17;"><img src="//zencode.io/app/plugins/revslider/public/assets/assets/dummy.png.pagespeed.ce.KmN9PYJWc8.png" class="tp-rs-img rs-lazyload" width="48" height="48" data-lazyload="//zencode.io/app/uploads/2019/05/home-rev-rect-1-2.png" data-no-retina>
+							</rs-layer><!--
+
+							--><rs-layer id="slider-1-slide-1-layer-37" class="rs-pxl-1" data-type="image" data-rsp_ch="on" data-xy="xo:-249px,90px,90px,90px;y:b;yo:46px,34px,34px,34px;" data-text="w:normal;l:22;a:inherit;" data-dim="w:32px,26px,26px,26px;h:32px,26px,26px,26px;" data-frame_0="y:50px;" data-frame_1="st:3100;sp:1100;sR:3100;" data-frame_999="o:0;st:w;sR:4800;" data-loop_0="sX:0.6;sY:0.6;" data-loop_999="sp:8000;yym:t;yys:t;yyf:t;" style="z-index:18;"><img src="//zencode.io/app/plugins/revslider/public/assets/assets/dummy.png.pagespeed.ce.KmN9PYJWc8.png" class="tp-rs-img rs-lazyload" width="32" height="32" data-lazyload="//zencode.io/app/uploads/2019/05/home-rev-rect-1-3.png" data-no-retina>
+							</rs-layer><!--
+
+							--><rs-layer id="slider-1-slide-1-layer-38" class="rs-pxl-1" data-type="image" data-rsp_ch="on" data-xy="x:r;xo:-250px,96px,96px,96px;y:b;yo:85px,73px,73px,73px;" data-text="w:normal;l:22;a:inherit;" data-dim="w:32px,24px,24px,24px;h:32px,24px,24px,24px;" data-frame_0="x:-50px;" data-frame_1="st:3500;sp:1100;sR:3500;" data-frame_999="o:0;st:w;sR:4400;" data-loop_999="x:58;y:40;sp:4000;yym:t;yys:t;yyf:t;" style="z-index:19;"><img src="//zencode.io/app/plugins/revslider/public/assets/assets/dummy.png.pagespeed.ce.KmN9PYJWc8.png" class="tp-rs-img rs-lazyload" width="32" height="32" data-lazyload="//zencode.io/app/uploads/2019/05/home-rev-rect-1-3.png" data-no-retina>
+							</rs-layer><!--
+
+							--><rs-layer id="slider-1-slide-1-layer-39" data-type="image" data-rsp_ch="on" data-xy="x:r;xo:-360px,0,0,0;y:b;yo:-6px;" data-text="w:normal;l:22;a:inherit;" data-dim="w:48px,36px,36px,36px;h:48px,36px,36px,36px;" data-frame_0="x:50px;" data-frame_1="st:3900;sp:1100;sR:3900;" data-frame_999="o:0;st:w;sR:4000;" data-loop_0="sX:0.9;sY:0.9;" data-loop_999="sp:4000;yym:t;yys:t;yyf:t;" style="z-index:20;"><img src="//zencode.io/app/plugins/revslider/public/assets/assets/dummy.png.pagespeed.ce.KmN9PYJWc8.png" class="tp-rs-img rs-lazyload" width="48" height="48" data-lazyload="//zencode.io/app/uploads/2019/05/home-rev-rect-1-2.png" data-no-retina>
+							</rs-layer><!--
+
+							--><rs-layer id="slider-1-slide-1-layer-40" data-type="image" data-rsp_ch="on" data-xy="x:r;xo:-360px,0,0,0;y:b;yo:44px,34px,34px,34px;" data-text="w:normal;l:22;a:inherit;" data-dim="w:48px,36px,36px,36px;h:48px,36px,36px,36px;" data-frame_0="x:50px;" data-frame_1="st:4300;sp:1100;sR:4300;" data-frame_999="o:0;st:w;sR:3600;" data-loop_0="sX:0.7;sY:0.7;" data-loop_999="sp:6000;yym:t;yys:t;yyf:t;" style="z-index:21;"><img src="//zencode.io/app/plugins/revslider/public/assets/assets/dummy.png.pagespeed.ce.KmN9PYJWc8.png" class="tp-rs-img rs-lazyload" width="48" height="48" data-lazyload="//zencode.io/app/uploads/2019/05/home-rev-rect-1-2.png" data-no-retina>
+							</rs-layer><!--
+
+							--><rs-layer id="slider-1-slide-1-layer-41" data-type="image" data-rsp_ch="on" data-xy="x:r;xo:-310px,39px,39px,39px;y:b;yo:-6px;" data-text="l:22;a:inherit;" data-dim="w:48px,36px,36px,36px;h:48px,36px,36px,36px;" data-frame_0="y:50px;" data-frame_1="st:4700;sp:1100;sR:4700;" data-frame_999="o:0;st:w;sR:3200;" data-loop_0="sX:0.8;sY:0.8;" data-loop_999="sp:10000;yym:t;yys:t;yyf:t;" style="z-index:22;"><img src="//zencode.io/app/plugins/revslider/public/assets/assets/dummy.png.pagespeed.ce.KmN9PYJWc8.png" class="tp-rs-img rs-lazyload" width="48" height="48" data-lazyload="//zencode.io/app/uploads/2019/05/home-rev-rect-1-2.png" data-no-retina>
+							</rs-layer><!--
+-->						</rs-slide>
+					</rs-slides>
+				</rs-module>
+				<script type="text/javascript">
+					setREVStartSize({c: 'rev_slider_1_1',rl:[1240,1024,778,480],el:[720,750,700,500],gw:[1200,1024,778,480],gh:[720,750,700,500],type:'standard',justify:'',layout:'fullwidth',mh:"0"});if (window.RS_MODULES!==undefined && window.RS_MODULES.modules!==undefined && window.RS_MODULES.modules["revslider11"]!==undefined) {window.RS_MODULES.modules["revslider11"].once = false;window.revapi1 = undefined;if (window.RS_MODULES.checkMinimal!==undefined) window.RS_MODULES.checkMinimal()}
+				</script>
+			</rs-module-wrap>
+			<!-- END REVOLUTION SLIDER -->
+</div></div></div></div></div><div class="vc_row wpb_row vc_row-fluid"><div class="wpb_column vc_column_container vc_col-sm-12"><div class="vc_column-inner "><div class="wpb_wrapper"><div id="integrio_spacer_6a94a616777a4" class="integrio_module_spacing responsive_active"><div class="spacing_size spacing_size-initial" style="height:204px;"></div><div class="spacing_size spacing_size-tablet" style="height:84px;"></div></div>
+</div></div></div></div><div class="vc_row wpb_row vc_row-fluid swap_columns vc_row-o-equal-height vc_row-o-content-middle vc_row-flex wgl-row-animation"><div class="wpb_column vc_column_container vc_col-sm-12 vc_col-lg-5 vc_col-md-6"><div class="vc_column-inner "><div class="wpb_wrapper"><div class="integrio_module_spacing"><div class="spacing_size spacing_size-initial" style="height:40px;"></div></div>
+<div id=integrio_dbl_6a94a616778c2 class="integrio_module_double_headings aleft  with_squares"><div class="heading_subtitle" style="font-size:14px; line-height:20px; "><div>OUR VISION</div></div><div class="heading_title" style="font-size:42px; line-height:1.238; color:#5e60ce; "><div class="heading_title_tablet" style="font-size:38px;"><div class="heading_title_mobile" style="font-size:34px;"><div>Small Changes &#8211; Big Impact</div></div></div></div></div>
+<div class="integrio_module_spacing"><div class="spacing_size spacing_size-initial" style="height:21px;"></div></div>
+
+	<div class="wpb_text_column wpb_content_element ">
+		<div class="wpb_wrapper">
+			<h5><span style="font-weight: 400; font-size: 24px; color: #616161; line-height: 36px;">We help people to solve non-standard problems easily</span></h5>
+
+		</div>
+	</div>
+<div class="integrio_module_spacing"><div class="spacing_size spacing_size-initial" style="height:17px;"></div></div>
+
+	<div class="wpb_text_column wpb_content_element ">
+		<div class="wpb_wrapper">
+			<p>We create products that work and makes business operations efficient. It’s as simple as that. Right from square one, we guide you into the shape, direction, time and scale of the project you want. We’re also able to jump into any of your projects, regardless of the business phase they’re in. And how do we do that?</p>
+
+		</div>
+	</div>
+<div class="integrio_module_spacing"><div class="spacing_size spacing_size-initial" style="height:40px;"></div></div>
+<div id=integrio_button_6a94a61677a4c class="integrio_module_button wgl_button wgl_button-l wgl_button-icon_right btn-gradient aleft"><a class="wgl_button_link" href="#">Learn More<i class="wgl_button-icon flaticon-right-arrow"></i><span class="btn_border_gradient"></span></a></div>
+<div id="integrio_spacer_6a94a61677a80" class="integrio_module_spacing responsive_active"><div class="spacing_size spacing_size-initial" style="height:30px;"></div><div class="spacing_size spacing_size-tablet" style="height:80px;"></div></div>
+</div></div></div><div class="wpb_column vc_column_container vc_col-sm-12 vc_col-lg-offset-1 vc_col-md-6"><div class="vc_column-inner "><div class="wpb_wrapper">
+	<div class="wpb_single_image wpb_content_element vc_align_left  vc_custom_1647101867000  shadow">
+
+		<figure class="wpb_wrapper vc_figure">
+			<div class="vc_single_image-wrapper   vc_box_border_grey"><img width="1920" height="1172" src="https://zencode.io/app/uploads/2022/03/zencode-home_main-c.jpg.pagespeed.ce.7bgVdU0DQ4.jpg" class="vc_single_image-img attachment-full" alt="" decoding="async" fetchpriority="high" srcset="https://zencode.io/app/uploads/2022/03/zencode-home_main-c.jpg.pagespeed.ce.7bgVdU0DQ4.jpg 1920w, https://zencode.io/app/uploads/2022/03/zencode-home_main-c-300x183.jpg.pagespeed.ce.eVFnMwhBOt.jpg 300w, https://zencode.io/app/uploads/2022/03/zencode-home_main-c-1024x625.jpg.pagespeed.ce.m8J9GtaM9m.jpg 1024w, https://zencode.io/app/uploads/2022/03/zencode-home_main-c-768x469.jpg.pagespeed.ce.ikE5tUxgKn.jpg 768w, https://zencode.io/app/uploads/2022/03/zencode-home_main-c-1536x938.jpg.pagespeed.ce.NyFWyju4W1.jpg 1536w" sizes="(max-width: 1920px) 100vw, 1920px"/></div>
+		</figure>
+	</div>
+</div></div></div><div id="extended_6a94a61677c4e" class="extended-parallax" data-paroller-type="foreground" style="top:-20%; left:58%; " data-paroller-direction="horizontal" data-paroller-factor="0.1"><img src="https://zencode.io/app/uploads/2022/02/elipse.png.pagespeed.ce.aSRS3vpI8X.png" alt=""/></div></div><div class="vc_row wpb_row vc_row-fluid"><div class="wpb_column vc_column_container vc_col-sm-12"><div class="vc_column-inner "><div class="wpb_wrapper"><div id="integrio_spacer_6a94a61677de3" class="integrio_module_spacing responsive_active"><div class="spacing_size spacing_size-initial" style="height:185px;"></div><div class="spacing_size spacing_size-tablet" style="height:0px;"></div><div class="spacing_size spacing_size-mobile" style="height:0px;"></div></div>
+</div></div></div></div><div class="vc_row wpb_row vc_row-fluid"><div class="wpb_column vc_column_container vc_col-sm-12 vc_col-lg-12 vc_col-md-12"><div class="vc_column-inner "><div class="wpb_wrapper"><div class="integrio_module_spacing"><div class="spacing_size spacing_size-initial" style="height:40px;"></div></div>
+<div id=integrio_dbl_6a94a61677ef5 class="integrio_module_double_headings aleft  with_squares"><div class="heading_subtitle" style="font-size:14px; line-height:20px; "><div>OUR SERVICES</div></div><div class="heading_title" style="font-size:42px; line-height:1.238; color:#5e60ce; "><div class="heading_title_tablet" style="font-size:38px;"><div class="heading_title_mobile" style="font-size:34px;"><div>What We Offer for You</div></div></div></div></div>
+<div class="integrio_module_spacing"><div class="spacing_size spacing_size-initial" style="height:21px;"></div></div>
+
+	<div class="wpb_text_column wpb_content_element ">
+		<div class="wpb_wrapper">
+			<p>We offer a comprehensive set of services to help you grow your business and reach your business goals. We build sleek and intuitive web products with robust backend systems. Our expert developers are ready to help you no matter how complex your project is.</p>
+
+		</div>
+	</div>
+<div id="integrio_spacer_6a94a61677f9e" class="integrio_module_spacing responsive_active"><div class="spacing_size spacing_size-initial" style="height:100px;"></div><div class="spacing_size spacing_size-tablet" style="height:20px;"></div><div class="spacing_size spacing_size-mobile" style="height:20px;"></div></div>
+<div class="vc_row wpb_row vc_inner vc_row-fluid vc_custom_1646753650651 vc_column-gap-30 vc_row-o-equal-height vc_row-flex"><div class="wpb_column vc_column_container vc_col-sm-6 vc_col-lg-3 vc_col-md-6 vc_col-xs-12 vc_col-has-fill"><div class="vc_column-inner vc_custom_1646753586888"><div class="wpb_wrapper"><div class="integrio_module_infobox layout_top alignment_left hover_shift"><div class="infobox_wrapper"><div class="infobox_icon_wrapper"><div class="infobox_icon_container "><div class="infobox_icon" style="height:50px;"><img src="https://zencode.io/app/uploads/2022/02/software-dev-p-100x100.png.pagespeed.ce.G_QhFqgv3V.png" alt="" style="width:50px; height:50px;"/></div></div></div><h3 class="infobox_title">Software Development</h3><div class="infobox_content">Being a software development service provider, we will transform your even abstract ideas into a working tool for your business.</div><a class="infobox_button button-read-more" href="#">Read More</a><a class="infobox_item_link" href="https://zencode.io/software-development/"></a></div></div>
+</div></div></div><div class="wpb_column vc_column_container vc_col-sm-6 vc_col-lg-3 vc_col-md-6 vc_col-xs-12 vc_col-has-fill"><div class="vc_column-inner vc_custom_1646753576870"><div class="wpb_wrapper"><div class="integrio_module_infobox layout_top alignment_left hover_shift"><div class="infobox_wrapper"><div class="infobox_icon_wrapper"><div class="infobox_icon_container "><div class="infobox_icon" style="height:50px;"><img src="https://zencode.io/app/uploads/2022/02/legacy-modernization-p-100x100.png.pagespeed.ce.a2HSyrJFvC.png" alt="" style="width:50px; height:50px;"/></div></div></div><h3 class="infobox_title">Legacy Modernization</h3><div class="infobox_content">Let us bring your business up to speed by replacing outdated legacy systems with state-of-the-art software modernization solutions</div><a class="infobox_button button-read-more" href="#">Read More</a><a class="infobox_item_link" href="https://zencode.io/legacy-modernization/" title='Legacy Modernization'></a></div></div>
+</div></div></div><div class="wpb_column vc_column_container vc_col-sm-6 vc_col-lg-3 vc_col-md-6 vc_col-xs-12 vc_col-has-fill"><div class="vc_column-inner vc_custom_1646753599250"><div class="wpb_wrapper"><div class="integrio_module_infobox layout_top alignment_left hover_shift"><div class="infobox_wrapper"><div class="infobox_icon_wrapper"><div class="infobox_icon_container "><div class="infobox_icon" style="height:43px;"><img src="https://zencode.io/app/uploads/2022/02/dedicated-team-p-100x86.png.pagespeed.ce.axOZtyxQ9i.png" alt="" style="width:50px; height:43px;"/></div></div></div><h3 class="infobox_title">Dedicated Team</h3><div class="infobox_content">Alleviate the pressure of a backlog without having to hire, manage, train, and maintain long-term salaries. We offer hand-selected tech engineers in Georgia</div><a class="infobox_button button-read-more" href="#">Read More</a><a class="infobox_item_link" href="https://zencode.io/dedicated-team/"></a></div></div>
+</div></div></div><div class="wpb_column vc_column_container vc_col-sm-6 vc_col-lg-3 vc_col-md-6 vc_col-xs-12 vc_col-has-fill"><div class="vc_column-inner vc_custom_1646753608654"><div class="wpb_wrapper"><div class="integrio_module_infobox layout_top alignment_left hover_shift"><div class="infobox_wrapper"><div class="infobox_icon_wrapper"><div class="infobox_icon_container "><div class="infobox_icon" style="height:50px;"><img src="https://zencode.io/app/uploads/2022/03/data-warehouse-100x100.png.pagespeed.ce.IYfWdO6AZN.png" alt="" style="width:50px; height:50px;"/></div></div></div><h3 class="infobox_title">Data Warehouse</h3><div class="infobox_content">We analyze your business needs to curate a custom data warehouse, including a business intelligence framework, solid data model, efficient data integration architecture.</div><a class="infobox_button button-read-more" href="#">Read More</a><a class="infobox_item_link" href="https://zencode.io/data-warehouse/"></a></div></div>
+</div></div></div></div><div class="integrio_module_spacing"><div class="spacing_size spacing_size-initial" style="height:100px;"></div></div>
+</div></div></div></div><div data-vc-full-width="true" data-vc-full-width-init="false" class="vc_row wpb_row vc_row-fluid vc_custom_1645483835825 vc_row-has-fill"><div class="wpb_column vc_column_container vc_col-sm-12"><div class="vc_column-inner "><div class="wpb_wrapper"><div class="integrio_module_spacing"><div class="spacing_size spacing_size-initial" style="height:60px;"></div></div>
+<div id=integrio_dbl_6a94a616789bb class="integrio_module_double_headings aleft  with_squares"><div class="heading_subtitle" style="font-size:14px; line-height:20px; "><div>WHY ZENCODE?</div></div><div class="heading_title" style="font-size:42px; line-height:1.238; color:#5e60ce; "><div class="heading_title_tablet" style="font-size:38px;"><div class="heading_title_mobile" style="font-size:34px;"><div>Why Zencode?</div></div></div></div></div>
+<div class="integrio_module_spacing"><div class="spacing_size spacing_size-initial" style="height:21px;"></div></div>
+
+	<div class="wpb_text_column wpb_content_element ">
+		<div class="wpb_wrapper">
+			<p>Your business is unique – so are your technology requirements. Our developers are well versed in a wide range of programming languages and frameworks. We will work within the confines of your needs, whether you have specific requirements. Modern business is complex. That’s why our team has extensive experience delivering enterprise solutions, ensuring the product is built to integrate with enterprise systems, providing a seamless connection between your business operations.</p>
+
+		</div>
+	</div>
+<div class="integrio_module_spacing"><div class="spacing_size spacing_size-initial" style="height:100px;"></div></div>
+</div></div></div></div><div class="vc_row-full-width vc_clearfix"></div><div data-vc-full-width="true" data-vc-full-width-init="false" data-vc-stretch-content="true" class="vc_row wpb_row vc_row-fluid vc_custom_1646657336324 vc_row-has-fill vc_row-o-content-middle vc_row-flex"><div class="wpb_column vc_column_container vc_col-sm-12 vc_col-xs-12"><div class="vc_column-inner "><div class="wpb_wrapper"><div class="vc_row wpb_row vc_inner vc_row-fluid vc_column-gap-20 vc_row-o-equal-height vc_row-o-content-middle vc_row-flex"><div class="wpb_column vc_column_container vc_col-sm-1"><div class="vc_column-inner vc_custom_1646401369750"><div class="wpb_wrapper"></div></div></div><div class="wpb_column vc_column_container vc_col-sm-3"><div class="vc_column-inner"><div class="wpb_wrapper"><div id=integrio_dbl_6a94a61678bf8 class="integrio_module_double_headings aleft  with_squares"><div class="heading_subtitle" style="font-size:14px; line-height:20px; "><div>RECENT PROJECTS</div></div><div class="heading_title" style="font-size:42px; line-height:1.238; color:#ffffff; "><div class="heading_title_tablet" style="font-size:38px;"><div class="heading_title_mobile" style="font-size:34px;"><div>Our Featured<br/>
+Case Studies</div></div></div></div></div>
+
+	<div class="wpb_text_column wpb_content_element ">
+		<div class="wpb_wrapper">
+			<p><span style="color: #cccccc;">Many of the Georgia’s top companies have chosen Zencode to help them make and deliver innovative products</span></p>
+
+		</div>
+	</div>
+</div></div></div><div class="wpb_column vc_column_container vc_col-sm-8"><div class="vc_column-inner"><div class="wpb_wrapper"><div class="integrio_module_spacing"><div class="spacing_size spacing_size-initial" style="height:100px;"></div></div>
+<section class="wgl_cpt_section"><div class="wgl_portfolio_list" id="portfolio_module_6a94a61679fa9"><div class="wgl_portfolio_list-wrapper"><div class="wgl_portfolio_list-container container-grid row carousel portfolio_columns-3" style="margin-right:-15px; margin-left:-15px; margin-bottom:-30px;"><div class="integrio_module_carousel-wrapper"><div id=integrio_carousel_6a94a6167a6de class="integrio_module_carousel pag_align_center  arrows_center_mode"><div class="integrio_carousel_slick" data-slick='{"slidesToShow":3,"slidesToScroll":3,"infinite":true,"variableWidth":false,"autoplay":false,"autoplaySpeed":"3000","speed":300,"arrows":true,"dots":false,"adaptiveHeight":false,"responsive":[{"breakpoint":1025,"settings":{"slidesToShow":3,"slidesToScroll":3}},{"breakpoint":800,"settings":{"slidesToShow":2,"slidesToScroll":2}},{"breakpoint":480,"settings":{"slidesToShow":1,"slidesToScroll":1}}]}'><article class="wgl_portfolio_list-item item wgl_col-4 dedicated-team" style="padding-right:15px; padding-left:15px; padding-bottom:30px"><div class="wgl_portfolio_item-wrapper inside_image h_align_center simple_animation"><div class="wgl_portfolio_item-image"><img src="https://zencode.io/app/uploads/2019/05/Pointer-970x600.png.pagespeed.ce.U8GM109pKX.png" alt=""/></div><div class="wgl_portfolio_item-description"><div class="wgl_portfolio_item-title"><h4 class="title"><a href="https://zencode.io/case-study/pointer-ge/">Pointer.ge</a></h4></div><a href='https://zencode.io/case-study/pointer-ge/' class='portfolio_link single_link'><i class='portfolio_link-icon flaticon-right-arrow'></i></a></div><div class="overlay"></div></div></article><article class="wgl_portfolio_list-item item wgl_col-4 dedicated-team" style="padding-right:15px; padding-left:15px; padding-bottom:30px"><div class="wgl_portfolio_item-wrapper inside_image h_align_center simple_animation"><div class="wgl_portfolio_item-image"><img src="https://zencode.io/app/uploads/2022/03/TPL-970x600.jpg.pagespeed.ce.6srR746vwB.jpg" alt=""/></div><div class="wgl_portfolio_item-description"><div class="wgl_portfolio_item-title"><h4 class="title"><a href="https://zencode.io/case-study/tpl/">Compulsory Insurance Center</a></h4></div><a href='https://zencode.io/case-study/tpl/' class='portfolio_link single_link'><i class='portfolio_link-icon flaticon-right-arrow'></i></a></div><div class="overlay"></div></div></article><article class="wgl_portfolio_list-item item wgl_col-4" style="padding-right:15px; padding-left:15px; padding-bottom:30px"><div class="wgl_portfolio_item-wrapper inside_image h_align_center simple_animation"><div class="wgl_portfolio_item-image"><img src="https://zencode.io/app/uploads/2022/03/DIA-970x600.jpg.pagespeed.ce.CRKtFnWRT2.jpg" alt=""/></div><div class="wgl_portfolio_item-description"><div class="wgl_portfolio_item-title"><h4 class="title"><a href="https://zencode.io/case-study/dia/">Deposit Insurance Agency</a></h4></div><a href='https://zencode.io/case-study/dia/' class='portfolio_link single_link'><i class='portfolio_link-icon flaticon-right-arrow'></i></a></div><div class="overlay"></div></div></article><article class="wgl_portfolio_list-item item wgl_col-4" style="padding-right:15px; padding-left:15px; padding-bottom:30px"><div class="wgl_portfolio_item-wrapper inside_image h_align_center simple_animation"><div class="wgl_portfolio_item-image"><img src="https://zencode.io/app/uploads/2022/03/kami-feature-970x600.png.pagespeed.ce.u5L-iaKEL4.png" alt=""/></div><div class="wgl_portfolio_item-description"><div class="wgl_portfolio_item-title"><h4 class="title"><a href="https://zencode.io/case-study/kami/">Kami Flow &#8211; Automate your business processes</a></h4></div><a href='https://zencode.io/case-study/kami/' class='portfolio_link single_link'><i class='portfolio_link-icon flaticon-right-arrow'></i></a></div><div class="overlay"></div></div></article><article class="wgl_portfolio_list-item item wgl_col-4" style="padding-right:15px; padding-left:15px; padding-bottom:30px"><div class="wgl_portfolio_item-wrapper inside_image h_align_center simple_animation"><div class="wgl_portfolio_item-image"><img src="https://zencode.io/app/uploads/2022/03/Capture-970x600.jpg.pagespeed.ce.S9s6XEvaEv.jpg" alt=""/></div><div class="wgl_portfolio_item-description"><div class="wgl_portfolio_item-title"><h4 class="title"><a href="https://zencode.io/case-study/bigwins/">BigWins</a></h4></div><a href='https://zencode.io/case-study/bigwins/' class='portfolio_link single_link'><i class='portfolio_link-icon flaticon-right-arrow'></i></a></div><div class="overlay"></div></div></article></div></div></div></div></div></div></section><div class="integrio_module_spacing"><div class="spacing_size spacing_size-initial" style="height:45px;"></div></div>
+</div></div></div></div></div></div></div></div><div class="vc_row-full-width vc_clearfix"></div><div class="vc_row wpb_row vc_row-fluid"><div class="wpb_column vc_column_container vc_col-sm-12"><div class="vc_column-inner "><div class="wpb_wrapper"><div class="integrio_module_spacing"><div class="spacing_size spacing_size-initial" style="height:74px;"></div></div>
+</div></div></div></div><div data-vc-full-width="true" data-vc-full-width-init="false" data-vc-stretch-content="true" class="vc_row wpb_row vc_row-fluid vc_row-no-padding"><div class="wpb_column vc_column_container vc_col-sm-12"><div class="vc_column-inner "><div class="wpb_wrapper"><div id=integrio_dbl_6a94a6167a97e class="integrio_module_double_headings acenter  with_squares"><div class="heading_subtitle" style="font-size:14px; line-height:20px; "><div>WE ARE FASHION WITH</div></div><div class="heading_title" style="font-size:42px; line-height:1.238; font-weight:400; color:#232323; "><div class="heading_title_tablet" style="font-size:38px;"><div class="heading_title_mobile" style="font-size:34px;"><div>Used Technologies</div></div></div></div></div>
+<div class="integrio_module_spacing"><div class="spacing_size spacing_size-initial" style="height:100px;"></div></div>
+<div class="integrio_module_clients clearfix anim-grayscale"><div class="integrio_module_carousel-wrapper"><div id=integrio_carousel_6a94a6167ae62 class="integrio_module_carousel pag_align_center"><div class="integrio_carousel_slick" data-slick='{"slidesToShow":6,"slidesToScroll":1,"infinite":true,"variableWidth":false,"autoplay":true,"autoplaySpeed":"3000","speed":300,"arrows":false,"dots":false,"adaptiveHeight":false,"responsive":[{"breakpoint":1025,"settings":{"slidesToShow":4,"slidesToScroll":1}},{"breakpoint":800,"settings":{"slidesToShow":2,"slidesToScroll":1}},{"breakpoint":480,"settings":{"slidesToShow":1,"slidesToScroll":1}}]}'><div class="clients_image"><div class="image_wrapper"><img class="main_image" src="https://zencode.io/app/uploads/2022/02/netcore.png.pagespeed.ce.VHZ4Tc-No4.png" alt=""/></div></div><div class="clients_image"><div class="image_wrapper"><img class="main_image" src="https://zencode.io/app/uploads/2022/02/ef-core.png.pagespeed.ce.5-JsLn7DEx.png" alt=""/></div></div><div class="clients_image"><div class="image_wrapper"><img class="main_image" src="https://zencode.io/app/uploads/2022/02/elephant-1.png.pagespeed.ce.rcDVNRM1Ui.png" alt=""/></div></div><div class="clients_image"><div class="image_wrapper"><img class="main_image" src="https://zencode.io/app/uploads/2022/02/azure.png.pagespeed.ce.R2Sh3tRnah.png" alt=""/></div></div><div class="clients_image"><div class="image_wrapper"><img class="main_image" src="https://zencode.io/app/uploads/2022/02/angular.png.pagespeed.ce.LQoK9i6vYC.png" alt=""/></div></div><div class="clients_image"><div class="image_wrapper"><img class="main_image" src="https://zencode.io/app/uploads/2022/02/react-1.png.pagespeed.ce.ceA3vF5N4Q.png" alt=""/></div></div><div class="clients_image"><div class="image_wrapper"><img class="main_image" src="https://zencode.io/app/uploads/2022/02/js.png.pagespeed.ce.PBKLQ0NViy.png" alt=""/></div></div></div></div></div></div><div id="integrio_spacer_6a94a6167ae96" class="integrio_module_spacing responsive_active"><div class="spacing_size spacing_size-initial" style="height:100px;"></div><div class="spacing_size spacing_size-desktops" style="height:20px;"></div></div>
+</div></div></div></div><div class="vc_row-full-width vc_clearfix"></div><div data-vc-full-width="true" data-vc-full-width-init="false" class="vc_row wpb_row vc_row-fluid vc_custom_1647103400189 vc_row-has-fill"><div class="wpb_column vc_column_container vc_col-sm-12 vc_col-has-fill"><div class="vc_column-inner vc_custom_1557303704869"><div class="wpb_wrapper"><div class="integrio_module_spacing"><div class="spacing_size spacing_size-initial" style="height:94px;"></div></div>
+<div class="vc_row wpb_row vc_inner vc_row-fluid"><div class="wpb_column vc_column_container vc_col-sm-6 vc_col-md-4"><div class="vc_column-inner"><div class="wpb_wrapper"><div class="integrio_module_spacing"><div class="spacing_size spacing_size-initial" style="height:42px;"></div></div>
+
+	<div class="wpb_text_column wpb_content_element ">
+		<div class="wpb_wrapper">
+			<h6 style="text-transform: uppercase; text-align: left;"><span style="color: #ffffff; font-size: 14px;">testimonials</span></h6>
+
+		</div>
+	</div>
+<div class="integrio_module_spacing"><div class="spacing_size spacing_size-initial" style="height:9px;"></div></div>
+
+	<div class="wpb_text_column wpb_content_element ">
+		<div class="wpb_wrapper">
+			<h3><span style="color: #ffffff; line-height: 52px;">What People<br/>
+Say About Zencode</span></h3>
+
+		</div>
+	</div>
+<div class="integrio_module_spacing"><div class="spacing_size spacing_size-initial" style="height:18px;"></div></div>
+
+	<div class="wpb_text_column wpb_content_element ">
+		<div class="wpb_wrapper">
+			<h5 style="letter-spacing: 0.2px; font-weight: 400; line-height: 36px; color: #ffffff;">We always connected dots across ecosystems</h5>
+
+		</div>
+	</div>
+<div class="integrio_module_spacing"><div class="spacing_size spacing_size-initial" style="height:42px;"></div></div>
+<div id=integrio_button_6a94a6167b16a class="integrio_module_button wgl_button wgl_button-l wgl_button-icon_right aleft"><a class="wgl_button_link" href="#contact-footer">Get in Touch<i class="wgl_button-icon flaticon-right-arrow"></i></a></div>
+</div></div></div><div class="wpb_column vc_column_container vc_col-sm-6 vc_col-md-8"><div class="vc_column-inner"><div class="wpb_wrapper"><div class="integrio_module_testimonials type_inline_top alignment_left"><div class="integrio_module_carousel-wrapper"><div id=integrio_carousel_6a94a6167b305 class="integrio_module_carousel pagination_line pag_align_center"><div class="integrio_carousel_slick" data-slick='{"slidesToShow":2,"slidesToScroll":1,"infinite":true,"variableWidth":false,"autoplay":false,"autoplaySpeed":"3000","speed":300,"arrows":false,"dots":true,"adaptiveHeight":false,"responsive":[{"breakpoint":1025,"settings":{"slidesToShow":1,"slidesToScroll":1}},{"breakpoint":800,"settings":{"slidesToShow":1,"slidesToScroll":1}},{"breakpoint":480,"settings":{"slidesToShow":1,"slidesToScroll":1}}]}'><div class="testimonials_item_wrap"><div class="testimonials_item"><div class="testimonials_content_wrap"><div class="testimonials_meta_wrap"><div class="testimonials_name_wrap"><h3 class="testimonials_name">George Tsiramua</h3><span class="testimonials_position">Department Head , BTD , Toyota Caucasus</span></div></div><div class="testimonials_quote" style=" font-size: 16px;">&quot;We work on a Data Warehouse project with Zencode team. The team shows exceptional professionalism and high level of knowledge. We receive reliable product and timely support. Working with Zencode is comfortable and we are confident in the results&quot;</div></div></div></div><div class="testimonials_item_wrap"><div class="testimonials_item"><div class="testimonials_content_wrap"><div class="testimonials_meta_wrap"><div class="testimonials_name_wrap"><h3 class="testimonials_name">Giorgi kitiashvili</h3><span class="testimonials_position">CCO , Asseco </span></div></div><div class="testimonials_quote" style=" font-size: 16px;">&quot;In one of the strategic projects for Asseco, we have faced numerous technological obstacles. Fortunately, Zencode has successfully solved each problem, and since that we are in tight cooperation.
+ Zencode delivers quality solutions based on the expertise of its team. Service and product received always come up and even exceed our expectations. Thus, we always consider Zencode as a dependable partner.&quot;
+</div></div></div></div><div class="testimonials_item_wrap"><div class="testimonials_item"><div class="testimonials_content_wrap"><div class="testimonials_meta_wrap"><div class="testimonials_name_wrap"><h3 class="testimonials_name">VTB Bank</h3><span class="testimonials_position">Georgia</span></div></div><div class="testimonials_quote" style=" font-size: 16px;">&quot;Kami Flow is a paperless solution by which we were able to improve the administrative business processes of the bank. During the implementation phase, the Zencode team demonstrated high professionalism, with the support / product team managing incidents in accordance with the SLA and developing / updating Kami. Therefore, this project is considered to be one of the most successful projects.&quot;</div></div></div></div></div></div></div></div></div></div></div></div><div class="integrio_module_spacing"><div class="spacing_size spacing_size-initial" style="height:71px;"></div></div>
+</div></div></div></div><div class="vc_row-full-width vc_clearfix"></div><div class="vc_row wpb_row vc_row-fluid"><div class="wpb_column vc_column_container vc_col-sm-12"><div class="vc_column-inner vc_custom_1557305794504"><div class="wpb_wrapper"><div class="integrio_module_spacing"><div class="spacing_size spacing_size-initial" style="height:26px;"></div></div>
+</div></div></div><div class="wpb_column vc_column_container vc_col-sm-9"><div class="vc_column-inner "><div class="wpb_wrapper"><div class="integrio_module_spacing"><div class="spacing_size spacing_size-initial" style="height:50px;"></div></div>
+<div id=integrio_dbl_6a94a6167b517 class="integrio_module_double_headings aleft  with_squares"><div class="heading_subtitle" style="font-size:14px; line-height:30px; "><div>RECENT NEWS</div></div><div class="heading_title" style="font-size:42px; line-height:1.143; font-weight:700; color:#5e60ce; "><div class="heading_title_tablet" style="font-size:38px;"><div class="heading_title_mobile" style="font-size:34px;"><div>Our Latest Insights</div></div></div></div></div>
+</div></div></div><div class="wpb_column vc_column_container vc_col-sm-3 vc_col-md-offset-0"><div class="vc_column-inner vc_custom_1557305557507"><div class="wpb_wrapper"><div id="integrio_spacer_6a94a6167b5c4" class="integrio_module_spacing responsive_active"><div class="spacing_size spacing_size-initial" style="height:106px;"></div><div class="spacing_size spacing_size-tablet" style="height:30px;"></div></div>
+<div id=integrio_button_6a94a6167b62c class="integrio_module_button wgl_button wgl_button-l wgl_button-icon_right btn-gradient aright"><a class="wgl_button_link" href="https://zencode.io/blog/" title='Blog'>Read All<i class="wgl_button-icon flaticon-right-arrow"></i><span class="btn_border_gradient"></span></a></div>
+</div></div></div></div><div class="vc_row wpb_row vc_row-fluid"><div class="wpb_column vc_column_container vc_col-sm-12"><div class="vc_column-inner "><div class="wpb_wrapper">    <section class="wgl_cpt_section">
+        <div id="blog_module_6a94a6167cfef" class="blog-posts ">
+            <div class="container-grid row blog_carousel blog-style-standard"><div class="integrio_module_carousel-wrapper"><div id=integrio_carousel_6a94a6167d90b class="integrio_module_carousel pagination_line pag_align_center"><div class="integrio_carousel_slick" data-slick='{"slidesToShow":3,"slidesToScroll":3,"infinite":false,"variableWidth":false,"autoplay":false,"autoplaySpeed":"3000","speed":300,"arrows":false,"dots":true,"adaptiveHeight":true,"responsive":[{"breakpoint":1025,"settings":{"slidesToShow":3,"slidesToScroll":3}},{"breakpoint":991,"settings":{"slidesToShow":2,"slidesToScroll":2}},{"breakpoint":767,"settings":{"slidesToShow":1,"slidesToScroll":1}}]}'><div class="wgl_col-4 item">
+    <div class="blog-post  format-standard-image ">
+        <div class="blog-post_wrapper">
+
+            <div class="blog-post_media"><div class="blog-post_media_part"><a href="https://zencode.io/benefits-of-using-zenframework/" class="blog-post_feature-link"><img src='https://zencode.io/app/uploads/2022/03/zenfw-700x550-700x550.png.pagespeed.ce.q2gycCHup1.png' alt=''/></a></div><div class="blog-post_meta_info">		    	<div class="meta-wrapper">
+
+
+
+
+
+
+
+			<span class="blog-post_meta-categories"><span><a href="https://zencode.io/category/technology/our-product/">Our Product</a></span><span><a href="https://zencode.io/category/technology/">Technology</a></span></span>
+				</div>
+				</div></div>            <div class="blog-post_content">
+            <h3 class="blog-post_title" style="margin-bottom: 16px"><a href="https://zencode.io/benefits-of-using-zenframework/">Benefits Of Using ZenFramework</a></h3>
+                <div class='blog-post_meta-desc'>
+                    <div class="blog-post_meta-wrap"><div class='divider_post_info'></div>		    	<div class="meta-wrapper">
+
+											<span class="date_post">March 15, 2022</span>
+
+
+											<span class="comments_post"><a href="https://zencode.io/benefits-of-using-zenframework/#respond">0 Comments</a></span>
+
+
+
+
+				</div>
+				<div class="blog-post_info-wrap">        <div class="share_post-container">
+            <a href="#"></a>
+            <div class="share_social-wpapper">
+                <ul>
+                    <li>
+                        <a class="share_post share_twitter" target="_blank" href="https://twitter.com/intent/tweet?text=Benefits%20Of%20Using%20ZenFramework&#038;url=https://zencode.io/benefits-of-using-zenframework/"><span class="fa fa-twitter"></span></a>
+                    </li>
+                    <li>
+                        <a class="share_post share_facebook" target="_blank" href="https://www.facebook.com/share.php?u=https://zencode.io/benefits-of-using-zenframework/"><span class="fa fa-facebook"></span></a>
+                    </li>
+                    <li><a class="share_post share_pinterest" target="_blank" href="https://pinterest.com/pin/create/button/?url=https://zencode.io/benefits-of-using-zenframework/&#038;media=https://zencode.io/app/uploads/2022/03/zenfw.png"><span class="fa fa-pinterest"></span></a></li>                    <li>
+                        <a class="share_post share_linkedin" target="_blank" href="http://www.linkedin.com/shareArticle?mini=true&#038;url=https%3A%2F%2Fzencode.io%2Fbenefits-of-using-zenframework%2F&title=Benefits+Of+Using+ZenFramework"><span class="fa fa-linkedin"></span></a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+                            </div>
+                            </div>
+                                        </div>
+
+                            </div>
+        </div>
+    </div>
+    </div><div class="wgl_col-4 item">
+    <div class="blog-post  format-standard-image ">
+        <div class="blog-post_wrapper">
+
+            <div class="blog-post_media"><div class="blog-post_media_part"><a href="https://zencode.io/digital-currencies-as-a-payment-method/" class="blog-post_feature-link"><img src='https://zencode.io/app/uploads/2022/03/1123-700x550-700x550.png.pagespeed.ce.RqHkn9Kkcb.png' alt=''/></a></div><div class="blog-post_meta_info">		    	<div class="meta-wrapper">
+
+
+
+
+
+
+
+			<span class="blog-post_meta-categories"><span><a href="https://zencode.io/category/innovation/">Innovation</a></span><span><a href="https://zencode.io/category/technology/">Technology</a></span></span>
+				</div>
+				</div></div>            <div class="blog-post_content">
+            <h3 class="blog-post_title" style="margin-bottom: 16px"><a href="https://zencode.io/digital-currencies-as-a-payment-method/">Digital Currencies As A Payment Method</a></h3>
+                <div class='blog-post_meta-desc'>
+                    <div class="blog-post_meta-wrap"><div class='divider_post_info'></div>		    	<div class="meta-wrapper">
+
+											<span class="date_post">March 14, 2022</span>
+
+
+											<span class="comments_post"><a href="https://zencode.io/digital-currencies-as-a-payment-method/#respond">0 Comments</a></span>
+
+
+
+
+				</div>
+				<div class="blog-post_info-wrap">        <div class="share_post-container">
+            <a href="#"></a>
+            <div class="share_social-wpapper">
+                <ul>
+                    <li>
+                        <a class="share_post share_twitter" target="_blank" href="https://twitter.com/intent/tweet?text=Digital%20Currencies%20As%20A%20Payment%20Method&#038;url=https://zencode.io/digital-currencies-as-a-payment-method/"><span class="fa fa-twitter"></span></a>
+                    </li>
+                    <li>
+                        <a class="share_post share_facebook" target="_blank" href="https://www.facebook.com/share.php?u=https://zencode.io/digital-currencies-as-a-payment-method/"><span class="fa fa-facebook"></span></a>
+                    </li>
+                    <li><a class="share_post share_pinterest" target="_blank" href="https://pinterest.com/pin/create/button/?url=https://zencode.io/digital-currencies-as-a-payment-method/&#038;media=https://zencode.io/app/uploads/2022/03/1123.png"><span class="fa fa-pinterest"></span></a></li>                    <li>
+                        <a class="share_post share_linkedin" target="_blank" href="http://www.linkedin.com/shareArticle?mini=true&#038;url=https%3A%2F%2Fzencode.io%2Fdigital-currencies-as-a-payment-method%2F&title=Digital+Currencies+As+A+Payment+Method"><span class="fa fa-linkedin"></span></a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+                            </div>
+                            </div>
+                                        </div>
+
+                            </div>
+        </div>
+    </div>
+    </div></div></div></div></div>        </div>
+</section><div class="integrio_module_spacing"><div class="spacing_size spacing_size-initial" style="height:10px;"></div></div>
+</div></div></div></div>
+        </div>
+
+    </div>
+</div>
+
+	</main>
+	<footer class='footer clearfix' style=" background-color :#3c3e84;" id='footer'><div class='footer_top-area'><div class='wgl-container'><div class='row-footer' style=" padding-top:100px;"><div class="vc_row wpb_row vc_row-fluid"><div class="wpb_column vc_column_container vc_col-sm-12"><div class="vc_column-inner "><div class="wpb_wrapper"><div class="vc_row wpb_row vc_inner vc_row-fluid"><div class="wpb_column vc_column_container vc_col-sm-3"><div class="vc_column-inner"><div class="wpb_wrapper">
+	<div class="wpb_single_image wpb_content_element vc_align_left">
+
+		<figure class="wpb_wrapper vc_figure">
+			<a href="/" target="_self" class="vc_single_image-wrapper   vc_box_border_grey"><img width="218" height="53" src="https://zencode.io/app/uploads/2022/02/zencode-logo-w.png.pagespeed.ce.Ku2BI6sudm.png" class="vc_single_image-img attachment-full" alt="" decoding="async"/></a>
+		</figure>
+	</div>
+<div class="integrio_module_spacing"><div class="spacing_size spacing_size-initial" style="height:30px;"></div></div>
+
+	<div class="wpb_text_column wpb_content_element ">
+		<div class="wpb_wrapper">
+			<p>We are driven by a spirit of collaboration and reliability in our work. We value what made us who we are: expertise, motivation, loyalty, and commitment to excellence.</p>
+
+		</div>
+	</div>
+<div class="integrio_module_spacing"><div class="spacing_size spacing_size-initial" style="height:30px;"></div></div>
+<div id=integrio_soc_icon_wrap_6a94a6167e0b5 class="integrio_module_social aleft with_bg" style="margin-left:-5px; margin-right:-5px;"><a href="https://www.linkedin.com/company/73519284" class="soc_icon fab fa-linkedin" style="width:30px; height:30px; line-height:30px; border-radius:3px; margin-left:5px; margin-right:5px; margin-bottom:5px; " target='_blank' title='LinkedIn'></a><a href="https://www.facebook.com/we.are.zencoders" class="soc_icon fab fa-facebook-f" style="width:30px; height:30px; line-height:30px; border-radius:3px; margin-left:5px; margin-right:5px; margin-bottom:5px; " target='_blank' title='Facebook'></a><a href="https://github.com/zencodedevs" class="soc_icon fab fa-github" style="width:30px; height:30px; line-height:30px; border-radius:3px; margin-left:5px; margin-right:5px; margin-bottom:5px; " target='_blank' title='Github'></a><a href="https://instagram.com/zencode.io" class="soc_icon fab fa-instagram" style="width:30px; height:30px; line-height:30px; border-radius:3px; margin-left:5px; margin-right:5px; margin-bottom:5px; " target='_blank' title='Github'></a></div><div class="integrio_module_spacing"><div class="spacing_size spacing_size-initial" style="height:30px;"></div></div>
+</div></div></div><div class="wpb_column vc_column_container vc_col-sm-3"><div class="vc_column-inner"><div class="wpb_wrapper"><div class="integrio_module_spacing"><div class="spacing_size spacing_size-initial" style="height:85px;"></div></div>
+
+	<div class="wpb_text_column wpb_content_element ">
+		<div class="wpb_wrapper">
+			<p><i class="fas fa-map-marker-alt"></i> 3, Khorava Tbilisi 0806, Georgia</p>
+<p><i class="fas fa-envelope"></i> <a href="mailto:info@zencode.io" style="color: #fff;">info@zencode.io</a></p>
+<p><i class="fas fa-mobile-alt"></i> <a href="tel:00995593254522" style="color: #fff;">+995 593 254 522</a></p>
+
+		</div>
+	</div>
+</div></div></div><div class="wpb_column vc_column_container vc_col-sm-6" id="contact-footer"><div class="vc_column-inner"><div class="wpb_wrapper">
+	<div class="wpb_text_column wpb_content_element ">
+		<div class="wpb_wrapper">
+			<h6>Contact us</h6>
+
+		</div>
+	</div>
+<div class="integrio_module_spacing"><div class="spacing_size spacing_size-initial" style="height:25px;"></div></div>
+
+	<div class="wpb_text_column wpb_content_element ">
+		<div class="wpb_wrapper">
+
+<div class="wpcf7 no-js" id="wpcf7-f2168-p378-o1" lang="en-US" dir="ltr">
+<div class="screen-reader-response"><p role="status" aria-live="polite" aria-atomic="true"></p> <ul></ul></div>
+<form action="/#wpcf7-f2168-p378-o1" method="post" class="wpcf7-form init" aria-label="Contact form" novalidate="novalidate" data-status="init">
+<div style="display: none;">
+<input type="hidden" name="_wpcf7" value="2168"/>
+<input type="hidden" name="_wpcf7_version" value="5.8.1"/>
+<input type="hidden" name="_wpcf7_locale" value="en_US"/>
+<input type="hidden" name="_wpcf7_unit_tag" value="wpcf7-f2168-p378-o1"/>
+<input type="hidden" name="_wpcf7_container_post" value="378"/>
+<input type="hidden" name="_wpcf7_posted_data_hash" value=""/>
+<input type="hidden" name="_wpcf7_recaptcha_response" value=""/>
+</div>
+<div class='row transparent-01'>
+	<div class='wgl_col-12acenter'>
+		<p><span class="wpcf7-form-control-wrap" data-name="namefooter"><input size="40" class="wpcf7-form-control wpcf7-text wpcf7-validates-as-required" aria-required="true" aria-invalid="false" placeholder="Your Name *" value="" type="text" name="namefooter"/></span>
+		</p>
+	</div>
+	<div class='wgl_col-12acenter'>
+		<p><span class="wpcf7-form-control-wrap" data-name="emailfooter"><input size="40" class="wpcf7-form-control wpcf7-email wpcf7-validates-as-required wpcf7-text wpcf7-validates-as-email" aria-required="true" aria-invalid="false" placeholder="Your Email *" value="" type="email" name="emailfooter"/></span>
+		</p>
+	</div>
+	<div class='wgl_col-12acenter'>
+		<p><span class="wpcf7-form-control-wrap" data-name="subjectfooter"><input size="40" class="wpcf7-form-control wpcf7-text wpcf7-validates-as-required" aria-required="true" aria-invalid="false" placeholder="Subject" value="" type="text" name="subjectfooter"/></span>
+		</p>
+	</div>
+	<div class='wgl_col-12'>
+		<p><span class="wpcf7-form-control-wrap" data-name="textareafooter"><textarea cols="40" rows="10" class="wpcf7-form-control wpcf7-textarea wpcf7-validates-as-required" aria-required="true" aria-invalid="false" placeholder="Message" name="textareafooter"></textarea></span>
+		</p>
+	</div>
+	<div class='wgl_col-12 acenter'>
+		<p><input class="wpcf7-form-control wpcf7-submit has-spinner" type="submit" value="Send"/>
+		</p>
+	</div>
+</div><div class="wpcf7-response-output" aria-hidden="true"></div>
+</form>
+</div>
+
+
+		</div>
+	</div>
+<div class="integrio_module_spacing"><div class="spacing_size spacing_size-initial" style="height:30px;"></div></div>
+</div></div></div></div></div></div></div></div><div data-vc-full-width="true" data-vc-full-width-init="false" class="vc_row wpb_row vc_row-fluid vc_custom_1645517650995 vc_row-has-fill"><div class="wpb_column vc_column_container vc_col-sm-6"><div class="vc_column-inner vc_custom_1556896473088"><div class="wpb_wrapper">
+	<div class="wpb_text_column wpb_content_element ">
+		<div class="wpb_wrapper">
+			<p><span style="color: #a9a9a9; font-size: 14px;">Copyright © 2022 Zencode. All Rights Reserved</span></p>
+
+		</div>
+	</div>
+</div></div></div><div class="wpb_column vc_column_container vc_col-sm-6"><div class="vc_column-inner "><div class="wpb_wrapper"></div></div></div></div><div class="vc_row-full-width vc_clearfix"></div></div></div></div></footer><a href='#' id='scroll_up'></a><span id="integrio-footer-inline-css" class="dynamic_styles-footer" style="display: none;">#integrio_button_6a94a61672e6b .wgl_button_link {
+				  color: rgba(255,255,255,1);
+			  }#integrio_button_6a94a61672e6b .wgl_button_link:hover {
+				  color: rgba(81,82,160,1);
+			  }#integrio_button_6a94a61672e6b .wgl_button_link {
+					  border-color: rgba(255,255,255,1);
+					  background-color: rgba(49,49,49,0);
+				  }#integrio_button_6a94a61672e6b .wgl_button_link:hover {
+					  border-color: rgba(255,255,255,1);
+					  background-color: rgba(255,255,255,1);
+				  }#integrio_button_6a94a61672e6b.effect_3d .link_wrapper {
+					  color: rgba(255,255,255,1);
+				  }#integrio_button_6a94a61674931 .wgl_button_link {
+				  color: rgba(81,82,160,1);
+			  }#integrio_button_6a94a61674931 .wgl_button_link:hover {
+				  color: rgba(255,255,255,1);
+			  }#integrio_button_6a94a61674931 .wgl_button_link {
+					  border-color: rgba(81,82,160,1);
+					  background-color: rgba(255,255,255,1);
+				  }#integrio_button_6a94a61674931 .wgl_button_link:hover {
+					  border-color: rgba(81,82,160,1);
+					  background-color: rgba(81,82,160,1);
+				  }#integrio_button_6a94a61674931.effect_3d .link_wrapper {
+					  color: rgba(81,82,160,1);
+				  }@media only screen and (max-width: 991px){
+					#integrio_spacer_6a94a616777a4 .spacing_size{
+						display: none;
+					}
+					#integrio_spacer_6a94a616777a4 .spacing_size-tablet{
+						display: block;
+					}
+
+				}#integrio_dbl_6a94a616778c2 .heading_subtitle{
+			  color: #8f9cff;
+		  }#integrio_dbl_6a94a616778c2.with_squares .heading_subtitle:before,
+	#integrio_dbl_6a94a616778c2.with_squares .heading_subtitle:after{
+			  background-color: #f6f6f6;
+		  }#integrio_button_6a94a61677a4c .wgl_button_link {
+				  color: #ffffff;
+			  }#integrio_button_6a94a61677a4c .wgl_button_link:hover {
+				  color: #ffffff;
+			  }#integrio_button_6a94a61677a4c .wgl_button_link:before{
+					background: linear-gradient(90deg, #6568d5, #5152a0);
+				}#integrio_button_6a94a61677a4c .wgl_button_link:after{
+					background: linear-gradient(90deg, #5152a0, #6568d5);
+				}#integrio_button_6a94a61677a4c .wgl_button_link .btn_border_gradient:before{
+					background: linear-gradient(90deg, #6568d5, #5152a0);
+				}#integrio_button_6a94a61677a4c .wgl_button_link .btn_border_gradient:after{
+					background: linear-gradient(90deg, #5152a0, #6568d5);
+				}#integrio_button_6a94a61677a4c a .wgl_button-icon {
+			 	  color: #ffffff;
+			  }#integrio_button_6a94a61677a4c a:hover .wgl_button-icon {
+				  color: #ffffff;
+			  }@media only screen and (max-width: 768px){
+					#integrio_spacer_6a94a61677a80 .spacing_size{
+						display: none;
+					}
+					#integrio_spacer_6a94a61677a80 .spacing_size-tablet{
+						display: block;
+					}
+
+				}@media only screen and (max-width: 991px) {
+					#extended_6a94a61677c4e{
+						display: none;
+					}
+				}@media only screen and (max-width: 800px){
+					#integrio_spacer_6a94a61677de3 .spacing_size{
+						display: none;
+					}
+					#integrio_spacer_6a94a61677de3 .spacing_size-tablet{
+						display: block;
+					}
+
+				}@media only screen and (max-width: 480px){
+					#integrio_spacer_6a94a61677de3 .spacing_size{
+						display: none;
+					}
+					#integrio_spacer_6a94a61677de3 .spacing_size-mobile{
+						display: block;
+					}
+				}#integrio_dbl_6a94a61677ef5 .heading_subtitle{
+			  color: #8f9cff;
+		  }#integrio_dbl_6a94a61677ef5.with_squares .heading_subtitle:before,
+	#integrio_dbl_6a94a61677ef5.with_squares .heading_subtitle:after{
+			  background-color: #f6f6f6;
+		  }@media only screen and (max-width: 800px){
+					#integrio_spacer_6a94a61677f9e .spacing_size{
+						display: none;
+					}
+					#integrio_spacer_6a94a61677f9e .spacing_size-tablet{
+						display: block;
+					}
+
+				}@media only screen and (max-width: 480px){
+					#integrio_spacer_6a94a61677f9e .spacing_size{
+						display: none;
+					}
+					#integrio_spacer_6a94a61677f9e .spacing_size-mobile{
+						display: block;
+					}
+				}#integrio_dbl_6a94a616789bb .heading_subtitle{
+			  color: #8f9cff;
+		  }#integrio_dbl_6a94a616789bb.with_squares .heading_subtitle:before,
+	#integrio_dbl_6a94a616789bb.with_squares .heading_subtitle:after{
+			  background-color: #ffffff;
+		  }#integrio_dbl_6a94a61678bf8 .heading_subtitle{
+			  color: #ffffff;
+		  }#integrio_dbl_6a94a61678bf8.with_squares .heading_subtitle:before,
+	#integrio_dbl_6a94a61678bf8.with_squares .heading_subtitle:after{
+			  background-color: #8f9cff;
+		  }#integrio_dbl_6a94a6167a97e .heading_subtitle{
+			  color: #8f9cff;
+		  }#integrio_dbl_6a94a6167a97e.with_squares .heading_subtitle:before,
+	#integrio_dbl_6a94a6167a97e.with_squares .heading_subtitle:after{
+			  background-color: #f6f6f6;
+		  }@media only screen and (max-width: 1024px){
+					#integrio_spacer_6a94a6167ae96 .spacing_size{
+						display: none;
+					}
+					#integrio_spacer_6a94a6167ae96 .spacing_size-desktops{
+						display: block;
+					}
+
+				}#integrio_button_6a94a6167b16a .wgl_button_link {
+				  color: #ffffff;
+			  }#integrio_button_6a94a6167b16a .wgl_button_link:hover {
+				  color: #232323;
+			  }#integrio_button_6a94a6167b16a .wgl_button_link {
+					  border-color: #ffffff;
+					  background-color: transparent;
+				  }#integrio_button_6a94a6167b16a .wgl_button_link:hover {
+					  border-color: #ffffff;
+					  background-color: #ffffff;
+				  }#integrio_button_6a94a6167b16a.effect_3d .link_wrapper {
+					  color: #ffffff;
+				  }#integrio_dbl_6a94a6167b517 .heading_subtitle{
+			  color: #8f9cff;
+		  }#integrio_dbl_6a94a6167b517.with_squares .heading_subtitle:before,
+	#integrio_dbl_6a94a6167b517.with_squares .heading_subtitle:after{
+			  background-color: #f6f6f6;
+		  }@media only screen and (max-width: 767px){
+					#integrio_spacer_6a94a6167b5c4 .spacing_size{
+						display: none;
+					}
+					#integrio_spacer_6a94a6167b5c4 .spacing_size-tablet{
+						display: block;
+					}
+
+				}#integrio_button_6a94a6167b62c .wgl_button_link {
+				  color: #232323;
+			  }#integrio_button_6a94a6167b62c .wgl_button_link:hover {
+				  color: #ffffff;
+			  }#integrio_button_6a94a6167b62c .wgl_button_link:before{
+					background: linear-gradient(90deg, #ffffff, #ffffff);
+				}#integrio_button_6a94a6167b62c .wgl_button_link:after{
+					background: linear-gradient(90deg, #5152a0, #6568d5);
+				}#integrio_button_6a94a6167b62c .wgl_button_link .btn_border_gradient:before{
+					background: linear-gradient(90deg, #6568d5, #5152a0);
+				}#integrio_button_6a94a6167b62c .wgl_button_link .btn_border_gradient:after{
+					background: linear-gradient(90deg, #5152a0, #6568d5);
+				}#blog_module_6a94a6167cfef.blog-posts .blog-post_title,
+			  #blog_module_6a94a6167cfef.blog-posts .blog-post_title a {
+				   font-size:24px; line-height:36px; font-weight:700;
+			  }#integrio_carousel_6a94a6167d90b.pagination_circle .slick-dots li button,
+			  #integrio_carousel_6a94a6167d90b.pagination_square .slick-dots li button,
+			  #integrio_carousel_6a94a6167d90b.pagination_line .slick-dots li button:before {
+				  background: #232323;
+			  }#integrio_carousel_6a94a6167d90b.integrio_module_carousel .slick-dots{
+				  margin-top: 50px;
+			  }#integrio_soc_icon_wrap_6a94a6167e0b5 a{
+                      background: #5152a0;
+                      border-color: transparent;
+                  }#integrio_soc_icon_wrap_6a94a6167e0b5 a:hover{
+                      background: #ffffff;
+                      border-color: #5152a0;
+                  }#integrio_soc_icon_wrap_6a94a6167e0b5 a{
+                      color: #ffffff;
+                  }#integrio_soc_icon_wrap_6a94a6167e0b5 a:hover{
+                      color: #5152a0;
+                  }</span>
+		<script type="text/javascript">
+			window.RS_MODULES = window.RS_MODULES || {};
+			window.RS_MODULES.modules = window.RS_MODULES.modules || {};
+			window.RS_MODULES.waiting = window.RS_MODULES.waiting || [];
+			window.RS_MODULES.defered = true;
+			window.RS_MODULES.moduleWaiting = window.RS_MODULES.moduleWaiting || {};
+			window.RS_MODULES.type = 'compiled';
+		</script>
+
+<!--Start of Tawk.to Script (0.7.2)-->
+<script id="tawk-script" type="text/javascript">
+var Tawk_API = Tawk_API || {};
+var Tawk_LoadStart=new Date();
+(function(){
+	var s1 = document.createElement( 'script' ),s0=document.getElementsByTagName( 'script' )[0];
+	s1.async = true;
+	s1.src = 'https://embed.tawk.to/623457091ffac05b1d7f35f7/1fue780ae';
+	s1.charset = 'UTF-8';
+	s1.setAttribute( 'crossorigin','*' );
+	s0.parentNode.insertBefore( s1, s0 );
+})();
+</script>
+<!--End of Tawk.to Script (0.7.2)-->
+
+<!-- Consent Management powered by Complianz | GDPR/CCPA Cookie Consent https://wordpress.org/plugins/complianz-gdpr -->
+<div id="cmplz-cookiebanner-container"><div class="cmplz-cookiebanner cmplz-hidden banner-1 optin cmplz-bottom cmplz-categories-type-no" aria-modal="true" data-nosnippet="true" role="dialog" aria-live="polite" aria-labelledby="cmplz-header-1-optin" aria-describedby="cmplz-message-1-optin">
+	<div class="cmplz-header">
+		<div class="cmplz-logo"></div>
+		<div class="cmplz-title" id="cmplz-header-1-optin">Manage Cookie Consent</div>
+		<div class="cmplz-close" tabindex="0" role="button" aria-label="close-dialog">
+			<svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="times" class="svg-inline--fa fa-times fa-w-11" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 352 512"><path fill="currentColor" d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"></path></svg>
+		</div>
+	</div>
+
+	<div class="cmplz-divider cmplz-divider-header"></div>
+	<div class="cmplz-body">
+		<div class="cmplz-message" id="cmplz-message-1-optin">To provide the best experiences, we use technologies like cookies to store and/or access device information. Consenting to these technologies will allow us to process data such as browsing behavior or unique IDs on this site. Not consenting or withdrawing consent, may adversely affect certain features and functions.</div>
+		<!-- categories start -->
+		<div class="cmplz-categories">
+			<details class="cmplz-category cmplz-functional">
+				<summary>
+						<span class="cmplz-category-header">
+							<span class="cmplz-category-title">Functional</span>
+							<span class='cmplz-always-active'>
+								<span class="cmplz-banner-checkbox">
+									<input type="checkbox" id="cmplz-functional-optin" data-category="cmplz_functional" class="cmplz-consent-checkbox cmplz-functional" size="40" value="1"/>
+									<label class="cmplz-label" for="cmplz-functional-optin" tabindex="0"><span class="screen-reader-text">Functional</span></label>
+								</span>
+								Always active							</span>
+							<span class="cmplz-icon cmplz-open">
+								<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" height="18"><path d="M224 416c-8.188 0-16.38-3.125-22.62-9.375l-192-192c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0L224 338.8l169.4-169.4c12.5-12.5 32.75-12.5 45.25 0s12.5 32.75 0 45.25l-192 192C240.4 412.9 232.2 416 224 416z"/></svg>
+							</span>
+						</span>
+				</summary>
+				<div class="cmplz-description">
+					<span class="cmplz-description-functional">The technical storage or access is strictly necessary for the legitimate purpose of enabling the use of a specific service explicitly requested by the subscriber or user, or for the sole purpose of carrying out the transmission of a communication over an electronic communications network.</span>
+				</div>
+			</details>
+
+			<details class="cmplz-category cmplz-preferences">
+				<summary>
+						<span class="cmplz-category-header">
+							<span class="cmplz-category-title">Preferences</span>
+							<span class="cmplz-banner-checkbox">
+								<input type="checkbox" id="cmplz-preferences-optin" data-category="cmplz_preferences" class="cmplz-consent-checkbox cmplz-preferences" size="40" value="1"/>
+								<label class="cmplz-label" for="cmplz-preferences-optin" tabindex="0"><span class="screen-reader-text">Preferences</span></label>
+							</span>
+							<span class="cmplz-icon cmplz-open">
+								<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" height="18"><path d="M224 416c-8.188 0-16.38-3.125-22.62-9.375l-192-192c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0L224 338.8l169.4-169.4c12.5-12.5 32.75-12.5 45.25 0s12.5 32.75 0 45.25l-192 192C240.4 412.9 232.2 416 224 416z"/></svg>
+							</span>
+						</span>
+				</summary>
+				<div class="cmplz-description">
+					<span class="cmplz-description-preferences">The technical storage or access is necessary for the legitimate purpose of storing preferences that are not requested by the subscriber or user.</span>
+				</div>
+			</details>
+
+			<details class="cmplz-category cmplz-statistics">
+				<summary>
+						<span class="cmplz-category-header">
+							<span class="cmplz-category-title">Statistics</span>
+							<span class="cmplz-banner-checkbox">
+								<input type="checkbox" id="cmplz-statistics-optin" data-category="cmplz_statistics" class="cmplz-consent-checkbox cmplz-statistics" size="40" value="1"/>
+								<label class="cmplz-label" for="cmplz-statistics-optin" tabindex="0"><span class="screen-reader-text">Statistics</span></label>
+							</span>
+							<span class="cmplz-icon cmplz-open">
+								<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" height="18"><path d="M224 416c-8.188 0-16.38-3.125-22.62-9.375l-192-192c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0L224 338.8l169.4-169.4c12.5-12.5 32.75-12.5 45.25 0s12.5 32.75 0 45.25l-192 192C240.4 412.9 232.2 416 224 416z"/></svg>
+							</span>
+						</span>
+				</summary>
+				<div class="cmplz-description">
+					<span class="cmplz-description-statistics">The technical storage or access that is used exclusively for statistical purposes.</span>
+					<span class="cmplz-description-statistics-anonymous">The technical storage or access that is used exclusively for anonymous statistical purposes. Without a subpoena, voluntary compliance on the part of your Internet Service Provider, or additional records from a third party, information stored or retrieved for this purpose alone cannot usually be used to identify you.</span>
+				</div>
+			</details>
+			<details class="cmplz-category cmplz-marketing">
+				<summary>
+						<span class="cmplz-category-header">
+							<span class="cmplz-category-title">Marketing</span>
+							<span class="cmplz-banner-checkbox">
+								<input type="checkbox" id="cmplz-marketing-optin" data-category="cmplz_marketing" class="cmplz-consent-checkbox cmplz-marketing" size="40" value="1"/>
+								<label class="cmplz-label" for="cmplz-marketing-optin" tabindex="0"><span class="screen-reader-text">Marketing</span></label>
+							</span>
+							<span class="cmplz-icon cmplz-open">
+								<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" height="18"><path d="M224 416c-8.188 0-16.38-3.125-22.62-9.375l-192-192c-12.5-12.5-12.5-32.75 0-45.25s32.75-12.5 45.25 0L224 338.8l169.4-169.4c12.5-12.5 32.75-12.5 45.25 0s12.5 32.75 0 45.25l-192 192C240.4 412.9 232.2 416 224 416z"/></svg>
+							</span>
+						</span>
+				</summary>
+				<div class="cmplz-description">
+					<span class="cmplz-description-marketing">The technical storage or access is required to create user profiles to send advertising, or to track the user on a website or across several websites for similar marketing purposes.</span>
+				</div>
+			</details>
+		</div><!-- categories end -->
+			</div>
+
+	<div class="cmplz-links cmplz-information">
+		<a class="cmplz-link cmplz-manage-options cookie-statement" href="#" data-relative_url="#cmplz-manage-consent-container">Manage options</a>
+		<a class="cmplz-link cmplz-manage-third-parties cookie-statement" href="#" data-relative_url="#cmplz-cookies-overview">Manage services</a>
+		<a class="cmplz-link cmplz-manage-vendors tcf cookie-statement" href="#" data-relative_url="#cmplz-tcf-wrapper">Manage {vendor_count} vendors</a>
+		<a class="cmplz-link cmplz-external cmplz-read-more-purposes tcf" target="_blank" rel="noopener noreferrer nofollow" href="https://cookiedatabase.org/tcf/purposes/">Read more about these purposes</a>
+			</div>
+
+	<div class="cmplz-divider cmplz-footer"></div>
+
+	<div class="cmplz-buttons">
+		<button class="cmplz-btn cmplz-accept">Accept</button>
+		<button class="cmplz-btn cmplz-deny">Deny</button>
+		<button class="cmplz-btn cmplz-view-preferences">View preferences</button>
+		<button class="cmplz-btn cmplz-save-preferences">Save preferences</button>
+		<a class="cmplz-btn cmplz-manage-options tcf cookie-statement" href="#" data-relative_url="#cmplz-manage-consent-container">View preferences</a>
+			</div>
+
+	<div class="cmplz-links cmplz-documents">
+		<a class="cmplz-link cookie-statement" href="#" data-relative_url="">{title}</a>
+		<a class="cmplz-link privacy-statement" href="#" data-relative_url="">{title}</a>
+		<a class="cmplz-link impressum" href="#" data-relative_url="">{title}</a>
+			</div>
+
+</div>
+</div>
+					<div id="cmplz-manage-consent" data-nosnippet="true"><button class="cmplz-btn cmplz-hidden cmplz-manage-consent manage-consent-1">Manage consent</button>
+
+</div><script type="text/html" id="wpb-modifications"></script><link href="https://fonts.googleapis.com/css?family=Titillium+Web:700%2C400%7CRoboto:400&display=swap" rel="stylesheet" property="stylesheet" media="all" type="text/css">
+
+<script type="text/javascript">
+		if(typeof revslider_showDoubleJqueryError === "undefined") {function revslider_showDoubleJqueryError(sliderID) {console.log("You have some jquery.js library include that comes after the Slider Revolution files js inclusion.");console.log("To fix this, you can:");console.log("1. Set 'Module General Options' -> 'Advanced' -> 'jQuery & OutPut Filters' -> 'Put JS to Body' to on");console.log("2. Find the double jQuery.js inclusion and remove it");return "Double Included jQuery Library";}}
+</script>
+<link rel='stylesheet' id='whp3858tw-bs4.css-css' href='https://zencode.io/app/plugins/_wp-security-hardening/modules/inc/assets/css/A.tw-bs4.css.pagespeed.cf.5ZPpQDYHoB.css' type='text/css' media='all'/>
+<link rel='stylesheet' id='whp7939font-awesome.min.css-css' href='https://zencode.io/app/plugins/_wp-security-hardening/modules/inc/fa/css/A.font-awesome.min.css.pagespeed.cf.y61m2n6ZfX.css' type='text/css' media='all'/>
+<link rel='stylesheet' id='whp6704front.css-css' href='https://zencode.io/app/plugins/_wp-security-hardening/modules/css/A.front.css.pagespeed.cf.UP0MxGmxiz.css' type='text/css' media='all'/>
+<link rel='stylesheet' id='rs-plugin-settings-css' href='https://zencode.io/app/plugins/revslider/public/assets/css/A.rs6.css.pagespeed.cf.XVOlrsGfGc.css' type='text/css' media='all'/>
+<style id='rs-plugin-settings-inline-css' type='text/css'>.rev-btn{transition:400ms!important}.genesisexpo_module_videobox.title_pos-right .title{margin-left:15px!important}.genesisexpo_module_videobox .videobox_link .videobox_circle_1,.genesisexpo_module_videobox .videobox_link .videobox_circle_2,.genesisexpo_module_videobox .videobox_link .videobox_circle_3{border-width:1px!important}.cursor-pointer{cursor:pointer}</style>
+<script type='text/javascript' src='https://zencode.io/app/plugins/contact-form-7/includes/swv/js/index.js.pagespeed.ce.bOhsMQUTnL.js' id='swv-js'></script>
+<script type='text/javascript' id='contact-form-7-js-extra'>
+/* <![CDATA[ */
+var wpcf7 = {"api":{"root":"https:\/\/zencode.io\/wp-json\/","namespace":"contact-form-7\/v1"}};
+/* ]]> */
+</script>
+<script type='text/javascript' src='https://zencode.io/app/plugins/contact-form-7/includes/js/index.js.pagespeed.ce.W8Kx-pcPnO.js' id='contact-form-7-js'></script>
+<script type='text/javascript' src='https://zencode.io/app/plugins/revslider/public/assets/js/rbtools.min.js.pagespeed.ce.5LwmCTU1Ln.js' defer async id='tp-tools-js'></script>
+<script type='text/javascript' src='https://zencode.io/app/plugins/revslider/public/assets/js/rs6.min.js.pagespeed.ce.cc5I3fTKx9.js' defer async id='revmin-js'></script>
+<script type='text/javascript' src='https://zencode.io/app/themes/integrio/js/theme-addons.js.pagespeed.ce.8KF9PfIibo.js' id='integrio-theme-addons-js'></script>
+<script type='text/javascript' id='integrio-theme-js-extra'>
+/* <![CDATA[ */
+var wgl_core = {"ajaxurl":"https:\/\/zencode.io\/wp\/wp-admin\/admin-ajax.php","slickSlider":"https:\/\/zencode.io\/app\/themes\/integrio\/js\/slick.min.js","JarallaxPlugin":"https:\/\/zencode.io\/app\/themes\/integrio\/js\/jarallax-video.min.js","JarallaxPluginVideo":"https:\/\/zencode.io\/app\/themes\/integrio\/js\/jarallax.min.js","like":"Like","unlike":"Unlike"};
+/* ]]> */
+</script>
+<script type='text/javascript' src='https://zencode.io/app/themes/integrio/js/theme.js.pagespeed.ce.lPgTDTqrD5.js' id='integrio-theme-js'></script>
+<script type='text/javascript' src='https://www.google.com/recaptcha/api.js?render=6LdP7PkeAAAAAGVk-rkrkzvwoeJwtgjy4sB5vZkI' id='google-recaptcha-js'></script>
+<script src="https://zencode.io/wp/wp-includes/js/dist/vendor/wp-polyfill-inert.min.js+regenerator-runtime.min.js+wp-polyfill.min.js.pagespeed.jc.QAaqztBsot.js"></script><script>eval(mod_pagespeed_knqK1wFD9O);</script>
+<script>eval(mod_pagespeed_3Bbb19vf28);</script>
+<script>eval(mod_pagespeed_NC0eMiDLV5);</script>
+<script type='text/javascript' id='wpcf7-recaptcha-js-extra'>
+/* <![CDATA[ */
+var wpcf7_recaptcha = {"sitekey":"6LdP7PkeAAAAAGVk-rkrkzvwoeJwtgjy4sB5vZkI","actions":{"homepage":"homepage","contactform":"contactform"}};
+/* ]]> */
+</script>
+<script type='text/javascript' src='https://zencode.io/app/plugins/contact-form-7/modules/recaptcha/index.js.pagespeed.ce.2mEOVPpulH.js' id='wpcf7-recaptcha-js'></script>
+<script type='text/javascript' id='cmplz-cookiebanner-js-extra'>
+/* <![CDATA[ */
+var complianz = {"prefix":"cmplz_","user_banner_id":"1","set_cookies":[],"block_ajax_content":"","banner_version":"24","version":"6.5.4","store_consent":"","do_not_track_enabled":"","consenttype":"optin","region":"eu","geoip":"","dismiss_timeout":"","disable_cookiebanner":"","soft_cookiewall":"1","dismiss_on_scroll":"","cookie_expiry":"365","url":"https:\/\/zencode.io\/wp-json\/complianz\/v1\/","locale":"lang=en&locale=en_US","set_cookies_on_root":"","cookie_domain":"","current_policy_id":"19","cookie_path":"\/","categories":{"statistics":"statistics","marketing":"marketing"},"tcf_active":"","placeholdertext":"Click to accept {category} cookies and enable this content","aria_label":"Click to accept {category} cookies and enable this content","css_file":"https:\/\/zencode.io\/app\/uploads\/complianz\/css\/banner-{banner_id}-{type}.css?v=24","page_links":{"eu":{"cookie-statement":{"title":"Cookie Policy ","url":"https:\/\/zencode.io\/cookie-policy-eu\/"}}},"tm_categories":"","forceEnableStats":"","preview":"","clean_cookies":""};
+/* ]]> */
+</script>
+<script defer type='text/javascript' src='https://zencode.io/app/plugins/complianz-gdpr/cookiebanner/js/complianz.min.js.pagespeed.ce.x2yytgwhMG.js' id='cmplz-cookiebanner-js'></script>
+<script type='text/javascript' src='https://zencode.io/app/plugins/js_composer/assets/js/dist/js_composer_front.min.js' id='wpb_composer_front_js-js'></script>
+<script src="https://zencode.io/app,_themes,_integrio,_js,_jquery.paroller.min.js+wp,_wp-includes,_js,_imagesloaded.min.js+app,_themes,_integrio,_js,_slick.min.js.pagespeed.jc.PPlcIFB7dg.js"></script><script>eval(mod_pagespeed_7uTIbUuHX6);</script>
+<script>eval(mod_pagespeed__b4sRuVkG5);</script>
+<script>eval(mod_pagespeed_Wso3mdlbse);</script>
+<script type="text/javascript" id="rs-initialisation-scripts">
+		var	tpj = jQuery;
+
+		var	revapi1;
+
+		if(window.RS_MODULES === undefined) window.RS_MODULES = {};
+		if(RS_MODULES.modules === undefined) RS_MODULES.modules = {};
+		RS_MODULES.modules["revslider11"] = {once: RS_MODULES.modules["revslider11"]!==undefined ? RS_MODULES.modules["revslider11"].once : undefined, init:function() {
+			window.revapi1 = window.revapi1===undefined || window.revapi1===null || window.revapi1.length===0  ? document.getElementById("rev_slider_1_1") : window.revapi1;
+			if(window.revapi1 === null || window.revapi1 === undefined || window.revapi1.length==0) { window.revapi1initTry = window.revapi1initTry ===undefined ? 0 : window.revapi1initTry+1; if (window.revapi1initTry<20) requestAnimationFrame(function() {RS_MODULES.modules["revslider11"].init()}); return;}
+			window.revapi1 = jQuery(window.revapi1);
+			if(window.revapi1.revolution==undefined){ revslider_showDoubleJqueryError("rev_slider_1_1"); return;}
+			revapi1.revolutionInit({
+					revapi:"revapi1",
+					DPR:"dpr",
+					sliderLayout:"fullwidth",
+					visibilityLevels:"1240,1024,778,480",
+					gridwidth:"1200,1024,778,480",
+					gridheight:"720,750,700,500",
+					lazyType:"smart",
+					perspective:600,
+					perspectiveType:"local",
+					editorheight:"720,750,700,500",
+					responsiveLevels:"1240,1024,778,480",
+					progressBar:{disableProgressBar:true},
+					navigation: {
+						onHoverStop:false
+					},
+					parallax: {
+						levels:[1,2,3,4,5,6,7,8,9,10,20,48,49,50,51,55],
+						type:"mouse",
+						disable_onmobile:true,
+						speedbg:200,
+						speedls:200
+					},
+					viewPort: {
+						global:true,
+						globalDist:"-200px",
+						enable:false,
+						visible_area:"20%"
+					},
+					fallbacks: {
+						allowHTML5AutoPlayOnAndroid:true
+					},
+			});
+
+		}} // End of RevInitScript
+
+		if (window.RS_MODULES.checkMinimal!==undefined) { window.RS_MODULES.checkMinimal();};
+	</script>
+				<script async data-category="functional" src="https://www.googletagmanager.com/gtag/js?id=G-1YX6LSC7K0"></script><!-- Statistics script Complianz GDPR/CCPA -->
+						<script data-category="functional">window['gtag_enable_tcf_support'] = false;
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-1YX6LSC7K0', {
+	cookie_flags:'secure;samesite=none',
+
+});
+</script><script type="text/javascript" id="wgl_custom_footer_js"></script>
+</body>
+</html>

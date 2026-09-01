@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "scratch-html-preview",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server", "8642", "--directory", "C:/Users/nowak/AppData/Local/Temp/claude/E--Corpus-Chaturbate-Record-Projet-logiciel/473fd1f5-480c-4d26-9a6d-039fdafff948/scratchpad"],
+      "port": 8642
+    }
+  ]
+}

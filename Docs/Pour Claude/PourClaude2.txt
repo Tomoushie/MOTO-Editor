@@ -1,0 +1,391 @@
+Compris. On repart **de zéro, dans l'ordre strict des dépendances**, en intégrant *toutes* les corrections et fonctionnalités discutées (pas de doublons, pas de code mort). Voici le **manifeste maître** du projet, puis je livre le **Bloc 1 (fondations, zéro dépendance)** complet et compilable. Je continuerai bloc par bloc.
+
+## 🗺️ Manifeste maître (ordre de reconstruction)
+
+| Bloc | Contenu | Dépend de |
+|---|---|---|
+| **1** | `Shared/` : Sha256Helper, Ed25519, UpdateManifest, PayloadExtractor, PayloadVerifier, ResumableDownloader, AtomicUpdater | rien |
+| **2** | `Moto.Core` fondations : StructuredLogCollector, SettingsEngine/SettingsCatalog | 1 |
+| **3** | `Moto.Core` moteurs IA (Cortex, Neural, Context, Speculative, Embedded) | 2 |
+| **4** | `Moto.Core` services (Build/Run/Terminal, LSP, Refactor, Plugins) | 2 |
+| **5** | `Snake2000.Engine` (XENO pipeline) | 2 |
+| **6** | `Moto.SignTool` + `Moto.Installer` | 1 |
+| **7** | `Moto.Editor` (DI, vues, MainPage, MauiProgram) | 3,4,5 |
+| **8** | CI, tests, scripts build | 6,7 |
+
+---
+
+##  BLOC 1 — `Shared/` (fondations, zéro dépendance)
+
+### `Shared/Sha256Helper.cs`
+```csharp
+using System.Security.Cryptography;
+using System.Text;
+
+namespace Moto.Shared;
+
+/// <summary>Helpers SHA256 (hash fichier / octets / hex).</summary>
+public static class Sha256Helper
+{
+    public static string ComputeFile(string path)
+    {
+        using var sha = SHA256.Create();
+        using var fs = File.OpenRead(path);
+        return ToHex(sha.ComputeHash(fs));
+    }
+
+    public static string ComputeBytes(byte[] data)
+    {
+        using var sha = SHA256.Create();
+        return ToHex(sha.ComputeHash(data));
+    }
+
+    public static string ComputeString(string s) => ComputeBytes(Encoding.UTF8.GetBytes(s));
+
+    public static byte[] FromHex(string hex)
+    {
+        var r = new byte[hex.Length / 2];
+        for (int i = 0; i < r.Length; i++)
+            r[i] = Convert.ToByte(hex.Substring(i * 2, 2), 16);
+        return r;
+    }
+
+    public static string ToHex(byte[] b)
+    {
+        var sb = new StringBuilder(b.Length * 2);
+        foreach (var x in b) sb.Append(x.ToString("x2"));
+        return sb.ToString();
+    }
+}
+```
+
+### `Shared/Ed25519.cs`
+```csharp
+using System;
+using System.Numerics;
+using System.Security.Cryptography;
+
+namespace Moto.Shared;
+
+/// <summary>Ed25519 minimal (sign + verify), fait maison, sans dépendance.</summary>
+public static class Ed25519
+{
+    private static readonly BigInteger P = BigInteger.Pow(2, 255) - 19;
+    private static readonly BigInteger L = BigInteger.Parse(
+        "7237005577332262213973186563042994240857116359379907606001950938285454250989");
+    private static readonly BigInteger D = Mod(-121665 * Inv(121666), P);
+    private static readonly BigInteger I = BigInteger.ModPow(2, (P - 1) / 4, P);
+    private static readonly (BigInteger X, BigInteger Y) B = (RecoverX(Mod(4 * Inv(5), P)), Mod(4 * Inv(5), P));
+
+    private static BigInteger Mod(BigInteger a, BigInteger m) => ((a % m) + m) % m;
+    private static BigInteger Inv(BigInteger a) => BigInteger.ModPow(a, P - 2, P);
+
+    private static BigInteger RecoverX(BigInteger y)
+    {
+        var y2 = y * y;
+        var xx = Mod((y2 - 1) * Inv(D * y2 + 1), P);
+        var x = BigInteger.ModPow(xx, (P + 3) / 8, P);
+        if (Mod(x * x - xx, P) != 0) x = Mod(x * I, P);
+        if (!x.IsOne && x.IsEven) x = P - x;
+        if (x.IsEven) x = P - x;
+        return x;
+    }
+
+    private static (BigInteger, BigInteger) Add((BigInteger, BigInteger) p, (BigInteger, BigInteger) q)
+    {
+        var (x1, y1) = p; var (x2, y2) = q;
+        var dxy = Mod(D * x1 % P * x2 % P * y1 % P * y2, P);
+        var x3 = Mod((x1 * y2 + x2 * y1) % P * Inv(1 + dxy), P);
+        var y3 = Mod((y1 * y2 + x1 * x2) % P * Inv(1 - dxy), P);
+        return (Mod(x3, P), Mod(y3, P));
+    }
+
+    private static (BigInteger, BigInteger) ScalarMult(BigInteger e, (BigInteger, BigInteger) p)
+    {
+        var r = (BigInteger.Zero, BigInteger.One);
+        while (e > 0)
+        {
+            if (e.IsOdd) r = Add(r, p);
+            p = Add(p, p);
+            e >>= 1;
+        }
+        return r;
+    }
+
+    private static byte[] Hash(byte[] m)
+    {
+        using var sha = SHA512.Create();
+        return sha.ComputeHash(m);
+    }
+
+    private static byte[] EncodeLE(BigInteger v, int len = 32)
+    {
+        var b = v.ToByteArray();
+        var r = new byte[len];
+        Array.Copy(b, r, Math.Min(len, b.Length));
+        return r;
+    }
+
+    private static BigInteger DecodeLE(byte[] b)
+    {
+        var r = new byte[b.Length + 1];
+        Array.Copy(b, r, b.Length);
+        return new BigInteger(r, isUnsigned: true);
+    }
+
+    private static byte[] EncodePoint((BigInteger, BigInteger) p)
+    {
+        var (x, y) = p;
+        var r = EncodeLE(y);
+        if (x.IsOdd) r[31] |= 0x80;
+        return r;
+    }
+
+    private static (BigInteger, BigInteger) DecodePoint(byte[] s)
+    {
+        var b = (byte[])s.Clone();
+        bool xSign = (b[31] & 0x80) != 0;
+        b[31] &= 0x7F;
+        var y = DecodeLE(b);
+        var x = RecoverX(y);
+        if (x.IsOdd != xSign) x = P - x;
+        return (x, y);
+    }
+
+    public static (byte[] Pub, byte[] Priv) GenerateKey()
+    {
+        var priv = new byte[32];
+        RandomNumberGenerator.Fill(priv);
+        var h = Hash(priv);
+        var a = Clamp(h);
+        return (EncodePoint(ScalarMult(a, B)), priv);
+    }
+
+    private static BigInteger Clamp(byte[] h)
+    {
+        var a = DecodeLE(h.Take(32).ToArray());
+        a &= ~BigInteger.One;
+        a |= BigInteger.One << 254;
+        a &= ~(BigInteger.One << 255);
+        return a;
+    }
+
+    public static byte[] Sign(byte[] message, byte[] priv)
+    {
+        var h = Hash(priv);
+        var a = Clamp(h);
+        var pub = EncodePoint(ScalarMult(a, B));
+        var r = Mod(DecodeLE(Hash(Concat(h.Skip(32).Take(32).ToArray(), message))), L);
+        var R = EncodePoint(ScalarMult(r, B));
+        var k = Mod(DecodeLE(Hash(Concat(R, pub, message))), L);
+        var S = Mod(r + k * a, L);
+        return Concat(R, EncodeLE(S));
+    }
+
+    public static bool Verify(byte[] message, byte[] signature, byte[] pub)
+    {
+        if (signature.Length != 64 || pub.Length != 32) return false;
+        var R = DecodePoint(signature.Take(32).ToArray());
+        var S = DecodeLE(signature.Skip(32).ToArray());
+        var A = DecodePoint(pub);
+        var k = Mod(DecodeLE(Hash(Concat(signature.Take(32).ToArray(), pub, message))), L);
+        var left = ScalarMult(S, B);
+        var right = Add(R, ScalarMult(k, A));
+        return left == right;
+    }
+
+    private static byte[] Concat(params byte[][] parts)
+    {
+        int len = 0;
+        foreach (var p in parts) len += p.Length;
+        var r = new byte[len];
+        int off = 0;
+        foreach (var p in parts) { Array.Copy(p, 0, r, off, p.Length); off += p.Length; }
+        return r;
+    }
+}
+```
+
+### `Shared/UpdateManifest.cs`
+```csharp
+using System.Collections.Generic;
+
+namespace Moto.Shared;
+
+public sealed class UpdateFileEntry
+{
+    public string Path { get; set; } = "";
+    public string Sha256 { get; set; } = "";
+    public long Size { get; set; }
+}
+
+public sealed class UpdateManifest
+{
+    public string Version { get; set; } = "";
+    public string PayloadSha256 { get; set; } = "";
+    public List<UpdateFileEntry> Files { get; set; } = new();
+    public string Signature { get; set; } = "";
+}
+```
+
+### `Shared/PayloadExtractor.cs`
+```csharp
+using System;
+using System.IO;
+using System.IO.Compression;
+
+namespace Moto.Shared;
+
+/// <summary>Extraction ZIP sécurisée (garde Zip Slip).</summary>
+public static class PayloadExtractor
+{
+    public static void ExtractTo(string zipPath, string destDir, Action<int>? onProgress = null)
+    {
+        Directory.CreateDirectory(destDir);
+        string fullDest = Path.GetFullPath(destDir) + Path.DirectorySeparatorChar;
+
+        using var zip = ZipFile.OpenRead(zipPath);
+        int total = zip.Entries.Count, done = 0, last = -1;
+
+        foreach (var entry in zip.Entries)
+        {
+            string target = Path.GetFullPath(Path.Combine(destDir, entry.FullName));
+            if (!target.StartsWith(fullDest, StringComparison.Ordinal))
+                throw new InvalidOperationException($"Entrée hors cible : {entry.FullName}");
+
+            if (string.IsNullOrEmpty(entry.Name))
+            {
+                Directory.CreateDirectory(target);
+            }
+            else
+            {
+                Directory.CreateDirectory(Path.GetDirectoryName(target)!);
+                entry.ExtractToFile(target, true);
+            }
+
+            int pct = ++done * 100 / total;
+            if (pct != last) { last = pct; onProgress?.Invoke(pct); }
+        }
+    }
+}
+```
+
+### `Shared/PayloadVerifier.cs`
+```csharp
+using System.IO;
+using System.Text;
+using System.Text.Json;
+
+namespace Moto.Shared;
+
+/// <summary>Vérifie payload : hash SHA256 + signature Ed25519.</summary>
+public static class PayloadVerifier
+{
+    public static bool VerifyPayload(string zipPath, string manifestPath, string publicKeyHex)
+    {
+        var manifest = JsonSerializer.Deserialize<UpdateManifest>(File.ReadAllText(manifestPath));
+        if (manifest is null) return false;
+
+        if (Sha256Helper.ComputeFile(zipPath) != manifest.PayloadSha256) return false;
+
+        var sig = Sha256Helper.FromHex(manifest.Signature);
+        var msg = Encoding.UTF8.GetBytes(manifest.PayloadSha256);
+        return Ed25519.Verify(msg, sig, Sha256Helper.FromHex(publicKeyHex));
+    }
+}
+```
+
+### `Shared/ResumableDownloader.cs`
+```csharp
+using System;
+using System.IO;
+using System.Net.Http;
+using System.Threading;
+using System.Threading.Tasks;
+
+namespace Moto.Shared;
+
+/// <summary>Téléchargement résumable (HTTP Range) + fallback mirrors.</summary>
+public static class ResumableDownloader
+{
+    private static readonly HttpClient Http = new() { Timeout = TimeSpan.FromMinutes(10) };
+
+    public static async Task DownloadAsync(string[] urls, string dest,
+        Action<long, long?>? onProgress = null, CancellationToken ct = default)
+    {
+        Exception? last = null;
+        foreach (var url in urls)
+        {
+            try { await DownloadSingleAsync(url, dest, onProgress, ct); return; }
+            catch (Exception ex) { last = ex; }
+        }
+        throw last ?? new IOException("Tous les mirrors ont échoué.");
+    }
+
+    private static async Task DownloadSingleAsync(string url, string dest,
+        Action<long, long?>? onProgress, CancellationToken ct)
+    {
+        long existing = File.Exists(dest) ? new FileInfo(dest).Length : 0;
+        using var req = new HttpRequestMessage(HttpMethod.Get, url);
+        if (existing > 0) req.Headers.Range = new System.Net.Http.Headers.RangeHeaderValue(existing, null);
+
+        using var resp = await Http.SendAsync(req, HttpCompletionOption.ResponseHeadersRead, ct);
+        if (existing > 0 && resp.StatusCode != System.Net.HttpStatusCode.PartialContent)
+        {
+            existing = 0;
+            File.Delete(dest);
+        }
+
+        long? total = resp.Content.Headers.ContentLength is long cl ? cl + existing : null;
+        using var src = await resp.Content.ReadAsStreamAsync(ct);
+        using var dst = new FileStream(dest, existing > 0 ? FileMode.Append : FileMode.Create, FileAccess.Write);
+
+        var buf = new byte[81920];
+        int n; long done = existing;
+        while ((n = await src.ReadAsync(buf, ct)) > 0)
+        {
+            await dst.WriteAsync(buf.AsMemory(0, n), ct);
+            done += n;
+            onProgress?.Invoke(done, total);
+        }
+    }
+}
+```
+
+### `Shared/AtomicUpdater.cs`
+```csharp
+using System;
+using System.IO;
+
+namespace Moto.Shared;
+
+/// <summary>Mise à jour atomique : backup → swap → rollback en cas d'échec.</summary>
+public static class AtomicUpdater
+{
+    public static void Apply(string installDir, string extractedDir)
+    {
+        string backup = installDir.TrimEnd(Path.DirectorySeparatorChar) + ".backup";
+        if (Directory.Exists(backup)) Directory.Delete(backup, true);
+
+        Directory.Move(installDir, backup);
+        try
+        {
+            Directory.Move(extractedDir, installDir);
+        }
+        catch
+        {
+            if (Directory.Exists(installDir)) Directory.Delete(installDir, true);
+            Directory.Move(backup, installDir);
+            throw;
+        }
+
+        try { Directory.Delete(backup, true); } catch { /* non bloquant */ }
+    }
+}
+```
+
+---
+
+✅ **Bloc 1 livré** (7 fichiers, zéro dépendance, compilable).
+
+**Prochain bloc (2)** : `Moto.Core` fondations — `StructuredLogCollector` + `SettingsEngine`/`SettingsCatalog` (data-driven, 1 ligne = 1 paramètre). Je continue ?

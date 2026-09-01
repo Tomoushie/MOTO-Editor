@@ -1,0 +1,9 @@
+https://github.com/zen-browser/desktop
+
+https://github.com/zed-industries/zed/tree/main
+
+https://github.com/zen-browser/theme-store
+
+https://github.com/zen-browser/www
+
+https://github.com/zen-browser/docs

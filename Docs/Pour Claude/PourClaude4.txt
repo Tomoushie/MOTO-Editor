@@ -1,0 +1,510 @@
+J'ai bien reçu la suite des fichiers. Il s'agit des fichiers de configuration, des directives pour les agents IA (`.rules`, `AGENTS.md`), du `Cargo.toml` (workspace Rust) et des Dockerfiles de l'éditeur **Zed** (le papier de recherche partagé précédemment concernait le framework **ZEN**, mais ces fichiers source proviennent bien de l'éditeur Zed).
+
+Ces documents détaillent l'architecture Rust de Zed, son framework UI maison (**GPUI**), son organisation en *crates*, ainsi que ses règles strictes pour le développement assisté par IA.
+
+En tant qu'architecte de **MOTO Editor** (qui est basé sur **C#, .NET 8, MAUI et WinUI 3**), comment souhaitez-vous que j'exploite ces informations ?
+
+Voici quelques pistes de travail possibles :
+
+1. **Analyse architecturale comparative** : Comparer le découpage modulaire de Zed (ses centaines de *crates* comme `gpui`, `editor`, `project`, `lsp`) avec notre architecture MOTO (`Moto.Core`, `Moto.Editor`, `Snake2000.Engine`) pour identifier des optimisations ou des manques dans notre séparation des responsabilités.
+2. **Création de directives IA pour MOTO** : S'inspirer du fichier `.rules` de Zed pour rédiger un fichier de directives strictes (ex: `MOTO.rules` ou `CLAUDE.md`) adapté à notre codebase C#, afin de guider les agents IA sur nos conventions (MAUI, WinUI 3, DI, sécurité).
+3. **Étude de fonctionnalités spécifiques** : Analyser comment Zed implémente certains moteurs (gestion du LSP, intégration de Tree-sitter, CRDT pour la collaboration, ou le *Command Palette*) pour nous en inspirer lors de l'implémentation de nos propres moteurs dans `Moto.Core`.
+4. **Optimisation du pipeline CI/CD** : Comparer leurs Dockerfiles et leur gestion du build Rust avec notre pipeline de build .NET / MSIX / Installateur maison.
+
+J'attends vos instructions pour la prochaine étape ! Que souhaitez-vous que je fasse avec ces fichiers ?
+
+Parfait. Voici **`LocalModelService`** — l'orchestrateur IA local du **Tier 31→32**, conforme à la vision (`Idées à implémenter.txt`) : MOTO AI reste légère/logique/déterministe mais **pilote un vrai modèle local** (Ollama/LM Studio), avec gestion des tokens/contextes/buffers/erreurs, timeout configurable, fallback automatique et journalisation.
+
+Respect strict des règles : **IA = pure logique** (aucune dépendance UI/Installer/SignTool), méthodes < 40 lignes, `_camelCase`, XML docs, settings data-driven (1 ligne = 1 paramètre), pas de LINQ dans les boucles critiques.
+
+---
+
+## 📄 `Moto.Core/Settings/SettingsCatalog.LocalAi.cs`
+
+```csharp
+namespace Moto.Core.Settings;
+
+public partial class SettingsCatalog
+{
+    public LocalAiSettings LocalAi { get; } = new();
+
+    public partial class LocalAiSettings
+    {
+        // 1 ligne = 1 paramètre
+        public SettingItem<bool> Enabled { get; } = new("ai.local.enabled", true, "Active l'orchestration IA locale");
+        public SettingItem<string> Provider { get; } = new("ai.local.provider", "ollama", "Runtime IA local (ollama / lmstudio)");
+        public SettingItem<string> OllamaUrl { get; } = new("ai.local.ollamaUrl", "http://localhost:11434", "URL du serveur Ollama");
+        public SettingItem<string> ModelName { get; } = new("ai.local.modelName", "qwen2.5-coder:1.5b", "Modèle local à utiliser");
+        public SettingItem<int> TimeoutSec { get; } = new("ai.local.timeoutSec", 30, "Timeout par appel (secondes)");
+        public SettingItem<int> MaxTokens { get; } = new("ai.local.maxTokens", 512, "Tokens max par réponse");
+        public SettingItem<double> Temperature { get; } = new("ai.local.temperature", 0.2, "Température de génération");
+    }
+}
+```
+
+---
+
+## 📄 `Moto.Core/AI/Embedded/LocalModelContracts.cs`
+
+```csharp
+// Moto.Core/AI/Embedded/LocalModelContracts.cs
+using System.Threading;
+using System.Threading.Tasks;
+
+namespace Moto.Core.AI.Embedded;
+
+/// <summary>Requête envoyée à un runtime IA local.</summary>
+public sealed record ModelRequest
+{
+    public string Prompt { get; init; } = "";
+    public string SystemPrompt { get; init; } = "";
+    public int MaxTokens { get; init; } = 512;
+    public double Temperature { get; init; } = 0.2;
+}
+
+/// <summary>Réponse d'un runtime IA local (tokens + temps + provenance).</summary>
+public sealed record ModelResponse
+{
+    public bool Success { get; init; }
+    public string Text { get; init; } = "";
+    public int PromptTokens { get; init; }
+    public int CompletionTokens { get; init; }
+    public string Provider { get; init; } = "";
+    public long ElapsedMs { get; init; }
+    public string? Error { get; init; }
+
+    public static ModelResponse Ok(string text, string provider,
+        int promptTokens = 0, int completionTokens = 0)
+        => new()
+        {
+            Success = true,
+            Text = text,
+            Provider = provider,
+            PromptTokens = promptTokens,
+            CompletionTokens = completionTokens
+        };
+
+    public static ModelResponse Fail(string error, string provider = "")
+        => new() { Success = false, Error = error, Provider = provider };
+}
+
+/// <summary>Abstraction d'un runtime IA local (Ollama, LM Studio, embarqué…).</summary>
+public interface ILocalModelRuntime
+{
+    string Name { get; }
+    Task<bool> IsAvailableAsync(CancellationToken ct);
+    Task<ModelResponse> GenerateAsync(ModelRequest request, CancellationToken ct);
+}
+```
+
+---
+
+## 📄 `Moto.Core/AI/Embedded/OllamaLocalRuntime.cs`
+
+```csharp
+// Moto.Core/AI/Embedded/OllamaLocalRuntime.cs
+using System.Net.Http;
+using System.Net.Http.Json;
+using System.Text.Json;
+using System.Threading;
+using System.Threading.Tasks;
+using Moto.Core.Settings;
+
+namespace Moto.Core.AI.Embedded;
+
+/// <summary>Runtime local Ollama (HTTP localhost:11434).</summary>
+public sealed class OllamaLocalRuntime : ILocalModelRuntime
+{
+    private static readonly HttpClient Http = new();
+    private readonly SettingsEngine _settings;
+
+    public string Name => "ollama";
+
+    public OllamaLocalRuntime(SettingsEngine settings)
+    {
+        _settings = settings;
+    }
+
+    public async Task<bool> IsAvailableAsync(CancellationToken ct)
+    {
+        try
+        {
+            var url = _settings.Shared.LocalAi.OllamaUrl.Value;
+            var resp = await Http.GetAsync($"{url}/api/tags", ct);
+            return resp.IsSuccessStatusCode;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    public async Task<ModelResponse> GenerateAsync(ModelRequest request, CancellationToken ct)
+    {
+        var url = _settings.Shared.LocalAi.OllamaUrl.Value;
+        var model = _settings.Shared.LocalAi.ModelName.Value;
+
+        var payload = new
+        {
+            model,
+            prompt = request.Prompt,
+            system = request.SystemPrompt,
+            stream = false,
+            options = new { num_predict = request.MaxTokens, temperature = request.Temperature }
+        };
+
+        var resp = await Http.PostAsJsonAsync($"{url}/api/generate", payload, ct);
+        resp.EnsureSuccessStatusCode();
+
+        var json = await resp.Content.ReadAsStringAsync(ct);
+        using var doc = JsonDocument.Parse(json);
+        var root = doc.RootElement;
+
+        var text = root.TryGetProperty("response", out var r) ? r.GetString() ?? "" : "";
+        int promptTokens = root.TryGetProperty("prompt_eval_count", out var p) ? p.GetInt32() : 0;
+        int completionTokens = root.TryGetProperty("eval_count", out var c) ? c.GetInt32() : 0;
+
+        return ModelResponse.Ok(text, Name, promptTokens, completionTokens);
+    }
+}
+```
+
+---
+
+## 📄 `Moto.Core/AI/Embedded/LocalModelService.cs`
+
+```csharp
+// Moto.Core/AI/Embedded/LocalModelService.cs
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Threading;
+using System.Threading.Tasks;
+using Moto.Core.Logging;
+using Moto.Core.Settings;
+
+namespace Moto.Core.AI.Embedded;
+
+/// <summary>
+/// MOTO AI Tier 31→32 — Orchestrateur IA local.
+/// Pilote un ou plusieurs runtimes locaux avec timeout configurable,
+/// fallback automatique et journalisation des tokens/temps.
+/// Pure logique : aucune dépendance vers UI / Installer / SignTool.
+/// </summary>
+public sealed class LocalModelService
+{
+    private readonly List<ILocalModelRuntime> _runtimes = new();
+    private readonly SettingsEngine _settings;
+    private readonly StructuredLogCollector _log;
+    private readonly object _statsLock = new();
+
+    private int _totalCalls;
+    private int _totalPromptTokens;
+    private int _totalCompletionTokens;
+    private long _totalElapsedMs;
+
+    public LocalModelService(SettingsEngine settings, StructuredLogCollector log)
+    {
+        _settings = settings;
+        _log = log;
+    }
+
+    /// <summary>Ajoute un runtime local (ordre = priorité de fallback).</summary>
+    public void RegisterRuntime(ILocalModelRuntime runtime) => _runtimes.Add(runtime);
+
+    /// <summary>Génère une réponse en essayant les runtimes dans l'ordre (fallback).</summary>
+    public async Task<ModelResponse> GenerateAsync(ModelRequest request, CancellationToken ct = default)
+    {
+        if (!_settings.Shared.LocalAi.Enabled.Value)
+            return ModelResponse.Fail("IA locale désactivée.");
+
+        using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
+        cts.CancelAfter(TimeSpan.FromSeconds(_settings.Shared.LocalAi.TimeoutSec.Value));
+
+        foreach (var runtime in _runtimes)
+        {
+            var result = await TryRuntimeAsync(runtime, request, cts.Token);
+            if (result.Success) return result;
+        }
+        return ModelResponse.Fail("Aucun runtime IA local disponible.");
+    }
+
+    /// <summary>Statistiques cumulées (appels, tokens, temps).</summary>
+    public LocalModelStats GetStats()
+    {
+        lock (_statsLock)
+        {
+            return new LocalModelStats
+            {
+                TotalCalls = _totalCalls,
+                TotalPromptTokens = _totalPromptTokens,
+                TotalCompletionTokens = _totalCompletionTokens,
+                TotalElapsedMs = _totalElapsedMs
+            };
+        }
+    }
+
+    private async Task<ModelResponse> TryRuntimeAsync(
+        ILocalModelRuntime runtime, ModelRequest request, CancellationToken ct)
+    {
+        var sw = Stopwatch.StartNew();
+        try
+        {
+            if (!await runtime.IsAvailableAsync(ct))
+                return ModelResponse.Fail("Runtime indisponible.", runtime.Name);
+
+            var response = await runtime.GenerateAsync(request, ct);
+            sw.Stop();
+            Record(runtime.Name, response, sw.ElapsedMilliseconds);
+            return response with { ElapsedMs = sw.ElapsedMilliseconds };
+        }
+        catch (Exception ex)
+        {
+            sw.Stop();
+            _log.Warning("LocalModelService", $"Échec runtime {runtime.Name}", new { ex.Message });
+            return ModelResponse.Fail(ex.Message, runtime.Name);
+        }
+    }
+
+    private void Record(string provider, ModelResponse response, long elapsedMs)
+    {
+        lock (_statsLock)
+        {
+            _totalCalls++;
+            _totalPromptTokens += response.PromptTokens;
+            _totalCompletionTokens += response.CompletionTokens;
+            _totalElapsedMs += elapsedMs;
+        }
+        _log.Info("LocalModelService", "Appel IA local", new
+        {
+            provider,
+            elapsedMs,
+            response.PromptTokens,
+            response.CompletionTokens
+        });
+    }
+}
+
+/// <summary>Statistiques cumulées de l'orchestrateur.</summary>
+public sealed class LocalModelStats
+{
+    public int TotalCalls { get; init; }
+    public int TotalPromptTokens { get; init; }
+    public int TotalCompletionTokens { get; init; }
+    public long TotalElapsedMs { get; init; }
+}
+```
+
+---
+
+## 🔌 Enregistrement DI (additif)
+
+À insérer dans `RegisterMotoServices` (section IA embarquée) :
+
+```csharp
+// ★ Tier 31→32 : Orchestration IA locale
+services.AddSingleton<ILocalModelRuntime, OllamaLocalRuntime>();
+services.AddSingleton<LocalModelService>(sp =>
+{
+    var svc = new LocalModelService(
+        sp.GetRequiredService<SettingsEngine>(),
+        sp.GetRequiredService<StructuredLogCollector>());
+    foreach (var rt in sp.GetServices<ILocalModelRuntime>())
+        svc.RegisterRuntime(rt);
+    return svc;
+});
+```
+
+---
+
+## 🖥️ `Moto.Editor/Views/LocalAiSettingsView.xaml` (Paramètres → IA Locale)
+
+```xml
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Moto.Editor.Views.LocalAiSettingsView">
+    <VerticalStackLayout Spacing="12" Padding="16">
+        <Label Text="🧠 IA Locale" FontSize="18" FontAttributes="Bold" />
+
+        <Grid ColumnDefinitions="*,Auto">
+            <Label Text="Activer l'IA locale" VerticalOptions="Center" />
+            <Switch x:Name="EnabledSwitch" Grid.Column="1" Toggled="OnChanged" />
+        </Grid>
+
+        <Label Text="URL Ollama" FontSize="12" Opacity="0.7" />
+        <Entry x:Name="UrlEntry" TextChanged="OnChanged" />
+
+        <Label Text="Modèle" FontSize="12" Opacity="0.7" />
+        <Entry x:Name="ModelEntry" TextChanged="OnChanged" />
+
+        <Grid ColumnDefinitions="*,Auto">
+            <Label Text="Timeout (s)" VerticalOptions="Center" />
+            <Entry x:Name="TimeoutEntry" Grid.Column="1" WidthRequest="70"
+                   Keyboard="Numeric" TextChanged="OnChanged" />
+        </Grid>
+
+        <Label x:Name="StatsLabel" FontSize="11" Opacity="0.6" />
+    </VerticalStackLayout>
+</ContentView>
+```
+
+```csharp
+// Moto.Editor/Views/LocalAiSettingsView.xaml.cs
+using System;
+using Moto.Core.AI.Embedded;
+using Moto.Core.Settings;
+
+namespace Moto.Editor.Views;
+
+/// <summary>Écran « Paramètres → IA Locale » (liaison fine vers SettingsEngine).</summary>
+public partial class LocalAiSettingsView : ContentView
+{
+    private readonly SettingsEngine _settings;
+    private readonly LocalModelService _models;
+    private bool _loading;
+
+    public LocalAiSettingsView(LocalModelService models)
+    {
+        InitializeComponent();
+        _settings = SettingsEngine.Shared;
+        _models = models;
+        Load();
+    }
+
+    private void Load()
+    {
+        _loading = true;
+        var ai = _settings.Shared.LocalAi;
+        EnabledSwitch.IsToggled = ai.Enabled.Value;
+        UrlEntry.Text = ai.OllamaUrl.Value;
+        ModelEntry.Text = ai.ModelName.Value;
+        TimeoutEntry.Text = ai.TimeoutSec.Value.ToString();
+        RefreshStats();
+        _loading = false;
+    }
+
+    private void OnChanged(object? sender, EventArgs e)
+    {
+        if (_loading) return;
+        var ai = _settings.Shared.LocalAi;
+        ai.Enabled.Value = EnabledSwitch.IsToggled;
+        ai.OllamaUrl.Value = UrlEntry.Text;
+        ai.ModelName.Value = ModelEntry.Text;
+        if (int.TryParse(TimeoutEntry.Text, out int t)) ai.TimeoutSec.Value = t;
+        RefreshStats();
+    }
+
+    private void RefreshStats()
+    {
+        var s = _models.GetStats();
+        StatsLabel.Text = $"Appels : {s.TotalCalls} · Tokens : {s.TotalCompletionTokens} · {s.TotalElapsedMs} ms";
+    }
+}
+```
+
+Enregistrement de la vue (additif) :
+```csharp
+services.AddTransient<LocalAiSettingsView>();
+```
+
+---
+
+## 🧪 `Moto.Tests/AI/LocalModelServiceTests.cs`
+
+```csharp
+// Moto.Tests/AI/LocalModelServiceTests.cs
+using System.Threading;
+using System.Threading.Tasks;
+using Moto.Core.AI.Embedded;
+using Moto.Core.Logging;
+using Moto.Core.Settings;
+using Xunit;
+
+namespace Moto.Tests.AI;
+
+public class LocalModelServiceTests
+{
+    private sealed class FakeRuntime : ILocalModelRuntime
+    {
+        private readonly bool _available;
+        private readonly ModelResponse _response;
+        public string Name { get; }
+        public int Calls { get; private set; }
+
+        public FakeRuntime(string name, bool available, ModelResponse response)
+        {
+            Name = name;
+            _available = available;
+            _response = response;
+        }
+
+        public Task<bool> IsAvailableAsync(CancellationToken ct) => Task.FromResult(_available);
+
+        public Task<ModelResponse> GenerateAsync(ModelRequest request, CancellationToken ct)
+        {
+            Calls++;
+            return Task.FromResult(_response);
+        }
+    }
+
+    private static LocalModelService Create()
+        => new(SettingsEngine.Shared, new StructuredLogCollector());
+
+    [Fact]
+    public async Task Generate_Utilise_Le_Premier_Runtime_Disponible()
+    {
+        var svc = Create();
+        var down = new FakeRuntime("down", false, ModelResponse.Fail("ko", "down"));
+        var up = new FakeRuntime("up", true, ModelResponse.Ok("ok", "up"));
+        svc.RegisterRuntime(down);
+        svc.RegisterRuntime(up);
+
+        var result = await svc.GenerateAsync(new ModelRequest { Prompt = "test" });
+
+        Assert.True(result.Success);
+        Assert.Equal("up", result.Provider);
+        Assert.Equal(0, down.Calls);
+    }
+
+    [Fact]
+    public async Task Generate_Fallback_Si_Premier_Echoue()
+    {
+        var svc = Create();
+        var failing = new FakeRuntime("a", true, ModelResponse.Fail("erreur", "a"));
+        var backup = new FakeRuntime("b", true, ModelResponse.Ok("ok", "b"));
+        svc.RegisterRuntime(failing);
+        svc.RegisterRuntime(backup);
+
+        var result = await svc.GenerateAsync(new ModelRequest { Prompt = "test" });
+
+        Assert.True(result.Success);
+        Assert.Equal("b", result.Provider);
+    }
+
+    [Fact]
+    public async Task Generate_Echec_Si_Aucun_Runtime()
+    {
+        var svc = Create();
+        var result = await svc.GenerateAsync(new ModelRequest { Prompt = "test" });
+        Assert.False(result.Success);
+    }
+}
+```
+
+---
+
+## 📋 Conformité & intégration
+
+| Règle | Respectée |
+|---|---|
+| IA = pure logique (pas d'UI/Installer/SignTool) | ✅ |
+| Timeout configurable + fallback automatique | ✅ |
+| Journalisation tokens + temps | ✅ (`StructuredLogCollector` + `GetStats`) |
+| Settings data-driven (Paramètres → IA Locale) | ✅ |
+| Méthodes < 40 lignes, XML docs | ✅ |
+| Additif, aucun moteur modifié | ✅ |
+
+**Note d'architecture** : le fallback « si le modèle local échoue, Claude Code reprend » est géré **au niveau superviseur** (`MotoAiKernel` / orchestration Tier 32), pas dans `LocalModelService` qui reste déterministe. `LocalModelService` peut être branché comme provider de `MotoAiKernel` sans rien casser.
+
+Prochaine étape possible : **brancher `LocalModelService` dans `MotoAiKernel`** (comme provider prioritaire) ou **`ModelBridge`** (connexion modèles locaux + distants). Lequel voulez-vous ?

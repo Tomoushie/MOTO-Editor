@@ -1,0 +1,46 @@
+Excellente initiative ! L'extraction de **Zed (v1.17.2)** est une mine d'or architecturale. Zed est actuellement la référence absolue en matière de performance et d'intégration IA dans les éditeurs modernes.
+
+En analysant les fichiers de configuration extraits (`typos.toml`, `clippy.toml`, `flake.nix`, etc.), on découvre les **secrets de fabrication** de Zed. Voici ce que ces fichiers révèlent et **comment nous pouvons transposer ces concepts dans MOTO Editor** (sans plagier le code Rust, mais en adaptant les concepts en C#/.NET 8, 100 % fait maison).
+
+---
+
+## 🕵️ Analyse de l'architecture de Zed (via les configs)
+
+### 1. `sum_tree` et la gestion du texte (Performance extrême)
+* **Ce que fait Zed** : Le fichier `typos.toml` exclut `sum_tree`. Zed n'utilise pas de simples `string` pour le texte, mais une structure arborescente (SumTree / B-Tree) où chaque nœud stocke la "somme" des métriques (nombre de lignes, octets). Cela permet des éditions en **O(log n)** et de gérer des fichiers de plusieurs Go sans lag.
+* **Transposition MOTO (Tier 30)** : Créer un **`PieceTable`** ou une **`Rope`** en C# dans `Moto.Core/Performance/TextBuffer.cs`. Actuellement, MOTO utilise probablement des `StringBuilder` ou des `string` classiques. Un `PieceTable` rendrait l'éditeur instantané, même sur des fichiers de 100 Mo+, et réduirait drastiquement la pression mémoire (GC).
+
+### 2. `multi_buffer` (Le super-pouvoir de l'IA et de la recherche)
+* **Ce que fait Zed** : Zed traite plusieurs fichiers comme un **seul buffer continu**. Quand vous faites une recherche globale ou un refactor, les extraits de 10 fichiers différents s'affichent dans un seul éditeur, et vous pouvez tout modifier d'un coup.
+* **Transposition MOTO (Tier 31)** : Créer un **`MultiBufferEngine`** dans `Moto.Core`. Au lieu d'ouvrir 10 onglets pour un "Find All References", le `ContextEngine` ou le `RefactorEngine` pourrait générer un *MultiBuffer* virtuel. L'IA pourrait ainsi proposer des modifications跨-fichiers (cross-files) en une seule inférence.
+
+### 3. `edit_prediction` et `agent_ui` (L'UX de l'IA)
+* **Ce que fait Zed** : Zed a des crates dédiés (`edit_prediction`, `agent_ui`). Ils utilisent des noms de machines à écrire vintage pour les "branches" d'agents IA, et leur système de *ghost text* (prédiction) est profondément intégré au curseur (multi-ligne, avec Tab pour accepter).
+* **Transposition MOTO (Tier 31)** :
+  - Améliorer le `SpeculativeDecoder` pour générer du **Ghost Text multi-ligne** avec un rendu semi-transparent direct dans `EditorPaneView`.
+  - Donner une **identité visuelle thématique** à chacun de vos 13 agents spécialisés (`ISpecializedAgent`) dans l'UI (ex: le `SecurityHintAgent` a un thème terminal vert, le `TestSkeletonAgent` a un thème blueprint).
+
+### 4. `collab` et `livekit` (Collaboration temps réel)
+* **Ce que fait Zed** : Zed intègre LiveKit (WebRTC) pour le partage d'écran/voix et utilise un serveur `collab` basé sur des CRDT (Conflict-free Replicated Data Types).
+* **Transposition MOTO (Tier 31)** : MOTO a déjà `CollabSession` et `PatchEngine`. Nous pourrions ajouter un **`CrdtTextBuffer`** (basé sur l'algorithme Yjs ou Automerge, réimplémenté en C#) pour permettre l'édition simultanée sans serveur central lourd.
+
+### 5. CI / Qualité du code (`typos`, `lychee`, `clippy`)
+* **Ce que fait Zed** : Ils utilisent `typos-cli` pour chasser les fautes d'orthographe dans le code et `lychee` pour vérifier les liens morts dans la doc.
+* **Transposition MOTO (DevOps)** : Intégrer ces deux outils (qui sont des binaires standalone, donc sans dépendance NuGet) dans votre pipeline GitHub Actions (`ci-multiplatform.yml`) et dans le `PerfGateService`.
+
+---
+
+## 🚀 Plan d'action : Qu'est-ce qu'on implémente ?
+
+Voici les 3 chantiers les plus impactants que je peux vous générer dès maintenant, en respectant strictement vos règles (additif, C# 12, sans dépendance externe, pur C#) :
+
+### Option A : Le `PieceTable` (Performance Tier 30) 🏎️
+Je génère `Moto.Core/Performance/PieceTableBuffer.cs`. C'est la fondation qui remplacera (ou wrappera) le stockage texte actuel pour garantir **0 ms de latence** sur les gros fichiers et un historique Undo/Redo infini sans consommation RAM.
+
+### Option B : Le `MultiBufferEngine` (IA Tier 31) 🧠
+Je génère `Moto.Core/AI/Workspace/MultiBufferEngine.cs`. Il permettra au `ContextEngine` d'agréger des extraits de plusieurs fichiers en une seule "vue" pour que l'IA puisse refactoriser tout un module d'un seul coup, et à l'UI de l'afficher proprement.
+
+### Option C : L'identité des Agents (`AgentUiTheme`) 🎨
+Je génère un système de "Thèmes d'Agents" qui mappe chaque `ISpecializedAgent` (ex: `CodeHealthAgent`, `CommitMessageAgent`) à un style visuel et sonore spécifique dans l'interface, inspiré de l'approche "Typewriter" de Zed.
+
+**Lequel de ces 3 concepts (A, B ou C) voulez-vous que j'implémente en premier pour MOTO Editor ?** (Ou les trois, dans l'ordre de votre choix !)

@@ -1,0 +1,384 @@
+Parfait, voici les **options B et C livrées ensemble**, conformes au style officiel (XML docs, < 40 lignes, `_camelCase`, pas de logique dans les constructeurs, IA = pure logique sans dépendance UI).
+
+---
+
+## 🧠 Option B — `MultiBufferEngine` (Tier 31, Moto.Core)
+
+### `Moto.Core/AI/Workspace/MultiBufferEngine.cs`
+
+```csharp
+// Moto.Core/AI/Workspace/MultiBufferEngine.cs
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Text;
+
+namespace Moto.Core.AI.Workspace;
+
+/// <summary>Extrait d'un fichier source intégré à un MultiBuffer.</summary>
+public sealed class BufferExcerpt
+{
+    public string FilePath { get; init; } = string.Empty;
+    public int StartLine { get; init; }
+    public int EndLine { get; init; }
+    public string Content { get; init; } = string.Empty;
+    public int LineCount { get; init; }
+}
+
+/// <summary>Correspondance entre la vue virtuelle et le fichier réel.</summary>
+public readonly struct BufferPosition
+{
+    public BufferPosition(string filePath, int line)
+    {
+        FilePath = filePath;
+        Line = line;
+    }
+
+    public string FilePath { get; }
+    public int Line { get; }
+}
+
+/// <summary>Modification proposée par l'IA, appliquée par l'Editor.</summary>
+public sealed class ProposedEdit
+{
+    public string FilePath { get; init; } = string.Empty;
+    public int StartLine { get; init; }
+    public int EndLine { get; init; }
+    public string Replacement { get; init; } = string.Empty;
+}
+
+/// <summary>Vue virtuelle agrégeant plusieurs extraits en un buffer continu.</summary>
+public sealed class MultiBuffer
+{
+    public List<BufferExcerpt> Excerpts { get; } = new();
+    public string CombinedText { get; internal set; } = string.Empty;
+}
+
+/// <summary>
+/// MOTO AI Tier 31 — MultiBuffer : agrège plusieurs fichiers en une vue continue
+/// pour que l'IA lise et propose des modifications cross-files en une seule inférence.
+/// Pure logique : aucune dépendance vers UI / Installer / SignTool.
+/// </summary>
+public sealed class MultiBufferEngine
+{
+    private const string Separator = "\n// ── ── ──\n";
+
+    /// <summary>Construit un MultiBuffer à partir de fichiers complets.</summary>
+    public MultiBuffer CreateFromFiles(IEnumerable<string> paths)
+    {
+        var buffer = new MultiBuffer();
+        foreach (var path in paths)
+            AddFileExcerpt(buffer, path);
+        RebuildCombinedText(buffer);
+        return buffer;
+    }
+
+    /// <summary>Construit un MultiBuffer à partir des zones contenant un terme.</summary>
+    public MultiBuffer CreateFromSearch(string query, IEnumerable<string> paths, int contextLines = 3)
+    {
+        var buffer = new MultiBuffer();
+        foreach (var path in paths)
+            AddSearchExcerpts(buffer, path, query, contextLines);
+        RebuildCombinedText(buffer);
+        return buffer;
+    }
+
+    /// <summary>Mappe une ligne virtuelle (vue) vers fichier + ligne réelle.</summary>
+    public BufferPosition MapVirtualLine(MultiBuffer buffer, int virtualLine)
+    {
+        int cursor = 0;
+        foreach (var excerpt in buffer.Excerpts)
+        {
+            if (virtualLine < cursor + excerpt.LineCount)
+                return new BufferPosition(excerpt.FilePath, excerpt.StartLine + (virtualLine - cursor));
+            cursor += excerpt.LineCount;
+        }
+        return new BufferPosition(string.Empty, 0);
+    }
+
+    /// <summary>Applique des modifications proposées (groupées par fichier, bas→haut).</summary>
+    public int ApplyEdits(IEnumerable<ProposedEdit> edits)
+    {
+        var byFile = GroupByFile(edits);
+        int applied = 0;
+        foreach (var kv in byFile)
+            applied += ApplyFileEdits(kv.Key, kv.Value);
+        return applied;
+    }
+
+    private static void AddFileExcerpt(MultiBuffer buffer, string path)
+    {
+        if (!File.Exists(path)) return;
+        var lines = ReadLines(path);
+        if (lines.Count == 0) return;
+        buffer.Excerpts.Add(BuildExcerpt(path, lines, 0, lines.Count - 1));
+    }
+
+    private static void AddSearchExcerpts(MultiBuffer buffer, string path, string query, int context)
+    {
+        if (!File.Exists(path)) return;
+        var lines = ReadLines(path);
+        int i = 0;
+        while (i < lines.Count)
+        {
+            if (lines[i].IndexOf(query, StringComparison.OrdinalIgnoreCase) >= 0)
+            {
+                int start = Math.Max(0, i - context);
+                int end = Math.Min(lines.Count - 1, i + context);
+                buffer.Excerpts.Add(BuildExcerpt(path, lines, start, end));
+                i = end + 1;
+            }
+            else i++;
+        }
+    }
+
+    private static BufferExcerpt BuildExcerpt(string path, List<string> lines, int start, int end)
+    {
+        var sb = new StringBuilder();
+        for (int i = start; i <= end; i++)
+        {
+            sb.Append(lines[i]);
+            sb.Append('\n');
+        }
+        return new BufferExcerpt
+        {
+            FilePath = path,
+            StartLine = start,
+            EndLine = end,
+            Content = sb.ToString(),
+            LineCount = end - start + 1
+        };
+    }
+
+    private static void RebuildCombinedText(MultiBuffer buffer)
+    {
+        var sb = new StringBuilder();
+        foreach (var excerpt in buffer.Excerpts)
+        {
+            sb.Append(excerpt.Content);
+            sb.Append(Separator);
+        }
+        buffer.CombinedText = sb.ToString();
+    }
+
+    private static List<string> ReadLines(string path)
+    {
+        var result = new List<string>();
+        using var reader = new StreamReader(path);
+        string? line;
+        while ((line = reader.ReadLine()) != null)
+            result.Add(line);
+        return result;
+    }
+
+    private static Dictionary<string, List<ProposedEdit>> GroupByFile(IEnumerable<ProposedEdit> edits)
+    {
+        var byFile = new Dictionary<string, List<ProposedEdit>>();
+        foreach (var edit in edits)
+        {
+            if (!byFile.TryGetValue(edit.FilePath, out var list))
+            {
+                list = new List<ProposedEdit>();
+                byFile[edit.FilePath] = list;
+            }
+            list.Add(edit);
+        }
+        return byFile;
+    }
+
+    private static int ApplyFileEdits(string path, List<ProposedEdit> edits)
+    {
+        if (!File.Exists(path)) return 0;
+        var lines = ReadLines(path);
+        edits.Sort((a, b) => b.StartLine.CompareTo(a.StartLine));
+        int applied = 0;
+        foreach (var edit in edits)
+        {
+            if (edit.StartLine < 0 || edit.EndLine >= lines.Count) continue;
+            var replacement = edit.Replacement.Split('\n');
+            lines.RemoveRange(edit.StartLine, edit.EndLine - edit.StartLine + 1);
+            lines.InsertRange(edit.StartLine, replacement);
+            applied++;
+        }
+        File.WriteAllLines(path, lines);
+        return applied;
+    }
+}
+```
+
+### `Moto.Editor/Views/MultiBufferView.xaml` + `.cs` (code-behind léger)
+
+```xml
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Moto.Editor.Views.MultiBufferView">
+    <Grid RowDefinitions="Auto,*,Auto" Padding="8">
+        <Label x:Name="TitleLabel" FontSize="14" FontAttributes="Bold" />
+        <Editor x:Name="BufferEditor" Grid.Row="1"
+                IsReadOnly="True" FontFamily="Consolas" FontSize="12"
+                Background="{DynamicResource BgPanel}" />
+        <Label x:Name="PositionLabel" Grid.Row="2" FontSize="11" Opacity="0.7" />
+    </Grid>
+</ContentView>
+```
+
+```csharp
+// Moto.Editor/Views/MultiBufferView.xaml.cs
+using System.IO;
+using Moto.Core.AI.Workspace;
+
+namespace Moto.Editor.Views;
+
+/// <summary>Affiche un MultiBuffer et mappe la sélection vers le fichier réel.</summary>
+public partial class MultiBufferView : ContentView
+{
+    private readonly MultiBufferEngine _engine;
+    private MultiBuffer? _buffer;
+
+    public MultiBufferView(MultiBufferEngine engine)
+    {
+        InitializeComponent();
+        _engine = engine;
+    }
+
+    /// <summary>Affiche un buffer multi-fichiers.</summary>
+    public void ShowBuffer(MultiBuffer buffer, string title)
+    {
+        _buffer = buffer;
+        TitleLabel.Text = title;
+        BufferEditor.Text = buffer.CombinedText;
+        PositionLabel.Text = $"{buffer.Excerpts.Count} extrait(s)";
+    }
+
+    /// <summary>Affiche la position réelle d'une ligne virtuelle.</summary>
+    public void ShowVirtualLine(int virtualLine)
+    {
+        if (_buffer == null) return;
+        var pos = _engine.MapVirtualLine(_buffer, virtualLine);
+        PositionLabel.Text = $"{Path.GetFileName(pos.FilePath)} : ligne {pos.Line + 1}";
+    }
+}
+```
+
+---
+
+## 🎨 Option C — Identité visuelle des agents (`AgentUiTheme`)
+
+### `Moto.Editor/Services/AgentUiThemeService.cs`
+
+```csharp
+// Moto.Editor/Services/AgentUiThemeService.cs
+using System.Collections.Generic;
+
+namespace Moto.Editor.Services;
+
+/// <summary>Descripteur visuel d'un agent spécialisé.</summary>
+public sealed class AgentTheme
+{
+    public string AgentId { get; init; } = string.Empty;
+    public string DisplayName { get; init; } = string.Empty;
+    public string Icon { get; init; } = "🤖";
+    public string AccentHex { get; init; } = "#2E9BFF";
+    public string BackgroundHex { get; init; } = "#1E1F24";
+    public string FontFamily { get; init; } = "Courier New";
+}
+
+/// <summary>
+/// Mappe chaque ISpecializedAgent vers une identité visuelle distincte
+/// (icône + accent + police rétro). Données pures, consommées par l'UI.
+/// </summary>
+public sealed class AgentUiThemeService
+{
+    private readonly Dictionary<string, AgentTheme> _themes = new();
+    private readonly AgentTheme _default;
+
+    public AgentUiThemeService()
+    {
+        _default = new AgentTheme { AgentId = "*", DisplayName = "Agent" };
+        RegisterDefaults();
+    }
+
+    /// <summary>Retourne le thème d'un agent (ou le thème par défaut).</summary>
+    public AgentTheme GetTheme(string agentId)
+        => _themes.TryGetValue(agentId, out var theme) ? theme : _default;
+
+    /// <summary>Enregistre ou remplace un thème.</summary>
+    public void Register(AgentTheme theme) => _themes[theme.AgentId] = theme;
+
+    private void RegisterDefaults()
+    {
+        Add("agent.tests.micro",      "Générateur de tests",   "🧪", "#4EC9B0");
+        Add("agent.explain.change",   "Expliqueur de changes", "💡", "#DCDCAA");
+        Add("agent.commit.message",   "Rédacteur de commits",  "📝", "#9CDC9C");
+        Add("agent.search.summarizer","Résumeur de recherche", "🔎", "#569CD6");
+        Add("agent.snippet.generator","Générateur de snippets","✂️", "#C586C0");
+        Add("agent.changelog",        "Changelog",             "📒", "#CE9178");
+        Add("agent.security.hint",    "Garde sécurité",        "🛡️", "#F44747");
+        Add("agent.privacy.scanner",  "Scanner privacy",       "🔒", "#E07BE0");
+        Add("agent.dependency.risk",  "Audit dépendances",     "📦", "#D7BA7D");
+        Add("agent.format.policy",    "Police de style",       "🎨", "#4FC1FF");
+        Add("agent.todo.assistant",   "Assistant TODO",        "✅", "#6A9955");
+        Add("agent.test.flakiness",   "Détecteur flaky",       "🎲", "#D16969");
+        Add("agent.code.health",      "Santé du code",         "🫀", "#B5CEA8");
+        Add("agent.cost.estimator",   "Estimateur de coût",    "⚖️", "#BD63C5");
+    }
+
+    private void Add(string id, string name, string icon, string accent)
+    {
+        _themes[id] = new AgentTheme
+        {
+            AgentId = id,
+            DisplayName = name,
+            Icon = icon,
+            AccentHex = accent
+        };
+    }
+}
+```
+
+### Exemple d'utilisation dans un panneau (application du thème)
+
+```csharp
+// Dans un panneau qui affiche la sortie d'un agent :
+var theme = _themeService.GetTheme(agent.Descriptor.Id);
+HeaderIcon.Text = theme.Icon;
+HeaderTitle.Text = theme.DisplayName;
+HeaderTitle.TextColor = Color.FromArgb(theme.AccentHex);
+OutputEditor.FontFamily = theme.FontFamily;
+```
+
+---
+
+## 🔌 Enregistrement DI (additif)
+
+À insérer dans `RegisterMotoServices` (les namespaces `Moto.Core.AI.Workspace` et `Moto.Editor.Services` sont déjà importés) :
+
+```csharp
+// ★ Tier 31 : MultiBuffer (agrégation multi-fichiers pour l'IA)
+services.AddSingleton<MultiBufferEngine>();
+services.AddTransient<MultiBufferView>();
+
+// ★ Identité visuelle des agents spécialisés
+services.AddSingleton<AgentUiThemeService>();
+```
+
+---
+
+## 📋 Conformité
+
+| Règle | Respectée |
+|---|---|
+| Additif, aucun moteur modifié | ✅ |
+| IA = pure logique (MultiBufferEngine sans UI) | ✅ |
+| Méthodes < 40 lignes, pas de LINQ dans boucles critiques | ✅ |
+| XML docs sur classes/méthodes publiques | ✅ |
+| Pas de logique dans les constructeurs | ✅ |
+| Code-behind léger (MultiBufferView) | ✅ |
+
+**Prochaines étapes possibles** :
+1. **Intégration UI du MultiBuffer** dans `MainPage.Panels.cs` (panneau flottant)
+2. **Brancher `AgentUiThemeService`** sur les panneaux d'agents existants
+3. **Option suivante** : `LocalModelService` (orchestration IA locale, Tier 31→32)
+
+Laquelle voulez-vous ?
