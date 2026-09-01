@@ -40,7 +40,7 @@
             <CollectionView Grid.Row="4" x:Name="SuggestionsList" HeightRequest="220">
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
-                        <Border StrokeShape="RoundRectangle 6" BackgroundColor="#202126"
+                        <Border StrokeShape="RoundRectangle 8" BackgroundColor="#202126"
                                 Padding="8" Margin="0,3">
                             <VerticalStackLayout Spacing="2">
                                 <Label Text="{Binding Title}"

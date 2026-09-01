@@ -25,6 +25,27 @@
     <Color x:Key="MotoLogoBackground">#0B1526</Color>
     <Color x:Key="MotoAccentBlue">#2E9BFF</Color>
 
+    <!-- ★ AJOUT (01/09) : 4 couleurs référencées (DynamicResource) dans 9 écrans
+         secondaires (À propos, tableau de bord DevOps, Marketplace, Git, Revue,
+         Suivi IA, Tableau blanc) mais jamais définies nulle part — trouvé en
+         travaillant sur la cohérence des rayons d'arrondi. Ces écrans rendaient
+         donc, à ces endroits précis, sans fond ni bordure (DynamicResource sur
+         une clé absente ne lève pas d'erreur, elle ne s'applique juste pas).
+         Valeurs choisies en réutilisant la palette déjà existante, par analogie
+         avec l'usage réel ailleurs dans l'appli (jamais de nouvelle teinte
+         inventée) :
+         - MotoCardBackground = BgPanel (déjà le fond "carte/panneau" standard)
+         - MotoCardBorder = BorderCol (déjà la bordure "carte" standard, ex. la
+           carte de stats de l'Accueil)
+         - MotoSubtleBackground = BgHover (déjà utilisé pour un fond légèrement
+           plus clair/discret que BgPanel — ex. petites pastilles/badges)
+         - MotoCanvasBackground = BgSide (déjà le fond le plus sombre/en retrait,
+           utilisé pour les zones "de contenu" comme l'explorateur de fichiers). -->
+    <Color x:Key="MotoCardBackground">#202126</Color>
+    <Color x:Key="MotoCardBorder">#3A3B40</Color>
+    <Color x:Key="MotoSubtleBackground">#2A2C31</Color>
+    <Color x:Key="MotoCanvasBackground">#17181C</Color>
+
     <!-- ★ AJOUT (01/09, direction "Hybride Claude") : séparateur doux, blanc
          semi-transparent au lieu d'un gris plat (#3A3B40) — reste cohérent quel
          que soit le fond derrière, principe emprunté à VS Code (editorGroup.border)

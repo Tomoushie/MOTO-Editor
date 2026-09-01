@@ -107,7 +107,7 @@
         <!-- ============================================================ -->
         <!-- Ligne 2 : Breadcrumb (localisation du fichier)               -->
         <!-- ============================================================ -->
-        <Border Grid.Row="1" StrokeShape="RoundRectangle 6" BackgroundColor="#202126"
+        <Border Grid.Row="1" StrokeShape="RoundRectangle 8" BackgroundColor="#202126"
                 Padding="10,6" Margin="6,4">
             <Grid ColumnDefinitions="*,Auto">
                 <Label Grid.Column="0" x:Name="CrumbLabel"

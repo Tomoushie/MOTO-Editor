@@ -117,7 +117,7 @@
                                  Fluent Icons, codepoints vérifiés visuellement) —
                                  FormattedText/Span nécessaire pour mélanger la police
                                  d'icône et le texte normal dans un même Label. -->
-                            <Border Stroke="{StaticResource BorderCol}" StrokeShape="RoundRectangle 10"
+                            <Border Stroke="{StaticResource BorderCol}" StrokeShape="RoundRectangle 8"
                                     Padding="16,10" BackgroundColor="{StaticResource BgPanel}">
                                 <Label FontSize="13">
                                     <Label.FormattedText>
@@ -131,7 +131,7 @@
                                     <TapGestureRecognizer Tapped="OnLocalChipTapped" />
                                 </Border.GestureRecognizers>
                             </Border>
-                            <Border Stroke="{StaticResource BorderCol}" StrokeShape="RoundRectangle 10"
+                            <Border Stroke="{StaticResource BorderCol}" StrokeShape="RoundRectangle 8"
                                     Padding="16,10" BackgroundColor="{StaticResource BgPanel}">
                                 <Label FontSize="13">
                                     <Label.FormattedText>
@@ -147,7 +147,7 @@
                             </Border>
                             <!-- ★ AJOUT (31/08, point 11) : petit "+" superposé sur le
                                  dossier (glyphes Folder+Add, tous deux déjà vérifiés). -->
-                            <Border Stroke="{StaticResource BorderCol}" StrokeShape="RoundRectangle 10"
+                            <Border Stroke="{StaticResource BorderCol}" StrokeShape="RoundRectangle 8"
                                     Padding="12,10" BackgroundColor="{StaticResource BgPanel}">
                                 <Grid>
                                     <Label Text="{x:Static controls:MotoIcons.Folder}" FontFamily="{x:Static controls:MotoIcons.FontFamily}"

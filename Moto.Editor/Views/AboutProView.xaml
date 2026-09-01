@@ -34,7 +34,7 @@
                 <Border Padding="14" WidthRequest="440"
                         Background="{DynamicResource MotoSubtleBackground}"
                         Stroke="{DynamicResource MotoCardBorder}" StrokeThickness="1">
-                    <Border.StrokeShape><RoundRectangle CornerRadius="10" /></Border.StrokeShape>
+                    <Border.StrokeShape><RoundRectangle CornerRadius="12" /></Border.StrokeShape>
                     <VerticalStackLayout Spacing="6">
                         <Label Text="🧩 Modules IA actifs" FontSize="14" FontAttributes="Bold" />
                         <CollectionView x:Name="ModulesList" HeightRequest="180">
@@ -51,7 +51,7 @@
                 <Border Padding="14" WidthRequest="440"
                         Background="{DynamicResource MotoSubtleBackground}"
                         Stroke="{DynamicResource MotoCardBorder}" StrokeThickness="1">
-                    <Border.StrokeShape><RoundRectangle CornerRadius="10" /></Border.StrokeShape>
+                    <Border.StrokeShape><RoundRectangle CornerRadius="12" /></Border.StrokeShape>
                     <VerticalStackLayout Spacing="4">
                         <Label Text="📊 Statistiques" FontSize="14" FontAttributes="Bold" />
                         <Label x:Name="StatsLabel" FontSize="12" />

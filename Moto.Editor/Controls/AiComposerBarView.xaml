@@ -45,25 +45,25 @@
         <Grid Grid.Row="0" ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,*,Auto,Auto,Auto">
 
             <Border x:Name="MicPopup" Grid.Column="1" IsVisible="False" HorizontalOptions="Start"
-                    Stroke="{StaticResource BorderCol}" StrokeShape="RoundRectangle 10"
+                    Stroke="{StaticResource BorderSoft}" StrokeShape="RoundRectangle 12"
                     BackgroundColor="{StaticResource BgPanel}" Padding="6" WidthRequest="260">
                 <VerticalStackLayout x:Name="MicList" Spacing="1" />
             </Border>
 
             <Border x:Name="ModelPopup" Grid.Column="6" IsVisible="False" HorizontalOptions="End"
-                    Stroke="{StaticResource BorderCol}" StrokeShape="RoundRectangle 10"
+                    Stroke="{StaticResource BorderSoft}" StrokeShape="RoundRectangle 12"
                     BackgroundColor="{StaticResource BgPanel}" Padding="6" WidthRequest="240">
                 <VerticalStackLayout x:Name="ModelList" Spacing="1" />
             </Border>
 
             <Border x:Name="EffortPopup" Grid.Column="7" IsVisible="False" HorizontalOptions="End"
-                    Stroke="{StaticResource BorderCol}" StrokeShape="RoundRectangle 10"
+                    Stroke="{StaticResource BorderSoft}" StrokeShape="RoundRectangle 12"
                     BackgroundColor="{StaticResource BgPanel}" Padding="6" WidthRequest="180">
                 <VerticalStackLayout x:Name="EffortList" Spacing="1" />
             </Border>
 
             <Border x:Name="BudgetPopup" Grid.Column="8" IsVisible="False" HorizontalOptions="End"
-                    Stroke="{StaticResource BorderCol}" StrokeShape="RoundRectangle 10"
+                    Stroke="{StaticResource BorderSoft}" StrokeShape="RoundRectangle 12"
                     BackgroundColor="{StaticResource BgPanel}" Padding="14" WidthRequest="240">
                 <VerticalStackLayout Spacing="6">
                     <Label Text="Token : infini · 100% local" FontSize="12" FontAttributes="Bold" TextColor="{StaticResource Txt1}" />

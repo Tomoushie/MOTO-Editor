@@ -29,7 +29,7 @@
                         SelectionChanged="OnResultSelected">
             <CollectionView.ItemTemplate>
                 <DataTemplate>
-                    <Border StrokeShape="RoundRectangle 6" BackgroundColor="{StaticResource BgHover}"
+                    <Border StrokeShape="RoundRectangle 8" BackgroundColor="{StaticResource BgHover}"
                             Padding="8,6" Margin="0,2">
                         <VerticalStackLayout Spacing="1">
                             <Label Text="{Binding Name}" FontSize="12" TextColor="{StaticResource Txt1}" />

@@ -58,7 +58,7 @@
         <!-- Console output -->
         <Border Grid.Row="4" BackgroundColor="{StaticResource BgSide}"
                 Stroke="{StaticResource BgHover}" StrokeThickness="1"
-                StrokeShape="RoundRectangle 6" Padding="8">
+                StrokeShape="RoundRectangle 8" Padding="8">
             <Label x:Name="OutputLabel" Text="Console de debug" FontSize="10"
                    TextColor="{StaticResource Txt2}" MaxLines="5"/>
         </Border>
