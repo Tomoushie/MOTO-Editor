@@ -272,7 +272,15 @@ namespace Moto.Editor
             // Tom. La colonne 0 est désormais fixe (dock IA, demandé "façon VS Code" à
             // gauche) : l'explorateur ne peut plus docker à gauche sans se superposer
             // au dock IA. Sa colonne (arborescence, à droite) est maintenant fixe.
-            Grid.SetColumn(ExplorerPanel, 2);
+            // ★ CORRECTION (01/09, "changer de côté") : "fixe" ne veut plus dire
+            // "toujours colonne 2" depuis ApplySidePanelLayout (MainPage.Panels.cs) —
+            // un Grid.SetColumn(ExplorerPanel, 2) codé en dur ICI aurait silencieusement
+            // désynchronisé l'explorateur du dock IA (les 2 finissant superposés dans
+            // la même colonne) dès qu'on rouvre les Réglages ou qu'on quitte le mode
+            // plein écran de l'éditeur (OnMaximizeToggled appelle cette méthode) APRÈS
+            // avoir inversé les panneaux. Remplacé par le vrai réappliqueur d'état, qui
+            // replace aussi le dock IA et les 2 poignées de façon cohérente.
+            ApplySidePanelLayout();
         }
 
         private async void OnSettingChanged(string key, object value)

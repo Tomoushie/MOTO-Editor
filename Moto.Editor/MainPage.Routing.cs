@@ -97,10 +97,12 @@ namespace Moto.Editor
         /// l'abonnement GearMenu.ItemSelected). Réglages/Thèmes/Raccourcis ouvrent la
         /// fenêtre de Réglages directement sur la bonne catégorie ; Extensions
         /// réutilise la vraie Galerie de plugins déjà câblée ailleurs. Les autres
-        /// (Utilisateur/Organisation/Thèmes d'icônes/Disposition des
-        /// panneaux/Se déconnecter) n'ont pas de fonctionnalité réelle derrière —
-        /// pas de système de compte dans MOTO Editor — message honnête plutôt que
-        /// simuler un effet qui n'existe pas.
+        /// (Utilisateur/Organisation/Se déconnecter) n'ont pas de fonctionnalité
+        /// réelle derrière — pas de système de compte dans MOTO Editor — message
+        /// honnête plutôt que simuler un effet qui n'existe pas.
+        /// ★ RETRAIT (01/09) : "Disposition des panneaux" sort de ce lot — voir le
+        /// cas "panellayout" ci-dessous, câblé sur ApplySidePanelLayout()
+        /// (MainPage.Panels.cs).
         /// </summary>
         // ★ CORRECTION (31/08) : les 5 items sans fonctionnalité réelle passaient par
         // StatusBar.SetStatus — trop discret en bas de fenêtre, Tom avait l'impression
@@ -130,8 +132,17 @@ namespace Moto.Editor
                 case "org":
                     await DisplayAlert("Organisation", "Pas encore disponible.", "OK");
                     break;
+                // ★ AJOUT (01/09, "changer de côté") : échange le dock IA et
+                // l'explorateur/sidebar de côté (gauche↔droite) d'un coup — voir
+                // ApplySidePanelLayout (MainPage.Panels.cs) pour le détail (colonnes
+                // + poignées de redimensionnement). Remplace l'ancien message
+                // "Pas encore disponible.".
                 case "panellayout":
-                    await DisplayAlert("Disposition des panneaux", "Pas encore disponible.", "OK");
+                    _panelsSwapped = !_panelsSwapped;
+                    ApplySidePanelLayout();
+                    StatusBar.SetStatus(_panelsSwapped
+                        ? "🔀 Panneaux inversés : IA à droite, explorateur à gauche"
+                        : "🔀 Panneaux rétablis : IA à gauche, explorateur à droite");
                     break;
                 case "signout": await OnGitHubSignOutAsync(); break;
             }

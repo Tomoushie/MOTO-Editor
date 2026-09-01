@@ -132,6 +132,21 @@ namespace Moto.Editor
         /// (Fichiers/Sessions) ferait sauter la largeur de la colonne à chaque fois.
         /// Glisser vers la GAUCHE (TotalX négatif) doit AGRANDIR le panneau
         /// (il est sur le bord droit de la fenêtre) : d'où le signe "moins".
+        /// ★ CORRECTION (01/09, "changer de côté") : le signe dépend maintenant du
+        /// bord ACTUEL (_panelsSwapped), pas d'une identité fixe — une fois les
+        /// panneaux inversés, l'explorateur se retrouve à GAUCHE et c'est glisser
+        /// vers la DROITE qui l'agrandit (signe opposé).
+        /// ★ CORRECTION (01/09, revue croisée) : le signe est désormais capturé une
+        /// fois pour toutes au Started (comme la largeur de départ l'était déjà),
+        /// au lieu d'être relu en direct à chaque Running. Aujourd'hui rien ne
+        /// permet d'inverser les panneaux EN PLEIN GLISSER (le "capture" natif du
+        /// pointeur pendant un drag bloque implicitement le menu ⚙) — mais si
+        /// "panellayout" gagne un jour un raccourci clavier ou une autre entrée
+        /// sans capture exclusive, relire _panelsSwapped en direct aurait fait
+        /// sauter la largeur en plein milieu du geste (TotalX est cumulatif depuis
+        /// Started, pas incrémental). Capturer le signe rend cette garantie
+        /// explicite dans le code plutôt que de reposer sur un comportement
+        /// plateforme implicite.
         /// </summary>
         private void OnExplorerResizePanUpdated(object sender, PanUpdatedEventArgs e)
         {
@@ -139,9 +154,10 @@ namespace Moto.Editor
             {
                 case GestureStatus.Started:
                     _explorerStartWidth = ExplorerPanel.WidthRequest > 0 ? ExplorerPanel.WidthRequest : 260;
+                    _explorerStartSign = _panelsSwapped ? 1 : -1;
                     break;
                 case GestureStatus.Running:
-                    var newWidth = Math.Clamp(_explorerStartWidth - e.TotalX, 180, 640);
+                    var newWidth = Math.Clamp(_explorerStartWidth + _explorerStartSign * e.TotalX, 180, 640);
                     ExplorerPanel.WidthRequest = newWidth;
                     Sidebar.WidthRequest = newWidth;
                     break;
@@ -153,11 +169,17 @@ namespace Moto.Editor
         // étirement à la souris, généralisé au dock IA (colonne 0, à gauche).
         // ------------------------------------------------------------------
         private double _aiDockStartWidth;
+        private double _explorerStartSign;
+        private double _aiDockStartSign;
 
         /// <summary>
         /// Le dock IA est à GAUCHE et sa poignée est sur son bord DROIT (contraire
         /// de l'explorateur) : glisser vers la DROITE (TotalX positif) doit donc
         /// AGRANDIR le panneau — signe opposé à OnExplorerResizePanUpdated.
+        /// ★ CORRECTION (01/09, "changer de côté") : même remarque que ci-dessus,
+        /// le signe suit _panelsSwapped plutôt qu'une identité fixe.
+        /// ★ CORRECTION (01/09, revue croisée) : signe capturé au Started, même
+        /// raison que OnExplorerResizePanUpdated ci-dessus.
         /// </summary>
         private void OnAiDockResizePanUpdated(object sender, PanUpdatedEventArgs e)
         {
@@ -165,12 +187,52 @@ namespace Moto.Editor
             {
                 case GestureStatus.Started:
                     _aiDockStartWidth = AiDockPanel.WidthRequest > 0 ? AiDockPanel.WidthRequest : 500;
+                    _aiDockStartSign = _panelsSwapped ? -1 : 1;
                     break;
                 case GestureStatus.Running:
-                    var newWidth = Math.Clamp(_aiDockStartWidth + e.TotalX, 280, 700);
+                    var newWidth = Math.Clamp(_aiDockStartWidth + _aiDockStartSign * e.TotalX, 280, 700);
                     AiDockPanel.WidthRequest = newWidth;
                     break;
             }
+        }
+
+        // ------------------------------------------------------------------
+        // ★ AJOUT (01/09, "changer de côté") : ligne "Disposition des panneaux"
+        // du menu ⚙ (GearMenuView, id "panellayout" — voir MainPage.Routing.cs,
+        // qui affichait jusqu'ici "Pas encore disponible."). Échange le dock IA
+        // et l'explorateur/sidebar de côté d'un coup, sans glisser-déposer à la
+        // souris — portée V2 du chantier "panneaux modulaires" choisie par Tom
+        // parmi 3 options (le glisser-déposer libre façon Zed reste hors scope,
+        // chantier séparé plus gros).
+        // ------------------------------------------------------------------
+        private bool _panelsSwapped;
+
+        /// <summary>
+        /// Place le dock IA et l'explorateur/sidebar (+ leurs poignées
+        /// d'étirement) dans les colonnes correspondant à l'état actuel de
+        /// _panelsSwapped. Ne touche JAMAIS RootGrid.ColumnDefinitions (colonnes 0
+        /// et 2 restent "Auto" en XAML, comme documenté en tête de MainPage.xaml)
+        /// — seulement Grid.Column sur les éléments eux-mêmes, même patron déjà
+        /// utilisé ailleurs dans ce fichier (ex. _infoOverlay dans
+        /// InitializeInfoOverlayAndUpdates), pour éviter le crash WinRT
+        /// documenté (une colonne mesurant exactement 0px ne doit jamais être
+        /// arrangée directement). Chaque poignée est réancrée sur le bord
+        /// adjacent à la colonne centrale, quel que soit le côté où elle se
+        /// trouve désormais.
+        /// </summary>
+        private void ApplySidePanelLayout()
+        {
+            int aiColumn = _panelsSwapped ? 2 : 0;
+            int explorerColumn = _panelsSwapped ? 0 : 2;
+
+            Grid.SetColumn(AiDockPanel, aiColumn);
+            Grid.SetColumn(AiDockResizeHandle, aiColumn);
+            Grid.SetColumn(ExplorerPanel, explorerColumn);
+            Grid.SetColumn(Sidebar, explorerColumn);
+            Grid.SetColumn(ExplorerResizeHandle, explorerColumn);
+
+            AiDockResizeHandle.HorizontalOptions = _panelsSwapped ? LayoutOptions.Start : LayoutOptions.End;
+            ExplorerResizeHandle.HorizontalOptions = _panelsSwapped ? LayoutOptions.End : LayoutOptions.Start;
         }
 
         private void OnWorkspaceApply(Moto.Core.AI.Workspace.WorkspaceSuggestion suggestion)
