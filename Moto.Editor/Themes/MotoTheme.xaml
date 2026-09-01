@@ -53,6 +53,33 @@
          BorderCol reste utilisé ailleurs (retouche complète = chantier séparé). -->
     <Color x:Key="BorderSoft">#1AFFFFFF</Color>
 
+    <!-- ★ AJOUT (01/09) : 5 couleurs référencées par une passe visuelle relayée
+         par Tom (via une autre IA, "Grok", sur EditorPaneView.xaml et
+         StatusBarPanelView.xaml) mais absentes du thème réel — sur 38 couleurs au
+         total inventées dans l'archive complète reçue, ces 5 sont les SEULES
+         utilisées par les 2 fichiers effectivement adoptés ici (les autres
+         fichiers de l'archive, et leurs 33 couleurs manquantes restantes, ne sont
+         PAS repris — chantier de réconciliation séparé, bien plus gros). Valeurs
+         choisies par analogie avec l'usage réel déjà en place ailleurs :
+         - BgChrome = BgSide (même valeur, la barre de statut doit avoir "le même
+           fond que la barre de titre" selon le commentaire du fichier reçu — la
+           barre de titre utilise déjà #17181C = BgSide).
+         - BgEditor = BgApp (l'ancien fond de EditorPaneView était déjà #1E2025 =
+           BgApp, avant la passe visuelle).
+         - BorderMuted = même valeur que BorderSoft (même esprit : séparateur
+           discret, semi-transparent).
+         - Error = FF4500 (couleur EXACTE du "OrangeRed" nommé codé en dur utilisé
+           avant la passe visuelle pour les badges d'erreur — aucun changement
+           visuel réel, juste transformé en token réutilisable).
+         - Warning = un ambre distinct de Accent (qui est déjà pris par l'orange
+           terracotta de la marque) — nouvelle couleur sémantique, pas de valeur
+           préexistante à reprendre. -->
+    <Color x:Key="BgChrome">#17181C</Color>
+    <Color x:Key="BgEditor">#1E2025</Color>
+    <Color x:Key="BorderMuted">#1AFFFFFF</Color>
+    <Color x:Key="Error">#FF4500</Color>
+    <Color x:Key="Warning">#D9A227</Color>
+
     <!-- ══════════════════ Espacement ══════════════════ -->
     <!-- ★ AJOUT (01/09, direction "Hybride Claude") : échelle officielle, à
          utiliser pour tout NOUVEAU travail (Spacing/RowSpacing/ColumnSpacing,

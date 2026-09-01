@@ -1,59 +1,83 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <!--
-  Moto.Editor/Views/StatusBarPanelView.xaml
-  Barre de statut MAUI (bas de fenêtre). Nouveau fichier : aucune classe existante
-  ne réunissait SetStatus/SetCounts/SetSandbox/SetLocked/InitializeInfoOverlay —
-  Controls/StatusBarView.xaml.cs porte un nom proche mais c'est un UserControl
-  WinUI natif (mauvaise techno pour une ContentPage MAUI), gardé tel quel ailleurs.
+  StatusBarPanelView — passe visuelle MOTO Dark (01/09)
+  Chrome type Zed: même fond que la title bar (BgChrome), chips denses,
+  séparateurs discrets, accent pour les états actifs.
+  ★ Relayée par Tom via une autre IA ("Grok") — adoptée après vérification
+  contre le vrai code (5 couleurs manquantes ajoutées à MotoTheme.xaml, voir
+  ce fichier ; le .cs derrière n'a pas changé, confirmé identique au dépôt).
 -->
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="Moto.Editor.Views.StatusBarPanelView"
-             HeightRequest="26"
-             BackgroundColor="#17181C">
-    <Grid ColumnDefinitions="*,Auto,Auto,Auto,Auto,Auto" Padding="10,0">
+             HeightRequest="28"
+             BackgroundColor="{StaticResource BgChrome}">
+    <Grid ColumnDefinitions="*,Auto" Padding="10,0">
 
         <Label Grid.Column="0" x:Name="StatusLabel" Text="Prêt."
                FontSize="{DynamicResource FontSizeUiSmall}" VerticalOptions="Center"
                TextColor="{StaticResource Txt2}" LineBreakMode="TailTruncation" />
 
-        <!-- ★ CORRECTION (31/08) : icônes retirées ("le texte suffit amplement", Tom)
-             — le code couleur (gris/orange) reste le vrai signal réussite/échec. -->
-        <HorizontalStackLayout Grid.Column="1" Spacing="10" VerticalOptions="Center">
-            <Label x:Name="ErrorsLabel" Text="0 erreur" FontSize="{DynamicResource FontSizeUiSmall}" TextColor="{StaticResource Txt2}" />
-            <Label x:Name="WarningsLabel" Text="0 avertissement" FontSize="{DynamicResource FontSizeUiSmall}" TextColor="{StaticResource Txt2}" IsVisible="False" />
+        <HorizontalStackLayout Grid.Column="1" Spacing="0" VerticalOptions="Center">
+
+            <BoxView WidthRequest="1" Color="{StaticResource BorderMuted}" Margin="8,6" />
+
+            <Label x:Name="ErrorsLabel" Text="0 erreur"
+                   FontSize="{DynamicResource FontSizeUiSmall}"
+                   TextColor="{StaticResource Txt2}"
+                   VerticalOptions="Center"
+                   Margin="8,0" />
+
+            <Label x:Name="WarningsLabel" Text="0 avertissement"
+                   FontSize="{DynamicResource FontSizeUiSmall}"
+                   TextColor="{StaticResource Warning}"
+                   VerticalOptions="Center"
+                   Margin="0,0,8,0"
+                   IsVisible="False" />
+
+            <BoxView WidthRequest="1" Color="{StaticResource BorderMuted}" Margin="0,6" />
+
+            <Label x:Name="SandboxLabel" Text="Sandbox"
+                   FontSize="{DynamicResource FontSizeUiSmall}"
+                   TextColor="{StaticResource Accent}"
+                   VerticalOptions="Center"
+                   Margin="8,0"
+                   IsVisible="False" />
+
+            <Label x:Name="LockedLabel" Text="Verrouillé"
+                   FontSize="{DynamicResource FontSizeUiSmall}"
+                   TextColor="{StaticResource Warning}"
+                   VerticalOptions="Center"
+                   Margin="8,0"
+                   IsVisible="False" />
+
+            <BoxView WidthRequest="1" Color="{StaticResource BorderMuted}" Margin="0,6" />
+
+            <Border BackgroundColor="Transparent" Padding="8,0" StrokeThickness="0">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnInfoTapped" />
+                </Border.GestureRecognizers>
+                <Label Text="Infos"
+                       FontSize="{DynamicResource FontSizeUiSmall}"
+                       TextColor="{StaticResource Txt2}"
+                       VerticalOptions="Center" />
+            </Border>
+
+            <BoxView WidthRequest="1" Color="{StaticResource BorderMuted}" Margin="0,6" />
+
+            <Border BackgroundColor="Transparent" Padding="8,0" StrokeThickness="0">
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnAiMonitorTapped" />
+                </Border.GestureRecognizers>
+                <HorizontalStackLayout Spacing="4"
+                                       ToolTipProperties.Text="Monitoring IA — Cliquez pour ouvrir">
+                    <Label x:Name="AiStatusLabel" Text="Monitoring : Idle"
+                           FontSize="{DynamicResource FontSizeUiSmall}"
+                           TextColor="{StaticResource Txt2}"
+                           VerticalOptions="Center" />
+                </HorizontalStackLayout>
+            </Border>
         </HorizontalStackLayout>
-
-        <Label Grid.Column="2" x:Name="SandboxLabel" Text="🧪 Sandbox"
-               FontSize="{DynamicResource FontSizeUiSmall}" TextColor="{StaticResource Accent}"
-               VerticalOptions="Center" Margin="16,0,0,0" IsVisible="False" />
-
-        <Label Grid.Column="3" x:Name="LockedLabel" Text="🔒 Verrouillé"
-               FontSize="{DynamicResource FontSizeUiSmall}" VerticalOptions="Center" Margin="16,0,0,0" IsVisible="False" />
-
-        <Border Grid.Column="4" BackgroundColor="Transparent" Padding="4" Margin="16,0,0,0">
-            <Border.GestureRecognizers>
-                <TapGestureRecognizer Tapped="OnInfoTapped" />
-            </Border.GestureRecognizers>
-            <Label Text="Infos" FontSize="{DynamicResource FontSizeUiSmall}" VerticalOptions="Center" />
-        </Border>
-
-        <!-- ★ CORRECTION (30/08) : déplacé ici depuis MainPage.xaml (Grid.Row="2"
-             Grid.Column="3"), où il se superposait littéralement à cette barre de
-             statut (StatusBarPanelView occupe TOUTE la ligne 2 via ColumnSpan="4") —
-             c'est ce qui causait le chevauchement d'icônes/texte repéré par Tom. -->
-        <Border Grid.Column="5" BackgroundColor="Transparent" Padding="4" Margin="16,0,0,0">
-            <Border.GestureRecognizers>
-                <TapGestureRecognizer Tapped="OnAiMonitorTapped" />
-            </Border.GestureRecognizers>
-            <!-- ★ CORRECTION (31/08) : "Idle" seul ne laissait pas deviner que
-                 c'est cliquable et mène au Monitoring IA (Tom l'a découvert par
-                 hasard) — préfixe "Monitoring :" ajouté (voir aussi SetAiStatus). -->
-            <HorizontalStackLayout Spacing="4" ToolTipProperties.Text="Monitoring IA — Cliquez pour ouvrir">
-                <Label x:Name="AiStatusLabel" Text="Monitoring : Idle" FontSize="{DynamicResource FontSizeUiSmall}"
-                       TextColor="{StaticResource Txt2}" VerticalOptions="Center" />
-            </HorizontalStackLayout>
-        </Border>
 
     </Grid>
 </ContentView>

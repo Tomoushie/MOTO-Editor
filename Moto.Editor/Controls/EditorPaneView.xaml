@@ -1,72 +1,72 @@
 <?xml version="1.0" encoding="utf-8" ?>
+<!--
+  EditorPaneView — passe visuelle MOTO Dark (01/09)
+  Layout type Zed: barre d'onglets flush (onglet actif = fond éditeur),
+  puis toolbar plate, breadcrumb discret, bandeau IA, surface éditeur.
+  ★ Relayée par Tom via une autre IA ("Grok") — adoptée après vérification
+  contre le vrai code (5 couleurs manquantes ajoutées à MotoTheme.xaml, voir
+  ce fichier ; le .cs derrière n'a pas changé, confirmé identique au dépôt).
+-->
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:controls="clr-namespace:Moto.Editor.Controls"
              x:Class="Moto.Editor.Controls.EditorPaneView"
-             BackgroundColor="#1E2025">
+             BackgroundColor="{StaticResource BgEditor}">
 
-    <Grid RowDefinitions="Auto,Auto,Auto,*">
+    <Grid RowDefinitions="Auto,Auto,Auto,Auto,*">
 
-        <!-- ============================================================ -->
-        <!-- Ligne 1 : Toolbar (flèches ← →, export, onglets, actions)    -->
-        <!-- ============================================================ -->
+        <!-- ═══ Ligne 0 : barre d'onglets (surface ; actif = flush éditeur) ═══ -->
         <Grid Grid.Row="0"
-              ColumnDefinitions="Auto,Auto,Auto,*,Auto,Auto,Auto,Auto"
-              BackgroundColor="#17181C" Padding="6,4" ColumnSpacing="4">
-
-            <!-- Navigation historique -->
-            <!-- ★ CORRECTION (30/08, 2e passe) : héritaient du style Button par défaut
-                 (fond gris #202126, App.xaml) — trop discrètes selon Tom ("les flèches
-                 devraient être plus grandes, plus visibles et supprimer le fond gris").
-                 Fond transparent + police agrandie, ICI seulement (pas touché au style
-                 par défaut, utilisé par beaucoup d'autres boutons dans toute l'appli). -->
-            <Button Grid.Column="0" Text="←" Padding="8,2" FontSize="18"
-                    BackgroundColor="Transparent" TextColor="{StaticResource Txt1}"
-                    ToolTipProperties.Text="Fichier précédent"
-                    Clicked="OnBackClicked" />
-
-            <Button Grid.Column="1" Text="→" Padding="8,2" FontSize="18"
-                    BackgroundColor="Transparent" TextColor="{StaticResource Txt1}"
-                    ToolTipProperties.Text="Fichier suivant"
-                    Clicked="OnForwardClicked" />
-
-            <!-- ★ CORRECTION (30/08) : la simple flèche "⬇" n'était pas assez claire
-                 selon Tom ("personne ne sait ce qu'elle représente")
-                 ★ CORRECTION (31/08) : fond gris par défaut retiré + agrandi, même
-                 traitement que les flèches ← → ("tout est trop petit", Tom). -->
-            <Button Grid.Column="2" Text="⬇ Exporter" Padding="10,4" FontSize="14"
-                    BackgroundColor="Transparent" TextColor="{StaticResource Txt1}"
-                    ToolTipProperties.Text="Exporter (txt, md, html, pdf, docx, odt, rtf...)"
-                    Clicked="OnExportClicked" />
-
-            <!-- Onglets (nom + badge d'erreurs) -->
-            <!-- ★ CORRECTION (31/08) : fond forcé à transparent — Tom signale que le
-                 nom du fichier garde un fond gris malgré le Border transparent du
-                 DataTemplate (ci-dessous) ; peut venir du CollectionView lui-même. -->
-            <CollectionView Grid.Column="3" x:Name="TabsList" BackgroundColor="Transparent"
-                            SelectionMode="Single" HeightRequest="34"
-                            SelectionChanged="OnTabSelected">
+              BackgroundColor="{StaticResource BgPanel}"
+              HeightRequest="36"
+              Padding="0">
+            <CollectionView x:Name="TabsList"
+                            BackgroundColor="Transparent"
+                            SelectionMode="Single"
+                            HeightRequest="36"
+                            SelectionChanged="OnTabSelected"
+                            Margin="4,0,4,0">
                 <CollectionView.ItemsLayout>
-                    <LinearItemsLayout Orientation="Horizontal" ItemSpacing="5" />
+                    <LinearItemsLayout Orientation="Horizontal" ItemSpacing="0" />
                 </CollectionView.ItemsLayout>
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
-                        <!-- ★ CORRECTION (31/08) : fond plein retiré (juste un contour
-                             discret) + agrandi ("tout est trop petit", Tom). -->
-                        <Border StrokeShape="RoundRectangle 8" BackgroundColor="Transparent"
-                                Stroke="{StaticResource BorderCol}" StrokeThickness="1"
-                                Padding="12,6">
-                            <HorizontalStackLayout Spacing="8">
-                                <Label Text="{Binding Title}" FontSize="13" VerticalOptions="Center"
+                        <Border StrokeThickness="0"
+                                Padding="14,0,10,0"
+                                HeightRequest="36"
+                                StrokeShape="RoundRectangle 0"
+                                BackgroundColor="{StaticResource BgPanel}">
+                            <VisualStateManager.VisualStateGroups>
+                                <VisualStateGroupList>
+                                    <VisualStateGroup x:Name="CommonStates">
+                                        <VisualState x:Name="Normal">
+                                            <VisualState.Setters>
+                                                <Setter Property="BackgroundColor" Value="{StaticResource BgPanel}" />
+                                            </VisualState.Setters>
+                                        </VisualState>
+                                        <VisualState x:Name="Selected">
+                                            <VisualState.Setters>
+                                                <Setter Property="BackgroundColor" Value="{StaticResource BgEditor}" />
+                                            </VisualState.Setters>
+                                        </VisualState>
+                                    </VisualStateGroup>
+                                </VisualStateGroupList>
+                            </VisualStateManager.VisualStateGroups>
+                            <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
+                                <Label Text="{Binding Title}"
+                                       FontSize="{DynamicResource FontSizeUiText}"
+                                       VerticalOptions="Center"
                                        TextColor="{StaticResource Txt1}" />
-                                <Label Text="{Binding ErrorBadge}" TextColor="OrangeRed"
-                                       FontSize="12" IsVisible="{Binding HasErrors}"
+                                <Label Text="{Binding ErrorBadge}"
+                                       TextColor="{StaticResource Error}"
+                                       FontSize="{DynamicResource FontSizeUiSmall}"
+                                       IsVisible="{Binding HasErrors}"
                                        VerticalOptions="Center" />
-                                <!-- ★ AJOUT (31/08) : aucun moyen de fermer un onglet n'existait —
-                                     impossible de revenir à l'Accueil une fois un fichier ouvert
-                                     (repéré par Tom). -->
-                                <Label Text="✕" FontSize="12" TextColor="{StaticResource Txt2}"
-                                       VerticalOptions="Center">
+                                <Label Text="✕"
+                                       FontSize="{DynamicResource FontSizeUiSmall}"
+                                       TextColor="{StaticResource Txt2}"
+                                       VerticalOptions="Center"
+                                       Opacity="0.7">
                                     <Label.GestureRecognizers>
                                         <TapGestureRecognizer Tapped="OnTabCloseTapped" CommandParameter="{Binding .}" />
                                     </Label.GestureRecognizers>
@@ -76,56 +76,94 @@
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
+        </Grid>
 
-            <!-- Actions : split / plein écran / IA / preview
-                 ★ CORRECTION (31/08) : les 4 icônes agrandies ("trop petites", Tom). -->
-            <Button Grid.Column="4" Text="⧉" Padding="10,4" FontSize="16"
+        <!-- ═══ Ligne 1 : toolbar (même fond que l'éditeur = flush) ═══ -->
+        <Grid Grid.Row="1"
+              ColumnDefinitions="Auto,Auto,Auto,*,Auto,Auto,Auto,Auto"
+              BackgroundColor="{StaticResource BgEditor}"
+              Padding="6,2"
+              ColumnSpacing="2">
+
+            <Button Grid.Column="0" Text="←" Padding="8,2" FontSize="16"
+                    BackgroundColor="Transparent" TextColor="{StaticResource Txt1}"
+                    BorderWidth="0"
+                    ToolTipProperties.Text="Fichier précédent"
+                    Clicked="OnBackClicked" />
+
+            <Button Grid.Column="1" Text="→" Padding="8,2" FontSize="16"
+                    BackgroundColor="Transparent" TextColor="{StaticResource Txt1}"
+                    BorderWidth="0"
+                    ToolTipProperties.Text="Fichier suivant"
+                    Clicked="OnForwardClicked" />
+
+            <Button Grid.Column="2" Text="⬇ Exporter" Padding="10,2" FontSize="12"
+                    BackgroundColor="Transparent" TextColor="{StaticResource Txt2}"
+                    BorderWidth="0"
+                    ToolTipProperties.Text="Exporter (txt, md, html, pdf, docx, odt, rtf...)"
+                    Clicked="OnExportClicked" />
+
+            <BoxView Grid.Column="3" Color="Transparent" />
+
+            <Button Grid.Column="4" Text="⧉" Padding="8,2" FontSize="14"
+                    BackgroundColor="Transparent" TextColor="{StaticResource Txt2}"
+                    BorderWidth="0"
                     ToolTipProperties.Text="Partager l'écran"
                     Clicked="OnSplitClicked" />
 
-            <!-- ★ CORRECTION (30/08) : icône désormais mise à jour par MainPage
-                 (SetMaximizeIcon) — Tom ne retrouvait pas comment revenir en arrière
-                 une fois en plein écran. -->
-            <Button x:Name="BtnMaximize" Grid.Column="5" Text="⛶" Padding="10,4" FontSize="16"
+            <Button x:Name="BtnMaximize" Grid.Column="5" Text="⛶" Padding="8,2" FontSize="14"
+                    BackgroundColor="Transparent" TextColor="{StaticResource Txt2}"
+                    BorderWidth="0"
                     ToolTipProperties.Text="Agrandir la zone (plein écran)"
                     Clicked="OnMaximizeClicked" />
 
-            <Button Grid.Column="6" Text="🤖" Padding="10,4" FontSize="16"
+            <Button Grid.Column="6" Text="🤖" Padding="8,2" FontSize="14"
+                    BackgroundColor="Transparent" TextColor="{StaticResource Txt2}"
+                    BorderWidth="0"
                     ToolTipProperties.Text="Bandeau IA (modèle + prompts)"
                     Clicked="OnAiClicked" />
 
-            <!-- ★ AJOUT (30/08, 3e passe) : "menu de prévisualisation" demandé par
-                 Tom (point 18) — LivePreviewView + PreviewEngine existaient déjà dans
-                 le dépôt (complets, fonctionnels), mais n'étaient jamais atteignables
-                 par aucun bouton ni menu. Câblé ici, au plus près du fichier ouvert. -->
-            <Button Grid.Column="7" Text="🌐" Padding="10,4" FontSize="16"
+            <Button Grid.Column="7" Text="🌐" Padding="8,2" FontSize="14"
+                    BackgroundColor="Transparent" TextColor="{StaticResource Txt2}"
+                    BorderWidth="0"
                     ToolTipProperties.Text="Prévisualiser le fichier"
                     Clicked="OnPreviewClicked" />
-
         </Grid>
 
-        <!-- ============================================================ -->
-        <!-- Ligne 2 : Breadcrumb (localisation du fichier)               -->
-        <!-- ============================================================ -->
-        <Border Grid.Row="1" StrokeShape="RoundRectangle 8" BackgroundColor="#202126"
-                Padding="10,6" Margin="6,4">
-            <Grid ColumnDefinitions="*,Auto">
-                <Label Grid.Column="0" x:Name="CrumbLabel"
-                       Text="Aucun fichier ouvert" FontSize="12" Opacity="0.8" />
-                <Button Grid.Column="1" Text="Open File  Alt-Enter"
-                        FontSize="10" Padding="8,2"
-                        Clicked="OnOpenFileClicked" />
-            </Grid>
-        </Border>
+        <!-- ═══ Ligne 2 : breadcrumb plat (plus de carte arrondie) ═══ -->
+        <Grid Grid.Row="2"
+              ColumnDefinitions="*,Auto"
+              BackgroundColor="{StaticResource BgEditor}"
+              Padding="12,4,8,4">
+            <BoxView Color="{StaticResource BorderMuted}"
+                     HeightRequest="1"
+                     VerticalOptions="Start"
+                     Grid.ColumnSpan="2" />
+            <Label Grid.Column="0" x:Name="CrumbLabel"
+                   Text="Aucun fichier ouvert"
+                   FontSize="{DynamicResource FontSizeUiSmall}"
+                   TextColor="{StaticResource Txt2}"
+                   VerticalOptions="Center"
+                   Margin="0,4,0,0" />
+            <Button Grid.Column="1" Text="Open File"
+                    FontSize="{DynamicResource FontSizeUiSmall}"
+                    Padding="8,2"
+                    Margin="0,4,0,0"
+                    BackgroundColor="Transparent"
+                    TextColor="{StaticResource Accent}"
+                    BorderWidth="0"
+                    Clicked="OnOpenFileClicked" />
+        </Grid>
 
-        <!-- ============================================================ -->
-        <!-- Ligne 3 : Bandeau IA (modèle + prompts, modifie en direct)   -->
-        <!-- ============================================================ -->
-        <Border Grid.Row="2" x:Name="AiBand" IsVisible="False"
-                StrokeShape="RoundRectangle 8" BackgroundColor="#1A1B1F"
-                Stroke="#3A3B40" Padding="8" Margin="6,0,6,4">
+        <!-- ═══ Ligne 3 : bandeau IA ═══ -->
+        <Border Grid.Row="3" x:Name="AiBand" IsVisible="False"
+                StrokeShape="RoundRectangle 0"
+                BackgroundColor="{StaticResource BgPanel}"
+                Stroke="{StaticResource BorderMuted}"
+                StrokeThickness="1"
+                Padding="8"
+                Margin="0">
             <Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto" ColumnSpacing="6">
-
                 <Picker Grid.Row="0" Grid.Column="0" x:Name="ModelPicker"
                         WidthRequest="190" FontSize="11">
                     <Picker.ItemsSource>
@@ -145,18 +183,18 @@
                        Completed="OnAiSendClicked" />
 
                 <Button Grid.Row="0" Grid.Column="2" Text="➤" Padding="10,2"
+                        BackgroundColor="{StaticResource Accent}"
+                        TextColor="{StaticResource BgEditor}"
+                        BorderWidth="0"
                         Clicked="OnAiSendClicked" />
 
                 <Label Grid.Row="1" Grid.ColumnSpan="3" x:Name="AiStatus"
-                       FontSize="10" Opacity="0.6" />
-
+                       FontSize="10" TextColor="{StaticResource Txt2}" Opacity="0.8" />
             </Grid>
         </Border>
 
-        <!-- ============================================================ -->
-        <!-- Ligne 4 : Éditeur maison (WebView)                           -->
-        <!-- ============================================================ -->
-        <controls:CodeEditorView Grid.Row="3" x:Name="Editor" x:FieldModifier="Public" Margin="6,0,6,6" />
+        <!-- ═══ Ligne 4 : éditeur ═══ -->
+        <controls:CodeEditorView Grid.Row="4" x:Name="Editor" x:FieldModifier="Public" Margin="0" />
 
     </Grid>
 
