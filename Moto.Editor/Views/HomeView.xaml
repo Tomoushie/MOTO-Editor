@@ -72,6 +72,20 @@
                      budget) COLLÉE juste EN DESSOUS. Regroupés dans leur propre
                      VerticalStackLayout à espacement réduit (10, au lieu des 22 du
                      reste de la page) — ces 3 blocs forment un seul ensemble visuel. -->
+                <!-- ★ CORRECTION (01/09, vraie cause #3) : LocationMenu était nichée
+                     à l'intérieur de CETTE VerticalStackLayout (dans son propre Grid
+                     à hauteur fixe) — tout débordement au-delà d'un certain seuil vers
+                     le HAUT (au-dessus de la ligne de chips, vers la carte de stats)
+                     était invisible, alors qu'un débordement vers le BAS (dans la
+                     saisie/la barre du dessous) s'affichait très bien. Signature d'un
+                     rognage (clip) propre à CETTE VerticalStackLayout, pas au Grid
+                     interne (déjà écarté, voir corrections précédentes). Solution :
+                     LocationMenu sort ENTIÈREMENT de cette VerticalStackLayout — elle
+                     devient une simple SŒUR d'elle (toutes deux enfants du même Grid
+                     englobant, superposées comme dans GearMenuView/SettingsWindowView,
+                     déjà fiable pour ce même genre de superposition ailleurs dans
+                     l'appli), au lieu d'être nichée dedans. -->
+                <Grid>
                 <VerticalStackLayout Spacing="10">
 
                     <!-- Chips contexte (Local / Rechercher projet / dossier) -->
@@ -98,9 +112,6 @@
                          ligne de chips (sans ça, l'alignement par défaut du Grid pouvait
                          laisser un espace résiduel en bas plutôt que centrer). -->
                     <Grid HeightRequest="44">
-                        <controls:ExecutionLocationMenu x:Name="LocationMenu"
-                                                         HorizontalOptions="Start" VerticalOptions="End"
-                                                         Margin="0,0,0,46" IsVisible="False" />
                         <HorizontalStackLayout HorizontalOptions="Center" VerticalOptions="Center" Spacing="10">
                             <!-- ★ CORRECTION (31/08) : emojis → glyphes vectoriels (Segoe
                                  Fluent Icons, codepoints vérifiés visuellement) —
@@ -185,6 +196,21 @@
                     <controls:AiComposerBarView x:Name="ComposerBar" WidthRequest="560" />
 
                 </VerticalStackLayout>
+
+                <!-- ★ CORRECTION (01/09, vraie cause #3) : sœur de la VerticalStackLayout
+                     ci-dessus, pas nichée dedans (voir commentaire d'ouverture du Grid).
+                     Y=-262 : menu de 260px de haut, positionné pour que son bas arrive
+                     juste au-dessus de la ligne de chips (1er élément de la VSL), comme
+                     prévu à l'origine. -->
+                <AbsoluteLayout ZIndex="999" InputTransparent="True" CascadeInputTransparent="False">
+                    <controls:ExecutionLocationMenu x:Name="LocationMenu"
+                                                     AbsoluteLayout.LayoutFlags="None"
+                                                     AbsoluteLayout.LayoutBounds="0,-262,260,260"
+                                                     ZIndex="999"
+                                                     IsVisible="True" Opacity="0" InputTransparent="True" />
+                </AbsoluteLayout>
+
+                </Grid>
 
             </VerticalStackLayout>
         </ScrollView>

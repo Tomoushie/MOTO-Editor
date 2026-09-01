@@ -229,7 +229,19 @@ namespace Moto.Editor.Views
         /// </summary>
         private void OnLocalChipTapped(object sender, EventArgs e)
         {
-            LocationMenu.IsVisible = !LocationMenu.IsVisible;
+            // ★ CORRECTION (01/09) : LocationMenu ne bascule plus IsVisible — elle
+            // reste "montée"/mesurée en permanence, l'ouverture/fermeture se fait via
+            // Opacity + InputTransparent. La VRAIE cause du bug ("Local" n'ouvrait
+            // rien) était ailleurs (voir HomeView.xaml : la VerticalStackLayout qui
+            // héberge chips/saisie/barre IA rognait tout débordement vers le haut au-
+            // delà d'un certain seuil — LocationMenu en est sortie, promue "sœur" au
+            // lieu d'être nichée dedans), mais ce réglage Opacity reste une bonne
+            // pratique à part entière : plusieurs vraies régressions MAUI documentées
+            // (dotnet/maui#9850/#28677/#8185) touchent les contrôles qui démarrent
+            // IsVisible=false, alors qu'Opacity n'a pas ce défaut.
+            bool willShow = LocationMenu.Opacity == 0;
+            LocationMenu.Opacity = willShow ? 1 : 0;
+            LocationMenu.InputTransparent = !willShow;
             LocalChipTapped?.Invoke();
         }
 

@@ -24,7 +24,18 @@ namespace Moto.Editor.Controls
                 HoverEffects.Attach(row);
         }
 
-        private void OnCloseClicked(object sender, EventArgs e) => IsVisible = false;
+        // ★ CORRECTION (01/09, vraie cause trouvée) : IsVisible=false remplacé par
+        // Opacity=0 + InputTransparent=true partout dans ce fichier. Un contrôle qui
+        // démarre avec IsVisible=false (voir HomeView.xaml) ne se remesure jamais
+        // correctement même en repassant IsVisible à true — défaut documenté de
+        // .NET MAUI (dotnet/maui#9850, #28677, #8185). En ne touchant plus jamais
+        // IsVisible (jamais false, même en interne ici), le contrôle reste
+        // "monté"/mesuré normalement en permanence.
+        private void OnCloseClicked(object sender, EventArgs e)
+        {
+            Opacity = 0;
+            InputTransparent = true;
+        }
 
         private void OnRowTapped(object sender, EventArgs e)
         {
@@ -44,7 +55,8 @@ namespace Moto.Editor.Controls
                 // c'était MainPage qui le fermait après coup ; depuis que ce menu vit
                 // dans HomeView (point 1 de Tom), c'est plus simple qu'il gère sa
                 // propre fermeture, quel que soit le futur écouteur.
-                IsVisible = false;
+                Opacity = 0;
+                InputTransparent = true;
                 LocationSelected?.Invoke(id);
             }
         }
