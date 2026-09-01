@@ -292,6 +292,11 @@ namespace Moto.Editor
             })
                 AddFloatingPanel(panel);
 
+            // ★ AJOUT (01/09, chantier "panneaux modulaires" — 4e étape) : zones de
+            // drop "hôte vide" sur les 2 docks eux-mêmes — une seule fois, après
+            // que les 7 panneaux ci-dessus existent (voir WirePanelHostDropZones).
+            WirePanelHostDropZones();
+
             // ★ CORRECTION (31/08, point 16) : Recherche en superposition centrée,
             // pas dans le dock IA à gauche comme les autres panneaux ci-dessus.
             AddFloatingPanel(_searchPanel, asCenteredOverlay: true);

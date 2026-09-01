@@ -1,8 +1,10 @@
 // Moto.Editor/MainPage.Panels.cs (v29 — extraction des panneaux IA)
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Maui;
 using Microsoft.Maui.Controls;
 using Microsoft.Maui.Controls.Shapes;
 using Microsoft.Maui.ApplicationModel;
@@ -100,15 +102,40 @@ namespace Moto.Editor
             // Recherche vit maintenant en superposition centrée, plus dans ce dock
             // (voir AddFloatingPanel, asCenteredOverlay). La laisser ici aurait rouvert
             // inutilement la colonne de gauche (vide) à chaque recherche.
+            // ★ CORRECTION (01/09, revue croisée — régression trouvée) : la liste
+            // figée de champs (_platformPanel.IsVisible || _cortexPanel.IsVisible ||
+            // ...) ignorait qu'un panneau glissé vers PanelHostRight (chantier
+            // "glisser-déposer entre docks") reste IsVisible=true sur son PROPRE
+            // champ tout en ayant quitté PanelHost — "any" restait donc vrai après
+            // un déplacement vers la droite, gardant le dock IA affiché (vide,
+            // 500px) à côté du contenu correctement affiché à droite. Vérifier les
+            // enfants RÉELLEMENT présents dans PanelHost (même patron que
+            // RefreshExplorerPanelHostVisibility) règle ça sans liste à maintenir.
             bool any = AiHost.IsVisible || ChatHost.IsVisible || ThreadHost.IsVisible
-                || _platformPanel.IsVisible || _cortexPanel.IsVisible || _neuralPanel.IsVisible
-                || _workspacePanel.IsVisible || _pluginGallery.IsVisible || _analyticsDashboard.IsVisible
-                || _debugPanel.IsVisible;
+                || PanelHost.Children.Any(c => c is Border b && b.IsVisible);
             AiDockPanel.IsVisible = any;
             // ★ AJOUT (01/09) : même patron que RefreshExplorerHandleVisibility —
             // la poignée d'étirement du dock IA ne doit apparaître (et réagir) que
             // quand le dock est réellement affiché.
             AiDockResizeHandle.IsVisible = any;
+            // ★ AJOUT (01/09, glisser-déposer entre docks) : un panneau migré vers
+            // PanelHostRight peut être cause de rien ci-dessus (il n'est plus dans
+            // PanelHost, donc "any" peut être false même s'il est affiché à droite)
+            // — reflet indépendant, jamais mélangé au calcul ci-dessus.
+            RefreshExplorerPanelHostVisibility();
+        }
+
+        /// <summary>
+        /// ★ AJOUT (01/09, chantier "panneaux modulaires" — 4e étape) : symétrique
+        /// de RefreshAiDockColumnWidth, mais pour la zone de panneaux migrés sous
+        /// l'explorateur (PanelHostRight) — n'affiche cette zone que si au moins
+        /// un des panneaux qui s'y trouvent est actuellement visible (sinon la
+        /// ligne "Auto" qui la contient se replie à 0, même patron IsVisible déjà
+        /// établi partout dans ce fichier).
+        /// </summary>
+        private void RefreshExplorerPanelHostVisibility()
+        {
+            ExplorerPanelHostWrapper.IsVisible = PanelHostRight.Children.Any(c => c is Border b && b.IsVisible);
         }
 
         // ------------------------------------------------------------------
@@ -219,6 +246,15 @@ namespace Moto.Editor
         /// arrangée directement). Chaque poignée est réancrée sur le bord
         /// adjacent à la colonne centrale, quel que soit le côté où elle se
         /// trouve désormais.
+        /// ★ CORRECTION (01/09, revue croisée — régression trouvée) : ciblait
+        /// ExplorerPanel/Sidebar directement, ce qui était correct tant qu'ils
+        /// étaient des enfants DIRECTS de RootGrid. Depuis leur imbrication dans
+        /// ExplorerDockPanel (chantier "glisser-déposer entre docks", même
+        /// session), leur Grid.Column ne veut plus rien dire pour RootGrid — c'est
+        /// ExplorerDockPanel lui-même qu'il faut déplacer. Sans ce correctif, le
+        /// bouton "changer de côté" déjà livré et confirmé par Tom aurait
+        /// superposé le dock IA et le dock explorateur dans la même colonne dès
+        /// le premier clic (trouvé par une revue croisée AVANT tout test manuel).
         /// </summary>
         private void ApplySidePanelLayout()
         {
@@ -227,8 +263,7 @@ namespace Moto.Editor
 
             Grid.SetColumn(AiDockPanel, aiColumn);
             Grid.SetColumn(AiDockResizeHandle, aiColumn);
-            Grid.SetColumn(ExplorerPanel, explorerColumn);
-            Grid.SetColumn(Sidebar, explorerColumn);
+            Grid.SetColumn(ExplorerDockPanel, explorerColumn);
             Grid.SetColumn(ExplorerResizeHandle, explorerColumn);
 
             AiDockResizeHandle.HorizontalOptions = _panelsSwapped ? LayoutOptions.Start : LayoutOptions.End;
@@ -280,7 +315,18 @@ namespace Moto.Editor
         /// (Neural/Workspace/Gallery/Analytics/Debug restent inchangés, à gauche).
         /// Même en-tête (titre + ✕), juste un parent différent.
         /// </summary>
-        private void AddFloatingPanel(ContentView panel, bool asCenteredOverlay = false)
+        /// <param name="preferRightHost">
+        /// ★ AJOUT (01/09, revue croisée — régression trouvée) : quand un panneau
+        /// EXISTANT est reconstruit à neuf (RebindPanels, plus bas — Cortex/
+        /// Neural/Workspace, reconstruits à chaque ouverture de projet avec le
+        /// vrai moteur), la nouvelle instance atterrissait TOUJOURS dans PanelHost
+        /// (gauche), même si l'utilisateur avait déplacé l'ancienne vers
+        /// PanelHostRight (droite) — son choix de placement était silencieusement
+        /// annulé sans message à chaque ouverture de dossier. RebindPanels capture
+        /// maintenant l'hôte de l'ancien wrapper AVANT de le retirer et le
+        /// retransmet ici pour que le remplaçant réapparaisse au même endroit.
+        /// </param>
+        private void AddFloatingPanel(ContentView panel, bool asCenteredOverlay = false, bool preferRightHost = false)
         {
             var close = new Button
             {
@@ -311,13 +357,16 @@ namespace Moto.Editor
 
             panel.IsVisible = false;
 
-            // ★ AJOUT (01/09, chantier "panneaux modulaires" — 3e étape, glisser-
-            // déposer, 1re brique) : réordonner les panneaux du dock IA en les
-            // glissant. Même mécanisme (DragGestureRecognizer/DropGestureRecognizer
-            // + DataPackage.Properties) déjà éprouvé et fonctionnel dans
+            // ★ AJOUT (01/09, chantier "panneaux modulaires" — 3e puis 4e étape,
+            // glisser-déposer) : réordonner les panneaux du dock IA en les glissant
+            // (3e étape), puis les déplacer vers l'AUTRE dock (4e étape, voir
+            // OnPanelDroppedOn/FindPanelWrapper/RemoveFromCurrentHost plus bas —
+            // généralisés pour chercher/retirer dans PanelHost ET PanelHostRight).
+            // Même mécanisme (DragGestureRecognizer/DropGestureRecognizer +
+            // DataPackage.Properties) déjà éprouvé et fonctionnel dans
             // SidebarView.xaml.cs (réordonnancement des sessions de chat) — pas
             // réinventé. Ne s'applique pas à Recherche (asCenteredOverlay) : cette
-            // vue n'est pas dans la liste réordonnable de PanelHost.
+            // vue n'est pas dans la liste réordonnable/déplaçable.
             if (!asCenteredOverlay)
             {
                 wrapper.ClassId = TitleFor(panel);
@@ -349,36 +398,102 @@ namespace Moto.Editor
             }
             else
             {
-                PanelHost.Children.Add(wrapper);
+                (preferRightHost ? PanelHostRight : PanelHost).Children.Add(wrapper);
             }
         }
 
         /// <summary>
         /// Déplace le wrapper (Border) dont le ClassId correspond au panneau glissé
-        /// juste avant <paramref name="target"/> dans PanelHost.Children — appelé
+        /// juste avant <paramref name="target"/> — dans PanelHost OU PanelHostRight,
+        /// quel que soit l'hôte où se trouve ACTUELLEMENT target (permet donc de
+        /// déplacer un panneau d'un dock à l'autre en le lâchant sur un panneau
+        /// déjà présent là-bas, pas seulement de le réordonner sur place). Appelé
         /// par le DropGestureRecognizer de chaque wrapper (voir AddFloatingPanel).
-        /// Cherche l'index APRÈS avoir retiré l'élément source : IndexOf(target)
-        /// reste valide (target est une référence d'objet, pas une position) et
-        /// évite tout calcul de décalage d'index à la main.
+        /// Retire TOUJOURS la source avant de chercher l'index cible : IndexOf(target)
+        /// reste valide après coup (target est une référence d'objet, pas une
+        /// position) et évite tout calcul de décalage d'index à la main, que source
+        /// et target partagent le même hôte ou non.
         /// </summary>
         private void OnPanelDroppedOn(Border target, DropEventArgs e)
         {
-            var draggedId = e.Data.Properties.TryGetValue("panelClassId", out var v) ? v as string : null;
             e.Handled = true;
+            var draggedId = e.Data.Properties.TryGetValue("panelClassId", out var v) ? v as string : null;
             if (string.IsNullOrEmpty(draggedId))
                 return;
 
-            var children = PanelHost.Children;
-            Border source = null;
-            foreach (var child in children)
-            {
-                if (child is Border b && b.ClassId == draggedId) { source = b; break; }
-            }
+            var source = FindPanelWrapper(draggedId);
             if (source == null || source == target)
                 return;
 
-            children.Remove(source);
-            children.Insert(children.IndexOf(target), source);
+            var targetHost = PanelHostRight.Children.Contains(target) ? PanelHostRight.Children : PanelHost.Children;
+            RemoveFromCurrentHost(source);
+            targetHost.Insert(targetHost.IndexOf(target), source);
+            RefreshAiDockColumnWidth();
+        }
+
+        /// <summary>
+        /// ★ AJOUT (01/09, chantier "panneaux modulaires" — 4e étape) : lâcher un
+        /// panneau sur une zone VIDE (pas sur un wrapper existant) — nécessaire
+        /// pour le tout premier panneau déplacé vers un hôte encore vide (sinon
+        /// aucun wrapper n'existe là-bas pour recevoir le drop). Ajouté à la fin
+        /// de l'hôte cible. Câblé sur AiDockPanel et ExplorerDockPanel eux-mêmes
+        /// (voir WirePanelHostDropZones, appelée une seule fois) plutôt que sur
+        /// PanelHost/PanelHostRight directement, pour que la zone de drop reste
+        /// valide même quand la liste est vide et donc visuellement minuscule.
+        /// </summary>
+        private void OnEmptyHostDropped(IList<IView> targetHost, DropEventArgs e)
+        {
+            e.Handled = true;
+            var draggedId = e.Data.Properties.TryGetValue("panelClassId", out var v) ? v as string : null;
+            if (string.IsNullOrEmpty(draggedId))
+                return;
+
+            var source = FindPanelWrapper(draggedId);
+            if (source == null)
+                return;
+
+            RemoveFromCurrentHost(source);
+            targetHost.Add(source);
+            RefreshAiDockColumnWidth();
+        }
+
+        /// <summary>Cherche le wrapper (Border) d'un panneau par son ClassId, dans
+        /// PanelHost ou PanelHostRight — quel que soit l'hôte où il se trouve.</summary>
+        private Border FindPanelWrapper(string classId)
+        {
+            foreach (var child in PanelHost.Children)
+                if (child is Border b && b.ClassId == classId) return b;
+            foreach (var child in PanelHostRight.Children)
+                if (child is Border b && b.ClassId == classId) return b;
+            return null;
+        }
+
+        /// <summary>Retire un wrapper de QUEL QUE SOIT l'hôte où il se trouve —
+        /// Remove() sur une liste qui ne contient pas l'élément est un no-op, donc
+        /// pas besoin de savoir lequel des deux avant d'appeler.</summary>
+        private void RemoveFromCurrentHost(Border wrapper)
+        {
+            PanelHost.Children.Remove(wrapper);
+            PanelHostRight.Children.Remove(wrapper);
+        }
+
+        /// <summary>
+        /// ★ AJOUT (01/09, chantier "panneaux modulaires" — 4e étape) : zones de
+        /// drop "hôte vide" — voir OnEmptyHostDropped. Appelée UNE SEULE FOIS
+        /// (juste après le foreach qui construit les 7 panneaux du dock IA dans
+        /// WirePanels, MainPage.xaml.cs) : câbler ceci DANS AddFloatingPanel
+        /// l'aurait répété une fois par panneau (7 gestionnaires identiques sur le
+        /// même élément, drop traité 7 fois).
+        /// </summary>
+        private void WirePanelHostDropZones()
+        {
+            var dropOnAiDock = new DropGestureRecognizer();
+            dropOnAiDock.Drop += (s, e) => OnEmptyHostDropped(PanelHost.Children, e);
+            AiDockPanel.GestureRecognizers.Add(dropOnAiDock);
+
+            var dropOnExplorerDock = new DropGestureRecognizer();
+            dropOnExplorerDock.Drop += (s, e) => OnEmptyHostDropped(PanelHostRight.Children, e);
+            ExplorerDockPanel.GestureRecognizers.Add(dropOnExplorerDock);
         }
 
         // ------------------------------------------------------------------
@@ -435,13 +550,20 @@ namespace Moto.Editor
             StatusBar.SetStatus($"🧠 Cortex + 🧬 Neural + 🏗 Workspace initialisés.");
         }
 
-        /// <summary>Retire de PanelHost l'en-tête (Border) qui enveloppe ce panneau.</summary>
+        /// <summary>Retire de son hôte actuel l'en-tête (Border) qui enveloppe ce panneau.</summary>
         private void RemoveFloatingPanel(ContentView panel)
         {
             // panel.Parent = VerticalStackLayout (Content du Border) ; son propre
-            // Parent = le Border ajouté à PanelHost.Children (voir AddFloatingPanel).
+            // Parent = le Border ajouté à PanelHost OU PanelHostRight (voir
+            // AddFloatingPanel).
+            // ★ CORRECTION (01/09, glisser-déposer entre docks) : ciblait PanelHost
+            // uniquement — un panneau déplacé vers PanelHostRight n'en était jamais
+            // retiré ici, laissant un wrapper fantôme (contenu figé, détaché du
+            // champ _xPanel réassigné juste après par l'appelant, voir plus bas)
+            // pendant qu'un wrapper frais réapparaissait à gauche. RemoveFromCurrentHost
+            // cherche dans les deux hôtes, comme le reste du mécanisme de glisser-déposer.
             if (panel.Parent?.Parent is Border wrapper)
-                PanelHost.Children.Remove(wrapper);
+                RemoveFromCurrentHost(wrapper);
         }
 
         private void RebindPanels()
@@ -450,26 +572,39 @@ namespace Moto.Editor
             // `panel.Parent is Grid` (vrai avant, quand les panneaux flottaient
             // directement dans RootGrid). Ils sont maintenant enveloppés dans un
             // Border ajouté à PanelHost (VerticalStackLayout) — voir AddFloatingPanel.
+            // ★ CORRECTION (01/09, revue croisée — régression trouvée) : capture
+            // AVANT RemoveFloatingPanel si l'ancien wrapper était dans PanelHostRight
+            // (droite) — sinon le remplaçant retombait TOUJOURS à gauche, annulant
+            // silencieusement le déplacement choisi par l'utilisateur à chaque
+            // ouverture de dossier (voir AddFloatingPanel, param preferRightHost).
             if (_cortexPanel.Parent != null)
             {
+                bool wasOnRight = WasOnRightHost(_cortexPanel);
                 RemoveFloatingPanel(_cortexPanel);
                 _cortexPanel = new CortexView(_cortex);
-                AddFloatingPanel(_cortexPanel);
+                AddFloatingPanel(_cortexPanel, preferRightHost: wasOnRight);
             }
             if (_neuralPanel.Parent != null)
             {
+                bool wasOnRight = WasOnRightHost(_neuralPanel);
                 RemoveFloatingPanel(_neuralPanel);
                 _neuralPanel = new NeuralView(_neural);
-                AddFloatingPanel(_neuralPanel);
+                AddFloatingPanel(_neuralPanel, preferRightHost: wasOnRight);
             }
             if (_workspacePanel.Parent != null)
             {
+                bool wasOnRight = WasOnRightHost(_workspacePanel);
                 RemoveFloatingPanel(_workspacePanel);
                 _workspacePanel = new AIWorkspaceView(_workspace);
-                AddFloatingPanel(_workspacePanel);
+                AddFloatingPanel(_workspacePanel, preferRightHost: wasOnRight);
             }
             WireAiPanels();
         }
+
+        /// <summary>Le wrapper de ce panneau est-il ACTUELLEMENT dans PanelHostRight
+        /// (droite) plutôt que PanelHost (gauche) ? Voir RebindPanels.</summary>
+        private bool WasOnRightHost(ContentView panel) =>
+            panel.Parent?.Parent is Border wrapper && PanelHostRight.Children.Contains(wrapper);
 
         // ★ LSP Roslyn (OmniSharp) : mis de côté pour cette passe (voir Moto.Core.csproj),
         // ce bloc de câblage se raccrochait à LanguageServerManager, exclu de la build.

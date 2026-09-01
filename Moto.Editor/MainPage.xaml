@@ -104,10 +104,39 @@
              après InitializeComponent()). Elle occupe la même cellule Row=2,Col=1. -->
 
         <!-- ══════════════════ Colonne 2 : Explorateur / Sidebar ══════════════════ -->
-        <views:FileExplorerView x:Name="ExplorerPanel" Grid.Row="2" Grid.Column="2"
-                                 WidthRequest="260" IsVisible="False" />
-        <views:SidebarView x:Name="Sidebar" Grid.Row="2" Grid.Column="2"
-                            WidthRequest="260" IsVisible="False" />
+        <!-- ★ AJOUT (01/09, chantier "panneaux modulaires" — 4e étape, glisser-
+             déposer ENTRE docks) : ExplorerPanel/Sidebar enveloppés dans un Grid
+             (RowDefinitions "*,Auto") pour accueillir, empilée EN DESSOUS, une
+             zone déroulante recevant les panneaux du dock IA glissés jusqu'ici —
+             symétrique de la structure d'AiDockPanel (zone fixe + liste
+             dynamique), rôles inversés : ici l'explorateur/sidebar garde tout
+             l'espace disponible ("*"), la zone de panneaux migrés ne prend que ce
+             qu'il lui faut ("Auto", plafonné par MaximumHeightRequest) et
+             n'apparaît QUE si un panneau y a effectivement été déplacé (même
+             patron IsVisible=repli-à-0 qu'ailleurs dans ce fichier — jamais de
+             RowDefinition touchée par code). ExplorerResizeHandle reste un
+             SIBLING de ce Grid, pas un enfant : il continue de couvrir toute la
+             hauteur de la colonne (explorateur + zone migrée), inchangé. -->
+        <Grid x:Name="ExplorerDockPanel" Grid.Row="2" Grid.Column="2" RowDefinitions="*,Auto">
+            <views:FileExplorerView x:Name="ExplorerPanel" Grid.Row="0"
+                                     WidthRequest="260" IsVisible="False" />
+            <views:SidebarView x:Name="Sidebar" Grid.Row="0"
+                                WidthRequest="260" IsVisible="False" />
+
+            <!-- ★ CORRECTION (01/09, revue croisée) : MaximumWidthRequest="640" ajouté
+                 — sans lui, un panneau migré ici dont le contenu naturel dépasse
+                 260px (ex. Analytics/Galerie, pensés pour les 500px du dock IA)
+                 pourrait élargir la colonne "Auto" au-delà de ce qu'ExplorerPanel/
+                 Sidebar (WidthRequest="260" fixe) demandent eux-mêmes, sans passer
+                 par la poignée de redimensionnement. Plafonné à 640 = la même
+                 borne haute que cette poignée s'impose déjà (OnExplorerResizePanUpdated) —
+                 aucun pire cas nouveau par rapport à ce que l'utilisateur peut déjà
+                 obtenir en tirant la poignée à fond. -->
+            <ScrollView x:Name="ExplorerPanelHostWrapper" Grid.Row="1"
+                        MaximumHeightRequest="320" MaximumWidthRequest="640" IsVisible="False">
+                <VerticalStackLayout x:Name="PanelHostRight" Spacing="8" Padding="8" />
+            </ScrollView>
+        </Grid>
 
         <!-- ★ AJOUT (31/08, point 7) : poignée d'étirement sur le bord gauche de
              l'explorateur/sidebar (même cellule de grille, ancrée à gauche, dessinée

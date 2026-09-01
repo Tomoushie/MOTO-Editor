@@ -51,8 +51,18 @@ namespace Moto.Editor.Views
                 {
                     // Invocation du contrat pour remonter l'info au ViewModel/Parent
                     SessionMoved?.Invoke(name, sectionName);
+                    e.Handled = true;
                 }
-                e.Handled = true;
+                // ★ CORRECTION (01/09, revue croisée — MOTO Editor) : ne PAS marquer
+                // Handled=true pour un drop qui n'est pas une session de chat (ex. un
+                // panneau IA glissé depuis le dock de gauche, voir
+                // MainPage.Panels.cs). Avant ce correctif, "e.Handled = true" était
+                // posé inconditionnellement ici, ce qui absorbait silencieusement
+                // TOUT drop passant par cette zone (Sessions occupe la majorité de la
+                // Sidebar) avant qu'il puisse remonter vers le gestionnaire du dock
+                // parent — rendant impossible de déposer le tout premier panneau
+                // migré tant que "Sessions" (plutôt que l'explorateur de fichiers)
+                // est affiché à droite.
             };
             host.GestureRecognizers.Add(drop);
 
