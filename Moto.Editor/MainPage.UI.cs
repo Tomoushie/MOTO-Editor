@@ -99,10 +99,22 @@ namespace Moto.Editor
             _globalUsage?.RecordBuild();
         }
 
+        // ★ AJOUT (01/09, revue croisée — dock du bas Terminal) : conserve le
+        // gestionnaire abonné pour pouvoir s'en désabonner avant d'en reposer un
+        // neuf (voir OnPlayClicked). Fuite préexistante à cette session, restée
+        // invisible tant que TerminalLines n'avait aucun écran pour l'afficher —
+        // désormais visible (relancer "Play" plusieurs fois aurait dupliqué
+        // chaque ligne de sortie autant de fois que de clics).
+        private Action<string> _runOutputHandler;
+
         private void OnPlayClicked(object sender, EventArgs e)
         {
-            _run.OutputReceived += line => MainThread.BeginInvokeOnMainThread(() =>
+            if (_runOutputHandler != null)
+                _run.OutputReceived -= _runOutputHandler;
+            _runOutputHandler = line => MainThread.BeginInvokeOnMainThread(() =>
                 _viewModel.TerminalLines.Add(new TerminalLine { Text = line }));
+            _run.OutputReceived += _runOutputHandler;
+
             _viewModel.IsTerminalVisible = true;
             _run.Run(_currentRoot);
             StatusBar.SetStatus("Exécution…");

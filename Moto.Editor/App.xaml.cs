@@ -104,6 +104,22 @@ namespace Moto.Editor
                 // retombe sur ApplicationTitle (.csproj) au lieu de le laisser vide. Un
                 // espace n'est PAS vide pour cette logique, mais reste visuellement blanc.
                 window.Title = " ";
+
+                // ★ AJOUT (01/09, revue croisée — MainPage.xaml, dock du bas Terminal) :
+                // aucune taille minimale n'était imposée à la fenêtre. RootGrid a
+                // maintenant une ligne "Auto" en plus (le dock Terminal, 120-500px de
+                // haut selon la poignée) qui rivalise avec la ligne "*" du contenu
+                // principal (Accueil/Éditeur/Explorateur) pour la hauteur disponible —
+                // une fenêtre réduite assez petit aurait pu écraser cette ligne "*"
+                // jusqu'à (quasi) 0px, reproduisant la même classe de plantage WinRT
+                // déjà documentée plus haut dans ce fichier (une CollectionView/
+                // ItemsRepeater — celle de l'explorateur ou celle des onglets de
+                // l'éditeur — arrangée dans un rectangle dégénéré). Bornes choisies
+                // pour garder au moins ~280px à la ligne "*" même avec le Terminal à
+                // sa hauteur plafond (revue croisée : plafond réduit 500→360 dans
+                // OnBottomDockResizePanUpdated, MainPage.Panels.cs, pour la même raison).
+                window.MinimumHeight = 700;
+                window.MinimumWidth = 1000;
                 Breadcrumb("CreateWindow — base.CreateWindow OK");
             }
             catch (Exception ex)

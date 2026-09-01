@@ -52,7 +52,13 @@
          reste de ce fichier — une ligne à hauteur 0 sans aucun enfant est sans
          risque (contrairement au bug historique d'une CollectionView arrangée dans
          un rectangle dégénéré, documenté plus bas : ici, rien n'y est placé du tout). -->
-    <Grid x:Name="RootGrid" RowDefinitions="38,0,*,26" ColumnDefinitions="Auto,*,Auto">
+    <!-- ★ AJOUT (01/09, chantier "panneaux modulaires" — dock du bas) : nouvelle
+         ligne 3 "Auto" pour le Terminal (repli à 0 par IsVisible=False sur
+         TerminalPanel lui-même, même patron que les colonnes 0/2 ci-dessus —
+         jamais de RowDefinition touchée par code). La barre de statut, seule
+         chose qui référençait Grid.Row="3" dans ce fichier, devient Grid.Row="4"
+         (vérifié : aucun autre Grid.Row="3" dans tout ce fichier). -->
+    <Grid x:Name="RootGrid" RowDefinitions="38,0,*,Auto,26" ColumnDefinitions="Auto,*,Auto">
 
         <!-- ══════════════════ Barre de titre / menu (+ nav, même ligne) ══════════════════ -->
         <views:CustomMenuBarView x:Name="MenuBar" Grid.Row="0" Grid.ColumnSpan="3" />
@@ -151,8 +157,33 @@
             </Border.GestureRecognizers>
         </Border>
 
+        <!-- ══════════════════ Dock du bas : Terminal ══════════════════ -->
+        <!-- ★ AJOUT (01/09) : le vrai moteur (TerminalService — cmd.exe/bash,
+             sortie en direct, envoi de commandes) et tout le câblage ViewModel
+             (TerminalLines/TerminalInput/SendTerminalCommand/IsTerminalVisible)
+             existaient déjà et tournaient (OnPlayClicked, MainPage.UI.cs) —
+             seul cet écran manquait. Liaison directe {Binding IsTerminalVisible}
+             plutôt que la poignée C# (RefreshXVisibility) utilisée ailleurs dans
+             ce fichier : IsTerminalVisible est déjà une vraie propriété
+             observable du ViewModel, donc une liaison XAML est ici plus simple
+             ET plus correcte, pas une entorse à la convention sans raison. -->
+        <views:TerminalPanelView x:Name="TerminalPanel" Grid.Row="3" Grid.ColumnSpan="3"
+                                  HeightRequest="220" IsVisible="{Binding IsTerminalVisible}" />
+
+        <!-- Poignée d'étirement sur le bord HAUT du dock (même patron que les
+             poignées gauche/droite : sibling, pas enfant, pour ne jamais être
+             clippée par la même astuce que le bug du menu "Local"). -->
+        <Border x:Name="BottomDockResizeHandle" Grid.Row="3" Grid.ColumnSpan="3"
+                HeightRequest="6" VerticalOptions="Start" HorizontalOptions="Fill"
+                BackgroundColor="Transparent" StrokeThickness="0"
+                IsVisible="{Binding IsTerminalVisible}">
+            <Border.GestureRecognizers>
+                <PanGestureRecognizer PanUpdated="OnBottomDockResizePanUpdated" />
+            </Border.GestureRecognizers>
+        </Border>
+
         <!-- ══════════════════ Barre de statut ══════════════════ -->
-        <views:StatusBarPanelView x:Name="StatusBar" Grid.Row="3" Grid.ColumnSpan="3" />
+        <views:StatusBarPanelView x:Name="StatusBar" Grid.Row="4" Grid.ColumnSpan="3" />
 
         <!-- ══════════════════ Bandeau IA flottant (Ctrl+Shift+I) ══════════════════ -->
         <!-- ★ CORRECTION (30/08, 2e passe) : centré sur les 3 colonnes (dock IA +

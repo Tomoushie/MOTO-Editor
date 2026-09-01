@@ -351,6 +351,25 @@ namespace Moto.Editor.ViewModels
             }
         }
 
+        /// <summary>
+        /// ★ AJOUT (01/09, revue croisée — dock du bas Terminal) : démarre le
+        /// shell s'il ne tourne pas déjà. IsTerminalVisible peut devenir vrai par
+        /// plusieurs chemins qui ne démarrent jamais _terminal (mode Expert,
+        /// menu Affichage > Terminal...) sans qu'un dossier ait été ouvert au
+        /// préalable — sans cet appel, le panneau avait l'air actif (en-tête,
+        /// zone de saisie) mais taper une commande n'avait silencieusement
+        /// aucun effet (SendInput ignore tout en silence si IsRunning est faux).
+        /// Appelé par TerminalPanelView dès que le dock devient visible.
+        /// TerminalService.Start(null) démarre dans le dossier utilisateur par
+        /// défaut (voir TerminalService.cs) — un shell général reste utile même
+        /// sans projet ouvert.
+        /// </summary>
+        public void EnsureTerminalRunning()
+        {
+            if (!_terminal.IsRunning)
+                _terminal.Start();
+        }
+
         private void SendTerminal()
         {
             if (string.IsNullOrWhiteSpace(TerminalInput))

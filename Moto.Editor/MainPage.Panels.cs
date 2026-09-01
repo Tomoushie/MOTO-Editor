@@ -224,6 +224,42 @@ namespace Moto.Editor
         }
 
         // ------------------------------------------------------------------
+        // ★ AJOUT (01/09, chantier "panneaux modulaires" — dock du bas) : même
+        // étirement à la souris, généralisé au Terminal (dock du bas). Verticale
+        // cette fois (hauteur), pas horizontale.
+        // ------------------------------------------------------------------
+        private double _bottomDockStartHeight;
+
+        /// <summary>
+        /// La poignée est sur le bord HAUT du dock (VerticalOptions="Start" dans
+        /// MainPage.xaml) : glisser vers le HAUT (TotalY négatif) doit AGRANDIR
+        /// le panneau (il "pousse" son bord haut plus loin de son bord bas fixe)
+        /// — même logique que OnExplorerResizePanUpdated (poignée sur le bord
+        /// GAUCHE, glisser vers la GAUCHE agrandit), transposée à la verticale.
+        /// ★ CORRECTION (01/09, revue croisée) : plafond réduit 500→360 — au-delà,
+        /// combiné à une fenêtre réduite à sa taille minimale (voir App.xaml.cs,
+        /// window.MinimumHeight), la ligne "*" du contenu principal (Accueil/
+        /// Éditeur/Explorateur) aurait pu être écrasée jusqu'à (quasi) 0px et
+        /// reproduire le crash WinRT déjà documenté (CollectionView/ItemsRepeater
+        /// arrangée dans un rectangle dégénéré) — cette fois via la famine
+        /// naturelle d'une ligne "*" plutôt que via un GridLength à 0 posé par
+        /// code, mais la même classe de plantage.
+        /// </summary>
+        private void OnBottomDockResizePanUpdated(object sender, PanUpdatedEventArgs e)
+        {
+            switch (e.StatusType)
+            {
+                case GestureStatus.Started:
+                    _bottomDockStartHeight = TerminalPanel.HeightRequest > 0 ? TerminalPanel.HeightRequest : 220;
+                    break;
+                case GestureStatus.Running:
+                    var newHeight = Math.Clamp(_bottomDockStartHeight - e.TotalY, 120, 360);
+                    TerminalPanel.HeightRequest = newHeight;
+                    break;
+            }
+        }
+
+        // ------------------------------------------------------------------
         // ★ AJOUT (01/09, "changer de côté") : ligne "Disposition des panneaux"
         // du menu ⚙ (GearMenuView, id "panellayout" — voir MainPage.Routing.cs,
         // qui affichait jusqu'ici "Pas encore disponible."). Échange le dock IA

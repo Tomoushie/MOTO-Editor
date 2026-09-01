@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+  Moto.Editor/Views/TerminalPanelView.xaml
+  ★ AJOUT (01/09, chantier "panneaux modulaires" — dock du bas) : le vrai
+  moteur (Moto.Core.Services.TerminalService — cmd.exe/bash, sortie en
+  direct, envoi de commandes) et tout le câblage ViewModel (TerminalLines,
+  TerminalInput, SendTerminalCommand, IsTerminalVisible) existaient déjà et
+  tournaient — seul cet écran manquait pour les rendre visibles/utilisables.
+  BindingContext hérité de MainPage (_viewModel), jamais fixé ici
+  explicitement : ce panneau n'a aucune logique propre, juste afficher/envoyer.
+-->
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Moto.Editor.Views.TerminalPanelView"
+             BackgroundColor="{StaticResource BgChrome}">
+    <Grid RowDefinitions="Auto,*,Auto">
+
+        <!-- ═══ En-tête ═══ -->
+        <!-- ★ CORRECTION (01/09, revue croisée) : marge haute 4→8 — la poignée de
+             redimensionnement du dock (BottomDockResizeHandle, MainPage.xaml) est
+             posée PAR-DESSUS le bord haut de ce panneau (6px) ; sans cette marge,
+             elle recouvrait les 2 derniers pixels du bouton ✕ juste en dessous. -->
+        <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Padding="10,8,10,4">
+            <Label Text="TERMINAL" FontAttributes="Bold" FontSize="11"
+                   TextColor="{StaticResource Txt2}" VerticalOptions="Center" />
+            <Button Grid.Column="1" Text="✕" WidthRequest="28" HeightRequest="24"
+                    FontSize="12" Padding="0" BackgroundColor="Transparent"
+                    TextColor="{StaticResource Txt2}"
+                    ToolTipProperties.Text="Fermer le terminal"
+                    Clicked="OnCloseClicked" />
+        </Grid>
+        <BoxView Grid.Row="0" VerticalOptions="End" HeightRequest="1"
+                 Color="{StaticResource BorderMuted}" />
+
+        <!-- ═══ Sortie (TerminalLines — alimentée en direct par TerminalService) ═══ -->
+        <CollectionView Grid.Row="1" x:Name="LinesList"
+                        ItemsSource="{Binding TerminalLines}"
+                        BackgroundColor="Transparent" Margin="10,4">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Label Text="{Binding Text}" FontFamily="Consolas" FontSize="12"
+                           TextColor="{StaticResource Txt1}" LineBreakMode="CharacterWrap">
+                        <Label.Triggers>
+                            <DataTrigger TargetType="Label" Binding="{Binding IsError}" Value="True">
+                                <Setter Property="TextColor" Value="{StaticResource Error}" />
+                            </DataTrigger>
+                        </Label.Triggers>
+                    </Label>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+
+        <!-- ═══ Entrée (TerminalInput → SendTerminalCommand → TerminalService.SendInput) ═══ -->
+        <Grid Grid.Row="2" ColumnDefinitions="*,Auto" Padding="8" ColumnSpacing="6">
+            <Entry Grid.Column="0" x:Name="InputEntry" Text="{Binding TerminalInput}"
+                   Placeholder="Tapez une commande…" FontFamily="Consolas" FontSize="12"
+                   BackgroundColor="{StaticResource BgPanel}" TextColor="{StaticResource Txt1}"
+                   Completed="OnSendClicked" />
+            <Button Grid.Column="1" Text="➤" Padding="10,2"
+                    BackgroundColor="{StaticResource Accent}" TextColor="{StaticResource BgEditor}"
+                    BorderWidth="0" Clicked="OnSendClicked" />
+        </Grid>
+    </Grid>
+</ContentView>
