@@ -16,11 +16,19 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="Moto.Editor.Controls.ExecutionLocationMenu">
 
-    <!-- ★ RETOUCHE (01/09, direction "Hybride Claude") : bordure adoucie + ombre
-         portée (voir MotoTheme.xaml) ; rayon déjà à 12, gardé tel quel. -->
+    <!-- ★ RETOUCHE (01/09, direction "Hybride Claude") : bordure adoucie (voir
+         MotoTheme.xaml) ; rayon déjà à 12, gardé tel quel.
+         ★ CORRECTION (01/09) : l'ombre ajoutée dans un premier temps cassait le
+         menu entier (n'apparaissait plus du tout, confirmé par Tom) — ce menu
+         vit dans un Grid volontairement codé pour NE PAS se redimensionner
+         (HomeView.xaml, commentaire du 31/08 : "un Grid MAUI n'est PAS
+         automatiquement rogné à ses limites... LocationMenu peut déborder
+         par-dessus sans agrandir ce Grid"), et l'ombre perturbe ce mécanisme de
+         débordement déjà fragile. Retirée ici spécifiquement (GearMenuView et
+         SettingsWindowView, dans des conteneurs normaux, gardent la leur sans
+         problème). -->
     <Border Stroke="{StaticResource BorderSoft}" StrokeShape="RoundRectangle 12"
-            BackgroundColor="{StaticResource BgPanel}" Padding="8" WidthRequest="260"
-            Shadow="{StaticResource ShadowMd}">
+            BackgroundColor="{StaticResource BgPanel}" Padding="8" WidthRequest="260">
 
         <VerticalStackLayout Spacing="2">
 
