@@ -311,6 +311,26 @@ namespace Moto.Editor
 
             panel.IsVisible = false;
 
+            // ★ AJOUT (01/09, chantier "panneaux modulaires" — 3e étape, glisser-
+            // déposer, 1re brique) : réordonner les panneaux du dock IA en les
+            // glissant. Même mécanisme (DragGestureRecognizer/DropGestureRecognizer
+            // + DataPackage.Properties) déjà éprouvé et fonctionnel dans
+            // SidebarView.xaml.cs (réordonnancement des sessions de chat) — pas
+            // réinventé. Ne s'applique pas à Recherche (asCenteredOverlay) : cette
+            // vue n'est pas dans la liste réordonnable de PanelHost.
+            if (!asCenteredOverlay)
+            {
+                wrapper.ClassId = TitleFor(panel);
+
+                var drag = new DragGestureRecognizer();
+                drag.DragStarting += (s, e) => e.Data.Properties["panelClassId"] = wrapper.ClassId;
+                header.GestureRecognizers.Add(drag);
+
+                var drop = new DropGestureRecognizer();
+                drop.Drop += (s, e) => OnPanelDroppedOn(wrapper, e);
+                wrapper.GestureRecognizers.Add(drop);
+            }
+
             if (asCenteredOverlay)
             {
                 // ★ CORRECTION (31/08, point 12) : Column="1" (colonne centrale) plutôt
@@ -331,6 +351,34 @@ namespace Moto.Editor
             {
                 PanelHost.Children.Add(wrapper);
             }
+        }
+
+        /// <summary>
+        /// Déplace le wrapper (Border) dont le ClassId correspond au panneau glissé
+        /// juste avant <paramref name="target"/> dans PanelHost.Children — appelé
+        /// par le DropGestureRecognizer de chaque wrapper (voir AddFloatingPanel).
+        /// Cherche l'index APRÈS avoir retiré l'élément source : IndexOf(target)
+        /// reste valide (target est une référence d'objet, pas une position) et
+        /// évite tout calcul de décalage d'index à la main.
+        /// </summary>
+        private void OnPanelDroppedOn(Border target, DropEventArgs e)
+        {
+            var draggedId = e.Data.Properties.TryGetValue("panelClassId", out var v) ? v as string : null;
+            e.Handled = true;
+            if (string.IsNullOrEmpty(draggedId))
+                return;
+
+            var children = PanelHost.Children;
+            Border source = null;
+            foreach (var child in children)
+            {
+                if (child is Border b && b.ClassId == draggedId) { source = b; break; }
+            }
+            if (source == null || source == target)
+                return;
+
+            children.Remove(source);
+            children.Insert(children.IndexOf(target), source);
         }
 
         // ------------------------------------------------------------------
