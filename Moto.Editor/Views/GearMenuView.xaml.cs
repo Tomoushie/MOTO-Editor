@@ -1,6 +1,7 @@
 // Moto.Editor/Views/GearMenuView.xaml.cs
 using System;
 using Microsoft.Maui.Controls;
+using Moto.Editor.Controls;
 
 namespace Moto.Editor.Views
 {
@@ -20,6 +21,15 @@ namespace Moto.Editor.Views
         public GearMenuView()
         {
             InitializeComponent();
+
+            // ★ AJOUT (01/09, direction "Hybride Claude") : aucune des 8 lignes ne
+            // réagissait au survol (juste un TapGestureRecognizer sur fond
+            // Transparent fixe) — le menu paraissait statique/inerte à l'usage,
+            // repéré dans l'audit visuel. Même helper déjà utilisé ailleurs
+            // (HomeView, FileExplorerView, AiComposerBarView) plutôt qu'un
+            // nouveau mécanisme.
+            foreach (var row in new[] { RowUser, RowOrg, RowSettings, RowKeymap, RowTheme, RowExtensions, RowPanelLayout, RowSignOut })
+                HoverEffects.Attach(row);
         }
 
         private void OnRowTapped(object sender, EventArgs e)

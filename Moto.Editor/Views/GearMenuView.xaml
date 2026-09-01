@@ -21,8 +21,15 @@
              xmlns:controls="clr-namespace:Moto.Editor.Controls"
              x:Class="Moto.Editor.Views.GearMenuView">
 
-    <Border Stroke="{StaticResource BorderCol}" StrokeShape="RoundRectangle 10"
-            BackgroundColor="{StaticResource BgPanel}" Padding="6" WidthRequest="230">
+    <!-- ★ RETOUCHE (01/09, direction "Hybride Claude") : rayon 10→12 (échelle
+         harmonisée), bordure adoucie (BorderSoft, semi-transparente) et vraie
+         ombre portée — ce menu n'avait jusqu'ici que sa bordure de 1px pour se
+         détacher du fond, sans aucune profondeur (voir HoverEffects ci-dessous
+         pour l'autre moitié du problème : le survol des lignes ne réagissait pas
+         du tout). -->
+    <Border Stroke="{StaticResource BorderSoft}" StrokeShape="RoundRectangle 12"
+            BackgroundColor="{StaticResource BgPanel}" Padding="6" WidthRequest="230"
+            Shadow="{StaticResource ShadowMd}">
 
         <VerticalStackLayout Spacing="1">
 

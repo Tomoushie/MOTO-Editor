@@ -31,13 +31,19 @@
              fonctionnel (ResizeGrip, seul vrai contenu), mais aucun texte, aucune
              catégorie, ✕ inopérant. Corrigé en mettant les DEUX dans un Grid
              (qui, lui, supporte plusieurs enfants superposés). -->
+        <!-- ★ RETOUCHE (01/09, direction "Hybride Claude") : rayon 10→14 (surface la
+             plus grande/prominente de l'appli, échelle harmonisée avec les menus à
+             12), bordure adoucie et vraie ombre — jusqu'ici seule la différence de
+             teinte plate avec le voile derrière la détachait du reste, aucune
+             profondeur (voir l'audit visuel). -->
         <Border x:Name="WindowFrame"
                 WidthRequest="900" HeightRequest="620"
                 MinimumWidthRequest="560" MinimumHeightRequest="380"
                 HorizontalOptions="Center" VerticalOptions="Center"
                 BackgroundColor="{StaticResource BgApp}"
-                Stroke="{StaticResource BorderCol}" StrokeThickness="1"
-                StrokeShape="RoundRectangle 10">
+                Stroke="{StaticResource BorderSoft}" StrokeThickness="1"
+                StrokeShape="RoundRectangle 14"
+                Shadow="{StaticResource ShadowLg}">
 
             <Grid>
                 <Grid RowDefinitions="40,*">

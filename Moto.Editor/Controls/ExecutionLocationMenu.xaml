@@ -16,8 +16,11 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="Moto.Editor.Controls.ExecutionLocationMenu">
 
-    <Border Stroke="{StaticResource BorderCol}" StrokeShape="RoundRectangle 12"
-            BackgroundColor="{StaticResource BgPanel}" Padding="8" WidthRequest="260">
+    <!-- ★ RETOUCHE (01/09, direction "Hybride Claude") : bordure adoucie + ombre
+         portée (voir MotoTheme.xaml) ; rayon déjà à 12, gardé tel quel. -->
+    <Border Stroke="{StaticResource BorderSoft}" StrokeShape="RoundRectangle 12"
+            BackgroundColor="{StaticResource BgPanel}" Padding="8" WidthRequest="260"
+            Shadow="{StaticResource ShadowMd}">
 
         <VerticalStackLayout Spacing="2">
 

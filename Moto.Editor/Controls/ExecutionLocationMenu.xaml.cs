@@ -16,6 +16,12 @@ namespace Moto.Editor.Controls
         public ExecutionLocationMenu()
         {
             InitializeComponent();
+
+            // ★ AJOUT (01/09, direction "Hybride Claude") : les 5 lignes n'avaient
+            // aucun retour visuel au survol (même défaut que GearMenuView, voir
+            // l'audit visuel) — même helper déjà utilisé ailleurs dans le projet.
+            foreach (var row in new[] { RowLocal, RowCloud, RowRemote, RowWsl, RowSsh })
+                HoverEffects.Attach(row);
         }
 
         private void OnCloseClicked(object sender, EventArgs e) => IsVisible = false;

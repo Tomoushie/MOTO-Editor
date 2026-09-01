@@ -25,6 +25,24 @@
     <Color x:Key="MotoLogoBackground">#0B1526</Color>
     <Color x:Key="MotoAccentBlue">#2E9BFF</Color>
 
+    <!-- ★ AJOUT (01/09, direction "Hybride Claude") : séparateur doux, blanc
+         semi-transparent au lieu d'un gris plat (#3A3B40) — reste cohérent quel
+         que soit le fond derrière, principe emprunté à VS Code (editorGroup.border)
+         et Zen Browser. Réservé aux panneaux flottants retouchés dans cette passe ;
+         BorderCol reste utilisé ailleurs (retouche complète = chantier séparé). -->
+    <Color x:Key="BorderSoft">#1AFFFFFF</Color>
+
+    <!-- ══════════════════ Ombres (élévation) ══════════════════ -->
+    <!-- ★ AJOUT (01/09, direction "Hybride Claude") : jusqu'ici AUCUNE ombre nulle
+         part dans MOTO Editor (vérifié : 0 usage réel) — c'est une grande partie
+         de ce qui donnait un rendu "plat"/premier prix. Principe emprunté à VS
+         Code/Zen Browser : l'ombre est réservée aux surfaces FLOTTANTES (menus,
+         popups, fenêtres modales) — jamais sur le chrome permanent (barre de
+         titre, panneaux fixes). Trois paliers, du plus discret au plus marqué. -->
+    <Shadow x:Key="ShadowSm" Brush="Black" Offset="0,2" Radius="8" Opacity="0.24" />
+    <Shadow x:Key="ShadowMd" Brush="Black" Offset="0,4" Radius="16" Opacity="0.32" />
+    <Shadow x:Key="ShadowLg" Brush="Black" Offset="0,8" Radius="28" Opacity="0.40" />
+
     <!-- ══════════════════ Tailles de police de l'interface (hors éditeur) ══════════════════ -->
     <!-- ★ AJOUT (31/08) : demandé par Tom (point 9) — le curseur "taille de police"
          des Réglages ne changeait que le contenu des fichiers ouverts. Ces 2 valeurs
