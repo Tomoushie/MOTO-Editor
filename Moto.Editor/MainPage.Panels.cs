@@ -105,6 +105,10 @@ namespace Moto.Editor
                 || _workspacePanel.IsVisible || _pluginGallery.IsVisible || _analyticsDashboard.IsVisible
                 || _debugPanel.IsVisible;
             AiDockPanel.IsVisible = any;
+            // ★ AJOUT (01/09) : même patron que RefreshExplorerHandleVisibility —
+            // la poignée d'étirement du dock IA ne doit apparaître (et réagir) que
+            // quand le dock est réellement affiché.
+            AiDockResizeHandle.IsVisible = any;
         }
 
         // ------------------------------------------------------------------
@@ -140,6 +144,31 @@ namespace Moto.Editor
                     var newWidth = Math.Clamp(_explorerStartWidth - e.TotalX, 180, 640);
                     ExplorerPanel.WidthRequest = newWidth;
                     Sidebar.WidthRequest = newWidth;
+                    break;
+            }
+        }
+
+        // ------------------------------------------------------------------
+        // ★ AJOUT (01/09, chantier "panneaux modulaires" — 1re étape) : même
+        // étirement à la souris, généralisé au dock IA (colonne 0, à gauche).
+        // ------------------------------------------------------------------
+        private double _aiDockStartWidth;
+
+        /// <summary>
+        /// Le dock IA est à GAUCHE et sa poignée est sur son bord DROIT (contraire
+        /// de l'explorateur) : glisser vers la DROITE (TotalX positif) doit donc
+        /// AGRANDIR le panneau — signe opposé à OnExplorerResizePanUpdated.
+        /// </summary>
+        private void OnAiDockResizePanUpdated(object sender, PanUpdatedEventArgs e)
+        {
+            switch (e.StatusType)
+            {
+                case GestureStatus.Started:
+                    _aiDockStartWidth = AiDockPanel.WidthRequest > 0 ? AiDockPanel.WidthRequest : 500;
+                    break;
+                case GestureStatus.Running:
+                    var newWidth = Math.Clamp(_aiDockStartWidth + e.TotalX, 280, 700);
+                    AiDockPanel.WidthRequest = newWidth;
                     break;
             }
         }

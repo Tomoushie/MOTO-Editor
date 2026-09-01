@@ -83,6 +83,19 @@
             </ScrollView>
         </Grid>
 
+        <!-- ★ AJOUT (01/09, chantier "panneaux modulaires" — 1re étape) : poignée
+             d'étirement sur le bord DROIT du dock IA (même patron que
+             ExplorerResizeHandle, côté opposé puisque ce dock est à gauche de
+             l'écran). Généralise le redimensionnement à la souris, déjà en place
+             sur l'explorateur, au dock IA. -->
+        <Border x:Name="AiDockResizeHandle" Grid.Row="2" Grid.Column="0"
+                WidthRequest="6" HorizontalOptions="End" VerticalOptions="Fill"
+                BackgroundColor="Transparent" StrokeThickness="0" IsVisible="False">
+            <Border.GestureRecognizers>
+                <PanGestureRecognizer PanUpdated="OnAiDockResizePanUpdated" />
+            </Border.GestureRecognizers>
+        </Border>
+
         <!-- ══════════════════ Colonne 1 : Accueil / Éditeur ══════════════════ -->
         <controls:EditorPaneView x:Name="EditorPane" Grid.Row="2" Grid.Column="1" IsVisible="False" />
         <!-- Home (x:Name="Home") est ajouté ici par code dans MainPage.xaml.cs :
