@@ -8,8 +8,9 @@ using Windows.System;
 namespace Moto.Editor.Platforms.Windows
 {
     /// <summary>
-    /// Enregistre CTRL+SHIFT+I et l'activation de la fenêtre (clic icône barre des tâches).
-    /// Utilise KeyboardAccelerator WinUI : fonctionne quand la fenêtre a le focus.
+    /// Enregistre CTRL+SHIFT+I, CTRL+B et l'activation de la fenêtre (clic icône
+    /// barre des tâches). Utilise KeyboardAccelerator WinUI : fonctionne quand la
+    /// fenêtre a le focus.
     /// </summary>
     public partial class GlobalHotkeyService
     {
@@ -19,7 +20,8 @@ namespace Moto.Editor.Platforms.Windows
         public static void Register(
             Microsoft.UI.Xaml.Window window,
             Action onHotkey,
-            Action onWindowActivated)
+            Action onWindowActivated,
+            Action onToggleExplorer = null)
         {
             if (window == null)
             {
@@ -42,6 +44,29 @@ namespace Moto.Editor.Platforms.Windows
                 };
 
                 root.KeyboardAccelerators.Add(accelerator);
+
+                // ★ AJOUT (02/09, état des lieux) : CTRL+B ("Basculer l'explorateur")
+                // déjà annoncé comme raccourci dans CommandPaletteEngine.cs (label
+                // affiché uniquement, jamais un vrai raccourci clavier — vérifié par
+                // recherche complète, aucun VirtualKey.B nulle part avant ceci). La
+                // route (view.explorer -> ToggleSide) existait déjà et marchait, seul
+                // l'écouteur manquait. Même mécanisme que CTRL+SHIFT+I ci-dessus.
+                if (onToggleExplorer != null)
+                {
+                    var explorerAccelerator = new Microsoft.UI.Xaml.Input.KeyboardAccelerator
+                    {
+                        Modifiers = VirtualKeyModifiers.Control,
+                        Key = VirtualKey.B
+                    };
+
+                    explorerAccelerator.Invoked += (s, e) =>
+                    {
+                        MainThread.BeginInvokeOnMainThread(() => onToggleExplorer.Invoke());
+                        e.Handled = true;
+                    };
+
+                    root.KeyboardAccelerators.Add(explorerAccelerator);
+                }
             }
 
             // 2. Activation de la fenêtre (clic sur l'icône barre des tâches).

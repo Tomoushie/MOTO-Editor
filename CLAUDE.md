@@ -171,32 +171,26 @@ Microsoft (`microsoft-ui-xaml#9374`, même symptôme).
   pour le détail complet de toutes les tentatives (6+ pistes écartées avec
   preuve avant celle-ci).
 
-## Point d'entrée pour ouvrir l'Explorateur — 3 options envisagées
+## Point d'entrée pour ouvrir l'Explorateur
 
-Aujourd'hui, seul le bouton "Fichiers" (barre de titre, tout à gauche) ouvre
-l'Explorateur. Vérifié : la palette de commandes (Ctrl+Shift+P) annonce déjà
-un raccourci "Basculer l'explorateur" = Ctrl+B, mais ce n'est qu'un texte
-affiché — aucun code n'écoute réellement Ctrl+B nulle part (vérifié par
-recherche complète). Vérifié aussi sur le vrai site de Zed : contrairement à
-VS Code, Zed n'a PAS de rail d'icônes vertical sur le bord gauche — ses
-icônes de panneaux vivent en bas à gauche de la fenêtre, dans la barre de
-statut.
+✅ **Ctrl+B câblé et confirmé (02/09).** La palette de commandes annonçait
+déjà "Basculer l'explorateur" = Ctrl+B (texte affiché seulement, aucun
+raccourci réel avant ce jour). Ajouté dans
+`Platforms/Windows/GlobalHotkeyService.cs` (2e `KeyboardAccelerator`, même
+mécanisme que Ctrl+Shift+I) → appelle `ToggleSide(isExplorer: true)`, le
+même code que le bouton "Fichiers" de la barre de titre. Confirmé par Tom.
 
-1. **Câbler le Ctrl+B déjà promis** — effort très faible (~15-20 lignes, un
-   seul fichier existant, `GlobalHotkeyService.cs`, même méthode que le
-   raccourci Ctrl+Shift+I qui marche déjà). Risque très faible. Corrige un
-   raccourci que l'app annonce déjà sans qu'il fasse quoi que ce soit.
-2. **Petite icône sur la partie libre de la barre de statut** — la colonne
-   de gauche de `StatusBarPanelView` est vide aujourd'hui (juste le mot
-   "Prêt."). C'est en fait PLUS fidèle à Zed que l'option 3 (Zed range ses
-   icônes de panneaux en bas, pas sur un rail vertical). Effort petit, risque
-   faible, réutilise un motif Border+TapGestureRecognizer déjà utilisé 2 fois
-   dans ce même fichier.
-3. **Vrai rail d'icônes vertical façon VS Code** — nouvelle colonne à gauche
-   de toute la fenêtre. Le plus proche de VS Code précisément (pas de Zed).
-   Effort moyen (renumérote toutes les colonnes du RootGrid), risque moyen
-   (ce fichier a déjà un historique de plantage sur un changement de largeur
-   de colonne — à tester prudemment même si le mécanisme diffère).
+2 autres options envisagées, PAS retenues pour l'instant (détail au cas où
+Tom veut aller plus loin visuellement un jour) :
+- **Petite icône sur la partie libre de la barre de statut** — la colonne de
+  gauche de `StatusBarPanelView` est vide (juste "Prêt."). Web-vérifié :
+  c'est en fait plus fidèle à Zed qu'un rail vertical (Zed range ses icônes
+  de panneaux en bas à gauche, pas sur le bord). Effort petit, risque faible.
+- **Vrai rail d'icônes vertical façon VS Code** — nouvelle colonne à gauche
+  de toute la fenêtre (pas le style de Zed, mais celui de VS Code). Effort
+  moyen (renumérote toutes les colonnes du RootGrid), risque moyen (ce
+  fichier a un historique de plantage sur un changement de largeur de
+  colonne — à tester prudemment).
 
 ## Fichiers exclus de la compilation (`<Compile Remove>`/`<MauiXaml Remove>`)
 

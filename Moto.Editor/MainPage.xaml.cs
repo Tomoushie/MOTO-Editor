@@ -422,7 +422,10 @@ namespace Moto.Editor
             // exactement là où Tom voyait ses chips coupées. Suppression sur l'Accueil
             // uniquement (Home.IsVisible) — le raccourci Ctrl+Shift+I et le bouton
             // dédié continuent de fonctionner normalement pendant l'édition.
-            GlobalHotkeyService.Register(nativeWindow, onHotkey: () => AiBar.Toggle(), onWindowActivated: () => { if (!Home.IsVisible) AiBar.Show(); });
+            // ★ AJOUT (02/09, état des lieux) : Ctrl+B ("Basculer l'explorateur")
+            // était déjà annoncé par la palette de commandes (CommandPaletteEngine.cs)
+            // mais aucun raccourci clavier réel ne l'écoutait — voir CLAUDE.md.
+            GlobalHotkeyService.Register(nativeWindow, onHotkey: () => AiBar.Toggle(), onWindowActivated: () => { if (!Home.IsVisible) AiBar.Show(); }, onToggleExplorer: () => ToggleSide(isExplorer: true));
 
             // ★ CORRECTION (30/08) : barre de titre Windows par défaut visible en plus de
             // notre CustomMenuBarView (repéré par Tom au premier lancement réel). Le
