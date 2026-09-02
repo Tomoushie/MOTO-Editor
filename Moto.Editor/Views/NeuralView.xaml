@@ -2,9 +2,9 @@
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="Moto.Editor.Views.NeuralView"
-             BackgroundColor="#17181C">
+             BackgroundColor="{StaticResource BgSide}">
 
-    <Border StrokeShape="RoundRectangle 12" Stroke="#3A3B40"
+    <Border StrokeShape="RoundRectangle 12" Stroke="{StaticResource BorderCol}"
             BackgroundColor="#1A1B1F" WidthRequest="440" Padding="14">
 
         <Grid RowDefinitions="Auto,Auto,Auto,*,Auto" RowSpacing="8">
@@ -19,7 +19,7 @@
             <Grid Grid.Row="2" ColumnDefinitions="*,Auto" ColumnSpacing="6">
                 <Entry Grid.Column="0" x:Name="IntentEntry"
                        Placeholder="Ex : génère-moi un système de combat"
-                       FontSize="12" BackgroundColor="#202126"
+                       FontSize="12" BackgroundColor="{StaticResource BgPanel}"
                        Completed="OnGenerateClicked" />
                 <Button Grid.Column="1" Text="✨ Générer"
                         FontSize="11" Padding="10,4"

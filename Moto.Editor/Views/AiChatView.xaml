@@ -76,7 +76,7 @@
 
         <!-- Suggestions slash -->
         <ListView Grid.Row="3" x:Name="SlashList" HeightRequest="100"
-                  IsVisible="False" BackgroundColor="#202126"
+                  IsVisible="False" BackgroundColor="{StaticResource BgPanel}"
                   ItemSelected="OnSlashSelected" />
 
         <!-- Zone de saisie + barre mode/modèle (structure type agent) -->

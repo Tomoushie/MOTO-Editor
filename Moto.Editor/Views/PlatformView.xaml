@@ -2,9 +2,9 @@
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="Moto.Editor.Views.PlatformView"
-             BackgroundColor="#17181C">
+             BackgroundColor="{StaticResource BgSide}">
 
-    <Border StrokeShape="RoundRectangle 12" Stroke="#3A3B40"
+    <Border StrokeShape="RoundRectangle 12" Stroke="{StaticResource BorderCol}"
             BackgroundColor="#1A1B1F" WidthRequest="460" Padding="14">
 
         <Grid RowDefinitions="Auto,Auto,*,Auto,Auto" RowSpacing="8">
@@ -18,7 +18,7 @@
             <CollectionView Grid.Row="2" x:Name="ProposalsList">
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
-                        <Border StrokeShape="RoundRectangle 8" BackgroundColor="#202126"
+                        <Border StrokeShape="RoundRectangle 8" BackgroundColor="{StaticResource BgPanel}"
                                 Padding="10" Margin="0,4">
                             <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto">
                                 <Label Grid.Row="0" Grid.Column="0" Text="{Binding Title}"

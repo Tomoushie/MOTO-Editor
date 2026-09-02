@@ -35,7 +35,7 @@
              xmlns:controls="clr-namespace:Moto.Editor.Controls"
              x:Class="Moto.Editor.Views.CustomMenuBarView"
              HeightRequest="38"
-             BackgroundColor="#17181C">
+             BackgroundColor="{StaticResource BgSide}">
     <Grid ColumnDefinitions="Auto,Auto,Auto,*,Auto,Auto,Auto,Auto,Auto">
 
         <!-- Nav (ex-ActivityBarView, maintenant sur la même ligne) -->

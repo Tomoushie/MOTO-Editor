@@ -289,17 +289,26 @@ Connus déjà avant le 02/09 :
 
 ## Dette visuelle connue
 
-État des lieux du 02/09 (81 fichiers XAML dans Views/Controls) :
-- **34 fichiers (42%)** ont au moins une couleur codée en dur — mais très
-  étalé, presque tous n'en ont que 1 à 4 (le pire cas, NeuralView, n'en a que
-  5). Pas de fichier catastrophique isolé.
-- **Sur ces 34, 22 fichiers (65%)** recopient littéralement une des 3 mêmes
-  valeurs hex qui existent déjà comme jetons dans `MotoTheme.xaml`
-  (`#17181C`=BgSide dans 18 fichiers, `#202126`=BgPanel dans 12,
-  `#3A3B40`=BorderCol dans 15, avec chevauchement). **C'est un seul chantier
-  mécanique de "chercher/remplacer" par fichier, pas 22 décisions
-  séparées** — réglerait les deux tiers de la dette couleur en une passe à
-  faible risque.
+✅ **CORRIGÉ (02/09).** Le chantier mécanique décrit ci-dessous (remplacer
+`#17181C`/`#202126`/`#3A3B40` codés en dur par `{StaticResource BgSide/
+BgPanel/BorderCol}`) a été fait sur les 19 fichiers réellement compilés
+(2 des fichiers repérés par la sonde étaient en fait déjà exclus de la
+compilation — `SettingsMenuView`, `CollabView` — non touchés, ça n'aurait
+rien changé de visible). 45 occurrences remplacées, aucun changement visuel
+attendu (mêmes couleurs, juste référencées proprement) — build 0 erreur,
+app relancée sans exception. Les couleurs "dérivées" à l'œil (proches d'un
+jeton sans l'être exactement, ex. `#1A1B1F` dans NeuralView) n'ont PAS été
+touchées, elles ont besoin d'un vrai jugement au cas par cas, pas d'un
+chercher/remplacer.
+
+État des lieux du 02/09 (81 fichiers XAML dans Views/Controls) — pour
+mémoire, avant ce correctif :
+- **34 fichiers (42%)** avaient au moins une couleur codée en dur — mais très
+  étalé, presque tous n'en avaient que 1 à 4 (le pire cas, NeuralView,
+  n'en avait que 5). Pas de fichier catastrophique isolé.
+- **Sur ces 34, 22 fichiers (65%)** recopiaient littéralement une des 3 mêmes
+  valeurs hex qui existent comme jetons dans `MotoTheme.xaml` — d'où le
+  chantier mécanique ci-dessus.
 - Les ~12 fichiers restants ont de vraies couleurs "dérivées" à l'œil (proche
   d'un jeton sans l'être exactement, ex. `#9aa0a6` vs le vrai `#9CA3AF` de
   Txt2) — ceux-là ont vraiment besoin d'être regardés un par un.

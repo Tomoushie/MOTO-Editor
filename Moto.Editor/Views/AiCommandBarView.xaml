@@ -5,8 +5,8 @@
 
     <!-- Barre IA flottante, style Claude / Zen -->
     <Border StrokeShape="RoundRectangle 24"
-            Stroke="#3A3B40"
-            BackgroundColor="#202126"
+            Stroke="{StaticResource BorderCol}"
+            BackgroundColor="{StaticResource BgPanel}"
             Padding="14,8"
             WidthRequest="560">
 

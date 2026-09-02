@@ -2,9 +2,9 @@
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="Moto.Editor.Views.ContextSuggestionsView"
-             BackgroundColor="#17181C">
+             BackgroundColor="{StaticResource BgSide}">
 
-    <Border StrokeShape="RoundRectangle 12" Stroke="#3A3B40"
+    <Border StrokeShape="RoundRectangle 12" Stroke="{StaticResource BorderCol}"
             BackgroundColor="#1A1B1F" WidthRequest="440" Padding="14">
 
         <Grid RowDefinitions="Auto,Auto,*" Padding="0">
@@ -18,7 +18,7 @@
             <CollectionView Grid.Row="2" x:Name="SuggestionsList">
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
-                        <Border StrokeShape="RoundRectangle 8" BackgroundColor="#202126"
+                        <Border StrokeShape="RoundRectangle 8" BackgroundColor="{StaticResource BgPanel}"
                                 Padding="10" Margin="0,4">
                             <Grid ColumnDefinitions="Auto,*,Auto,Auto" RowDefinitions="Auto,Auto" ColumnSpacing="8">
 

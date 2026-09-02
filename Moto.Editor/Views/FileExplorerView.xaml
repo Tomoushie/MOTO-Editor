@@ -4,7 +4,7 @@
              xmlns:controls="clr-namespace:Moto.Editor.Controls"
              x:Class="Moto.Editor.Views.FileExplorerView">
 
-    <Grid RowDefinitions="Auto,Auto,*" BackgroundColor="#17181C">
+    <Grid RowDefinitions="Auto,Auto,*" BackgroundColor="{StaticResource BgSide}">
 
         <!-- Barre d'outils de l'explorateur -->
         <HorizontalStackLayout Grid.Row="0" Padding="8,6" Spacing="6">
