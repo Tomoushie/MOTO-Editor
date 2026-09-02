@@ -462,7 +462,30 @@ Connus déjà avant le 02/09 :
 
 ## Dette visuelle connue
 
-✅ **CORRIGÉ (02/09).** Le chantier mécanique décrit ci-dessous (remplacer
+✅ **CORRIGÉ (02/09), passe 2 — les couleurs "dérivées" au cas par cas.**
+En creusant les hex restants après la passe mécanique (ci-dessous) :
+- 2 nouveaux vrais jetons ajoutés à `MotoTheme.xaml`, pour des couleurs
+  recopiées à la main de façon cohérente et clairement volontaire — pas
+  "corrigées" vers un jeton existant (ça aurait aplati un effet voulu) :
+  **`BgPanelInner`** (`#1A1B1F`, fond de la carte intérieure de 12 panneaux
+  — Cortex/Neural/Platform/Workspace/AutoLink/ContextSuggestions/DocPanel/
+  ExportMenu/PasswordGate/Performance/Presentation/RemoteConnect — une
+  teinte distincte du cadre extérieur d'AddFloatingPanel, pour la
+  profondeur) et **`Danger`** (`#DC2626`, bouton "Supprimer" de
+  `ConfirmationOverlay` + marqueurs de points d'arrêt dans les 2 panneaux
+  Debug — distinct d'`Error` qui reste réservé aux badges d'erreur).
+- Vraies dérives corrigées vers un jeton existant (`AiChatView.xaml` :
+  `#9aa0a6`→Txt2, `#1E1F24`→BgApp ; `StoryModeView.xaml` : `#1E1F24`→BgApp).
+- Laissés tels quels, en connaissance de cause : `#0F1013` (NeuralView,
+  un seul usage réel, boîte de résultat volontairement plus sombre — pas
+  assez répété pour mériter un jeton) ; le dégradé `#171B21`/`#111419` de
+  `HomeView.xaml` (2 arrêts de dégradé, pas des couleurs plates à
+  tokeniser) ; la CSS embarquée dans `Controls/CodeEditorView.xaml.cs`
+  (texte HTML/CSS dans une chaîne C#, pas une liaison XAML — les valeurs
+  sont déjà les bonnes, juste pas via un jeton, chantier séparé si un jour
+  utile). Build 0 erreur, confirmé identique à l'œil par Tom.
+
+✅ **CORRIGÉ (02/09), passe 1 — mécanique.** Le chantier mécanique décrit ci-dessous (remplacer
 `#17181C`/`#202126`/`#3A3B40` codés en dur par `{StaticResource BgSide/
 BgPanel/BorderCol}`) a été fait sur les 19 fichiers réellement compilés
 (2 des fichiers repérés par la sonde étaient en fait déjà exclus de la

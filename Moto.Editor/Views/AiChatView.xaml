@@ -51,7 +51,7 @@
                         <VerticalStackLayout Spacing="2">
                             <Label Text="{Binding Content}" FontSize="12" TextColor="White" />
                             <Label Text="{Binding TimeLabel}" FontSize="9"
-                                   TextColor="#9aa0a6" HorizontalOptions="End" />
+                                   TextColor="{StaticResource Txt2}" HorizontalOptions="End" />
                         </VerticalStackLayout>
                     </Border>
                 </DataTemplate>
@@ -81,7 +81,7 @@
 
         <!-- Zone de saisie + barre mode/modèle (structure type agent) -->
         <Border Grid.Row="4" StrokeShape="RoundRectangle 10"
-                Stroke="{StaticResource BorderCol}" BackgroundColor="#1E1F24" Padding="6">
+                Stroke="{StaticResource BorderCol}" BackgroundColor="{StaticResource BgApp}" Padding="6">
 
             <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="Auto,*,Auto">
 

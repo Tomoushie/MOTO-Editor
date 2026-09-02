@@ -18,6 +18,15 @@
     <Color x:Key="BgPanel">#202126</Color>
     <Color x:Key="BgSide">#17181C</Color>
     <Color x:Key="BgHover">#2A2C31</Color>
+    <!-- ★ AJOUT (02/09, retouches visuelles) : #1A1B1F recopié à la main dans 12
+         fichiers (Cortex/Neural/Platform/Workspace/AutoLink/ContextSuggestions/
+         DocPanel/ExportMenu/PasswordGate/Performance/Presentation/RemoteConnect)
+         comme fond de la carte INTÉRIEURE de chaque panneau, une teinte
+         légèrement différente du fond du cadre extérieur d'AddFloatingPanel
+         (BgPanel) pour donner une impression de profondeur — usage cohérent et
+         volontaire (pas une dérive), donc promu en vrai jeton au lieu d'être
+         "corrigé" vers BgPanel/BgApp (ce qui aurait aplati cet effet exprès). -->
+    <Color x:Key="BgPanelInner">#1A1B1F</Color>
     <Color x:Key="Txt1">#E5E7EB</Color>
     <Color x:Key="Txt2">#9CA3AF</Color>
     <Color x:Key="Accent">#D97757</Color>
@@ -79,6 +88,12 @@
     <Color x:Key="BorderMuted">#1AFFFFFF</Color>
     <Color x:Key="Error">#FF4500</Color>
     <Color x:Key="Warning">#D9A227</Color>
+    <!-- ★ AJOUT (02/09, retouches visuelles) : #DC2626 recopié à la main dans 3
+         fichiers (ConfirmationOverlay = bouton "Supprimer" ; DebugPanelProView/
+         DebugPanelView = marqueurs de points d'arrêt/rupture) — usage cohérent
+         et distinct d'Error (#FF4500, réservé aux badges d'erreur), donc promu
+         en vrai jeton sémantique au lieu d'être fondu dans Error. -->
+    <Color x:Key="Danger">#DC2626</Color>
 
     <!-- ══════════════════ Espacement ══════════════════ -->
     <!-- ★ AJOUT (01/09, direction "Hybride Claude") : échelle officielle, à

@@ -10,7 +10,7 @@
 
         <Editor Grid.Row="1" x:Name="StoryInput"
                 Placeholder="Il était une fois un chevalier qui suit un dragon dans une forêt pour protéger un trésor…"
-                BackgroundColor="#1E1F24" FontSize="12" />
+                BackgroundColor="{StaticResource BgApp}" FontSize="12" />
 
         <Button Grid.Row="2" Text="✨ Transformer mon histoire en projet"
                 Clicked="OnGenerateClicked" FontSize="12" />

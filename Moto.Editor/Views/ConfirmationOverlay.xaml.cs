@@ -34,7 +34,7 @@ namespace Moto.Editor.Views
             // Couleur destructive (rouge) pour les actions irréversibles
             if (request.IsDestructive)
             {
-                ConfirmBtn.BackgroundColor = Microsoft.Maui.Graphics.Color.FromArgb("#DC2626");
+                ConfirmBtn.BackgroundColor = (Microsoft.Maui.Graphics.Color)Application.Current!.Resources["Danger"];
             }
             else
             {

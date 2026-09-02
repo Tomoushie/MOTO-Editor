@@ -29,7 +29,7 @@
                     TextColor="{StaticResource Txt1}" Clicked="OnStepIntoClicked" IsEnabled="False" />
             <Button Grid.Column="5" x:Name="StopBtn" Text="⏹"
                     WidthRequest="32" HeightRequest="32"
-                    BackgroundColor="#DC2626"
+                    BackgroundColor="{StaticResource Danger}"
                     TextColor="White" Clicked="OnStopClicked" IsEnabled="False" />
         </Grid>
 

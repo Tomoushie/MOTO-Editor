@@ -181,7 +181,7 @@ namespace Moto.Editor.Views
                     Text = w.Value ?? "…",
                     FontSize = 11,
                     TextColor = w.HasError
-                        ? Color.FromArgb("#DC2626")
+                        ? (Color)Application.Current.Resources["Danger"]
                         : (Color)Application.Current.Resources["Accent"]
                 };
                 Grid.SetColumn(valueLabel, 1);
@@ -210,7 +210,7 @@ namespace Moto.Editor.Views
                     WidthRequest = 12, HeightRequest = 12,
                     StrokeShape = new Ellipse(),
                     BackgroundColor = bp.Enabled
-                        ? (bp.Verified ? Color.FromArgb("#DC2626") : Color.FromArgb("#9CA3AF"))
+                        ? (bp.Verified ? (Color)Application.Current.Resources["Danger"] : (Color)Application.Current.Resources["Txt2"])
                         : Color.FromArgb("#6B7280")
                 };
 
