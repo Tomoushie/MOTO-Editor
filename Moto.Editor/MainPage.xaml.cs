@@ -110,6 +110,10 @@ namespace Moto.Editor
             WireSettings();
             WirePanels();
             WireMenusAndSidebar();
+            // ★ AJOUT (02/09, "vrai registre de commandes" — fondation Zed/VS Code) :
+            // remplit _commandRegistry une seule fois ; voir MainPage.Routing.cs pour
+            // le détail (RegisterMenuCommands/OnMenuCommanded/CommandRegistry).
+            RegisterMenuCommands();
             WireInlayHints();
 
             // ── Chargement : stats + provider IA + mises à jour ──

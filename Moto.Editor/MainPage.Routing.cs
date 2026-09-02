@@ -8,6 +8,7 @@ using Microsoft.Maui.ApplicationModel;
 using Microsoft.Maui.Controls;
 using Moto.Core.AI.Analytics;
 using Moto.Core.AI.Builders;
+using Moto.Core.AI.Commands;
 using Moto.Core.Export;
 using Moto.Core.Settings;
 using Moto.Editor.Services;
@@ -26,83 +27,102 @@ namespace Moto.Editor
         // ------------------------------------------------------------------
         // Routeur des menus custom
         // ------------------------------------------------------------------
-        private void OnMenuCommanded(string id)
+        // ★ AJOUT (02/09, "vrai registre de commandes" — fondation Zed/VS Code,
+        // choisi par Tom en retour de la sonde de modularité du même jour). Ce
+        // switch(id) — une trentaine de cas codés en dur, chacun appelant
+        // directement une méthode privée de MainPage — a été remplacé par
+        // CommandRegistry (Moto.Core), une vraie table id → action remplie une
+        // seule fois au démarrage (voir RegisterMenuCommands ci-dessous, appelée
+        // depuis le constructeur de MainPage). Comportement IDENTIQUE pour Tom :
+        // mêmes identifiants, mêmes actions, juste une tuyauterie différente.
+        // Ce que ça ouvre pour plus tard (PAS fait ici, hors scope de cette
+        // étape) : un futur système de plugins pourrait appeler
+        // _commandRegistry.Register(...) pour ajouter ses propres commandes sans
+        // jamais modifier ce fichier — voir CLAUDE.md, section "Modularité façon
+        // Zed/VS Code", Gap B.
+        private readonly CommandRegistry _commandRegistry = new();
+
+        private void OnMenuCommanded(string id) => _commandRegistry.Execute(id);
+
+        /// <summary>Remplit _commandRegistry une seule fois au démarrage — un
+        /// enregistrement par identifiant du switch qu'elle remplace, dans le même
+        /// ordre, pour qu'un futur diff reste facile à relire.</summary>
+        private void RegisterMenuCommands()
         {
-            switch (id)
+            _commandRegistry.Register("file.opendir", () => _viewModel.OpenFileCommand.Execute(null));
+            _commandRegistry.Register("file.openfile", () => _viewModel.OpenFileCommand.Execute(null));
+            _commandRegistry.Register("file.save", () => _viewModel.SaveCommand.Execute(null));
+            _commandRegistry.Register("file.import", () => OnImportClicked(null, null));
+            _commandRegistry.Register("file.export", () => ExportMenu.IsVisible = !ExportMenu.IsVisible);
+            _commandRegistry.Register("file.lock", () => OnLockClicked(null, null));
+
+            _commandRegistry.Register("edit.search", () => AiBar.Toggle());
+            _commandRegistry.Register("edit.commands", () => AiBar.Toggle());
+
+            _commandRegistry.Register("view.explorer", () => ToggleSide(isExplorer: true));
+            _commandRegistry.Register("view.sidebar", () => ToggleSide(isExplorer: false));
+            _commandRegistry.Register("view.aipanel", () =>
             {
-                case "file.opendir": _viewModel.OpenFileCommand.Execute(null); break;
-                case "file.openfile": _viewModel.OpenFileCommand.Execute(null); break;
-                case "file.save": _viewModel.SaveCommand.Execute(null); break;
-                case "file.import": OnImportClicked(null, null); break;
-                case "file.export": ExportMenu.IsVisible = !ExportMenu.IsVisible; break;
-                case "file.lock": OnLockClicked(null, null); break;
+                _aiChatPanel.IsVisible = !_aiChatPanel.IsVisible;
+                RefreshAiDockColumnWidth();
+            });
+            _commandRegistry.Register("view.terminal", () => _viewModel.IsTerminalVisible = !_viewModel.IsTerminalVisible);
+            _commandRegistry.Register("view.diagnostics", () => _viewModel.IsDiagnosticsVisible = !_viewModel.IsDiagnosticsVisible);
+            _commandRegistry.Register("view.maximize", () => OnMaximizeToggled());
+            _commandRegistry.Register("view.theme", () => ThemeService.SetDark());
 
-                case "edit.search": AiBar.Toggle(); break;
-                case "edit.commands": AiBar.Toggle(); break;
+            // ★ AJOUT (02/09, état des lieux) : "Paramètres" dans la barre de
+            // recherche de commandes (Ctrl+Shift+P) envoie "menu:settings", qui
+            // tombait sans aucun cas correspondant — cliquer dessus ne faisait
+            // rien. Même appel que le menu ⚙ (voir plus bas, OnGearMenuItemSelected).
+            _commandRegistry.Register("settings", () => SettingsWindow.Show("Général"));
 
-                case "view.explorer": ToggleSide(isExplorer: true); break;
-                case "view.sidebar": ToggleSide(isExplorer: false); break;
-                case "view.aipanel": _aiChatPanel.IsVisible = !_aiChatPanel.IsVisible; RefreshAiDockColumnWidth(); break;
-                case "view.terminal": _viewModel.IsTerminalVisible = !_viewModel.IsTerminalVisible; break;
-                case "view.diagnostics": _viewModel.IsDiagnosticsVisible = !_viewModel.IsDiagnosticsVisible; break;
-                case "view.maximize": OnMaximizeToggled(); break;
-                case "view.theme": ThemeService.SetDark(); break;
+            _commandRegistry.Register("nav.back", () => OnNavBack());
+            _commandRegistry.Register("nav.forward", () => OnNavForward());
 
-                // ★ AJOUT (02/09, état des lieux) : "Paramètres" dans la barre de
-                // recherche de commandes (Ctrl+Shift+P) envoie "menu:settings", qui
-                // tombait ici sans aucun cas correspondant — cliquer dessus ne
-                // faisait rien. Même appel que le menu ⚙ (voir plus bas dans ce
-                // fichier, OnGearMenuItemSelected).
-                case "settings": SettingsWindow.Show("Général"); break;
+            _commandRegistry.Register("run.build", () => OnBuildClicked(null, null));
+            _commandRegistry.Register("run.play", () => OnPlayClicked(null, null));
+            _commandRegistry.Register("run.stop", () => OnStopClicked(null, null));
+            _commandRegistry.Register("run.sandbox", () => OnSandboxClicked(null, null));
 
-                case "nav.back": OnNavBack(); break;
-                case "nav.forward": OnNavForward(); break;
+            _commandRegistry.Register("ai.cortex", () => OnCortexClicked(null, null));
+            _commandRegistry.Register("ai.neural", () => OnNeuralClicked(null, null));
+            _commandRegistry.Register("ai.workspace", () => OnWorkspaceClicked(null, null));
+            _commandRegistry.Register("ai.autolink", () => AutoLinkPanel.IsVisible = !AutoLinkPanel.IsVisible);
+            _commandRegistry.Register("ai.context", () => ContextPanel.IsVisible = !ContextPanel.IsVisible);
+            _commandRegistry.Register("ai.evolution", () => StatusBar.SetStatus("🧬 Evolution…"));
+            _commandRegistry.Register("ai.story", () => StatusBar.SetStatus("📚 Story Mode…"));
+            _commandRegistry.Register("ai.health", () => StatusBar.SetStatus("🩺 Health…"));
+            _commandRegistry.Register("ai.timemachine", () => StatusBar.SetStatus("🕘 Time Machine…"));
+            _commandRegistry.Register("ai.doc", () => DocPanel.IsVisible = !DocPanel.IsVisible);
+            _commandRegistry.Register("ai.platform", () => OnPlatformClicked(null, null));
+            _commandRegistry.Register("ai.presentation", () => OnPresentationClicked(null, null));
+            _commandRegistry.Register("ai.remote", () => OnRemoteClicked(null, null));
+            _commandRegistry.Register("ai.collab", () => OnCollabClicked(null, null));
+            _commandRegistry.Register("ai.gallery", () => OnGalleryClicked());
+            // ★ AJOUT (02/09, réveil de MotoAiPage) : jamais navigable auparavant
+            // (ni DI, ni Navigation.PushAsync nulle part — confirmé par recherche
+            // avant ce correctif). Pas de dépendance à résoudre (MotoAiService
+            // s'auto-construit) — fire-and-forget, comme les autres actions
+            // ci-dessus qui ne bloquent pas sur un résultat.
+            _commandRegistry.Register("ai.motopage", () => _ = Navigation.PushAsync(new Pages.MotoAiPage()));
 
-                case "run.build": OnBuildClicked(null, null); break;
-                case "run.play": OnPlayClicked(null, null); break;
-                case "run.stop": OnStopClicked(null, null); break;
-                case "run.sandbox": OnSandboxClicked(null, null); break;
+            _commandRegistry.Register("term.open", () => _viewModel.IsTerminalVisible = true);
+            _commandRegistry.Register("help.doc", () => DocPanel.IsVisible = true);
+            _commandRegistry.Register("help.about", () => StatusBar.SetStatus("MOTO Editor v0.5 — AI Workspace"));
 
-                case "ai.cortex": OnCortexClicked(null, null); break;
-                case "ai.neural": OnNeuralClicked(null, null); break;
-                case "ai.workspace": OnWorkspaceClicked(null, null); break;
-                case "ai.autolink": AutoLinkPanel.IsVisible = !AutoLinkPanel.IsVisible; break;
-                case "ai.context": ContextPanel.IsVisible = !ContextPanel.IsVisible; break;
-                case "ai.evolution": StatusBar.SetStatus("🧬 Evolution…"); break;
-                case "ai.story": StatusBar.SetStatus("📚 Story Mode…"); break;
-                case "ai.health": StatusBar.SetStatus("🩺 Health…"); break;
-                case "ai.timemachine": StatusBar.SetStatus("🕘 Time Machine…"); break;
-                case "ai.doc": DocPanel.IsVisible = !DocPanel.IsVisible; break;
-                case "ai.platform": OnPlatformClicked(null, null); break;
-                case "ai.presentation": OnPresentationClicked(null, null); break;
-                case "ai.remote": OnRemoteClicked(null, null); break;
-                case "ai.collab": OnCollabClicked(null, null); break;
-                case "ai.gallery": OnGalleryClicked(); break;
-                // ★ AJOUT (02/09, réveil de MotoAiPage) : jamais navigable auparavant
-                // (ni DI, ni Navigation.PushAsync nulle part — confirmé par recherche
-                // avant ce correctif). Pas de dépendance à résoudre (MotoAiService
-                // s'auto-construit) — fire-and-forget, comme les autres actions de
-                // ce switch qui ne bloquent pas sur un résultat.
-                case "ai.motopage": _ = Navigation.PushAsync(new Pages.MotoAiPage()); break;
+            // ★ AJOUT (31/08) : engrenage ⚙ ou avatar "Moi" de la barre de titre
+            // (points 1, 2, 11 de Tom) — CustomMenuBarView lève cet id via
+            // MenuCommanded (événement déjà existant, jamais utilisé jusqu'ici).
+            _commandRegistry.Register("gear.toggle", () => GearMenu.IsVisible = !GearMenu.IsVisible);
 
-                case "term.open": _viewModel.IsTerminalVisible = true; break;
-                case "help.doc": DocPanel.IsVisible = true; break;
-                case "help.about": StatusBar.SetStatus("MOTO Editor v0.5 — AI Workspace"); break;
-
-                // ★ AJOUT (31/08) : engrenage ⚙ ou avatar "Moi" de la barre de titre
-                // (points 1, 2, 11 de Tom) — CustomMenuBarView lève cet id via
-                // MenuCommanded (événement déjà existant, jamais utilisé jusqu'ici).
-                case "gear.toggle": GearMenu.IsVisible = !GearMenu.IsVisible; break;
-
-                // ★ AJOUT (31/08) : Fichiers/Recherche/IA/Cortex/Collab, rapatriés dans
-                // la barre de titre (Tom veut tout sur une seule ligne — voir
-                // CustomMenuBarView.xaml, ActivityBarView retirée de MainPage.xaml).
-                // Réutilise OnActivitySelected tel quel : même id, même logique
-                // d'ouverture/fermeture des panneaux, rien d'autre à changer.
-                case "explorer": case "search": case "ai": case "cortex": case "collab":
-                    OnActivitySelected(id);
-                    break;
-            }
+            // ★ AJOUT (31/08) : Fichiers/Recherche/IA/Cortex/Collab, rapatriés dans
+            // la barre de titre (Tom veut tout sur une seule ligne — voir
+            // CustomMenuBarView.xaml, ActivityBarView retirée de MainPage.xaml).
+            // Réutilise OnActivitySelected tel quel : même id, même logique
+            // d'ouverture/fermeture des panneaux, rien d'autre à changer.
+            foreach (var activityId in new[] { "explorer", "search", "ai", "cortex", "collab" })
+                _commandRegistry.Register(activityId, () => OnActivitySelected(activityId));
         }
 
         /// <summary>

@@ -565,19 +565,33 @@ déjà détacher un panneau dans sa propre fenêtre OS (Debug/Analytics/
 Plugin/Editor) — mais son seul point d'entrée est la commande cachée
 `/window <kind>` tapée dans la barre IA, aucun bouton n'y mène.
 
-**Commandes et raccourcis** : `CommandPaletteEngine.BuildStaticCommands()`
-est une liste figée de 25 commandes codées en dur (pas de `Register`/
-`Unregister`). `OnMenuCommanded` (`MainPage.Routing.cs`) est un `switch`
-d'une cinquantaine de cas, chacun câblé à la main. **3 mécanismes de
-raccourcis séparés et non unifiés** coexistent (`GlobalHotkeyService`
-à paramètres positionnels, `OnWindowsPreviewKeyDown` pour Échap/Ctrl+Maj+P,
-et le champ `Shortcut` purement décoratif affiché dans la palette).
-Conséquence directe : **un plugin ne peut aujourd'hui enregistrer ni
-commande ni raccourci sans modifier le code source à la main à 3
-endroits**. Deux briques déjà écrites mais jamais branchées, prêtes à
-servir une fois un vrai registre en place : la catégorie
-`CommandCategory.Plugin` (déjà un libellé "🧩 Plugins" dans la palette,
-jamais utilisée) et `Moto.Core/Behaviors/KeyboardShortcutBehavior.cs`
+**Commandes et raccourcis** : ✅ Gap A (registre central) CORRIGÉ (02/09,
+commit à suivre) — `OnMenuCommanded` (`MainPage.Routing.cs`) n'est plus un
+`switch` figé : c'est maintenant `_commandRegistry.Execute(id)`, où
+`_commandRegistry` (`Moto.Core.AI.Commands.CommandRegistry`, nouveau
+fichier) est une vraie table `id → Action` remplie une fois au démarrage
+par `RegisterMenuCommands()` (mêmes ~35 identifiants qu'avant, même
+comportement, confirmé par Tom sur un échantillon : Ctrl+B, palette
+"Paramètres", palette "Compiler", boutons Fichiers/Recherche/Collaboration).
+`CommandPaletteEngine.BuildStaticCommands()` (catalogue affiché DANS la
+palette, 25 entrées) reste, lui, une liste figée — non touché par ce
+correctif, ce n'est pas la même chose que le registre d'EXÉCUTION. **3
+mécanismes de raccourcis séparés et non unifiés** coexistent toujours
+(`GlobalHotkeyService` à paramètres positionnels, `OnWindowsPreviewKeyDown`
+pour Échap/Ctrl+Maj+P, et le champ `Shortcut` purement décoratif affiché
+dans la palette — confirmé le 02/09 : la touche **F5** affichée pour
+"Compiler" n'a jamais été câblée à rien, aucune trace de `VirtualKey.F5`
+dans tout le dépôt ; passer par la palette pour la même commande fonctionne
+bien, donc pas une régression du registre, juste ce gap déjà connu). Ce que
+le nouveau registre ouvre pour PLUS TARD, pas fait maintenant (Gap B) : un
+plugin pourrait un jour appeler `_commandRegistry.Register(...)` pour
+ajouter sa propre commande sans toucher à ce fichier — la brique existe,
+rien ne l'utilise encore de l'extérieur de MainPage. `OnGearMenuItemSelected`
+(menu ⚙, 9 items) et `OnAiCommandSubmitted` (commandes slash) restent aussi
+des switchs/if-chains séparés, non migrés vers ce registre. Deux briques
+déjà écrites mais jamais branchées, prêtes à servir plus tard : la
+catégorie `CommandCategory.Plugin` (déjà un libellé "🧩 Plugins" dans la
+palette, jamais utilisée) et `Moto.Core/Behaviors/KeyboardShortcutBehavior.cs`
 (Behavior XAML générique, zéro attachement nulle part).
 
 **Réglages** : bonne surprise — le design pour qu'un plugin ajoute sa
