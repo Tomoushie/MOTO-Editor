@@ -609,41 +609,82 @@ bonne fondation à réutiliser pour toute nouvelle persistance (voir
 "Sauvegarde de session" ci-dessous), à l'inverse de l'API typée
 inexistante qui bloque `SessionBookmarkService`.
 
-**Plugins — le point le plus cassé de toute l'app.** ✅ CORRIGÉ (02/09,
-commit `b6f0b9d`) pour la partie affichage : le bouton 🧱 "Galerie de
-plugins" affichait **toujours** "❌ Services plugins non initialisés" —
-`_pluginGallery = new PluginGalleryView(null, null, ...)` dans
-`WirePanels()`, et sa méthode `SetServices(...)` (qui existait déjà pour
-recevoir les vrais services résolus par `ResolveExtensionServices()`)
-n'était appelée nulle part. Appelée désormais au bon endroit — le panneau
-affiche maintenant "0 installé(s) · 0 distant(s)." au lieu de l'erreur.
-Ceci ne règle QUE l'affichage : le système reste creux en dessous (0
-plugin jamais réellement installable), pour les raisons ci-dessous, restées
-inchangées. Une 2e instance de `PluginGalleryView`, elle avec les vrais
-services depuis le début, reste accessible via la même commande cachée
-`/window plugin`. Plus grave :
-**3 contrats de plugin différents et incompatibles coexistent** —
-`Moto.Core/Plugins/IPlugin.cs` (interne), et dans `Moto.Plugin.SDK`,
-**deux interfaces publiques nommées `IPlugin` dans le même namespace**
-avec des membres différents (`Moto.Plugin.SDK/IPlugin.cs` vs
-`Contracts/IPlugin.cs`) — en C#, ça ne peut pas compiler tel quel. Une
-3e convention, `IMotoPlugin`, est référencée par nom de chaîne dans
-`PluginInstallerService.cs` (le seul vrai chargeur dynamique du dépôt —
-téléchargement, ZIP, `Assembly.LoadFrom`, réflexion — mais jamais
-instancié) et **n'existe nulle part dans le dépôt**. `PluginRegistry.
-Register()` n'est appelé par aucun code de production (0 plugin jamais
-"installé" en pratique). `MarketplaceClient` interroge en dur une URL
-jamais vérifiée et avale toute exception en silence (repli délibéré
-hors-ligne, mais qui masque aussi un serveur qui n'existe peut-être
-pas). Tout un écosystème existe sur le disque mais **hors de la
-solution** (`MotoEditor.sln` n'a que 3 projets) : `Moto.Plugin.SDK`,
-7 projets de plugins d'exemple, tout un backend Marketplace
-(`Moto.Marketplace.Server/Api/Web`). Une 4e famille séparée,
-`Moto.Core/Extensions/ExtensionSystem.cs` (manifeste `extension.json`),
-et une sandbox de sécurité (`PluginSandboxMinimalService.cs`, logique
-réelle) sont eux aussi jamais instanciés. Bilan : bonne intuition de
-design (adaptateur SDK testé, réglages auto-injectés déjà pensés),
-éclatée en 3-4 tentatives jamais unifiées.
+**Plugins — le point le plus cassé de toute l'app.** ✅ AFFICHAGE CORRIGÉ
+(02/09, commit `b6f0b9d`) puis ✅ **UN VRAI PLUGIN CHARGÉ ET FONCTIONNEL**
+(02/09, commit `98494e9`) — voir le détail technique complet dans le
+message de ce commit. Résumé :
+- `Moto.Plugin.SDK` avait bien **2 interfaces `IPlugin` dans le même
+  namespace** (confirmé en lisant les deux fichiers) — `IPlugin.cs`
+  (Activate/Deactivate/RegisterCommand, **zéro utilisateur réel** dans le
+  dépôt) supprimé ; `Contracts/IPlugin.cs` (SdkVersion/Settings/
+  InitializeAsync/ExecuteCommandAsync, celui qu'implémente réellement
+  `PluginBase`/`SampleFormatPlugin`) conservé comme SEUL contrat. Ciblait
+  aussi `net8.0` au lieu de `netstandard2.0` (empêchait tout projet
+  netstandard2.0 comme `Moto.Plugin.SampleFormat` de le référencer — sens
+  interdit) ; corrigé + polyfill `IsExternalInit` ajouté (nécessaire pour
+  les propriétés `init` sous netstandard2.0).
+- `PluginRegistry.Register()` n'appelait ni `InitializeAsync` ni
+  n'injectait `IPlugin.Settings` dans `SettingsCatalog` — la promesse
+  documentée depuis longtemps dans le commentaire du contrat n'était tenue
+  nulle part. `RegisterAsync` (nouveau) fait enfin les deux, via un vrai
+  `PluginSettingsAccessor` (jusqu'ici seule une `FakeSettingsAccessor` de
+  test existait).
+- `SdkAdapter.cs` (pont `Moto.Plugin.SDK.IPlugin` ↔ `Moto.Core.Plugins.
+  IPlugin`, bien écrit) était **exclu de la compilation** de `Moto.Core`
+  depuis longtemps ("Moto.Plugin.SDK non référencé") — la mémoire du
+  chantier disait ce fichier "déjà testé et fonctionnel" ; en réalité il
+  n'a jamais compilé dans le vrai projet. Réveillé (référence ajoutée +
+  un `using` manquant corrigé).
+- `Moto.Plugin.SampleFormat` référençait le SDK comme **paquet NuGet
+  publié** ("Moto.Plugin.SDK" 1.0.0) — jamais empaqueté ni publié nulle
+  part, restauration vouée à l'échec. Remplacé par une `ProjectReference`
+  directe (plugin BUNDLÉ avec l'éditeur, pas un plugin tiers externe).
+- `SampleFormatPlugin` est désormais réellement enregistré au démarrage
+  (`ResolveExtensionServices`) : ses 4 réglages apparaissent dans Réglages
+  → Plugins, il compte dans "1 installé(s)" de la Galerie, et
+  `/sample-format format|stats|help` répond réellement — testé depuis
+  **2 surfaces différentes** (AiChatView "MOTO AI" ET le bandeau IA/
+  Accueil) grâce à `ChatService.PluginCommandHandler`, un point d'extension
+  unique câblé une seule fois plutôt que dupliqué par vue (un premier
+  essai câblé seulement dans `OnAiCommandSubmitted` ratait la surface
+  AiChatView — corrigé après un retour de test réel de Tom).
+
+**Ce qui reste hors scope, confirmé par du vrai code, pas de la
+supposition :**
+- **Chargement dynamique d'un dossier `plugins/` externe** : toujours pas
+  fait. Le plugin bundlé est référencé en dur (ProjectReference) — un
+  vrai chargeur (`AssemblyLoadContext`, scan de dossier) reste un futur
+  chantier séparé, plus gros (isolation/sandbox comprise).
+- **4 autres "plugins" du dépôt sont bien plus cassés qu'un simple
+  problème de solution** : `Moto.Plugins.MotoDarkPro` (thème payant, 5€),
+  `Moto.Plugins.CortexBooster`, `Moto.Plugins.AutoRefactorPro`, et
+  `Moto.Plugin.Template` implémentent tous une interface `IMotoPlugin`
+  qui **n'existe nulle part** dans le dépôt, appellent des membres
+  inexistants (`context.ShowMessage`, `context.Logger` sur un type qui ne
+  les déclare pas) et passent des délégués au mauvais type à
+  `RegisterCommand`. Pas de simples "projets hors solution" comme le
+  disait un état des lieux précédent — ils ne compileraient pas même
+  ajoutés à la solution, quel que soit l'état du SDK. `PluginInstallerService.cs`
+  (le vrai chargeur dynamique, jamais instancié) cherche justement ce
+  `IMotoPlugin` par nom de chaîne — cohérent avec ces 4 fichiers, mais
+  personne n'a jamais écrit l'interface qu'ils ciblent tous.
+- **`Moto.Plugin.PythonAssistant`** (LSP Python, `PluginBase`/bon contrat
+  par ailleurs) référence `OmniSharp.Extensions.LanguageClient` 1.0.0 dont
+  l'API utilisée dans le code (`LanguageClient`, `LanguageProtocol.Models`)
+  **ne correspond pas à la version déclarée** — vérifié par un essai de
+  compilation direct (CS0234, types introuvables), pas juste "pas dans la
+  solution". `SampleFormatPlugin` reste donc le SEUL plugin du dépôt qui
+  compile ET s'exécute réellement.
+- `MarketplaceClient` interroge toujours en dur une URL jamais vérifiée et
+  avale toute exception en silence. Les messages "Aucun plugin distant
+  disponible"/"0 résultat(s)" (Galerie + recherche) ont été reformulés
+  (02/09) pour dire honnêtement qu'aucun serveur de marketplace n'existe
+  encore, plutôt que de laisser croire à une recherche cassée (Tom l'avait
+  interprétée comme un bug).
+- `Moto.Core/Extensions/ExtensionSystem.cs` (4e famille séparée, manifeste
+  `extension.json`) et `PluginSandboxMinimalService.cs` (sandbox de
+  sécurité, logique réelle) restent tous deux jamais instanciés, non
+  touchés par ce chantier.
 
 **Sauvegarde de session/workspace** : rien n'est mémorisé aujourd'hui —
 ni dossier ouvert, ni fichiers ouverts, ni taille de fenêtre (codée en
