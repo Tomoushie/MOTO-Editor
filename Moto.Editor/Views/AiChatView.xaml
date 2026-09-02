@@ -2,7 +2,7 @@
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="Moto.Editor.Views.AiChatView"
-             BackgroundColor="#17181C">
+             BackgroundColor="{StaticResource BgSide}">
 
     <Grid RowDefinitions="Auto,*,Auto,Auto,Auto" Padding="6">
 
@@ -16,19 +16,28 @@
                    Text="MOTO AI" FontAttributes="Bold"
                    VerticalOptions="Center" />
 
-            <Button Grid.Column="2" Text="＋" Padding="6,2" FontSize="11"
+            <!-- ★ CORRECTION (02/09, retouche "vrai Zed") : ces 4 boutons n'avaient
+                 jamais reçu le traitement "chrome natif retiré + survol" déjà fait
+                 ailleurs (ex. FileExplorerView, 31/08) — ils s'affichaient donc avec
+                 le bouton gris natif Windows au lieu du style MOTO. MotoHoverIconButton
+                 corrige les deux à la fois (même style déjà réutilisé). -->
+            <Button Grid.Column="2" Text="＋" FontSize="11"
+                    Style="{StaticResource MotoHoverIconButton}"
                     ToolTipProperties.Text="Nouvelle conversation"
                     Clicked="OnNewThreadClicked" />
 
-            <Button Grid.Column="3" Text="🗑" Padding="6,2" FontSize="11"
+            <Button Grid.Column="3" Text="🗑" FontSize="11"
+                    Style="{StaticResource MotoHoverIconButton}"
                     ToolTipProperties.Text="/clear"
                     Clicked="OnClearClicked" />
 
-            <Button Grid.Column="4" Text="⇄" Padding="6,2" FontSize="11"
+            <Button Grid.Column="4" Text="⇄" FontSize="11"
+                    Style="{StaticResource MotoHoverIconButton}"
                     ToolTipProperties.Text="Déplacer à gauche/droite"
                     Clicked="OnDockToggleClicked" />
 
-            <Button Grid.Column="5" Text="✕" Padding="6,2" FontSize="11"
+            <Button Grid.Column="5" Text="✕" FontSize="11"
+                    Style="{StaticResource MotoHoverIconButton}"
                     ToolTipProperties.Text="Fermer"
                     Clicked="OnCloseClicked" />
 
@@ -38,7 +47,17 @@
         <CollectionView Grid.Row="1" x:Name="MessageList" SelectionMode="None">
             <CollectionView.ItemTemplate>
                 <DataTemplate>
-                    <Border StrokeShape="RoundRectangle 10"
+                    <!-- ★ CORRECTION (02/09, retouche "vrai Zed") : cette bulle n'avait
+                         aucune bordure (Stroke absent malgré StrokeShape défini) — un pur
+                         aplat de couleur sans définition. Le vrai code de Zed (agent_ui/
+                         message_editor.rs, message list / thread view) ne mise jamais sur
+                         un simple bloc de couleur : les surfaces s'appuient sur des jetons
+                         de thème + une bordure fine, jamais un aplat isolé. Stroke ajouté
+                         (BorderSoft, déjà utilisé pour les séparateurs discrets du thème),
+                         rayon réduit 10→8 pour rester cohérent avec le reste de l'appli
+                         (MotoHoverButton/boutons d'icône utilisent déjà 8). -->
+                    <Border StrokeShape="RoundRectangle 8"
+                            Stroke="{StaticResource BorderSoft}" StrokeThickness="1"
                             BackgroundColor="{Binding BubbleColor}"
                             Padding="10,6" Margin="4,3"
                             MaximumWidthRequest="420"
@@ -62,7 +81,7 @@
             <CollectionView.ItemTemplate>
                 <DataTemplate>
                     <Border StrokeShape="RoundRectangle 12"
-                            BackgroundColor="#202126" Stroke="#3A3B40" Padding="8,2">
+                            BackgroundColor="{StaticResource BgPanel}" Stroke="{StaticResource BorderCol}" Padding="8,2">
                         <Label Text="{Binding Label}" FontSize="10" />
                     </Border>
                 </DataTemplate>
@@ -76,7 +95,7 @@
 
         <!-- Zone de saisie + barre mode/modèle (structure type agent) -->
         <Border Grid.Row="4" StrokeShape="RoundRectangle 10"
-                Stroke="#3A3B40" BackgroundColor="#1E1F24" Padding="6">
+                Stroke="{StaticResource BorderCol}" BackgroundColor="#1E1F24" Padding="6">
 
             <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="Auto,*,Auto">
 
@@ -86,8 +105,8 @@
                        TextChanged="OnInputTextChanged"
                        Completed="OnSendClicked" />
 
-                <Button Grid.Row="1" Grid.Column="0" Text="📎"
-                        Padding="6,2" FontSize="11"
+                <Button Grid.Row="1" Grid.Column="0" Text="📎" FontSize="11"
+                        Style="{StaticResource MotoHoverIconButton}"
                         ToolTipProperties.Text="Attacher fichier / sélection"
                         Clicked="OnAttachClicked" />
 
@@ -119,7 +138,8 @@
                 </HorizontalStackLayout>
 
                 <Button Grid.Row="1" Grid.Column="2" Text="➤"
-                        Padding="8,2" Clicked="OnSendClicked" />
+                        Style="{StaticResource MotoHoverIconButton}" Padding="8,2"
+                        Clicked="OnSendClicked" />
 
             </Grid>
 

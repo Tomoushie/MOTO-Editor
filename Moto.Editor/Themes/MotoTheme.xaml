@@ -174,4 +174,39 @@
         </Setter>
     </Style>
 
+    <!-- ★ AJOUT (02/09, retouche visuelle "vrai Zed") : d'après le vrai code source
+         public de Zed (crates/project_panel/src/project_panel.rs, lu directement
+         sur github.com/zed-industries/zed — pas une supposition), les boutons
+         d'outils icône-seule et les lignes de liste (fichiers, entrées de menu...)
+         y suivent tous les deux le même principe simple : AUCUN chrome natif, et
+         un unique changement de fond par état (default/hover/selected), sans
+         cadre ni relief. MotoHoverButton existait déjà pour les boutons texte
+         normaux ; les 2 styles ci-dessous étendent exactement le même mécanisme
+         (déjà éprouvé dans ce projet) à ces deux cas qui ne l'avaient pas :
+         boutons compacts d'une barre d'outils (BasedOn, ne change que taille/
+         padding) et lignes de liste (nouveau, TargetType Border, à poser en
+         wrapper autour du contenu d'un DataTemplate). -->
+    <Style x:Key="MotoHoverIconButton" TargetType="Button" BasedOn="{StaticResource MotoHoverButton}">
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="Padding" Value="6,2" />
+    </Style>
+
+    <Style x:Key="MotoHoverRow" TargetType="Border">
+        <Setter Property="BackgroundColor" Value="Transparent" />
+        <Setter Property="StrokeThickness" Value="0" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 6" />
+        <Setter Property="VisualStateManager.VisualStateGroups">
+            <VisualStateGroupList>
+                <VisualStateGroup x:Name="CommonStates">
+                    <VisualState x:Name="Normal" />
+                    <VisualState x:Name="PointerOver">
+                        <VisualState.Setters>
+                            <Setter Property="BackgroundColor" Value="{StaticResource BgHover}" />
+                        </VisualState.Setters>
+                    </VisualState>
+                </VisualStateGroup>
+            </VisualStateGroupList>
+        </Setter>
+    </Style>
+
 </ResourceDictionary>

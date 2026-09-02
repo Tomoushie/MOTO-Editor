@@ -23,31 +23,32 @@
                  utilisés partout ailleurs dans ce projet) + zone grise arrondie au
                  survol/clic ajoutée (HoverEffects, voir .xaml.cs), demandé aussi
                  point 1/3. -->
+            <!-- ★ CORRECTION (02/09, retouche "vrai Zed") : ces 4 boutons enlevaient déjà
+                 le chrome natif Windows (voir commentaire ci-dessus) mais n'avaient
+                 toujours AUCUN retour au survol — MotoHoverIconButton (même mécanisme
+                 que MotoHoverButton, déjà utilisé ailleurs) leur donne le fond survolé
+                 qui manquait, sans changer taille/padding. -->
             <Button x:Name="BtnOpenFolder" Text="{x:Static controls:MotoIcons.Folder}" FontFamily="{x:Static controls:MotoIcons.FontFamily}"
                     ToolTipProperties.Text="Ouvrir un dossier"
                     Clicked="OnOpenFolderClicked"
-                    BackgroundColor="Transparent" BorderWidth="0" CornerRadius="8"
-                    Padding="6,2" FontSize="13" />
+                    Style="{StaticResource MotoHoverIconButton}" />
 
             <!-- ★ AJOUT (31/08) : "Nouveau fichier" n'avait jamais été construit
                  (confirmé, pas un bug) — demandé par Tom. -->
             <Button x:Name="BtnNewFile" Text="{x:Static controls:MotoIcons.Add}" FontFamily="{x:Static controls:MotoIcons.FontFamily}"
                     ToolTipProperties.Text="Nouveau fichier"
                     Clicked="OnNewFileClicked"
-                    BackgroundColor="Transparent" BorderWidth="0" CornerRadius="8"
-                    Padding="6,2" FontSize="13" />
+                    Style="{StaticResource MotoHoverIconButton}" />
 
             <Button x:Name="BtnRefresh" Text="{x:Static controls:MotoIcons.Refresh}" FontFamily="{x:Static controls:MotoIcons.FontFamily}"
                     ToolTipProperties.Text="Actualiser"
                     Clicked="OnRefreshClicked"
-                    BackgroundColor="Transparent" BorderWidth="0" CornerRadius="8"
-                    Padding="6,2" FontSize="13" />
+                    Style="{StaticResource MotoHoverIconButton}" />
 
             <Button x:Name="BtnToggleSide" Text="🡺"
                     ToolTipProperties.Text="Changer de côté"
                     Clicked="OnToggleSideClicked"
-                    BackgroundColor="Transparent" BorderWidth="0" CornerRadius="8"
-                    Padding="6,2" FontSize="12" />
+                    Style="{StaticResource MotoHoverIconButton}" FontSize="12" />
 
         </HorizontalStackLayout>
 
@@ -85,24 +86,35 @@
 
             <CollectionView.ItemTemplate>
                 <DataTemplate>
-                    <Grid ColumnDefinitions="Auto,Auto,*" Padding="4,2">
+                    <!-- ★ AJOUT (02/09, retouche "vrai Zed") : d'après le vrai code de
+                         crates/project_panel/src/project_panel.rs (github.com/zed-industries/zed),
+                         chaque ligne de l'arborescence change simplement de fond selon son
+                         état (survol/sélection), sans cadre ni relief — aucun équivalent
+                         n'existait ici (0 retour visuel au survol jusqu'ici). MotoHoverRow
+                         applique le même mécanisme déjà éprouvé (MotoHoverButton/Entry) à
+                         ce wrapper Border ; la sélection reste gérée nativement par
+                         SelectionMode="Single" ci-dessus, non dupliquée ici pour éviter un
+                         double surlignage. -->
+                    <Border Style="{StaticResource MotoHoverRow}">
+                        <Grid ColumnDefinitions="Auto,Auto,*" Padding="4,2">
 
-                        <!-- Espace d'indentation -->
-                        <BoxView Grid.Column="0"
-                                 WidthRequest="{Binding Indent}"
-                                 Color="Transparent" />
+                            <!-- Espace d'indentation -->
+                            <BoxView Grid.Column="0"
+                                     WidthRequest="{Binding Indent}"
+                                     Color="Transparent" />
 
-                        <Label Grid.Column="1"
-                               Text="{Binding Icon}"
-                               FontSize="13"
-                               WidthRequest="44" />
+                            <Label Grid.Column="1"
+                                   Text="{Binding Icon}"
+                                   FontSize="13"
+                                   WidthRequest="44" />
 
-                        <Label Grid.Column="2"
-                               Text="{Binding Name}"
-                               FontSize="13"
-                               VerticalOptions="Center" />
+                            <Label Grid.Column="2"
+                                   Text="{Binding Name}"
+                                   FontSize="13"
+                                   VerticalOptions="Center" />
 
-                    </Grid>
+                        </Grid>
+                    </Border>
                 </DataTemplate>
             </CollectionView.ItemTemplate>
 
