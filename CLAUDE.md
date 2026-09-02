@@ -579,10 +579,14 @@ correctif, ce n'est pas la même chose que le registre d'EXÉCUTION. **3
 mécanismes de raccourcis séparés et non unifiés** coexistent toujours
 (`GlobalHotkeyService` à paramètres positionnels, `OnWindowsPreviewKeyDown`
 pour Échap/Ctrl+Maj+P, et le champ `Shortcut` purement décoratif affiché
-dans la palette — confirmé le 02/09 : la touche **F5** affichée pour
-"Compiler" n'a jamais été câblée à rien, aucune trace de `VirtualKey.F5`
-dans tout le dépôt ; passer par la palette pour la même commande fonctionne
-bien, donc pas une régression du registre, juste ce gap déjà connu). Ce que
+dans la palette — ✅ CORRIGÉ pour F5 (commit `c289746`, 02/09) : la touche
+affichée pour "Compiler" n'avait jamais été câblée à rien (aucune trace de
+`VirtualKey.F5` dans tout le dépôt avant ce correctif — trouvé en testant
+le nouveau registre, pas une régression qu'il aurait causée). `GlobalHotkeyService.Register`
+gagne un paramètre `onBuild`, même mécanisme que Ctrl+B, câblé sur
+`_commandRegistry.Execute("run.build")`. Confirmé par Tom : "BUILD OK".
+Les autres raccourcis de la palette restent décoratifs — ce correctif ne
+traite QUE F5, pas le mécanisme général (toujours Gap C, non fait). Ce que
 le nouveau registre ouvre pour PLUS TARD, pas fait maintenant (Gap B) : un
 plugin pourrait un jour appeler `_commandRegistry.Register(...)` pour
 ajouter sa propre commande sans toucher à ce fichier — la brique existe,
