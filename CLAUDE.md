@@ -75,17 +75,15 @@ lecture directe du code.
    après un cycle Maximiser/Restaurer et pouvaient garder le dock IA ouvert
    pour rien) — stubs entièrement supprimés (`MainPage.xaml`,
    `MainPage.UI.cs`, `MainPage.Panels.cs`). Confirmé visuellement par Tom.
-3. **Réglage "Thème" en partie mort — PAS un oubli, à trancher avec Tom.**
-   En creusant : `ThemeService.SetLight()`/`FollowSystem()` existent
-   réellement, mais un commentaire du 31/08 dans `SettingsApplier.cs`
-   indique qu'ils ont déjà été essayés et RETIRÉS ("aucune palette claire
-   n'existe réellement... le bug texte noir sur fond noir revenait par cette
-   porte"). Donc forcer "Sombre" quoi qu'on choisisse est un choix de repli
-   délibéré, pas un oubli — mais le sélecteur "Clair"/"Dynamique" reste
-   affiché comme s'il marchait. Vraie correction "moyen" : soit construire
-   une vraie palette claire (gros chantier), soit rendre le sélecteur honnête
-   (ne proposer que "Sombre" tant qu'il n'y a rien d'autre). Pas fait — décision
-   à prendre avec Tom, pas tranchée seul.
+3. ✅ **CORRIGÉ (02/09), décision de Tom : sélecteur rendu honnête.** Le
+   réglage `theme_mode` proposait Dynamic/Light/Dark alors que
+   `SettingsApplier.cs` force "Sombre" quoi qu'on choisisse (pas un oubli —
+   `ThemeService.SetLight()`/`FollowSystem()` existent réellement mais ont
+   déjà été essayés et retirés fin août : aucune palette claire n'existe
+   dans `MotoTheme.xaml`, ça causait du texte noir sur fond noir). Catalogue
+   (`SettingsCatalog.cs`) changé pour n'offrir plus qu'un seul choix
+   ("Dark"). Construire une vraie palette claire reste une option pour plus
+   tard (gros chantier), pas retenue aujourd'hui. Confirmé par Tom.
 4. **La fenêtre Réglages affiche 297 réglages, seuls 4 agissent vraiment.**
    `SettingsApplier.ApplyAll()` ne lit que 4 clés au total (thème, taille de
    police, minimap, diagnostics LSP) sur les 297 affichées dans la fenêtre —
@@ -97,12 +95,17 @@ lecture directe du code.
    `SettingChanged` pour rien). Construction + câblage retirés de
    `MainPage.xaml.cs`, exclu de la compilation dans le `.csproj` (même
    traitement que `SettingsPage`, superseded pas supprimé du disque).
-   **Effet de bord repéré en le retirant** : le cas "openproviders" de son
-   gestionnaire était le SEUL point d'entrée du dépôt vers
-   `Pages/AiSettingsPage.xaml.cs` (config des providers IA externes) — cette
-   page est donc orpheline aussi depuis le 31/08. Pas retouché : à trancher
-   avec Tom (redondante avec le catalogue de 420 réglages, ou vrai besoin
-   d'un nouveau point d'entrée ?).
+   **Effet de bord trouvé ET corrigé le même jour** : le cas "openproviders"
+   de son gestionnaire était le SEUL point d'entrée du dépôt vers
+   `Pages/AiSettingsPage.xaml.cs` (config chiffrée des clés API OpenAI/
+   Anthropic/Mistral + test de connexion Ollama) — vérifié : le catalogue de
+   réglages ne fait QUE choisir le provider par défaut (`default_model`), il
+   n'a aucun champ pour les clés elles-mêmes, donc ce n'était PAS un doublon
+   (contrairement à l'hypothèse de départ). Un vrai nouveau point d'entrée a
+   été ajouté : bouton "🔑 Clés API" dans la barre de titre de
+   `SettingsWindowView`, événement `ApiKeysRequested` remonté à MainPage
+   (même patron que `RealSettingChanged`, une ContentView n'a pas de
+   Navigation propre). Confirmé par Tom, l'écran s'ouvre.
 6. ✅ **CORRIGÉ (02/09).** Bouton "changer de côté" mort dans l'Explorateur
    (🡺 dans la barre d'outils de `FileExplorerView`, plus rien ne l'écoutait
    depuis l'arrivée du bascule global du menu engrenage). Plutôt que de le

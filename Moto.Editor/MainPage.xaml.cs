@@ -283,6 +283,12 @@ namespace Moto.Editor
                 if (key == "terminal_show" && value is bool visible)
                     _viewModel.IsTerminalVisible = visible;
             };
+
+            // ★ AJOUT (02/09, état des lieux) : redonne un point d'entrée à
+            // AiSettingsPage (config des providers IA externes), orpheline depuis
+            // le retrait du menu Réglages fantôme le 31/08 — voir CLAUDE.md.
+            SettingsWindow.ApiKeysRequested += async () =>
+                await Navigation.PushAsync(new Pages.AiSettingsPage(_aiService.Fallback));
         }
 
         private void WirePanels()

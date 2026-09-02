@@ -81,6 +81,14 @@ namespace Moto.Editor.Views
         /// <summary>Déclenché pour les réglages à effet réel (mêmes id que SettingsMenuView).</summary>
         public event Action<string, object>? RealSettingChanged;
 
+        /// <summary>
+        /// ★ AJOUT (02/09, état des lieux) : bouton "🔑 Clés API" de la barre de
+        /// titre. Cette ContentView n'a pas de Navigation propre (seule une Page en
+        /// a une) — même patron que RealSettingChanged : on remonte l'intention à
+        /// MainPage, qui fait le Navigation.PushAsync (voir WireSettings).
+        /// </summary>
+        public event Action? ApiKeysRequested;
+
         public SettingsWindowView()
         {
             InitializeComponent();
@@ -147,6 +155,7 @@ namespace Moto.Editor.Views
         }
 
         private void OnCloseClicked(object sender, EventArgs e) => IsVisible = false;
+        private void OnApiKeysClicked(object sender, EventArgs e) => ApiKeysRequested?.Invoke();
 
         private void OnCategorySelected(object sender, SelectionChangedEventArgs e)
         {

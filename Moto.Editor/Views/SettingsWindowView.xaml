@@ -61,11 +61,23 @@
                     <!-- ══ Barre de titre : zone de déplacement + titre + fermer ══ -->
                     <Border x:Name="DragHandle" Grid.Row="0"
                             BackgroundColor="{StaticResource BgSide}" StrokeThickness="0">
-                        <Grid ColumnDefinitions="*,Auto" Padding="14,0">
+                        <Grid ColumnDefinitions="*,Auto,Auto" Padding="14,0">
                             <Label Text="⚙ Réglages" FontAttributes="Bold"
                                    FontSize="{DynamicResource FontSizeUiText}"
                                    TextColor="{StaticResource Txt1}" VerticalOptions="Center" />
-                            <Button Grid.Column="1" Text="✕" WidthRequest="32" HeightRequest="32"
+                            <!-- ★ AJOUT (02/09, état des lieux) : seul point d'entrée réel vers
+                                 la config des providers IA externes (clés API OpenAI/Anthropic/
+                                 Mistral, chiffrées, + test de connexion) — le catalogue de
+                                 réglages ne fait QUE choisir le provider par défaut
+                                 ("default_model"), il n'a aucun champ pour les clés elles-mêmes.
+                                 AiSettingsPage (Pages/AiSettingsPage.xaml.cs) existait déjà, mais
+                                 n'avait plus aucun moyen de s'ouvrir depuis le 31/08 (ancien menu
+                                 Réglages supprimé, voir CLAUDE.md). -->
+                            <Button Grid.Column="1" Text="🔑 Clés API" FontSize="12"
+                                    Style="{StaticResource MotoHoverIconButton}"
+                                    ToolTipProperties.Text="Configurer les providers IA externes (OpenAI/Anthropic/Mistral)"
+                                    Clicked="OnApiKeysClicked" />
+                            <Button Grid.Column="2" Text="✕" WidthRequest="32" HeightRequest="32"
                                     Padding="0" BackgroundColor="Transparent"
                                     TextColor="{StaticResource Txt2}" Clicked="OnCloseClicked" />
                         </Grid>

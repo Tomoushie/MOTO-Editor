@@ -32,7 +32,13 @@ namespace Moto.Core.Settings
             T("auto_update", "Général", "Mise à jour", "Mise à jour automatique", "Vérifier automatiquement les mises à jour.", true);
 
             // ==================== APPARENCE ====================
-            E("theme_mode", "Apparence", "Thème", "Mode du thème", "Thème statique ou dynamique.", "Dynamic", "Dynamic", "Light", "Dark");
+            // ★ CORRECTION (02/09, état des lieux) : "Dynamic" et "Light" étaient
+            // proposés mais SettingsApplier.cs force Sombre quoi qu'on choisisse
+            // (aucune vraie palette claire n'existe — voir SettingsApplier.cs pour
+            // l'historique complet du "texte noir sur fond noir" que ça évite).
+            // Le sélecteur mentait donc en silence. Un seul choix honnête pour
+            // l'instant ; à réélargir le jour où une vraie palette claire existe.
+            E("theme_mode", "Apparence", "Thème", "Mode du thème", "Seul le thème sombre est disponible pour l'instant.", "Dark", "Dark");
             E("light_theme", "Apparence", "Thème", "Thème clair", "Thème utilisé en mode clair.", "One Light", "One Light", "Solarized Light");
             E("dark_theme", "Apparence", "Thème", "Thème sombre", "Thème utilisé en mode sombre.", "One Dark", "One Dark", "Solarized Dark");
             S("buffer_font_family", "Apparence", "Police éditeur", "Police de l'éditeur", "Famille de police du texte.", "Consolas");
