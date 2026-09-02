@@ -205,6 +205,21 @@ qui se contredisaient. **Limite connue** : un changement ne prend effet
 qu'au prochain lancement de l'app (le kernel n'est construit qu'une fois
 au démarrage) — pas grave pour un réglage rarement changé, mais à savoir.
 
+**Repli automatique si Ollama est indisponible : vérifié, EXISTE DÉJÀ et
+fonctionne (02/09).** Chaîne complète tracée : `ChatService.RouteAsync` →
+si `preferInternal`, essaie `MotoAiKernel.RouteAsync` (Ollama, avec
+`IsAvailableAsync()` + try/catch — jamais d'exception qui remonte) → si ça
+échoue, `ChatService` bascule sur `FallbackEngine.GenerateAsync` (les
+providers externes configurés dans Réglages > Clés API, via
+`AiProviderManager.CompleteWithFallbackAsync`) → si ÇA échoue aussi,
+message clair à l'utilisateur : "Aucun moteur IA disponible (Ollama et
+fallback injoignables). Vérifie tes paramètres IA." Aucun crash, aucun
+blocage à aucune étape. Seul détail cosmétique : `MotoAiKernel` a sa PROPRE
+méthode privée `FallbackAsync` qui ne fait qu'un message d'échec (pas un
+vrai repli) — le nom prête à confusion avec le `FallbackEngine` de
+`ChatService` qui, lui, fait le vrai travail, mais ce n'est pas un bug,
+juste deux noms proches pour deux choses différentes.
+
 **Doublon confirmé au passage** : 2 classes `OllamaClient` existent dans
 le dépôt — `Moto.Core.AI.Internal.OllamaClient` (la vraie, utilisée par
 `MotoAiKernel`) et `Moto.Core/Moto.AI/OllamaClient.cs` (namespace
