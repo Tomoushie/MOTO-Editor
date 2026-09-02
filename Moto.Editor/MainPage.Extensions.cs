@@ -166,6 +166,25 @@ namespace Moto.Editor
                 if (_pluginGallery != null && _pluginRegistry != null && _marketplaceClient != null)
                     _pluginGallery.SetServices(_pluginRegistry, _marketplaceClient, GetPluginsDirectory());
 
+                // ★ AJOUT (02/09, "vrai système de plugins") : jusqu'ici
+                // _pluginRegistry existait mais Register()/RegisterAsync() n'était
+                // JAMAIS appelée par du code de production — 0 plugin réellement
+                // "installé", quoi que fasse Tom. Enregistre ici le plugin
+                // d'exemple bundlé (Moto.Plugin.SampleFormat), le seul à ce jour
+                // écrit contre un contrat qui compile réellement (voir CLAUDE.md :
+                // 4 autres plugins — MotoDarkPro/CortexBooster/AutoRefactorPro/
+                // Template — référencent une interface IMotoPlugin qui n'existe
+                // nulle part, restent hors scope). Fire-and-forget : l'échec d'un
+                // plugin ne doit jamais empêcher MainPage de finir de se charger.
+                if (_pluginRegistry != null)
+                    _ = RegisterBundledPluginsAsync();
+
+                // ★ AJOUT (02/09, "vrai système de plugins") : câble le pont commande
+                // sur ChatService (voir HandlePluginCommandAsync plus bas) — atteint
+                // ainsi TOUTES les surfaces qui envoient via _chatService.SendAsync
+                // (AiChatView "MOTO AI", bandeau IA/Accueil), pas seulement une seule.
+                _chatService.PluginCommandHandler = HandlePluginCommandAsync;
+
                 // ★ CORRECTION : cette méthode construisait ICI une première
                 // PluginGalleryView (DI-résolue ou neuve) et l'ajoutait en overlay
                 // plein-écran via AddMotoOverlay — mais WirePanels() (MainPage.xaml.cs,
@@ -756,5 +775,49 @@ namespace Moto.Editor
 
         private string GetPluginsDirectory()
             => Path.Combine(GetWorkspaceRoot(), "plugins");
+
+        /// <summary>
+        /// ★ AJOUT (02/09, "vrai système de plugins") : instancie et enregistre
+        /// le(s) plugin(s) bundlé(s) avec MOTO Editor. Pour cette première passe,
+        /// un seul plugin réel (Moto.Plugin.SampleFormat, référencé en dur via
+        /// ProjectReference — pas de chargement dynamique d'un dossier externe,
+        /// ça reste un chantier séparé, plus gros, voir CLAUDE.md). L'adaptateur
+        /// SdkPluginAdapter (Moto.Core/Plugins/SdkAdapter.cs) fait le pont entre
+        /// le contrat public du SDK (Moto.Plugin.SDK.IPlugin) et le contrat
+        /// interne attendu par PluginRegistry (Moto.Core.Plugins.IPlugin).
+        /// </summary>
+        private async Task RegisterBundledPluginsAsync()
+        {
+            try
+            {
+                var sdkPlugin = new Moto.Plugin.SampleFormat.SampleFormatPlugin();
+                var adapter = new SdkPluginAdapter(sdkPlugin);
+                await _pluginRegistry!.RegisterAsync(adapter, GetWorkspaceRoot());
+            }
+            catch (Exception ex)
+            {
+                App.Breadcrumb($"RegisterBundledPluginsAsync — EXCEPTION : {ex}");
+            }
+        }
+
+        /// <summary>
+        /// ★ AJOUT (02/09, "vrai système de plugins") : point d'entrée partagé,
+        /// câblé sur ChatService.PluginCommandHandler — atteint depuis n'importe
+        /// quelle surface qui envoie un message via _chatService.SendAsync.
+        /// Propose le texte à chaque plugin enregistré, dans l'ordre ; le premier
+        /// qui répond (non-null) gagne. Retourne null si aucun plugin ne gère
+        /// cette commande (ChatService route alors normalement vers le modèle IA).
+        /// </summary>
+        private async Task<string?> HandlePluginCommandAsync(string text)
+        {
+            if (_pluginRegistry == null) return null;
+
+            foreach (var plugin in _pluginRegistry.GetActivePlugins())
+            {
+                var reply = await plugin.ExecuteCommandAsync(text, _currentRoot);
+                if (reply != null) return reply;
+            }
+            return null;
+        }
     }
 }

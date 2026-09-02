@@ -119,6 +119,12 @@
   <ItemGroup>
     <ProjectReference Include="..\Moto.Core\Moto.Core.csproj" />
     <ProjectReference Include="..\Snake2000.Engine\Snake2000.Engine.csproj" />
+    <!-- ★ AJOUT (02/09, "vrai système de plugins") : plugin d'exemple bundlé,
+         instancié directement dans ResolveExtensionServices() (MainPage.Extensions.cs)
+         — voir CLAUDE.md, section "Modularité façon Zed/VS Code", pour le
+         chargement dynamique d'un dossier plugins/ externe, resté hors scope de
+         cette passe. -->
+    <ProjectReference Include="..\Moto.Plugin.SampleFormat\Moto.Plugin.SampleFormat.csproj" />
   </ItemGroup>
 
   <!--

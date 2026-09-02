@@ -24,6 +24,19 @@ namespace Moto.Editor.Services
         /// <summary>Fournit le texte actuellement sélectionné dans l'éditeur (pour le contexte).</summary>
         public Func<string>? SelectionProvider { get; set; }
 
+        /// <summary>
+        /// ★ AJOUT (02/09, "vrai système de plugins") : point d'extension optionnel
+        /// — si non-null, appelé pour toute entrée commençant par "/" AVANT de
+        /// router vers le modèle IA. Retourne la réponse d'un plugin (traitée
+        /// exactement comme une réponse IA normale) ou null si aucun plugin ne
+        /// gère cette commande. ChatService ne connaît rien des plugins eux-mêmes
+        /// — câblé une fois par MainPage (ResolveExtensionServices) vers
+        /// PluginRegistry. Comme SendAsync est le SEUL chemin d'envoi utilisé par
+        /// toutes les surfaces de chat (AiChatView, bandeau IA, Accueil), câbler
+        /// ici plutôt que dans chaque vue couvre tout d'un coup.
+        /// </summary>
+        public Func<string, Task<string?>>? PluginCommandHandler { get; set; }
+
         /// <summary>Mode de l'IA (Beginner/Expert) pour le routage interne.</summary>
         public AiMode Mode { get; set; } = AiMode.Beginner;
 
@@ -131,6 +144,19 @@ namespace Moto.Editor.Services
             var thread = EnsureThread();
             thread.Messages.Add(new ChatMessage { Role = "user", Content = text });
             thread.LastActivityUtc = DateTime.UtcNow;
+
+            // ★ AJOUT (02/09, "vrai système de plugins") : voir PluginCommandHandler
+            // ci-dessus. Court-circuite le modèle IA si un plugin gère la commande.
+            if (text.StartsWith("/", StringComparison.Ordinal) && PluginCommandHandler != null)
+            {
+                var pluginReply = await PluginCommandHandler(text);
+                if (pluginReply != null)
+                {
+                    thread.Messages.Add(new ChatMessage { Role = "ai", Content = pluginReply });
+                    thread.LastActivityUtc = DateTime.UtcNow;
+                    return;
+                }
+            }
 
             var selection = SelectionProvider?.Invoke() ?? string.Empty;
             var prompt = string.IsNullOrWhiteSpace(selection) ? text : $"{text}\n\nSélection :\n{selection}";

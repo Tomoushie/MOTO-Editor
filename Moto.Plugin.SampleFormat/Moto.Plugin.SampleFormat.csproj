@@ -8,7 +8,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <!-- Référence au SDK officiel -->
-    <PackageReference Include="Moto.Plugin.SDK" Version="1.0.0" />
+    <!-- ★ CORRECTION (02/09, "vrai système de plugins") : référençait le SDK comme
+         un PACKAGE NuGet publié ("Moto.Plugin.SDK" 1.0.0) — ce paquet n'a jamais
+         été empaqueté ni publié nulle part (aucun .nupkg local, aucun flux
+         configuré), donc la restauration échouait toujours en silence pour ce
+         projet. Un vrai plugin TIERS utiliserait bien le paquet NuGet le jour où
+         il existera ; ce plugin-ci est le plugin d'exemple BUNDLÉ avec MOTO
+         Editor lui-même — une référence directe au projet est le choix simple et
+         correct pour du code qui vit dans le même dépôt. -->
+    <ProjectReference Include="..\Moto.Plugin.SDK\Moto.Plugin.SDK.csproj" />
   </ItemGroup>
 </Project>

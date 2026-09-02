@@ -4,6 +4,7 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Moto.Core.Settings;
 using MotoSdk = Moto.Plugin.SDK;
 
 namespace Moto.Core.Plugins

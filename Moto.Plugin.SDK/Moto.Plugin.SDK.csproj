@@ -1,6 +1,13 @@
 <Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <!-- ★ CORRECTION (02/09, "vrai système de plugins") : ciblait net8.0, ce qui
+         empêchait tout projet netstandard2.0 (ex. Moto.Plugin.SampleFormat) de le
+         référencer (un projet netstandard2.0 ne peut pas référencer un projet
+         net8.0 — sens interdit). netstandard2.0 reste consommable par net8.0/
+         net8.0-windows (Moto.Core, Moto.Editor) sans problème : c'est la bonne
+         cible pour un SDK destiné à être implémenté par des plugins tiers légers.
+    -->
+    <TargetFramework>netstandard2.0</TargetFramework>
     <Nullable>enable</Nullable>
     <LangVersion>latest</LangVersion>
     <PackageId>Moto.Plugin.SDK</PackageId>

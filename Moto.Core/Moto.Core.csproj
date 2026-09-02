@@ -28,6 +28,11 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Snake2000.Engine\Snake2000.Engine.csproj" />
+    <!-- ★ AJOUT (02/09, "vrai système de plugins") : Moto.Plugin.SDK cible
+         maintenant netstandard2.0 (voir son .csproj) — plus le "projet hors
+         périmètre" du commentaire ci-dessous, référençable normalement. Rend
+         Plugins\SdkAdapter.cs compilable (voir son exclusion retirée plus bas). -->
+    <ProjectReference Include="..\Moto.Plugin.SDK\Moto.Plugin.SDK.csproj" />
   </ItemGroup>
 
   <!--
@@ -69,8 +74,12 @@
     <Compile Remove="LSP\RoslynLspClient.cs" />
     <Compile Remove="LSP\LanguageServerManager.cs" />
     <Compile Remove="Performance\PerFileServiceManager.cs" />
-    <!-- Marketplace de plugins : hors périmètre de cette passe (Moto.Plugin.SDK non référencé) -->
-    <Compile Remove="Plugins\SdkAdapter.cs" />
+    <!-- ★ CORRECTION (02/09, "vrai système de plugins") : Plugins\SdkAdapter.cs
+         réveillé (Moto.Plugin.SDK est maintenant référencé, voir ProjectReference
+         ci-dessus) — c'est le pont IPlugin (interne) ↔ IPlugin (SDK) utilisé par
+         PluginRegistry.RegisterAsync(). Les 2 suivants restent hors périmètre de
+         CETTE passe (un serveur Marketplace distant et un service de sandbox de
+         sécurité, aucun rapport avec le chargement d'un plugin bundlé). -->
     <Compile Remove="Plugins\Marketplace\MarketplaceServerClient.cs" />
     <Compile Remove="Settings\PluginSandboxService.cs" />
     <!-- Coloration syntaxique WinForms héritée de l'ancienne UI (RichTextBox) -->

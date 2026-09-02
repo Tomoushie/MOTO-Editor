@@ -68,7 +68,13 @@ namespace Moto.Editor.Views
 
                 var catalog = await _marketplace.GetCatalogAsync();
                 if (catalog.Count == 0)
-                    AddHint("Aucun plugin distant disponible.");
+                    // ★ CORRECTION (02/09, "vrai système de plugins") : "Aucun plugin
+                    // distant disponible." laissait croire à un vrai catalogue vide,
+                    // alors qu'aucun serveur de marketplace n'existe encore derrière
+                    // (MarketplaceClient interroge une URL jamais déployée et avale
+                    // l'échec en silence, par design — voir CLAUDE.md). Message honnête
+                    // plutôt que de faire semblant qu'un service tourne.
+                    AddHint("Aucun serveur de marketplace distant n'est disponible pour l'instant.");
 
                 foreach (var entry in catalog)
                 {
@@ -204,7 +210,15 @@ namespace Moto.Editor.Views
             foreach (var entry in results)
                 AddCard(entry.Name, entry.Version, entry.Description, false, entry);
 
-            StatusLabel.Text = $"{results.Count} résultat(s).";
+            // ★ CORRECTION (02/09, "vrai système de plugins") : "0 résultat(s)."
+            // après une recherche ressemblait à un bug (Tom : "la recherche ne
+            // fonctionne pas") — la recherche tourne réellement, mais interroge un
+            // serveur de marketplace qui n'existe pas encore (voir LoadGallery
+            // ci-dessus, même cause). Message honnête pour que ce ne soit plus pris
+            // pour une panne.
+            StatusLabel.Text = results.Count > 0
+                ? $"{results.Count} résultat(s)."
+                : "Aucun résultat — aucun serveur de marketplace distant n'est disponible pour l'instant.";
         }
 
     }
