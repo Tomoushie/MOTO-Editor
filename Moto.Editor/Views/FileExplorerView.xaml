@@ -27,28 +27,36 @@
                  le chrome natif Windows (voir commentaire ci-dessus) mais n'avaient
                  toujours AUCUN retour au survol — MotoHoverIconButton (même mécanisme
                  que MotoHoverButton, déjà utilisé ailleurs) leur donne le fond survolé
-                 qui manquait, sans changer taille/padding. -->
+                 qui manquait, sans changer taille/padding.
+                 ★ CORRECTION (02/09, repéré par Tom) : aucun des 4 n'avait de
+                 VerticalOptions, contrairement au Label "EXPLORATEUR" juste au-dessus
+                 (VerticalOptions="Center") — dans un HorizontalStackLayout, un enfant
+                 sans VerticalOptions explicite prend la hauteur par défaut (Fill),
+                 donc les boutons s'étiraient sur toute la hauteur du bandeau pendant
+                 que le texte restait centré sur sa propre taille naturelle : décalage
+                 vertical entre le texte et les icônes. Center ajouté aux 4 pour aligner
+                 tout le monde sur le même axe. -->
             <Button x:Name="BtnOpenFolder" Text="{x:Static controls:MotoIcons.Folder}" FontFamily="{x:Static controls:MotoIcons.FontFamily}"
                     ToolTipProperties.Text="Ouvrir un dossier"
                     Clicked="OnOpenFolderClicked"
-                    Style="{StaticResource MotoHoverIconButton}" />
+                    Style="{StaticResource MotoHoverIconButton}" VerticalOptions="Center" />
 
             <!-- ★ AJOUT (31/08) : "Nouveau fichier" n'avait jamais été construit
                  (confirmé, pas un bug) — demandé par Tom. -->
             <Button x:Name="BtnNewFile" Text="{x:Static controls:MotoIcons.Add}" FontFamily="{x:Static controls:MotoIcons.FontFamily}"
                     ToolTipProperties.Text="Nouveau fichier"
                     Clicked="OnNewFileClicked"
-                    Style="{StaticResource MotoHoverIconButton}" />
+                    Style="{StaticResource MotoHoverIconButton}" VerticalOptions="Center" />
 
             <Button x:Name="BtnRefresh" Text="{x:Static controls:MotoIcons.Refresh}" FontFamily="{x:Static controls:MotoIcons.FontFamily}"
                     ToolTipProperties.Text="Actualiser"
                     Clicked="OnRefreshClicked"
-                    Style="{StaticResource MotoHoverIconButton}" />
+                    Style="{StaticResource MotoHoverIconButton}" VerticalOptions="Center" />
 
             <Button x:Name="BtnToggleSide" Text="🡺"
                     ToolTipProperties.Text="Changer de côté"
                     Clicked="OnToggleSideClicked"
-                    Style="{StaticResource MotoHoverIconButton}" FontSize="12" />
+                    Style="{StaticResource MotoHoverIconButton}" FontSize="12" VerticalOptions="Center" />
 
         </HorizontalStackLayout>
 
