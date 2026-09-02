@@ -384,12 +384,33 @@ confirmée, moitié re-classée plus dure :**
   personne n'écrit l'extraction "réponse IA → changements de fichiers
   structurés" — chantier à part entière, pas fait ici), `XenoFeedbackOverlay`,
   `MarketplaceView`, `LanguageSelectorView` (ces 3 derniers : il manquait
-  juste `using Microsoft.Maui.Controls.Shapes;`, mécanique). **Aucun des 4
-  n'a de point d'entrée dans l'interface pour l'instant** — compilent et ne
-  cassent rien, mais pas encore atteignables par un clic. `MarketplaceView`
-  à vérifier avant de lui donner un point d'entrée : `PluginGalleryView`
-  (déjà réel et utilisé) affiche DÉJÀ installés+marketplace ensemble —
-  risque de doublon si les deux coexistent.
+  juste `using Microsoft.Maui.Controls.Shapes;`, mécanique).
+
+  **Points d'entrée (02/09)** :
+  - ✅ `MotoAiPage` : entrée "MOTO AI (mode Débutant/Expert)" ajoutée à la
+    palette de commandes (`CommandPaletteEngine.cs`, id `ai.motopage`) →
+    `OnMenuCommanded` → `Navigation.PushAsync(new Pages.MotoAiPage())`.
+    Confirmé par Tom, l'écran s'ouvre.
+  - ⏸️ `MarketplaceView` : PAS de point d'entrée, décision de Tom —
+    `PluginGalleryView` (déjà réel et utilisé, bouton 🧱) affiche DÉJÀ
+    installés+marketplace ensemble, risque de doublon confirmé avant
+    d'agir. À reconsidérer seulement si un vrai besoin distinct apparaît.
+  - ⏸️ `XenoFeedbackOverlay` : PAS de point d'entrée — son constructeur est
+    utilisable sans dépendance, mais elle a besoin de `SetPipeline
+    (XenoPipelineV5 pipeline)` pour afficher quoi que ce soit d'utile, et
+    aucun déclencheur visible ("lancer un pipeline Xeno") n'existe
+    aujourd'hui dans l'interface de MOTO Editor pour lui en fournir un —
+    lui donner un bouton isolé n'aurait affiché qu'un écran vide. À
+    reprendre le jour où un vrai déclencheur de pipeline Xeno existe.
+  - ⏸️ `LanguageSelectorView` : PAS de point d'entrée non plus — en creusant
+    plus loin que la simple compilation, ses 2 dépendances
+    (`LanguageManager`, `MarketplaceLanguageClient`) ne sont enregistrées
+    nulle part dans le conteneur DI, et `MarketplaceLanguageClient` appelle
+    une vraie URL externe (`marketplace.moto-editor.dev`, jamais vérifiée
+    comme existante). Lui donner un point d'entrée aujourd'hui aurait
+    demandé de créer ces 2 services en plus, et de vérifier d'abord que
+    cette adresse répond — plus gros que "juste un bouton", pas fait
+    aujourd'hui.
 - ❌ **Re-classées "pas une correction rapide"** (confirmé à la compilation,
   pas par supposition) : `HealthMonitorView` (le `.xaml.cs` attend un
   `MetricsLabel` qui n'existe pas — le vrai `.xaml` a `ScoreLabel`/

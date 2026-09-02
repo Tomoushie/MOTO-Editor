@@ -147,6 +147,12 @@ namespace Moto.Core.AI.Commands
                 new() { Id = "ai.neural", Title = "Neural Mode", Description = "Ouvre le Neural Mode.", Category = CommandCategory.Menu, CommandText = "menu:ai.neural" },
                 new() { Id = "ai.workspace", Title = "Workspace IA", Description = "Ouvre le Workspace IA.", Category = CommandCategory.Menu, CommandText = "menu:ai.workspace" },
                 new() { Id = "ai.gallery", Title = "Galerie de plugins", Description = "Parcourt et installe des plugins.", Category = CommandCategory.Menu, CommandText = "menu:ai.gallery" },
+                // ★ AJOUT (02/09, réveil de MotoAiPage) : mode différent d'AiChatView —
+                // une instruction unique + un chemin de workspace, exécutée d'un coup
+                // (pas une conversation), avec un aperçu des changements de fichiers
+                // avant application. Voir CLAUDE.md pour la limite connue (l'aperçu
+                // de fichiers est toujours vide pour l'instant).
+                new() { Id = "ai.motopage", Title = "MOTO AI (mode Débutant/Expert)", Description = "Exécute une instruction unique sur un workspace, avec aperçu des changements.", Category = CommandCategory.Menu, CommandText = "menu:ai.motopage" },
 
                 // ── Slash commands ──
                 new() { Id = "slash.neural", Title = "Neural : Générer du code", Description = "Génère du code via Neural Mode.", Category = CommandCategory.Slash, CommandText = "/neural " },

@@ -78,6 +78,12 @@ namespace Moto.Editor
                 case "ai.remote": OnRemoteClicked(null, null); break;
                 case "ai.collab": OnCollabClicked(null, null); break;
                 case "ai.gallery": OnGalleryClicked(); break;
+                // ★ AJOUT (02/09, réveil de MotoAiPage) : jamais navigable auparavant
+                // (ni DI, ni Navigation.PushAsync nulle part — confirmé par recherche
+                // avant ce correctif). Pas de dépendance à résoudre (MotoAiService
+                // s'auto-construit) — fire-and-forget, comme les autres actions de
+                // ce switch qui ne bloquent pas sur un résultat.
+                case "ai.motopage": _ = Navigation.PushAsync(new Pages.MotoAiPage()); break;
 
                 case "term.open": _viewModel.IsTerminalVisible = true; break;
                 case "help.doc": DocPanel.IsVisible = true; break;
