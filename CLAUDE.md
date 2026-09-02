@@ -595,14 +595,19 @@ bonne fondation à réutiliser pour toute nouvelle persistance (voir
 "Sauvegarde de session" ci-dessous), à l'inverse de l'API typée
 inexistante qui bloque `SessionBookmarkService`.
 
-**Plugins — le point le plus cassé de toute l'app.** Le bouton 🧱
-"Galerie de plugins" que Tom utilise affichera **toujours** "❌ Services
-plugins non initialisés" : `_pluginGallery = new PluginGalleryView(null,
-null, ...)` dans `WirePanels()`, et sa méthode `SetServices(...)` — qui
-existe pour recevoir les vrais services résolus par
-`ResolveExtensionServices()` — **n'est appelée nulle part**. Une 2e
-instance de `PluginGalleryView`, elle avec les vrais services, n'est
-accessible que via la même commande cachée `/window plugin`. Plus grave :
+**Plugins — le point le plus cassé de toute l'app.** ✅ CORRIGÉ (02/09,
+commit `b6f0b9d`) pour la partie affichage : le bouton 🧱 "Galerie de
+plugins" affichait **toujours** "❌ Services plugins non initialisés" —
+`_pluginGallery = new PluginGalleryView(null, null, ...)` dans
+`WirePanels()`, et sa méthode `SetServices(...)` (qui existait déjà pour
+recevoir les vrais services résolus par `ResolveExtensionServices()`)
+n'était appelée nulle part. Appelée désormais au bon endroit — le panneau
+affiche maintenant "0 installé(s) · 0 distant(s)." au lieu de l'erreur.
+Ceci ne règle QUE l'affichage : le système reste creux en dessous (0
+plugin jamais réellement installable), pour les raisons ci-dessous, restées
+inchangées. Une 2e instance de `PluginGalleryView`, elle avec les vrais
+services depuis le début, reste accessible via la même commande cachée
+`/window plugin`. Plus grave :
 **3 contrats de plugin différents et incompatibles coexistent** —
 `Moto.Core/Plugins/IPlugin.cs` (interne), et dans `Moto.Plugin.SDK`,
 **deux interfaces publiques nommées `IPlugin` dans le même namespace**
