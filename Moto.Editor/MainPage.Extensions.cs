@@ -150,6 +150,22 @@ namespace Moto.Editor
                 _pluginRegistry = services.GetService<PluginRegistry>();
                 _marketplaceClient = services.GetService<MarketplaceClient>();
 
+                // ★ CORRECTION (02/09, réparation Galerie de plugins) : _pluginGallery
+                // (construit dans WirePanels(), MainPage.xaml.cs, AVANT que cette
+                // méthode tourne) recevait `new PluginGalleryView(null, null, ...)` —
+                // _pluginRegistry/_marketplaceClient n'existaient pas encore à ce
+                // stade. SetServices() existe déjà pour exactement ce cas (résoudre
+                // plus tard, brancher après coup) mais n'était appelée nulle part :
+                // le panneau que Tom ouvre (🧱 "Galerie de plugins") affichait donc
+                // TOUJOURS "❌ Services plugins non initialisés.", quoi qu'il fasse.
+                // Même patron que _analyticsDashboard.SetAnalytics(_analytics) un peu
+                // plus bas dans ce fichier. Ne rend pas le système "réel" (toujours 0
+                // plugin jamais installé en pratique, marketplace distant jamais
+                // vérifié — voir CLAUDE.md, section "Modularité façon Zed/VS Code")
+                // mais arrête d'afficher une erreur permanente sur un bouton visible.
+                if (_pluginGallery != null && _pluginRegistry != null && _marketplaceClient != null)
+                    _pluginGallery.SetServices(_pluginRegistry, _marketplaceClient, GetPluginsDirectory());
+
                 // ★ CORRECTION : cette méthode construisait ICI une première
                 // PluginGalleryView (DI-résolue ou neuve) et l'ajoutait en overlay
                 // plein-écran via AddMotoOverlay — mais WirePanels() (MainPage.xaml.cs,
