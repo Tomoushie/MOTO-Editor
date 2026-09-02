@@ -48,6 +48,13 @@ namespace Moto.Editor
                 case "view.maximize": OnMaximizeToggled(); break;
                 case "view.theme": ThemeService.SetDark(); break;
 
+                // ★ AJOUT (02/09, état des lieux) : "Paramètres" dans la barre de
+                // recherche de commandes (Ctrl+Shift+P) envoie "menu:settings", qui
+                // tombait ici sans aucun cas correspondant — cliquer dessus ne
+                // faisait rien. Même appel que le menu ⚙ (voir plus bas dans ce
+                // fichier, OnGearMenuItemSelected).
+                case "settings": SettingsWindow.Show("Général"); break;
+
                 case "nav.back": OnNavBack(); break;
                 case "nav.forward": OnNavForward(); break;
 

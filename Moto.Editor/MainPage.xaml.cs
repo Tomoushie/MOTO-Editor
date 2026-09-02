@@ -410,6 +410,13 @@ namespace Moto.Editor
 
         private void OnPageLoaded(object sender, EventArgs e)
         {
+            // ★ AJOUT (02/09, état des lieux) : ResolveExtensionServices() déplacée
+            // ici depuis InitializeMainPageExtensions() (constructeur, trop tôt) — voir
+            // le commentaire détaillé dans MainPage.Extensions.cs. Appelée en premier,
+            // avant tout le reste de cette méthode, pour que _commandPalette et les
+            // autres champs qu'elle résout soient prêts dès que possible.
+            ResolveExtensionServices();
+
 #if WINDOWS
             var nativeWindow = Application.Current.Windows[0].Handler.PlatformView
                 as Microsoft.UI.Xaml.Window;
@@ -426,6 +433,13 @@ namespace Moto.Editor
             // était déjà annoncé par la palette de commandes (CommandPaletteEngine.cs)
             // mais aucun raccourci clavier réel ne l'écoutait — voir CLAUDE.md.
             GlobalHotkeyService.Register(nativeWindow, onHotkey: () => AiBar.Toggle(), onWindowActivated: () => { if (!Home.IsVisible) AiBar.Show(); }, onToggleExplorer: () => ToggleSide(isExplorer: true));
+
+            // ★ AJOUT (02/09, état des lieux) : Ctrl+Shift+P (palette de commandes)
+            // était câblé trop tôt (constructeur de MainPage, fenêtre native pas
+            // encore créée) — voir AttachWindowsHotkey dans MainPage.Extensions.cs
+            // pour le détail complet du diagnostic. nativeWindow est déjà résolu
+            // ici en sécurité, comme pour GlobalHotkeyService.Register ci-dessus.
+            AttachWindowsHotkey(nativeWindow);
 
             // ★ CORRECTION (30/08) : barre de titre Windows par défaut visible en plus de
             // notre CustomMenuBarView (repéré par Tom au premier lancement réel). Le

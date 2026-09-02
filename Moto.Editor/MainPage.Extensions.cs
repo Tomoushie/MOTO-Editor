@@ -75,10 +75,26 @@ namespace Moto.Editor
         public void InitializeMainPageExtensions()
         {
             SetupOverlays();
-            ResolveExtensionServices();
+            // ★ RETRAIT (02/09, état des lieux) : ResolveExtensionServices() appelée
+            // d'ici échouait en silence — CAUSE RÉELLE confirmée par un breadcrumb
+            // ("services DI non disponibles, sortie anticipée") : ni Handler (celui de
+            // MainPage) ni Application.Current.Handler n'existent encore à ce stade du
+            // constructeur. Résultat : _commandPalette (Ctrl+Maj+P, palette de
+            // commandes — signalé par Tom), _confirmationOverlay, _proactivePanel,
+            // _analytics, _windowManager restaient TOUS null pour toujours, la méthode
+            // sortant avant de les assigner — aucune exception visible (le catch de
+            // cette méthode ne partait que vers Debug.WriteLine, invisible sans
+            // débogueur attaché, corrigé au passage). Même famille de bug que
+            // AttachWindowsHotkey ce même jour. Déplacée dans OnPageLoaded
+            // (MainPage.xaml.cs), où Handler est déjà garanti prêt (Loaded ne se
+            // déclenche qu'une fois la page montée avec son handler natif).
             SetupProactiveTimer();
             AttachExtensionsEventHandlers();
-            AttachWindowsHotkey();
+            // ★ RETRAIT (02/09, état des lieux) : AttachWindowsHotkey() appelée d'ici
+            // — donc dans le constructeur de MainPage, avant que la fenêtre native
+            // existe — causait un ArgumentOutOfRangeException avalé en silence,
+            // empêchant Ctrl+Shift+P de fonctionner. Déplacée dans OnPageLoaded
+            // (MainPage.xaml.cs), où nativeWindow est déjà résolu en sécurité.
             TryShowMigrationOverlay();
         }
 
@@ -125,6 +141,7 @@ namespace Moto.Editor
                 if (services is null)
                 {
                     System.Diagnostics.Debug.WriteLine("[Extensions] Services DI non disponibles.");
+                    App.Breadcrumb("ResolveExtensionServices — services DI non disponibles, sortie anticipée");
                     return;
                 }
 
@@ -222,7 +239,15 @@ namespace Moto.Editor
             }
             catch (Exception ex)
             {
+                // ★ DIAGNOSTIC TEMPORAIRE (02/09) : cette exception ne partait QUE vers
+                // Debug.WriteLine (invisible sans débogueur attaché — on lance l'exe
+                // seul). _commandPalette (et tout ce qui est résolu après lui dans ce
+                // même bloc try) reste alors null en silence — c'est ce qui empêchait
+                // Ctrl+Maj+P de faire quoi que ce soit (confirmé : ToggleCommandPalette
+                // s'exécutait bien, mais _commandPalette était null). Journalisé dans le
+                // vrai fichier de crash le temps de voir la cause exacte.
                 System.Diagnostics.Debug.WriteLine($"[Extensions] Erreur init : {ex.Message}");
+                App.Breadcrumb($"ResolveExtensionServices — EXCEPTION : {ex}");
             }
         }
 
@@ -316,25 +341,34 @@ namespace Moto.Editor
         // ------------------------------------------------------------------
         // Hotkey Windows : Ctrl+Shift+P
         // ------------------------------------------------------------------
-        private void AttachWindowsHotkey()
-        {
 #if WINDOWS
-            try
+        /// <summary>
+        /// ★ CORRECTION (02/09, état des lieux) : CAUSE RÉELLE de "Ctrl+Shift+P ne
+        /// fait rien du tout", signalé par Tom. Cette méthode était appelée depuis
+        /// InitializeMainPageExtensions() — exécutée DANS le constructeur de
+        /// MainPage, donc bien avant que la fenêtre native existe encore.
+        /// Application.Current.Windows[0] levait un ArgumentOutOfRangeException
+        /// (collection vide) — confirmé par un breadcrumb temporaire, pas deviné.
+        /// Le catch générique ("le hotkey est optionnel") avalait cette exception
+        /// en silence depuis le début : aucune trace, échec invisible. Même famille
+        /// de bug que SnapLayoutsHelper/ConfigureSnapLayouts, déjà corrigée en 08 en
+        /// déplaçant l'appel dans OnPageLoaded — même remède ici : on reçoit
+        /// nativeWindow déjà résolu par OnPageLoaded au lieu de le redemander trop
+        /// tôt.
+        /// </summary>
+        private void AttachWindowsHotkey(Microsoft.UI.Xaml.Window? nativeWindow)
+        {
+            if (nativeWindow?.Content is Microsoft.UI.Xaml.UIElement root)
             {
-                var nativeWindow = Application.Current.Windows[0].Handler.PlatformView
-                    as Microsoft.UI.Xaml.Window;
-
-                if (nativeWindow?.Content is Microsoft.UI.Xaml.UIElement root)
-                {
-                    root.PreviewKeyDown += OnWindowsPreviewKeyDown;
-                }
+                root.PreviewKeyDown += OnWindowsPreviewKeyDown;
+                App.Breadcrumb("AttachWindowsHotkey — PreviewKeyDown abonné");
             }
-            catch
+            else
             {
-                // Le hotkey est optionnel.
+                App.Breadcrumb($"AttachWindowsHotkey — IGNORÉ : nativeWindow={nativeWindow != null}");
             }
-#endif
         }
+#endif
 
 #if WINDOWS
         private void OnWindowsPreviewKeyDown(object sender, Microsoft.UI.Xaml.Input.KeyRoutedEventArgs e)

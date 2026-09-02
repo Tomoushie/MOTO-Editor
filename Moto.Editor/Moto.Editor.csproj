@@ -161,16 +161,16 @@
   </ItemGroup>
 
   <!--
-    Mis de côté pour cette passe (rien n'est perdu, juste exclu de la compilation) :
-    CommandPaletteService (4 fichiers "additions" sans classe de base, jamais
-    instanciée nulle part dans le code réel — voir Moto.Core.csproj pour le
-    même genre d'exclusions côté Core).
+    ★ RETRAIT (02/09, état des lieux) : les 4 fichiers CommandPaletteService.*
+    supprimés du disque (plus seulement exclus) — vérifié qu'aucune classe de
+    base ne les reliait entre eux, jamais instanciés nulle part dans le code
+    réel, la VRAIE palette de commandes (Views/CommandPaletteView.xaml.cs +
+    Moto.Core.AI.Commands.CommandPaletteEngine, câblée et fonctionnelle) n'a
+    jamais dépendu d'eux. Contrairement aux autres exclusions ci-dessous, ce
+    n'était pas du code "revivable en l'état" — 4 fragments qui ne se
+    raccordaient jamais, aucun n'aurait compilé ensemble. Voir CLAUDE.md.
   -->
   <ItemGroup>
-    <Compile Remove="Services\CommandPaletteService.cs" />
-    <Compile Remove="Services\CommandPaletteService.AdaptiveRanking.cs" />
-    <Compile Remove="Services\CommandPaletteService.Extensions.cs" />
-    <Compile Remove="Services\CommandPaletteService.Ranking.cs" />
     <!-- CollabView (curseurs CRDT temps réel) : fragment "AJOUTS" sans classe de base,
          jamais referencee ailleurs dans le code reel -->
     <Compile Remove="Views\CollabView.xaml.cs" />

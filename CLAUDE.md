@@ -112,6 +112,58 @@ lecture directe du code.
    supprimer, câblé sur le même mécanisme (`ApplySidePanelLayout`) dans
    `MainPage.xaml.cs` — testé en jeu réel par Tom, fonctionne.
 
+## Palette de commandes (Ctrl+Maj+P) — bug majeur trouvé ET corrigé (02/09)
+
+Ne pas confondre 2 choses au nom proche :
+- **La vraie palette, réelle et fonctionnelle** : `Views/CommandPaletteView.xaml.cs`
+  + `Moto.Core.AI.Commands.CommandPaletteEngine` (catalogue statique de
+  commandes + recherche floue). Câblée à `MainPage.OnPaletteCommandInvoked`,
+  qui route vers `OnMenuCommanded` (préfixe `menu:`) ou `OnAiCommandSubmitted`
+  (sinon).
+- **`CommandPaletteService`** (4 fichiers `Services/CommandPaletteService*.cs`)
+  — confirmé MORT et **supprimé du disque** (pas juste exclu) : 4 fragments
+  ajoutés séparément sans classe de base commune, jamais raccordés, jamais
+  utilisés par la vraie palette ci-dessus. `CommandPaletteHistoryService.cs`
+  (historique + score flou, 129 lignes, complet et compile) reste sur le
+  disque mais n'est câblé nulle part (ni DI, ni construit) — vraie
+  amélioration possible un jour (tri par commandes récentes), pas urgent.
+
+**Le vrai bug, sévère, trouvé le 02/09** : Ctrl+Maj+P ne faisait RIEN, et
+c'était plus grave qu'un simple raccourci cassé. Cause réelle :
+`ResolveExtensionServices()` (MainPage.Extensions.cs) — qui résout
+`_commandPalette`, `_confirmationOverlay`, `_proactivePanel`, `_analytics`,
+`_windowManager`, etc. via le conteneur DI — était appelée depuis
+`InitializeMainPageExtensions()`, donc **dans le constructeur de MainPage**,
+avant que `Handler`/`Application.Current.Handler` existent. `services`
+valait donc `null`, la méthode sortait tout de suite (`return` anticipé),
+et TOUS ces champs restaient `null` pour toujours. Aucune exception
+visible : le `catch` de cette méthode n'écrivait que vers
+`Debug.WriteLine` (invisible sans débogueur attaché) — corrigé pour écrire
+aussi dans le vrai journal (`App.Breadcrumb`). Exactement la même famille
+de bug que `AttachWindowsHotkey` (ci-dessous) et l'ancien
+`SnapLayoutsHelper`/`ConfigureSnapLayouts` (déjà corrigé fin août) : du
+code appelé depuis le constructeur de `MainPage` avant que la fenêtre/le
+handler existent.
+
+**Corrigé** : `ResolveExtensionServices()` déplacée dans `OnPageLoaded`
+(MainPage.xaml.cs), où `Handler` est déjà garanti prêt. Confirmé par Tom en
+app réelle (capture d'écran) : la palette s'ouvre, liste les commandes, ET
+le panneau "Actions suggérées" (qui dépendait du même correctif,
+`_proactivePanel`) est maintenant peuplé aussi — l'impact réel de ce bug
+était plus large que la seule palette.
+
+**Leçon retenue pour la suite** : ne plus déclarer "cette brique marche"
+sur la seule lecture du code (comme fait une première fois par erreur ce
+même jour) — vérifier l'état réel à l'exécution (ici, `_commandPalette`
+valait `null` malgré un code de câblage qui semblait complet à la lecture).
+
+**Ctrl+Maj+P lui-même** (`AttachWindowsHotkey`, MainPage.Extensions.cs) avait
+EXACTEMENT le même problème de timing, corrigé le même jour de la même
+façon (déplacé dans `OnPageLoaded`, reçoit `nativeWindow` déjà résolu au
+lieu de le redemander à `Application.Current.Windows[0]` trop tôt — ça
+levait un `ArgumentOutOfRangeException` avalé en silence par un `catch`
+générique "le hotkey est optionnel").
+
 ## ChatService — API réelle (Moto.Editor/Services/ChatService.cs)
 
 Service qui route les questions IA (Ollama via MotoAiKernel, ou
