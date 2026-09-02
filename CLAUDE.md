@@ -705,6 +705,62 @@ catalogue auto-déclaré pour argent comptant). `WorkspaceManager`
 proposés en retour de cette sonde, un choisi pour continuer — voir la
 mémoire Claude du jour pour lequel a été retenu et son état d'avancement.
 
+## Stratégie de vitesse à terme : rester .NET vs Rust/GPU (02-03/09)
+
+Question de Tom : MOTO pourra-t-il un jour rivaliser en vitesse avec Zed
+(natif Rust, démarrage <500ms, GPUI = rendu GPU direct maison) ? Recherche
+sourcée lancée (Workflow `wf_d88202f7-9fe`, 4 angles + synthèse). Résumé
+durable :
+
+**Ce qui rend Zed rapide** : pas le langage Rust en lui-même — l'absence
+de tout moteur de mise en page classique (pas de XAML, pas de page web) et
+l'envoi direct des formes au GPU via GPUI (framework maison de Zed). Preuve
+citée : Tauri est écrit en Rust mais n'est pas rapide comme Zed, car il
+garde une webview (donc un moteur de layout classique) sous le capot.
+Rust apporte 2 avantages réels à CETTE architecture précise (pas de
+ramasse-miettes qui met le programme en pause, pas de compilation à chaud
+au démarrage) mais ne les garantit pas tout seul.
+
+**Fait concret vérifié DANS le code de MOTO (pas une supposition
+externe)** : `Moto.Editor/Controls/CodeEditorView.xaml` utilise un
+`<WebView x:Name="Web">` — l'éditeur de code de MOTO est un navigateur
+Chromium (WebView2) complet, qui démarre juste pour afficher du texte.
+C'est probablement le plus gros frein réel à la vitesse de MOTO, avant
+tout le reste (JIT, XAML, DI — les causes génériques MAUI documentées
+dans les tickets officiels dotnet/maui, ex. #9179, #31227).
+
+**WinUI 3 utilise déjà le GPU** (DirectComposition), mais seulement pour
+la composition finale (assembler les couches, animations fluides) — le
+calcul de layout, la mesure du texte, le dessin des contrôles restent
+largement CPU. C'est la vraie différence structurelle avec GPUI, pas un
+simple retard d'optimisation.
+
+**3 options retenues, avec coût/gain** :
+1. **Optimiser l'existant** (ReadyToRun, trimming + bindings compilés,
+   retarder le chargement IA au démarrage) — coût faible (jours-semaines),
+   plafond dur ~1-1,5s (jamais moins en gardant MAUI/WinUI3 tel quel).
+   NativeAOT sur MAUI Windows spécifiquement pas encore mûr (bugs
+   documentés, support complet visé après .NET 10, sans date ferme).
+2. **Remplacer UNIQUEMENT le WebView de CodeEditorView par du rendu GPU
+   direct** (SkiaSharp), reste de l'app inchangé en C#/.NET — même logique
+   que Zed, appliquée à l'endroit qui compte le plus. Précédent réel :
+   Windows Terminal a fait ce même remplacement ciblé pour son rendu de
+   texte, gain mesuré ×2 à ×10. Coût moyen (semaines à quelques mois).
+3. **Réécriture complète façon Zed** (Rust + moteur GPU maison) — seule
+   voie qui atteint vraiment le niveau de Zed, mais ~76 000 lignes de C#
+   à refaire ; précédents réels (Zed, Lapce, JetBrains Fleet) = années-
+   personnes d'ingénieurs systèmes confirmés, pas une personne assistée
+   d'IA. Risque d'abandon documenté (réécritures gelées des années,
+   double maintenance abandonnée ailleurs). Coût fort.
+
+**Séquence recommandée** : Option 1 avant v1.0 (gain quasi gratuit) →
+Option 2 au palier "élevé/bêta" de Tom (le vrai gain perceptible,
+chantier borné à un seul contrôle) → Option 3 seulement au palier
+"commercial" si traction suffisante, et à ce moment-là plutôt en
+apprenant/recrutant du Rust qu'en comptant sur l'IA seule (terrain où
+l'assistance IA est la moins fiable). Aucune décision prise à ce stade —
+juste la carte pour en reparler au bon moment.
+
 ## Références
 
 - Mémoire Claude (`~/.claude/projects/E--Corpus/memory/`) : chercher les
