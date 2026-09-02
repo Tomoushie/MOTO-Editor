@@ -157,12 +157,60 @@ sur la seule lecture du code (comme fait une première fois par erreur ce
 même jour) — vérifier l'état réel à l'exécution (ici, `_commandPalette`
 valait `null` malgré un code de câblage qui semblait complet à la lecture).
 
+**Effet de bord trouvé ET corrigé le même jour** : réparer `ResolveExtensionServices()`
+a réveillé un 2e bug endormi — `_analyticsDashboard` était résolu DEUX fois
+(une vraie fois par `WirePanels()`, enveloppée par `AddFloatingPanel` qui la
+masque ; une 2e fois ici même, via DI + `AddMotoOverlay`, JAMAIS masquée,
+exactement le même doublon fantôme déjà connu et retiré pour
+`_pluginGallery`). Tant que `ResolveExtensionServices()` échouait en
+silence, ce doublon ne s'exécutait jamais — dès qu'il a été corrigé, le
+panneau Analytics s'est mis à couvrir tout l'écran au démarrage (repéré par
+Tom, capture d'écran). Retiré, comme `_pluginGallery` l'avait été avant.
+**Leçon** : corriger un bug de timing peut réveiller un doublon resté
+invisible juste parce que le code cassé ne l'exécutait jamais — vérifier
+l'écran après CHAQUE correctif de ce genre, pas seulement le comportement
+visé.
+
+**Palette : fermeture ajoutée (02/09)** — jusqu'ici, refaire Ctrl+Maj+P
+était le SEUL moyen de la refermer (repéré par Tom). Ajouté : bouton ✕
+(`CommandPaletteView.xaml`) + touche Échap (`OnWindowsPreviewKeyDown`,
+même mécanisme que Ctrl+Maj+P).
+
 **Ctrl+Maj+P lui-même** (`AttachWindowsHotkey`, MainPage.Extensions.cs) avait
 EXACTEMENT le même problème de timing, corrigé le même jour de la même
 façon (déplacé dans `OnPageLoaded`, reçoit `nativeWindow` déjà résolu au
 lieu de le redemander à `Application.Current.Windows[0]` trop tôt — ça
 levait un `ArgumentOutOfRangeException` avalé en silence par un `catch`
 générique "le hotkey est optionnel").
+
+## Réglages → IA Locale (02/09, depuis "Docs/Idées à implémenter.txt")
+
+`Docs/Idées à implémenter.txt` (fichier de Tom) mélange une vision très
+ambitieuse (fusion MOTO AI/Xeno-SSS∞, auto-modification de code en direct —
+**non retenue, trop risquée pour être un vrai prochain pas**) et de vraies
+petites idées faisables. Une a été construite le 02/09 : catégorie
+**"IA Locale"** dans le catalogue de réglages (`SettingsCatalog.cs`) —
+`ollama_endpoint`, `ollama_model`, `ollama_timeout_seconds`.
+
+**Bug réel trouvé en construisant ça** : `AiSettingsPage` avait déjà des
+champs Ollama (URL/modèle), mais ils écrivaient dans
+`_fallbackEngine.ProviderManager` — un système totalement différent du
+vrai moteur de chat local (`MotoAiKernel` → `OllamaClient`, qui construit
+toujours `new OllamaClient()` sans jamais lire cette config). Changer ces
+champs n'avait donc AUCUN effet sur une vraie conversation. Corrigé :
+`OllamaClient` (le vrai, `Moto.Core.AI.Internal.OllamaClient`) lit
+maintenant `SettingsEngine.Shared` dans son constructeur ; `AiSettingsPage`
+lit/écrit désormais les mêmes clés — un seul endroit réel au lieu de deux
+qui se contredisaient. **Limite connue** : un changement ne prend effet
+qu'au prochain lancement de l'app (le kernel n'est construit qu'une fois
+au démarrage) — pas grave pour un réglage rarement changé, mais à savoir.
+
+**Doublon confirmé au passage** : 2 classes `OllamaClient` existent dans
+le dépôt — `Moto.Core.AI.Internal.OllamaClient` (la vraie, utilisée par
+`MotoAiKernel`) et `Moto.Core/Moto.AI/OllamaClient.cs` (namespace
+`Moto.Editor.AI` — déjà mal rangé, comme d'autres fichiers de ce dépôt —
+zéro appelant nulle part, confirmé par recherche complète). Pas supprimée,
+juste notée ici.
 
 ## ChatService — API réelle (Moto.Editor/Services/ChatService.cs)
 

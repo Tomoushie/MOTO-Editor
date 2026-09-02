@@ -7,6 +7,7 @@ using Microsoft.Maui.Graphics;
 using Moto.Core.AI;
 using Moto.Core.AI.Models;
 using Moto.Core.Security;
+using Moto.Core.Settings;
 
 namespace Moto.Editor.Pages
 {
@@ -43,13 +44,17 @@ namespace Moto.Editor.Pages
         /// </summary>
         private void LoadExistingConfig()
         {
-            // Ollama
-            var ollamaConfig = _fallbackEngine.ProviderManager.GetConfig(AiProviderType.Ollama);
-            if (ollamaConfig != null)
-            {
-                OllamaUrlEntry.Text = ollamaConfig.EndpointUrl;
-                OllamaModelEntry.Text = ollamaConfig.ModelName;
-            }
+            // ★ CORRECTION (02/09, "Réglages → IA Locale") : ces 2 champs lisaient
+            // _fallbackEngine.ProviderManager, qui n'a AUCUN rapport avec le vrai
+            // moteur de chat local (MotoAiKernel/OllamaClient) — confirmé : changer
+            // ces valeurs ici n'avait jamais eu le moindre effet sur une vraie
+            // conversation. Lus maintenant depuis SettingsEngine.Shared, la même
+            // source que le catalogue de réglages "IA Locale" (SettingsCatalog.cs) et
+            // que OllamaClient lui-même — un seul endroit réel, pas deux qui se
+            // contredisent.
+            var settings = SettingsEngine.Shared;
+            OllamaUrlEntry.Text = settings.GetString("ollama_endpoint", "http://localhost:11434");
+            OllamaModelEntry.Text = settings.GetString("ollama_model", "qwen2.5-coder:7b");
 
             // OpenAI
             var openAiConfig = _fallbackEngine.ProviderManager.GetConfig(AiProviderType.OpenAI);
@@ -126,6 +131,13 @@ namespace Moto.Editor.Pages
                 config.ModelName = OllamaModelEntry.Text;
 
                 _fallbackEngine.ProviderManager.ConfigureProvider(config);
+
+                // ★ AJOUT (02/09, "Réglages → IA Locale") : persiste aussi vers le
+                // vrai chemin lu par OllamaClient — sinon "Tester" pouvait dire
+                // "✅ accessible" pour une adresse qui ne serait JAMAIS utilisée par
+                // une vraie conversation.
+                SettingsEngine.Shared.Set("ollama_endpoint", OllamaUrlEntry.Text ?? "");
+                SettingsEngine.Shared.Set("ollama_model", OllamaModelEntry.Text ?? "");
 
                 var result = await _fallbackEngine.ProviderManager.CheckAllProvidersAsync();
 
@@ -246,6 +258,10 @@ namespace Moto.Editor.Pages
                 ollamaConfig.EndpointUrl = OllamaUrlEntry.Text;
                 ollamaConfig.ModelName = OllamaModelEntry.Text;
                 _fallbackEngine.ProviderManager.ConfigureProvider(ollamaConfig);
+                // ★ AJOUT (02/09, "Réglages → IA Locale") : vrai enregistrement, lu par
+                // OllamaClient à la prochaine conversation (voir LoadExistingConfig).
+                SettingsEngine.Shared.Set("ollama_endpoint", OllamaUrlEntry.Text ?? "");
+                SettingsEngine.Shared.Set("ollama_model", OllamaModelEntry.Text ?? "");
 
                 // Sauvegarder OpenAI.
                 if (!string.IsNullOrWhiteSpace(OpenAiKeyEntry.Text))

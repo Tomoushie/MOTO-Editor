@@ -5,28 +5,45 @@ using System.Text;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using Moto.Core.Settings;
 
 namespace Moto.Core.AI.Internal;
 
 /// <summary>
 /// Client Ollama (existant, préservé).
+/// ★ CORRECTION (02/09, "Réglages → IA Locale") : le modèle appelé par
+/// GenerateAsync était codé en dur ("qwen2.5-coder:7b") et le délai d'attente
+/// fixé à 5 minutes sans aucun moyen de les changer — confirmé : AUCUN
+/// réglage utilisateur n'atteignait jamais ce client (MotoAiKernel construit
+/// toujours "new OllamaClient()" sans paramètre). Le constructeur sans
+/// paramètre lit maintenant SettingsEngine.Shared (mêmes clés que le
+/// catalogue "IA Locale", SettingsCatalog.cs) au lieu de valeurs figées —
+/// Model/Endpoint/Timeout deviennent de vraies propriétés modifiables.
 /// </summary>
 public sealed class OllamaClient
 {
     private readonly HttpClient _http;
-    private readonly string _baseUrl;
 
-    public OllamaClient(string baseUrl = "http://localhost:11434")
+    /// <summary>Adresse du serveur Ollama.</summary>
+    public string Endpoint { get; set; }
+
+    /// <summary>Modèle local utilisé pour GenerateAsync.</summary>
+    public string Model { get; set; }
+
+    public OllamaClient(string? endpoint = null, string? model = null, int? timeoutSeconds = null)
     {
-        _baseUrl = baseUrl;
-        _http = new HttpClient { Timeout = TimeSpan.FromMinutes(5) };
+        var s = SettingsEngine.Shared;
+        Endpoint = endpoint ?? s.GetString("ollama_endpoint", "http://localhost:11434");
+        Model = model ?? s.GetString("ollama_model", "qwen2.5-coder:7b");
+        var timeout = timeoutSeconds ?? s.GetInt("ollama_timeout_seconds", 300);
+        _http = new HttpClient { Timeout = TimeSpan.FromSeconds(Math.Max(5, timeout)) };
     }
 
     public async Task<bool> IsAvailableAsync(CancellationToken ct = default)
     {
         try
         {
-            var response = await _http.GetAsync($"{_baseUrl}/api/tags", ct);
+            var response = await _http.GetAsync($"{Endpoint}/api/tags", ct);
             return response.IsSuccessStatusCode;
         }
         catch
@@ -37,9 +54,9 @@ public sealed class OllamaClient
 
     public async Task<string> GenerateAsync(string prompt, CancellationToken ct = default)
     {
-        var payload = new { model = "qwen2.5-coder:7b", prompt, stream = false };
+        var payload = new { model = Model, prompt, stream = false };
         var content = new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json");
-        var response = await _http.PostAsync($"{_baseUrl}/api/generate", content, ct);
+        var response = await _http.PostAsync($"{Endpoint}/api/generate", content, ct);
         response.EnsureSuccessStatusCode();
         var json = await response.Content.ReadAsStringAsync(ct);
 

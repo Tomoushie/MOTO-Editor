@@ -43,6 +43,11 @@ namespace Moto.Editor.Views
             IsVisible = false;
         }
 
+        // ★ AJOUT (02/09) : bouton ✕ demandé par Tom, en plus d'Échap
+        // (MainPage.Extensions.cs/OnWindowsPreviewKeyDown) — jusqu'ici, refaire
+        // Ctrl+Maj+P était le seul moyen de refermer cette palette.
+        private void OnCloseClicked(object? sender, EventArgs e) => Close();
+
         private void OnSearchTextChanged(object? sender, TextChangedEventArgs e)
         {
             UpdateResults(e.NewTextValue);

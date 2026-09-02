@@ -175,8 +175,21 @@ namespace Moto.Editor
                 // ── ★ v28 : Analytics ──
                 _analytics = services.GetService<Moto.Core.AI.Analytics.ProactiveAnalyticsEngine>();
 
-                // ── ★ v29 : Analytics Dashboard + WindowManager ──
-                _analyticsDashboard = services.GetService<AnalyticsDashboardView>();
+                // ★ RETRAIT (02/09, état des lieux) : _analyticsDashboard = services.
+                // GetService<AnalyticsDashboardView>() retiré d'ici — EXACTEMENT le
+                // même doublon fantôme déjà repéré et retiré pour _pluginGallery (voir
+                // commentaire un peu plus bas dans ce fichier) : WirePanels()
+                // (MainPage.xaml.cs, appelée dans le constructeur, donc AVANT que
+                // OnPageLoaded lance cette méthode) construit TOUJOURS la vraie
+                // instance (new AnalyticsDashboardView(), enveloppée par
+                // AddFloatingPanel qui la masque et lui donne son en-tête). Cette
+                // 2e instance résolue par DI ici écrasait le champ avec une instance
+                // JAMAIS masquée (AddMotoOverlay ne met pas IsVisible=false, seul
+                // AddFloatingPanel le fait) — resté invisible tant que
+                // ResolveExtensionServices() échouait en silence (voir plus haut),
+                // mais dès que ce bug a été corrigé, ce doublon s'est mis à couvrir
+                // tout l'écran au démarrage (repéré par Tom, capture d'écran).
+                // ── ★ v29 : WindowManager ──
                 _windowManager = services.GetService<Moto.Editor.Windows.WindowManager>();
 
                 // Ajoute les overlays au RootGrid
@@ -197,11 +210,6 @@ namespace Moto.Editor
                     Grid.SetRow(_proactivePanel, 2);
                     Grid.SetColumnSpan(_proactivePanel, 3);
                     _proactivePanel.SuggestionInvoked += command => OnAiCommandSubmitted(command);
-                }
-
-                if (_analyticsDashboard != null)
-                {
-                    AddMotoOverlay(_analyticsDashboard);
                 }
 
                 // Branche le handler de confirmation UI
@@ -373,6 +381,20 @@ namespace Moto.Editor
 #if WINDOWS
         private void OnWindowsPreviewKeyDown(object sender, Microsoft.UI.Xaml.Input.KeyRoutedEventArgs e)
         {
+            // ★ AJOUT (02/09) : Échap ferme la palette de commandes si elle est
+            // ouverte — jusqu'ici, refaire Ctrl+Maj+P était le seul moyen (voir
+            // aussi le bouton ✕ ajouté dans CommandPaletteView.xaml). Même
+            // mécanisme que Ctrl+Maj+P ci-dessous.
+            if (e.Key == global::Windows.System.VirtualKey.Escape)
+            {
+                if (_commandPalette?.IsVisible == true)
+                {
+                    _commandPalette.Close();
+                    e.Handled = true;
+                }
+                return;
+            }
+
             // ★ global:: nécessaire : "Windows" est aussi un namespace de ce projet
             // (Moto.Editor.Windows), qui masquerait sinon la racine WinRT "Windows.*".
             if (e.Key != global::Windows.System.VirtualKey.P) return;

@@ -261,6 +261,18 @@ namespace Moto.Core.Settings
             T("thread_persistence", "Agent", "Conversation", "Threads persistants", "Sauvegarde les conversations.", true);
             T("auto_doc", "Agent", "Documentation", "Auto-Doc", "Documentation mise à jour auto.", true);
 
+            // ==================== IA LOCALE ====================
+            // ★ AJOUT (02/09, "Idées à implémenter.txt" de Tom — "Interface de
+            // configuration dans Paramètres → IA Locale") : jusqu'ici, AiSettingsPage
+            // avait bien des champs Ollama (URL/modèle), mais confirmé qu'ils
+            // n'atteignaient JAMAIS le vrai moteur de chat (MotoAiKernel construit
+            // toujours "new OllamaClient()" sans rien lui passer — sa config restait
+            // décorative). Ces 3 réglages sont les premiers à réellement piloter
+            // Moto.Core.AI.Internal.OllamaClient (voir son constructeur).
+            S("ollama_endpoint", "IA Locale", "Ollama", "Adresse du serveur", "URL du serveur Ollama local.", "http://localhost:11434");
+            S("ollama_model", "IA Locale", "Ollama", "Modèle", "Nom du modèle Ollama à utiliser (ex. qwen2.5-coder:7b).", "qwen2.5-coder:7b");
+            I("ollama_timeout_seconds", "IA Locale", "Ollama", "Délai d'attente (s)", "Temps max avant d'abandonner une réponse Ollama.", 300, 5, 1800, 5);
+
             // ← AJOUT : enregistre les catégories étendues
             // (Version Control, Collaboration, AI étendu, Network, Developer)
             // définies dans SettingsCatalog.Extensions.cs

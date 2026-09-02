@@ -18,21 +18,30 @@
 
         <Grid RowDefinitions="Auto,*" RowSpacing="10">
 
-            <!-- Barre de recherche -->
-            <Border BackgroundColor="{StaticResource BgSide}"
-                    Stroke="{StaticResource BgHover}"
-                    StrokeThickness="1"
-                    StrokeShape="RoundRectangle 8"
-                    Padding="8">
-                <Entry x:Name="SearchEntry"
-                       Placeholder="Rechercher une commande…"
-                       BackgroundColor="Transparent"
-                       TextColor="{StaticResource Txt1}"
-                       PlaceholderColor="{StaticResource Txt2}"
-                       FontSize="14"
-                       TextChanged="OnSearchTextChanged"
-                       Completed="OnSearchCompleted" />
-            </Border>
+            <!-- Barre de recherche + fermer -->
+            <!-- ★ AJOUT (02/09) : bouton ✕ demandé par Tom — jusqu'ici, le seul moyen
+                 de refermer cette palette était de refaire Ctrl+Maj+P. Échap ajouté
+                 en plus, voir MainPage.Extensions.cs/OnWindowsPreviewKeyDown. -->
+            <Grid Grid.Row="0" ColumnDefinitions="*,Auto" ColumnSpacing="8">
+                <Border Grid.Column="0"
+                        BackgroundColor="{StaticResource BgSide}"
+                        Stroke="{StaticResource BgHover}"
+                        StrokeThickness="1"
+                        StrokeShape="RoundRectangle 8"
+                        Padding="8">
+                    <Entry x:Name="SearchEntry"
+                           Placeholder="Rechercher une commande…"
+                           BackgroundColor="Transparent"
+                           TextColor="{StaticResource Txt1}"
+                           PlaceholderColor="{StaticResource Txt2}"
+                           FontSize="14"
+                           TextChanged="OnSearchTextChanged"
+                           Completed="OnSearchCompleted" />
+                </Border>
+                <Button Grid.Column="1" Text="✕" WidthRequest="36" HeightRequest="36"
+                        Padding="0" BackgroundColor="Transparent"
+                        TextColor="{StaticResource Txt2}" Clicked="OnCloseClicked" />
+            </Grid>
 
             <!-- Résultats -->
             <ScrollView Grid.Row="1" HeightRequest="380">
