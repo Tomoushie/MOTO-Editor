@@ -21,7 +21,8 @@ namespace Moto.Editor.Platforms.Windows
             Microsoft.UI.Xaml.Window window,
             Action onHotkey,
             Action onWindowActivated,
-            Action onToggleExplorer = null)
+            Action onToggleExplorer = null,
+            Action onBuild = null)
         {
             if (window == null)
             {
@@ -66,6 +67,28 @@ namespace Moto.Editor.Platforms.Windows
                     };
 
                     root.KeyboardAccelerators.Add(explorerAccelerator);
+                }
+
+                // ★ AJOUT (02/09, "vrai registre de commandes" — retour de test) : F5
+                // ("Compiler") était affiché comme raccourci dans CommandPaletteEngine.cs
+                // et dans SettingsCatalog, mais AUCUN VirtualKey.F5 n'existait nulle part
+                // dans le dépôt avant ceci (vérifié par recherche complète) — confirmé
+                // cassé par Tom en testant le nouveau CommandRegistry. Même mécanisme que
+                // Ctrl+B ci-dessus, aucun modificateur (F5 seule).
+                if (onBuild != null)
+                {
+                    var buildAccelerator = new Microsoft.UI.Xaml.Input.KeyboardAccelerator
+                    {
+                        Key = VirtualKey.F5
+                    };
+
+                    buildAccelerator.Invoked += (s, e) =>
+                    {
+                        MainThread.BeginInvokeOnMainThread(() => onBuild.Invoke());
+                        e.Handled = true;
+                    };
+
+                    root.KeyboardAccelerators.Add(buildAccelerator);
                 }
             }
 

@@ -449,7 +449,12 @@ namespace Moto.Editor
             // ★ AJOUT (02/09, état des lieux) : Ctrl+B ("Basculer l'explorateur")
             // était déjà annoncé par la palette de commandes (CommandPaletteEngine.cs)
             // mais aucun raccourci clavier réel ne l'écoutait — voir CLAUDE.md.
-            GlobalHotkeyService.Register(nativeWindow, onHotkey: () => AiBar.Toggle(), onWindowActivated: () => { if (!Home.IsVisible) AiBar.Show(); }, onToggleExplorer: () => ToggleSide(isExplorer: true));
+            // ★ AJOUT (02/09, "vrai registre de commandes" — retour de test) : F5
+            // ("Compiler") n'avait jamais été câblé à rien — voir GlobalHotkeyService.cs
+            // pour le détail. Passe par _commandRegistry.Execute plutôt que d'appeler
+            // OnBuildClicked directement, pour rester le même point d'entrée unique que
+            // la palette/le menu (un seul endroit à changer si "run.build" évolue).
+            GlobalHotkeyService.Register(nativeWindow, onHotkey: () => AiBar.Toggle(), onWindowActivated: () => { if (!Home.IsVisible) AiBar.Show(); }, onToggleExplorer: () => ToggleSide(isExplorer: true), onBuild: () => _commandRegistry.Execute("run.build"));
 
             // ★ AJOUT (02/09, état des lieux) : Ctrl+Shift+P (palette de commandes)
             // était câblé trop tôt (constructeur de MainPage, fenêtre native pas
