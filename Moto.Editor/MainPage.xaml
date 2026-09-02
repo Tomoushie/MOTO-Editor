@@ -64,16 +64,17 @@
         <views:CustomMenuBarView x:Name="MenuBar" Grid.Row="0" Grid.ColumnSpan="3" />
 
         <!-- ══════════════════ Colonne 0 : dock IA (placeholders) + panneaux ══════════════════ -->
-        <!-- Ancre réelle des panneaux IA (Cortex/Neural/Workspace/etc.), un par un
-             (voir AddFloatingPanel, MainPage.Panels.cs). AiHost/ChatHost/ThreadHost
-             inchangés (utilisés ailleurs, OnMaximizeToggled notamment). -->
+        <!-- Ancre réelle des panneaux IA (Cortex/Neural/Workspace/AiChatView/etc.),
+             un par un (voir AddFloatingPanel, MainPage.Panels.cs). ChatHost/
+             ThreadHost inchangés (utilisés ailleurs, OnMaximizeToggled notamment).
+             ★ RETRAIT (02/09) : AiHost (stub "🤖 Panneau IA" codé en dur, sans
+             aucun vrai contenu) supprimé — le bouton "IA" de l'écran d'accueil
+             ouvrait cette coquille vide au lieu d'un vrai panneau (repéré par
+             Tom). Remplacé par un vrai AiChatView, branché comme les autres
+             panneaux IA via AddFloatingPanel (voir MainPage.xaml.cs/.Routing.cs). -->
         <Grid x:Name="AiDockPanel" Grid.Row="2" Grid.Column="0" RowDefinitions="Auto,*"
               WidthRequest="500" IsVisible="False" BackgroundColor="#17181C">
             <VerticalStackLayout Grid.Row="0" Spacing="8" Padding="8">
-                <Border x:Name="AiHost" IsVisible="False" Padding="10"
-                        BackgroundColor="{StaticResource BgPanel}" StrokeShape="RoundRectangle 8">
-                    <Label Text="🤖 Panneau IA" FontSize="12" TextColor="{StaticResource Txt2}" />
-                </Border>
                 <Border x:Name="ChatHost" IsVisible="False" Padding="10"
                         BackgroundColor="{StaticResource BgPanel}" StrokeShape="RoundRectangle 8">
                     <Label Text="💬 Chat" FontSize="12" TextColor="{StaticResource Txt2}" />

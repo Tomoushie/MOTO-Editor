@@ -6,42 +6,28 @@
 
     <Grid RowDefinitions="Auto,*,Auto,Auto,Auto" Padding="6">
 
-        <!-- En-tête : drag + titre + actions -->
-        <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto,Auto,Auto,Auto" Padding="0,4">
+        <!-- ★ CORRECTION (02/09, réveil de ce panneau) : ancien en-tête (glisser +
+             titre "MOTO AI" + ⇄ changer de côté + ✕ fermer) retiré — ce panneau
+             est maintenant branché comme tous les autres panneaux IA (Cortex,
+             Neural, Workspace...) via AddFloatingPanel (MainPage.Panels.cs), qui
+             fournit DÉJÀ ce même en-tête (titre + ✕) autour de CHAQUE panneau,
+             plus le glisser-déposer pour réordonner/changer de dock. Le garder
+             ici aurait doublé titre/fermeture/glisser. Seules les 2 actions
+             propres à CE panneau (nouvelle conversation / vider) restent, en
+             petite barre d'actions. -->
+        <HorizontalStackLayout Grid.Row="0" Spacing="4" Padding="0,0,0,4">
 
-            <Label Grid.Column="0" x:Name="DragHandle" Text="⋮⋮"
-                   FontSize="14" VerticalOptions="Center" />
-
-            <Label Grid.Column="1" x:Name="TitleLabel"
-                   Text="MOTO AI" FontAttributes="Bold"
-                   VerticalOptions="Center" />
-
-            <!-- ★ CORRECTION (02/09, retouche "vrai Zed") : ces 4 boutons n'avaient
-                 jamais reçu le traitement "chrome natif retiré + survol" déjà fait
-                 ailleurs (ex. FileExplorerView, 31/08) — ils s'affichaient donc avec
-                 le bouton gris natif Windows au lieu du style MOTO. MotoHoverIconButton
-                 corrige les deux à la fois (même style déjà réutilisé). -->
-            <Button Grid.Column="2" Text="＋" FontSize="11"
+            <Button Text="＋" FontSize="11"
                     Style="{StaticResource MotoHoverIconButton}"
                     ToolTipProperties.Text="Nouvelle conversation"
                     Clicked="OnNewThreadClicked" />
 
-            <Button Grid.Column="3" Text="🗑" FontSize="11"
+            <Button Text="🗑" FontSize="11"
                     Style="{StaticResource MotoHoverIconButton}"
                     ToolTipProperties.Text="/clear"
                     Clicked="OnClearClicked" />
 
-            <Button Grid.Column="4" Text="⇄" FontSize="11"
-                    Style="{StaticResource MotoHoverIconButton}"
-                    ToolTipProperties.Text="Déplacer à gauche/droite"
-                    Clicked="OnDockToggleClicked" />
-
-            <Button Grid.Column="5" Text="✕" FontSize="11"
-                    Style="{StaticResource MotoHoverIconButton}"
-                    ToolTipProperties.Text="Fermer"
-                    Clicked="OnCloseClicked" />
-
-        </Grid>
+        </HorizontalStackLayout>
 
         <!-- Messages -->
         <CollectionView Grid.Row="1" x:Name="MessageList" SelectionMode="None">

@@ -238,9 +238,14 @@
 
     <!-- Vues jamais instanciées ni enregistrées, chacune avec un .xaml.cs qui
          suppose des éléments x:Name absents de son propre .xaml (même motif
-         "AJOUT sans base" que partout ailleurs dans ce dépôt). -->
-    <Compile Remove="Views\AiChatView.xaml.cs" />
-    <MauiXaml Remove="Views\AiChatView.xaml" />
+         "AJOUT sans base" que partout ailleurs dans ce dépôt).
+         ★ RETRAIT (02/09) : AiChatView réveillé — le motif "x:Name absent" ne
+         s'appliquait en fait pas à ce fichier (vérifié un par un, aucun
+         manquant) ; le vrai blocage était une dérive d'API sur ChatService
+         (Contexts/ActiveThread/ActiveThreadChanged/PreferInternal/CreateThread/
+         AddFile/AddSelection n'existaient pas) — corrigée dans ChatService.cs.
+         Câblé maintenant comme un panneau IA réel (AddFloatingPanel), remplace
+         le stub "AiHost" (voir MainPage.xaml/.Panels.cs/.Routing.cs). -->
     <Compile Remove="Views\ConditionalBreakpointDialog.xaml.cs" />
     <MauiXaml Remove="Views\ConditionalBreakpointDialog.xaml" />
     <Compile Remove="Views\GlobalDashboardView.xaml.cs" />

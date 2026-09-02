@@ -42,8 +42,25 @@ public sealed class OllamaClient
         var response = await _http.PostAsync($"{_baseUrl}/api/generate", content, ct);
         response.EnsureSuccessStatusCode();
         var json = await response.Content.ReadAsStringAsync(ct);
-        // Parser la réponse Ollama
-        return json;
+
+        // ★ CORRECTION (02/09, réveil du panneau IA) : le commentaire disait
+        // "Parser la réponse Ollama" mais ne faisait rien de tel — le JSON brut
+        // complet (model/created_at/response/context/...) était renvoyé tel
+        // quel. Invisible jusqu'ici (rien n'affichait la réponse à un vrai
+        // utilisateur), révélé par le premier vrai test du panneau de chat.
+        // Extraction du seul champ "response", même logique que l'autre client
+        // Ollama du dépôt (Moto.Editor/AI/OllamaClient.cs), qui le faisait déjà
+        // correctement.
+        using var doc = JsonDocument.Parse(json);
+        // ★ CORRECTION (02/09, revue croisée) : un repli silencieux vers "" en cas de
+        // forme de réponse inattendue (proxy non standard, évolution future de
+        // l'API...) masquerait le souci sans aucune trace — contrairement à l'ancien
+        // comportement (JSON brut affiché tel quel) qui, bien que moche, montrait AU
+        // MOINS qu'un problème existait. Repli sur un message diagnostique explicite
+        // plutôt que sur l'un ou l'autre extrême.
+        return doc.RootElement.TryGetProperty("response", out var value)
+            ? value.GetString() ?? string.Empty
+            : "[Réponse Ollama inattendue — champ \"response\" absent]";
     }
 
     public async Task<string> GenerateCodeAsync(string instruction, string? context, CancellationToken ct = default)

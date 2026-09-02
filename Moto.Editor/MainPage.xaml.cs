@@ -65,6 +65,9 @@ namespace Moto.Editor
         private CortexView _cortexPanel;
         private NeuralView _neuralPanel;
         private AIWorkspaceView _workspacePanel;
+        // ★ AJOUT (02/09) : remplace le stub "AiHost" — vrai panneau de chat,
+        // branché comme les autres panneaux IA ci-dessus (voir WirePanels).
+        private Views.AiChatView _aiChatPanel;
         private Views.SearchView _searchPanel;
         // _pluginGallery / _analyticsDashboard / _aiSettings : déclarés dans MainPage.Extensions.cs
         // _globalUsage : déclaré dans MainPage.UI.cs
@@ -277,6 +280,9 @@ namespace Moto.Editor
             _cortexPanel = new CortexView(null);
             _neuralPanel = new NeuralView(null);
             _workspacePanel = new AIWorkspaceView(null);
+            // ★ AJOUT (02/09) : remplace le stub "AiHost" — _chatService existe déjà
+            // à ce stade (construit dans le constructeur juste avant WirePanels()).
+            _aiChatPanel = new Views.AiChatView(_chatService);
             _pluginGallery = new PluginGalleryView(null, null, System.IO.Path.Combine(_currentRoot ?? "", "plugins"));
             _analyticsDashboard = new AnalyticsDashboardView();
             _debugPanel = new DebugPanelView();
@@ -287,7 +293,7 @@ namespace Moto.Editor
 
             foreach (var panel in new ContentView[]
             {
-                _platformPanel, _cortexPanel, _neuralPanel, _workspacePanel,
+                _platformPanel, _cortexPanel, _neuralPanel, _workspacePanel, _aiChatPanel,
                 _pluginGallery, _analyticsDashboard, _debugPanel
             })
                 AddFloatingPanel(panel);

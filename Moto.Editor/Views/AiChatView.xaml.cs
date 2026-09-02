@@ -1,6 +1,7 @@
 // Moto.Editor/Views/AiChatView.xaml.cs (régénéré)
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.Maui.Controls;
 using Microsoft.Maui.Storage;
 using Moto.Editor.Models;
@@ -9,19 +10,16 @@ using Moto.Editor.Services;
 namespace Moto.Editor.Views
 {
     /// <summary>
-    /// Panneau de chat agent : saisie en bas, sélecteurs mode/modèle,
-    /// drag-and-drop pour dock gauche/droite.
+    /// Panneau de chat agent : liste de messages, saisie en bas, sélecteurs
+    /// mode/modèle, pièces jointes. Branché comme les autres panneaux IA via
+    /// AddFloatingPanel (MainPage.Panels.cs) — titre/fermeture/glisser fournis
+    /// par ce wrapper commun, pas par ce fichier (voir en-tête XAML).
     /// </summary>
     public partial class AiChatView : ContentView
     {
         public ChatService Chat { get; }
 
-        public event Action<DockSide> SideChangeRequested;
-        public event Action CloseRequested;
         public event Action<string> ModelChanged;
-
-        private bool _dockedRight = false;
-        private double _dragStartX;
 
         public AiChatView(ChatService chat)
         {
@@ -37,51 +35,9 @@ namespace Moto.Editor.Views
             Chat.ActiveThreadChanged += thread =>
             {
                 MessageList.ItemsSource = thread.Messages;
-                TitleLabel.Text = thread.Title;
             };
 
             MessageList.ItemsSource = Chat.ActiveThread?.Messages;
-
-            var pan = new PanGestureRecognizer();
-            pan.PanUpdated += OnPanUpdated;
-            DragHandle.GestureRecognizers.Add(pan);
-        }
-
-        // ------------------------------------------------------------------
-        // Drag-and-drop dock
-        // ------------------------------------------------------------------
-
-        private void OnPanUpdated(object sender, PanUpdatedEventArgs e)
-        {
-            switch (e.StatusType)
-            {
-                case GestureStatus.Started:
-                    _dragStartX = TranslationX;
-                    break;
-
-                case GestureStatus.Running:
-                    TranslationX = _dragStartX + e.TotalX;
-                    break;
-
-                case GestureStatus.Completed:
-                    var center = Bounds.CenterX + TranslationX;
-                    var screen = Application.Current.Windows[0].Width / 2;
-
-                    SideChangeRequested?.Invoke(center < screen ? DockSide.Left : DockSide.Right);
-                    this.TranslateTo(0, 0, 150, Easing.CubicOut);
-                    break;
-            }
-        }
-
-        private void OnDockToggleClicked(object sender, EventArgs e)
-        {
-            _dockedRight = !_dockedRight;
-            SideChangeRequested?.Invoke(_dockedRight ? DockSide.Right : DockSide.Left);
-        }
-
-        private void OnCloseClicked(object sender, EventArgs e)
-        {
-            CloseRequested?.Invoke();
         }
 
         private void OnNewThreadClicked(object sender, EventArgs e)
@@ -98,7 +54,12 @@ namespace Moto.Editor.Views
         {
             var model = ModelPicker.SelectedItem as string ?? "MOTO interne";
 
-            Chat.PreferInternal = model.Contains("interne", StringComparison.OrdinalIgnoreCase);
+            // ★ CORRECTION (02/09, revue croisée) : ne testait que "interne", donc
+            // choisir "Ollama (qwen2.5-coder:7b)" (qui utilise le MÊME chemin local
+            // que "MOTO interne") désactivait PreferInternal — sautait justement
+            // l'appel à Ollama. IsExternalProviderName (ChatService) ne reconnaît
+            // comme externes que les vrais providers cloud (OpenAI/Anthropic/Mistral).
+            Chat.PreferInternal = !ChatService.IsExternalProviderName(model);
             ModelChanged?.Invoke(model);
         }
 

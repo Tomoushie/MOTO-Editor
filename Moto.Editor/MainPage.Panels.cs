@@ -111,7 +111,10 @@ namespace Moto.Editor
             // 500px) à côté du contenu correctement affiché à droite. Vérifier les
             // enfants RÉELLEMENT présents dans PanelHost (même patron que
             // RefreshExplorerPanelHostVisibility) règle ça sans liste à maintenir.
-            bool any = AiHost.IsVisible || ChatHost.IsVisible || ThreadHost.IsVisible
+            // ★ RETRAIT (02/09) : AiHost.IsVisible retiré (stub supprimé, remplacé
+            // par _aiChatPanel — déjà couvert par le check PanelHost.Children
+            // ci-dessous, comme Cortex/Neural/Workspace).
+            bool any = ChatHost.IsVisible || ThreadHost.IsVisible
                 || PanelHost.Children.Any(c => c is Border b && b.IsVisible);
             AiDockPanel.IsVisible = any;
             // ★ AJOUT (01/09) : même patron que RefreshExplorerHandleVisibility —
@@ -327,6 +330,7 @@ namespace Moto.Editor
             PlatformView => "🖥️ Plateforme",
             CortexView => "🧠 Cortex",
             NeuralView => "🤖 Neural",
+            AiChatView => "💬 MOTO AI",
             AIWorkspaceView => "🧩 Workspace",
             PluginGalleryView => "🧱 Plugins",
             AnalyticsDashboardView => "📊 Analytics",

@@ -42,7 +42,7 @@ namespace Moto.Editor
 
                 case "view.explorer": ToggleSide(isExplorer: true); break;
                 case "view.sidebar": ToggleSide(isExplorer: false); break;
-                case "view.aipanel": AiHost.IsVisible = !AiHost.IsVisible; RefreshAiDockColumnWidth(); break;
+                case "view.aipanel": _aiChatPanel.IsVisible = !_aiChatPanel.IsVisible; RefreshAiDockColumnWidth(); break;
                 case "view.terminal": _viewModel.IsTerminalVisible = !_viewModel.IsTerminalVisible; break;
                 case "view.diagnostics": _viewModel.IsDiagnosticsVisible = !_viewModel.IsDiagnosticsVisible; break;
                 case "view.maximize": OnMaximizeToggled(); break;
@@ -225,12 +225,14 @@ namespace Moto.Editor
         /// n'en fermaient AUCUN — repéré par Tom : ouvrir Cortex après IA laissait
         /// les deux superposés. Un seul point centralisé ferme maintenant TOUJOURS
         /// tout le reste avant d'afficher le panneau demandé.
+        /// ★ CORRECTION (02/09) : "ai" pilote maintenant _aiChatPanel (vrai panneau
+        /// de chat) au lieu du stub AiHost, supprimé.
         /// </summary>
         private void OnActivitySelected(string id)
         {
             if (id == "explorer") { ToggleSide(isExplorer: true); return; }
 
-            bool showAi = id == "ai" && !AiHost.IsVisible;
+            bool showAi = id == "ai" && !_aiChatPanel.IsVisible;
             bool showCortex = id == "cortex" && !_cortexPanel.IsVisible;
             bool showCollab = id == "collab" && !CollabPanel.IsVisible;
             // ★ AJOUT (30/08, 2e passe) : "Recherche" ouvrait le bandeau IA sans
@@ -238,7 +240,7 @@ namespace Moto.Editor
             // (voir SearchView.xaml.cs), sur le même patron que les autres panneaux.
             bool showSearch = id == "search" && !_searchPanel.IsVisible;
 
-            AiHost.IsVisible = false;
+            _aiChatPanel.IsVisible = false;
             _cortexPanel.IsVisible = false;
             _neuralPanel.IsVisible = false;
             _workspacePanel.IsVisible = false;
@@ -249,7 +251,7 @@ namespace Moto.Editor
 
             switch (id)
             {
-                case "ai": AiHost.IsVisible = showAi; break;
+                case "ai": _aiChatPanel.IsVisible = showAi; break;
                 case "cortex":
                     _cortexPanel.IsVisible = showCortex;
                     if (showCortex && _viewModel.SelectedDocument != null)
