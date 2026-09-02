@@ -1,5 +1,6 @@
 // App.xaml.cs
 using Microsoft.Maui.Controls;
+using Moto.Core.Settings;
 #if WINDOWS
 using WinRT.Interop;
 #endif
@@ -206,15 +207,60 @@ namespace Moto.Editor
                 // — même piège que Win32Interop rencontré plus tôt (SnapLayoutsHelper.cs).
                 const int DefaultWidth = 1360;
                 const int DefaultHeight = 860;
-                appWindow.Resize(new global::Windows.Graphics.SizeInt32(DefaultWidth, DefaultHeight));
                 var displayArea = Microsoft.UI.Windowing.DisplayArea.GetFromWindowId(
                     windowId, Microsoft.UI.Windowing.DisplayAreaFallback.Primary);
-                if (displayArea != null)
+
+                // ★ AJOUT (02/09, persistance de session) : réutilise la taille/position
+                // mémorisées à la fermeture précédente (voir l'abonnement à
+                // mauiWindow.Destroying plus bas) si elles existent ET tiennent encore
+                // dans l'écran actuel (un moniteur externe débranché entre deux
+                // lancements ne doit jamais rouvrir la fenêtre hors champ) — sinon,
+                // comportement inchangé : taille par défaut, centrée.
+                int width = SettingsEngine.Shared.GetInt("window.width", DefaultWidth);
+                int height = SettingsEngine.Shared.GetInt("window.height", DefaultHeight);
+                int savedX = SettingsEngine.Shared.GetInt("window.x", int.MinValue);
+                int savedY = SettingsEngine.Shared.GetInt("window.y", int.MinValue);
+
+                if (width < 640 || height < 480) { width = DefaultWidth; height = DefaultHeight; }
+                appWindow.Resize(new global::Windows.Graphics.SizeInt32(width, height));
+
+                bool restoredPosition = false;
+                if (displayArea != null && savedX != int.MinValue && savedY != int.MinValue)
                 {
-                    var centerX = displayArea.WorkArea.X + (displayArea.WorkArea.Width - DefaultWidth) / 2;
-                    var centerY = displayArea.WorkArea.Y + (displayArea.WorkArea.Height - DefaultHeight) / 2;
+                    var wa = displayArea.WorkArea;
+                    // Le coin haut-gauche doit rester visible dans la zone de travail —
+                    // tolérance de 100px pour autoriser une fenêtre partiellement hors
+                    // écran comme le ferait Windows lui-même (bord de dock, etc.).
+                    if (savedX >= wa.X - 100 && savedX < wa.X + wa.Width
+                        && savedY >= wa.Y - 100 && savedY < wa.Y + wa.Height)
+                    {
+                        appWindow.Move(new global::Windows.Graphics.PointInt32(savedX, savedY));
+                        restoredPosition = true;
+                    }
+                }
+                if (!restoredPosition && displayArea != null)
+                {
+                    var centerX = displayArea.WorkArea.X + (displayArea.WorkArea.Width - width) / 2;
+                    var centerY = displayArea.WorkArea.Y + (displayArea.WorkArea.Height - height) / 2;
                     appWindow.Move(new global::Windows.Graphics.PointInt32(centerX, centerY));
                 }
+
+                // ★ AJOUT (02/09, persistance de session) : sauvegarde la taille/position
+                // ACTUELLES juste avant la fermeture (pas en continu — inutile de
+                // réécrire le fichier de réglages à chaque pixel glissé pendant un
+                // redimensionnement). Même événement déjà utilisé pour ce genre de
+                // nettoyage de fin de vie ailleurs dans le projet (WindowManager.cs).
+                mauiWindow.Destroying += (_, _) =>
+                {
+                    try
+                    {
+                        SettingsEngine.Shared.Set("window.width", appWindow.Size.Width);
+                        SettingsEngine.Shared.Set("window.height", appWindow.Size.Height);
+                        SettingsEngine.Shared.Set("window.x", appWindow.Position.X);
+                        SettingsEngine.Shared.Set("window.y", appWindow.Position.Y);
+                    }
+                    catch { /* ne doit jamais empêcher la fermeture de l'app */ }
+                };
 
                 // ★ Icône hexagonale dans la titlebar + taskbar (si générée, voir assets/icon/)
                 string iconPath = System.IO.Path.Combine(AppContext.BaseDirectory, "appicon.ico");

@@ -417,6 +417,19 @@ namespace Moto.Editor
             // autres champs qu'elle résout soient prêts dès que possible.
             ResolveExtensionServices();
 
+            // ★ AJOUT (02/09, persistance de session) : réouvre automatiquement le
+            // dernier dossier de projet si un a été mémorisé lors d'un import
+            // réussi (voir SettingsEngine.Shared.Set("workspace.last_folder", ...)
+            // dans LoadWorkspace, MainPage.Panels.cs) et qu'il existe toujours sur
+            // le disque (a pu être déplacé/supprimé entre deux lancements — dans ce
+            // cas on ne fait rien, MOTO démarre sur l'Accueil comme avant). Ce n'est
+            // PAS branché sur ExplorerPanel.LoadFolder (utilisé aussi par le mode
+            // Sandbox, MainPage.UI.cs) pour ne jamais risquer de rouvrir un dossier
+            // temporaire de sandbox déjà jeté.
+            var lastFolder = SettingsEngine.Shared.GetString("workspace.last_folder", "");
+            if (!string.IsNullOrWhiteSpace(lastFolder) && System.IO.Directory.Exists(lastFolder))
+                LoadWorkspace(lastFolder);
+
 #if WINDOWS
             var nativeWindow = Application.Current.Windows[0].Handler.PlatformView
                 as Microsoft.UI.Xaml.Window;

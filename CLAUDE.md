@@ -13,6 +13,22 @@ de laisser l'info dispersée dans des commits ou dans la mémoire de session.
 Dernier état des lieux complet : 02/09 (sonde à 4 agents, ~512k tokens,
 195 lectures/greps — voir section Références pour rejouer le détail brut).
 
+## ⚠️ Piège de test : raccourci de bureau = build Release, pas Debug
+
+Confirmé le 02/09 : le raccourci "MOTO Editor" du bureau de Tom
+(`Desktop\MOTO Editor.lnk`) pointe vers
+`Moto.Editor\bin\Release\net8.0-windows10.0.19041.0\win10-x64\Moto.Editor.exe`
+— PAS le dossier `bin\Debug\...` reconstruit à chaque session de code. Tom
+avait testé une correction fraîche via son raccourci de bureau et rien
+n'avait changé : le Release datait du 30/08 (avant même le début de la
+session du 02/09), donc semaines de corrections absentes. **Dès qu'un test
+nécessite que Tom ferme et rouvre l'app lui-même (persistance entre
+sessions, redémarrage, etc. — pas juste "regarde la fenêtre déjà ouverte"),
+reconstruire AUSSI le Release** (`dotnet build Moto.Editor/Moto.Editor.csproj
+-f net8.0-windows10.0.19041.0 -c Release`) avant de le lui demander, en plus
+du Debug habituel. Le binaire `win10-x64` est le bon sous-dossier dans les
+deux configurations (pas directement sous `net8.0-windows10.0.19041.0\`).
+
 ## Paliers de qualité de Tom
 
 Échelle perso : cheap → faible → moyen → élevé → Commercial.
@@ -524,6 +540,110 @@ mémoire, avant ce correctif :
   2 couleurs "presque bonnes" mais pas exactement les jetons) ;
   `AboutView.xaml` (rayon magique 75 pour l'avatar rond, 4 espacements
   différents sans référence à l'échelle).
+
+## Modularité façon Zed/VS Code — état des lieux (02/09, sonde 5 domaines)
+
+Demande de Tom : rapprocher MOTO de la modularité/architecture de Zed et
+VS Code (fait-maison, sans dépendance, léger), la barre bleue restant
+explicitement en pause. Sonde en lecture seule sur 5 domaines avant de
+choisir où coder. Résumé digéré ci-dessous ; le détail complet (fichiers/
+lignes cités) est dans le journal de la Workflow `wf_601f74fd-4fc`
+(02/09) si besoin de retrouver une citation précise.
+
+**Panneaux/docking** : la base (`AddFloatingPanel`, `MainPage.Panels.cs`)
+est solide — redimensionner, glisser-réordonner, glisser entre docks,
+changer de côté marchent tous réellement. Ce qui manque : **aucune
+disposition n'est sauvegardée entre les sessions** (tout revient aux
+valeurs XAML par défaut à chaque lancement) ; **aucun regroupement en
+onglets** dans un même dock (les panneaux s'empilent verticalement,
+l'exclusivité Cortex/Neural/Workspace/Gallery est codée en dur dans 4
+méthodes jumelles) ; **aucune scission en plusieurs vues côte à côte**
+(les réglages "Split vertical/horizontal" existent dans le catalogue
+mais sont décoratifs, aucun code split-pane derrière). Pépite trouvée :
+un vrai `WindowManager` (`Moto.Editor/Windows/WindowManager.cs`) sait
+déjà détacher un panneau dans sa propre fenêtre OS (Debug/Analytics/
+Plugin/Editor) — mais son seul point d'entrée est la commande cachée
+`/window <kind>` tapée dans la barre IA, aucun bouton n'y mène.
+
+**Commandes et raccourcis** : `CommandPaletteEngine.BuildStaticCommands()`
+est une liste figée de 25 commandes codées en dur (pas de `Register`/
+`Unregister`). `OnMenuCommanded` (`MainPage.Routing.cs`) est un `switch`
+d'une cinquantaine de cas, chacun câblé à la main. **3 mécanismes de
+raccourcis séparés et non unifiés** coexistent (`GlobalHotkeyService`
+à paramètres positionnels, `OnWindowsPreviewKeyDown` pour Échap/Ctrl+Maj+P,
+et le champ `Shortcut` purement décoratif affiché dans la palette).
+Conséquence directe : **un plugin ne peut aujourd'hui enregistrer ni
+commande ni raccourci sans modifier le code source à la main à 3
+endroits**. Deux briques déjà écrites mais jamais branchées, prêtes à
+servir une fois un vrai registre en place : la catégorie
+`CommandCategory.Plugin` (déjà un libellé "🧩 Plugins" dans la palette,
+jamais utilisée) et `Moto.Core/Behaviors/KeyboardShortcutBehavior.cs`
+(Behavior XAML générique, zéro attachement nulle part).
+
+**Réglages** : bonne surprise — le design pour qu'un plugin ajoute sa
+propre section existe déjà et est documenté dans le SDK
+(`IPlugin.Settings` → commentaire "auto-injectés dans SettingsCatalog
+sous `plugin.{id}.{clé}`", un plugin d'exemple `SampleFormatPlugin`
+déclare déjà 4 réglages selon ce contrat). Le pont n'a simplement jamais
+été construit : `PluginRegistry.Register()` ajoute le plugin à une liste
+et logue, sans jamais lire `plugin.Settings` ni écrire dans
+`SettingsCatalog.All` (qui est une `List<SettingDefinition>` publique et
+mutable — l'ajout serait trivial). Bonus : `SettingsEngine.Shared` (API
+plate `Get/Set/GetBool/GetString/GetInt`, JSON sur disque) n'a aucune
+notion de catalogue et accepte déjà n'importe quelle clé — c'est la
+bonne fondation à réutiliser pour toute nouvelle persistance (voir
+"Sauvegarde de session" ci-dessous), à l'inverse de l'API typée
+inexistante qui bloque `SessionBookmarkService`.
+
+**Plugins — le point le plus cassé de toute l'app.** Le bouton 🧱
+"Galerie de plugins" que Tom utilise affichera **toujours** "❌ Services
+plugins non initialisés" : `_pluginGallery = new PluginGalleryView(null,
+null, ...)` dans `WirePanels()`, et sa méthode `SetServices(...)` — qui
+existe pour recevoir les vrais services résolus par
+`ResolveExtensionServices()` — **n'est appelée nulle part**. Une 2e
+instance de `PluginGalleryView`, elle avec les vrais services, n'est
+accessible que via la même commande cachée `/window plugin`. Plus grave :
+**3 contrats de plugin différents et incompatibles coexistent** —
+`Moto.Core/Plugins/IPlugin.cs` (interne), et dans `Moto.Plugin.SDK`,
+**deux interfaces publiques nommées `IPlugin` dans le même namespace**
+avec des membres différents (`Moto.Plugin.SDK/IPlugin.cs` vs
+`Contracts/IPlugin.cs`) — en C#, ça ne peut pas compiler tel quel. Une
+3e convention, `IMotoPlugin`, est référencée par nom de chaîne dans
+`PluginInstallerService.cs` (le seul vrai chargeur dynamique du dépôt —
+téléchargement, ZIP, `Assembly.LoadFrom`, réflexion — mais jamais
+instancié) et **n'existe nulle part dans le dépôt**. `PluginRegistry.
+Register()` n'est appelé par aucun code de production (0 plugin jamais
+"installé" en pratique). `MarketplaceClient` interroge en dur une URL
+jamais vérifiée et avale toute exception en silence (repli délibéré
+hors-ligne, mais qui masque aussi un serveur qui n'existe peut-être
+pas). Tout un écosystème existe sur le disque mais **hors de la
+solution** (`MotoEditor.sln` n'a que 3 projets) : `Moto.Plugin.SDK`,
+7 projets de plugins d'exemple, tout un backend Marketplace
+(`Moto.Marketplace.Server/Api/Web`). Une 4e famille séparée,
+`Moto.Core/Extensions/ExtensionSystem.cs` (manifeste `extension.json`),
+et une sandbox de sécurité (`PluginSandboxMinimalService.cs`, logique
+réelle) sont eux aussi jamais instanciés. Bilan : bonne intuition de
+design (adaptateur SDK testé, réglages auto-injectés déjà pensés),
+éclatée en 3-4 tentatives jamais unifiées.
+
+**Sauvegarde de session/workspace** : rien n'est mémorisé aujourd'hui —
+ni dossier ouvert, ni fichiers ouverts, ni taille de fenêtre (codée en
+dur 1360×860 dans `OnWindowsWindowCreated`), ni disposition des
+panneaux. `WorkspaceStateService` (le seul mécanisme réel et câblé de
+cette zone) ne persiste QUE l'ordre des sessions de *chat* sur l'écran
+d'Accueil — à ne pas confondre malgré le nom. `SessionBookmarkService`
+(onglets + curseur) est exclu du build, bloqué par la même API de
+réglages typée inexistante que d'autres fichiers déjà documentés plus
+haut. `SnapshotResumeService` (timer 30s) n'est jamais instancié ET ses
+4 méthodes de collecte sont des coquilles vides (`=> new()`/`=> null`)
+— `FeatureCatalog.cs` le déclare pourtant `AlreadyImplemented` (faux,
+cohérent avec [[docs-orchestrator-claims-caveat]] : ne jamais prendre un
+catalogue auto-déclaré pour argent comptant). `WorkspaceManager`
+(dossiers-projets + favoris) est complet mais jamais câblé.
+
+**Décision de Tom (02/09)** : ne pas tout attaquer d'un coup. 3 chantiers
+proposés en retour de cette sonde, un choisi pour continuer — voir la
+mémoire Claude du jour pour lequel a été retenu et son état d'avancement.
 
 ## Références
 

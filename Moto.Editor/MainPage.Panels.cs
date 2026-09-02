@@ -546,6 +546,16 @@ namespace Moto.Editor
         // ------------------------------------------------------------------
         private void LoadWorkspace(string path)
         {
+            // ★ AJOUT (02/09, persistance de session) : mémorise ce dossier comme
+            // "dernier projet ouvert" pour le rouvrir automatiquement au prochain
+            // lancement (voir OnPageLoaded, MainPage.xaml.cs). LoadWorkspace est LE
+            // seul point d'entrée réel d'un import de projet (chip "Projet
+            // logiciel", bouton Importer, commande "/cd" — voir MainPage.UI.cs et
+            // MainPage.Routing.cs) ; le mode Sandbox appelle ExplorerPanel.LoadFolder
+            // directement, jamais LoadWorkspace, donc son dossier temporaire jeté en
+            // fin de session n'est jamais mémorisé ici par construction.
+            SettingsEngine.Shared.Set("workspace.last_folder", path);
+
             _currentRoot = path;
             _chatService.WorkspaceRoot = path;
             _aiService.SetWorkspace(path);
