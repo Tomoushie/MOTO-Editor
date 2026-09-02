@@ -59,6 +59,30 @@ public static class SnapLayoutsHelper
         appWindow.TitleBar.ButtonForegroundColor = ToColor("#E5E7EB");
         appWindow.TitleBar.ButtonInactiveForegroundColor = ToColor("#E5E7EB");
         appWindow.TitleBar.ButtonHoverForegroundColor = ToColor("#D97757"); // Accent
+
+        // ★ CORRECTION (02/09, cause réelle trouvée) : la bande bleue persistante
+        // n'était PAS un échec de cette méthode (elle s'exécute sans exception,
+        // IsCustomizationSupported=true, les couleurs de boutons ci-dessus
+        // s'appliquaient déjà — confirmé par le survol orange vu par Tom) mais le
+        // réglage Windows 11 "Afficher la couleur d'accentuation sur les barres de
+        // titre et les bordures des fenêtres", qui peut imposer une teinte système
+        // par-dessus une AppWindowTitleBar personnalisée tant que TOUTES ses
+        // couleurs ne sont pas explicitement fixées (recommandation officielle
+        // Microsoft : learn.microsoft.com/windows/apps/develop/title-bar, section
+        // "Colors" — "If you set any title bar color, we recommend that you
+        // explicitly set all the colors"). Confirmé par Tom : désactiver ce réglage
+        // change bien la bande. Les 4 propriétés ci-dessous manquaient à l'appel.
+        appWindow.TitleBar.ForegroundColor = ToColor("#E5E7EB");
+        appWindow.TitleBar.InactiveForegroundColor = ToColor("#E5E7EB");
+        appWindow.TitleBar.ButtonPressedBackgroundColor = ToColor("#202126"); // BgPanel, même état "Pressed" que MotoHoverButton
+        appWindow.TitleBar.ButtonPressedForegroundColor = ToColor("#E5E7EB");
+
+        // Contrôle : si WinUI rejetait une valeur silencieusement, elle relirait
+        // null/différente ici — vérifiable dans le journal sans dépendre du jugement
+        // à l'œil sur une bande bleue ou non.
+        Moto.Editor.App.Breadcrumb(
+            $"ApplyTitleBarColors — relu : BackgroundColor={appWindow.TitleBar.BackgroundColor} " +
+            $"ForegroundColor={appWindow.TitleBar.ForegroundColor}");
     }
 
     public static void ConfigureSnapLayouts(Microsoft.UI.Xaml.Window window,

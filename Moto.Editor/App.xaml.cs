@@ -181,6 +181,20 @@ namespace Moto.Editor
                 // plus tard par SnapLayoutsHelper.ConfigureSnapLayouts.
                 Platforms.Windows.SnapLayoutsHelper.ApplyTitleBarColors(appWindow);
 
+                // ★ TENTÉ PUIS ABANDONNÉ (02/09) : OverlappedPresenter.SetBorderAndTitleBar
+                // (false, false) — testé prudemment, étape par étape, avec journal détaillé.
+                // Résultat : la fenêtre restait visible (mieux que les 3 tentatives
+                // précédentes) et le redimensionnement au bord continuait de fonctionner,
+                // mais le résultat visuel a EMPIRÉ plutôt que réglé le problème : double
+                // bande (une petite changeant de couleur au focus, une grande toujours
+                // bleue) et disparition des boutons ─▢✕ natifs, sans que la bande native
+                // ne disparaisse pour autant. Correspond exactement au comportement encore
+                // non résolu documenté dans microsoft-ui-xaml#9374 (même symptôme, jamais
+                // vraiment corrigé côté Microsoft). Retiré proprement — voir la mémoire du
+                // chantier pour le détail complet et la piste "fenêtre sans bordure avec
+                // rendu 100% custom" restée non tentée (bien plus gros chantier, hors de
+                // portée d'une tentative prudente).
+
                 // ★ CORRECTION (30/08) : aucune taille n'était fixée nulle part — la
                 // fenêtre s'ouvrait à la taille par défaut de WinUI (bien plus large que
                 // l'écran de contenu réel, repéré par Tom : "beaucoup trop large" au
