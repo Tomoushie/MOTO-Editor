@@ -374,14 +374,40 @@ delta réel (temps CPU consommé / temps réel écoulé / nombre de cœurs).
 une classification "facile" — même règle que pour la palette de commandes
 plus tôt le même jour.
 
-**"Réveils faciles" restants** (backend confirmé réel et vivant, juste
-débranché — même profil qu'AiChatView, `.xaml` présent sur le disque, mais
-PAS reconfirmé aussi finement que PerformanceStatusBarView ci-dessus,
-prudence) : `GlobalDashboardView`, `HealthMonitorView`, `LanguageSelectorView`,
-`MarketplaceView` (jumeau vivant du `MarketplaceDashboardView` mort),
-`SnippetCreatorView`, `WhiteboardView`, `XenoFeedbackOverlay`, `MotoAiPage`
-(jamais navigué, aucun bouton n'y mène). `ThreadListView` a besoin des 2
-méthodes `ChatService` manquantes citées plus haut. `BreakpointGutterOverlay`
+**Vague du 02/09, tentative sur 7 "réveils faciles" d'un coup — moitié
+confirmée, moitié re-classée plus dure :**
+
+- ✅ **Compilent réellement maintenant** (testé, pas supposé) :
+  `MotoAiPage` (manquait juste `MotoAiService.ApplyChangesAsync`, ajoutée —
+  ⚠️ limite honnête : `AiResponse.FileChanges` n'est aujourd'hui JAMAIS
+  rempli par `ExecuteAsync`, donc "Appliquer" ne fera rien tant que
+  personne n'écrit l'extraction "réponse IA → changements de fichiers
+  structurés" — chantier à part entière, pas fait ici), `XenoFeedbackOverlay`,
+  `MarketplaceView`, `LanguageSelectorView` (ces 3 derniers : il manquait
+  juste `using Microsoft.Maui.Controls.Shapes;`, mécanique). **Aucun des 4
+  n'a de point d'entrée dans l'interface pour l'instant** — compilent et ne
+  cassent rien, mais pas encore atteignables par un clic. `MarketplaceView`
+  à vérifier avant de lui donner un point d'entrée : `PluginGalleryView`
+  (déjà réel et utilisé) affiche DÉJÀ installés+marketplace ensemble —
+  risque de doublon si les deux coexistent.
+- ❌ **Re-classées "pas une correction rapide"** (confirmé à la compilation,
+  pas par supposition) : `HealthMonitorView` (le `.xaml.cs` attend un
+  `MetricsLabel` qui n'existe pas — le vrai `.xaml` a `ScoreLabel`/
+  `ScoreBar`/`IssueList` : les deux fichiers ont divergé, pas un oubli
+  d'API), `SnippetCreatorView` (même famille : `TriggerLabel`/`StatusLabel`
+  attendus, absents du vrai XAML, plus une propriété `init`-only assignée
+  hors constructeur), `WhiteboardView` (API `ICanvas` du MAUI actuel n'a
+  plus le même contrat que ce que le code suppose — `StrokeColor` sans
+  accesseur `get`, `DrawString` avec une signature différente). Remises
+  dans l'exclusion du `.csproj`, avec le motif exact au lieu du motif
+  générique d'origine.
+
+**"Réveil facile" jamais retesté** (classification d'origine à prendre avec
+prudence, comme les cas ci-dessus) : `GlobalDashboardView` — cas
+particulier, son `.xaml` survit sous un nom de fichier corrompu (voir
+section "Fichiers exclus" plus haut), à renommer avant même de pouvoir
+tenter la compilation. `ThreadListView` a besoin des 2 méthodes
+`ChatService` manquantes citées plus haut. `BreakpointGutterOverlay`
 et `InlayHintsOverlay` sont prêts mais orphelins (leur seul appelant prévu
 est bloqué ailleurs, LSP ou dialogue de points d'arrêt à reconstruire).
 

@@ -250,14 +250,18 @@
     <MauiXaml Remove="Views\ConditionalBreakpointDialog.xaml" />
     <Compile Remove="Views\GlobalDashboardView.xaml.cs" />
     <MauiXaml Remove="Views\GlobalDashboardView.xaml" />
+    <!-- ★ RE-CONFIRMÉ (02/09) : classées "réveil facile" par erreur — vérifié à la
+         compilation, pas supposé. Le .xaml.cs de chacune référence des x:Name qui
+         n'existent tout simplement pas dans le .xaml réel (ex. HealthMonitorView
+         attend "MetricsLabel", le vrai XAML a "ScoreLabel"/"ScoreBar"/"IssueList")
+         — .xaml et .xaml.cs ont divergé, pas un simple oubli d'API. Nécessite de
+         vraiment réconcilier les deux fichiers, pas une correction rapide. -->
     <Compile Remove="Views\HealthMonitorView.xaml.cs" />
     <MauiXaml Remove="Views\HealthMonitorView.xaml" />
-    <Compile Remove="Views\LanguageSelectorView.xaml.cs" />
-    <MauiXaml Remove="Views\LanguageSelectorView.xaml" />
-    <Compile Remove="Views\MarketplaceView.xaml.cs" />
-    <MauiXaml Remove="Views\MarketplaceView.xaml" />
     <Compile Remove="Views\SnippetCreatorView.xaml.cs" />
     <MauiXaml Remove="Views\SnippetCreatorView.xaml" />
+    <Compile Remove="Views\WhiteboardView.xaml.cs" />
+    <MauiXaml Remove="Views\WhiteboardView.xaml" />
     <Compile Remove="Views\ThreadListView.xaml.cs" />
     <MauiXaml Remove="Views\ThreadListView.xaml" />
     <Compile Remove="Views\TranslationOverlay.xaml.cs" />
@@ -268,14 +272,8 @@
     <!-- Enregistrées en DI mais jamais résolues -->
     <Compile Remove="Views\ThemeSelectorView.xaml.cs" />
     <MauiXaml Remove="Views\ThemeSelectorView.xaml" />
-    <Compile Remove="Views\WhiteboardView.xaml.cs" />
-    <MauiXaml Remove="Views\WhiteboardView.xaml" />
-    <Compile Remove="Views\XenoFeedbackOverlay.xaml.cs" />
-    <MauiXaml Remove="Views\XenoFeedbackOverlay.xaml" />
 
     <!-- Pages jamais navigables (ni DI, ni Navigation.PushAsync nulle part) -->
-    <Compile Remove="Pages\MotoAiPage.xaml.cs" />
-    <MauiXaml Remove="Pages\MotoAiPage.xaml" />
     <Compile Remove="Pages\SettingsPage.xaml.cs" />
     <MauiXaml Remove="Pages\SettingsPage.xaml" />
 
