@@ -69,14 +69,12 @@ lecture directe du code.
    gardaient en plus leur propre en-tête interne d'avant leur migration — à
    l'écran : titre en double, DEUX boutons ✕ qui marchaient tous les deux.
    Même correctif que celui déjà appliqué à `AiChatView` (en-tête interne
-   retiré). Compile (0 erreur) — vérification visuelle en jeu réel encore à
-   faire (budget coupé avant de relancer l'app).
+   retiré). Confirmé visuellement par Tom en app réelle.
 2. ✅ **CORRIGÉ (02/09).** `ChatHost`/`ThreadHost` (étiquettes mortes "💬
    Chat"/"🧵 Threads", jamais reliées à rien de réel, qui réapparaissaient
    après un cycle Maximiser/Restaurer et pouvaient garder le dock IA ouvert
    pour rien) — stubs entièrement supprimés (`MainPage.xaml`,
-   `MainPage.UI.cs`, `MainPage.Panels.cs`). Compile (0 erreur) — vérification
-   visuelle encore à faire.
+   `MainPage.UI.cs`, `MainPage.Panels.cs`). Confirmé visuellement par Tom.
 3. **Réglage "Thème" en partie mort — PAS un oubli, à trancher avec Tom.**
    En creusant : `ThemeService.SetLight()`/`FollowSystem()` existent
    réellement, mais un commentaire du 31/08 dans `SettingsApplier.cs`
@@ -87,25 +85,29 @@ lecture directe du code.
    affiché comme s'il marchait. Vraie correction "moyen" : soit construire
    une vraie palette claire (gros chantier), soit rendre le sélecteur honnête
    (ne proposer que "Sombre" tant qu'il n'y a rien d'autre). Pas fait — décision
-   à prendre avec Tom, pas tranchée seul. Le choix Clair/Dynamique/Sombre existe
-   dans le catalogue de réglages, mais le code qui applique le thème
-   (`SettingsApplier.cs`) ne sait faire que "Sombre" — choisir Clair ou
-   laisser sur Dynamique ne fait strictement rien, l'app reste toujours en
-   sombre.
+   à prendre avec Tom, pas tranchée seul.
 4. **La fenêtre Réglages affiche 297 réglages, seuls 4 agissent vraiment.**
    `SettingsApplier.ApplyAll()` ne lit que 4 clés au total (thème, taille de
    police, minimap, diagnostics LSP) sur les 297 affichées dans la fenêtre —
    confirmé par le propre commentaire du code. C'est de loin le plus grand
    écart "affiché mais inactif" de l'app par rapport à la barre "moyen".
-5. **Un menu réglages fantôme reste vivant en mémoire.** `SettingsMenuView`
-   (l'ancien menu, avant la fenêtre flottante façon Zed) n'a plus aucun
-   bouton nulle part pour l'ouvrir — mais le code existe encore dans l'arbre
-   visuel et continue d'écouter les changements de réglages pour rien.
-6. **Bouton "changer de côté" mort dans l'Explorateur.** La barre d'outils de
-   `FileExplorerView` a son propre bouton "changer de côté" — plus rien ne
-   l'écoute nulle part dans le dépôt (grep confirmé), remplacé depuis par le
-   bascule globale du menu engrenage ("Disposition des panneaux") et jamais
-   retiré.
+5. ✅ **CORRIGÉ (02/09).** Menu Réglages fantôme (`SettingsMenuView`, l'ancien
+   menu avant la fenêtre flottante façon Zed — plus aucun bouton nulle part
+   pour l'ouvrir depuis le 31/08, mais construit et abonné à
+   `SettingChanged` pour rien). Construction + câblage retirés de
+   `MainPage.xaml.cs`, exclu de la compilation dans le `.csproj` (même
+   traitement que `SettingsPage`, superseded pas supprimé du disque).
+   **Effet de bord repéré en le retirant** : le cas "openproviders" de son
+   gestionnaire était le SEUL point d'entrée du dépôt vers
+   `Pages/AiSettingsPage.xaml.cs` (config des providers IA externes) — cette
+   page est donc orpheline aussi depuis le 31/08. Pas retouché : à trancher
+   avec Tom (redondante avec le catalogue de 420 réglages, ou vrai besoin
+   d'un nouveau point d'entrée ?).
+6. ✅ **CORRIGÉ (02/09).** Bouton "changer de côté" mort dans l'Explorateur
+   (🡺 dans la barre d'outils de `FileExplorerView`, plus rien ne l'écoutait
+   depuis l'arrivée du bascule global du menu engrenage). Plutôt que de le
+   supprimer, câblé sur le même mécanisme (`ApplySidePanelLayout`) dans
+   `MainPage.xaml.cs` — testé en jeu réel par Tom, fonctionne.
 
 ## ChatService — API réelle (Moto.Editor/Services/ChatService.cs)
 

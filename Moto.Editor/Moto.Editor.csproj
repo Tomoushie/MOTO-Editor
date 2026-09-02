@@ -281,6 +281,14 @@
     <Compile Remove="Pages\SettingsPage.xaml.cs" />
     <MauiXaml Remove="Pages\SettingsPage.xaml" />
 
+    <!-- ★ AJOUT (02/09, état des lieux) : SettingsMenuView, l'ancien menu Réglages,
+         remplacé le 31/08 par SettingsWindowView (fenêtre flottante façon Zed) mais
+         resté construit et abonné pour rien dans MainPage.xaml.cs jusqu'à ce jour
+         (plus aucun bouton ne l'ouvrait — voir CLAUDE.md, section "Bugs confirmés").
+         Même sort que SettingsPage ci-dessus : superseded, pas supprimé du disque. -->
+    <Compile Remove="Views\SettingsMenuView.xaml.cs" />
+    <MauiXaml Remove="Views\SettingsMenuView.xaml" />
+
     <!-- Overlays/gutter de debug jamais reliés (référencés uniquement depuis
          EditorPaneView.Lsp.cs, déjà exclu ci-dessus) -->
     <Compile Remove="Controls\BreakpointGutterOverlay.cs" />

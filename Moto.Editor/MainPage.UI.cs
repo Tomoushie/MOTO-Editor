@@ -192,7 +192,9 @@ namespace Moto.Editor
         // Panneaux toggle
         // ------------------------------------------------------------------
         private void OnToggleAiBarClicked(object sender, EventArgs e) => AiBar.Toggle();
-        private void OnSettingsClicked(object sender, EventArgs e) => SettingsMenu.IsVisible = !SettingsMenu.IsVisible;
+        // ★ RETRAIT (02/09, état des lieux) : OnSettingsClicked supprimé — plus aucun
+        // bouton/geste ne l'appelait depuis le 31/08 (SettingsWindow l'a remplacé),
+        // mais SettingsMenu restait construit et abonné pour rien. Voir CreateHome.
         private void OnPresentationClicked(object sender, EventArgs e) => PresentationPanel.IsVisible = !PresentationPanel.IsVisible;
         private void OnRemoteClicked(object sender, EventArgs e) => RemotePanel.IsVisible = !RemotePanel.IsVisible;
         private void OnCollabClicked(object sender, EventArgs e) => CollabPanel.IsVisible = !CollabPanel.IsVisible;
@@ -295,46 +297,22 @@ namespace Moto.Editor
             ApplySidePanelLayout();
         }
 
-        private async void OnSettingChanged(string key, object value)
-        {
-            switch (key)
-            {
-                case "theme":
-                    // ★ CORRECTION (30/08, 2e passe) : MotoTheme.xaml ne définit QUE
-                    // des couleurs fixes (BgApp/Txt1/...), jamais de variante claire
-                    // (AppThemeBinding Light=.../Dark=...). ThemeService.SetLight()
-                    // change bien Application.Current.UserAppTheme, mais ça ne fait
-                    // que basculer les couleurs PAR DÉFAUT (non explicites) de MAUI —
-                    // nos fonds restent sombres (codés en dur) pendant que le texte
-                    // par défaut passe au noir (couleur claire par défaut) : texte
-                    // noir sur fond noir, repéré par Tom. Aucun thème clair n'existe
-                    // réellement dans ce dépôt (nécessite une vraie palette claire,
-                    // décision de design avec Tom) — en attendant, "Clair"/"Système"
-                    // restent sans effet visible plutôt que de casser la lisibilité.
-                    switch ((int)value)
-                    {
-                        case 0:
-                            ThemeService.SetDark();
-                            break;
-                        default:
-                            ThemeService.SetDark();
-                            StatusBar.SetStatus("🎨 Thème clair : pas encore conçu (reste en sombre pour l'instant).");
-                            break;
-                    }
-                    break;
-                case "minimap":
-                    _viewModel.IsMiniMapVisible = (bool)value;
-                    EditorPane.SetMinimapVisible((bool)value);
-                    break;
-                case "terminal":
-                    _viewModel.IsTerminalVisible = (bool)value;
-                    break;
-                case "openproviders":
-                    SettingsMenu.IsVisible = false;
-                    await Navigation.PushAsync(new Pages.AiSettingsPage(_aiService.Fallback));
-                    break;
-            }
-        }
+        // ★ RETRAIT (02/09, état des lieux) : OnSettingChanged (ancien gestionnaire,
+        // "theme"/"minimap"/"terminal"/"openproviders") supprimé — n'était déclenché
+        // QUE par SettingsMenu.SettingChanged (menu Réglages mort, voir CreateHome),
+        // donc jamais appelé depuis le 31/08. Le vrai chemin vivant pour thème/
+        // police/mini-map est SettingsApplier (voir WireSettings + Settings/
+        // SettingsApplier.cs, qui garde l'explication complète du choix "Clair"/
+        // "Dynamique" sans effet). "terminal_show" est repris par
+        // SettingsWindow.RealSettingChanged (aussi dans WireSettings).
+        //
+        // ⚠️ Effet de bord repéré en supprimant ceci : le cas "openproviders" était
+        // le SEUL point d'entrée de tout le dépôt vers Pages/AiSettingsPage.xaml.cs
+        // (grep confirmé) — cette page (config des providers IA externes) est donc
+        // orpheline depuis le 31/08 elle aussi, pas seulement le menu qui l'ouvrait.
+        // Pas retouché ici : à trancher avec Tom (redondante avec le catalogue de
+        // 420 réglages de SettingsWindowView, ou vrai besoin d'un nouveau point
+        // d'entrée ?) plutôt que de deviner. Noté dans CLAUDE.md.
 
         // ------------------------------------------------------------------
         // Navigation historique

@@ -74,10 +74,9 @@ namespace Moto.Editor
         private DebugPanelView _debugPanel;
         private InfoOverlay? _infoOverlay;
 
-        // ── Home / SettingsMenu : pas de constructeur sans paramètre, donc pas
-        // déclarables en XAML — construits ici et ajoutés au visuel à la main. ──
+        // ── Home : pas de constructeur sans paramètre, donc pas déclarable en
+        // XAML — construite ici et ajoutée au visuel à la main. ──
         private Views.HomeView Home;
-        private Views.SettingsMenuView SettingsMenu;
 
         // ── État ──
         private bool _inSandbox;
@@ -105,7 +104,7 @@ namespace Moto.Editor
             _chatService = new ChatService(_currentRoot, _aiService.Fallback, _aiService.Kernel);
             _chatService.SelectionProvider = () => EditorPane.GetSelectedText();
 
-            CreateHomeAndSettingsMenu();
+            CreateHome();
 
             WireEditorPane();
             WireSettings();
@@ -152,12 +151,17 @@ namespace Moto.Editor
         }
 
         /// <summary>
-        /// Construit Home et SettingsMenu : ni l'une ni l'autre n'ont de constructeur
-        /// sans paramètre, donc impossible de les déclarer en XAML. Ajoutées ici à la
-        /// cellule Row=1,Col=2 (Home, même emplacement qu'EditorPane) et en overlay
-        /// flottant (SettingsMenu) juste après la création de _chatService.
+        /// Construit Home : pas de constructeur sans paramètre, donc impossible à
+        /// déclarer en XAML. Ajoutée ici à la cellule Row=1,Col=2 (même emplacement
+        /// qu'EditorPane), juste après la création de _chatService.
+        /// ★ RETRAIT (02/09, état des lieux) : construction de SettingsMenu (ancien
+        /// menu Réglages, remplacé par SettingsWindowView le 31/08) retirée d'ici —
+        /// voir OnSettingsClicked/OnSettingChanged plus bas, entièrement supprimés
+        /// aussi. Rien ne rouvrait plus ce menu depuis le 31/08 (aucun bouton/geste
+        /// n'appelait OnSettingsClicked, confirmé par recherche complète), mais il
+        /// restait construit, ajouté à RootGrid et abonné à SettingChanged pour rien.
         /// </summary>
-        private void CreateHomeAndSettingsMenu()
+        private void CreateHome()
         {
             Home = new Views.HomeView(_chatService, _cortex, _workspaceState);
             // ★ CORRECTION (30/08, refonte Zen) : colonne centrale 2 → 1 (le dock IA a
@@ -179,16 +183,6 @@ namespace Moto.Editor
             // reste toujours dessous, quel que soit l'ordre d'ajout (touche TOUS les
             // menus flottants du XAML d'un coup, pas seulement GearMenu).
             Home.ZIndex = -1; // propriété directe sur VisualElement en MAUI (pas Grid.SetZIndex, qui n'existe pas ici)
-
-            SettingsMenu = new Views.SettingsMenuView
-            {
-                IsVisible = false,
-                HorizontalOptions = LayoutOptions.End,
-                VerticalOptions = LayoutOptions.Start
-            };
-            Grid.SetRow(SettingsMenu, 2);
-            Grid.SetColumnSpan(SettingsMenu, 3);
-            RootGrid.Children.Add(SettingsMenu);
         }
 
         private void WireInlayHints()
@@ -253,12 +247,29 @@ namespace Moto.Editor
             };
 
             ExplorerPanel.FileOpened += path => _viewModel.OpenFilePath(path);
+            // ★ AJOUT (02/09, état des lieux) : le bouton "🡺" de la barre d'outils de
+            // l'Explorateur émettait déjà SideToggleRequested, mais rien ne l'écoutait
+            // nulle part dans le dépôt depuis l'ajout du bascule global du menu ⚙
+            // ("Disposition des panneaux", 01/09) — un bouton visible qui ne faisait
+            // rien. Branché ici sur le même mécanisme (ApplySidePanelLayout) plutôt
+            // que supprimé, pour que ce bouton local fasse ce qu'il a toujours promis.
+            ExplorerPanel.SideToggleRequested += () =>
+            {
+                _panelsSwapped = !_panelsSwapped;
+                ApplySidePanelLayout();
+                StatusBar.SetStatus(_panelsSwapped
+                    ? "🔀 Panneaux inversés : IA à droite, explorateur à gauche"
+                    : "🔀 Panneaux rétablis : IA à gauche, explorateur à droite");
+            };
             AiBar.Submitted += OnAiCommandSubmitted;
         }
 
         private void WireSettings()
         {
-            SettingsMenu.SettingChanged += OnSettingChanged;
+            // ★ RETRAIT (02/09, état des lieux) : abonnement à SettingsMenu.SettingChanged
+            // retiré — SettingsMenu (ancien menu Réglages) n'existe plus (voir CreateHome).
+            // Le vrai chemin de réglages, déjà actif ici, est SettingsApplier/
+            // SettingsWindow.RealSettingChanged ci-dessous.
             SettingsApplier.ApplyAll(_viewModel, EditorPane.Editor, SettingsEngine.Shared);
             SettingsApplier.Subscribe(_viewModel, EditorPane.Editor, SettingsEngine.Shared);
             ApplyLayoutSettings();

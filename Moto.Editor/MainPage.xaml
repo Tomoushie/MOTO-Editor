@@ -243,10 +243,6 @@
              (ancré juste au-dessus de la chip "Local", façon Claude Code, au lieu
              d'en haut à droite de toute la fenêtre). Voir HomeView.xaml. -->
 
-        <!-- SettingsMenu (x:Name="SettingsMenu") est ajouté par code : SettingsMenuView
-             a besoin de PluginRegistry/ProfileManager/SettingsImporterExporter en
-             constructeur (résolus via DI dans MainPage.xaml.cs). -->
-
         <!-- ══════════════════ Menu déroulant engrenage/avatar (points 2, 11) ══════════════════ -->
         <views:GearMenuView x:Name="GearMenu" Grid.Row="2" Grid.ColumnSpan="3"
                              HorizontalOptions="End" VerticalOptions="Start"
@@ -255,7 +251,10 @@
         <!-- ══════════════════ Fenêtre de Réglages (façon Zed) ══════════════════ -->
         <!-- ★ AJOUT (31/08) : remplace SettingsMenu comme cible de l'icône ⚙ —
              demandé par Tom sur le modèle exact de Zed (fenêtre flottante centrée,
-             déplaçable, redimensionnable, catégories + détail). -->
+             déplaçable, redimensionnable, catégories + détail).
+             ★ RETRAIT (02/09, état des lieux) : SettingsMenu (ancien menu, construit
+             en code dans MainPage.xaml.cs — voir CreateHome) supprimé pour de bon,
+             plus aucun bouton ne le rouvrait depuis ce 31/08. -->
         <views:SettingsWindowView x:Name="SettingsWindow" Grid.Row="2" Grid.ColumnSpan="3" />
 
     </Grid>
