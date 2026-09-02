@@ -455,12 +455,17 @@ namespace Moto.Editor
 
                 // ★ CORRECTION (30/08) : la réponse était calculée et comptée dans les
                 // stats (Threads/Messages) mais jamais affichée nulle part — repéré par
-                // Tom ("ne génère rien du tout"). Aucune vue de conversation n'existe
-                // encore dans ce dépôt (ChatHost/ThreadHost du dock droit sont des
-                // placeholders jamais câblés) ; en attendant cette vue dédiée, on ouvre
-                // la réponse comme un onglet via le mécanisme d'ouverture de fichier déjà
-                // existant et testé (_viewModel.OpenFilePath), plutôt que de construire un
-                // nouveau modèle de "document en mémoire sans fichier" en urgence.
+                // Tom ("ne génère rien du tout"). À l'époque, aucune vue de conversation
+                // n'existait dans ce dépôt (ChatHost/ThreadHost, stubs jamais câblés,
+                // supprimés le 02/09) ; en attendant, on ouvre la réponse comme un onglet
+                // via le mécanisme d'ouverture de fichier déjà existant et testé
+                // (_viewModel.OpenFilePath), plutôt que de construire un nouveau modèle
+                // de "document en mémoire sans fichier" en urgence.
+                // ★ NOTE (02/09) : un vrai panneau de chat (AiChatView) existe désormais
+                // — ce bandeau IA flottant (OnAiCommandSubmitted) continue cependant
+                // d'ouvrir sa réponse en onglet fichier plutôt que dans AiChatView ; les
+                // deux surfaces restent indépendantes pour l'instant (pas retouché ici,
+                // hors périmètre de ce correctif).
                 var reply = _chatService.CurrentThread?.Messages?.LastOrDefault(m => m.Role == "ai")?.Content;
                 App.Breadcrumb($"OnAiCommandSubmitted — reply longueur={reply?.Length ?? -1}");
                 if (!string.IsNullOrWhiteSpace(reply))

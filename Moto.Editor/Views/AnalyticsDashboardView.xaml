@@ -2,27 +2,20 @@
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="Moto.Editor.Views.AnalyticsDashboardView"
-             IsVisible="False"
              BackgroundColor="{StaticResource BgPanel}"
              WidthRequest="500">
 
-    <Grid RowDefinitions="Auto,Auto,*,Auto" Padding="16" RowSpacing="12">
-
-        <!-- Header -->
-        <Grid Grid.Row="0" ColumnDefinitions="*,Auto">
-            <Label Text="📊 Analytics Dashboard"
-                   FontSize="18" FontAttributes="Bold"
-                   TextColor="{StaticResource Txt1}"
-                   VerticalOptions="Center" />
-            <Button Grid.Column="1" Text="✕"
-                    WidthRequest="30" HeightRequest="30"
-                    BackgroundColor="Transparent"
-                    TextColor="{StaticResource Txt2}"
-                    Clicked="OnCloseClicked" />
-        </Grid>
+    <!-- ★ CORRECTION (02/09, état des lieux) : en-tête interne (titre "Analytics
+         Dashboard" + ✕) retiré — ce panneau est sur AddFloatingPanel
+         (MainPage.Panels.cs) depuis sa migration, qui fournit déjà ce même
+         en-tête autour de CHAQUE panneau. Le garder ici affichait un double
+         titre et deux boutons ✕ fonctionnels l'un sous l'autre (même
+         correctif qu'AiChatView et PluginGalleryView). IsVisible retiré aussi
+         : AddFloatingPanel gère la visibilité lui-même. -->
+    <Grid RowDefinitions="Auto,*,Auto" Padding="16" RowSpacing="12">
 
         <!-- Onglets -->
-        <HorizontalStackLayout Grid.Row="1" Spacing="8">
+        <HorizontalStackLayout Grid.Row="0" Spacing="8">
             <Button x:Name="TabTopBtn" Text="🏆 Top commandes"
                     BackgroundColor="{StaticResource Accent}"
                     TextColor="White" Clicked="OnTabTopClicked" />
@@ -38,12 +31,12 @@
         </HorizontalStackLayout>
 
         <!-- Contenu -->
-        <ScrollView Grid.Row="2">
+        <ScrollView Grid.Row="1">
             <VerticalStackLayout x:Name="ContentArea" Spacing="12" />
         </ScrollView>
 
         <!-- Footer -->
-        <Label Grid.Row="3" x:Name="FooterLabel"
+        <Label Grid.Row="2" x:Name="FooterLabel"
                Text="Données en temps réel"
                FontSize="11" TextColor="{StaticResource Txt2}"
                HorizontalOptions="Center" />

@@ -90,11 +90,11 @@ namespace Moto.Editor
 
         /// <summary>
         /// ★ AJOUT (30/08, refonte Zen) : AiDockPanel (colonne 0 — Cortex/Neural/
-        /// Workspace/Gallery/Analytics/Debug/Platform + AiHost/ChatHost/ThreadHost)
-        /// est masqué par défaut (voir MainPage.xaml) pour éviter la "zone noire"
-        /// toujours visible même vide, repérée par Tom. Sa colonne ("Auto") se
-        /// replie donc à 0 automatiquement tant qu'il est masqué. Ré-affiché ici dès
-        /// qu'au moins un des panneaux qu'il héberge est visible.
+        /// Workspace/Gallery/Analytics/Debug/Platform) est masqué par défaut (voir
+        /// MainPage.xaml) pour éviter la "zone noire" toujours visible même vide,
+        /// repérée par Tom. Sa colonne ("Auto") se replie donc à 0 automatiquement
+        /// tant qu'il est masqué. Ré-affiché ici dès qu'au moins un des panneaux
+        /// qu'il héberge est visible.
         /// </summary>
         private void RefreshAiDockColumnWidth()
         {
@@ -114,8 +114,13 @@ namespace Moto.Editor
             // ★ RETRAIT (02/09) : AiHost.IsVisible retiré (stub supprimé, remplacé
             // par _aiChatPanel — déjà couvert par le check PanelHost.Children
             // ci-dessous, comme Cortex/Neural/Workspace).
-            bool any = ChatHost.IsVisible || ThreadHost.IsVisible
-                || PanelHost.Children.Any(c => c is Border b && b.IsVisible);
+            // ★ RETRAIT (02/09, état des lieux) : ChatHost/ThreadHost.IsVisible
+            // retirés du calcul — ces 2 étiquettes mortes ("💬 Chat"/"🧵 Threads",
+            // jamais reliées à un vrai contenu) repassaient à visible=true après un
+            // simple cycle Maximiser/Restaurer (OnMaximizeToggled) et pouvaient à
+            // elles seules garder ce dock ouvert en affichant 2 labels inertes.
+            // Stubs entièrement supprimés (MainPage.xaml + OnMaximizeToggled).
+            bool any = PanelHost.Children.Any(c => c is Border b && b.IsVisible);
             AiDockPanel.IsVisible = any;
             // ★ AJOUT (01/09) : même patron que RefreshExplorerHandleVisibility —
             // la poignée d'étirement du dock IA ne doit apparaître (et réagir) que

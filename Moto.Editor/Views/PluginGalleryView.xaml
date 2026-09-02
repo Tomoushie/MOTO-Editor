@@ -2,34 +2,22 @@
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="Moto.Editor.Views.PluginGalleryView"
-             IsVisible="False"
              BackgroundColor="{StaticResource BgPanel}"
-             WidthRequest="420"
-             HorizontalOptions="End"
-             VerticalOptions="Start"
-             Margin="0,40,60,0">
+             WidthRequest="420">
 
-    <Grid RowDefinitions="Auto,Auto,*,Auto"
+    <!-- ★ CORRECTION (02/09, état des lieux) : en-tête interne (titre "Galerie de
+         plugins" + ✕) retiré — ce panneau est sur AddFloatingPanel
+         (MainPage.Panels.cs) depuis sa migration, qui fournit déjà ce même
+         en-tête autour de CHAQUE panneau. Le garder ici affichait un double
+         titre et deux boutons ✕ fonctionnels l'un sous l'autre. IsVisible/
+         HorizontalOptions/VerticalOptions/Margin (ancien positionnement en
+         coin, avant migration) retirés aussi : AddFloatingPanel gère la
+         visibilité et le placement lui-même (même traitement qu'AiChatView). -->
+    <Grid RowDefinitions="Auto,*,Auto"
           Padding="14"
           RowSpacing="10">
 
-        <Grid Grid.Row="0" ColumnDefinitions="*,Auto">
-            <Label Text="🧩 Galerie de plugins"
-                   FontSize="16"
-                   FontAttributes="Bold"
-                   TextColor="{StaticResource Txt1}"
-                   VerticalOptions="Center" />
-
-            <Button Grid.Column="1"
-                    Text="✕"
-                    WidthRequest="30"
-                    HeightRequest="30"
-                    BackgroundColor="Transparent"
-                    TextColor="{StaticResource Txt2}"
-                    Clicked="OnCloseClicked" />
-        </Grid>
-
-        <Entry Grid.Row="1"
+        <Entry Grid.Row="0"
                x:Name="SearchEntry"
                Placeholder="Rechercher un plugin…"
                BackgroundColor="{StaticResource BgSide}"
@@ -37,13 +25,13 @@
                PlaceholderColor="{StaticResource Txt2}"
                Completed="OnSearchCompleted" />
 
-        <ScrollView Grid.Row="2"
+        <ScrollView Grid.Row="1"
                     HeightRequest="420">
             <VerticalStackLayout x:Name="PluginsList"
                                  Spacing="8" />
         </ScrollView>
 
-        <Label Grid.Row="3"
+        <Label Grid.Row="2"
                x:Name="StatusLabel"
                Text="Prêt."
                FontSize="11"

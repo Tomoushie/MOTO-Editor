@@ -74,7 +74,6 @@ namespace Moto.Editor.Views
         private void OnTabTopClicked(object? s, EventArgs e) { _currentTab = TabKind.Top; RefreshView(); }
         private void OnTabSuggestionsClicked(object? s, EventArgs e) { _currentTab = TabKind.Suggestions; RefreshView(); }
         private void OnTabHeatmapClicked(object? s, EventArgs e) { _currentTab = TabKind.Heatmap; RefreshView(); }
-        private void OnCloseClicked(object? s, EventArgs e) => IsVisible = false;
 
         private void AddSectionHeader(string t) => ContentArea.Children.Add(new Label { Text = t, FontAttributes = FontAttributes.Bold, TextColor = (Microsoft.Maui.Graphics.Color)Application.Current.Resources["Accent"] });
         private void AddStatRow(string l, string v)

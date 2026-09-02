@@ -207,7 +207,5 @@ namespace Moto.Editor.Views
             StatusLabel.Text = $"{results.Count} résultat(s).";
         }
 
-        private void OnCloseClicked(object sender, EventArgs e)
-            => IsVisible = false;
     }
 }

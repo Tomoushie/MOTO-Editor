@@ -385,8 +385,9 @@ namespace Moto.Editor
         {
             _maximized = !_maximized;
             EditorPane.SetMaximizeIcon(_maximized);
-            ThreadHost.IsVisible = !_maximized;
-            ChatHost.IsVisible = !_maximized;
+            // ★ RETRAIT (02/09, état des lieux) : ChatHost/ThreadHost supprimés
+            // (stubs morts, voir MainPage.xaml) — ce cycle Maximiser/Restaurer était
+            // justement ce qui les faisait réapparaître en permanence.
             ExplorerPanel.IsVisible = !_maximized;
             RefreshExplorerHandleVisibility();
 
