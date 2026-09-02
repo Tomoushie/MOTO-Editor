@@ -87,6 +87,23 @@ namespace Moto.Core.Settings
 
             // ==================== DEVELOPER ====================
             T("perf_profiler", "Developer", "Instrumentation", "Profileur de performance", "Collecte les timings des tâches (mémoire accrue).", false);
+
+            // ★ CORRECTION (02/09) : ces 7 appels manquaient — chacun des 7 fichiers
+            // ci-dessous implémente sa méthode RegisterX() (T/I/E/S déjà écrits,
+            // corrects), mais SE TERMINE par un commentaire "→ ajouter un appel ici"
+            // jamais suivi d'effet. RegisterExtensions() étant la SEULE méthode
+            // réellement appelée (depuis le constructeur statique de SettingsCatalog),
+            // ces 29 réglages n'ont jamais atteint SettingsCatalog.All — déclarés,
+            // valides, mais invisibles de tout consommateur (UI, import/export...).
+            // Trouvé en construisant le nouvel écran Réglages (comptage réel de
+            // SettingsCatalog.All avant/après : 268 → 297).
+            RegisterPlatform();
+            RegisterAutoLink();
+            RegisterBeginner();
+            RegisterContext();
+            RegisterDoc();
+            RegisterEvolution();
+            RegisterPerformance();
         }
 
         /// <summary>Helper pour les paramètres de type Action (bouton).</summary>

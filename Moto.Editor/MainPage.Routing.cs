@@ -118,9 +118,14 @@ namespace Moto.Editor
             GearMenu.IsVisible = false;
             switch (id)
             {
-                case "settings": SettingsWindow.Show("General"); break;
-                case "theme": SettingsWindow.Show("Appearance"); break;
-                case "keymap": SettingsWindow.Show("Keymap"); break;
+                // ★ CORRECTION (02/09, chantier Réglages 100+) : chaînes anglaises
+                // maison ("General"/"Appearance"/"Keymap") remplacées par les vraies
+                // catégories françaises du catalogue (SettingsCatalog.All) — voir
+                // SettingsWindowView.xaml.cs, réécrit pour lire ce catalogue plutôt
+                // qu'une liste maison qui utilisait ces anciennes clés.
+                case "settings": SettingsWindow.Show("Général"); break;
+                case "theme": SettingsWindow.Show("Apparence"); break;
+                case "keymap": SettingsWindow.Show("Raccourcis"); break;
                 case "extensions": OnGalleryClicked(); break;
                 // ★ AJOUT (01/09, point 10) : connexion GitHub réelle (device flow OAuth,
                 // Client ID fourni par Tom — app "MOTO Editor Local"). Honnêteté sur la

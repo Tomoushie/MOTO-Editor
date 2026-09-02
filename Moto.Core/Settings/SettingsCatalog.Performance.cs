@@ -7,9 +7,14 @@ namespace Moto.Core.Settings
 
         static partial void RegisterPerformance()
         {
-            E("power_mode", "Agent", "Performance", "Mode de puissance",
-              "Niveau de performance de MOTO AI.", "Balanced",
-              "Eco", "Balanced", "Turbo", "Ultra");
+            // ★ CORRECTION (02/09, revue croisée) : "power_mode" retiré d'ici —
+            // doublon EXACT (même Id) avec SettingsCatalog.cs:250, déjà relié à
+            // RealEffectKeys/RealSettingChanged (SettingsWindowView.xaml.cs). Deux
+            // objets pour la même clé de persistance auraient affiché "Mode de
+            // puissance" deux fois dans l'écran Réglages (catégorie Agent), avec
+            // deux descriptions différentes pour la même valeur réelle — trouvé en
+            // reconnectant cette catégorie (jamais visible avant, ce fichier
+            // n'était jamais appelé). La version de SettingsCatalog.cs fait foi.
             T("performance_full_auto", "Agent", "Performance", "MOTO fait tout pour moi",
               "Preset débutant : active Ultra (tout automatique).", false);
             T("performance_show_indicator", "Agent", "Performance", "Indicateur de mode",

@@ -31,23 +31,58 @@ namespace Moto.Editor.Settings
             };
         }
 
+        // ★ CORRECTION (02/09, revue croisée) : les 4 getters ci-dessous appelaient
+        // GetBool(Def.Id)/GetInt(Def.Id)/GetString(Def.Id) SANS argument par
+        // défaut — donc le repli codé en dur de SettingsEngine (false/0/""),
+        // jamais Def.Default. Tant que le seul consommateur (SettingsPage) n'était
+        // pas compilé, ce bug n'avait jamais été réellement exécuté. Avec
+        // SettingsWindowView désormais rebranché sur le vrai catalogue (297
+        // réglages), ouvrir n'importe quelle catégorie jamais touchée aurait
+        // affiché la quasi-totalité des interrupteurs sur OFF (la plupart des
+        // Toggle ont Default=true), les nombres à 0 et les menus déroulants
+        // vides — alors que les valeurs par défaut réelles sont documentées dans
+        // Def.Default depuis le début.
         public bool BoolValue
         {
-            get => _engine.GetBool(Def.Id);
+            get => _engine.GetBool(Def.Id, Def.Default is bool b && b);
             set { _engine.Set(Def.Id, value); RaiseAll(); }
         }
 
-        public int IntValue => _engine.GetInt(Def.Id);
+        // ★ AJOUT (02/09, revue croisée) : setter ajouté — IntValue n'était QUE
+        // lisible, seuls Increment/DecrementCommand (±Def.Step) pouvaient la
+        // changer. Pour un réglage à large plage (ex. max_tokens 256-32000, pas
+        // 256), atteindre une valeur précise aurait demandé des dizaines de clics
+        // sans aucun moyen de taper directement un nombre — régression réelle par
+        // rapport à l'ancien écran (simple champ texte numérique). Voir
+        // SettingsWindowView.BuildInt : un Entry est maintenant lié ici en plus
+        // des boutons −/+. Bornée à Min/Max comme Adjust() le fait déjà.
+        public int IntValue
+        {
+            get => _engine.GetInt(Def.Id, Def.Default is int i ? i : 0);
+            set { _engine.Set(Def.Id, Math.Clamp(value, Def.Min, Def.Max)); RaiseAll(); }
+        }
 
         public string StringValue
         {
-            get => _engine.GetString(Def.Id);
+            get => _engine.GetString(Def.Id, Def.Default?.ToString() ?? "");
             set { _engine.Set(Def.Id, value); }
         }
 
+        // ★ CORRECTION (02/09, revue croisée) : si la valeur déjà enregistrée ne
+        // fait plus partie de Def.Options (ex. certaines options ont changé de
+        // libellé entre l'ancien écran maison et le vrai catalogue — "Éco"→"Eco",
+        // "System" retiré de theme_mode), un Picker.SelectedItem sur une valeur
+        // absente de sa liste s'affiche VIDE plutôt que de planter — repli sur la
+        // première option réelle pour l'AFFICHAGE uniquement (n'écrase PAS la
+        // valeur enregistrée tant que l'utilisateur ne choisit rien lui-même).
         public string OptionValue
         {
-            get => _engine.GetString(Def.Id);
+            get
+            {
+                var stored = _engine.GetString(Def.Id, Def.Default?.ToString() ?? "");
+                if (Def.Options.Contains(stored)) return stored;
+                return Def.Options.Count > 0 ? Def.Options[0] : stored;
+            }
             set { _engine.Set(Def.Id, value); RaiseAll(); }
         }
 

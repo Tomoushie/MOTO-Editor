@@ -1,43 +1,82 @@
 // Moto.Editor/Views/SettingsWindowView.xaml.cs
 // ★ AJOUT (31/08) : fenêtre de Réglages façon Zed (capture fournie par Tom) —
-// flottante, déplaçable, redimensionnable, 15 catégories (mêmes noms que la
-// capture), ~95 réglages au total.
+// flottante, déplaçable, redimensionnable.
 //
-// Honnêteté sur la portée : TOUS les réglages ci-dessous sont réellement
-// enregistrés (SettingsEngine, persistant d'une session à l'autre). Ceux
-// listés dans RealEffectKeys ont un vrai effet vérifié dans le logiciel
-// (thème, police, mini-map, terminal, mode de puissance). Les autres
-// (la grande majorité, par catégories entières comme Débogueur/Contrôle de
-// version/Collaboration/Réseau/Langages) se sauvegardent correctement mais
-// n'ont pas encore de fonctionnalité réelle branchée derrière — comme
-// Santé du projet/Snapshot Time Machine déjà signalés à Tom. Construire les
-// 90+ FONCTIONNALITÉS elles-mêmes (pas juste leurs réglages) est un chantier
-// largement plus grand, hors de portée de cette passe.
+// ★ RÉÉCRITURE (02/09, chantier Réglages 100+) : la fenêtre (chrome flottant)
+// est inchangée ; son CONTENU vient maintenant du vrai catalogue du logiciel
+// (Moto.Core.Settings.SettingsCatalog.All), pas d'une liste d'~95 réglages
+// écrite à la main dans ce fichier (SettingKind/SettingDef locaux, supprimés).
+//
+// Contexte trouvé en creusant : le vrai catalogue existait déjà, riche et
+// bien structuré (Id/Category/Section/Title/Description/Type/Min/Max/
+// Options), avec un écran GÉNÉRIQUE déjà construit pour l'exposer
+// (Moto.Editor.Pages.SettingsPage — recherche, sections, rendu par type via
+// Moto.Editor.Settings.SettingItem + SettingTemplateSelector) — mais cet
+// écran est explicitement exclu de la compilation (Moto.Editor.csproj :
+// "Pages jamais navigables"), donc invisible dans l'appli qui tourne
+// réellement. Plutôt que d'activer SettingsPage tel quel (ce qui aurait
+// remplacé la fenêtre flottante façon Zed, explicitement demandée par Tom,
+// par une page plein écran classique), le contenu de SettingsPage est ici
+// adapté au chrome flottant déjà en place : même source de données
+// (SettingsCatalog.All) et même mécanisme de persistance (SettingItem), rendu
+// en C# (comme avant) plutôt qu'en CollectionView à gabarits — la structure
+// catégorie + sous-en-têtes de section s'imbrique plus naturellement ainsi,
+// et ça reste dans la convention déjà établie de ce fichier ("généré en
+// code : des dizaines de lignes similaires écrites une par une en XAML
+// auraient été bien plus risquées à relire").
+//
+// Honnêteté sur la portée : la plupart des 297 réglages du catalogue
+// n'ont PAS de fonctionnalité réelle branchée derrière (voir SettingsApplier
+// — 4 seulement sont réellement appliqués en direct aujourd'hui). Ce constat
+// préexiste à cette passe (déjà vrai pour les ~95 réglages remplacés) —
+// construire les FONCTIONNALITÉS elles-mêmes est un chantier séparé, plus
+// grand. Ce qui change ici : la liste affichée est enfin LA VRAIE LISTE DU
+// LOGICIEL (SettingsCatalog.All) et cherchable — plus une vitrine séparée.
+// ★ CORRECTION (02/09, revue croisée) : "complète" retiré de la phrase
+// ci-dessus — il existe un TROISIÈME système, séparé, de ~126 réglages IA
+// avancés réellement utilisés par le moteur (SettingItem<T>, dans les
+// fichiers SettingsCatalog.Ai.*/Collab/DevOps/Git/Mcp/Marketplace/Editor.Ux),
+// jamais ajoutés à SettingsCatalog.All et donc toujours invisibles ici — Tom
+// a explicitement choisi de les laisser de côté pour cette passe (chantier
+// séparé, plus gros, si un jour souhaité).
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
+using System.Linq;
 using Microsoft.Maui.Controls;
 using Moto.Core.Settings;
+using Moto.Editor.Settings;
 
 namespace Moto.Editor.Views
 {
-    public enum SettingKind { Toggle, Number, Text, Dropdown, Button }
-
-    public sealed record SettingDef(
-        string Key, string Title, string Description, SettingKind Kind,
-        object DefaultValue, string[]? Options = null);
-
     public partial class SettingsWindowView : ContentView
     {
-        /// <summary>Clés dont l'effet réel est vérifié ailleurs dans le logiciel.</summary>
+        /// <summary>
+        /// Ids dont l'effet réel est vérifié ailleurs dans le logiciel (voir
+        /// MainPage.xaml.cs : SettingsWindow.RealSettingChanged). Inchangé
+        /// depuis la version précédente — ces 5 ids existent à l'identique
+        /// dans le vrai catalogue (aucun n'a été renommé/retiré).
+        /// </summary>
         private static readonly HashSet<string> RealEffectKeys = new()
         {
             "theme_mode", "buffer_font_size", "minimap_show", "terminal_show", "power_mode"
         };
 
-        private readonly ObservableCollection<string> _categories = new();
-        private readonly Dictionary<string, List<SettingDef>> _bySection;
+        private readonly List<string> _categories;
+        private string _currentCategory;
+        private string _search = string.Empty;
         private double _startX, _startY, _startW, _startH;
+
+        // ★ AJOUT (02/09, revue croisée) : un SettingItem par Id, réutilisé entre
+        // les rendus (changement de catégorie, chaque frappe dans la recherche,
+        // chaque réouverture) plutôt que reconstruit à chaque fois. Le
+        // constructeur de SettingItem s'abonne à SettingsEngine.Shared.SettingChanged
+        // (statique, durée de vie de l'appli) sans jamais se désabonner — en
+        // créer un neuf à chaque rendu aurait accumulé des abonnements morts sans
+        // limite (même famille de fuite que OnPlayClicked, déjà corrigée ailleurs
+        // cette session). Le cache borne le nombre total d'abonnements au nombre
+        // de réglages RÉELLEMENT affichés au moins une fois dans cette fenêtre
+        // (≤297), pas au nombre de rendus.
+        private readonly Dictionary<string, SettingItem> _items = new();
 
         /// <summary>Déclenché pour les réglages à effet réel (mêmes id que SettingsMenuView).</summary>
         public event Action<string, object>? RealSettingChanged;
@@ -45,18 +84,32 @@ namespace Moto.Editor.Views
         public SettingsWindowView()
         {
             InitializeComponent();
-            _bySection = BuildDefinitions();
 
-            foreach (var section in _bySection.Keys)
-                _categories.Add(section);
+            // Ordre de déclaration du catalogue (pas alphabétique) — reflète
+            // l'ordre choisi par SettingsCatalog.cs (Général, Apparence,
+            // Raccourcis, Éditeur...), pas un tri arbitraire.
+            _categories = SettingsCatalog.All.Select(d => d.Category).Distinct().ToList();
             CategoryList.ItemsSource = _categories;
-            CategoryList.SelectedItem = "General";
+
+            // ★ Notifie RealSettingChanged pour TOUT changement d'un id de
+            // RealEffectKeys, quelle que soit la ligne/le contrôle d'où il
+            // vient — remplace l'ancien Persist() dédié (retiré : la
+            // persistance passe maintenant par SettingItem, réutilisé tel
+            // quel plutôt que dupliqué).
+            SettingsEngine.Shared.SettingChanged += (id, value) =>
+            {
+                if (RealEffectKeys.Contains(id))
+                    RealSettingChanged?.Invoke(id, value);
+            };
+
+            _currentCategory = _categories.FirstOrDefault() ?? "";
+            CategoryList.SelectedItem = _currentCategory;
             // ★ Filet de sécurité : SelectionChanged n'est pas garanti de se
             // déclencher pour une sélection posée par code avant que le contrôle
             // soit dans l'arbre visuel (fenêtre encore IsVisible=False à cet
             // instant) — appelé directement pour ne jamais laisser le panneau de
             // détail vide à la première ouverture.
-            RenderSection("General");
+            RenderCategory(_currentCategory);
         }
 
         /// <summary>
@@ -71,24 +124,49 @@ namespace Moto.Editor.Views
         /// cause réelle ou non — de toute façon la bonne pratique pour un "rouvrir".
         /// Accepte aussi une catégorie cible (utilisé par le menu ⚙ : "Thèmes" ouvre
         /// direct sur Appearance, "Raccourcis" sur Keymap, etc.).
+        /// ★ CORRECTION (02/09) : les catégories cibles sont maintenant les vraies
+        /// chaînes françaises du catalogue ("Général"/"Apparence"/"Raccourcis"),
+        /// pas les anciennes clés anglaises maison — voir MainPage.Routing.cs.
         /// </summary>
-        public void Show(string category = "General")
+        public void Show(string category = "Général")
         {
             WindowFrame.TranslationX = 0;
             WindowFrame.TranslationY = 0;
             WindowFrame.WidthRequest = 900;
             WindowFrame.HeightRequest = 620;
             IsVisible = true;
+
+            SearchEntry.Text = string.Empty;
+            _search = string.Empty;
+
+            if (!_categories.Contains(category))
+                category = _categories.FirstOrDefault() ?? category;
+
             CategoryList.SelectedItem = category;
-            RenderSection(category);
+            RenderCategory(category);
         }
 
         private void OnCloseClicked(object sender, EventArgs e) => IsVisible = false;
 
         private void OnCategorySelected(object sender, SelectionChangedEventArgs e)
         {
-            if (e.CurrentSelection.Count == 0 || e.CurrentSelection[0] is not string section) return;
-            RenderSection(section);
+            if (e.CurrentSelection.Count == 0 || e.CurrentSelection[0] is not string category) return;
+            RenderCategory(category);
+        }
+
+        /// <summary>
+        /// ★ AJOUT (02/09) : recherche globale, tous catégories confondues —
+        /// indispensable à 297 réglages (contre ~95 avant, où l'absence de
+        /// recherche passait encore). Vide → revient à la catégorie
+        /// sélectionnée dans la liste de gauche.
+        /// </summary>
+        private void OnSearchChanged(object sender, TextChangedEventArgs e)
+        {
+            _search = e.NewTextValue ?? string.Empty;
+            if (string.IsNullOrWhiteSpace(_search))
+                RenderCategory(_currentCategory);
+            else
+                RenderSearchResults(_search);
         }
 
         // ------------------------------------------------------------------
@@ -126,32 +204,119 @@ namespace Moto.Editor.Views
         }
 
         // ------------------------------------------------------------------
-        // Rendu d'une catégorie (généré en code : ~95 lignes similaires
-        // écrites une par une en XAML auraient été bien plus risquées à relire)
+        // Rendu (en code — voir le commentaire en tête de fichier)
         // ------------------------------------------------------------------
 
-        private void RenderSection(string section)
+        /// <summary>Affiche tous les réglages d'une catégorie, groupés par Section
+        /// (sous-en-têtes), dans l'ordre de déclaration du catalogue.
+        /// ★ CORRECTION (02/09, revue croisée) : GroupBy plutôt qu'un simple "la
+        /// section a changé depuis la dernière ligne" — cette dernière hypothèse
+        /// suppose que les entrées d'une même section sont déjà contiguës dans
+        /// SettingsCatalog.All, ce qui s'est révélé faux à 2 endroits pour la
+        /// catégorie "Agent" (une interversion déjà présente dans le catalogue
+        /// avant cette passe : Conversation/Génération/Conversation ; une
+        /// introduite en reconnectant les 7 catégories orphelines : Performance et
+        /// Documentation désormais coupées en deux endroits éloignés de la liste,
+        /// chacune affichant son sous-en-tête deux fois). GroupBy(d => d.Section)
+        /// préserve l'ordre de PREMIÈRE apparition de chaque section (comportement
+        /// documenté de LINQ) et regroupe toutes ses entrées ensemble, quel que
+        /// soit leur ordre réel dans la liste source — aucun réglage ne change de
+        /// section affichée, seul le doublon de titre disparaît.
+        /// </summary>
+        private void RenderCategory(string category)
         {
+            _currentCategory = category;
             DetailHost.Children.Clear();
-            if (!_bySection.TryGetValue(section, out var defs)) return;
+            DetailHost.Children.Add(BuildTitle(category));
 
-            DetailHost.Children.Add(new Label
+            foreach (var group in SettingsCatalog.All.Where(d => d.Category == category).GroupBy(d => d.Section))
             {
-                Text = section,
-                FontSize = 20,
-                FontAttributes = FontAttributes.Bold,
-                TextColor = (Color)Application.Current!.Resources["Txt1"]
-            });
-
-            foreach (var def in defs)
-                DetailHost.Children.Add(BuildRow(def));
+                DetailHost.Children.Add(BuildSectionHeader(group.Key));
+                foreach (var def in group)
+                    DetailHost.Children.Add(BuildRow(def));
+            }
         }
 
-        private View BuildRow(SettingDef def)
+        /// <summary>Résultats de recherche, toutes catégories confondues, groupés
+        /// par "Catégorie › Section" pour rester lisible même dispersés.</summary>
+        private void RenderSearchResults(string search)
+        {
+            DetailHost.Children.Clear();
+            DetailHost.Children.Add(BuildTitle($"Résultats pour « {search} »"));
+
+            var matches = SettingsCatalog.All
+                .Where(d =>
+                    d.Title.Contains(search, StringComparison.OrdinalIgnoreCase) ||
+                    d.Description.Contains(search, StringComparison.OrdinalIgnoreCase) ||
+                    d.Id.Contains(search, StringComparison.OrdinalIgnoreCase))
+                .OrderBy(d => d.Category).ThenBy(d => d.Section)
+                .ToList();
+
+            if (matches.Count == 0)
+            {
+                DetailHost.Children.Add(new Label
+                {
+                    Text = "Aucun résultat.",
+                    FontSize = 12,
+                    TextColor = (Color)Application.Current!.Resources["Txt2"]
+                });
+                return;
+            }
+
+            string? lastGroup = null;
+            foreach (var def in matches)
+            {
+                var groupKey = $"{def.Category} › {def.Section}";
+                if (groupKey != lastGroup)
+                {
+                    DetailHost.Children.Add(BuildSectionHeader(groupKey));
+                    lastGroup = groupKey;
+                }
+                DetailHost.Children.Add(BuildRow(def));
+            }
+        }
+
+        private Label BuildTitle(string text) => new()
+        {
+            Text = text,
+            FontSize = 20,
+            FontAttributes = FontAttributes.Bold,
+            TextColor = (Color)Application.Current!.Resources["Txt1"]
+        };
+
+        private Label BuildSectionHeader(string section) => new()
+        {
+            Text = section,
+            FontSize = 13,
+            FontAttributes = FontAttributes.Bold,
+            TextColor = (Color)Application.Current!.Resources["Accent"],
+            Margin = new Thickness(0, 12, 0, 0)
+        };
+
+        /// <summary>
+        /// Une ligne = un SettingDefinition du vrai catalogue, réellement
+        /// lu/écrit via SettingItem (même classe que SettingsPage, éprouvée) —
+        /// pas de Get/Set maison dupliqué ici.
+        /// </summary>
+        /// <summary>Voir le commentaire du champ _items — un seul SettingItem par
+        /// Id pour toute la durée de vie de cette fenêtre.</summary>
+        private SettingItem GetOrCreateItem(SettingDefinition def)
+        {
+            if (!_items.TryGetValue(def.Id, out var item))
+            {
+                item = new SettingItem(def, SettingsEngine.Shared);
+                _items[def.Id] = item;
+            }
+            return item;
+        }
+
+        private View BuildRow(SettingDefinition def)
         {
             var txt1 = (Color)Application.Current!.Resources["Txt1"];
             var txt2 = (Color)Application.Current!.Resources["Txt2"];
             var border = (Color)Application.Current!.Resources["BorderCol"];
+
+            var item = GetOrCreateItem(def);
 
             var grid = new Grid { ColumnDefinitions = { new ColumnDefinition(GridLength.Star), new ColumnDefinition(GridLength.Auto) } };
 
@@ -160,18 +325,13 @@ namespace Moto.Editor.Views
             textCol.Children.Add(new Label { Text = def.Description, FontSize = 11, TextColor = txt2 });
             grid.Add(textCol, 0, 0);
 
-            // ★ Utilise les getters typés (GetBool/Get/GetString), pas GetRaw : une
-            // valeur relue depuis settings.json passe par un JsonElement dont
-            // ToString() ne redonne pas le texte propre attendu — les getters
-            // typés gèrent déjà cette conversion correctement (voir SettingsEngineCore).
-            View control = def.Kind switch
+            View control = def.Type switch
             {
-                SettingKind.Toggle => BuildToggle(def, SettingsEngine.Shared.GetBool(def.Key, Convert.ToBoolean(def.DefaultValue))),
-                SettingKind.Number => BuildNumber(def, SettingsEngine.Shared.Get(def.Key, Convert.ToDouble(def.DefaultValue))),
-                SettingKind.Text => BuildText(def, SettingsEngine.Shared.GetString(def.Key, def.DefaultValue?.ToString() ?? "")),
-                SettingKind.Dropdown => BuildDropdown(def, SettingsEngine.Shared.GetString(def.Key, def.DefaultValue?.ToString() ?? def.Options![0])),
-                SettingKind.Button => BuildButton(def),
-                _ => new Label()
+                SettingType.Toggle => BuildToggle(item),
+                SettingType.Int => BuildInt(item),
+                SettingType.Enum => BuildEnum(item, def),
+                SettingType.Action => BuildAction(item, def),
+                _ => BuildString(item),
             };
             control.VerticalOptions = LayoutOptions.Center;
             grid.Add(control, 1, 0);
@@ -191,210 +351,61 @@ namespace Moto.Editor.Views
             };
         }
 
-        private Switch BuildToggle(SettingDef def, bool value)
+        private static Switch BuildToggle(SettingItem item)
         {
-            var sw = new Switch { IsToggled = value };
-            sw.Toggled += (s, e) => Persist(def.Key, e.Value);
+            var sw = new Switch { BindingContext = item };
+            sw.SetBinding(Switch.IsToggledProperty, nameof(SettingItem.BoolValue));
             return sw;
         }
 
-        private Entry BuildNumber(SettingDef def, double value)
+        /// <summary>
+        /// ★ CORRECTION (02/09, revue croisée) : Entry ajouté à côté des boutons
+        /// −/+ — IntValue avait un setter côté SettingItem mais rien ici ne
+        /// l'utilisait, forçant à cliquer +/- pas à pas (parfois des dizaines de
+        /// fois) pour atteindre une valeur précise sur les réglages à large plage.
+        /// Les deux coexistent : l'Entry pour taper directement, les boutons pour
+        /// les petits ajustements rapides — les deux passent par la même
+        /// propriété IntValue (bornée à Min/Max côté SettingItem), donc restent
+        /// synchronisés entre eux.
+        /// </summary>
+        private static HorizontalStackLayout BuildInt(SettingItem item)
         {
-            var entry = new Entry { Text = value.ToString("0.##"), Keyboard = Keyboard.Numeric, WidthRequest = 80 };
-            entry.Completed += (s, e) => { if (double.TryParse(entry.Text, out var v)) Persist(def.Key, v); };
-            entry.Unfocused += (s, e) => { if (double.TryParse(entry.Text, out var v)) Persist(def.Key, v); };
-            return entry;
-        }
+            var minus = new Button { Text = "−", Padding = new Thickness(8, 2), FontSize = 12 };
+            minus.SetBinding(Button.CommandProperty, nameof(SettingItem.DecrementCommand));
 
-        private Entry BuildText(SettingDef def, string value)
-        {
-            var entry = new Entry { Text = value, WidthRequest = 180 };
-            entry.Completed += (s, e) => Persist(def.Key, entry.Text ?? "");
-            entry.Unfocused += (s, e) => Persist(def.Key, entry.Text ?? "");
-            return entry;
-        }
-
-        private Picker BuildDropdown(SettingDef def, string value)
-        {
-            var picker = new Picker { WidthRequest = 180 };
-            foreach (var opt in def.Options!) picker.Items.Add(opt);
-            picker.SelectedIndex = Array.IndexOf(def.Options!, value) is var i && i >= 0 ? i : 0;
-            picker.SelectedIndexChanged += (s, e) =>
+            var entry = new Entry
             {
-                if (picker.SelectedIndex >= 0) Persist(def.Key, def.Options![picker.SelectedIndex]);
+                WidthRequest = 70, Keyboard = Keyboard.Numeric,
+                HorizontalTextAlignment = TextAlignment.Center
             };
+            entry.SetBinding(Entry.TextProperty, nameof(SettingItem.IntValue));
+
+            var plus = new Button { Text = "+", Padding = new Thickness(8, 2), FontSize = 12 };
+            plus.SetBinding(Button.CommandProperty, nameof(SettingItem.IncrementCommand));
+
+            return new HorizontalStackLayout { Spacing = 6, BindingContext = item, Children = { minus, entry, plus } };
+        }
+
+        private static Picker BuildEnum(SettingItem item, SettingDefinition def)
+        {
+            var picker = new Picker { WidthRequest = 180, BindingContext = item };
+            foreach (var opt in def.Options) picker.Items.Add(opt);
+            picker.SetBinding(Picker.SelectedItemProperty, nameof(SettingItem.OptionValue));
             return picker;
         }
 
-        private Button BuildButton(SettingDef def)
+        private static Entry BuildString(SettingItem item)
         {
-            var btn = new Button { Text = "Exécuter", Padding = new Thickness(12, 4) };
-            btn.Clicked += (s, e) => Persist(def.Key, true);
+            var entry = new Entry { WidthRequest = 200, BindingContext = item };
+            entry.SetBinding(Entry.TextProperty, nameof(SettingItem.StringValue));
+            return entry;
+        }
+
+        private static Button BuildAction(SettingItem item, SettingDefinition def)
+        {
+            var btn = new Button { Text = def.ActionLabel, Padding = new Thickness(12, 4), BindingContext = item };
+            btn.SetBinding(Button.CommandProperty, nameof(SettingItem.ActionCommand));
             return btn;
         }
-
-        private void Persist(string key, object value)
-        {
-            switch (value)
-            {
-                case bool b: SettingsEngine.Shared.Set(key, b); break;
-                case double d: SettingsEngine.Shared.Set(key, d); break;
-                case string s: SettingsEngine.Shared.Set(key, s); break;
-                default: SettingsEngine.Shared.Set(key, value); break;
-            }
-
-            if (RealEffectKeys.Contains(key))
-                RealSettingChanged?.Invoke(key, value);
-        }
-
-        // ------------------------------------------------------------------
-        // Définitions (~95 réglages, 15 catégories — mêmes noms que Zed)
-        // ------------------------------------------------------------------
-
-        private static Dictionary<string, List<SettingDef>> BuildDefinitions() => new()
-        {
-            ["General"] = new()
-            {
-                new("general.reopen_last", "Rouvrir le dernier projet au démarrage", "Recharge automatiquement le dernier dossier importé.", SettingKind.Toggle, false),
-                new("general.confirm_close_dirty", "Confirmer avant de fermer un fichier modifié", "Demande confirmation si l'onglet a des changements non enregistrés.", SettingKind.Toggle, true),
-                new("editor.update.autocheck", "Vérifier les mises à jour au démarrage", "Recherche une nouvelle version de MOTO Editor au lancement.", SettingKind.Toggle, true),
-                new("general.telemetry", "Télémétrie anonyme", "Aucune donnée n'est envoyée nulle part — MOTO Editor est 100% local.", SettingKind.Toggle, false),
-                new("general.language", "Langue de l'interface", "Langue des menus et messages.", SettingKind.Dropdown, "Français", new[] { "Français", "English" }),
-                new("general.auto_restart_ai", "Redémarrer l'IA locale automatiquement", "Relance Ollama si le moteur local plante en cours d'usage.", SettingKind.Toggle, true),
-                new("general.startup_panel", "Panneau ouvert au démarrage", "Panneau affiché juste après l'écran d'accueil.", SettingKind.Dropdown, "Aucun", new[] { "Aucun", "Fichiers", "IA" }),
-            },
-            ["Appearance"] = new()
-            {
-                new("theme_mode", "Thème", "Apparence générale du logiciel.", SettingKind.Dropdown, "Dark", new[] { "Dark", "Light", "System" }),
-                new("appearance.ui_font", "Police de l'interface", "Police utilisée pour les menus, hors éditeur.", SettingKind.Dropdown, "Segoe UI Variable", new[] { "Segoe UI Variable", "Segoe UI", "Consolas" }),
-                new("appearance.density", "Densité de l'interface", "Espacement des menus et boutons.", SettingKind.Dropdown, "Confortable", new[] { "Confortable", "Compact" }),
-                new("appearance.rounded_corners", "Coins arrondis", "Arrondit les panneaux et boîtes de dialogue.", SettingKind.Toggle, true),
-                new("appearance.animations", "Animations d'interface", "Transitions de survol/ouverture des menus.", SettingKind.Toggle, true),
-                new("appearance.accent_color", "Couleur d'accent", "Couleur utilisée pour les éléments actifs/sélectionnés.", SettingKind.Dropdown, "Orange", new[] { "Orange", "Bleu", "Vert", "Violet" }),
-                new("appearance.taskbar_icon", "Icône de la barre des tâches", "Style de l'icône affichée dans la barre des tâches Windows.", SettingKind.Dropdown, "Défaut", new[] { "Défaut", "Monochrome" }),
-            },
-            ["Keymap"] = new()
-            {
-                new("keymap.scheme", "Jeu de raccourcis", "Convention générale des raccourcis clavier.", SettingKind.Dropdown, "MOTO", new[] { "MOTO", "VS Code", "Zed" }),
-                new("keymap.command_palette", "Palette de commandes", "Raccourci pour ouvrir la palette de commandes.", SettingKind.Text, "Ctrl+Shift+P"),
-                new("keymap.global_search", "Recherche globale", "Raccourci pour ouvrir la recherche de fichiers.", SettingKind.Text, "Ctrl+P"),
-                new("keymap.ai_band", "Bandeau IA", "Raccourci pour ouvrir/fermer le bandeau IA flottant.", SettingKind.Text, "Ctrl+Shift+I"),
-                new("keymap.new_file", "Nouveau fichier", "Raccourci pour créer un fichier vide.", SettingKind.Text, "Ctrl+N"),
-                new("keymap.save", "Enregistrer", "Raccourci pour enregistrer le fichier actif.", SettingKind.Text, "Ctrl+S"),
-            },
-            ["Editor"] = new()
-            {
-                new("buffer_font_size", "Taille de police", "Taille du texte dans les fichiers ouverts (et le menu, voir Réglages précédents).", SettingKind.Number, 14.0),
-                new("minimap_show", "Mini-map", "Aperçu compressé du fichier, à droite de l'éditeur.", SettingKind.Toggle, true),
-                new("editor.word_wrap", "Retour à la ligne automatique", "Évite le défilement horizontal sur les lignes longues.", SettingKind.Toggle, false),
-                new("editor.tab_size", "Taille de tabulation", "Nombre d'espaces représentés par une tabulation.", SettingKind.Number, 4.0),
-                new("editor.spaces_not_tabs", "Espaces au lieu de tabulations", "Insère des espaces quand vous appuyez sur Tab.", SettingKind.Toggle, true),
-                new("editor.show_line_numbers", "Afficher les numéros de ligne", "Numérotation dans la marge gauche de l'éditeur.", SettingKind.Toggle, true),
-                new("editor.highlight_current_line", "Surligner la ligne actuelle", "Met légèrement en évidence la ligne du curseur.", SettingKind.Toggle, true),
-                new("editor.format_on_save", "Formater à l'enregistrement", "Réindente le code automatiquement en sauvegardant.", SettingKind.Toggle, false),
-                new("editor.autosave", "Enregistrement automatique", "Sauvegarde le fichier actif sans action manuelle.", SettingKind.Dropdown, "Désactivé", new[] { "Désactivé", "Après un délai", "À chaque frappe" }),
-                new("editor.autosave_delay_ms", "Délai d'enregistrement auto (ms)", "Utilisé si 'Après un délai' est choisi ci-dessus.", SettingKind.Number, 1000.0),
-                new("editor.blinking_cursor", "Curseur clignotant", "Fait clignoter le curseur texte.", SettingKind.Toggle, true),
-                new("editor.indent_guides", "Guides d'indentation", "Lignes verticales discrètes marquant les niveaux d'indentation.", SettingKind.Toggle, false),
-            },
-            ["Languages & Tools"] = new()
-            {
-                new("lsp_diagnostics", "Analyse syntaxique en direct", "Souligne les erreurs pendant la frappe.", SettingKind.Toggle, true),
-                new("lang.spellcheck_comments", "Vérification orthographique des commentaires", "Repère les fautes dans les commentaires de code.", SettingKind.Toggle, false),
-                new("lang.autoformat_csharp", "Formatage automatique C#", "Applique les conventions de style .NET.", SettingKind.Toggle, false),
-                new("lang.type_suggestions", "Suggestions de types", "Propose les types possibles pendant la frappe.", SettingKind.Toggle, true),
-                new("lang.line_length_hint", "Longueur de ligne recommandée", "Affiche un repère visuel à cette colonne.", SettingKind.Number, 120.0),
-                new("lang.dead_code_warning", "Avertir sur code mort détecté", "Signale les méthodes/variables jamais utilisées.", SettingKind.Toggle, false),
-            },
-            ["Search & Files"] = new()
-            {
-                new("search.include_hidden", "Inclure les fichiers cachés", "Recherche aussi dans les fichiers commençant par un point.", SettingKind.Toggle, false),
-                new("search.excluded_folders", "Dossiers exclus", "Liste séparée par des virgules.", SettingKind.Text, "bin,obj,.git,node_modules"),
-                new("search.case_sensitive", "Sensible à la casse par défaut", "Distingue majuscules/minuscules à l'ouverture de la recherche.", SettingKind.Toggle, false),
-                new("search.max_results", "Nombre maximum de résultats", "Limite le nombre de fichiers retournés par une recherche.", SettingKind.Number, 50.0),
-                new("search.live_preview", "Aperçu en direct des résultats", "Affiche un extrait du fichier sous chaque résultat.", SettingKind.Toggle, false),
-                new("search.fuzzy", "Recherche floue", "Trouve aussi les noms de fichiers approximatifs.", SettingKind.Toggle, true),
-            },
-            ["Window & Layout"] = new()
-            {
-                new("power_mode", "Mode de puissance IA", "Compromis vitesse / qualité des réponses locales.", SettingKind.Dropdown, "Balanced", new[] { "Éco", "Balanced", "Ultra" }),
-                new("layout.ai_dock_width", "Largeur du panneau IA (px)", "Largeur du dock IA quand un panneau y est ouvert.", SettingKind.Number, 500.0),
-                new("layout.filetree_width", "Largeur de l'arborescence (px)", "Largeur du panneau Fichiers quand il est ouvert.", SettingKind.Number, 260.0),
-                new("layout.start_maximized", "Toujours démarrer maximisé", "Ouvre la fenêtre en plein écran au lancement.", SettingKind.Toggle, false),
-                new("layout.remember_position", "Mémoriser la position de la fenêtre", "Rouvre au même endroit qu'à la dernière fermeture.", SettingKind.Toggle, false),
-                new("layout.compact_titlebar", "Barre de titre compacte", "Réduit la hauteur de la barre du haut.", SettingKind.Toggle, false),
-            },
-            ["Panels"] = new()
-            {
-                new("terminal_show", "Terminal visible par défaut", "Affiche le terminal dès l'ouverture d'un projet.", SettingKind.Toggle, false),
-                new("panels.collab_always_on", "Panneau Collab toujours actif", "Garde la session de collaboration ouverte en arrière-plan.", SettingKind.Toggle, false),
-                new("panels.auto_close_unused", "Fermer les panneaux inutilisés", "Referme automatiquement un panneau après un long moment d'inactivité.", SettingKind.Toggle, false),
-                new("panels.cortex_auto_open", "Ouvrir Cortex automatiquement", "Affiche les suggestions Cortex dès qu'un fichier est ouvert.", SettingKind.Toggle, false),
-                new("panels.pin_search", "Épingler le panneau Recherche", "Garde la recherche ouverte même en changeant d'onglet.", SettingKind.Toggle, false),
-                new("panels.show_badges", "Badges de notification sur les panneaux", "Petit indicateur numérique sur les icônes de panneaux actifs.", SettingKind.Toggle, true),
-            },
-            ["Debugger"] = new()
-            {
-                new("debugger.breakpoints_enabled", "Activer les points d'arrêt", "Autorise la pose de points d'arrêt dans l'éditeur.", SettingKind.Toggle, true),
-                new("debugger.auto_continue", "Continuer après une exception gérée", "Ne s'arrête pas sur les exceptions déjà interceptées (catch).", SettingKind.Toggle, false),
-                new("debugger.inline_values", "Afficher les valeurs en ligne", "Montre la valeur des variables à côté du code pendant le débogage.", SettingKind.Toggle, true),
-                new("debugger.log_calls", "Journaliser les appels de fonction", "Trace chaque appel de méthode pendant l'exécution.", SettingKind.Toggle, false),
-                new("debugger.timeout_sec", "Timeout d'exécution (s)", "Arrête un débogage bloqué après ce délai.", SettingKind.Number, 30.0),
-                new("debugger.verbose_console", "Console de débogage verbeuse", "Affiche des informations techniques supplémentaires.", SettingKind.Toggle, false),
-            },
-            ["Terminal"] = new()
-            {
-                new("terminal.shell", "Shell par défaut", "Interpréteur de commandes utilisé pour le terminal intégré.", SettingKind.Dropdown, "PowerShell", new[] { "PowerShell", "cmd", "Git Bash" }),
-                new("terminal.font", "Police du terminal", "Police à chasse fixe utilisée dans le terminal.", SettingKind.Dropdown, "Consolas", new[] { "Consolas", "Cascadia Code", "Courier New" }),
-                new("terminal.font_size", "Taille de police terminal", "Taille du texte affiché dans le terminal.", SettingKind.Number, 13.0),
-                new("terminal.infinite_scroll", "Défilement infini", "Conserve tout l'historique de sortie du terminal.", SettingKind.Toggle, true),
-                new("terminal.auto_copy_selection", "Copier automatiquement la sélection", "Copie le texte sélectionné sans Ctrl+C.", SettingKind.Toggle, false),
-                new("terminal.close_on_exit", "Fermer à la fin de la commande", "Referme l'onglet terminal une fois la commande terminée.", SettingKind.Toggle, false),
-            },
-            ["Version Control"] = new()
-            {
-                new("vcs.show_gutter_indicators", "Indicateurs Git dans la marge", "Marque les lignes ajoutées/modifiées/supprimées.", SettingKind.Toggle, true),
-                new("vcs.auto_fetch", "Récupérer (fetch) automatiquement", "Vérifie les changements distants au démarrage.", SettingKind.Toggle, false),
-                new("vcs.show_branch_statusbar", "Afficher la branche dans la barre de statut", "Nom de la branche Git actuelle, en bas de la fenêtre.", SettingKind.Toggle, true),
-                new("vcs.confirm_push", "Confirmer avant de pousser (push)", "Demande confirmation avant d'envoyer des commits.", SettingKind.Toggle, true),
-                new("vcs.ignore_whitespace_diff", "Ignorer les espaces dans les diffs", "N'affiche pas les changements d'indentation seule.", SettingKind.Toggle, false),
-                new("vcs.commit_message_max_len", "Longueur max. du message de commit", "Avertit au-delà de cette longueur de ligne de résumé.", SettingKind.Number, 72.0),
-            },
-            ["Collaboration"] = new()
-            {
-                new("collab.show_cursors", "Afficher les curseurs des participants", "Montre en direct où écrivent les autres personnes.", SettingKind.Toggle, true),
-                new("collab.sound_notifications", "Notifications sonores", "Son court à l'arrivée d'un message.", SettingKind.Toggle, false),
-                new("collab.typing_indicator", "Statut \"en train d'écrire\"", "Signale aux autres quand vous tapez un message.", SettingKind.Toggle, true),
-                new("collab.history_days", "Historique conservé (jours)", "Durée de conservation des messages de session.", SettingKind.Number, 30.0),
-                new("collab.allow_external_invites", "Autoriser les invitations externes", "Permet d'inviter des personnes hors de vos contacts.", SettingKind.Toggle, false),
-            },
-            ["AI"] = new()
-            {
-                new("ai.default_model", "Modèle par défaut", "Modèle utilisé pour les nouvelles conversations.", SettingKind.Dropdown, "MOTO interne", new[] { "MOTO interne", "Ollama", "OpenAI", "Anthropic", "Mistral" }),
-                new("ai.temperature", "Température de génération", "Créativité des réponses (0 = strict, 1 = créatif).", SettingKind.Number, 0.2),
-                new("ai.max_reply_length", "Longueur max. de réponse", "Nombre de caractères maximum par réponse.", SettingKind.Number, 8000.0),
-                new("ai.auto_context", "Utiliser le contexte du fichier ouvert", "Envoie automatiquement le fichier actif à l'IA.", SettingKind.Toggle, true),
-                new("ai.history_days", "Historique de conversation conservé (jours)", "Durée de conservation des échanges avec l'IA.", SettingKind.Number, 90.0),
-                new("ai.confirm_apply_code", "Confirmer avant d'appliquer du code généré", "Demande validation avant de remplacer le contenu d'un fichier.", SettingKind.Toggle, true),
-                new("ai.cortex_learning", "Apprentissage des habitudes (Cortex)", "Permet à Cortex d'apprendre de votre style de code.", SettingKind.Toggle, true),
-            },
-            ["Network"] = new()
-            {
-                new("network.http_proxy", "Proxy HTTP", "Laisser vide pour une connexion directe.", SettingKind.Text, ""),
-                new("network.request_timeout_sec", "Timeout des requêtes (s)", "Délai avant abandon d'une requête réseau.", SettingKind.Number, 30.0),
-                new("network.check_ollama_on_startup", "Vérifier Ollama au démarrage", "Teste la connexion au moteur IA local au lancement.", SettingKind.Toggle, true),
-                new("network.allow_cloud_providers", "Autoriser les providers cloud", "Permet le fallback vers OpenAI/Anthropic/Mistral si configurés.", SettingKind.Toggle, true),
-                new("network.preview_server_port", "Port du serveur de prévisualisation", "Port local utilisé par l'aperçu HTML en direct.", SettingKind.Number, 5050.0),
-            },
-            ["Developer"] = new()
-            {
-                new("dev.debug_mode", "Mode debug", "Active des options réservées au développement.", SettingKind.Toggle, false),
-                new("dev.verbose_logging", "Journalisation détaillée", "Écrit plus d'informations dans le journal de démarrage.", SettingKind.Toggle, false),
-                new("dev.show_breadcrumbs", "Afficher les breadcrumbs de démarrage", "Trace visible des étapes de lancement (diagnostic).", SettingKind.Toggle, false),
-                new("dev.reload_ui", "Recharger l'interface", "Force un rafraîchissement de l'affichage sans redémarrer.", SettingKind.Button, false),
-                new("dev.open_log_folder", "Ouvrir le dossier des journaux", "Ouvre l'explorateur Windows sur les fichiers de log.", SettingKind.Button, false),
-                new("dev.reset_all_settings", "Réinitialiser tous les réglages", "Remet chaque réglage de cette fenêtre à sa valeur par défaut.", SettingKind.Button, false),
-            },
-        };
     }
 }

@@ -6,6 +6,16 @@
   MILIEU du logiciel, déplaçable et redimensionnable à la souris, avec une
   liste de catégories à gauche et le détail à droite. Remplace SettingsMenuView
   comme cible du bouton Réglages (devenu une icône ⚙, voir ActivityBarView).
+  ★ RETOUCHE (02/09, chantier Réglages 100+) : la fenêtre (chrome flottant,
+  glisser/redimensionner) reste inchangée — c'est le CONTENU qui change de
+  source. Jusqu'ici : une liste d'environ 95 réglages écrite à la main dans le
+  .xaml.cs, distincte du vrai catalogue du logiciel (Moto.Core.Settings.
+  SettingsCatalog.All, 297 réglages réels une fois 7 catégories orphelines
+  reconnectées — voir SettingsCatalog.Extensions.cs). Rebranché sur le vrai
+  catalogue (mêmes types Toggle/Int/Enum/String/Action, réutilise
+  Moto.Editor.Settings.SettingItem déjà éprouvé par SettingsPage, page
+  jumelle jamais compilée dans l'appli — voir Moto.Editor.csproj). Recherche
+  ajoutée (indispensable à cette échelle).
 -->
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
@@ -67,19 +77,31 @@
                     <!-- ══ Corps : catégories (gauche) + détail (droite) ══ -->
                     <Grid Grid.Row="1" ColumnDefinitions="200,*">
 
-                        <CollectionView Grid.Column="0" x:Name="CategoryList"
-                                        BackgroundColor="{StaticResource BgSide}"
-                                        SelectionMode="Single"
-                                        SelectionChanged="OnCategorySelected">
-                            <CollectionView.ItemTemplate>
-                                <DataTemplate>
-                                    <Border BackgroundColor="Transparent" Padding="14,10" StrokeThickness="0">
-                                        <Label Text="{Binding}" FontSize="{DynamicResource FontSizeUiText}"
-                                               TextColor="{StaticResource Txt1}" />
-                                    </Border>
-                                </DataTemplate>
-                            </CollectionView.ItemTemplate>
-                        </CollectionView>
+                        <!-- ★ AJOUT (02/09, chantier Réglages 100+) : recherche globale,
+                             indispensable maintenant que le catalogue réel (297 réglages)
+                             a remplacé la liste maison de ~95 — voir OnSearchChanged. -->
+                        <Grid Grid.Column="0" RowDefinitions="Auto,*" BackgroundColor="{StaticResource BgSide}">
+                            <Entry Grid.Row="0" x:Name="SearchEntry"
+                                   Placeholder="Rechercher un réglage…"
+                                   Margin="8" FontSize="{DynamicResource FontSizeUiSmall}"
+                                   BackgroundColor="Transparent" TextColor="{StaticResource Txt1}"
+                                   PlaceholderColor="{StaticResource Txt2}"
+                                   TextChanged="OnSearchChanged" />
+
+                            <CollectionView Grid.Row="1" x:Name="CategoryList"
+                                            BackgroundColor="Transparent"
+                                            SelectionMode="Single"
+                                            SelectionChanged="OnCategorySelected">
+                                <CollectionView.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border BackgroundColor="Transparent" Padding="14,10" StrokeThickness="0">
+                                            <Label Text="{Binding}" FontSize="{DynamicResource FontSizeUiText}"
+                                                   TextColor="{StaticResource Txt1}" />
+                                        </Border>
+                                    </DataTemplate>
+                                </CollectionView.ItemTemplate>
+                            </CollectionView>
+                        </Grid>
 
                         <ScrollView Grid.Column="1">
                             <VerticalStackLayout x:Name="DetailHost" Padding="24,18" Spacing="18" />
