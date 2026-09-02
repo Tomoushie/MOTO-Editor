@@ -11,6 +11,7 @@ using Microsoft.Extensions.Logging;
 using Moto.Core;
 
 // ── Core AI
+using Moto.Core.Analytics;
 using Moto.Core.AI.Actions;
 using Moto.Core.AI.Agents;
 using Moto.Core.AI.Analytics;
@@ -148,6 +149,12 @@ namespace Moto.Editor.DependencyInjection
             services.AddSingleton<DismissPersistenceEngine>(_ => new DismissPersistenceEngine(workspaceRoot));
             services.AddSingleton<AgentScorer>();
             services.AddSingleton<WindowManager>();
+            // ★ CORRECTIF (03/09, réveil de GlobalDashboardView) : jamais enregistré
+            // dans le conteneur DI -> GetService<GlobalUsageEngine>() renvoyait
+            // toujours null, donc StartSession/RecordBuild/RecordDebugSession
+            // étaient des no-op silencieux et la fenêtre s'ouvrait vide.
+            services.AddSingleton<GlobalUsageEngine>(_ => new GlobalUsageEngine(
+                Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData)));
             services.AddSingleton<ThemeManager>(sp => new ThemeManager(sp.GetRequiredService<ILogger<ThemeManager>>()));
             services.AddSingleton<PluginMalwareScanner>(sp => new PluginMalwareScanner(sp.GetRequiredService<ILogger<PluginMalwareScanner>>()));
             // AnalyticsWebSocketServer : jamais implémenté

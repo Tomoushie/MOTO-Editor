@@ -227,6 +227,18 @@ namespace Moto.Editor
                 // ── ★ v29 : WindowManager ──
                 _windowManager = services.GetService<Moto.Editor.Windows.WindowManager>();
 
+                // ★ CORRECTIF (03/09, réveil de GlobalDashboardView) : InitializeGlobalUsage()
+                // (MainPage.UI.cs, appelée dans le CONSTRUCTEUR) résolvait _globalUsage via
+                // Handler?.MauiContext?.Services — mais Handler est encore null à ce stade du
+                // cycle de vie MAUI (avant Loaded), donc _globalUsage restait null pour toute
+                // la durée de vie de l'app, exactement le même patron que _pluginGallery plus
+                // haut. On retente ici, où `services` est déjà confirmé disponible.
+                if (_globalUsage == null)
+                {
+                    _globalUsage = services.GetService<Moto.Core.Analytics.GlobalUsageEngine>();
+                    _globalUsage?.StartSession();
+                }
+
                 // Ajoute les overlays au RootGrid
                 if (_commandPalette != null)
                 {
@@ -787,6 +799,23 @@ namespace Moto.Editor
                     _windowManager.OpenOrFocus(Moto.Editor.Windows.WindowKind.Platform, () =>
                         new Microsoft.Maui.Controls.Window(
                             new Moto.Editor.Windows.SpecializedWindowPage("Plateforme", new Views.PlatformView(_platformEngine))));
+                    break;
+
+                // ★ AJOUT (03/09, réveil de GlobalDashboardView) : jamais navigable
+                // auparavant (fichier exclu du build — voir CLAUDE.md, son .xaml
+                // survivait sous un nom de fichier corrompu, renommé pour ce
+                // correctif). _globalUsage (GlobalUsageEngine) alimente déjà de
+                // vraies statistiques en continu depuis longtemps (RecordBuild,
+                // RecordDebugSession, StartSession...) sans qu'aucun écran ne les
+                // affiche jusqu'ici.
+                case "globaldashboard":
+                    _windowManager.OpenOrFocus(Moto.Editor.Windows.WindowKind.GlobalDashboard, () =>
+                    {
+                        var view = new Views.GlobalDashboardView { IsVisible = true };
+                        if (_globalUsage != null) view.SetEngine(_globalUsage);
+                        return new Microsoft.Maui.Controls.Window(
+                            new Moto.Editor.Windows.SpecializedWindowPage("Tableau de bord global", view));
+                    });
                     break;
 
                 default:

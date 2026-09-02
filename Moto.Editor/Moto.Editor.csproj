@@ -254,8 +254,6 @@
          le stub "AiHost" (voir MainPage.xaml/.Panels.cs/.Routing.cs). -->
     <Compile Remove="Views\ConditionalBreakpointDialog.xaml.cs" />
     <MauiXaml Remove="Views\ConditionalBreakpointDialog.xaml" />
-    <Compile Remove="Views\GlobalDashboardView.xaml.cs" />
-    <MauiXaml Remove="Views\GlobalDashboardView.xaml" />
     <!-- ★ RE-CONFIRMÉ (02/09) : classées "réveil facile" par erreur — vérifié à la
          compilation, pas supposé. Le .xaml.cs de chacune référence des x:Name qui
          n'existent tout simplement pas dans le .xaml réel (ex. HealthMonitorView

@@ -106,6 +106,11 @@ namespace Moto.Editor
             // s'auto-construit) — fire-and-forget, comme les autres actions
             // ci-dessus qui ne bloquent pas sur un résultat.
             _commandRegistry.Register("ai.motopage", () => _ = Navigation.PushAsync(new Pages.MotoAiPage()));
+            // ★ AJOUT (03/09, réveil de GlobalDashboardView) : ouvre dans sa propre
+            // fenêtre (même mécanisme que le bouton ⧉ des panneaux ancrés) — pas
+            // ajouté au dock IA lui-même dans cette passe, pour rester un petit
+            // chantier contenu.
+            _commandRegistry.Register("ai.globaldashboard", () => OpenSpecializedWindow("globaldashboard"));
 
             _commandRegistry.Register("term.open", () => _viewModel.IsTerminalVisible = true);
             _commandRegistry.Register("help.doc", () => DocPanel.IsVisible = true);

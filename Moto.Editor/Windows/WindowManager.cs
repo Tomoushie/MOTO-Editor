@@ -9,7 +9,7 @@ namespace Moto.Editor.Windows
     // ★ AJOUT (03/09, "détacher un panneau" — sonde de modularité, Gap B) : 5
     // membres pour les panneaux du dock IA qui n'avaient encore aucune fenêtre
     // spécialisée (voir OpenSpecializedWindow, MainPage.Extensions.cs).
-    public enum WindowKind { Main, Editor, Debug, Analytics, Plugin, Settings, Marketplace, Cortex, Neural, Workspace, AiChat, Platform }
+    public enum WindowKind { Main, Editor, Debug, Analytics, Plugin, Settings, Marketplace, Cortex, Neural, Workspace, AiChat, Platform, GlobalDashboard }
 
     public sealed class WindowManager
     {
