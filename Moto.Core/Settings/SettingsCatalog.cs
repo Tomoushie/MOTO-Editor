@@ -299,5 +299,12 @@ namespace Moto.Core.Settings
         {
             All.Add(new SettingDefinition { Id = id, Category = cat, Section = sec, Title = title, Description = desc, Type = SettingType.String, Default = def });
         }
+
+        /// <summary>★ AJOUT (02/09, réglages IA cachés) : helper pour SettingType.Double
+        /// — mêmes conventions que I() mais bornes fractionnaires (MinDouble/MaxDouble).</summary>
+        private static void D(string id, string cat, string sec, string title, string desc, double def, double min, double max)
+        {
+            All.Add(new SettingDefinition { Id = id, Category = cat, Section = sec, Title = title, Description = desc, Type = SettingType.Double, Default = def, MinDouble = min, MaxDouble = max });
+        }
     }
 }

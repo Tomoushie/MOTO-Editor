@@ -104,6 +104,13 @@ namespace Moto.Core.Settings
             RegisterDoc();
             RegisterEvolution();
             RegisterPerformance();
+
+            // ★ AJOUT (02/09, chantier Réglages — 126 réglages IA cachés) : 123
+            // réglages du système SettingItem<T> (voir SettingsCatalog.HiddenAiSettings.cs),
+            // réellement utilisés par de vrais services backend mais jusqu'ici
+            // invisibles de SettingsCatalog.All (donc de tout écran). 268+29 → 420
+            // une fois ajoutés.
+            RegisterHiddenAiSettings();
         }
 
         /// <summary>Helper pour les paramètres de type Action (bouton).</summary>

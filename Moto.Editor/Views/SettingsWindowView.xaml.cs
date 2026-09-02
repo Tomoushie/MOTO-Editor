@@ -293,11 +293,6 @@ namespace Moto.Editor.Views
             Margin = new Thickness(0, 12, 0, 0)
         };
 
-        /// <summary>
-        /// Une ligne = un SettingDefinition du vrai catalogue, réellement
-        /// lu/écrit via SettingItem (même classe que SettingsPage, éprouvée) —
-        /// pas de Get/Set maison dupliqué ici.
-        /// </summary>
         /// <summary>Voir le commentaire du champ _items — un seul SettingItem par
         /// Id pour toute la durée de vie de cette fenêtre.</summary>
         private SettingItem GetOrCreateItem(SettingDefinition def)
@@ -310,6 +305,11 @@ namespace Moto.Editor.Views
             return item;
         }
 
+        /// <summary>
+        /// Une ligne = un SettingDefinition du vrai catalogue, réellement
+        /// lu/écrit via SettingItem (même classe que SettingsPage, éprouvée) —
+        /// pas de Get/Set maison dupliqué ici.
+        /// </summary>
         private View BuildRow(SettingDefinition def)
         {
             var txt1 = (Color)Application.Current!.Resources["Txt1"];
@@ -331,6 +331,7 @@ namespace Moto.Editor.Views
                 SettingType.Int => BuildInt(item),
                 SettingType.Enum => BuildEnum(item, def),
                 SettingType.Action => BuildAction(item, def),
+                SettingType.Double => BuildDouble(item),
                 _ => BuildString(item),
             };
             control.VerticalOptions = LayoutOptions.Center;
@@ -406,6 +407,50 @@ namespace Moto.Editor.Views
             var btn = new Button { Text = def.ActionLabel, Padding = new Thickness(12, 4), BindingContext = item };
             btn.SetBinding(Button.CommandProperty, nameof(SettingItem.ActionCommand));
             return btn;
+        }
+
+        /// <summary>
+        /// ★ AJOUT (02/09, réglages IA cachés) : SettingType.Double. Analyse
+        /// manuelle plutôt qu'une simple liaison Entry.Text↔DoubleValue — un
+        /// Français tapant "0,7" (virgule) échouerait avec une conversion
+        /// implicite qui suppose souvent le point comme séparateur ; on essaie
+        /// d'abord le point (culture invariante, cas le plus courant pour un
+        /// réglage technique), puis la virgule (culture actuelle de Windows) en
+        /// repli — même prudence que l'ancien BuildNumber de ce fichier (avant
+        /// la réécriture), qui gérait déjà ses nombres à la main.
+        /// </summary>
+        private static Entry BuildDouble(SettingItem item)
+        {
+            var entry = new Entry
+            {
+                WidthRequest = 90, Keyboard = Keyboard.Numeric,
+                HorizontalTextAlignment = TextAlignment.Center,
+                Text = item.DoubleValue.ToString(System.Globalization.CultureInfo.InvariantCulture)
+            };
+
+            void Commit()
+            {
+                // ★ CORRECTION (02/09, revue croisée) : deux trous trouvés ici —
+                // (1) "NaN" est un texte valide pour TryParse mais Math.Clamp le
+                // laisse passer tel quel (NaN < min et NaN > max valent tous les
+                // deux false), donc la valeur écrite pouvait devenir NaN et casser
+                // silencieusement tout consommateur réel (ex. PerfGateService) ;
+                // (2) un texte invalide (vide, "abc"...) ne remettait jamais
+                // l'affichage à la vraie valeur stockée, laissant la case
+                // visuellement fausse jusqu'à la reconstruction de la ligne.
+                if ((double.TryParse(entry.Text, System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out var v)
+                        || double.TryParse(entry.Text, out v))
+                    && !double.IsNaN(v) && !double.IsInfinity(v))
+                {
+                    item.DoubleValue = v;
+                }
+
+                entry.Text = item.DoubleValue.ToString(System.Globalization.CultureInfo.InvariantCulture);
+            }
+
+            entry.Completed += (s, e) => Commit();
+            entry.Unfocused += (s, e) => Commit();
+            return entry;
         }
     }
 }

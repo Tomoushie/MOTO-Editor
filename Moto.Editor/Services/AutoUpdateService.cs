@@ -40,7 +40,12 @@ public sealed class AutoUpdateService
         // ★ CORRECTION : _settings.Shared.Editor.Update.X.Value supposait une API de
         // réglages typés imbriqués qui n'a jamais été construite — SettingsEngine
         // n'expose que l'API plate Get/Set/GetBool/GetString (voir SettingsEngineCore.cs).
-        if (!_settings.GetBool("editor.update.autocheck", defaultValue: true))
+        // ★ CORRECTION (02/09, revue croisée) : clé mal casée ("autocheck" au lieu
+        // de "autoCheck") — ne correspondait ni au SettingItem<bool> AutoCheck réel
+        // (SettingsCatalog.Editor.Update.cs) ni à la case à cocher visible dans
+        // Réglages (SettingsCatalog.HiddenAiSettings.cs) : le bouton n'avait donc
+        // strictement aucun effet, la vérification restait toujours activée.
+        if (!_settings.GetBool("editor.update.autoCheck", defaultValue: true))
             return new UpdateInfo { IsAvailable = false };
 
         try

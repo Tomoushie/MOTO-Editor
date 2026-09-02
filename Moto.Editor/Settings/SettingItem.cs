@@ -86,6 +86,15 @@ namespace Moto.Editor.Settings
             set { _engine.Set(Def.Id, value); RaiseAll(); }
         }
 
+        /// <summary>★ AJOUT (02/09, réglages IA cachés) : SettingType.Double —
+        /// valeurs fractionnaires (ex. seuils 0.0-1.0). Bornée à MinDouble/MaxDouble,
+        /// même principe que IntValue/Min/Max.</summary>
+        public double DoubleValue
+        {
+            get => _engine.Get(Def.Id, Def.Default is double d ? d : 0.0);
+            set { _engine.Set(Def.Id, Math.Clamp(value, Def.MinDouble, Def.MaxDouble)); RaiseAll(); }
+        }
+
         public string ActionLabel => Def.ActionLabel;
 
         public ICommand IncrementCommand => new Command(() => Adjust(+Def.Step));
@@ -107,6 +116,7 @@ namespace Moto.Editor.Settings
             OnPropertyChanged(nameof(IntValue));
             OnPropertyChanged(nameof(StringValue));
             OnPropertyChanged(nameof(OptionValue));
+            OnPropertyChanged(nameof(DoubleValue));
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
