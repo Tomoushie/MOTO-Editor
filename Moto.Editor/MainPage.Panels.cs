@@ -44,48 +44,47 @@ namespace Moto.Editor
             };
         }
 
-        private void OnCortexClicked(object sender, EventArgs e)
+        /// <summary>
+        /// ★ AJOUT (03/09, nettoyage — sonde de modularité, Gap D) : les 4
+        /// méthodes ci-dessous recopiaient chacune la même liste "masquer les
+        /// autres panneaux du groupe" — un panneau oublié dans une seule des 4
+        /// listes aurait pu rester affiché en même temps qu'un autre sans que
+        /// rien ne le signale. Une seule liste ici : un futur panneau ajouté à
+        /// ce groupe (Cortex/Neural/Workspace/Gallery/Analytics) n'a plus qu'un
+        /// seul endroit à toucher. Comportement identique à avant : bascule le
+        /// panneau demandé (ouvre si fermé, ferme si déjà ouvert) après avoir
+        /// masqué tous les autres.
+        /// </summary>
+        private void ShowOnlyAiGroupPanel(ContentView panel)
         {
-            _cortexPanel.IsVisible = !_cortexPanel.IsVisible;
-            _neuralPanel.IsVisible = false;
-            _workspacePanel.IsVisible = false;
-            _pluginGallery.IsVisible = false;
-            _analyticsDashboard.IsVisible = false;
-            if (_cortexPanel.IsVisible && _viewModel.SelectedDocument != null)
-                _cortexPanel.LoadSuggestions(_viewModel.SelectedDocument.Path, _viewModel.SelectedDocument.Text);
+            bool willOpen = !panel.IsVisible;
+
+            foreach (var p in new ContentView[] { _cortexPanel, _neuralPanel, _workspacePanel, _pluginGallery, _analyticsDashboard })
+                p.IsVisible = false;
+
+            panel.IsVisible = willOpen;
             RefreshAiDockColumnWidth();
         }
 
-        private void OnNeuralClicked(object sender, EventArgs e)
+        private void OnCortexClicked(object sender, EventArgs e)
         {
-            _neuralPanel.IsVisible = !_neuralPanel.IsVisible;
-            _cortexPanel.IsVisible = false;
-            _workspacePanel.IsVisible = false;
-            _pluginGallery.IsVisible = false;
-            _analyticsDashboard.IsVisible = false;
-            RefreshAiDockColumnWidth();
+            ShowOnlyAiGroupPanel(_cortexPanel);
+            if (_cortexPanel.IsVisible && _viewModel.SelectedDocument != null)
+                _cortexPanel.LoadSuggestions(_viewModel.SelectedDocument.Path, _viewModel.SelectedDocument.Text);
         }
+
+        private void OnNeuralClicked(object sender, EventArgs e) => ShowOnlyAiGroupPanel(_neuralPanel);
 
         private void OnWorkspaceClicked(object sender, EventArgs e)
         {
-            _workspacePanel.IsVisible = !_workspacePanel.IsVisible;
-            _cortexPanel.IsVisible = false;
-            _neuralPanel.IsVisible = false;
-            _pluginGallery.IsVisible = false;
-            _analyticsDashboard.IsVisible = false;
+            ShowOnlyAiGroupPanel(_workspacePanel);
             if (_workspacePanel.IsVisible) _workspacePanel.Analyze();
-            RefreshAiDockColumnWidth();
         }
 
         private void OnGalleryClicked()
         {
-            _pluginGallery.IsVisible = !_pluginGallery.IsVisible;
-            _cortexPanel.IsVisible = false;
-            _neuralPanel.IsVisible = false;
-            _workspacePanel.IsVisible = false;
-            _analyticsDashboard.IsVisible = false;
+            ShowOnlyAiGroupPanel(_pluginGallery);
             if (_pluginGallery.IsVisible) _pluginGallery.LoadGallery();
-            RefreshAiDockColumnWidth();
         }
 
         /// <summary>
@@ -345,6 +344,26 @@ namespace Moto.Editor
         };
 
         /// <summary>
+        /// ★ AJOUT (03/09, "détacher un panneau" — sonde de modularité, Gap B) :
+        /// identifiant attendu par OpenSpecializedWindow (MainPage.Extensions.cs)
+        /// pour chaque type de panneau. Null pour Recherche (overlay centré, pas
+        /// de fenêtre spécialisée pour elle) — AddFloatingPanel n'affiche alors
+        /// pas de bouton "détacher".
+        /// </summary>
+        private static string? KindFor(ContentView panel) => panel switch
+        {
+            PlatformView => "platform",
+            CortexView => "cortex",
+            NeuralView => "neural",
+            AiChatView => "aichat",
+            AIWorkspaceView => "workspace",
+            PluginGalleryView => "plugin",
+            AnalyticsDashboardView => "analytics",
+            DebugPanelView => "debug",
+            _ => null
+        };
+
+        /// <summary>
         /// ★ CORRECTION (30/08) : les panneaux flottaient tous au même endroit
         /// (par-dessus le contenu, même marge) et se superposaient entre eux — repéré
         /// par Tom. Ancrés maintenant dans PanelHost (colonne 3, déjà existante), un
@@ -381,14 +400,40 @@ namespace Moto.Editor
             };
             close.Clicked += (s, e) => panel.IsVisible = false;
 
-            var header = new Grid { ColumnDefinitions = { new ColumnDefinition(GridLength.Star), new ColumnDefinition(GridLength.Auto) } };
+            var header = new Grid { ColumnDefinitions = { new ColumnDefinition(GridLength.Star), new ColumnDefinition(GridLength.Auto), new ColumnDefinition(GridLength.Auto) } };
             header.Add(new Label
             {
                 Text = TitleFor(panel), FontSize = 13, FontAttributes = FontAttributes.Bold,
                 VerticalOptions = LayoutOptions.Center,
                 TextColor = (Color)Application.Current!.Resources["Txt1"]
             });
-            header.Add(close, 1);
+
+            // ★ AJOUT (03/09, "détacher un panneau" — sonde de modularité, Gap B) :
+            // sort ce panneau dans sa propre fenêtre OS via WindowManager/
+            // OpenSpecializedWindow — plomberie déjà existante et fonctionnelle
+            // (jusqu'ici accessible uniquement par la commande cachée
+            // "/window <kind>" tapée dans la barre IA, aucun bouton n'y menait).
+            // Ouvre une INSTANCE FRAÎCHE du même type de panneau dans la nouvelle
+            // fenêtre (pas littéralement celle-ci déplacée) — même limite déjà
+            // documentée pour "/window", pas un vrai "glisser l'onglet hors de la
+            // fenêtre" (chantier séparé, plus gros). Absent pour Recherche
+            // (KindFor retourne null pour l'overlay centré, pas de fenêtre
+            // spécialisée équivalente).
+            var kind = KindFor(panel);
+            if (kind != null)
+            {
+                var detach = new Button
+                {
+                    Text = "⧉", WidthRequest = 28, HeightRequest = 24, FontSize = 12,
+                    Padding = 0, BackgroundColor = Colors.Transparent,
+                    TextColor = (Color)Application.Current!.Resources["Txt2"]
+                };
+                ToolTipProperties.SetText(detach, "Détacher dans une nouvelle fenêtre");
+                detach.Clicked += (s, e) => OpenSpecializedWindow(kind);
+                header.Add(detach, 1);
+            }
+
+            header.Add(close, 2);
 
             var wrapper = new Border
             {

@@ -754,6 +754,41 @@ namespace Moto.Editor
                                 "Plugins", new Views.PluginGalleryView(_pluginRegistry, _marketplaceClient, GetPluginsDirectory()))));
                     break;
 
+                // ★ AJOUT (03/09, "détacher un panneau" — sonde de modularité, Gap B) :
+                // 5 cas manquants, désormais atteignables par le bouton ⧉ de chaque
+                // panneau (voir AddFloatingPanel/KindFor, MainPage.Panels.cs) — avant
+                // ceci, seule la commande cachée "/window <kind>" pouvait déjà ouvrir
+                // "editor"/"debug"/"analytics"/"plugin" ci-dessus, jamais ces 5-là.
+                case "cortex":
+                    _windowManager.OpenOrFocus(Moto.Editor.Windows.WindowKind.Cortex, () =>
+                        new Microsoft.Maui.Controls.Window(
+                            new Moto.Editor.Windows.SpecializedWindowPage("Cortex", new Views.CortexView(_cortex))));
+                    break;
+
+                case "neural":
+                    _windowManager.OpenOrFocus(Moto.Editor.Windows.WindowKind.Neural, () =>
+                        new Microsoft.Maui.Controls.Window(
+                            new Moto.Editor.Windows.SpecializedWindowPage("Neural", new Views.NeuralView(_neural))));
+                    break;
+
+                case "workspace":
+                    _windowManager.OpenOrFocus(Moto.Editor.Windows.WindowKind.Workspace, () =>
+                        new Microsoft.Maui.Controls.Window(
+                            new Moto.Editor.Windows.SpecializedWindowPage("Workspace", new Views.AIWorkspaceView(_workspace))));
+                    break;
+
+                case "aichat":
+                    _windowManager.OpenOrFocus(Moto.Editor.Windows.WindowKind.AiChat, () =>
+                        new Microsoft.Maui.Controls.Window(
+                            new Moto.Editor.Windows.SpecializedWindowPage("MOTO AI", new Views.AiChatView(_chatService))));
+                    break;
+
+                case "platform":
+                    _windowManager.OpenOrFocus(Moto.Editor.Windows.WindowKind.Platform, () =>
+                        new Microsoft.Maui.Controls.Window(
+                            new Moto.Editor.Windows.SpecializedWindowPage("Plateforme", new Views.PlatformView(_platformEngine))));
+                    break;
+
                 default:
                     StatusBar.SetStatus($"Fenêtre inconnue : {kind}");
                     break;

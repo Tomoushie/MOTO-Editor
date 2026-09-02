@@ -6,7 +6,10 @@ using Microsoft.Maui.Controls;
 
 namespace Moto.Editor.Windows
 {
-    public enum WindowKind { Main, Editor, Debug, Analytics, Plugin, Settings, Marketplace }
+    // ★ AJOUT (03/09, "détacher un panneau" — sonde de modularité, Gap B) : 5
+    // membres pour les panneaux du dock IA qui n'avaient encore aucune fenêtre
+    // spécialisée (voir OpenSpecializedWindow, MainPage.Extensions.cs).
+    public enum WindowKind { Main, Editor, Debug, Analytics, Plugin, Settings, Marketplace, Cortex, Neural, Workspace, AiChat, Platform }
 
     public sealed class WindowManager
     {
