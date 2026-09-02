@@ -36,6 +36,7 @@ namespace Moto.Editor.Views
         {
             InitializeComponent();
             TreeList.ItemsSource = _visibleNodes;
+            UpdateEmptyState();
 
             // ★ AJOUT (31/08, points 1/3/17) : zone grise arrondie au survol/clic.
             HoverEffects.Attach(BtnOpenFolder);
@@ -100,6 +101,18 @@ namespace Moto.Editor.Views
             {
                 _visibleNodes.Add(node);
             }
+
+            UpdateEmptyState();
+        }
+
+        /// <summary>
+        /// ★ CORRECTION (02/09) : remplace CollectionView.EmptyView (voir commentaire
+        /// XAML) — bascule un panneau frère de TreeList au lieu du mécanisme interne
+        /// de CollectionView. Appelée après chaque changement de _visibleNodes.
+        /// </summary>
+        private void UpdateEmptyState()
+        {
+            EmptyStatePanel.IsVisible = _visibleNodes.Count == 0;
         }
 
         private async void OnOpenFolderClicked(object sender, EventArgs e)

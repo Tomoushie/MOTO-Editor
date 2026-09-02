@@ -78,19 +78,31 @@
         <!-- ★ CORRECTION (30/08) : sans dossier ouvert, ce panneau ne montrait qu'une
              fine barre d'outils sur fond vide — facile à manquer, donnait l'impression
              que le bouton "Fichiers" n'ouvrait "rien du tout" (repéré par Tom). -->
+        <!-- ★ CORRECTION (02/09, repéré par Tom, 3 essais dans CollectionView.EmptyView
+             sans effet malgré des mesures confirmant un conteneur pourtant correct
+             (260px, X=0 des deux côtés) : le décalage vient donc de la zone interne
+             que CollectionView réserve à son EmptyView (viewport natif WinUI, hors
+             de portée d'un simple réglage XAML côté MAUI), pas d'un mauvais calcul
+             de centrage à ce niveau. Remplacé par un panneau FRÈRE de TreeList, dans
+             la MÊME cellule de Grid (Grid.Row="2", superposition normale en MAUI) —
+             centré directement sur les dimensions réelles de FileExplorerView, sans
+             dépendre du rendu interne de CollectionView. Visibilité pilotée depuis
+             le code-behind (RefreshEmptyState, appelée partout où _visibleNodes
+             change). -->
+        <Grid x:Name="EmptyStatePanel" Grid.Row="2" HorizontalOptions="Fill" VerticalOptions="Fill" InputTransparent="True">
+            <VerticalStackLayout Padding="20" Spacing="8"
+                                 HorizontalOptions="Center" VerticalOptions="Center">
+                <Label Text="📂" FontSize="28" HorizontalOptions="Center" Opacity="0.6" />
+                <Label Text="Aucun dossier ouvert" FontSize="13" HorizontalOptions="Center" Opacity="0.8" />
+                <Label Text="Clique sur 📁 ci-dessus, ou sur &quot;Projet logiciel&quot; à l'accueil."
+                       FontSize="11" HorizontalOptions="Center" Opacity="0.5" HorizontalTextAlignment="Center" />
+            </VerticalStackLayout>
+        </Grid>
+
         <CollectionView Grid.Row="2"
                         x:Name="TreeList"
                         SelectionMode="Single"
                         SelectionChanged="OnSelectionChanged">
-
-            <CollectionView.EmptyView>
-                <VerticalStackLayout Padding="20" Spacing="8" HorizontalOptions="Center" VerticalOptions="Center">
-                    <Label Text="📂" FontSize="28" HorizontalOptions="Center" Opacity="0.6" />
-                    <Label Text="Aucun dossier ouvert" FontSize="13" HorizontalOptions="Center" Opacity="0.8" />
-                    <Label Text="Clique sur 📁 ci-dessus, ou sur &quot;Projet logiciel&quot; à l'accueil."
-                           FontSize="11" HorizontalOptions="Center" Opacity="0.5" HorizontalTextAlignment="Center" />
-                </VerticalStackLayout>
-            </CollectionView.EmptyView>
 
             <CollectionView.ItemTemplate>
                 <DataTemplate>
