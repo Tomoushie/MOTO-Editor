@@ -552,18 +552,25 @@ lignes cités) est dans le journal de la Workflow `wf_601f74fd-4fc`
 
 **Panneaux/docking** : la base (`AddFloatingPanel`, `MainPage.Panels.cs`)
 est solide — redimensionner, glisser-réordonner, glisser entre docks,
-changer de côté marchent tous réellement. Ce qui manque : **aucune
-disposition n'est sauvegardée entre les sessions** (tout revient aux
-valeurs XAML par défaut à chaque lancement) ; **aucun regroupement en
-onglets** dans un même dock (les panneaux s'empilent verticalement,
-l'exclusivité Cortex/Neural/Workspace/Gallery est codée en dur dans 4
-méthodes jumelles) ; **aucune scission en plusieurs vues côte à côte**
-(les réglages "Split vertical/horizontal" existent dans le catalogue
-mais sont décoratifs, aucun code split-pane derrière). Pépite trouvée :
-un vrai `WindowManager` (`Moto.Editor/Windows/WindowManager.cs`) sait
-déjà détacher un panneau dans sa propre fenêtre OS (Debug/Analytics/
-Plugin/Editor) — mais son seul point d'entrée est la commande cachée
-`/window <kind>` tapée dans la barre IA, aucun bouton n'y mène.
+changer de côté marchent tous réellement. ✅ CORRIGÉ (03/09, commit
+`8ba5484`) : **bouton "détacher" (⧉)** ajouté à côté du ✕ de chaque
+panneau (Platform/Cortex/Neural/Workspace/AiChat/Gallery/Analytics/Debug
+— pas Recherche, overlay centré sans fenêtre spécialisée équivalente) —
+sort le panneau dans sa propre fenêtre OS via `WindowManager`/
+`OpenSpecializedWindow`, plomberie déjà existante, jusqu'ici accessible
+uniquement par la commande cachée `/window <kind>`. Limite assumée : ouvre
+une instance FRAÎCHE du panneau, pas littéralement celle affichée
+déplacée — un vrai "glisser l'onglet hors fenêtre" reste un chantier
+séparé, plus gros. ✅ CORRIGÉ AUSSI : l'exclusivité Cortex/Neural/
+Workspace/Gallery, avant codée en dur dans 4 méthodes jumelles (chacune
+recopiait la même liste "masquer les autres"), remplacée par
+`ShowOnlyAiGroupPanel(panel)`, une seule liste à maintenir. Ce qui manque
+encore : **aucune disposition n'est sauvegardée entre les sessions**
+(tout revient aux valeurs XAML par défaut à chaque lancement) ; **aucun
+regroupement en onglets** dans un même dock (les panneaux s'empilent
+verticalement) ; **aucune scission en plusieurs vues côte à côte** (les
+réglages "Split vertical/horizontal" existent dans le catalogue mais sont
+décoratifs, aucun code split-pane derrière).
 
 **Commandes et raccourcis** : ✅ Gap A (registre central) CORRIGÉ (02/09,
 commit à suivre) — `OnMenuCommanded` (`MainPage.Routing.cs`) n'est plus un
