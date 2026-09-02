@@ -18,6 +18,29 @@ namespace Moto.Editor.Views
         public StatusBarPanelView()
         {
             InitializeComponent();
+
+            // ★ AJOUT (02/09, "réveil facile" repéré par l'état des lieux) :
+            // PerformanceStatusBarView — vue MAUI complète, backend
+            // (Moto.Core.Performance.PerformanceProfiler) déjà réel et utilisé
+            // ailleurs (ProfilingHeatmapExporter) — juste jamais branché nulle
+            // part dans l'interface jusqu'ici. Construite en code (pas en XAML,
+            // son constructeur a un paramètre) et insérée avant les autres puces,
+            // même patron que Home/AiChatView ailleurs dans ce dépôt.
+            // ★ StatusBarPanelView est déclarée directement dans MainPage.xaml —
+            // construite très tôt, avant que la résolution DI (qui créerait le
+            // singleton PerformanceProfiler à la demande) ait pu s'exécuter.
+            // Instance peut donc encore valoir null ici : on la crée nous-mêmes
+            // dans ce cas plutôt que de risquer un NullReferenceException.
+            var profiler = Moto.Core.Performance.PerformanceProfiler.Instance
+                ?? new Moto.Core.Performance.PerformanceProfiler();
+            var perf = new PerformanceStatusBarView(profiler);
+            RightChips.Children.Insert(0, new BoxView
+            {
+                WidthRequest = 1,
+                Color = (Color)Application.Current!.Resources["BorderMuted"],
+                Margin = new Thickness(0, 6, 8, 6)
+            });
+            RightChips.Children.Insert(0, perf);
         }
 
         /// <summary>

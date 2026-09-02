@@ -356,11 +356,28 @@ totalité de la liste (~90 fichiers). Grandes familles :
   totalement différent et sans code-behind à lui. À relocaliser avant de
   juger l'une ou l'autre vue.
 
-**"Réveils faciles" recensés** (backend confirmé réel et vivant, juste
-débranché — même profil qu'AiChatView, `.xaml` présent sur le disque) :
-`PerformanceStatusBarView` (jugé le plus facile de toute la liste — déjà une
-vraie ContentView MAUI, backend déjà utilisé ailleurs avec succès),
-`GlobalDashboardView`, `HealthMonitorView`, `LanguageSelectorView`,
+✅ **`PerformanceStatusBarView` réveillée (02/09)** — branchée dans la vraie
+barre de statut (`StatusBarPanelView`), 4 puces avant les compteurs
+d'erreurs : 💾 mémoire, ⚙ CPU, 🧵 threads, ♻ GC (gen 0). **Attention, la
+classification "réveil facile" ci-dessous était incomplète** : son code
+appelait `_profiler.GetCurrentMode()`/`GetEstimatedFps()`, deux méthodes
+qui N'EXISTENT PAS sur `PerformanceProfiler` (confirmé à la compilation,
+pas un simple oubli d'API) — et "Mode"/"FPS" ne correspondent de toute
+façon à rien de réel pour un éditeur XAML (pas de boucle de rendu à
+mesurer, contrairement à un moteur de jeu). Remplacés par 2 vraies mesures
+déjà échantillonnées par `PerformanceProfiler.SampleMetrics`
+(`thread_count`, `gc_gen0`) plutôt que d'inventer des chiffres. Le calcul
+du CPU% lui-même était aussi faux dans le code d'origine (modulo du temps
+CPU total écoulé depuis le lancement — ne représente rien) : refait en
+delta réel (temps CPU consommé / temps réel écoulé / nombre de cœurs).
+**Leçon reconfirmée** : vérifier l'API réelle avant de faire confiance à
+une classification "facile" — même règle que pour la palette de commandes
+plus tôt le même jour.
+
+**"Réveils faciles" restants** (backend confirmé réel et vivant, juste
+débranché — même profil qu'AiChatView, `.xaml` présent sur le disque, mais
+PAS reconfirmé aussi finement que PerformanceStatusBarView ci-dessus,
+prudence) : `GlobalDashboardView`, `HealthMonitorView`, `LanguageSelectorView`,
 `MarketplaceView` (jumeau vivant du `MarketplaceDashboardView` mort),
 `SnippetCreatorView`, `WhiteboardView`, `XenoFeedbackOverlay`, `MotoAiPage`
 (jamais navigué, aucun bouton n'y mène). `ThreadListView` a besoin des 2

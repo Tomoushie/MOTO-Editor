@@ -270,8 +270,6 @@
     <MauiXaml Remove="Views\ThemeSelectorView.xaml" />
     <Compile Remove="Views\WhiteboardView.xaml.cs" />
     <MauiXaml Remove="Views\WhiteboardView.xaml" />
-    <Compile Remove="Views\PerformanceStatusBarView.xaml.cs" />
-    <MauiXaml Remove="Views\PerformanceStatusBarView.xaml" />
     <Compile Remove="Views\XenoFeedbackOverlay.xaml.cs" />
     <MauiXaml Remove="Views\XenoFeedbackOverlay.xaml" />
 

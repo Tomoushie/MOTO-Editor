@@ -3,11 +3,16 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="Moto.Editor.Views.PerformanceStatusBarView">
 
-    <!-- Item 107 : exposé dans la StatusBar, compact, throttlé -->
+    <!-- Item 107 : exposé dans la StatusBar, compact, throttlé.
+         ★ CORRECTION (02/09, "réveil facile" repris) : "Mode"/"fps" du plan
+         d'origine ne correspondent à rien de réel pour un éditeur XAML (pas un
+         moteur de jeu, pas de boucle de rendu à mesurer) — inventer un chiffre
+         aurait été malhonnête. Remplacés par Threads/GC, deux vraies mesures
+         déjà échantillonnées par PerformanceProfiler (SampleMetrics). -->
     <HorizontalStackLayout Spacing="14" VerticalOptions="Center" Padding="8,2">
-        <Label x:Name="MemLabel" Text="💾 — Mo" FontSize="11" Opacity="0.8" />
-        <Label x:Name="CpuLabel" Text="⚙ — %" FontSize="11" Opacity="0.8" />
-        <Label x:Name="ModeLabel" Text="⚡ —" FontSize="11" Opacity="0.8" />
-        <Label x:Name="FpsLabel" Text="🎞 — fps" FontSize="11" Opacity="0.8" />
+        <Label x:Name="MemLabel" Text="💾 — Mo" FontSize="11" Opacity="0.8" ToolTipProperties.Text="Mémoire utilisée par MOTO Editor" />
+        <Label x:Name="CpuLabel" Text="⚙ — %" FontSize="11" Opacity="0.8" ToolTipProperties.Text="Utilisation CPU (moyenne sur le dernier intervalle)" />
+        <Label x:Name="ThreadsLabel" Text="🧵 —" FontSize="11" Opacity="0.8" ToolTipProperties.Text="Nombre de threads actifs" />
+        <Label x:Name="GcLabel" Text="♻ —" FontSize="11" Opacity="0.8" ToolTipProperties.Text="Collectes du ramasse-miettes (génération 0)" />
     </HorizontalStackLayout>
 </ContentView>

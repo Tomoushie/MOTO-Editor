@@ -18,7 +18,11 @@
                FontSize="{DynamicResource FontSizeUiSmall}" VerticalOptions="Center"
                TextColor="{StaticResource Txt2}" LineBreakMode="TailTruncation" />
 
-        <HorizontalStackLayout Grid.Column="1" Spacing="0" VerticalOptions="Center">
+        <!-- ★ AJOUT (02/09, "réveil facile" de l'état des lieux) : PerformanceStatusBarView
+             (Mémoire/CPU/Mode/FPS) insérée en code-behind, tout au début de cette
+             pile — voir StatusBarPanelView.xaml.cs. x:Name ajouté pour pouvoir
+             l'y insérer par-devant les autres puces. -->
+        <HorizontalStackLayout x:Name="RightChips" Grid.Column="1" Spacing="0" VerticalOptions="Center">
 
             <BoxView WidthRequest="1" Color="{StaticResource BorderMuted}" Margin="8,6" />
 
