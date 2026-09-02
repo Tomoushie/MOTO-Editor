@@ -156,6 +156,9 @@ namespace Moto.Core.AI.Commands
                 // ★ AJOUT (03/09, réveil de GlobalDashboardView) : jamais navigable
                 // auparavant (fichier exclu du build, .xaml sous un nom corrompu).
                 new() { Id = "ai.globaldashboard", Title = "Tableau de bord global", Description = "Statistiques cumulées : fichiers, lignes, IA, exports, builds.", Category = CommandCategory.Menu, CommandText = "menu:ai.globaldashboard" },
+                // ★ AJOUT (03/09, réveil de ThreadListView) : jamais navigable
+                // auparavant (2 méthodes ChatService manquantes, voir CLAUDE.md).
+                new() { Id = "ai.threadlist", Title = "Conversations (historique)", Description = "Liste et recherche les conversations IA passées.", Category = CommandCategory.Menu, CommandText = "menu:ai.threadlist" },
 
                 // ── Slash commands ──
                 new() { Id = "slash.neural", Title = "Neural : Générer du code", Description = "Génère du code via Neural Mode.", Category = CommandCategory.Slash, CommandText = "/neural " },

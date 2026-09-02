@@ -1,5 +1,6 @@
 // Moto.Editor/Views/ThreadListView.xaml.cs
 using System;
+using System.Linq;
 using Microsoft.Maui.Controls;
 using Moto.Editor.Models;
 using Moto.Editor.Services;

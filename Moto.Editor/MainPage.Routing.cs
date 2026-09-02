@@ -111,6 +111,7 @@ namespace Moto.Editor
             // ajouté au dock IA lui-même dans cette passe, pour rester un petit
             // chantier contenu.
             _commandRegistry.Register("ai.globaldashboard", () => OpenSpecializedWindow("globaldashboard"));
+            _commandRegistry.Register("ai.threadlist", () => OpenSpecializedWindow("threadlist"));
 
             _commandRegistry.Register("term.open", () => _viewModel.IsTerminalVisible = true);
             _commandRegistry.Register("help.doc", () => DocPanel.IsVisible = true);

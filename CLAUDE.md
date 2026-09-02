@@ -264,10 +264,20 @@ distinguer un provider externe (OpenAI/Anthropic/Mistral) d'un chemin local
 recréer un test `Contains("interne")` ailleurs, ça a déjà causé un bug réel
 (voir commit `f45a794`).
 
-`ThreadListView.xaml.cs` (panneau compagnon naturel, liste des conversations)
-appelle déjà `_chat.SwitchThread(thread)` et `_chat.SearchThreads(text)` —
-ces 2 méthodes N'EXISTENT PAS ENCORE sur `ChatService`. Les ajouter
-réveillerait ce panneau avec le même profil de correctif qu'AiChatView.
+✅ **`ThreadListView` réveillée (03/09)** — `SwitchThread(thread)` (place le
+thread choisi en tête de `Threads`, même convention "le plus récent en tête
+= actif" que `CreateThread`/`EnsureThread` ; `Threads.Move` déclenche le
+`CollectionChanged` déjà écouté pour lever `ActiveThreadChanged`, pas de 2e
+mécanisme de notification) et `SearchThreads(query)` (filtre insensible à
+la casse sur titre + contenu des messages, requête vide -> liste complète)
+ajoutées à `ChatService`. `using System.Linq;` manquant aussi dans
+`ThreadListView.xaml.cs` (`.FirstOrDefault()` sur la sélection). Point
+d'entrée : fenêtre spécialisée "Conversations"
+(`WindowManager.WindowKind.ThreadList`) + commande de palette
+`ai.threadlist`, même patron minimal que `GlobalDashboardView` juste avant
+— PAS intégrée dans `AiChatView` elle-même (voir limite ci-dessous, toujours
+vraie pour partie). Confirmé par Tom : la liste affiche titre+heure, la
+recherche filtre sans planter, "Nouvelle conversation" fonctionne.
 
 **⚠️ Limites connues, pas corrigées (signalées à Tom)** :
 - `Contexts` étant un sac global, joindre un fichier dans une surface (ex.
@@ -275,9 +285,11 @@ réveillerait ce panneau avec le même profil de correctif qu'AiChatView.
   avoir envoyé depuis la première fait voyager silencieusement la pièce
   jointe vers le mauvais message.
 - Cliquer "nouvelle conversation" pendant qu'une réponse est en attente fait
-  atterrir cette réponse dans un thread devenu invisible (pas de sélecteur
-  d'historique dans l'UI — `ThreadListView` ci-dessus est justement la vue
-  qui manque pour régler ça).
+  atterrir cette réponse dans un thread devenu invisible : un peu mieux
+  depuis le 03/09 (la fenêtre "Conversations" ci-dessus permet de le
+  retrouver et d'y revenir), mais toujours pas de sélecteur d'historique
+  intégré directement DANS le panneau de chat principal — reste une fenêtre
+  séparée à ouvrir via la palette, pas un clic sur place.
 
 ## Barre de titre bleue Windows — statut : EN PAUSE, cause connue
 
@@ -361,9 +373,9 @@ totalité de la liste (~90 fichiers). Grandes familles :
   `AnalyticsDashboardView.xaml(.cs)` et `MarketplaceDashboardView.xaml(.cs)`
   sont des brouillons obsolètes sans risque à supprimer (les vraies versions
   existent déjà, actives ou exclues séparément). `GlobalDashboardView.xaml
-  (.cs)` est DIFFÉRENT — c'est la SEULE copie survivante du XAML de cette
-  vue (le `.xaml.cs` normal existe, pas le `.xaml`) ; à renommer, pas à
-  supprimer.
+  (.cs)` était DIFFÉRENT — c'était la SEULE copie survivante du XAML de
+  cette vue (le `.xaml.cs` normal existait, pas le `.xaml`) — ✅ renommée et
+  réveillée le 03/09, voir plus bas.
 - **Doublon de rangement déjà repéré, confirmé une 2e fois** : le motif
   "fichier au mauvais endroit avec un commentaire d'en-tête qui ment sur son
   propre chemin" a été retrouvé sur `StatusBarView` — le vrai code-behind de
@@ -439,14 +451,37 @@ confirmée, moitié re-classée plus dure :**
   dans l'exclusion du `.csproj`, avec le motif exact au lieu du motif
   générique d'origine.
 
+✅ **`GlobalDashboardView` réveillée (03/09)** — `.xaml` renommé (n'était
+plus exclu du build ensuite), `using Microsoft.Maui.Controls.Shapes;`
+manquant ajouté (CS0246 sur `RoundRectangle`), point d'entrée ajouté :
+fenêtre spécialisée "Tableau de bord global" (`WindowManager.WindowKind
+.GlobalDashboard`) + commande de palette `ai.globaldashboard`. **Bug réel
+trouvé en testant, pas supposé** : la fenêtre s'ouvrait vide — `GlobalUsageEngine`
+n'était JAMAIS enregistré dans le conteneur DI
+(`MotoServiceCollectionExtensions.cs`), donc `GetService<GlobalUsageEngine>()`
+renvoyait toujours `null` et `StartSession`/`RecordBuild`/`RecordDebugSession`
+(appelés ailleurs dans `MainPage.UI.cs` depuis la v30) étaient des no-op
+silencieux depuis leur écriture d'origine. En plus, sa résolution dans
+`MainPage.UI.cs` (`InitializeGlobalUsage`, appelée dans le CONSTRUCTEUR de
+`MainPage`) tournait avant que `Handler` soit disponible — même piège que
+`_pluginGallery` (02/09) — donc même une fois enregistré en DI, `_globalUsage`
+restait `null`. Corrigé en deux temps : ajout de
+`services.AddSingleton<GlobalUsageEngine>(...)`, ET résolution dupliquée
+dans `ResolveExtensionServices()` (tourne sur `Loaded`, donc après que
+`Handler` existe). Confirmé par Tom : Temps de travail/Premier lancement/
+Dernière activité s'affichent réellement. Fichiers/Lignes/IA/Exports
+restent à 0 en toute honnêteté — aucun code de production n'appelle
+`RecordFileCreated`/`RecordLines`/`RecordAiCall`/`RecordExport` nulle part ;
+seuls `StartSession`/`StopSession` et `RecordBuild`/`RecordDebugSession`
+existent. Câbler ces compteurs à la source est un chantier séparé, pas fait
+ici.
+
 **"Réveil facile" jamais retesté** (classification d'origine à prendre avec
-prudence, comme les cas ci-dessus) : `GlobalDashboardView` — cas
-particulier, son `.xaml` survit sous un nom de fichier corrompu (voir
-section "Fichiers exclus" plus haut), à renommer avant même de pouvoir
-tenter la compilation. `ThreadListView` a besoin des 2 méthodes
-`ChatService` manquantes citées plus haut. `BreakpointGutterOverlay`
+prudence, comme les cas ci-dessus) : `BreakpointGutterOverlay`
 et `InlayHintsOverlay` sont prêts mais orphelins (leur seul appelant prévu
 est bloqué ailleurs, LSP ou dialogue de points d'arrêt à reconstruire).
+`ThreadListView` : ✅ fait le 03/09, voir plus haut (section "ChatService —
+API réelle").
 
 **4 fichiers bloqués par LA MÊME cause exacte** : `SessionBookmarkService`,
 `InlineDiffPreviewService`, `UxModeService`, `UxEnchancementService`

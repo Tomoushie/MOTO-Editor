@@ -1,5 +1,6 @@
 // Moto.Editor/Services/ChatService.cs
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
@@ -107,6 +108,38 @@ namespace Moto.Editor.Services
             var thread = new ChatThread();
             Threads.Insert(0, thread);
             return thread;
+        }
+
+        /// <summary>
+        /// ★ AJOUT (03/09, réveil de ThreadListView) : manquait — le panneau
+        /// l'appelait déjà (ThreadListView.xaml.cs) sans que la méthode existe.
+        /// Rend `thread` actif en le plaçant en tête de `Threads`, même
+        /// convention que CreateThread/EnsureThread ("le plus récent en tête" =
+        /// actif) : Threads.Move déclenche CollectionChanged, déjà écouté plus
+        /// haut dans le constructeur pour lever ActiveThreadChanged — pas de
+        /// 2e mécanisme de notification à maintenir en parallèle.
+        /// </summary>
+        public void SwitchThread(ChatThread thread)
+        {
+            if (thread is null) return;
+            var index = Threads.IndexOf(thread);
+            if (index <= 0) return; // introuvable, ou déjà actif (déjà en tête)
+            Threads.Move(index, 0);
+        }
+
+        /// <summary>
+        /// ★ AJOUT (03/09, réveil de ThreadListView) : manquait, même situation que
+        /// SwitchThread ci-dessus. Recherche simple, insensible à la casse, sur le
+        /// titre et le contenu des messages. Requête vide -> liste complète (pour
+        /// que vider le champ de recherche restaure tous les threads).
+        /// </summary>
+        public IEnumerable<ChatThread> SearchThreads(string query)
+        {
+            if (string.IsNullOrWhiteSpace(query)) return Threads;
+            return Threads.Where(t =>
+                t.Title.Contains(query, StringComparison.OrdinalIgnoreCase) ||
+                t.Messages.Any(m => m.Content.Contains(query, StringComparison.OrdinalIgnoreCase))
+            ).ToList();
         }
 
         /// <summary>Attache un fichier au contexte de la prochaine question.</summary>

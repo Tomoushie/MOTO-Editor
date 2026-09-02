@@ -266,8 +266,6 @@
     <MauiXaml Remove="Views\SnippetCreatorView.xaml" />
     <Compile Remove="Views\WhiteboardView.xaml.cs" />
     <MauiXaml Remove="Views\WhiteboardView.xaml" />
-    <Compile Remove="Views\ThreadListView.xaml.cs" />
-    <MauiXaml Remove="Views\ThreadListView.xaml" />
     <Compile Remove="Views\TranslationOverlay.xaml.cs" />
     <MauiXaml Remove="Views\TranslationOverlay.xaml" />
     <Compile Remove="Views\StatusBarView.xaml.cs" />

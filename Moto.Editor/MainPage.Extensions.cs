@@ -818,6 +818,17 @@ namespace Moto.Editor
                     });
                     break;
 
+                // ★ AJOUT (03/09, réveil de ThreadListView) : jamais navigable
+                // auparavant (2 méthodes ChatService manquantes, voir CLAUDE.md).
+                case "threadlist":
+                    _windowManager.OpenOrFocus(Moto.Editor.Windows.WindowKind.ThreadList, () =>
+                    {
+                        var view = new Views.ThreadListView(_chatService) { IsVisible = true };
+                        return new Microsoft.Maui.Controls.Window(
+                            new Moto.Editor.Windows.SpecializedWindowPage("Conversations", view));
+                    });
+                    break;
+
                 default:
                     StatusBar.SetStatus($"Fenêtre inconnue : {kind}");
                     break;
