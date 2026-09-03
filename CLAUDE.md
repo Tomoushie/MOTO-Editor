@@ -305,17 +305,42 @@ Confirmé par Tom : branche réelle ("main"), vrais fichiers modifiés/
 untracked de CE dépôt affichés correctement, accents corrects après les 2
 correctifs.
 
-**Signalé par Tom, PAS encore diagnostiqué** : le panneau Terminal
-(`TerminalPanelView`, dock du bas) s'ouvrirait hors de l'écran visible
-("caché, il faut scroller pour le voir"). Vérifié : `RootGrid`
-(`MainPage.xaml`) est un `Grid` simple, SANS aucun `ScrollView` ancêtre —
-donc "scroller" ne peut pas venir d'un vrai mécanisme de défilement MAUI,
-plus probablement un souci de taille/position de la fenêtre native
-elle-même. Le bouton fermer (✕) existe déjà et est correctement câblé
-(`TerminalPanelView.xaml.cs:75-79`, `vm.IsTerminalVisible = false`) — Tom
-ne le voyait simplement pas car hors-écran, pas un bug de câblage. À
-reprendre avec une capture d'écran précise du problème avant d'agir (pas
-de correctif à l'aveugle).
+**Résolu (03/09) — panneau Terminal caché en bas de l'écran.** Signalé par
+Tom ("caché, il faut scroller pour le voir"). Écarté d'abord : `RootGrid`
+(`MainPage.xaml`) est un `Grid` simple, sans `ScrollView` ancêtre — pas un
+vrai mécanisme de défilement MAUI. Cause réelle trouvée dans `App.xaml.cs`
+(`OnWindowsWindowCreated`, persistance de session ajoutée le 02/09) : la
+POSITION restaurée était bien revérifiée contre l'écran actuel (tolérance
+100px), mais la TAILLE ne l'était jamais — une hauteur mémorisée plus
+grande que l'écran actuel (autre moniteur, redimensionnement manuel)
+rouvrait systématiquement une fenêtre trop grande, poussant le bas
+(Terminal, bouton fermer, barre de statut) hors champ. Corrigé : largeur/
+hauteur plafonnées à `DisplayArea.WorkArea`, position Y ajustée pour que
+`savedY + height` ne dépasse jamais le bas de la zone de travail. Vérifié
+directement (traces temporaires dans le journal de restauration + fenêtre
+testée en direct) puis confirmé par Tom après reconstruction. Au passage,
+2 demandes de Tom traitées dans le même correctif :
+- **Bouton "Terminal" dans la barre du haut** (`CustomMenuBarView.xaml`,
+  même patron que Fichiers/Recherche/Collaboration) — le terminal n'était
+  accessible que via les cartes "Actions suggérées". Réutilise la commande
+  `"view.terminal"` déjà enregistrée (`RegisterMenuCommands`), aucun
+  nouveau routage nécessaire.
+- **Panneau "Actions suggérées" (`ProactiveActionsView`) fermable et
+  déplaçable** : bouton ✕ (reste fermé tant que les suggestions ne
+  changent pas — comparaison de clé, pas de dismiss permanent aveugle) +
+  en-tête devenu poignée de déplacement libre (`PanGestureRecognizer` +
+  `TranslationX`/`TranslationY`).
+
+Commit `d256361`. **Piège découvert en testant** : une version de MOTO
+Editor est installée séparément en MSIX/Store
+(`C:\Program Files\WindowsApps\MotoSoftware.MOTOEditor_...\Moto.Editor.exe`,
+AUMID propre) — totalement indépendante des dossiers `bin\Debug`/
+`bin\Release` de ce dépôt et jamais reconstruite par nos correctifs. Le
+raccourci de bureau de Tom pointe correctement vers `bin\Release\...`
+(vérifié via le `.lnk`), mais toute méthode qui résout l'app par NOM
+plutôt que par CHEMIN (ex. `open_application` en test, ou une recherche
+Windows/tuile différente côté Tom) peut silencieusement ouvrir cette
+version figée à la place — aucun rapport avec le code de ce dépôt.
 
 ## Paliers de qualité de Tom
 
