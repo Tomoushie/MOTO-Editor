@@ -254,6 +254,9 @@ namespace Moto.Editor
                 if (_gitService != null && !string.IsNullOrEmpty(_currentRoot))
                     _gitService.SetWorkspace(_currentRoot);
 
+                // ★ AJOUT (03/09, jalon 1 — "agents autonomes en tâche de fond").
+                _backgroundAgentService = services.GetService<Moto.Core.AI.Autonomy.BackgroundAgentService>();
+
                 // Ajoute les overlays au RootGrid
                 if (_commandPalette != null)
                 {
@@ -275,10 +278,21 @@ namespace Moto.Editor
                 }
 
                 // Branche le handler de confirmation UI
+                // ★ CORRECTIF (03/09, fondation "agents autonomes en tâche de fond") :
+                // avant, cet appel n'était JAMAIS marshalé vers le thread principal —
+                // inoffensif tant que RequestAsync n'était appelé que depuis un
+                // gestionnaire de clic (déjà sur le thread UI, donc le contexte de
+                // synchronisation MAUI ramenait implicitement chaque `await` dessus).
+                // BackgroundAgentLoop tourne, lui, sur une tâche d'arrière-plan
+                // (Task.Run, voir BackgroundAgentService) : sans ce correctif, le
+                // premier appel à ConfirmationHandler depuis un agent aurait touché
+                // ConfirmationOverlay (IsVisible, labels…) hors du thread UI.
+                // MainThread.InvokeOnMainThreadAsync marshale l'appel ET son résultat
+                // — comportement inchangé pour tous les appelants déjà existants.
                 if (_confirmationService != null && _confirmationOverlay != null)
                 {
-                    _confirmationService.ConfirmationHandler = async request =>
-                        await _confirmationOverlay.ShowAsync(request);
+                    _confirmationService.ConfirmationHandler = request =>
+                        MainThread.InvokeOnMainThreadAsync(() => _confirmationOverlay.ShowAsync(request));
                 }
 
                 // Legacy proactive view v26 (conservé pour compatibilité)
@@ -938,6 +952,13 @@ namespace Moto.Editor
         /// </summary>
         private async Task<string?> HandlePluginCommandAsync(string text)
         {
+            // ★ AJOUT (03/09, jalon 1 — "agents autonomes en tâche de fond", demandé
+            // par Tom) : commande de CŒUR (pas un plugin marketplace/IMotoPlugin),
+            // vérifiée avant la boucle des plugins ci-dessous pour ne jamais dépendre
+            // de l'ordre dans lequel un plugin tiers pourrait répondre à "/agent ".
+            if (text.StartsWith("/agent ", StringComparison.OrdinalIgnoreCase))
+                return HandleAgentCommand(text["/agent ".Length..].Trim());
+
             if (_pluginRegistry == null) return null;
 
             foreach (var plugin in _pluginRegistry.GetActivePlugins())
@@ -946,6 +967,41 @@ namespace Moto.Editor
                 if (reply != null) return reply;
             }
             return null;
+        }
+
+        /// <summary>
+        /// Démarre un agent autonome et retourne IMMÉDIATEMENT un accusé de
+        /// réception — la vraie progression (chaque pas, chaque demande de
+        /// confirmation, chaque résultat) s'affiche ENSUITE dans CE MÊME thread,
+        /// au fur et à mesure, via le callback narrate passé à Start() (voir
+        /// BackgroundAgentService.cs). Aucune nouvelle interface : le panneau de
+        /// chat existant (AiChatView/bandeau IA/Accueil) suffit pour ce jalon 1.
+        /// </summary>
+        private string HandleAgentCommand(string goal)
+        {
+            if (_backgroundAgentService == null)
+                return "🤖 Agents autonomes indisponibles (service non résolu).";
+            if (string.IsNullOrWhiteSpace(goal))
+                return "Utilisation : /agent <objectif>\nEx. : /agent crée un fichier hello.txt contenant \"hi\"";
+
+            // ★ CORRECTIF (03/09, trouvé en testant avec Tom) : l'Accueil peut
+            // soumettre "/agent ..." AVANT tout premier message — aucun thread
+            // n'existe alors encore (EnsureThread, privée, n'est appelée que par
+            // SendAsync). CreateThread() (publique) en ouvre un plutôt que
+            // d'abandonner avec "Aucune conversation active."
+            var thread = _chatService.CurrentThread ?? _chatService.CreateThread();
+
+            var agentId = $"agent-{_backgroundAgentService.Runs.Count + 1}";
+            _backgroundAgentService.Start(agentId, goal, _currentRoot ?? string.Empty, message =>
+            {
+                MainThread.BeginInvokeOnMainThread(() =>
+                {
+                    thread.Messages.Add(new ChatMessage { Role = "ai", Content = message });
+                    thread.LastActivityUtc = DateTime.UtcNow;
+                });
+            });
+
+            return $"🤖 Agent « {agentId} » démarré — objectif : {goal}\nSuis sa progression ci-dessous, étape par étape. Chaque action qui écrit un fichier ou lance une commande te demandera confirmation avant de s'exécuter.";
         }
     }
 }

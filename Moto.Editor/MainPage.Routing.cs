@@ -11,6 +11,7 @@ using Moto.Core.AI.Builders;
 using Moto.Core.AI.Commands;
 using Moto.Core.Export;
 using Moto.Core.Settings;
+using Moto.Editor.Models;
 using Moto.Editor.Services;
 
 namespace Moto.Editor
@@ -345,6 +346,30 @@ namespace Moto.Editor
         private async void OnAiCommandSubmitted(string text)
         {
             if (string.IsNullOrWhiteSpace(text)) return;
+
+            // ★ AJOUT (03/09, jalon 1 — "agents autonomes en tâche de fond") :
+            // interceptée ICI, EN PREMIER — bug réel trouvé en testant avec Tom :
+            // "/agent crée un fichier hello.txt..." contient "crée" ET "projet",
+            // les deux mots que AutoProjectBuilder.ShouldHandle (plus bas) utilise
+            // pour détecter une demande de génération de projet complet. Sans cette
+            // interception AVANT ce test, la commande se faisait entièrement
+            // détourner vers AutoProjectBuilder (un vrai "MotoProject" générique
+            // était créé sur le disque à la place). Ce chemin (Accueil/bandeau IA,
+            // via HomePromptSubmitted/AiBar) est SÉPARÉ de HandlePluginCommandAsync
+            // (ChatService.PluginCommandHandler, atteint uniquement depuis
+            // SendAsync — donc depuis AiChatView) : les deux routent maintenant
+            // vers la même HandleAgentCommand pour qu'/agent marche depuis
+            // n'importe quelle surface de saisie.
+            if (text.StartsWith("/agent ", StringComparison.OrdinalIgnoreCase))
+            {
+                var ack = HandleAgentCommand(text["/agent ".Length..].Trim());
+                var thread = _chatService.CurrentThread ?? _chatService.CreateThread();
+                thread.Messages.Add(new ChatMessage { Role = "ai", Content = ack });
+                thread.LastActivityUtc = DateTime.UtcNow;
+                StatusBar.SetStatus("🤖 Agent démarré.");
+                RefreshHomeStats();
+                return;
+            }
 
             // ★ /analytics : rapport + export + dashboard
             if (text.StartsWith("/analytics", StringComparison.OrdinalIgnoreCase))

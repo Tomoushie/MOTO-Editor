@@ -67,6 +67,10 @@ namespace Moto.Editor
         // main — GitService est déjà un singleton enregistré avec ses vraies
         // dépendances (TerminalService/StructuredLogCollector/SettingsEngine).
         private Moto.Core.Services.GitService? _gitService;
+        // ★ AJOUT (03/09, jalon 1 — "agents autonomes en tâche de fond", demandé
+        // par Tom). Résolu comme _gitService ci-dessus (DI, déjà un singleton
+        // avec ses vraies dépendances — voir MotoServiceCollectionExtensions.cs).
+        private Moto.Core.AI.Autonomy.BackgroundAgentService? _backgroundAgentService;
         private CortexView _cortexPanel;
         private NeuralView _neuralPanel;
         private AIWorkspaceView _workspacePanel;

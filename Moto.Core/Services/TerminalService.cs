@@ -1,5 +1,6 @@
 // Services/TerminalService.cs
 using System.Diagnostics;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Moto.Editor.Services
@@ -25,7 +26,22 @@ namespace Moto.Editor.Services
         /// Exécute une commande unique (one-shot, hors du shell interactif Start/Stop)
         /// et attend sa terminaison. Utilisé par GitService et consorts.
         /// </summary>
-        public async Task<TerminalCommandResult> ExecuteAsync(string command, string? workingDirectory = null)
+        public Task<TerminalCommandResult> ExecuteAsync(string command, string? workingDirectory = null)
+            => ExecuteAsync(command, workingDirectory, CancellationToken.None);
+
+        /// <summary>
+        /// ★ AJOUT (03/09, fondation "agents autonomes en tâche de fond") : surcharge
+        /// annulable. La version historique ci-dessus (déjà utilisée par GitService
+        /// et consorts, comportement INCHANGÉ — elle délègue ici avec
+        /// CancellationToken.None) n'acceptait aucun jeton d'annulation : une
+        /// commande qui ne se termine jamais (ex. un programme qui attend une
+        /// entrée) bloquerait indéfiniment n'importe quel appelant. Nécessaire pour
+        /// qu'un futur agent autonome (RunCommandTool/BackgroundAgentLoop) puisse
+        /// imposer sa propre garde "durée max" — sans ça, cette garde ne pourrait
+        /// jamais interrompre une commande déjà en cours. Le process (arbre complet)
+        /// est tué si le jeton est annulé, plutôt que laissé orphelin en arrière-plan.
+        /// </summary>
+        public async Task<TerminalCommandResult> ExecuteAsync(string command, string? workingDirectory, CancellationToken ct)
         {
             var shell = OperatingSystem.IsWindows() ? "cmd.exe" : "/bin/bash";
             var args = OperatingSystem.IsWindows() ? $"/c {command}" : $"-c \"{command}\"";
@@ -60,7 +76,16 @@ namespace Moto.Editor.Services
                 process.Start();
                 var stdOutTask = process.StandardOutput.ReadToEndAsync();
                 var stdErrTask = process.StandardError.ReadToEndAsync();
-                await process.WaitForExitAsync();
+
+                try
+                {
+                    await process.WaitForExitAsync(ct);
+                }
+                catch (OperationCanceledException)
+                {
+                    try { process.Kill(entireProcessTree: true); } catch { /* déjà terminé, ou pas assez de droits — sans conséquence ici */ }
+                    return new TerminalCommandResult { ExitCode = -1, Output = string.Empty, Error = "Commande annulée (délai dépassé ou arrêt demandé)." };
+                }
 
                 return new TerminalCommandResult
                 {

@@ -15,6 +15,7 @@ using Moto.Core.Analytics;
 using Moto.Core.AI.Actions;
 using Moto.Core.AI.Agents;
 using Moto.Core.AI.Analytics;
+using Moto.Core.AI.Autonomy;
 using Moto.Core.AI.Commands;
 using Moto.Core.AI.Context;
 using Moto.Core.AI.Cortex;
@@ -143,6 +144,26 @@ namespace Moto.Editor.DependencyInjection
             services.AddSingleton<PluginRegistry>(sp => new PluginRegistry(sp.GetRequiredService<SettingsEngine>(), sp.GetRequiredService<ILogger<PluginRegistry>>()));
             services.AddSingleton<ContextualActionsEngine>();
             services.AddSingleton<AiConfirmationService>();
+
+            // ★ AJOUT (03/09, jalon 1 — "agents autonomes en tâche de fond", demandé
+            // par Tom). Kernel IA séparé de celui de ChatService (chacun son
+            // OllamaClient — léger, aucun état partagé nécessaire) : découple
+            // volontairement BackgroundAgentService de ChatService, qui n'a pas
+            // besoin de savoir que ce chantier existe. Les 4 IAgentTool du jalon 1
+            // (ReadFile/WriteFile/RunCommand/Finish) — SendMessageTool arrive au
+            // jalon 2 (messagerie inter-agents).
+            services.AddSingleton<MotoAiKernel>(_ => new MotoAiKernel(workspaceRoot));
+            services.AddSingleton<IReadOnlyList<IAgentTool>>(sp => new List<IAgentTool>
+            {
+                new ReadFileTool(),
+                new WriteFileTool(),
+                new RunCommandTool(sp.GetRequiredService<TerminalService>()),
+                new FinishTool()
+            });
+            services.AddSingleton<BackgroundAgentService>(sp => new BackgroundAgentService(
+                sp.GetRequiredService<MotoAiKernel>(),
+                sp.GetRequiredService<AiConfirmationService>(),
+                sp.GetRequiredService<IReadOnlyList<IAgentTool>>()));
             services.AddSingleton<ProactiveAnalyticsEngine>(_ => new ProactiveAnalyticsEngine(workspaceRoot));
             // LanguageServerManager : LSP mis de côté pour cette passe (voir Moto.Core.csproj)
             services.AddSingleton<ConfirmationPolicyEngine>(sp => new ConfirmationPolicyEngine(sp.GetRequiredService<SettingsEngine>()));
