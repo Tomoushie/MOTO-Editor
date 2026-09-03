@@ -110,13 +110,40 @@ namespace Moto.Editor.ViewModels
 
                 if (ReferenceEquals(SelectedDocument, doc) && doc.Text != content)
                 {
-                    doc.Text = content;
+                    // ★ CORRECTIF (03/09, bug réel trouvé par Tom via le panneau
+                    // Documentation, mais touche TOUT fichier fraîchement ouvert) :
+                    // LoadDocumentIntoEditor (MainPage.UI.cs) lit doc.Text UNE SEULE
+                    // FOIS, de façon synchrone, au moment où SelectedDocument change
+                    // (MainPage.xaml.cs:226-233). Comme ce chargement est asynchrone,
+                    // cette lecture arrivait TOUJOURS avant que le contenu réel soit
+                    // prêt (doc.Text valait encore "") — rien ne redéclenchait
+                    // LoadDocumentIntoEditor une fois le contenu réellement chargé.
+                    // Re-lève PropertyChanged(SelectedDocument) pour réutiliser TEL
+                    // QUEL l'abonnement existant qui sait déjà recharger l'éditeur.
+                    // Forcé sur le thread UI (même précaution déjà prise par
+                    // DocumentEvicted juste au-dessus dans ce fichier) : rien ne
+                    // garantit que la continuation d'une méthode async revient sur le
+                    // thread UI. ★ 2e cause trouvée, plus profonde (voir CodeEditorView
+                    // .PushContentAsync/_pushGate) : LoadDocumentIntoEditor est en fait
+                    // appelée PLUSIEURS FOIS pour un seul fichier (texte vide pendant le
+                    // chargement, puis le vrai texte) — sans sérialisation, l'appel
+                    // "vide" pouvait s'appliquer APRÈS le vrai contenu et l'écraser.
+                    MainThread.BeginInvokeOnMainThread(() =>
+                    {
+                        doc.Text = content;
+                        // Re-lève PropertyChanged(SelectedDocument) (même référence,
+                        // valeur différente : SetField ne l'aurait pas fait) pour
+                        // réutiliser TEL QUEL l'abonnement existant qui sait déjà
+                        // recharger l'éditeur — pas un 2e mécanisme à maintenir.
+                        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(SelectedDocument)));
+                    });
                 }
 
                 Status = $"Chargé : {doc.Title} ({_loader.LoadedCount} doc(s) en mémoire).";
             }
             catch (Exception ex)
             {
+                Moto.Editor.App.Breadcrumb($"LoadSelectedAsync EXCEPTION path={doc.Path} : {ex}");
                 Status = $"Erreur de chargement : {ex.Message}";
             }
         }

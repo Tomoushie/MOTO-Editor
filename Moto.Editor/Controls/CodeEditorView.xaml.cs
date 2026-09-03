@@ -1,6 +1,7 @@
 // Moto.Editor/Controls/CodeEditorView.xaml.cs (v4 — WebView + ghost text intégré)
 using System;
 using System.Text.Json;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Maui.Controls;
 
@@ -49,6 +50,20 @@ namespace Moto.Editor.Controls
         // produisait quasi systématiquement — "aucune mini-map ne fonctionne" (Tom).
         private bool _pendingMinimapVisible = true;
         private string _lastSelection = string.Empty;
+        // ★ AJOUT (03/09, bug réel trouvé par Tom — contenu vide à l'ouverture d'un
+        // fichier fraîchement chargé, confirmé après une longue session de diagnostic) :
+        // LoadDocumentIntoEditor (MainPage.UI.cs) pousse le texte du document JUSQU'À
+        // 4 FOIS pour un seul fichier ouvert — 3 fois avec un texte encore vide (pendant
+        // que le chargement différé/lazy est en cours) puis 1 fois avec le vrai contenu
+        // une fois chargé. Chaque poussée déclenche son propre PushContentAsync
+        // (EvaluateJavaScriptAsync), SANS SÉQUENCEMENT entre les appels — de purs appels
+        // concurrents. Rien ne garantit qu'ils s'appliquent dans l'ORDRE où ils ont été
+        // demandés : celui qui finit en dernier "gagne", même si c'est un texte vide
+        // périmé qui écrase le vrai contenu déjà arrivé avant lui. Un sémaphore force
+        // l'exécution strictement en FIFO (dans l'ordre de la demande, pas de la fin),
+        // ce qui suffit ici : la dernière DEMANDE (le vrai contenu) reste la dernière
+        // APPLIQUÉE.
+        private readonly SemaphoreSlim _pushGate = new(1, 1);
 
         public CodeEditorView()
         {
@@ -135,11 +150,35 @@ namespace Moto.Editor.Controls
                 _ = view.Web.EvaluateJavaScriptAsync($"setFontSize({(double)neu})");
         }
 
+        /// <summary>
+        /// ★ CORRECTIF (03/09, bug réel — contenu qui ne s'affichait jamais dès qu'un
+        /// fichier avait plus d'une ligne) : cause confirmée après une longue session
+        /// de diagnostic par bissection — `Web.EvaluateJavaScriptAsync` (WinUI) ÉCHOUE
+        /// SILENCIEUSEMENT dès que le script contient un retour à la ligne échappé
+        /// (`\r` ou `\n`), même reproduit avec une chaîne aussi simple que
+        /// `"Hello\nWorld"` (confirmé : les chaînes SANS aucun saut de ligne — même
+        /// très longues, avec accents/emoji — s'appliquaient parfaitement). C'est un
+        /// vrai défaut de la passerelle MAUI/WinUI, indépendant de tout code déjà
+        /// écrit dans ce dépôt. Contourné en encodant le contenu en Base64 (aucun
+        /// caractère spécial, jamais de saut de ligne) — technique standard pour ce
+        /// type de pont WebView — et en le décodant côté JS (setContentB64).
+        /// </summary>
         private async Task PushContentAsync()
         {
             if (!_loaded) return;
-            var json = JsonSerializer.Serialize(Text ?? string.Empty);
-            await Web.EvaluateJavaScriptAsync($"setContent({json})");
+            // Sérialise les appels concurrents (voir _pushGate plus haut) pour que le
+            // dernier texte DEMANDÉ reste bien le dernier APPLIQUÉ.
+            await _pushGate.WaitAsync();
+            try
+            {
+                var bytes = System.Text.Encoding.UTF8.GetBytes(Text ?? string.Empty);
+                var base64 = Convert.ToBase64String(bytes);
+                await Web.EvaluateJavaScriptAsync($"setContentB64('{base64}')");
+            }
+            finally
+            {
+                _pushGate.Release();
+            }
         }
 
         // ------------------------------------------------------------------
@@ -247,6 +286,10 @@ function jump(e){var r=mini.getBoundingClientRect();
 var y=(e.clientY-r.top)/r.height;
 area.scrollTop=y*area.scrollHeight-area.clientHeight/2;}
 function setContent(t){area.value=t;render();}
+function setContentB64(b64){
+var bin=atob(b64),bytes=new Uint8Array(bin.length);
+for(var i=0;i<bin.length;i++)bytes[i]=bin.charCodeAt(i);
+setContent(new TextDecoder('utf-8').decode(bytes));}
 function getContent(){return JSON.stringify(area.value);}
 function setFontSize(px){area.style.fontSize=px+'px';back.style.fontSize=px+'px';}
 function getSel(){var s=area.selectionStart,e=area.selectionEnd;

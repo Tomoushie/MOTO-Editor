@@ -217,20 +217,46 @@ chaque changement de dossier — `DocPanel` est un contrôle XAML statique
 unique, y remettre l'abonnement l'aurait dupliqué à chaque réouverture de
 projet).
 
-**⚠️ Bug DIFFÉRENT trouvé en testant CE correctif, PAS corrigé (budget
-épuisé au moment de la découverte)** : le fichier s'ouvre bien dans
-l'éditeur (bon titre `README.md`, bon chemin affiché
-`E:\Corpus\MOTO-Editor\.moto\docs\README.md`) mais le contenu reste VIDE
-alors que le fichier sur disque contient bien 46 lignes réelles (vérifié
-directement, `wc -l` + `head`). Donc le bug n'est PAS dans le correctif
-ci-dessus (qui ouvre le bon fichier) mais plus profond, dans le chargement
-du contenu par l'éditeur (`MainViewModel.OpenFilePath` crée le document
-avec `Text = string.Empty // Contenu chargé à la sélection` — reste à
-vérifier si ce chargement différé se déclenche réellement pour CE fichier,
-piste non terminée). Possible bug préexistant jamais remarqué avant (rien
-n'ouvrait ce genre de fichier généré auparavant) plutôt qu'une régression
-de ce soir — à investiguer au prochain budget, ne pas deviner la cause
-sans re-belote de diagnostic.
+✅ **Bug de fond résolu (03/09, session suivante, longue bissection) :
+AUCUN fichier multi-ligne n'affichait jamais son contenu à l'ouverture.**
+Deux causes distinctes, empilées :
+
+1. **Ordre d'application incorrect** — `LoadDocumentIntoEditor`
+   (MainPage.UI.cs) est appelée PLUSIEURS FOIS pour un seul fichier ouvert
+   (2 à 4 fois : texte vide pendant le chargement différé/lazy, puis le
+   vrai contenu une fois chargé). Chaque appel déclenche son propre
+   `CodeEditorView.PushContentAsync` (EvaluateJavaScriptAsync), SANS
+   séquencement entre eux — un push "vide" pouvait s'appliquer APRÈS le
+   vrai contenu et l'écraser. Corrigé par un sémaphore (`_pushGate`) dans
+   `CodeEditorView` qui force l'exécution strictement en FIFO (dans
+   l'ordre de la DEMANDE, pas de la fin) — la dernière demande reste la
+   dernière appliquée. `MainViewModel.LoadSelectedAsync` re-lève aussi
+   `PropertyChanged(SelectedDocument)` une fois le contenu réellement
+   chargé (forcé sur le thread UI), pour réutiliser l'abonnement existant
+   qui recharge déjà l'éditeur au lieu d'ajouter un 2e mécanisme.
+
+2. **La vraie cause principale, trouvée seulement après ce 1er correctif**
+   (le contenu restait vide même avec un seul appel bien ordonné) :
+   `Web.EvaluateJavaScriptAsync` (pont MAUI/WinUI vers le WebView) ÉCHOUE
+   SILENCIEUSEMENT dès que le script contient un retour à la ligne échappé
+   (`\r` ou `\n`) — reproduit et confirmé avec une chaîne aussi simple que
+   `"Hello\nWorld"` (les chaînes SANS AUCUN saut de ligne, même très
+   longues avec accents/emoji, s'appliquaient toujours très bien). Un vrai
+   défaut de cette passerelle technique, indépendant de tout code déjà
+   écrit dans ce dépôt — donc INVISIBLE jusqu'ici puisque rien n'avait
+   avant ce soir ouvert un fichier fraîchement généré/multi-ligne par ce
+   chemin précis pour de vrai. Contourné en encodant le contenu en Base64
+   avant de l'envoyer au script (`setContentB64`, JS) puis en le décodant
+   côté JS (`atob` + `TextDecoder('utf-8')`) — aucun caractère spécial en
+   Base64, donc plus aucun risque de saut de ligne dans le script envoyé.
+   Confirmé par Tom : README.md (47 lignes, tableau markdown, bloc de
+   code) s'affiche intégralement, avec la coloration syntaxique.
+
+**Portée réelle de ce correctif** : touche `CodeEditorView`, le composant
+central utilisé pour ouvrir TOUT fichier dans MOTO Editor (pas seulement
+les docs générées) — l'éditeur de code n'avait donc jamais correctement
+affiché aucun fichier multi-ligne avant ce soir, un bug de fond bien plus
+large que le simple panneau Documentation qui l'a révélé.
 
 ## Paliers de qualité de Tom
 
