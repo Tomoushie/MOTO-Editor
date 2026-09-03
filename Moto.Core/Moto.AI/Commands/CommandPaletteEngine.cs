@@ -163,6 +163,9 @@ namespace Moto.Core.AI.Commands
                 // Qwen) : fenêtre de test séparée, ne remplace pas l'interface
                 // principale existante.
                 new() { Id = "ai.claudeshell", Title = "Interface (maquette Claude Code)", Description = "Fenêtre de test : conversion XAML de l'interface Claude Code par Qwen.", Category = CommandCategory.Menu, CommandText = "menu:ai.claudeshell" },
+                // ★ AJOUT (03/09, panneau "Tâches en arrière-plan" réel) : suit les
+                // vrais appels IA (ChatService.Tasks), pas une simulation.
+                new() { Id = "ai.backgroundtasks", Title = "Tâches en arrière-plan", Description = "Suit les appels IA en cours et récemment terminés.", Category = CommandCategory.Menu, CommandText = "menu:ai.backgroundtasks" },
 
                 // ── Slash commands ──
                 new() { Id = "slash.neural", Title = "Neural : Générer du code", Description = "Génère du code via Neural Mode.", Category = CommandCategory.Slash, CommandText = "/neural " },

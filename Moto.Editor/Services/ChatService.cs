@@ -60,6 +60,16 @@ namespace Moto.Editor.Services
 
         public event Action<ChatThread>? ActiveThreadChanged;
 
+        /// <summary>
+        /// ★ AJOUT (03/09, panneau "Tâches en arrière-plan" réel) : un enregistrement
+        /// par appel IA en cours OU terminé récemment (SendAsync ET AskWithCodeAsync,
+        /// via RunTrackedAsync plus bas — un seul point de suivi pour les deux).
+        /// Le plus récent en tête, même convention que Threads. Volontairement
+        /// plafonné (voir TrimTasks) pour ne pas grossir indéfiniment sur une longue
+        /// session.
+        /// </summary>
+        public ObservableCollection<ChatTaskRecord> Tasks { get; } = new();
+
         /// <summary>Éléments de contexte attachés à la PROCHAINE question envoyée
         /// (fichiers/sélections) — consommés (vidés) par SendAsync, pas persistés
         /// par thread : reflète l'usage "j'attache un truc, je pose ma question".</summary>
@@ -206,9 +216,48 @@ namespace Moto.Editor.Services
                 Contexts.Clear();
             }
 
-            var response = await RouteAsync(prompt, PreferInternal);
+            var response = await RunTrackedAsync(
+                thread.Title,
+                PreferInternal ? "Ollama / MOTO interne" : "Fournisseur externe",
+                () => RouteAsync(prompt, PreferInternal));
             thread.Messages.Add(new ChatMessage { Role = "ai", Content = response });
             thread.LastActivityUtc = DateTime.UtcNow;
+        }
+
+        /// <summary>
+        /// ★ AJOUT (03/09, panneau "Tâches en arrière-plan" réel) : enveloppe un
+        /// appel IA (SendAsync ou AskWithCodeAsync) avec un ChatTaskRecord visible
+        /// dans Tasks — point unique pour ne pas dupliquer la logique de suivi aux
+        /// 2 endroits. `work` reste responsable du VRAI appel réseau/local.
+        /// </summary>
+        private async Task<string> RunTrackedAsync(string label, string model, Func<Task<string>> work)
+        {
+            var record = new ChatTaskRecord { Label = label, Model = model };
+            Tasks.Insert(0, record);
+            try
+            {
+                return await work();
+            }
+            catch
+            {
+                record.Failed = true;
+                throw;
+            }
+            finally
+            {
+                record.EndedUtc = DateTime.UtcNow;
+                TrimTasks();
+            }
+        }
+
+        /// <summary>Garde un historique court (30 max) — ne retire jamais une tâche
+        /// encore en cours, seulement les plus anciennes déjà terminées.</summary>
+        private void TrimTasks()
+        {
+            for (var i = Tasks.Count - 1; i >= 0 && Tasks.Count > 30; i--)
+            {
+                if (!Tasks[i].IsRunning) Tasks.RemoveAt(i);
+            }
         }
 
         private static string BuildContextBlock(ChatContextItem item)
@@ -255,7 +304,8 @@ namespace Moto.Editor.Services
             // un des deux endroits affectait silencieusement l'autre. Chacun calcule
             // maintenant sa propre préférence interne/externe à partir de SON propre
             // modèle sélectionné.
-            return await RouteAsync(fullPrompt, !IsExternalProviderName(model));
+            return await RunTrackedAsync("Bandeau IA (code)", model,
+                () => RouteAsync(fullPrompt, !IsExternalProviderName(model)));
         }
 
         /// <summary>Route un prompt vers Ollama (MotoAiKernel) puis, en repli, vers le FallbackEngine.</summary>

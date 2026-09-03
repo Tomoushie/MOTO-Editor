@@ -85,6 +85,42 @@ remplacement d'un coup) :
    réaliste — le risque aura été réduit pièce par pièce au lieu d'être pris
    d'un coup. Pas de date/critère chiffré fixé, juste la direction.
 
+✅ **1er morceau réel du plan ci-dessus (03/09, même soir)** : panneau
+"Tâches en arrière-plan" RÉEL, distinct de la démo de `ClaudeShellView`.
+Suit les VRAIS appels IA (pas des phases/agents factices — MOTO n'en a pas
+réellement aujourd'hui, voir plus haut) : `ChatService.Tasks`
+(`ObservableCollection<ChatTaskRecord>`), alimenté par un point unique
+`RunTrackedAsync` qui enveloppe à la fois `SendAsync` (panneau de chat) et
+`AskWithCodeAsync` (bandeau IA du code) — pas de logique dupliquée aux 2
+endroits. `ChatTaskRecord` (`Models/ChatTaskRecord.cs`) : Label, Model,
+StartedUtc/EndedUtc, IsRunning, DurationLabel (recalculée par un minuteur
+UI 1s tant que la tâche tourne). Vue `Views/BackgroundTasksView.xaml(.cs)`,
+point d'entrée fenêtre spécialisée + palette `ai.backgroundtasks`, même
+patron que les autres cette session. **Bug réel trouvé en testant** :
+l'en-tête "X en cours" ne se mettait à jour que sur ajout/retrait de la
+collection (`CollectionChanged`), pas quand une tâche EXISTANTE passait de
+en-cours à terminée (`EndedUtc` change sur l'objet, pas sur la collection)
+— corrigé en rattachant `RefreshCounts()` au même minuteur 1s que le tic
+des durées. **Autre confusion de test réelle, pas un bug de ce chantier** :
+Tom a d'abord testé avec 2 instances de l'app ouvertes en même temps
+(Debug + Release, l'une périmée) — le message envoyé dans l'une
+n'apparaissait pas dans la fenêtre Tâches de l'autre, panique évitée en
+confirmant qu'une seule instance à la fois tournait. Confirmé ensuite,
+propre : "0 en cours" / "1 terminée(s)" corrects après une vraie réponse
+IA.
+
+**Trouvé en testant ce chantier, hors scope, noté pour plus tard** :
+qualité des réponses de l'IA locale ("MOTO interne"/Ollama) — (1) aucun
+bouton pour copier un bloc de code dans une réponse IA, (2) le modèle ne
+connaît pas sa propre identité par défaut (répond "je suis Qwen, créé par
+Alibaba Cloud" et décrit MOTO Editor comme un logiciel de modélisation 3D
+— totalement faux), et même avec une instruction manuelle explicite de
+Tom ("Tu es MOTO AI...") le modèle répond en 2e personne ("vous êtes une
+IA") au lieu de la 1re ("je suis"), plus un français maladroit ("je suis
+bien compris"). Cause probable : aucun prompt système n'est injecté par
+`MotoAiKernel`/`RouteAsync` avant d'envoyer la question — un vrai chantier
+"identité/qualité des réponses IA" à faire un jour, pas un simple réglage.
+
 ## Paliers de qualité de Tom
 
 Échelle perso : cheap → faible → moyen → élevé → Commercial.

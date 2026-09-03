@@ -113,6 +113,7 @@ namespace Moto.Editor
             _commandRegistry.Register("ai.globaldashboard", () => OpenSpecializedWindow("globaldashboard"));
             _commandRegistry.Register("ai.threadlist", () => OpenSpecializedWindow("threadlist"));
             _commandRegistry.Register("ai.claudeshell", () => OpenSpecializedWindow("claudeshell"));
+            _commandRegistry.Register("ai.backgroundtasks", () => OpenSpecializedWindow("backgroundtasks"));
 
             _commandRegistry.Register("term.open", () => _viewModel.IsTerminalVisible = true);
             _commandRegistry.Register("help.doc", () => DocPanel.IsVisible = true);

@@ -829,6 +829,18 @@ namespace Moto.Editor
                     });
                     break;
 
+                // ★ AJOUT (03/09, panneau "Tâches en arrière-plan" RÉEL — pas la
+                // démo visuelle de ClaudeShellView) : suit les vrais appels IA
+                // (ChatService.Tasks).
+                case "backgroundtasks":
+                    _windowManager.OpenOrFocus(Moto.Editor.Windows.WindowKind.BackgroundTasks, () =>
+                    {
+                        var view = new Views.BackgroundTasksView(_chatService) { IsVisible = true };
+                        return new Microsoft.Maui.Controls.Window(
+                            new Moto.Editor.Windows.SpecializedWindowPage("Tâches en arrière-plan", view));
+                    });
+                    break;
+
                 // ★ AJOUT (03/09, maquette "shell type Claude Code" convertie
                 // par Qwen) : point d'entrée de test, fenêtre séparée — ne
                 // remplace rien de l'interface principale existante.

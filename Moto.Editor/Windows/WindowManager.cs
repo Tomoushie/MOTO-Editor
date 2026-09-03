@@ -14,7 +14,9 @@ namespace Moto.Editor.Windows
     // ★ AJOUT (03/09, maquette "shell type Claude Code") : entrée de test pour
     // la vue convertie par Qwen (Views/Claude/ClaudeShellView), même patron
     // que GlobalDashboard/ThreadList juste avant.
-    public enum WindowKind { Main, Editor, Debug, Analytics, Plugin, Settings, Marketplace, Cortex, Neural, Workspace, AiChat, Platform, GlobalDashboard, ThreadList, ClaudeShell }
+    // ★ AJOUT (03/09, panneau "Tâches en arrière-plan" réel) : suit les vrais
+    // appels IA (ChatService.Tasks), pas une simulation.
+    public enum WindowKind { Main, Editor, Debug, Analytics, Plugin, Settings, Marketplace, Cortex, Neural, Workspace, AiChat, Platform, GlobalDashboard, ThreadList, ClaudeShell, BackgroundTasks }
 
     public sealed class WindowManager
     {

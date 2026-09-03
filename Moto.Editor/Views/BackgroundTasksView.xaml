@@ -1,0 +1,53 @@
+<!-- Moto.Editor/Views/BackgroundTasksView.xaml
+     Panneau "Tâches en arrière-plan" RÉEL (pas la démo de ClaudeShellView) :
+     liste les vrais appels IA (ChatService.Tasks), en cours ou terminés
+     récemment. Pas de phases/agents (MOTO n'en a pas réellement aujourd'hui,
+     voir CLAUDE.md) — juste libellé, modèle, durée, statut. -->
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Moto.Editor.Views.BackgroundTasksView"
+             BackgroundColor="{DynamicResource BgSide}">
+
+  <Grid RowDefinitions="Auto,*,Auto">
+
+    <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Padding="14,10">
+      <Label Text="Tâches en arrière-plan" FontAttributes="Bold"
+             TextColor="{StaticResource Txt1}"/>
+      <Label Grid.Column="1" x:Name="RunningCountLabel" Text="0 en cours"
+             TextColor="{DynamicResource MotoSubtleText}" FontSize="12"/>
+    </Grid>
+
+    <CollectionView Grid.Row="1" x:Name="TaskList" SelectionMode="None" Margin="10,0">
+      <CollectionView.EmptyView>
+        <Label Text="Aucun appel IA pour l'instant. Pose une question dans le panneau de chat pour voir apparaître une tâche ici."
+               TextColor="{DynamicResource MotoSubtleText}" FontSize="12.5"
+               Padding="10,20" HorizontalTextAlignment="Center"/>
+      </CollectionView.EmptyView>
+      <CollectionView.ItemTemplate>
+        <DataTemplate>
+          <Border Background="{DynamicResource BgPanel}" Stroke="{DynamicResource BorderCol}"
+                  StrokeShape="RoundRectangle 10" Padding="12,10" Margin="0,0,0,8">
+            <Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto" ColumnSpacing="8">
+              <Label Grid.Row="0" Grid.Column="0" Text="{Binding StatusIcon}"
+                     TextColor="{StaticResource Accent}" FontSize="13"/>
+              <Label Grid.Row="0" Grid.Column="1" Text="{Binding Label}" FontAttributes="Bold"
+                     TextColor="{StaticResource Txt1}" FontSize="13" LineBreakMode="TailTruncation"/>
+              <Label Grid.Row="0" Grid.Column="2" Text="{Binding DurationLabel}"
+                     TextColor="{DynamicResource MotoSubtleText}" FontSize="12"/>
+              <Label Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Text="{Binding Model}"
+                     TextColor="{DynamicResource MotoSubtleText}" FontSize="11.5" Margin="0,3,0,0"/>
+            </Grid>
+          </Border>
+        </DataTemplate>
+      </CollectionView.ItemTemplate>
+    </CollectionView>
+
+    <Grid Grid.Row="2" ColumnDefinitions="*,Auto" Padding="14,8">
+      <Label x:Name="TotalCountLabel" Text="0 terminée(s)"
+             TextColor="{DynamicResource MotoSubtleText}" FontSize="12" VerticalOptions="Center"/>
+      <Button Grid.Column="1" Text="Effacer l'historique" FontSize="12" Padding="8,4"
+              BackgroundColor="Transparent" TextColor="{DynamicResource MotoSubtleText}"
+              Clicked="OnClearClicked"/>
+    </Grid>
+  </Grid>
+</ContentView>
