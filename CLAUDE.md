@@ -258,6 +258,28 @@ les docs générées) — l'éditeur de code n'avait donc jamais correctement
 affiché aucun fichier multi-ligne avant ce soir, un bug de fond bien plus
 large que le simple panneau Documentation qui l'a révélé.
 
+✅ **Petit bug trouvé et corrigé en testant ci-dessus** : `AiBar`
+(bandeau IA flottant sur l'Accueil/l'Éditeur) restait affiché par-dessus
+l'écran d'Accueil après fermeture du dernier fichier ouvert. Cause :
+`AiBar.Show()` (appelée sur activation de la fenêtre,
+`GlobalHotkeyService.Register` dans `MainPage.xaml.cs`, uniquement si un
+document était ouvert à CE moment précis) n'avait aucune contrepartie pour
+le cacher quand `Documents` redevient vide. Corrigé en appelant
+`AiBar.Hide()` dans le même abonnement `Documents.CollectionChanged` qui
+bascule déjà `Home.IsVisible`/`EditorPane.IsVisible`. Confirmé par Tom.
+
+**Signalé par Tom, PAS encore diagnostiqué** : le panneau Terminal
+(`TerminalPanelView`, dock du bas) s'ouvrirait hors de l'écran visible
+("caché, il faut scroller pour le voir"). Vérifié : `RootGrid`
+(`MainPage.xaml`) est un `Grid` simple, SANS aucun `ScrollView` ancêtre —
+donc "scroller" ne peut pas venir d'un vrai mécanisme de défilement MAUI,
+plus probablement un souci de taille/position de la fenêtre native
+elle-même. Le bouton fermer (✕) existe déjà et est correctement câblé
+(`TerminalPanelView.xaml.cs:75-79`, `vm.IsTerminalVisible = false`) — Tom
+ne le voyait simplement pas car hors-écran, pas un bug de câblage. À
+reprendre avec une capture d'écran précise du problème avant d'agir (pas
+de correctif à l'aveugle).
+
 ## Paliers de qualité de Tom
 
 Échelle perso : cheap → faible → moyen → élevé → Commercial.

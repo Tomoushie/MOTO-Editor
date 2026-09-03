@@ -377,6 +377,11 @@ namespace Moto.Editor
                 bool hasDocs = _viewModel.Documents.Count > 0;
                 Home.IsVisible = !hasDocs;
                 EditorPane.IsVisible = hasDocs;
+                // ★ CORRECTIF (03/09, trouvé par Tom) : AiBar.Show() (appelée sur
+                // activation de la fenêtre, voir GlobalHotkeyService.Register plus bas)
+                // n'avait pas de contrepartie pour la cacher — fermer le dernier fichier
+                // ouvert la laissait affichée par-dessus l'écran d'Accueil.
+                if (!hasDocs) AiBar.Hide();
             };
 
             // Panneaux Présentation / Remote / Collab : handlers déjà écrits dans
