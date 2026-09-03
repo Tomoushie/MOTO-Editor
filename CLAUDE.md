@@ -71,8 +71,19 @@ Cortex/Neural/plugins/git/debug...) pour un remplacement total ou même
 partiel, risque de régression pas justifié. La voie choisie : piocher des
 idées visuelles/UX dans ce shell et les appliquer une par une au VRAI
 `MainPage`, même discipline que le reste de cette session (petit
-correctif testé → commit, jamais un gros saut). Ne pas rouvrir cette
-question sans un nouvel élément qui change la donne.
+correctif testé → commit, jamais un gros saut).
+
+**Précision de Tom (même soir)** : ce n'est pas un renoncement au
+remplacement complet, c'est un séquencement en 2 temps ("strangler
+pattern" — faire grandir le neuf à côté de l'ancien plutôt qu'un
+remplacement d'un coup) :
+1. **Maintenant** : vitrine + polish incrémental du vrai `MainPage`.
+2. **Plus tard** : une fois assez de morceaux du vrai `MainPage`
+   (explorateur, éditeur, terminal, panneaux) ayant un équivalent visuel
+   validé dans ce style, un remplacement complet par une interface avancée
+   inspirée de Claude Code (pas une copie conforme) redevient une option
+   réaliste — le risque aura été réduit pièce par pièce au lieu d'être pris
+   d'un coup. Pas de date/critère chiffré fixé, juste la direction.
 
 ## Paliers de qualité de Tom
 
