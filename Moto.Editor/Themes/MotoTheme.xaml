@@ -55,6 +55,13 @@
     <Color x:Key="MotoSubtleBackground">#2A2C31</Color>
     <Color x:Key="MotoCanvasBackground">#17181C</Color>
 
+    <!-- ★ AJOUT (03/09, réveil de ClaudeShellView) : référencée (DynamicResource)
+         par la maquette convertie par Qwen, mais absente d'ici — même famille
+         de bug que les 4 couleurs "01/09" ci-dessus (une note l'affirmait déjà
+         présente, faux). Valeur reprise de Txt2 (déjà LE jeton "texte
+         secondaire/discret" existant), pas une teinte inventée. -->
+    <Color x:Key="MotoSubtleText">#9CA3AF</Color>
+
     <!-- ★ AJOUT (01/09, direction "Hybride Claude") : séparateur doux, blanc
          semi-transparent au lieu d'un gris plat (#3A3B40) — reste cohérent quel
          que soit le fond derrière, principe emprunté à VS Code (editorGroup.border)

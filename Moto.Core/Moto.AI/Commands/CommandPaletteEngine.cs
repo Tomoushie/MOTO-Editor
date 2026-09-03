@@ -159,6 +159,10 @@ namespace Moto.Core.AI.Commands
                 // ★ AJOUT (03/09, réveil de ThreadListView) : jamais navigable
                 // auparavant (2 méthodes ChatService manquantes, voir CLAUDE.md).
                 new() { Id = "ai.threadlist", Title = "Conversations (historique)", Description = "Liste et recherche les conversations IA passées.", Category = CommandCategory.Menu, CommandText = "menu:ai.threadlist" },
+                // ★ AJOUT (03/09, maquette "shell type Claude Code" convertie par
+                // Qwen) : fenêtre de test séparée, ne remplace pas l'interface
+                // principale existante.
+                new() { Id = "ai.claudeshell", Title = "Interface (maquette Claude Code)", Description = "Fenêtre de test : conversion XAML de l'interface Claude Code par Qwen.", Category = CommandCategory.Menu, CommandText = "menu:ai.claudeshell" },
 
                 // ── Slash commands ──
                 new() { Id = "slash.neural", Title = "Neural : Générer du code", Description = "Génère du code via Neural Mode.", Category = CommandCategory.Slash, CommandText = "/neural " },

@@ -244,6 +244,14 @@ namespace Moto.Editor.DependencyInjection
             // Views (transient)
             // ══════════════════════════════════════════════════════════════
             services.AddTransient<HomeView>();
+            // ★ AJOUT (03/09, maquette "shell type Claude Code" convertie par
+            // Qwen) : registre l'un et l'autre par convention (services.AddTransient
+            // pour les Views existantes juste au-dessus), même si ClaudeShellView
+            // construit aujourd'hui son propre ClaudeShellViewModel en interne
+            // (new(), pas injecté) — la note de Qwen demandait cette ligne, gardée
+            // à l'identique pour ne pas diverger sans raison du dépôt reçu.
+            services.AddTransient<Moto.Editor.ViewModels.ClaudeShellViewModel>();
+            services.AddTransient<Moto.Editor.Views.Claude.ClaudeShellView>();
             services.AddTransient<MigrationOverlay>();
             services.AddTransient<ConfirmationOverlay>();
             services.AddTransient<AnalyticsDashboardView>();

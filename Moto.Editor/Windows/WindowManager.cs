@@ -11,7 +11,10 @@ namespace Moto.Editor.Windows
     // spécialisée (voir OpenSpecializedWindow, MainPage.Extensions.cs).
     // ★ AJOUT (03/09, réveil de ThreadListView) : même patron que GlobalDashboard
     // juste avant — jamais navigable auparavant (méthodes ChatService manquantes).
-    public enum WindowKind { Main, Editor, Debug, Analytics, Plugin, Settings, Marketplace, Cortex, Neural, Workspace, AiChat, Platform, GlobalDashboard, ThreadList }
+    // ★ AJOUT (03/09, maquette "shell type Claude Code") : entrée de test pour
+    // la vue convertie par Qwen (Views/Claude/ClaudeShellView), même patron
+    // que GlobalDashboard/ThreadList juste avant.
+    public enum WindowKind { Main, Editor, Debug, Analytics, Plugin, Settings, Marketplace, Cortex, Neural, Workspace, AiChat, Platform, GlobalDashboard, ThreadList, ClaudeShell }
 
     public sealed class WindowManager
     {

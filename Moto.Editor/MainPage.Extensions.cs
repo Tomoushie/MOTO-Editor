@@ -829,6 +829,18 @@ namespace Moto.Editor
                     });
                     break;
 
+                // ★ AJOUT (03/09, maquette "shell type Claude Code" convertie
+                // par Qwen) : point d'entrée de test, fenêtre séparée — ne
+                // remplace rien de l'interface principale existante.
+                case "claudeshell":
+                    _windowManager.OpenOrFocus(Moto.Editor.Windows.WindowKind.ClaudeShell, () =>
+                    {
+                        var view = new Views.Claude.ClaudeShellView { IsVisible = true };
+                        return new Microsoft.Maui.Controls.Window(
+                            new Moto.Editor.Windows.SpecializedWindowPage("Interface (maquette Claude Code)", view));
+                    });
+                    break;
+
                 default:
                     StatusBar.SetStatus($"Fenêtre inconnue : {kind}");
                     break;
