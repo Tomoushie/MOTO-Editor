@@ -1,0 +1,478 @@
+{
+  "summary": "Design 3 architectures for autonomous background agents + inter-agent messaging in MOTO Editor, judge them, synthesize a phased MVP plan",
+  "agentCount": 5,
+  "logs": [],
+  "result": {
+    "designs": [
+      {
+        "summary": "Reuse three things that already exist and work rather than inventing new plumbing: AiConfirmationService + ConfirmationOverlay (portable confirm-gate, already wired by MainPage via a TaskCompletionSource handler) becomes the mandatory gate; ChatService.PluginCommandHandler (the \"/\" hook already used by the plugin system) becomes the entry point for a \"/agent <goal>\" command; and ChatMessage/thread rendering becomes the progress narration UI, so Milestone 1 needs zero new XAML. The only genuinely new code is a small perceive-decide-act-observe loop (Moto.Core.AI.Autonomy) that turns MotoAiKernel.RouteAsync's plain-text replies into one of a handful of parsed actions (ReadFile/WriteFile/RunCommand/SendMessage/Finish), executes them through 2-3 thin IAgentTool wrappers around existing services (File I/O, TerminalService), and hard-blocks on AiConfirmationService.RequestAsync before every mutating one — unconditionally, not gated by the existing strict/relaxed ConfirmationPolicyEngine, to match the SelfRepairAgent precedent's \"confirmation before EVERY write.\" A second agent needs only an AgentId on the loop, a tiny in-process AgentMessageBus, one more non-mutating tool (SendMessage), and a semaphore around AiConfirmationService so two loops don't collide on the single shared modal.",
+        "coreClasses": [
+          {
+            "name": "AgentAction / AgentActionKind (Moto.Core.AI.Autonomy)",
+            "responsibility": "Plain data: one parsed decision for a single loop step. MotoAiKernel.RouteAsync returns only a string (no tool-calling), so this is the shape the loop coerces that string into.",
+            "keySignatures": [
+              "public enum AgentActionKind { ReadFile, WriteFile, RunCommand, SendMessage, Finish, Malformed }",
+              "public sealed class AgentAction { public AgentActionKind Kind; public string? Path; public string? Content; public string? Command; public string? ToAgentId; public string? Text; public string RawModelOutput = \"\"; }"
+            ]
+          },
+          {
+            "name": "AgentActionParser",
+            "responsibility": "Turns the LLM's free-text reply into an AgentAction using a small tagged line format (ACTION:/PATH:/CONTENT:<<<...>>>/COMMAND:/SUMMARY:) — the same 'shape-the-output-by-prompting' discipline the existing LlmBackedAgent subclasses already rely on (e.g. TestSkeletonAgent asking for 'code only'), not real structured output. Never throws: unparseable text becomes Kind=Malformed so the loop can recover.",
+            "keySignatures": [
+              "public static bool TryParse(string modelOutput, out AgentAction action)"
+            ]
+          },
+          {
+            "name": "IAgentTool + ReadFileTool / WriteFileTool / RunCommandTool / SendMessageTool / FinishTool",
+            "responsibility": "One real capability each, each a thin wrapper over an existing service (System.IO for read/write, TerminalService.ExecuteAsync for commands, AgentMessageBus.Post for messaging). IsMutating flags exactly which tools the confirmation gate must intercept — read/finish/send-message are not mutating and never prompt.",
+            "keySignatures": [
+              "public interface IAgentTool { AgentActionKind Handles { get; } bool IsMutating { get; } string DescribeForConfirmation(AgentAction action); Task<string> ExecuteAsync(AgentAction action, string workspaceRoot, CancellationToken ct); }",
+              "public sealed class WriteFileTool : IAgentTool { public bool IsMutating => true; ... }",
+              "public sealed class RunCommandTool : IAgentTool { private readonly TerminalService _terminal; public bool IsMutating => true; public Task<string> ExecuteAsync(...) => _terminal.ExecuteAsync(action.Command!, workspaceRoot); }"
+            ]
+          },
+          {
+            "name": "AgentStepRecord / AgentRunRecord",
+            "responsibility": "UI-bindable progress state for one run, same convention as the existing ChatTaskRecord/BackgroundTasksView (ObservableCollection, INotifyPropertyChanged, 'most recent' semantics) so a future Agent panel can reuse that exact pattern with no new binding idioms.",
+            "keySignatures": [
+              "public sealed class AgentRunRecord : INotifyPropertyChanged { public Guid Id; public string AgentId; public string Goal; public AgentRunStatus Status; public ObservableCollection<AgentStepRecord> Steps; public DateTime StartedUtc; public DateTime? EndedUtc; internal CancellationTokenSource Cts; }",
+              "public enum AgentRunStatus { Running, AwaitingConfirmation, Completed, Failed, Cancelled, StepLimitReached }",
+              "public sealed class AgentStepRecord { public int Index; public AgentActionKind ActionKind; public string Summary; public ConfirmationState Confirmation; public string? ObservationSummary; public DateTime TimestampUtc; }"
+            ]
+          },
+          {
+            "name": "BackgroundAgentLoop",
+            "responsibility": "The bounded perceive->decide->act->observe engine for ONE agent. Owns the max-steps / max-duration guard and the mandatory confirmation gate; knows nothing about UI. Takes AiConfirmationService as a constructor dependency and calls it directly and unconditionally before any mutating tool — this is the load-bearing design decision, not delegated to ConfirmationPolicyEngine's strict/relaxed toggle.",
+            "keySignatures": [
+              "public BackgroundAgentLoop(string agentId, MotoAiKernel kernel, AiConfirmationService confirmation, IReadOnlyList<IAgentTool> tools, AgentMessageBus? bus = null, int maxSteps = 15, TimeSpan? maxDuration = null)",
+              "public async Task RunAsync(AgentRunRecord run, string goalText, string workspaceRoot, CancellationToken ct)",
+              "private Task<AgentAction> DecideAsync(AgentRunRecord run, CancellationToken ct)  // builds prompt from run.Steps + pending bus messages, calls Kernel.RouteAsync, parses",
+              "private async Task<string> ActAsync(AgentAction action, AgentRunRecord run, CancellationToken ct)  // resolves tool; if tool.IsMutating: step.Confirmation = Pending; var result = await _confirmation.RequestAsync(...); if declined -> observation only, no ExecuteAsync call"
+            ]
+          },
+          {
+            "name": "BackgroundAgentService",
+            "responsibility": "DI singleton entry point, same shape as ChatService's Tasks/RunTrackedAsync: starts a loop as a detached background Task, publishes its AgentRunRecord into an ObservableCollection immediately so UI (or the chat-thread narration glue in Milestone 1) can watch it live, and lets the user cancel a stuck run.",
+            "keySignatures": [
+              "public ObservableCollection<AgentRunRecord> Runs { get; }",
+              "public AgentRunRecord Start(string agentId, string goalText, string workspaceRoot)  // creates record, adds to Runs, then '_ = Task.Run(() => _loop.RunAsync(record, goalText, workspaceRoot, record.Cts.Token))', returns immediately",
+              "public void Cancel(Guid runId)  // Runs.First(r => r.Id == runId).Cts.Cancel()"
+            ]
+          },
+          {
+            "name": "AgentMessage / AgentMessageBus (2nd-agent extension only)",
+            "responsibility": "Minimal in-process pub/sub — no IPC needed since both agents live in the same process. A loop's DecideAsync folds any new messages addressed to its AgentId into the next prompt; sending is just another (non-mutating) tool call, so it never touches the confirmation gate.",
+            "keySignatures": [
+              "public sealed class AgentMessage { public string FromAgentId; public string? ToAgentId; public string Text; public DateTime SentUtc; }",
+              "public sealed class AgentMessageBus { public ObservableCollection<AgentMessage> History { get; }; public event Action<AgentMessage>? MessagePosted; public void Post(AgentMessage message); public IEnumerable<AgentMessage> Since(string agentId, DateTime cursorUtc); }"
+            ]
+          }
+        ],
+        "confirmationGateDesign": "Do not build a new gate — reuse AiConfirmationService as-is (Moto.Core.Settings, already portable/MAUI-free) plus the existing ConfirmationOverlay, which already wires ConfirmationHandler = req => overlay.ShowAsync(req) somewhere in MainPage's setup. Extend the existing ConfirmationAction enum with two values (AgentWriteFile, AgentRunCommand) purely so agent-triggered confirmations are distinguishable in logs/audit from ad hoc UI-triggered ones (ModifySetting, InstallPlugin, etc.) — additive, nothing existing changes shape.\n\nMechanism: inside BackgroundAgentLoop.ActAsync, before calling any tool where IsMutating is true, the loop sets step.Confirmation = Pending on the run's current AgentStepRecord (this alone makes any UI bound to AgentRunRecord.Steps show \"waiting for you\" immediately) and then `await`s `_confirmation.RequestAsync(new ConfirmationRequest { Action = ..., Title = \"MOTO Agent veut modifier un fichier / exécuter une commande\", Details = <the literal path/content or literal command string the parser extracted, never a re-description asked from the LLM itself>, IsDestructive = true })`. Building Details from the parsed AgentAction (not by asking the model to summarize itself) matters: a compromised/confused prompt could otherwise describe an innocuous action while the actual Path/Command differs.\n\nBlocking/resuming is plain async/await, not thread-blocking: RequestAsync's await suspends only the background Task running that one loop; the MAUI UI thread stays free to render ConfirmationOverlay and take the click. ConfirmationOverlay.OnConfirmClicked/OnCancelClicked calls `_tcs.TrySetResult(...)`, which completes the Task the loop is awaiting, and ActAsync resumes exactly there — approve leads into `tool.ExecuteAsync(...)`, decline skips it and appends an \"declined by user\" observation that gets fed back into the next DecideAsync call so the model can adapt or give up. A hardcoded cap (e.g. 3 consecutive declines) force-ends the run as Cancelled so a stubborn model cannot re-propose the same rejected write forever.\n\nSurfacing: the modal itself is the primary channel (identical look/feel to every other MOTO confirmation, so it doesn't read as a new/different kind of prompt to the user), and the run's Steps collection is the secondary, persistent channel — a user who dismissed or lost the modal can still see, in the agent's progress list, that step N is stuck at \"Pending\" and needs a decision. With two agents (Milestone 2) this second channel is what tells the user a second run is also waiting, since only one modal can be on screen — which is also why AiConfirmationService needs a `SemaphoreSlim(1,1)` added inside RequestAsync at that point, so two concurrent RequestAsync calls queue instead of overwriting each other's TaskCompletionSource on the single shared overlay instance.",
+        "messagingMechanism": "Everything runs in one process, so the bus is just a synchronized ObservableCollection plus an event — no channel/queue library, no serialization. AgentMessageBus.Post appends to History (bounded the same way ChatService.Tasks is already trimmed to 30, to avoid unbounded growth over a long session) and raises MessagePosted for anything listening live (e.g. a future AgentMessagesView panel, built with the exact ObservableCollection-binding pattern BackgroundTasksView already uses). Each BackgroundAgentLoop is constructed with its own AgentId and an optional AgentMessageBus reference; at the top of every DecideAsync call it pulls `bus.Since(myAgentId, lastCheckedUtc)` and folds any new messages into the prompt as plain context lines (\"Message from agent-2: ...\"), then advances its own cursor. Sending is exposed as one more parseable action kind (SendMessage, with ToAgentId + Text fields) dispatched through SendMessageTool, which is not mutating and therefore never touches the confirmation gate — inter-agent chatter is treated as pure observation, only file/command actions are gated. To keep two agents from burning their whole step budget just chatting with each other instead of doing work, SendMessage actions should additionally be capped per run (e.g. 5 of the 15 max steps) separately from the overall step counter.",
+        "firstTestableMilestone": "Ship only: AgentAction/AgentActionParser, the four core tools (Read/Write/RunCommand/Finish — no bus, no SendMessage yet), AgentRunRecord/AgentStepRecord, BackgroundAgentLoop, and BackgroundAgentService — then wire a single new \"/agent <goal>\" entry through ChatService.PluginCommandHandler (the same extension point already used for the plugin system) that calls BackgroundAgentService.Start(...) and, via a small event/callback from the loop, appends each step's outcome as an ordinary `ai`-role ChatMessage into the current chat thread (\"Step 1: proposes to write hello.txt (2 lines)\", \"Step 2: waiting for your confirmation\", \"Step 2: approved, file written\", \"Step 3: finished — <summary>\"). No new XAML view is required for this slice; ConfirmationOverlay (existing) is the actual confirm UI. Human test: type `/agent crée un fichier hello.txt à la racine du workspace contenant \"hi\"`, watch the chat narrate the proposed write, see the real confirmation dialog pop up, click Confirm, verify hello.txt actually exists on disk with the right content; run it again and click Cancel on the confirmation, verify no file is written and the run ends cleanly instead of retrying forever. That one script exercises the full loop, the real tool execution, and the real mandatory gate end to end, and is small enough to commit as its own step per the team's usual practice.",
+        "risks": [
+          "MotoAiKernel.RouteAsync has no structured tool-calling — action decoding relies on the model reliably following a tagged text format. Local models via Ollama (the project's primary path) are the least likely to comply consistently; AgentActionParser must fail soft into Kind=Malformed and feed a corrective observation back rather than crash, and malformed-retries must count against the step budget so a confused model still terminates.",
+          "ConfirmationOverlay is a single shared modal built around one `_tcs` field and `IsVisible` bool — it has no queuing today. The moment a second concurrent RequestAsync call can happen (second agent, or an agent action racing an unrelated UI-triggered confirmation), two ShowAsync calls will stomp each other's TaskCompletionSource unless a semaphore is added inside AiConfirmationService.RequestAsync first.",
+          "TerminalService.ExecuteAsync takes no CancellationToken and no timeout — it starts a fresh cmd.exe and awaits WaitForExitAsync unconditionally. A RunCommand action that hangs (e.g. a command blocked on stdin) will stall the loop past its own max-steps/max-duration guard, since that guard is only checked between completed steps. ExecuteAsync needs an overload accepting a CancellationToken/timeout before RunCommandTool can safely wrap it.",
+          "The confirmation dialog's Details text must be built by the loop from the parsed AgentAction's literal Path/Content/Command fields, never by asking the LLM to describe its own action in a second call — otherwise a confirmation could visually describe something harmless while the actual parsed action differs, defeating the point of asking before every write.",
+          "Two agents messaging each other is a plausible way to quietly burn the entire per-run step budget on chatter instead of real progress (A asks B a question, B answers, A follow-up...) with each exchange costing a full LLM call; needs its own sub-cap on SendMessage actions per run, separate from the total step counter.",
+          "AgentMessageBus.History and each AgentRunRecord.Steps collection are unbounded ObservableCollections; over a long multi-agent session they should be trimmed the same way ChatService already trims Tasks to 30 entries, or they grow indefinitely — consistent with the project's own prior RAM-hygiene pass on ChatService."
+        ]
+      },
+      {
+        "summary": "A new `Moto.Core.AI.Supervision` layer sits between agent loops and the real capability services (TerminalService, GitService, file I/O, MotoAiKernel/ChatService): agents never touch those services directly, they only get an `IAgentContext` handed to them by a single `AgentSupervisor`. Every mutating call on that context (file write/delete, terminal exec, git op) is forced through a per-action `ApprovalQueue` (no batch/\"approve all\", mirroring the SelfRepairAgent precedent) and an audit log before it is allowed to execute, and every file touch first goes through a `WorkspaceLockTable` claim so two concurrent loops can't collide on the same path. Agent-to-agent coordination (\"are you done with X?\") is a simple in-process `Channel<AgentMessage>` bus, and every message, claim, and approval decision is mirrored into the same audit trail the human sees.",
+        "coreClasses": [
+          {
+            "name": "AgentSupervisor (Moto.Core.AI.Supervision)",
+            "responsibility": "Single owner of every running agent loop, the approval queue, the workspace lock table, the message bus and the audit log. The only class allowed to construct an IAgentContext, and therefore the only path by which agent code can reach TerminalService/GitService/disk.",
+            "keySignatures": [
+              "public interface IAgentSupervisor {\n  AgentHandle RegisterAgent(IAgentLoop loop, string displayName, string kind);\n  Task StopAgentAsync(string agentId);\n  ObservableCollection<AgentRunDescriptor> RunningAgents { get; }\n  ApprovalQueue Approvals { get; }\n  IAuditLog AuditLog { get; }\n}",
+              "public sealed class AgentSupervisor : IAgentSupervisor {\n  private readonly ConcurrentDictionary<string, AgentRuntime> _agents = new();\n  private readonly WorkspaceLockTable _locks;\n  private readonly AgentMessageBus _bus;\n  public AgentSupervisor(TerminalService terminal, GitService git, ChatService chat, IAuditLog auditLog, string workspaceRoot);\n  public AgentHandle RegisterAgent(IAgentLoop loop, string displayName, string kind) {\n    var ctx = new AgentContext(loop.AgentId, this, _terminal, _git, _chat, _workspaceRoot);\n    var cts = new CancellationTokenSource();\n    var runtime = new AgentRuntime(loop, ctx, cts);\n    _agents[loop.AgentId] = runtime;\n    _bus.Register(loop.AgentId);\n    runtime.RunTask = Task.Run(() => RunGuardedAsync(runtime), cts.Token);\n    return new AgentHandle(loop.AgentId, this);\n  }\n}",
+              "internal Task<ActionDecision> RequestApprovalAsync(AgentActionRequest request, CancellationToken ct);",
+              "internal Task<IWorkspaceClaim> ClaimAsync(string agentId, string relativePath, CancellationToken ct);",
+              "private async Task RunGuardedAsync(AgentRuntime r) { try { await r.Loop.RunAsync(r.Context, r.Cts.Token); r.Status = AgentStatus.Stopped; } catch (OperationCanceledException) { r.Status = AgentStatus.Stopped; } catch (Exception ex) { r.Status = AgentStatus.Faulted; await AuditLog.RecordAsync(AuditEntry.AgentFaulted(r.Loop.AgentId, ex)); } }"
+            ]
+          },
+          {
+            "name": "IAgentContext / AgentContext",
+            "responsibility": "The only capability surface an agent loop ever sees. Every read is unrestricted; every mutating operation internally claims the path, builds a diff/command preview, blocks on RequestApprovalAsync, and only then calls the real TerminalService/GitService/File API. Also validates every path stays inside the workspace root (defense against path traversal).",
+            "keySignatures": [
+              "public interface IAgentContext {\n  string AgentId { get; }\n  string WorkspaceRoot { get; }\n  Task<string> ReadFileAsync(string relativePath, CancellationToken ct);\n  Task<bool> WriteFileAsync(string relativePath, string newContent, string rationale, CancellationToken ct);\n  Task<bool> DeleteFileAsync(string relativePath, string rationale, CancellationToken ct);\n  Task<TerminalCommandResult?> RunTerminalAsync(string command, string rationale, CancellationToken ct);\n  Task<GitOperationResult?> RunGitAsync(Func<GitService, Task<GitOperationResult>> op, string rationale, CancellationToken ct);\n  Task PostMessageAsync(string? toAgentId, string text, AgentMessageKind kind, CancellationToken ct);\n  IAsyncEnumerable<AgentMessage> Inbox(CancellationToken ct);\n  Task<string> AskAsync(string prompt, CancellationToken ct);\n}",
+              "internal sealed class AgentContext : IAgentContext {\n  public async Task<bool> WriteFileAsync(string relativePath, string newContent, string rationale, CancellationToken ct) {\n    var fullPath = ResolveAndConfineOrThrow(relativePath);\n    await using var claim = await _supervisor.ClaimAsync(AgentId, relativePath, ct);\n    var oldContent = File.Exists(fullPath) ? await File.ReadAllTextAsync(fullPath, ct) : string.Empty;\n    var request = AgentActionRequest.ForFileWrite(AgentId, relativePath, rationale, DiffBuilder.Unified(oldContent, newContent));\n    var decision = await _supervisor.RequestApprovalAsync(request, ct);\n    if (decision != ActionDecision.Approved) return false;\n    await File.WriteAllTextAsync(fullPath, newContent, ct);\n    return true;\n  }\n}",
+              "private string ResolveAndConfineOrThrow(string relativePath) {\n  var full = Path.GetFullPath(Path.Combine(WorkspaceRoot, relativePath));\n  if (!full.StartsWith(Path.GetFullPath(WorkspaceRoot) + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase))\n    throw new SecurityException($\"Path escapes workspace: {relativePath}\");\n  return full;\n}"
+            ]
+          },
+          {
+            "name": "ApprovalQueue + AgentActionRequest",
+            "responsibility": "The confirmation gate itself. An ObservableCollection<PendingApproval> bound directly to a new 'Agent Approvals' panel (same idiom as ChatService.Tasks/ChatTaskRecord). One TaskCompletionSource per action; the human's Approve/Deny click is the only thing that ever completes it. No 'approve all' — deliberate, per the SelfRepairAgent precedent.",
+            "keySignatures": [
+              "public enum AgentActionKind { FileWrite, FileDelete, TerminalExec, GitOp }",
+              "public enum ActionDecision { Approved, Denied, Expired }",
+              "public sealed record AgentActionRequest(Guid Id, string AgentId, AgentActionKind Kind, string? TargetPath, string Rationale, string? DiffOrCommandPreview, DateTimeOffset RequestedAtUtc);",
+              "public sealed class PendingApproval : INotifyPropertyChanged {\n  public AgentActionRequest Request { get; }\n  internal TaskCompletionSource<ActionDecision> Tcs { get; }\n}",
+              "public sealed class ApprovalQueue {\n  public ObservableCollection<PendingApproval> Pending { get; } = new();\n  public Task<ActionDecision> EnqueueAsync(AgentActionRequest request, TimeSpan timeout, CancellationToken ct);\n  public void Resolve(Guid requestId, ActionDecision decision); // called from Approve/Deny buttons in the view\n}"
+            ]
+          },
+          {
+            "name": "WorkspaceLockTable / IWorkspaceClaim",
+            "responsibility": "Exclusive per-path claim so two agent loops can never write the same file concurrently. On conflict it does NOT silently block: it posts a ClaimRequest AgentMessage to the current holder ('agentB wants src/Foo.cs, held by you since 12:03 for <rationale>') and fails fast so the requesting loop decides whether to retry, wait, or work elsewhere.",
+            "keySignatures": [
+              "public interface IWorkspaceClaim : IAsyncDisposable { string Path { get; } string OwnerAgentId { get; } }",
+              "public sealed class WorkspaceClaimConflictException : Exception { public string Path { get; } public string HeldByAgentId { get; } public DateTimeOffset HeldSinceUtc { get; } }",
+              "internal sealed class WorkspaceLockTable {\n  private readonly ConcurrentDictionary<string, (string OwnerId, DateTimeOffset SinceUtc)> _owner = new(StringComparer.OrdinalIgnoreCase);\n  public async Task<IWorkspaceClaim> ClaimAsync(string agentId, string path, AgentMessageBus bus, CancellationToken ct) {\n    if (_owner.TryAdd(path, (agentId, DateTimeOffset.UtcNow))) return new WorkspaceClaim(path, agentId, this);\n    var (ownerId, since) = _owner[path];\n    if (ownerId == agentId) return new WorkspaceClaim(path, agentId, this); // reentrant\n    await bus.PublishAsync(AgentMessage.ClaimRequest(agentId, ownerId, path, since), ct);\n    throw new WorkspaceClaimConflictException(path, ownerId, since);\n  }\n}"
+            ]
+          },
+          {
+            "name": "AgentMessageBus + AgentMessage",
+            "responsibility": "In-process, no-IPC pub/sub for agent-to-agent coordination (everything lives in one desktop process). One Channel<AgentMessage> inbox per registered agent, plus broadcast; every published message is also handed to IAuditLog so the human can see agent 'conversations', not just their file/terminal actions.",
+            "keySignatures": [
+              "public enum AgentMessageKind { Info, ClaimRequest, ClaimReleased, Question, Answer, TaskDone, Error }",
+              "public sealed record AgentMessage(Guid Id, string FromAgentId, string? ToAgentId, string Text, AgentMessageKind Kind, DateTimeOffset SentAtUtc);",
+              "internal sealed class AgentMessageBus {\n  private readonly ConcurrentDictionary<string, Channel<AgentMessage>> _inboxes = new();\n  public event EventHandler<AgentMessage>? MessagePosted;\n  public void Register(string agentId);\n  public void Unregister(string agentId);\n  public async Task PublishAsync(AgentMessage message, CancellationToken ct);\n  public IAsyncEnumerable<AgentMessage> ReadInbox(string agentId, CancellationToken ct);\n}"
+            ]
+          },
+          {
+            "name": "IAuditLog / FileAuditLog + AuditEntry",
+            "responsibility": "Append-only, queryable trail of every agent lifecycle event, claim, message, approval request/decision, and applied action. This is the non-optional side-channel: AgentSupervisor and AgentContext write to it directly, agent code never touches it, so it can't be skipped or spoofed by a buggy or malicious loop.",
+            "keySignatures": [
+              "public enum AuditEntryKind { AgentStarted, AgentStopped, AgentFaulted, ClaimAcquired, ClaimConflict, ClaimReleased, MessagePosted, ActionRequested, ActionApproved, ActionDenied, ActionExpired, ActionApplied, SecurityViolation }",
+              "public sealed record AuditEntry(Guid Id, DateTimeOffset TimestampUtc, string AgentId, AuditEntryKind Kind, string Summary, string? DetailJson);",
+              "public interface IAuditLog { Task RecordAsync(AuditEntry entry); Task<IReadOnlyList<AuditEntry>> QueryAsync(DateTimeOffset? sinceUtc = null, string? agentId = null); }",
+              "public sealed class FileAuditLog : IAuditLog {\n  // NDJSON append to %LocalAppData%/MotoEditor/audit/<workspace-hash>/audit.ndjson, flushed per entry for crash durability\n  public Task RecordAsync(AuditEntry entry);\n}"
+            ]
+          },
+          {
+            "name": "IAgentLoop + AgentRunDescriptor/AgentHandle",
+            "responsibility": "The contract an individual long-running agent implements, distinct from the existing single-shot ISpecializedAgent. RunAsync only ever receives an IAgentContext (never TerminalService/GitService/ChatService directly), so the supervision boundary is enforced by the type system, not by convention.",
+            "keySignatures": [
+              "public interface IAgentLoop { string AgentId { get; } Task RunAsync(IAgentContext context, CancellationToken ct); }",
+              "public enum AgentStatus { Starting, Running, WaitingApproval, WaitingClaim, Idle, Faulted, Stopped }",
+              "public sealed class AgentRunDescriptor : INotifyPropertyChanged { public string AgentId { get; } public string DisplayName { get; } public string Kind { get; } public DateTimeOffset StartedAtUtc { get; } public AgentStatus Status { get; internal set; } }",
+              "public sealed class AgentHandle { public string AgentId { get; } public Task StopAsync(); }"
+            ]
+          }
+        ],
+        "confirmationGateDesign": "Mutating capability is only reachable through IAgentContext, and every one of its mutating methods (WriteFileAsync, DeleteFileAsync, RunTerminalAsync, RunGitAsync) follows the same fixed sequence before touching disk/terminal/git: (1) confine the target path inside WorkspaceRoot and reject any traversal outside it as a SecurityViolation audit entry; (2) acquire a WorkspaceLockTable claim for file-shaped actions; (3) build a human-readable preview — a unified diff for file writes, the literal command string plus working directory for terminal/git ops; (4) call AgentSupervisor.RequestApprovalAsync, which enqueues an AgentActionRequest into ApprovalQueue.Pending (an ObservableCollection marshaled onto the UI thread via MainThread.BeginInvokeOnMainThread, exactly like ChatService.Tasks today) and awaits a TaskCompletionSource that only the human's Approve/Deny click in the new 'Agent Approvals' panel can complete; (5) on Approved, execute the real operation and audit ActionApplied; on Denied, return false/null and audit ActionDenied without touching anything. There is deliberately no 'approve all' or session-wide trust toggle — every single write/exec/git-op gets its own gate, matching the SelfRepairAgent precedent ('human confirmation before EVERY write'). Each pending approval carries a configurable timeout (e.g. 10 minutes of inactivity) that resolves to Denied/Expired rather than hanging forever if the human is away or the workspace closes, and that expiry is itself an audited event. The one acknowledged compromise: reads are NOT gated (an agent can ReadFileAsync freely to build context), so the boundary protects against mutation and disclosure-via-terminal, not against an agent silently reading sensitive files — a known, explicitly named limitation rather than an oversight.",
+        "messagingMechanism": "A single in-process AgentMessageBus owned by AgentSupervisor, since every agent loop runs as a Task inside the same desktop process — no IPC, no serialization boundary. Each agent gets one Channel&lt;AgentMessage&gt; inbox on registration (bus.Register(agentId)); IAgentContext.PostMessageAsync publishes either to a specific ToAgentId or broadcasts (ToAgentId = null) to every inbox, and IAgentContext.Inbox(ct) exposes the calling agent's channel as an IAsyncEnumerable so a loop can `await foreach` messages between work steps. The bus is also the mechanism behind claim conflicts: when WorkspaceLockTable.ClaimAsync finds a path already held by a different agent, it auto-publishes an AgentMessage(Kind: ClaimRequest) from the requester to the holder before throwing WorkspaceClaimConflictException back to the caller — this is the direct analogue of the two-Claude-Code-sessions behavior Tom described ('I'm about to touch X, are you done with it?'), except mediated by the supervisor so it's visible and audited rather than an ad hoc side-channel. Every published message, regardless of kind, is also handed to IAuditLog.RecordAsync(AuditEntryKind.MessagePosted) — agent-to-agent chatter is first-class governance data, not a private channel the human can't see. A 'Agent Messages' panel can subscribe to AgentMessageBus.MessagePosted (or just tail the audit log) to show the coordination happening live, next to the approval queue and the running-agents list.",
+        "firstTestableMilestone": "Ship AgentSupervisor + ApprovalQueue + FileAuditLog + IAgentContext + one trivial IAgentLoop ('EchoAgent' that proposes exactly one hardcoded file write) wired to a new 'Agent Approvals' panel with live Approve/Deny buttons, with NO messaging bus and NO second concurrent agent yet (those are milestone 2). A human can: open MOTO Editor, trigger EchoAgent from a debug menu entry, watch a pending-approval row appear in the new panel showing the file path and a unified diff preview, click Deny and confirm the target file is untouched and an ActionDenied entry lands in the audit NDJSON file, then trigger it again and click Approve and confirm the file actually changes on disk and ActionRequested/ActionApproved/ActionApplied all appear in order in the audit log. This proves the one property the whole design exists for — mutation is impossible without a human click and everything is logged — before any concurrency, locking, or LLM-driven planning is added on top.",
+        "risks": [
+          "Livelock between two agents that keep retrying the same WorkspaceLockTable claim against each other (fail-fast avoids a true deadlock, but a naive retry loop in two IAgentLoop implementations can still spin forever — needs a backoff/max-retry policy the supervisor can enforce or at least surface as a stuck-agent status).",
+          "UI-thread marshaling: ApprovalQueue.Pending and AgentRunDescriptor are ObservableCollection/INotifyPropertyChanged updated from background Task.Run loops — every mutation must be dispatched onto the MAUI/WinUI main thread (MainThread.BeginInvokeOnMainThread) or it throws/crashes, same class of bug the team already has precedent for elsewhere in the app.",
+          "Approval fatigue: if a loop proposes many small writes in quick succession, a human will start rubber-stamping without reading, quietly defeating the whole gate — worth grouping a logical multi-file change into one composite approval request rather than one popup per file, without ever falling back to a blanket 'approve all'.",
+          "Runaway cost/loop: IAgentContext.AskAsync calls back into ChatService/MotoAiKernel on every iteration, so a buggy infinite loop burns real API tokens/money even though every disk mutation is gated — the approval gate alone doesn't cap this, needs a separate max-iterations or rate limit per registered agent.",
+          "Terminal exec approval only shows the literal command string and working directory; a human can't always infer everything an arbitrary command will actually do, so the gate reduces but doesn't eliminate risk from RunTerminalAsync — worth flagging obviously dangerous patterns (rm/del, git push --force, curl|sh) in the preview UI as a hint, not a guarantee.",
+          "Path-confinement bugs (ResolveAndConfineOrThrow) are security-critical and easy to get subtly wrong (symlinks, UNC paths, trailing separators, case-insensitivity on Windows) — needs explicit unit tests for traversal attempts before this ships, not just happy-path coverage.",
+          "Long-session audit log growth: FileAuditLog is append-only NDJSON with one entry per action/message/claim; a long multi-agent session could grow this unboundedly, echoing the RAM/disk hygiene issue already identified for the orchestrator's own history — needs rotation/compaction from day one rather than retrofitted later.",
+          "Crash mid-mutation: if the process dies between an Approved decision and the actual File.WriteAllTextAsync/terminal exec completing, state can be left inconsistent — the audit entry for ActionApproved should be written before the operation runs (not after) so a post-crash audit review can at least show what was authorized but possibly not completed."
+        ]
+      },
+      {
+        "summary": "Treat concurrency as a message-bus problem first: a single in-process AgentMessageBus (Moto.Core.AI.Agents) carries a typed AgentMessage between any number of agent loops and the human, and is rendered live by a new AgentConversationView the same way ChatService.Tasks already renders the Background Tasks panel. Each agent is just an IAgentWorker that awaits its own channel off the bus and reacts — the loop is a thin consumer, not the center of the design. Every mutating action (file write, terminal command, git push) is forced through one choke point, AgentToolGateway, which reuses the existing AiConfirmationService/ConfirmationOverlay so the human approves each one individually before TerminalService or GitService is ever touched — conversational messages (notes, requests, conflict warnings) never hit that gate at all.",
+        "coreClasses": [
+          {
+            "name": "AgentMessage",
+            "responsibility": "Immutable schema for one item on the bus (Moto.Core.AI.Agents, next to ISpecializedAgent). Sealed class with init-only properties, static factory helpers in the same style as SpecializedAgentResult.Ok/Fail already used by the codebase. CorrelationId links a Response/ToolResult back to the Request/ToolProposal that caused it; TouchedPaths drives conflict detection; RecipientId null means broadcast.",
+            "keySignatures": [
+              "public enum AgentMessageType { Note, Request, Response, ConflictWarning, ToolProposal, ToolResult, Status }",
+              "public Guid Id, DateTime TimestampUtc, string SenderId, string? RecipientId, string? Topic",
+              "public AgentMessageType Type, string Content, Guid? CorrelationId, IReadOnlyList<string> TouchedPaths",
+              "public static AgentMessage Note(string senderId, string? recipientId, string content)",
+              "public static AgentMessage ToolProposal(string senderId, AgentToolRequest request)",
+              "public static AgentMessage ToolResult(string senderId, Guid correlationId, bool success, string output)",
+              "public static AgentMessage ConflictWarning(string aboutPath, string agentA, string agentB)"
+            ]
+          },
+          {
+            "name": "AgentMessageBus",
+            "responsibility": "Singleton in-process pub/sub (Moto.Core.AI.Agents, registered services.AddSingleton<AgentMessageBus>() alongside SpecializedAgentRegistry). Owns the ObservableCollection<AgentMessage> History that the conversation panel binds to directly — same pattern as ChatService.Threads/Tasks, including a TrimHistory cap so a long multi-agent session doesn't grow unbounded. Publishing fans a message out to History (for UI) and to every matching per-agent Channel<AgentMessage> (for loop consumers), and maintains the file-claim table used for automatic ConflictWarning generation.",
+            "keySignatures": [
+              "public ObservableCollection<AgentMessage> History { get; }",
+              "public event Action<AgentMessage>? MessagePublished;",
+              "public void Publish(AgentMessage message)",
+              "public ChannelReader<AgentMessage> SubscribeChannel(string agentId, IEnumerable<string>? topics = null)",
+              "public IReadOnlyDictionary<string, (string AgentId, DateTime ClaimedAtUtc)> ActiveFileClaims { get; }",
+              "private void CheckForConflict(AgentMessage proposal) // auto-publishes ConflictWarning on overlapping TouchedPaths"
+            ]
+          },
+          {
+            "name": "IAgentWorker",
+            "responsibility": "The loop contract (Moto.Core.AI.Agents). Deliberately thin and separate from ISpecializedAgent — ISpecializedAgent stays what it is today (single-shot, no loop, no bus); IAgentWorker is the new, different animal: a long-running subscriber. Implementations never receive TerminalService or GitService directly, only AgentToolGateway, so there is no side door around the confirmation gate.",
+            "keySignatures": [
+              "string AgentId { get; }",
+              "string DisplayName { get; }",
+              "Task RunAsync(AgentMessageBus bus, CancellationToken ct)"
+            ]
+          },
+          {
+            "name": "LlmBackedAgentWorker",
+            "responsibility": "Abstract base (Moto.Core.AI.Agents) providing the actual loop mechanics on top of IAgentWorker, reusing MotoAiKernel.RouteAsync per turn since the kernel itself has no built-in tool-use loop — the worker supplies the loop by calling RouteAsync again each time a new message arrives on its channel. A conservative AgentDecisionParser reads the free-text reply and defaults to Note on any ambiguity, never to a tool call.",
+            "keySignatures": [
+              "protected MotoAiKernel Kernel { get; }",
+              "protected AgentToolGateway Tools { get; }",
+              "protected abstract string BuildSystemPrompt();",
+              "protected abstract string BuildTurnPrompt(AgentMessage incoming);",
+              "public async Task RunAsync(AgentMessageBus bus, CancellationToken ct) // await foreach over SubscribeChannel(AgentId)"
+            ]
+          },
+          {
+            "name": "AgentToolRequest / AgentToolResult",
+            "responsibility": "Paired DTOs (Moto.Core.AI.Agents, same file, mirroring the existing SpecializedAgentRequest/SpecializedAgentResult pairing) describing one proposed mutating action and its outcome. Reason is the agent's own free-text justification, shown verbatim to the human in the confirmation dialog.",
+            "keySignatures": [
+              "public enum AgentToolKind { RunCommand, WriteFile, DeleteFile, GitCommit, GitPush }",
+              "public sealed class AgentToolRequest { AgentToolKind Kind; string? FilePath; string? Command; string? NewContent; string Reason; }",
+              "public sealed class AgentToolResult { bool Success; string Output; bool WasConfirmed; }"
+            ]
+          },
+          {
+            "name": "AgentToolGateway",
+            "responsibility": "THE confirmation choke point (Moto.Core.AI.Agents). The only class holding real references to TerminalService/GitService/file IO for agent-initiated actions. Publishes the ToolProposal to the bus BEFORE asking, so the human's confirmation dialog (built from the existing ConfirmationRequest/AiConfirmationService/ConfirmationOverlay — no new UI) can be enriched with any live ActiveFileClaims conflict from another agent. Only after RequestAsync returns Confirmed does it touch TerminalService.ExecuteAsync or GitService. Policy stays Strict (every action, individually) — never a batch or standing approval for an agent.",
+            "keySignatures": [
+              "public AgentToolGateway(AiConfirmationService confirmation, ConfirmationPolicyEngine policy, TerminalService terminal, GitService git, AgentMessageBus bus)",
+              "public async Task<AgentToolResult> RequestExecuteAsync(string agentId, AgentToolRequest request, CancellationToken ct)",
+              "private ConfirmationRequest BuildConfirmationRequest(string agentId, AgentToolRequest request) // appends 'agent X touched this file Ns ago' when ActiveFileClaims conflicts",
+              "private async Task<AgentToolResult> ExecuteViaRealServiceAsync(AgentToolRequest request, CancellationToken ct)"
+            ]
+          },
+          {
+            "name": "AgentOrchestratorHost",
+            "responsibility": "Owns the lifecycle of running IAgentWorker loops (Moto.Editor.Services — it's app-lifetime-bound like ChatService, not portable core logic). Starts each worker as a tracked Task.Run with its own CancellationTokenSource, exposes an ObservableCollection<AgentRunRecord> for a UI panel row per agent (start/stop/status), mirroring ChatService.Tasks/RunTrackedAsync/TrimTasks almost exactly.",
+            "keySignatures": [
+              "public ObservableCollection<AgentRunRecord> RunningAgents { get; } = new();",
+              "public void StartAgent(IAgentWorker worker, AgentMessageBus bus)",
+              "public void StopAgent(string agentId)",
+              "public bool IsRunning(string agentId)"
+            ]
+          },
+          {
+            "name": "AgentRunRecord",
+            "responsibility": "UI-bound record of one running/finished agent loop (Moto.Editor.Models), a structural twin of ChatTaskRecord: INotifyPropertyChanged, StatusIcon, DurationLabel, Tick() driven by the same kind of Dispatcher.StartTimer already used in BackgroundTasksView.",
+            "keySignatures": [
+              "public Guid Id { get; }",
+              "public string AgentId, DisplayName { get; init; }",
+              "public DateTime StartedUtc { get; init; }; public DateTime? EndedUtc { get; set; }",
+              "public bool IsRunning => EndedUtc is null; public bool Failed { get; set; }",
+              "public void Tick()"
+            ]
+          },
+          {
+            "name": "AgentConversationView / AgentConversationViewModel",
+            "responsibility": "New panel (Moto.Editor.Views / ViewModels), opened via WindowManager.OpenOrFocus with a new WindowKind.AgentConversation entry exactly like BackgroundTasksView/ThreadListView are today. Binds a CollectionView directly to AgentMessageBus.History (sender name, AgentMessageType badge, timestamp, distinct styling for ConflictWarning), and a send box that lets the human publish onto the bus — a broadcast by default, or targeted at one agent picked from AgentOrchestratorHost.RunningAgents. Human injection is not special-cased: it is just Publish(new AgentMessage{ SenderId = \"tom\", ... }).",
+            "keySignatures": [
+              "public AgentConversationView(AgentMessageBus bus, AgentOrchestratorHost host)",
+              "private void OnSendClicked(object? sender, EventArgs e) // Publish(AgentMessage with SenderId=\"tom\")",
+              "private void OnStopAgentClicked(object? sender, EventArgs e) // host.StopAgent(agentId)"
+            ]
+          }
+        ],
+        "confirmationGateDesign": "Reuse, don't reinvent: AiConfirmationService + ConfirmationPolicyEngine + ConfirmationOverlay already do exactly what the SelfRepairAgent precedent demanded ('confirmation before EVERY write', strict-by-default, no auto-approval) — the new architecture routes agent tool calls through that same pipeline rather than building a second confirmation UI. The enforcement is structural, not just a convention every agent author has to remember: IAgentWorker implementations are never given TerminalService or GitService references at all, only AgentToolGateway — so there is no code path by which a new agent, written later by someone who didn't read this design, can mutate a file or run a command without going through the gate. Inside the gate, the sequence matters: (1) the ToolProposal is published to AgentMessageBus first, purely as information, before any confirmation is requested — this is what lets other agents and the human see intent in the live conversation panel the instant it's formed, mirroring the 'two Claude Code sessions checking they aren't stepping on each other' behavior Tom described; (2) the ConfirmationRequest shown to the human is built by cross-referencing AgentMessageBus.ActiveFileClaims, so if another agent claimed the same path recently, the dialog itself says so ('agent B touched Program.cs 4s ago') instead of relying on the human to have read the whole chat log; (3) only a Confirmed result reaches TerminalService.ExecuteAsync/GitService; a refusal is published back to the bus as a ToolResult so the requesting agent's next turn sees it failed and can adapt, and other agents see it too. Conversational message types (Note, Request, Response, ConflictWarning, Status) never touch the gate — agents can plan and negotiate with each other freely and only pause the human at the actual moment something would change on disk or in git, which keeps the confirmation prompts meaningful rather than constant.",
+        "messagingMechanism": "AgentMessageBus is a singleton with two parallel delivery paths off one Publish call, because the two consumers have different needs: (1) ObservableCollection<AgentMessage> History, appended to on every publish and bound directly by AgentConversationView — this is the 'live conversation log' the human watches, exactly the way ChatService.Threads/Tasks are bound today, and it is capped the same way TrimTasks caps ChatService.Tasks so a long-running multi-agent session doesn't grow forever; (2) a System.Threading.Channels.Channel<AgentMessage> per subscribed agent, obtained via SubscribeChannel(agentId, topics), which each IAgentWorker.RunAsync awaits with 'await foreach' — channels rather than a plain C# event because a loop consumer needs ordered, backpressure-safe, exactly-once delivery of its own messages, which a shared multicast event doesn't give you cleanly once several agents and the UI are all listening at once. Routing is simple: RecipientId == null is a broadcast delivered to every subscribed channel plus History; a non-null RecipientId is delivered only to that agent's channel (still recorded in History for the human to see). Topics are an optional secondary channel key (e.g. 'file:Program.cs') an agent can subscribe to in addition to its own id, for the case where an agent wants to hear about anything touching a specific path without every message being explicitly addressed to it. The human is not a special case in this model — AgentConversationView injects messages by calling the exact same bus.Publish(AgentMessage) that agents call, with SenderId set to the human's identity, which is what makes 'inject into the agent conversation' trivial rather than a separate mechanism. Conflict detection rides on the same bus: AgentMessageBus tracks ActiveFileClaims (path -> which agent, since when) whenever a ToolProposal with TouchedPaths is published, clears the claim on the matching ToolResult, and auto-publishes an AgentMessage.ConflictWarning broadcast the moment a second proposal touches an already-claimed path — so the safety net doesn't depend on agents remembering to check each other's plans themselves.",
+        "firstTestableMilestone": "Ship AgentMessage + AgentMessageBus (Moto.Core.AI.Agents, no LLM, no tools, no confirmation gate yet) plus a minimal AgentConversationView opened through WindowManager.OpenOrFocus under a new WindowKind.AgentConversation — the same OpenOrFocus/factory pattern already used for BackgroundTasksView — that renders bus.History live and has a single send box. Register exactly one trivial EchoAgentWorker (implements IAgentWorker, no LLM call at all: it just awaits its channel and, after a short delay, republishes a canned reply) started by a first-cut AgentOrchestratorHost at app startup. Human click-test: open the panel, type 'ping' into the send box, see your own bubble appear immediately under sender 'tom', and see EchoAgentWorker's reply bubble appear about a second later under its own sender name/color, with the two clearly visually distinct. That single interaction proves the pub/sub delivery, the background loop running concurrently without blocking the UI thread, and the live-rendering panel all work end-to-end — the entire architectural bet — before any LLM call, real tool execution, or confirmation-gate risk is introduced in a later commit.",
+        "risks": [
+          "MotoAiKernel.RouteAsync is single-shot with no structured output — LlmBackedAgentWorker's AgentDecisionParser has to infer 'this reply is a tool proposal' from free text, which is fragile against prompt injection or a malformed reply; mitigate by defaulting to Note (never to a tool call) whenever the parse is ambiguous, so a parsing failure degrades to 'agent said something' rather than 'agent silently tried to act'.",
+          "Everything runs as Task.Run loops in one process with no OS-level isolation — a misbehaving or looping agent prompt can burn LLM calls or CPU indefinitely; AgentOrchestratorHost needs a hard per-agent iteration or wall-clock cap in addition to the manual StopAgent button, or a single runaway agent degrades the whole app.",
+          "Publishing to AgentMessageBus.History happens on background-loop threads, but MAUI's ObservableCollection UI binding needs the mutation marshaled onto the main thread (the same MainThread.BeginInvokeOnMainThread pattern already visible in WindowManager.OpenOrFocus and the Dispatcher.StartTimer usage in BackgroundTasksView) — easy to forget in AgentMessageBus.Publish and get an intermittent cross-thread crash that won't show up in a quick manual test.",
+          "Automatic conflict detection only sees paths an agent self-reports in AgentToolRequest/TouchedPaths; an agent with a bad prompt or a parser miss that omits or mis-states the path defeats ActiveFileClaims silently — it's a helpful heads-up for the human at confirmation time, not a hard guarantee, and shouldn't be sold to Tom as one.",
+          "Because every mutating action funnels through one AgentToolGateway/AiConfirmationService pair, two agents proposing unrelated actions at nearly the same moment will queue the human's confirmation dialogs one after another — fine for a first version with one or two agents, but worth deciding early (queue vs. a small pending-approvals list) before it's marketed as 'many agents running concurrently'.",
+          "AgentMessageBus.History and AgentOrchestratorHost.RunningAgents are in-memory only, capped and lost on restart — consistent with the existing ChatService.Tasks precedent, but here real files/commands may have actually been executed by the time of a crash, so there is no durable audit trail of what an agent asked for and what was approved unless a persistence layer is added on top later."
+        ]
+      }
+    ],
+    "judged": {
+      "scores": [
+        {
+          "angle": "minimal-loop",
+          "score": 9,
+          "rationale": "Safety: every mutating tool call is hard-gated through the existing, already-proven AiConfirmationService/ConfirmationOverlay, unconditionally (deliberately bypassing the strict/relaxed policy toggle so an agent can never be run in a mode that skips confirmation). The confirmation dialog's text is built from the parser's literal Path/Content/Command fields rather than an LLM self-description -- a concrete, non-obvious protection against a model describing one action while doing another. The design also honestly flags the one real gap before a second agent ships (ConfirmationOverlay has a single shared _tcs with no queue) and prescribes the fix (a semaphore) as a precondition for Milestone 2, not an afterthought. Main deduction: no durable/persistent audit trail in Milestone 1 -- the record of what was approved lives only in trimmed ObservableCollections and chat history. Small first milestone: this is the strongest of the three by a clear margin -- zero new XAML, the full perceive-decide-act-observe loop plus real file I/O plus the real confirmation modal all ship and are demoable in one slice ('/agent create hello.txt', watch it propose, confirm, verify the file, then re-run and cancel to verify nothing happens). Fit with team workflow: every new class is explicitly mapped onto a pattern that already exists and works in this codebase (AiConfirmationService, PluginCommandHandler, ChatMessage rendering, ObservableCollection-bound records) -- this is exactly the 'reuse working plumbing, ship the smallest real slice' approach this team has repeatedly favored elsewhere (e.g. reusing LoadBalancer/RetryController instead of duplicating them, SelfRepairAgent delegating to the real SupervisorAgent)."
+        },
+        {
+          "angle": "safety-first",
+          "score": 7,
+          "rationale": "Safety: on paper this is the most rigorous of the three -- agents are structurally barred from ever touching TerminalService/GitService/disk directly (only IAgentContext, enforced by the type system, not convention), every mutating call gets path confinement against traversal, a per-path workspace lock, a diff/command preview, and an append-only durable audit log (NDJSON) that survives restarts -- something neither other design has in Milestone 1. Approval timeouts resolving to Denied rather than hanging forever is a good touch. The design honestly names its one gap (reads aren't gated). Small first milestone: weaker here -- Milestone 1 already requires a new AgentSupervisor, IAgentContext, ApprovalQueue, a file-backed audit log, and a brand-new 'Agent Approvals' XAML panel with live Approve/Deny buttons before anything is demoable. That's a materially bigger first slice than the other two. Fit with team workflow: this is the weakest point -- it does not reuse AiConfirmationService/ConfirmationOverlay at all, instead building a parallel approval mechanism and a visually different confirmation UI. That duplicates a concept (confirm-before-mutate) the app already has working and battle-tested, contrary to this team's demonstrated preference for extending existing plumbing in small steps rather than standing up a second, competing version of it. The safety ceiling is the highest of the three, but it costs a heavier, less incremental first commit and a second confirmation paradigm to maintain long-term."
+        },
+        {
+          "angle": "message-bus-centric",
+          "score": 6,
+          "rationale": "Safety: also reuses the existing AiConfirmationService/ConfirmationPolicyEngine/ConfirmationOverlay (good, matches design 1's instinct) and adds a genuinely nice idea -- publishing the ToolProposal to the bus before asking for confirmation, so the confirmation dialog itself can say 'agent B touched this file 4s ago'. But the design's own first milestone ships an EchoAgentWorker with no LLM, no tools, and explicitly no confirmation gate at all -- meaning the very first demoable slice proves nothing about the property the product owner ranks #1. The design also self-acknowledges no durable audit trail (lost on restart, even though real files/commands may have executed by then) and leaves multi-agent confirmation queuing as an open question rather than a decided mechanism. Small first milestone: narrow in scope but arguably tests the wrong thing first for this stakeholder -- it proves pub/sub delivery and a live-updating panel, not safety or real tool use, and still requires a brand-new AgentConversationView/WindowKind/AgentOrchestratorHost to exist before anything is on screen. Fit with team workflow: reuses the confirmation plumbing (a plus), but the overall architecture (per-agent Channels plus a parallel ObservableCollection, topics, an ActiveFileClaims table) is more machinery than a two-or-so-agent desktop feature currently needs, and is heavier to build and review incrementally than design 1's approach of growing a single loop toward a second one."
+        }
+      ],
+      "bestAngle": "minimal-loop is clearly the best of the three for this product owner. It is the only one whose first milestone is both genuinely small (zero new XAML, ships through an existing chat command) and directly demonstrates the #1 priority end to end -- a real proposed write, the real existing confirmation modal, a real file on disk, and a clean cancel path -- in one committable slice. It also maps every new class onto a pattern this team already has running (AiConfirmationService, PluginCommandHandler, ObservableCollection-bound records), which is the best fit for a small-increment, reuse-first workflow. safety-first has the highest theoretical safety ceiling (structural enforcement, durable NDJSON audit log, path confinement, workspace locks) but pays for it with a heavier first milestone and a second, parallel confirmation UI instead of reusing the one that already works -- a real cost for this team's style, not just a nice-to-have. message-bus-centric has good ideas (publish-intent-before-confirming, conflict-aware confirmation text) but its own first milestone doesn't touch the confirmation gate at all, so it demos plumbing rather than safety first. Recommendation: build minimal-loop's Milestone 1 as specified, then when Milestone 2 (second agent) is designed, fold in two borrowed details rather than switching architectures -- adopt safety-first's durable append-only audit log (cheap to add, closes minimal-loop's one real gap) and message-bus-centric's 'publish the proposal before requesting confirmation' sequencing (so the confirmation dialog can flag a second agent's conflicting claim) in place of a bare semaphore. That is a light enrichment of minimal-loop, not a case where a hybrid of two full architectures is needed."
+    },
+    "final": {
+      "recommendedArchitecture": "Base the whole feature on the 'minimal-loop' design, built and verified against the actual MOTO Editor source (Moto.Core/Settings/AiConfirmationService.cs, Moto.Editor/Views/ConfirmationOverlay.xaml.cs, Moto.Editor/Services/ChatService.cs, Moto.Core/Services/TerminalService.cs, Moto.Core/Moto.AI/Internal/MotoAiKernel.cs — all confirmed to exist with the exact shapes the design assumes: AiConfirmationService.RequestAsync with a 'refuse if no handler' default, a single shared TaskCompletionSource<bool> _tcs in ConfirmationOverlay with no queue, ChatService.PluginCommandHandler as a real '/' hook, ChatService.Tasks trimmed at 30, TerminalService.ExecuteAsync with NO CancellationToken parameter, and MotoAiKernel.RouteAsync returning plain text with no structured tool-calling). Nothing new is invented for the confirm-before-mutate mechanism — the app already has one, proven, and every agent action funnels through it unconditionally. On top of that base, two ideas are grafted in from the other two designs, exactly as the judge verdict recommends: (1) from 'safety-first', a durable append-only NDJSON audit log that records every proposed action, every confirm/deny decision, and every executed tool call, so the record of what an agent did survives a restart — minimal-loop's own biggest gap; (2) from 'message-bus-centric', the sequencing trick of publishing an agent's tool proposal onto a lightweight in-process message bus BEFORE asking for confirmation, so a second concurrent agent (and the confirmation dialog itself) can see 'agent B touched this file 4s ago' instead of relying on timing luck. The heavier machinery from the other two designs — safety-first's full IAgentContext/WorkspaceLockTable/ApprovalQueue rebuild of confirmation from scratch, and message-bus-centric's Channel<AgentMessage>-per-agent plumbing and AgentToolGateway indirection layer — is deliberately NOT adopted wholesale, because it would mean building and maintaining a second confirmation paradigm alongside the one that already works, which fits neither this team's reuse-first style nor a small-increment plan. Concretely: a small perceive-decide-act-observe loop (BackgroundAgentLoop) turns MotoAiKernel.RouteAsync's free-text replies into a typed AgentAction via a forgiving tagged-line parser; a handful of thin IAgentTool wrappers (Read/Write/RunCommand/SendMessage/Finish) each declare IsMutating; every mutating tool call is gated, unconditionally, through AiConfirmationService.RequestAsync with Details text built strictly from the parser's literal Path/Content/Command fields (never an LLM self-description); AgentRunRecord/AgentStepRecord give any future UI the same ObservableCollection-binding idiom ChatService.Tasks already uses; BackgroundAgentService starts each run as a tracked background Task and exposes Cancel(). A second agent only requires an AgentId, a small AgentMessageBus (ObservableCollection + event, capped like Tasks), a SemaphoreSlim(1,1) added inside AiConfirmationService.RequestAsync so two concurrent agents' confirmation requests queue instead of colliding on the shared _tcs, and the NDJSON audit sink plus publish-before-confirm sequencing folded in as the two borrowed enrichments.",
+      "milestone1": {
+        "whatItDoes": "Ships one working autonomous agent end to end with zero new XAML. New code: AgentAction/AgentActionKind (a plain parsed decision), AgentActionParser (forgiving tagged-text parser: ACTION:/PATH:/CONTENT:<<<...>>>/COMMAND:/SUMMARY:, never throws, falls back to Kind=Malformed), four IAgentTool implementations (ReadFileTool, WriteFileTool, RunCommandTool, FinishTool — each flagged IsMutating), AgentRunRecord/AgentStepRecord (INotifyPropertyChanged, same shape as the existing ChatTaskRecord), BackgroundAgentLoop (the bounded perceive-decide-act-observe engine with a max-steps/max-duration guard, a hardcoded cap of 3 consecutive declines that force-ends a run, and malformed parses counting against the step budget so a confused local model still terminates), and BackgroundAgentService (starts a loop as a background Task, exposes ObservableCollection<AgentRunRecord> Runs, supports Cancel(runId)). A new '/agent <goal>' command is wired through ChatService.PluginCommandHandler, the existing '/' extension point, and narrates each step as an ordinary ai-role ChatMessage in the current thread. The only behavioral change to existing code: give TerminalService.ExecuteAsync a CancellationToken/timeout overload before RunCommandTool wraps it (confirmed necessary — the method has none today and a hung command would stall the loop past its own guard), and add two additive values (AgentWriteFile, AgentRunCommand) to the existing ConfirmationAction enum purely for log/audit distinction — the enum, AiConfirmationService, and ConfirmationOverlay are otherwise untouched and reused exactly as they are. Every mutating tool call (write, run command) is gated unconditionally through the real, existing confirmation modal before it touches disk or a shell.",
+        "howToTestByClicking": "Type `/agent crée un fichier hello.txt à la racine du workspace contenant \"hi\"` into the existing chat box. Watch the chat narrate the proposed write as a normal message ('Step 1: propose d'écrire hello.txt (1 ligne)'). See the real, familiar confirmation dialog (the same one used everywhere else in MOTO Editor) pop up showing the literal path and content. Click Confirm — verify hello.txt now exists on disk with the right content and the chat shows 'Step 2: terminé'. Run the exact same command again, and this time click Cancel on the confirmation dialog — verify no file is written, the chat shows the decline, and the run ends cleanly instead of retrying forever (it should stop after hitting the decline cap or choosing Finish on its own).",
+        "estimatedScope": "Roughly 6-8 new small C# files under a new Moto.Core.AI.Autonomy namespace plus one small addition to TerminalService and one enum extension — no new views, no new XAML, one new chat command registration. Sized to build, wire, and manually click-test in a single work session."
+      },
+      "milestone2": {
+        "whatItDoes": "Turns the single loop into a real two-agent system and closes the two gaps flagged against Milestone 1. Adds: AgentMessage/AgentMessageBus (in-process, ObservableCollection<AgentMessage> History plus a MessagePosted event, trimmed the same way ChatService.Tasks is capped at 30) so a second BackgroundAgentLoop can coordinate with the first; SendMessageTool as a fifth, non-mutating IAgentTool (capped separately from the overall step budget so two agents can't burn their whole run just chatting); a SemaphoreSlim(1,1) added inside AiConfirmationService.RequestAsync so two agents' concurrent confirmation requests queue on the one shared ConfirmationOverlay instead of stomping each other's TaskCompletionSource (a bug that is real today and confirmed in the source: ConfirmationOverlay has exactly one _tcs field). Grafts in the two borrowed ideas from the other two designs: (1) an AgentAuditLog that appends one NDJSON line per proposed action, per confirm/deny decision, and per executed tool call to a per-workspace file under %LocalAppData%, flushed immediately for crash durability — closing Milestone 1's only real gap (no record of approvals survives past trimmed ObservableCollections and chat scrollback); (2) publish-before-confirm sequencing — BackgroundAgentLoop now posts the ToolProposal to AgentMessageBus BEFORE calling AiConfirmationService.RequestAsync, and the confirmation dialog's Details text is enriched with a one-line note when another agent's own recent proposal or write touched the same path ('agent-2 a modifié ce fichier il y a 4s'), giving the human real conflict awareness instead of relying on timing luck.",
+        "howToTestByClicking": "Start two goals that both touch the same file in close succession (e.g. `/agent agent-1: ajoute une ligne à notes.txt` immediately followed by `/agent agent-2: ajoute une autre ligne à notes.txt`). Verify the two confirmation dialogs appear one after another, never overlapping or glitching (proves the semaphore works). Verify the second dialog's Details text mentions the first agent's recent touch on the same file. Approve both, and verify the file ends up with both edits and no corruption. Then open the audit log file on disk (a plain NDJSON text file) and confirm it lists, in order, both proposals, both approvals, and both applied writes — including timestamps and the correct agent id for each line. Optionally send a message from one agent to the other via the SendMessage action and see it appear as a plain chat line."
+      },
+      "milestone3": {
+        "whatItDoes": "Adds the first new UI and the remaining defense-in-depth hardening once the core loop and two-agent coordination are proven. Ships a new 'Agent Runs' panel (the first new XAML in this feature) listing every AgentRunRecord live — status (Running/AwaitingConfirmation/Completed/Failed/Cancelled), a Cancel button wired to BackgroundAgentService.Cancel, and a simple viewer for the AgentMessageBus conversation history and a link to open the audit log file. Adds path-confinement checks (borrowed from 'safety-first': resolve every WriteFileTool/RunCommandTool target against the workspace root and refuse anything that resolves outside it, logging a SecurityViolation audit entry) since by this point real multi-agent file writes are routine, not a one-off demo. Adds composite/grouped confirmations for a single logical multi-file change (to head off approval fatigue, a risk both safety-first and message-bus-centric independently flagged) and a simple dangerous-pattern hint (rm/del, git push --force, curl|sh) highlighted in the RunCommand confirmation dialog text — a visual hint only, never an auto-block. Adds a per-app-lifetime iteration/cost cap across all registered agents so a stuck or chatty pair can't silently burn LLM calls indefinitely even though every write is still gated.",
+        "howToTestByClicking": "Open the new 'Agent Runs' panel from the menu, start a run, watch its status update live from Running to AwaitingConfirmation and back, click Cancel mid-run on a second run and verify it stops immediately with a Cancelled status and a matching audit entry. Trigger a goal that would write outside the workspace root (e.g. an absolute path like C:\\Windows\\notes.txt) and verify it is refused before any confirmation dialog appears, with a SecurityViolation line in the audit log. Trigger a goal whose proposed command contains 'del' or 'git push --force' and verify the confirmation dialog visibly highlights that as a caution without blocking it outright. Trigger a goal with several file writes in one step and verify they appear as one grouped confirmation instead of a rapid-fire stack of separate dialogs."
+      },
+      "keyClasses": [
+        {
+          "name": "AgentAction / AgentActionKind / AgentActionParser",
+          "responsibility": "Coerces MotoAiKernel.RouteAsync's plain-text reply into one typed decision (ReadFile/WriteFile/RunCommand/SendMessage/Finish/Malformed) via a forgiving tagged-line format; never throws, so a non-compliant local model degrades to a retry rather than a crash."
+        },
+        {
+          "name": "IAgentTool (ReadFileTool, WriteFileTool, RunCommandTool, SendMessageTool, FinishTool)",
+          "responsibility": "One real capability each, each a thin wrapper over an existing service (file I/O, TerminalService, AgentMessageBus). The IsMutating flag on each is what tells BackgroundAgentLoop which calls must go through the confirmation gate."
+        },
+        {
+          "name": "BackgroundAgentLoop",
+          "responsibility": "The bounded perceive-decide-act-observe engine for one agent. Owns the max-steps/max-duration guard, the consecutive-decline cap, and calls AiConfirmationService.RequestAsync unconditionally before any mutating tool — the single load-bearing safety decision in the whole feature."
+        },
+        {
+          "name": "BackgroundAgentService",
+          "responsibility": "DI-registered entry point that starts a loop as a tracked background Task, publishes its AgentRunRecord into a live ObservableCollection immediately, and lets the human cancel a stuck run."
+        },
+        {
+          "name": "AgentRunRecord / AgentStepRecord",
+          "responsibility": "UI-bindable progress state for one run and one step, following the exact ObservableCollection/INotifyPropertyChanged convention ChatService.Tasks/ChatTaskRecord already use, so the Milestone 3 panel needs no new binding idioms."
+        },
+        {
+          "name": "AgentMessageBus / AgentMessage",
+          "responsibility": "In-process pub/sub (Milestone 2) letting two loops coordinate and letting a proposal be broadcast before confirmation is requested, so the dialog can flag a conflicting recent touch by another agent."
+        },
+        {
+          "name": "AgentAuditLog (NDJSON, Milestone 2)",
+          "responsibility": "Append-only, flush-per-entry durable log of every proposal, decision, and executed action, written directly by BackgroundAgentLoop so it can't be skipped by a buggy tool implementation; the one piece Milestone 1 deliberately defers and Milestone 2 closes."
+        },
+        {
+          "name": "AiConfirmationService + ConfirmationOverlay (existing, lightly extended)",
+          "responsibility": "The actual, already-proven confirm-before-mutate gate. Left as-is in Milestone 1 (two enum values added only); given a SemaphoreSlim(1,1) in Milestone 2 so two concurrent agents queue instead of colliding on its single shared TaskCompletionSource."
+        }
+      ],
+      "confirmationGateSummary": "One gate for the whole feature, and it is the one MOTO Editor already has and trusts: AiConfirmationService.RequestAsync plus ConfirmationOverlay, called unconditionally before every mutating tool call (WriteFile, RunCommand) with no strict/relaxed policy bypass and no 'approve all'. The dialog's Details text is always built from the parser's literal Path/Content/Command fields, never from the model describing its own action, so a confused or adversarial prompt can't show one thing while doing another. Milestone 1 ships this exactly as-is (plus two additive enum values for audit distinction) with a hard cap of 3 consecutive declines forcing a run to end rather than retry forever. Milestone 2 adds only what concurrency requires: a semaphore so two agents' confirmation requests queue instead of corrupting the overlay's single shared TaskCompletionSource (a real, source-confirmed bug waiting to happen), a durable NDJSON audit trail of every request/decision/execution so approvals survive a restart, and publish-before-confirm sequencing so the dialog can warn about another agent's recent touch on the same path. Milestone 3 adds path confinement (refuse writes outside the workspace root before the dialog even appears), grouped confirmations to fight approval fatigue on multi-file changes, and a non-blocking danger hint for risky shell commands.",
+      "plainLanguageExplanationForNonCoder": "This builds a small AI assistant that can actually do things for you inside MOTO Editor — write files, run commands — instead of just chatting. The key promise is that it can never touch a file or run a command without first showing you a popup asking 'is this OK?', using the exact same confirmation window MOTO Editor already uses elsewhere, so it will feel familiar from day one. The first milestone you can click through yourself: type a command like '/agent create a file called hello.txt', watch it explain what it wants to do in the chat, see the confirmation popup, click yes, and see the real file appear — or click no and see nothing happen. The second milestone adds a second AI helper working alongside the first, with a permanent written record (a log file) of every single thing either of them asked to do and whether you said yes or no, so nothing is ever lost even if the app closes. The third milestone adds a proper screen showing all the AI helpers currently working, a way to stop one with a click, and extra safety nets like refusing to touch files outside your project folder and warning you extra loudly before running a risky command."
+    }
+  },
+  "workflowProgress": [
+    {
+      "type": "workflow_phase",
+      "index": 1,
+      "title": "Design"
+    },
+    {
+      "type": "workflow_phase",
+      "index": 2,
+      "title": "Judge"
+    },
+    {
+      "type": "workflow_phase",
+      "index": 3,
+      "title": "Synthesize"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 1,
+      "label": "design:minimal-loop",
+      "phaseIndex": 1,
+      "phaseTitle": "Design",
+      "agentId": "a4b533a9758e32cba",
+      "model": "claude-sonnet-5",
+      "state": "done",
+      "startedAt": 1788464213342,
+      "queuedAt": 1788464211645,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "lastToolSummary": "Reuse three things that already exist and work rather than …",
+      "promptPreview": "MOTO Editor is a .NET MAUI/WinUI3 Windows desktop code editor (C#). Existing relevant pieces:\n- ChatService: single-shot chat send (SendAsync/AskWithCodeAsync), wraps MotoAiKernel.RouteAsync (routes to Ollama local / OpenAI / Anthropic / Mistral / fallback).\n- MotoAiKernel.RouteAsync(prompt, ct) -> single string completion, no built-in tool-use loop.\n- TerminalService.ExecuteAsync/Start: can run s…",
+      "lastProgressAt": 1788464439444,
+      "tokens": 105844,
+      "toolCalls": 19,
+      "durationMs": 226099,
+      "resultPreview": "{\"summary\":\"Reuse three things that already exist and work rather than inventing new plumbing: AiConfirmationService + ConfirmationOverlay (portable confirm-gate, already wired by MainPage via a TaskCompletionSource handler) becomes the mandatory gate; ChatService.PluginCommandHandler (the \\\"/\\\" hook already used by the plugin system) becomes the entry point for a \\\"/agent <goal>\\\" command; and Ch…"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 2,
+      "label": "design:safety-first",
+      "phaseIndex": 1,
+      "phaseTitle": "Design",
+      "agentId": "afe957feb76071c0b",
+      "model": "claude-sonnet-5",
+      "state": "done",
+      "startedAt": 1788464213401,
+      "queuedAt": 1788464211647,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "lastToolSummary": "A new `Moto.Core.AI.Supervision` layer sits between agent l…",
+      "promptPreview": "MOTO Editor is a .NET MAUI/WinUI3 Windows desktop code editor (C#). Existing relevant pieces:\n- ChatService: single-shot chat send (SendAsync/AskWithCodeAsync), wraps MotoAiKernel.RouteAsync (routes to Ollama local / OpenAI / Anthropic / Mistral / fallback).\n- MotoAiKernel.RouteAsync(prompt, ct) -> single string completion, no built-in tool-use loop.\n- TerminalService.ExecuteAsync/Start: can run s…",
+      "lastProgressAt": 1788464433704,
+      "tokens": 76958,
+      "toolCalls": 8,
+      "durationMs": 217836,
+      "resultPreview": "{\"summary\":\"A new `Moto.Core.AI.Supervision` layer sits between agent loops and the real capability services (TerminalService, GitService, file I/O, MotoAiKernel/ChatService): agents never touch those services directly, they only get an `IAgentContext` handed to them by a single `AgentSupervisor`. Every mutating call on that context (file write/delete, terminal exec, git op) is forced through a pe…"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 3,
+      "label": "design:message-bus-centric",
+      "phaseIndex": 1,
+      "phaseTitle": "Design",
+      "agentId": "a8f3cb8eddded507e",
+      "model": "claude-sonnet-5",
+      "state": "done",
+      "startedAt": 1788464213552,
+      "queuedAt": 1788464211647,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "lastToolSummary": "Treat concurrency as a message-bus problem first: a single …",
+      "promptPreview": "MOTO Editor is a .NET MAUI/WinUI3 Windows desktop code editor (C#). Existing relevant pieces:\n- ChatService: single-shot chat send (SendAsync/AskWithCodeAsync), wraps MotoAiKernel.RouteAsync (routes to Ollama local / OpenAI / Anthropic / Mistral / fallback).\n- MotoAiKernel.RouteAsync(prompt, ct) -> single string completion, no built-in tool-use loop.\n- TerminalService.ExecuteAsync/Start: can run s…",
+      "lastProgressAt": 1788464484815,
+      "tokens": 124504,
+      "toolCalls": 21,
+      "durationMs": 268947,
+      "resultPreview": "{\"summary\":\"Treat concurrency as a message-bus problem first: a single in-process AgentMessageBus (Moto.Core.AI.Agents) carries a typed AgentMessage between any number of agent loops and the human, and is rendered live by a new AgentConversationView the same way ChatService.Tasks already renders the Background Tasks panel. Each agent is just an IAgentWorker that awaits its own channel off the bus …"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 4,
+      "label": "You are judging 3 competing architecture designs for the SAM",
+      "phaseIndex": 2,
+      "phaseTitle": "Judge",
+      "agentId": "ab8175c7686dadd21",
+      "model": "claude-sonnet-5",
+      "state": "done",
+      "startedAt": 1788464489185,
+      "queuedAt": 1788464486662,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "lastToolSummary": "minimal-loop is clearly the best of the three for this prod…",
+      "promptPreview": "You are judging 3 competing architecture designs for the SAME feature (autonomous background AI agents with real tool access + inter-agent messaging, inside a Windows desktop code editor). The product owner is a non-coder who cares most about: (1) safety - nothing destructive happens without explicit human confirmation, (2) a genuinely small, demoable first milestone, (3) fitting the existing smal…",
+      "lastProgressAt": 1788464592083,
+      "tokens": 76120,
+      "toolCalls": 1,
+      "durationMs": 102897,
+      "resultPreview": "{\"scores\":[{\"angle\":\"minimal-loop\",\"score\":9,\"rationale\":\"Safety: every mutating tool call is hard-gated through the existing, already-proven AiConfirmationService/ConfirmationOverlay, unconditionally (deliberately bypassing the strict/relaxed policy toggle so an agent can never be run in a mode that skips confirmation). The confirmation dialog's text is built from the parser's literal Path/Conten…"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 5,
+      "label": "Synthesize a single recommended architecture and a 3-milesto",
+      "phaseIndex": 3,
+      "phaseTitle": "Synthesize",
+      "agentId": "a31a22a132be89bbd",
+      "model": "claude-sonnet-5",
+      "state": "done",
+      "startedAt": 1788464597424,
+      "queuedAt": 1788464594799,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "lastToolSummary": "Base the whole feature on the 'minimal-loop' design, built …",
+      "promptPreview": "Synthesize a single recommended architecture and a 3-milestone incremental build plan for this feature, grafting the best ideas across all 3 designs below (don't just pick one wholesale - combine). The team builds in small, independently-testable, committed increments. Milestone 1 must be small enough to build and have a human test by clicking through the running app in a single work session.\n\nJud…",
+      "lastProgressAt": 1788464766392,
+      "tokens": 95651,
+      "toolCalls": 6,
+      "durationMs": 168968,
+      "resultPreview": "{\"recommendedArchitecture\":\"Base the whole feature on the 'minimal-loop' design, built and verified against the actual MOTO Editor source (Moto.Core/Settings/AiConfirmationService.cs, Moto.Editor/Views/ConfirmationOverlay.xaml.cs, Moto.Editor/Services/ChatService.cs, Moto.Core/Services/TerminalService.cs, Moto.Core/Moto.AI/Internal/MotoAiKernel.cs — all confirmed to exist with the exact shapes the…"
+    }
+  ],
+  "totalTokens": 479077,
+  "totalToolCalls": 55
+}
