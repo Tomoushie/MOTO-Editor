@@ -36,7 +36,7 @@
              x:Class="Moto.Editor.Views.CustomMenuBarView"
              HeightRequest="38"
              BackgroundColor="{StaticResource BgSide}">
-    <Grid ColumnDefinitions="Auto,Auto,Auto,*,Auto,Auto,Auto,Auto,Auto">
+    <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,*,Auto,Auto,Auto,Auto,Auto">
 
         <!-- Nav (ex-ActivityBarView, maintenant sur la même ligne) -->
         <Border Grid.Column="0" Padding="12,6" Margin="14,0,0,0" StrokeThickness="0" BackgroundColor="Transparent">
@@ -63,13 +63,28 @@
             </Border.GestureRecognizers>
         </Border>
 
+        <!-- ★ AJOUT (03/09, demandé par Tom : "pouvoir ouvrir le terminal
+             directement depuis la barre de tâche du logiciel, et non pas
+             uniquement via les actions suggérées"). Même patron que les 3
+             items ci-dessus — CommandParameter="view.terminal" est déjà une
+             vraie commande enregistrée (RegisterMenuCommands, MainPage.Routing.cs)
+             qui bascule _viewModel.IsTerminalVisible ; réutilisée telle quelle,
+             aucune nouvelle logique de routage nécessaire. -->
+        <Border Grid.Column="3" Padding="12,6" StrokeThickness="0" BackgroundColor="Transparent">
+            <Label Text="Terminal" FontSize="{DynamicResource FontSizeUiText}" FontFamily="Segoe UI Variable Text"
+                   TextColor="{StaticResource Txt1}" />
+            <Border.GestureRecognizers>
+                <TapGestureRecognizer Tapped="OnNavTapped" CommandParameter="view.terminal" />
+            </Border.GestureRecognizers>
+        </Border>
+
         <!-- Zone de drag (tout l'espace libre) -->
-        <Border x:Name="TitleBarDragZone" x:FieldModifier="Public" Grid.Column="3"
+        <Border x:Name="TitleBarDragZone" x:FieldModifier="Public" Grid.Column="4"
                 BackgroundColor="Transparent"
                 HorizontalOptions="Fill" VerticalOptions="Fill" />
 
         <!-- ★ Bouton Update (visible seulement si MAJ disponible) -->
-        <Border Grid.Column="4" x:Name="UpdateBadge"
+        <Border Grid.Column="5" x:Name="UpdateBadge"
                 BackgroundColor="{StaticResource Accent}"
                 Stroke="Transparent" StrokeThickness="0"
                 StrokeShape="RoundRectangle 12"
@@ -93,7 +108,7 @@
              pastille rectangulaire. Une vraie photo personnalisable (via les
              Réglages) serait la suite logique — pas construite dans cette passe
              (upload/persistance d'image), signalé à Tom plutôt que bâclé. -->
-        <Border Grid.Column="5" WidthRequest="30" HeightRequest="30" Margin="0,0,4,0" StrokeThickness="0"
+        <Border Grid.Column="6" WidthRequest="30" HeightRequest="30" Margin="0,0,4,0" StrokeThickness="0"
                 BackgroundColor="{StaticResource BgSide}"
                 StrokeShape="RoundRectangle 15" VerticalOptions="Center">
             <Label Text="{x:Static controls:MotoIcons.Person}" FontFamily="{x:Static controls:MotoIcons.FontFamily}"
@@ -109,7 +124,7 @@
              repéré par Tom). L'avatar seul suffit désormais comme point d'entrée. -->
 
         <!-- Boutons fenêtre -->
-        <Border x:Name="BtnMin" x:FieldModifier="Public" Grid.Column="6" WidthRequest="52"
+        <Border x:Name="BtnMin" x:FieldModifier="Public" Grid.Column="7" WidthRequest="52"
                 BackgroundColor="Transparent" StrokeThickness="0">
             <Label Text="─" HorizontalOptions="Center" VerticalOptions="Center"
                    FontSize="14" TextColor="{StaticResource Txt1}" />
@@ -118,7 +133,7 @@
             </Border.GestureRecognizers>
         </Border>
 
-        <Border x:Name="BtnMax" x:FieldModifier="Public" Grid.Column="7" WidthRequest="52"
+        <Border x:Name="BtnMax" x:FieldModifier="Public" Grid.Column="8" WidthRequest="52"
                 BackgroundColor="Transparent" StrokeThickness="0">
             <Label Text="□" HorizontalOptions="Center" VerticalOptions="Center"
                    FontSize="14" TextColor="{StaticResource Txt1}" />
@@ -127,7 +142,7 @@
             </Border.GestureRecognizers>
         </Border>
 
-        <Border x:Name="BtnClose" x:FieldModifier="Public" Grid.Column="8" WidthRequest="52"
+        <Border x:Name="BtnClose" x:FieldModifier="Public" Grid.Column="9" WidthRequest="52"
                 BackgroundColor="Transparent" StrokeThickness="0">
             <Label Text="×" HorizontalOptions="Center" VerticalOptions="Center"
                    FontSize="16" TextColor="{StaticResource Txt1}" />

@@ -17,10 +17,36 @@
 
         <Grid RowDefinitions="Auto,*" RowSpacing="8">
 
-            <Label Text="💡 Actions suggérées"
-                   FontSize="13"
-                   FontAttributes="Bold"
-                   TextColor="{StaticResource Accent}" />
+            <!-- ★ AJOUT (03/09, demandé par Tom) : en-tête devenu une poignée de
+                 déplacement (PanGestureRecognizer, voir le code-behind) — clic-glissé
+                 n'importe où dans le bandeau titre déplace tout le panneau, comme une
+                 mini barre de titre. Bouton ✕ à droite pour le fermer : ferme
+                 immédiatement et ne réapparaît PAS tant que les suggestions restent
+                 les mêmes (UpdateActions plus bas compare à la dernière liste montrée) ;
+                 redevient visible dès qu'un contexte différent produit de nouvelles
+                 suggestions, sans action requise de Tom. -->
+            <Grid ColumnDefinitions="*,Auto">
+                <Grid.GestureRecognizers>
+                    <PanGestureRecognizer PanUpdated="OnHeaderPanUpdated" />
+                </Grid.GestureRecognizers>
+
+                <Label Text="💡 Actions suggérées"
+                       FontSize="13"
+                       FontAttributes="Bold"
+                       TextColor="{StaticResource Accent}"
+                       InputTransparent="True" />
+
+                <Button Grid.Column="1"
+                        Text="✕"
+                        FontSize="12"
+                        Padding="0"
+                        WidthRequest="24"
+                        HeightRequest="24"
+                        CornerRadius="12"
+                        BackgroundColor="Transparent"
+                        TextColor="{StaticResource Txt2}"
+                        Clicked="OnCloseClicked" />
+            </Grid>
 
             <ScrollView Grid.Row="1"
                         HeightRequest="180">

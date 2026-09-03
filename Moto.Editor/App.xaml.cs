@@ -222,6 +222,20 @@ namespace Moto.Editor
                 int savedY = SettingsEngine.Shared.GetInt("window.y", int.MinValue);
 
                 if (width < 640 || height < 480) { width = DefaultWidth; height = DefaultHeight; }
+                // ★ CORRECTIF (03/09, trouvé par Tom : panneau Terminal "caché en bas
+                // de l'écran") : la POSITION sauvegardée est bien revérifiée contre
+                // l'écran actuel (voir plus bas, tolérance 100px), mais la TAILLE ne
+                // l'était jamais — une hauteur mémorisée plus grande que l'écran actuel
+                // (ex. enregistrée sur un autre moniteur, ou après un redimensionnement
+                // manuel) rouvrait systématiquement une fenêtre trop grande, poussant
+                // le bas (ici : le panneau Terminal, son bouton fermer, la barre de
+                // statut) hors de l'écran visible. Plafonné à la zone de travail réelle
+                // (hors barre des tâches) du moniteur sur lequel la fenêtre va s'ouvrir.
+                if (displayArea != null)
+                {
+                    width = Math.Min(width, displayArea.WorkArea.Width);
+                    height = Math.Min(height, displayArea.WorkArea.Height);
+                }
                 appWindow.Resize(new global::Windows.Graphics.SizeInt32(width, height));
 
                 bool restoredPosition = false;
@@ -234,7 +248,13 @@ namespace Moto.Editor
                     if (savedX >= wa.X - 100 && savedX < wa.X + wa.Width
                         && savedY >= wa.Y - 100 && savedY < wa.Y + wa.Height)
                     {
-                        appWindow.Move(new global::Windows.Graphics.PointInt32(savedX, savedY));
+                        // ★ CORRECTIF (03/09) : le coin haut-gauche seul ne suffit pas —
+                        // une position sauvegardée en haut de l'écran, combinée à la
+                        // hauteur (déjà plafonnée ci-dessus mais pas forcément petite),
+                        // peut quand même pousser le BAS de la fenêtre hors de l'écran.
+                        // Décalé vers le haut si besoin pour garder tout le bas visible.
+                        int finalY = Math.Min(savedY, wa.Y + wa.Height - height);
+                        appWindow.Move(new global::Windows.Graphics.PointInt32(savedX, finalY));
                         restoredPosition = true;
                     }
                 }
