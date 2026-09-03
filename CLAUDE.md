@@ -512,6 +512,22 @@ lieu de le redemander à `Application.Current.Windows[0]` trop tôt — ça
 levait un `ArgumentOutOfRangeException` avalé en silence par un `catch`
 générique "le hotkey est optionnel").
 
+**03/09 — "Ctrl+Maj+P bloqué après Documentation" investigué, non
+reproduit (commit `8c490bf`)** : Tom avait signalé qu'après avoir ouvert
+"Documentation" depuis la palette, impossible de refermer, et Ctrl+Maj+P
+ne refonctionnait plus. Traces temporaires ajoutées sur
+`ToggleCommandPalette`/`OnWindowsPreviewKeyDown` + compteur de
+souscriptions (hypothèse : double abonnement via un re-déclenchement de
+`Loaded`) — séquence rejouée par Tom, journal montrant un comportement
+PARFAITEMENT correct (une seule souscription, `IsVisible` bascule
+proprement) et confirmation que le raccourci refonctionne. Non reproduit,
+probablement déjà réglé en cascade par un correctif antérieur de la même
+session. En comparant `DocPanelView` aux autres overlays pendant
+l'investigation : c'était le SEUL panneau du dock IA sans bouton ✕
+(`CommandPaletteView`/`ProactiveActionsView` en ont déjà un) — correspond
+au "impossible de refermer le menu" du rapport initial. Bouton ✕ ajouté,
+même patron, confirmé par Tom.
+
 ## Réglages → IA Locale (02/09, depuis "Docs/Idées à implémenter.txt")
 
 `Docs/Idées à implémenter.txt` (fichier de Tom) mélange une vision très
