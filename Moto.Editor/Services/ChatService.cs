@@ -109,6 +109,21 @@ namespace Moto.Editor.Services
             !string.IsNullOrEmpty(model) &&
             ExternalProviderNames.Any(p => model.Contains(p, StringComparison.OrdinalIgnoreCase));
 
+        /// <summary>
+        /// ★ AJOUT (03/09, identité de l'IA locale) : envoyé comme vrai "system
+        /// prompt" Ollama (pas un texte ajouté au message) — sans ça, le modèle
+        /// local répond avec sa propre identité de base (ex. "qwen2.5-coder:7b"
+        /// se présente comme Qwen/Alibaba Cloud), trouvé par Tom en testant.
+        /// Scope volontairement limité au chemin interne (Ollama) : les
+        /// providers externes (OpenAI/Anthropic/Mistral, via FallbackEngine) ne
+        /// sont pas touchés ici — chantier séparé si le même souci s'y confirme.
+        /// </summary>
+        private const string InternalSystemPrompt =
+            "Tu es MOTO AI, l'assistant intégré à MOTO Editor, un IDE léger " +
+            "conçu par MOTO Software (fondé par Tom Nowak), inspiré de Zed et " +
+            "VS Code. Réponds toujours à la première personne (\"je\"), en " +
+            "français naturel.";
+
         public ChatService(string workspaceRoot, FallbackEngine? fallback, MotoAiKernel? kernel, ILogger<ChatService>? logger = null)
         {
             WorkspaceRoot = workspaceRoot ?? string.Empty;
@@ -340,7 +355,7 @@ namespace Moto.Editor.Services
             {
                 // Surcharge (string, int, CancellationToken) qui renvoie AiResponse (pas
                 // la variante texte simple (string, CancellationToken) qui renvoie string).
-                var kernelResponse = await _kernel.RouteAsync(prompt, 256, default);
+                var kernelResponse = await _kernel.RouteAsync(prompt, 256, default, InternalSystemPrompt);
                 if (kernelResponse is { Success: true } && !string.IsNullOrWhiteSpace(kernelResponse.Content))
                     return kernelResponse.Content;
             }

@@ -52,9 +52,26 @@ public sealed class OllamaClient
         }
     }
 
-    public async Task<string> GenerateAsync(string prompt, CancellationToken ct = default)
+    /// <summary>
+    /// ★ AJOUT (03/09, identité de l'IA locale) : `system` optionnel — jusqu'ici
+    /// aucun "system prompt" n'était jamais envoyé à Ollama (juste `prompt` brut),
+    /// donc le modèle répondait avec sa propre identité de base (ex.
+    /// "qwen2.5-coder:7b" se présentait comme Qwen/Alibaba Cloud, pas comme
+    /// "MOTO AI") — trouvé en testant le panneau Tâches en arrière-plan avec
+    /// Tom. Utilise le vrai champ `system` de l'API Ollama (/api/generate),
+    /// pas un texte ajouté au prompt. Aucune garantie que le modèle le suive
+    /// parfaitement (dépend du modèle local installé).
+    /// </summary>
+    public async Task<string> GenerateAsync(string prompt, CancellationToken ct = default, string? system = null)
     {
-        var payload = new { model = Model, prompt, stream = false };
+        var payload = new Dictionary<string, object>
+        {
+            ["model"] = Model,
+            ["prompt"] = prompt,
+            ["stream"] = false
+        };
+        if (!string.IsNullOrWhiteSpace(system)) payload["system"] = system;
+
         var content = new StringContent(JsonSerializer.Serialize(payload), Encoding.UTF8, "application/json");
         var response = await _http.PostAsync($"{Endpoint}/api/generate", content, ct);
         response.EnsureSuccessStatusCode();

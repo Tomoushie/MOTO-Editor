@@ -142,15 +142,24 @@ même API déjà utilisée dans `AboutView.xaml.cs`). Confirmé par Tom de
 bout en bout : rendu du bloc de code distinct, clic sur "Copier" +
 collage confirmés (`print("Bonjour")`).
 
-**Reste noté pour plus tard** : qualité des réponses de l'IA locale
-("MOTO interne"/Ollama) — le modèle ne connaît pas sa propre identité par défaut (répond "je suis Qwen, créé par
-Alibaba Cloud" et décrit MOTO Editor comme un logiciel de modélisation 3D
-— totalement faux), et même avec une instruction manuelle explicite de
-Tom ("Tu es MOTO AI...") le modèle répond en 2e personne ("vous êtes une
-IA") au lieu de la 1re ("je suis"), plus un français maladroit ("je suis
-bien compris"). Cause probable : aucun prompt système n'est injecté par
-`MotoAiKernel`/`RouteAsync` avant d'envoyer la question — un vrai chantier
-"identité/qualité des réponses IA" à faire un jour, pas un simple réglage.
+✅ **2e souci IA corrigé, même soir** : identité de l'IA locale. Cause
+confirmée : `OllamaClient.GenerateAsync` n'envoyait JAMAIS de "system
+prompt" à Ollama (juste `prompt` brut) — le modèle configuré par défaut
+étant littéralement `qwen2.5-coder:7b`, il répondait avec sa propre
+identité de base (Qwen/Alibaba Cloud), pas par bug mais par absence totale
+de contexte. Corrigé en utilisant le VRAI champ `system` de l'API Ollama
+(`/api/generate`) — pas un texte ajouté au prompt comme le faisait déjà
+partiellement `AskWithCodeAsync` (pas touché ici, chantier séparé si
+besoin). Paramètre `system` optionnel threadé `OllamaClient.GenerateAsync`
+→ `MotoAiKernel.RouteAsync`/`TryOllamaAsync` → `ChatService.RouteAsync`
+(nouvelle constante `InternalSystemPrompt`). Scope volontairement limité
+au chemin interne (Ollama) — les providers externes (OpenAI/Anthropic/
+Mistral, via `FallbackEngine`) ne sont pas concernés. Confirmé par Tom :
+"Je suis MOTO AI, l'assistant intégré à MOTO Editor, créé par MOTO
+Software..." — à la bonne personne ("je"), plus de confusion Qwen/3D.
+Aucune garantie que TOUT modèle local suive parfaitement cette instruction
+(dépend du modèle installé), mais fonctionne avec le modèle par défaut
+testé.
 
 ## Paliers de qualité de Tom
 

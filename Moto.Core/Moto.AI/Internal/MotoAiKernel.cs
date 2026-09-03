@@ -31,9 +31,10 @@ public partial class MotoAiKernel
     public async Task<AiResponse?> RouteAsync(
         string prompt,
         int maxTokens = 256,
-        CancellationToken ct = default)
+        CancellationToken ct = default,
+        string? system = null)
     {
-        var ollamaResult = await TryOllamaAsync(prompt, maxTokens, ct);
+        var ollamaResult = await TryOllamaAsync(prompt, maxTokens, ct, system);
         if (ollamaResult is not null) return ollamaResult;
 
         return await FallbackAsync(prompt, maxTokens, ct);
@@ -46,13 +47,13 @@ public partial class MotoAiKernel
         return result?.Content ?? string.Empty;
     }
 
-    private async Task<AiResponse?> TryOllamaAsync(string prompt, int maxTokens, CancellationToken ct)
+    private async Task<AiResponse?> TryOllamaAsync(string prompt, int maxTokens, CancellationToken ct, string? system = null)
     {
         try
         {
             if (!await _ollama.IsAvailableAsync(ct)) return null;
 
-            var content = await _ollama.GenerateAsync(prompt, ct);
+            var content = await _ollama.GenerateAsync(prompt, ct, system);
             return new AiResponse
             {
                 Success = true,
