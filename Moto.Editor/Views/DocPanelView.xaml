@@ -9,7 +9,19 @@
 
         <Grid RowDefinitions="Auto,Auto,*,Auto" Padding="0" RowSpacing="8">
 
-            <Label Grid.Row="0" Text="📚 MOTO Doc Engine" FontAttributes="Bold" FontSize="14" />
+            <!-- ★ AJOUT (03/09, signalé par Tom : "impossible de refermer le menu"
+                 après avoir ouvert "Documentation" depuis la palette) : ce panneau
+                 était le seul overlay du dock IA/panneaux sans bouton ✕ — la seule
+                 façon de le refermer était de rouvrir la palette et de resélectionner
+                 "Documentation" pour rebasculer IsVisible. Même patron que
+                 CommandPaletteView/ProactiveActionsView. -->
+            <Grid Grid.Row="0" ColumnDefinitions="*,Auto">
+                <Label Grid.Column="0" Text="📚 MOTO Doc Engine" FontAttributes="Bold" FontSize="14" />
+                <Button Grid.Column="1" Text="✕" FontSize="12" Padding="0"
+                        WidthRequest="24" HeightRequest="24" CornerRadius="12"
+                        BackgroundColor="Transparent" TextColor="{StaticResource Txt2}"
+                        Clicked="OnCloseClicked" />
+            </Grid>
 
             <Label Grid.Row="1" x:Name="SummaryLabel"
                    Text="Documentation du projet" FontSize="11" Opacity="0.7" />

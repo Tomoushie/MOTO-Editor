@@ -40,6 +40,11 @@ namespace Moto.Editor.Views
             SummaryLabel.Text = message;
         }
 
+        private void OnCloseClicked(object sender, EventArgs e)
+        {
+            IsVisible = false;
+        }
+
         private void OnOpenClicked(object sender, EventArgs e)
         {
             if (((Button)sender).BindingContext is DocFile file)
