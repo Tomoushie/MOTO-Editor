@@ -632,6 +632,10 @@ namespace Moto.Editor
             _neural = new NeuralMode(path, new CortexMemory(path));
             _workspace = new AIWorkspace(path);
             _docEngine = new DocEngine(path);
+            // ★ AJOUT (03/09, réveil de GitPanelView) : sans ça, GitService continuerait
+            // d'opérer sur l'ancien dossier (ou aucun) après un changement de projet —
+            // même risque de fond que documenté sur GitService.SetWorkspace.
+            _gitService?.SetWorkspace(path);
             // ★ AJOUT (03/09, sonde disponibilité premium) : DocEngine génère déjà
             // de vraies docs (6 fichiers .md dans .moto/docs/) à chaque ouverture de
             // projet ET à chaque auto-régénération (FileSystemWatcher), mais

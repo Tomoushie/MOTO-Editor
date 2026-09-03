@@ -62,6 +62,11 @@ namespace Moto.Editor
         private NeuralMode _neural;
         private AIWorkspace _workspace;
         private DocEngine _docEngine;
+        // ★ AJOUT (03/09, réveil de GitPanelView) : résolu via DI dans
+        // ResolveExtensionServices() (MainPage.Extensions.cs), pas construit à la
+        // main — GitService est déjà un singleton enregistré avec ses vraies
+        // dépendances (TerminalService/StructuredLogCollector/SettingsEngine).
+        private Moto.Core.Services.GitService? _gitService;
         private CortexView _cortexPanel;
         private NeuralView _neuralPanel;
         private AIWorkspaceView _workspacePanel;

@@ -40,7 +40,17 @@ namespace Moto.Editor.Services
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
                 UseShellExecute = false,
-                CreateNoWindow = true
+                CreateNoWindow = true,
+                // ★ CORRECTIF (03/09, réveil de GitPanelView, trouvé par Tom) : sans
+                // encodage explicite, .NET décode la sortie redirigée avec la page de
+                // code OEM/ANSI du système (ex. CP1252 en français) — les octets UTF-8
+                // réels de git (accents, ex. "Chaîne") ressortaient en charabia
+                // ("ChaÃ®ne"). N'affecte QUE cette méthode one-shot (GitService et
+                // consorts), pas Start() plus bas (terminal interactif, où cmd.exe émet
+                // ses propres bannières en page de code OEM — les changer casserait
+                // leur affichage, hors scope ici).
+                StandardOutputEncoding = System.Text.Encoding.UTF8,
+                StandardErrorEncoding = System.Text.Encoding.UTF8
             };
 
             using var process = new Process { StartInfo = psi };

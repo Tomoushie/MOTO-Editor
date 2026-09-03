@@ -170,6 +170,10 @@ namespace Moto.Core.AI.Commands
                 // ★ AJOUT (03/09, panneau "Tâches en arrière-plan" réel) : suit les
                 // vrais appels IA (ChatService.Tasks), pas une simulation.
                 new() { Id = "ai.backgroundtasks", Title = "Tâches en arrière-plan", Description = "Suit les appels IA en cours et récemment terminés.", Category = CommandCategory.Menu, CommandText = "menu:ai.backgroundtasks" },
+                // ★ AJOUT (03/09, réveil de GitPanelView, trouvé par la sonde
+                // disponibilité premium) : commit/push/pull/branches/diff/log réels,
+                // jusqu'ici sans aucun point d'entrée.
+                new() { Id = "git.panel", Title = "Git", Description = "Commit, push, pull, branches, diff, log.", Category = CommandCategory.Menu, CommandText = "menu:git.panel" },
 
                 // ── Slash commands ──
                 new() { Id = "slash.neural", Title = "Neural : Générer du code", Description = "Génère du code via Neural Mode.", Category = CommandCategory.Slash, CommandText = "/neural " },

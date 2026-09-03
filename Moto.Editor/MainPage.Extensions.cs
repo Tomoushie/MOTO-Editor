@@ -245,6 +245,15 @@ namespace Moto.Editor
                 // bloquée à 0 pour Appels/Tokens, quel que soit l'usage réel).
                 _chatService.AiCallRecorder = (model, tokens) => _globalUsage?.RecordAiCall(model, tokens);
 
+                // ★ AJOUT (03/09, réveil de GitPanelView) : GitService/GitPanelView
+                // étaient entièrement construits (commit/push/pull/branches/diff/log,
+                // tout réel via git CLI) mais totalement injoignables — confirmé par
+                // la sonde disponibilité premium du même soir (aucun case dans
+                // OpenSpecializedWindow, aucune entrée de palette).
+                _gitService = services.GetService<Moto.Core.Services.GitService>();
+                if (_gitService != null && !string.IsNullOrEmpty(_currentRoot))
+                    _gitService.SetWorkspace(_currentRoot);
+
                 // Ajoute les overlays au RootGrid
                 if (_commandPalette != null)
                 {
@@ -844,6 +853,20 @@ namespace Moto.Editor
                         var view = new Views.BackgroundTasksView(_chatService) { IsVisible = true };
                         return new Microsoft.Maui.Controls.Window(
                             new Moto.Editor.Windows.SpecializedWindowPage("Tâches en arrière-plan", view));
+                    });
+                    break;
+
+                // ★ AJOUT (03/09, réveil de GitPanelView, trouvé par la sonde
+                // disponibilité premium) : GitService/GitPanelView entièrement
+                // construits (commit/push/pull/branches/diff/log réels) mais
+                // totalement injoignables jusqu'ici.
+                case "git":
+                    if (_gitService == null) { StatusBar.SetStatus("Git : service indisponible."); break; }
+                    _windowManager.OpenOrFocus(Moto.Editor.Windows.WindowKind.Git, () =>
+                    {
+                        var view = new Views.GitPanelView(_gitService) { IsVisible = true };
+                        return new Microsoft.Maui.Controls.Window(
+                            new Moto.Editor.Windows.SpecializedWindowPage("Git", view));
                     });
                     break;
 

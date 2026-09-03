@@ -16,7 +16,9 @@ namespace Moto.Editor.Windows
     // que GlobalDashboard/ThreadList juste avant.
     // ★ AJOUT (03/09, panneau "Tâches en arrière-plan" réel) : suit les vrais
     // appels IA (ChatService.Tasks), pas une simulation.
-    public enum WindowKind { Main, Editor, Debug, Analytics, Plugin, Settings, Marketplace, Cortex, Neural, Workspace, AiChat, Platform, GlobalDashboard, ThreadList, ClaudeShell, BackgroundTasks }
+    // ★ AJOUT (03/09, réveil de GitPanelView) : trouvé par la sonde disponibilité
+    // premium — GitService/GitPanelView entièrement construits mais injoignables.
+    public enum WindowKind { Main, Editor, Debug, Analytics, Plugin, Settings, Marketplace, Cortex, Neural, Workspace, AiChat, Platform, GlobalDashboard, ThreadList, ClaudeShell, BackgroundTasks, Git }
 
     public sealed class WindowManager
     {

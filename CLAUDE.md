@@ -268,6 +268,43 @@ le cacher quand `Documents` redevient vide. Corrigé en appelant
 `AiBar.Hide()` dans le même abonnement `Documents.CollectionChanged` qui
 bascule déjà `Home.IsVisible`/`EditorPane.IsVisible`. Confirmé par Tom.
 
+✅ **Chantier suivant, même soir (budget réinitialisé) : GitPanelView réveillée.**
+Trouvée par la sonde disponibilité premium — `GitService` (Init/Stage/
+Commit/Push/Pull/Fetch/Merge/Rebase/Checkout/branches/Status/Diff/Log/
+Stash, tout réel via `git` CLI) et `GitPanelView` (boutons câblés en
+interne) étaient entièrement construits mais totalement injoignables —
+aucun case dans `OpenSpecializedWindow`, aucune entrée de palette. Point
+d'entrée ajouté (fenêtre spécialisée "Git" + palette `git.panel`), même
+patron que GlobalDashboard/ThreadList/Tâches en arrière-plan.
+
+**2 vrais bugs trouvés EN TESTANT (pas devinés), tous deux corrigés** :
+- `GitService` n'avait AUCUNE méthode qui passait un dossier de travail à
+  `_terminal.ExecuteAsync` — toutes les commandes auraient tourné dans le
+  dossier par défaut du processus, pas le projet ouvert (risque réel une
+  fois un vrai bouton "push" ajouté). Ajouté `GitService.SetWorkspace
+  (path)` + un helper interne `ExecAsync` qui l'utilise partout (remplace
+  les ~24 appels directs à `_terminal.ExecuteAsync`), appelé à la fois
+  dans `ResolveExtensionServices()` et dans `LoadWorkspace`
+  (MainPage.Panels.cs) pour couvrir le chargement initial ET les
+  changements de dossier ultérieurs.
+- Accents mal affichés dans les noms de fichiers Git ("Cha\303\256ne" puis,
+  une fois ce 1er souci corrigé, "ChaÃ®ne") — 2 causes empilées : (1) git
+  échappe par défaut tout nom de fichier non-ASCII en séquences octales
+  (`core.quotepath`, comportement documenté de git lui-même) — corrigé en
+  injectant `-c core.quotepath=false` sur chaque commande dans `ExecAsync` ;
+  (2) `TerminalService.ExecuteAsync` ne précisait aucun encodage pour lire
+  la sortie du process — .NET utilisait la page de code OEM/ANSI du
+  système au lieu d'UTF-8. Corrigé en fixant `StandardOutputEncoding`/
+  `StandardErrorEncoding` sur `Encoding.UTF8` — **scope limité à cette
+  méthode one-shot** (utilisée par `GitService` et consorts), PAS à
+  `Start()` (terminal interactif plus bas dans le même fichier : cmd.exe y
+  émet ses propres bannières en page de code OEM, les changer les aurait
+  cassées, hors scope ici).
+
+Confirmé par Tom : branche réelle ("main"), vrais fichiers modifiés/
+untracked de CE dépôt affichés correctement, accents corrects après les 2
+correctifs.
+
 **Signalé par Tom, PAS encore diagnostiqué** : le panneau Terminal
 (`TerminalPanelView`, dock du bas) s'ouvrirait hors de l'écran visible
 ("caché, il faut scroller pour le voir"). Vérifié : `RootGrid`
