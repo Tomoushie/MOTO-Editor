@@ -110,6 +110,13 @@ namespace Moto.Editor
             WireSettings();
             WirePanels();
             WireMenusAndSidebar();
+            // ★ AJOUT (03/09) : bouton "Ouvrir" par fichier du panneau Documentation,
+            // trouvé cassé par Tom en testant — DocPanelView.OpenFileRequested était
+            // déclaré mais jamais écouté. DocPanel est un contrôle XAML statique (une
+            // seule instance pour toute la durée de vie de l'app), donc câblé ICI une
+            // seule fois — PAS dans LoadWorkspace (appelée à chaque changement de
+            // dossier, ça aurait empilé un abonnement en double par ouverture).
+            DocPanel.OpenFileRequested += path => OpenInEditor(path);
             // ★ AJOUT (02/09, "vrai registre de commandes" — fondation Zed/VS Code) :
             // remplit _commandRegistry une seule fois ; voir MainPage.Routing.cs pour
             // le détail (RegisterMenuCommands/OnMenuCommanded/CommandRegistry).

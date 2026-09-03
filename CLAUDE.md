@@ -207,6 +207,31 @@ manquant)** :
 pour une prochaine session, à trier avec Tom (probablement via
 AskUserQuestion, pas décidé unilatéralement).
 
+✅ **1er élément de la punch-list fait le soir même** : panneau Documentation
+réveillé (`DocEngine.DocumentationUpdated` → `DocPanel.Load`, palette
+`ai.doc` ajoutée). **Bug trouvé EN TESTANT, corrigé aussi** : le bouton
+"Ouvrir" par fichier ne faisait rien — `DocPanelView.OpenFileRequested`
+était déclaré mais 0 abonné nulle part ; câblé vers `OpenInEditor(path)`
+dans le CONSTRUCTEUR de MainPage (PAS dans `LoadWorkspace`, qui tourne à
+chaque changement de dossier — `DocPanel` est un contrôle XAML statique
+unique, y remettre l'abonnement l'aurait dupliqué à chaque réouverture de
+projet).
+
+**⚠️ Bug DIFFÉRENT trouvé en testant CE correctif, PAS corrigé (budget
+épuisé au moment de la découverte)** : le fichier s'ouvre bien dans
+l'éditeur (bon titre `README.md`, bon chemin affiché
+`E:\Corpus\MOTO-Editor\.moto\docs\README.md`) mais le contenu reste VIDE
+alors que le fichier sur disque contient bien 46 lignes réelles (vérifié
+directement, `wc -l` + `head`). Donc le bug n'est PAS dans le correctif
+ci-dessus (qui ouvre le bon fichier) mais plus profond, dans le chargement
+du contenu par l'éditeur (`MainViewModel.OpenFilePath` crée le document
+avec `Text = string.Empty // Contenu chargé à la sélection` — reste à
+vérifier si ce chargement différé se déclenche réellement pour CE fichier,
+piste non terminée). Possible bug préexistant jamais remarqué avant (rien
+n'ouvrait ce genre de fichier généré auparavant) plutôt qu'une régression
+de ce soir — à investiguer au prochain budget, ne pas deviner la cause
+sans re-belote de diagnostic.
+
 ## Paliers de qualité de Tom
 
 Échelle perso : cheap → faible → moyen → élevé → Commercial.
