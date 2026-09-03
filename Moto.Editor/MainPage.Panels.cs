@@ -632,6 +632,17 @@ namespace Moto.Editor
             _neural = new NeuralMode(path, new CortexMemory(path));
             _workspace = new AIWorkspace(path);
             _docEngine = new DocEngine(path);
+            // ★ AJOUT (03/09, sonde disponibilité premium) : DocEngine génère déjà
+            // de vraies docs (6 fichiers .md dans .moto/docs/) à chaque ouverture de
+            // projet ET à chaque auto-régénération (FileSystemWatcher), mais
+            // DocPanelView.Load(report) n'était jamais appelée — le panneau
+            // "Documentation" (MainPage.xaml, x:Name="DocPanel") restait vide en
+            // permanence, confirmé par la sonde 9 agents du même soir.
+            // DocumentationUpdated est levé à la fin de GenerateAsync (DocEngine.cs:143),
+            // donc cet abonnement couvre la génération initiale ET les mises à jour
+            // automatiques suivantes, pas juste le premier appel.
+            _docEngine.DocumentationUpdated += report =>
+                MainThread.BeginInvokeOnMainThread(() => DocPanel.Load(report));
 
             Home.SetCoreServices(_cortex, _workspaceState);
 

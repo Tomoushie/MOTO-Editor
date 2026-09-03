@@ -147,6 +147,10 @@ namespace Moto.Core.AI.Commands
                 new() { Id = "ai.neural", Title = "Neural Mode", Description = "Ouvre le Neural Mode.", Category = CommandCategory.Menu, CommandText = "menu:ai.neural" },
                 new() { Id = "ai.workspace", Title = "Workspace IA", Description = "Ouvre le Workspace IA.", Category = CommandCategory.Menu, CommandText = "menu:ai.workspace" },
                 new() { Id = "ai.gallery", Title = "Galerie de plugins", Description = "Parcourt et installe des plugins.", Category = CommandCategory.Menu, CommandText = "menu:ai.gallery" },
+                // ★ AJOUT (03/09, sonde disponibilité premium) : la commande
+                // "ai.doc" existait déjà (MainPage.Routing.cs) mais était absente de
+                // la palette — le panneau Documentation était donc injoignable.
+                new() { Id = "ai.doc", Title = "Documentation du projet", Description = "Affiche la documentation générée automatiquement (README, Architecture, Modules...).", Category = CommandCategory.Menu, CommandText = "menu:ai.doc" },
                 // ★ AJOUT (02/09, réveil de MotoAiPage) : mode différent d'AiChatView —
                 // une instruction unique + un chemin de workspace, exécutée d'un coup
                 // (pas une conversation), avec un aperçu des changements de fichiers
