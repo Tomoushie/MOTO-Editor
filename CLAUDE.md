@@ -29,6 +29,51 @@ reconstruire AUSSI le Release** (`dotnet build Moto.Editor/Moto.Editor.csproj
 du Debug habituel. Le binaire `win10-x64` est le bon sous-dossier dans les
 deux configurations (pas directement sous `net8.0-windows10.0.19041.0\`).
 
+## Maquette "shell type Claude Code" (`Views/Claude/`, 03/09)
+
+Qwen a converti sa propre maquette HTML/CSS/JS (voir `Docs/inspirations/`)
+en un vrai shell MAUI, livré en 4 fichiers ("100% additif, 0 erreur
+attendue"). **3 vraies causes de blocage trouvées à la compilation, pas
+supposées** (même famille de pattern que le reste de ce fichier : vérifier
+avant de croire une note d'accompagnement) :
+- `Border.CornerRadius` n'existe pas en MAUI (3 occurrences) → `StrokeShape
+  RoundRectangle`.
+- `Button.Flyout`/`MenuFlyout` (API WinUI native) n'existe pas en MAUI
+  cross-plateforme (2 menus, ☰ et utilisateur) → remplacés par
+  `DisplayActionSheet`, le vrai mécanisme déjà utilisé ailleurs dans ce
+  dépôt (`MainPage.UI.cs`, `OnLicenseClicked`).
+- `AppWindow.Presenter` est en lecture seule, `Window` (MAUI) n'a pas de
+  `Destroy()` → repris du patron déjà éprouvé dans
+  `CustomMenuBarView.xaml.cs` (`OverlappedPresenter.Minimize/Maximize/
+  Restore` + `Window.Close()` natif).
+- Bonus : la note affirmait que `MotoSubtleText` existait déjà dans
+  `MotoTheme.xaml` — faux, ajoutée (reprise de `Txt2`, pas une teinte
+  inventée).
+
+**Statut** : compile et tourne, fenêtre de test séparée ("Interface
+(maquette Claude Code)", palette `ai.claudeshell` /
+`WindowManager.WindowKind.ClaudeShell`) — ne remplace RIEN de l'interface
+principale, additif comme prévu. Confirmé par Tom : rendu visuel conforme,
+menu ☰ (DisplayActionSheet) fonctionne, envoi de message + réponse simulée
+fonctionnent. **Données 100% factices** (sessions, messages, stats
+d'accueil, heatmap = seed codée en dur dans `ClaudeShellViewModel`, pas
+branchée sur les vrais `ChatService`/`GlobalUsageEngine`) — c'est une
+démo visuelle, pas un remplacement fonctionnel du panneau de chat réel
+(`AiChatView`). Extensions listées par Qwen mais PAS faites : vraies
+fenêtres détachées par panneau, puces de code interactives, drag complet
+de la poignée de sidebar, raccourci Ctrl+B réel, rendu riche de la
+transcription (actuellement en `Label`, pas en Markdown/HTML).
+
+**Décision de Tom (03/09, même soir)** : reste une VITRINE, ne remplace pas
+`MainPage` (ni en entier, ni juste Chat/Cowork/`AiChatView`) — trop de
+surface réelle à reconstruire (explorateur, éditeur, terminal réel,
+Cortex/Neural/plugins/git/debug...) pour un remplacement total ou même
+partiel, risque de régression pas justifié. La voie choisie : piocher des
+idées visuelles/UX dans ce shell et les appliquer une par une au VRAI
+`MainPage`, même discipline que le reste de cette session (petit
+correctif testé → commit, jamais un gros saut). Ne pas rouvrir cette
+question sans un nouvel élément qui change la donne.
+
 ## Paliers de qualité de Tom
 
 Échelle perso : cheap → faible → moyen → élevé → Commercial.
