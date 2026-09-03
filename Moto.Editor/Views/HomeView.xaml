@@ -66,6 +66,18 @@
                           ColumnSpacing="8" RowSpacing="8" />
                 </Border>
 
+                <!-- ★ AJOUT (03/09, vitrine "vraies stats visibles sur l'Accueil") :
+                     le Tableau de bord global (fichiers/lignes/IA/exports/builds
+                     cumulés) n'était jusqu'ici accessible QUE via la palette de
+                     commandes cachée (Ctrl+Maj+P) — jamais suggéré ici. Voir
+                     DashboardTapped/OnDashboardTapped dans le code-behind. -->
+                <Label Text="Voir le tableau de bord complet →" FontSize="12"
+                       TextColor="{StaticResource Txt2}" HorizontalOptions="Center" Margin="0,-12,0,0">
+                    <Label.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnDashboardTapped" />
+                    </Label.GestureRecognizers>
+                </Label>
+
                 <!-- ★ RÉORGANISÉ (31/08, points 3/4 de Tom) : ordre calqué sur la
                      référence Claude Code — chips AU-DESSUS de la saisie (petit
                      écart), barre de contrôles (+/micro/IA/Cortex/modèle/Puissance/

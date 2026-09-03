@@ -239,6 +239,12 @@ namespace Moto.Editor
                     _globalUsage?.StartSession();
                 }
 
+                // ★ AJOUT (03/09, vraies stats IA du Tableau de bord global) : voir
+                // ChatService.AiCallRecorder — avant cet ajout, RecordAiCall n'était
+                // appelée par AUCUN code de production (fenêtre "ai.globaldashboard"
+                // bloquée à 0 pour Appels/Tokens, quel que soit l'usage réel).
+                _chatService.AiCallRecorder = (model, tokens) => _globalUsage?.RecordAiCall(model, tokens);
+
                 // Ajoute les overlays au RootGrid
                 if (_commandPalette != null)
                 {

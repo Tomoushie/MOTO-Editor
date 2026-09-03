@@ -109,6 +109,28 @@ confirmant qu'une seule instance à la fois tournait. Confirmé ensuite,
 propre : "0 en cours" / "1 terminée(s)" corrects après une vraie réponse
 IA.
 
+✅ **2e morceau du plan, même soir (commit à suivre)** : `GlobalUsageEngine
+.RecordAiCall` était réellement du code mort (confirmé plus haut) —
+branché via un nouveau point d'extension `ChatService.AiCallRecorder`
+(même patron que `PluginCommandHandler`), appelé depuis `RunTrackedAsync`
+après chaque appel IA réussi, câblé une fois par `MainPage
+.ResolveExtensionServices()`. Le Tableau de bord global affiche maintenant
+de vrais "Appels totaux"/"Tokens consommés"/"Top modèles" (confirmé par
+Tom : 1 appel, 13 tokens, "Ollama / MOTO interne" après une question).
+Estimation de tokens volontairement grossière (réponse.Length / 4, même
+heuristique déjà utilisée par `MainPage.Panels.cs/RefreshHomeStats` pour
+la tuile "Tokens" de l'Accueil — pas de vrai tokenizer, cohérence choisie
+plutôt qu'une 2e estimation différente). En plus : un lien "Voir le
+tableau de bord complet →" ajouté sous la carte de stats de l'écran
+d'Accueil (`HomeView`), jusqu'ici uniquement accessible via la palette de
+commandes cachée — confirmé par Tom, ouvre bien la même fenêtre
+spécialisée. **Limite déjà connue et non corrigée** : `GlobalDashboardView`
+ne se rafraîchit pas en direct (un seul appel à `Refresh()` dans
+`SetEngine`) — il faut fermer/rouvrir la fenêtre pour voir des chiffres à
+jour, même limite déjà documentée pour le panneau Tâches avant sa
+correction (ici, pas corrigée, cadre différent : une fenêtre de
+consultation ponctuelle, pas un suivi en direct).
+
 **Trouvé en testant ce chantier, hors scope, noté pour plus tard** :
 qualité des réponses de l'IA locale ("MOTO interne"/Ollama) — (1) aucun
 bouton pour copier un bloc de code dans une réponse IA, (2) le modèle ne

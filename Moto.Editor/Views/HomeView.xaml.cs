@@ -52,6 +52,14 @@ namespace Moto.Editor.Views
         public event Action? ProjectChipTapped;
 
         /// <summary>
+        /// ★ AJOUT (03/09, vitrine "vraies stats visibles sur l'Accueil") : le
+        /// Tableau de bord global (fichiers/lignes/IA/exports/builds cumulés,
+        /// GlobalUsageEngine) n'était jusqu'ici accessible QUE via la palette de
+        /// commandes cachée — jamais suggéré depuis l'écran que Tom voit en premier.
+        /// </summary>
+        public event Action? DashboardTapped;
+
+        /// <summary>
         /// Le constructeur reçoit les services via Injection de Dépendances (DI).
         /// cortexEngine/workspaceState sont nullables : au premier lancement (aucun
         /// workspace encore ouvert), MainPage construit Home avant que ces moteurs
@@ -251,6 +259,11 @@ namespace Moto.Editor.Views
         private void OnProjectChipTapped(object sender, EventArgs e)
         {
             ProjectChipTapped?.Invoke();
+        }
+
+        private void OnDashboardTapped(object sender, EventArgs e)
+        {
+            DashboardTapped?.Invoke();
         }
     }
 }

@@ -38,6 +38,19 @@ namespace Moto.Editor.Services
         /// </summary>
         public Func<string, Task<string?>>? PluginCommandHandler { get; set; }
 
+        /// <summary>
+        /// ★ AJOUT (03/09, vraies stats IA du Tableau de bord global) : point
+        /// d'extension optionnel — même patron que PluginCommandHandler ci-dessus.
+        /// Appelé après CHAQUE appel IA réussi (via RunTrackedAsync, donc SendAsync
+        /// ET AskWithCodeAsync) avec (modèle, tokens estimés). ChatService ne
+        /// connaît rien de GlobalUsageEngine — câblé une fois par MainPage
+        /// (ResolveExtensionServices). Avant cet ajout, GlobalUsageEngine.RecordAiCall
+        /// n'était appelée par AUCUN code de production : les stats IA du Tableau de
+        /// bord global (fenêtre "ai.globaldashboard") restaient bloquées à 0 en
+        /// permanence, quel que soit l'usage réel.
+        /// </summary>
+        public Action<string, int>? AiCallRecorder { get; set; }
+
         /// <summary>Mode de l'IA (Beginner/Expert) pour le routage interne.</summary>
         public AiMode Mode { get; set; } = AiMode.Beginner;
 
@@ -236,7 +249,12 @@ namespace Moto.Editor.Services
             Tasks.Insert(0, record);
             try
             {
-                return await work();
+                var response = await work();
+                // Même heuristique déjà utilisée par MainPage.Panels.cs/RefreshHomeStats
+                // (chars/4) — pas un vrai tokenizer, mais cohérente avec le chiffre déjà
+                // affiché ailleurs plutôt que d'inventer une 2e estimation différente.
+                AiCallRecorder?.Invoke(model, string.IsNullOrEmpty(response) ? 0 : response.Length / 4);
+                return response;
             }
             catch
             {

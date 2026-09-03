@@ -355,6 +355,9 @@ namespace Moto.Editor
             // MainPage.UI.cs). "Local" ouvre un choix façon Claude Code (capture d'écran
             // fournie par Tom : Local/Cloud/Contrôle à distance/WSL/SSH).
             Home.ProjectChipTapped += () => OnImportClicked(this, EventArgs.Empty);
+            // ★ AJOUT (03/09, vitrine "vraies stats visibles sur l'Accueil") :
+            // même fenêtre spécialisée que la commande de palette "ai.globaldashboard".
+            Home.DashboardTapped += () => OpenSpecializedWindow("globaldashboard");
             // ★ RETRAIT (31/08, point 1) : LocationMenu vit maintenant dans Home
             // elle-même (ancrée au-dessus de la chip "Local") — seul le résultat du
             // choix remonte encore jusqu'ici (voir HomeView.LocationSelected plus bas).
