@@ -161,6 +161,52 @@ Aucune garantie que TOUT modèle local suive parfaitement cette instruction
 (dépend du modèle installé), mais fonctionne avec le modèle par défaut
 testé.
 
+## Sonde disponibilité "premium" (03/09, 9 agents parallèles, 54 features vérifiées)
+
+Cartographie complète de l'état réel des 23 fonctionnalités visées pour la
+version payante ([[moto-editor-premium-tier-plan]] côté mémoire Claude) —
+rapport brut intégral : `Docs/probes/premium-readiness-probe-2026-09-03.json`.
+
+**Bilan chiffré** : 5 REAL_WIRED (déjà réel et branché), 37 DEAD_CODE (code
+réel, jamais appelé), 5 STUB (placeholder, ne fait rien), 4 PARTIAL, 3
+NOT_FOUND (à concevoir depuis zéro : `ReleaseAgent`, `MigrationAgent`,
+plugin `AutoRefactorPro` — fichier orphelin hors solution, `IMotoPlugin`
+inexistant).
+
+**Déjà réel et branché** : `ProactiveAnalyticsEngine`/`ProactiveSuggestionsEngine`/
+`ContextualActionsEngine` (suggestions proactives + actions contextuelles),
+`PluginRegistry` (plugin bundlé), `PerformanceProfiler` (barre de statut —
+générique, pas spécifique IA).
+
+**Trouvailles les plus exploitables (code réel + 1 seul point d'entrée UI
+manquant)** :
+- `DocEngine` génère RÉELLEMENT 6 fichiers Markdown à chaque ouverture de
+  projet (`doc_on_project_open`=true par défaut) — confirmé par les
+  fichiers `.moto/docs/*.md` présents sur disque avec un horodatage du
+  jour même. Mais `DocPanelView.Load(report)` n'est jamais appelé : le
+  panneau reste vide, et ses commandes (`ai.doc`/`help.doc`) sont absentes
+  de la palette. Plus petit pas : appeler `DocPanel.Load(report)` juste
+  après `_docEngine.GenerateAsync()` (MainPage.Panels.cs:648) + ajouter
+  les 2 entrées de palette manquantes.
+- `GitService` (Init/Stage/Commit/Push/Pull/Merge/Rebase/Branches/Diff/Log,
+  tout réel via CLI git) + `GitPanelView` (boutons câblés en interne) —
+  mais AUCUN case "git" dans `OpenSpecializedWindow`, aucune commande de
+  palette : la vue entière est injoignable. Plus petit pas : un case
+  "git" + une entrée de palette, même patron que GlobalDashboard/ThreadList.
+- `MarketplaceClientPro`, `VerifiedPublisherService`,
+  `PluginMalwareScanner`, la plupart des services Collab (`ReviewLaneView`,
+  `CollabRoleService`...) : classes réelles, DI ok, zéro appelant — chacun
+  nécessite littéralement UN bouton/case manquant, même famille que tous
+  les "réveils faciles" faits ce soir.
+
+**Confirmé une fois de plus** : `FeatureCatalog.cs` (déclarations
+"AlreadyImplemented") reste non fiable — reconfirme
+[[docs-orchestrator-claims-caveat]] côté mémoire.
+
+**Pas touché ce soir** (sonde de lecture seule, aucun code changé) — punch-list
+pour une prochaine session, à trier avec Tom (probablement via
+AskUserQuestion, pas décidé unilatéralement).
+
 ## Paliers de qualité de Tom
 
 Échelle perso : cheap → faible → moyen → élevé → Commercial.

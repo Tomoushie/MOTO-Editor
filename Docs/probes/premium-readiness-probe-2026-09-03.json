@@ -1,0 +1,992 @@
+{
+  "summary": "Cartographie 9 clusters de fonctionnalités premium MOTO Editor contre le vrai code (DI vs usage réel)",
+  "agentCount": 9,
+  "logs": [
+    "9/9 clusters investigués avec succès"
+  ],
+  "result": {
+    "clusters_completed": 9,
+    "clusters_total": 9,
+    "total_features_checked": 54,
+    "counts": {
+      "REAL_WIRED": 5,
+      "DEAD_CODE": 37,
+      "STUB": 5,
+      "PARTIAL": 4,
+      "NOT_FOUND": 3
+    },
+    "findings_by_verdict": {
+      "REAL_WIRED": [
+        {
+          "cluster": "Fonctionnalités premium candidates (Analyse de projet profonde / Suggestions proactives avancées) — MOTO-Editor",
+          "premium_feature": "ProactiveAnalyticsEngine (télémétrie suggestions/palette, alimente \"Suggestions proactives avancées\")",
+          "verdict": "REAL_WIRED",
+          "evidence": "Classe réelle (persistance JSON, agrégats) : Moto.Core/Moto.AI/Analytics/ProactiveAnalyticsEngine.cs:47. Enregistrée en DI : Moto.Editor/DependencyInjection/MotoServiceCollectionExtensions.cs:146. Appelée en production : Moto.Editor/MainPage.Extensions.cs:394 (`_analytics.Record(...PaletteCommandExecuted, command)` à chaque commande palette exécutée) et Moto.Editor/MainPage.Extensions.cs:762 (`view.SetAnalytics(_analytics)` à l'ouverture de la fenêtre Analytics). Un vrai panneau flottant l'affiche (Moto.Editor/MainPage.xaml.cs:308 `new AnalyticsDashboardView()`, ajouté via AddFloatingPanel ligne 318) et la commande slash réelle \"/analytics\" (tapée dans la barre IA) le pilote : Moto.Editor/MainPage.Routing.cs:560-619 (sous-commandes top/underperform/export/dashboard, dashboard bascule `_analyticsDashboard.IsVisible` et rappelle SetAnalytics ligne 607-609). Rendu réel des stats : Moto.Editor/Views/AnalyticsDashboardView.xaml.cs:36-61 (RenderTopCommands/RenderSuggestions/RenderHeatmap utilisent GetTopPaletteCommands/GetTopSuggestions/GetUnderperformingSuggestions/GetAllStats).",
+          "smallest_next_step": "déjà fait"
+        },
+        {
+          "cluster": "Fonctionnalités premium candidates (Analyse de projet profonde / Suggestions proactives avancées) — MOTO-Editor",
+          "premium_feature": "ProactiveSuggestionsEngine (suggestions proactives affichées au fil de l'usage)",
+          "verdict": "REAL_WIRED",
+          "evidence": "Classe réelle : Moto.Core/Moto.AI/Suggestions/ProactiveSuggestionsEngine.cs:25 (GetSuggestions filtre via FeatureFlagService et ProactiveAnalyticsEngine.IsDismissed). Enregistrée en DI avec ses vraies dépendances : MotoServiceCollectionExtensions.cs:164. Réellement invoquée en boucle : Moto.Editor/MainPage.Extensions.cs:544-546 (timer 30s `SetupProactiveTimer`) déclenche RefreshProactiveSuggestions (lignes 552-564) qui appelle `_proactiveEngine.GetSuggestions(context)` puis `_proactivePanel.UpdateSuggestions(suggestions)`. Le panneau ProactivePanel a `IsVisible=\"False\"` par défaut (Moto.Editor/Views/ProactivePanel.xaml:5) mais UpdateSuggestions le rend visible automatiquement dès qu'il y a des suggestions (Moto.Editor/Views/ProactivePanel.xaml.cs:41), et le clic sur une carte appelle `RecordExecution` puis déclenche `SuggestionInvoked` (ProactivePanel.xaml.cs:97-102), câblé à `OnAiCommandSubmitted` dans MainPage.Extensions.cs:265. Donc suggestions générées, affichées et cliquables sans action manuelle préalable de l'utilisateur — invocation UI/automatique réelle confirmée.",
+          "smallest_next_step": "déjà fait"
+        },
+        {
+          "cluster": "Fonctionnalités premium candidates (Analyse de projet profonde / Suggestions proactives avancées) — MOTO-Editor",
+          "premium_feature": "ContextualActionsEngine (actions contextuelles proposées selon l'état de l'éditeur)",
+          "verdict": "REAL_WIRED",
+          "evidence": "Classe réelle avec scoring contextuel : Moto.Core/Moto.AI/Actions/ContextualActionsEngine.cs:48. Utilisée directement (instance propre, pas via DI) dans MainPage.Extensions.cs:53 (`_actionsEngine = new()`) puis appelée depuis ShowContextualActions() (ligne 489, `_actionsEngine.GetActions(...)`), atteignable via la commande slash réelle \"/actions\" : Moto.Editor/MainPage.Routing.cs:387-389. Cette même commande est listée dans la palette de commandes (Ctrl+Maj+P, hotkey réellement câblé dans MainPage.Extensions.cs:453-467) : Moto.Core/Moto.AI/Commands/CommandPaletteEngine.cs:174 (\"slash.actions\" → \"/actions\"). Le moteur est aussi injecté via DI dans CommandPaletteEngine (MotoServiceCollectionExtensions.cs:163) qui l'utilise à chaque ouverture de palette pour ajouter les actions dynamiques (CommandPaletteEngine.cs:57-71).",
+          "smallest_next_step": "déjà fait"
+        },
+        {
+          "cluster": "MOTO Editor — Marketplace de plugins & Sandbox plugin avancée (Moto.Editor / Moto.Core)",
+          "premium_feature": "PluginRegistry (Marketplace de plugins — registre/chargement de plugins)",
+          "verdict": "REAL_WIRED",
+          "evidence": "Classe réelle : E:\\Corpus\\MOTO-Editor\\Moto.Core\\Plugins\\PluginRegistry.cs:11-94, avec RegisterAsync() (ligne 47) qui appelle réellement plugin.InitializeAsync() et injecte les réglages dans SettingsCatalog.All. Enregistré en DI : MotoServiceCollectionExtensions.cs:143. Réellement invoqué au démarrage réel de l'app : Moto.Editor\\MainPage.Extensions.cs:180 ('_ = RegisterBundledPluginsAsync();') enregistre le plugin bundlé SampleFormatPlugin, et GetActivePlugins() (ligne 23) est affiché dans la vraie galerie ouverte par le bouton '🧱 Plugins' (PluginGalleryView.xaml.cs:58, MainPage.Panels.cs:339). Confirmé narrativement par CLAUDE.md:790-828 ('UN VRAI PLUGIN CHARGÉ ET FONCTIONNEL', testé depuis 2 surfaces réelles). Limite : seul le plugin bundlé (ProjectReference) est chargé, pas de chargement dynamique d'un dossier plugins/ externe (CLAUDE.md:832-835) — mais le service lui-même est bien réel et branché.",
+          "smallest_next_step": "déjà fait"
+        },
+        {
+          "cluster": "Debug IA avancé / Profiling IA (MOTO-Editor, dépôt E:\\Corpus\\MOTO-Editor)",
+          "premium_feature": "Profiling IA — Moto.Core/Performance/PerformanceProfiler.cs (classe PerformanceProfiler)",
+          "verdict": "REAL_WIRED",
+          "evidence": "Service réel : échantillonne CPU/RAM/GC/threads via Process/GC toutes les 2s (Moto.Core/Performance/PerformanceProfiler.cs:19-26,68-88). Enregistré en DI singleton : MotoServiceCollectionExtensions.cs:128. RÉELLEMENT appelé : Moto.Editor/Views/StatusBarPanelView.xaml.cs:34-43 instancie `new PerformanceStatusBarView(profiler)` et l'insère dans la barre de statut (`RightChips.Children.Insert(0, perf)`), et PerformanceStatusBarView.xaml.cs:19-32,64-70 lit `_profiler.GetMetrics()` toutes les secondes pour afficher Mémoire/CPU/Threads/GC. StatusBarPanelView est bien déclarée et compilée dans l'UI réelle : Moto.Editor/MainPage.xaml:180 `<views:StatusBarPanelView x:Name=\"StatusBar\" .../>`. Attention : ce profiler n'est PAS spécifique à l'IA, c'est un profiler éditeur générique (CPU/RAM/GC du process complet) — s'il doit incarner 'Profiling IA' au sens strict (mesures propres à l'inférence IA), il ne couvre pas ce besoin ; voir AiObservabilityService/SystemLoadMonitor ci-dessous pour la partie réellement 'IA'.",
+          "smallest_next_step": "déjà fait (pour un profiling éditeur générique affiché dans la barre de statut) — mais si 'Profiling IA' doit signifier des métriques d'inférence IA, il reste à brancher un vrai consommateur IA-spécifique (voir AiObservabilityService)."
+        }
+      ],
+      "DEAD_CODE": [
+        {
+          "cluster": "Fonctionnalités premium MOTO Editor (XENO-SSS intégré / Agents multi-étapes / Orchestrateur complet)",
+          "premium_feature": "XENO-SSS intégré",
+          "verdict": "DEAD_CODE",
+          "evidence": "Il existe au moins TROIS implémentations réelles et mutuellement indépendantes du concept \"pipeline XENO-SSS\", aucune reliée à l'UI : (1) Moto.Core/Moto.AI/Orchestration/AgentOrchestratorV3.cs:24-29 — pipeline 6 étapes (Scanner→Analyzer→Synthesizer→Connector→Validator→Scorer), vrai code combinant CortexEngine+ContextualActionsEngine+AgentScorer via GetCombinedSuggestionsV3 (ligne 46). Enregistré en DI : Moto.Editor/DependencyInjection/MotoServiceCollectionExtensions.cs:166. Mais `GetCombinedSuggestionsV3` n'est appelé nulle part ailleurs dans le dépôt (grep global : seule sa définition). (2) Snake2000.Engine/AgentIntegrated/Pipeline/XenoPipelineV5.cs:12-48 — pipeline parallèle réel (Architecture/Performance/Security/Testing agents + boucle de feedback). Enregistré en DI (lazy) : MotoServiceCollectionExtensions.cs:225-228. Son seul consommateur est `XenoFeedbackOverlay.SetPipeline` (Moto.Editor/Views/XenoFeedbackOverlay.xaml.cs:23-26), mais `XenoFeedbackOverlay` elle-même n'est instanciée/ajoutée à AUCUNE page (grep sur le nom de classe : seuls son propre .xaml/.xaml.cs la référencent). CLAUDE.md:558-563 confirme explicitly : \"XenoFeedbackOverlay : PAS de point d'entrée [...] aucun déclencheur visible\". (3) Moto.Core/Integration/XenoGateway.cs:35-77 (`LocalXenoGateway.RunFullPipeline`) — encore un 3e pipeline réel (Scanner/Analyzer/Synthesizer/Connector/Validator de Snake2000.Engine), consommé par NoCodeOrchestrator.cs:75, lui-même relié uniquement à `BeginnerModesView.SetNoCode` (Moto.Editor/Views/BeginnerModesView.xaml.cs:39-42) — mais `IXenoGateway` n'a AUCUN enregistrement DI (grep sur MotoServiceCollectionExtensions.cs : 0 résultat) et `SetNoCode` n'est appelé par rien. Une 4e brique (Moto.Core/Integration/XenoClient.cs + XenoTaskService.cs) est un client HTTP vers un host externe imaginaire (127.0.0.1:8377) jamais vérifié comme existant. Conclusion : \"XENO-SSS\" désigne au moins 3 pipelines de code réel et non-stub, mais zéro chemin UI ne mène à l'un d'eux.",
+          "smallest_next_step": "Ajouter une commande de palette (même schéma que ai.motopage/ai.globaldashboard dans CommandPaletteEngine.cs) qui résout XenoPipelineV5 depuis le conteneur DI, appelle ExecuteAsync(context), puis fait overlay.SetPipeline(pipeline) + overlay.ShowResult(result) sur une XenoFeedbackOverlay ajoutée à une page réelle."
+        },
+        {
+          "cluster": "Fonctionnalités premium MOTO Editor (XENO-SSS intégré / Agents multi-étapes / Orchestrateur complet)",
+          "premium_feature": "Agents multi-étapes",
+          "verdict": "DEAD_CODE",
+          "evidence": "SubagentOrchestrator (Moto.Core/Moto.AI/Agents/SubagentOrchestrator.cs:13-46) implémente une vraie délégation récursive à profondeur limitée (`ExecuteWithSubagentsAsync`, lignes 26-46, avec garde-fou `MaxSubagentDepth`). SpecializedAgentRegistry (Moto.Core/Moto.AI/Agents/SpecializedAgentRegistry.cs:9-31) est un vrai registre/dispatcher (`DispatchAsync`, ligne 23) avec 8 agents concrets enregistrés (SecurityHintAgent, PrivacyScannerAgent, etc. — MotoServiceCollectionExtensions.cs:341-352). Les deux sont enregistrés en DI (lignes 351 et 378). Mais `SubagentOrchestrator`/`ExecuteWithSubagentsAsync` n'apparaît nulle part ailleurs dans le dépôt qu'à sa propre définition et sa ligne DI (grep global). Le seul consommateur réel de `SpecializedAgentRegistry` autre que SubagentOrchestrator lui-même est `AgentMarketplaceService` (Moto.Core/Moto.AI/Agents/AdvancedAgentServices.cs:61-79, `ListAvailable()`/`Install()` réels), utilisé uniquement par `AgentMarketplaceView` (Moto.Editor/Views/AgentMarketplaceView.xaml.cs:14, `AddTransient` en DI ligne 395) — mais `AgentMarketplaceView` n'est jamais navigué/instancié nulle part (aucun `PushAsync`, aucune entrée XAML, aucune commande de palette trouvée par grep). Le commentaire de Moto.Editor/Models/ChatTaskRecord.cs:11-14 confirme explicitement cet état : \"MOTO n'a aujourd'hui aucun sous-agent réellement invoqué depuis l'UI (AgentOrchestratorV3/SpecializedAgentRegistry existent mais ne sont appelés par rien)\".",
+          "smallest_next_step": "Ajouter une entrée de palette de commandes qui appelle Navigation.PushAsync(new AgentMarketplaceView(...)) (résolu via DI), et/ou un bouton qui appelle SubagentOrchestrator.ExecuteWithSubagentsAsync(...) avec une vraie requête pour rendre le chemin bout-en-bout observable."
+        },
+        {
+          "cluster": "Fonctionnalités premium MOTO Editor (XENO-SSS intégré / Agents multi-étapes / Orchestrateur complet)",
+          "premium_feature": "Orchestrateur complet",
+          "verdict": "DEAD_CODE",
+          "evidence": "Le candidat le plus proche du nom est AgentOrchestratorV3 (Moto.Core/Moto.AI/Orchestration/AgentOrchestratorV3.cs:29), qui combine effectivement plusieurs moteurs (CortexEngine + ContextualActionsEngine + ProactiveAnalyticsEngine + AgentScorer) en un seul pipeline pondéré — même évidence que ci-dessus : enregistré en DI (MotoServiceCollectionExtensions.cs:166) mais `GetCombinedSuggestionsV3` jamais appelé hors définition/tests. Même son prédécesseur plus simple `AgentOrchestrator` (v1, Moto.Core/Moto.AI/Orchestration/AgentOrchestrator.cs:58, `GetCombinedSuggestions`) n'est ni enregistré en DI ni appelé nulle part — donc AUCUNE version de l'orchestrateur (v1 ou v3) n'est câblée. Un autre candidat plausible pour \"orchestrateur complet\" — `MultiAgentSuggestionEngine` (Moto.Core/Moto.AI/Orchestration/MultiAgentSuggestionEngine.cs:11-22, qui fusionnerait Cortex+Neural+Workspace) — est encore plus en amont : le commentaire MotoServiceCollectionExtensions.cs:209 dit explicitement \"MultiAgentSuggestionEngine : mis de côté (API Cortex/Neural/Workspace jamais implémentée)\", et la classe n'est même pas enregistrée en DI (aucune instanciation trouvée nulle part). Enfin, NeuralMode_Optimized (Moto.Core/Moto.AI/Neural/NeuralMode_Optimized.cs:11) — piste de départ donnée pour cette investigation — n'a AUCUN rapport constaté avec un \"orchestrateur\" : c'est un moteur d'embeddings TF-IDF autonome, enregistré en DI (MotoServiceCollectionExtensions.cs:230-231) mais jamais consommé par aucun autre service ni l'UI (grep global : seule sa propre définition + la ligne DI). À noter : le service réellement utilisé pour la recherche par embeddings est une classe différente, `NeuralMode` (sans suffixe), consommée par `MultiAgentSuggestionEngine` — lui-même non câblé.",
+          "smallest_next_step": "Décider d'abord QUEL orchestrateur incarne \"orchestrateur complet\" dans la vision de Tom (V3 seul, ou fusion Cortex+Neural+Workspace) avant de coder quoi que ce soit ; une fois choisi, le plus petit pas concret est d'appeler AgentOrchestratorV3.GetCombinedSuggestionsV3(...) depuis un point déjà réel de l'UI (par ex. le même endroit qui affiche déjà les suggestions de l'agent v1/actions contextuelles) pour comparer les deux sorties côte à côte."
+        },
+        {
+          "cluster": "MOTO Editor — Fonctionnalités premium (agents IA) : CommitMessageAgent, ReleaseAgent, BuildAgent, TestAgent, MigrationAgent, ArchitectureAgent",
+          "premium_feature": "CommitMessageAgent",
+          "verdict": "DEAD_CODE",
+          "evidence": "Classe réelle : Moto.Core/Moto.AI/Agents/LlmBackedAgents.cs:80-89 (`CommitMessageAgent : LlmBackedAgent`), qui hérite de `LlmBackedAgent : ISpecializedAgent` (LlmBackedAgents.cs:13) et fait un vrai travail : construit un prompt à partir du diff (ligne 88-89) et l'envoie à `Kernel.RouteAsync` (LlmBackedAgents.cs:39). Enregistré en DI : Moto.Editor/DependencyInjection/MotoServiceCollectionExtensions.cs:336 (`services.AddSingleton<ISpecializedAgent, CommitMessageAgent>();`). Mais aucun appelant réel : le seul chemin d'exécution passe par `SpecializedAgentRegistry.DispatchAsync` (Moto.Core/Moto.AI/Agents/SpecializedAgentRegistry.cs:23-30), lui-même seulement utilisé par `SubagentOrchestrator` (Moto.Core/Moto.AI/Agents/SubagentOrchestrator.cs) — jamais appelé nulle part (grep sur `SubagentOrchestrator` : uniquement sa définition et son enregistrement DI ligne 378, aucun `.ExecuteWithSubagentsAsync(` ailleurs) — et par `AgentMarketplaceService`/`AgentMarketplaceView` (Moto.Core/Moto.AI/Agents/AdvancedAgentServices.cs:61-80, Moto.Editor/Views/AgentMarketplaceView.xaml.cs), une vue enregistrée en DI (ligne 395) mais jamais résolue/ouverte par aucune commande ou fenêtre (grep sur `AgentMarketplaceView` : uniquement DI + son propre fichier/XAML). Le code source lui-même le documente : Moto.Editor/Models/ChatTaskRecord.cs:11-15 dit explicitement « MOTO n'a aujourd'hui aucun sous-agent réellement invoqué depuis l'UI (AgentOrchestratorV3/SpecializedAgentRegistry existent mais ne sont appelés par rien) », confirmé par CLAUDE.md:90-91.",
+          "smallest_next_step": "Ajouter un bouton « Générer message de commit » dans Moto.Editor/Views/GitPanelView.xaml.cs qui appelle SpecializedAgentRegistry.DispatchAsync(\"agent.commit.message\", ...) avec le diff renvoyé par GitService."
+        },
+        {
+          "cluster": "MOTO Editor — Fonctionnalités premium (agents IA) : CommitMessageAgent, ReleaseAgent, BuildAgent, TestAgent, MigrationAgent, ArchitectureAgent",
+          "premium_feature": "TestAgent",
+          "verdict": "DEAD_CODE",
+          "evidence": "Aucune classe nommée TestAgent. Deux classes voisines existent et font un vrai travail : `TestSkeletonAgent` (Moto.Core/Moto.AI/Agents/LlmBackedAgents.cs:54-64, génère un squelette de tests xUnit via LLM) et `TestFlakinessAgent` (Moto.Core/Moto.AI/Agents/StaticAnalysisAgents.cs:236-268, détecte les tests instables par heuristique sur un historique pass/fail). Toutes deux enregistrées en DI (Moto.Editor/DependencyInjection/MotoServiceCollectionExtensions.cs:334 et :347) mais appartiennent à la même chaîne ISpecializedAgent → SpecializedAgentRegistry → SubagentOrchestrator/AgentMarketplace jamais appelée (voir preuve détaillée sous CommitMessageAgent). Par ailleurs il n'existe même pas de commande d'exécution de tests non-IA : Moto.Editor/MainPage.Routing.cs:83-86 ne liste que `run.build`, `run.play`, `run.stop`, `run.sandbox` — aucun `run.test` ni invocation de `dotnet test` trouvée dans le dépôt.",
+          "smallest_next_step": "Ajouter une commande `run.test` dans Moto.Editor/MainPage.Routing.cs qui appelle SpecializedAgentRegistry.DispatchAsync(\"agent.tests.micro\", ...) ou (\"agent.test.flakiness\", ...) sur le fichier/projet courant."
+        },
+        {
+          "cluster": "MOTO Editor — Fonctionnalités premium (agents IA) : CommitMessageAgent, ReleaseAgent, BuildAgent, TestAgent, MigrationAgent, ArchitectureAgent",
+          "premium_feature": "ArchitectureAgent",
+          "verdict": "DEAD_CODE",
+          "evidence": "Classe réelle : Snake2000.Engine/AgentIntegrated/Specialized/SpecializedAgents.cs:22-45 (`ArchitectureAgent : ISpecializedAgent`) — attention, c'est une interface `ISpecializedAgent` DIFFÉRENTE (définie ligne 13 dans ce même fichier, namespace Snake2000.Engine.AgentIntegrated.Specialized) de celle utilisée par CommitMessageAgent/TestFlakinessAgent (namespace Moto.Core.AI.Agents). Fait un vrai travail heuristique (détection service-locator, Thread.Sleep, fichiers volumineux, lignes 28-36). Elle est instanciée en dur dans `XenoPipelineV5` (Snake2000.Engine/AgentIntegrated/Pipeline/XenoPipelineV5.cs:14, `private readonly ArchitectureAgent _architecture = new();`), et `XenoPipelineV5` est bien enregistré en DI (Moto.Editor/DependencyInjection/MotoServiceCollectionExtensions.cs:225-228, singleton lazy-wrapped). Le seul consommateur de son résultat est `XenoFeedbackOverlay` (Moto.Editor/Views/XenoFeedbackOverlay.xaml.cs:15-45, `SetPipeline`/`ShowResult`), mais cette vue n'est enregistrée NULLE PART dans le conteneur DI et n'est instanciée par aucun autre fichier du dépôt (grep : seulement sa propre définition et son XAML). CLAUDE.md:558-564 confirme explicitement et sans ambiguïté : « `XenoFeedbackOverlay` : PAS de point d'entrée … aucun déclencheur visible (\"lancer un pipeline Xeno\") n'existe aujourd'hui dans l'interface de MOTO Editor ».",
+          "smallest_next_step": "Ajouter un bouton/commande palette qui résout XenoPipelineV5 via DI, instancie XenoFeedbackOverlay, appelle SetPipeline(pipeline) puis pipeline.ExecuteAsync(context) sur le fichier ouvert et affiche ShowResult(...)."
+        },
+        {
+          "cluster": "Fonctionnalités premium MOTO Editor : \"Auto-refactor avancé\" et \"Optimisation automatique du code\" — dépôt E:\\Corpus\\MOTO-Editor",
+          "premium_feature": "Auto-refactor avancé — RefactorFixer / RefactorLearningStore (moteur de diff + persistance du feedback)",
+          "verdict": "DEAD_CODE",
+          "evidence": "RefactorFixer.cs (E:\\Corpus\\MOTO-Editor\\Moto.Core\\Refactor\\RefactorFixer.cs:1-44) fait un vrai travail (ApplyFixAsync remplace les lignes, GenerateDiff calcule un diff texte) et RefactorLearningStore.cs (...\\RefactorLearningStore.cs:1-93) persiste un vrai fichier JSON de feedback utilisateur (RecordFeedback/GetAdjustedScore/SaveFeedback). Les deux sont enregistrés en DI : Moto.Editor\\DependencyInjection\\MotoServiceCollectionExtensions.cs:185-186 (services.AddSingleton<RefactorFixer>(); / <RefactorLearningStore>();). Mais leur SEUL appelant dans tout le dépôt est RefactorEngine (Moto.Core\\Refactor\\RefactorEngine.cs:9-14, qui fait `new RefactorFixer()`/`new RefactorLearningStore()` — même pas les instances DI), lui-même appelé uniquement par Moto.Editor\\Views\\RefactorPanel.xaml.cs:10-15. Or RefactorEngine.cs et RefactorAnalyzer.cs sont explicitement exclus de la compilation dans Moto.Core.csproj:69-70 (`<Compile Remove=\"Refactor\\RefactorEngine.cs\" />` etc.), et RefactorPanel.xaml / RefactorPanel.xaml.cs sont exclus de Moto.Editor.csproj:196-197 (`<Compile Remove=\"Views\\RefactorPanel.xaml.cs\" />`, `<MauiXaml Remove=\"Views\\RefactorPanel.xaml\" />`). La seule chaîne d'appel possible ne compile même pas dans le binaire livré.",
+          "smallest_next_step": "Retirer les <Compile Remove> de RefactorEngine.cs/RefactorAnalyzer.cs (Moto.Core.csproj) et de RefactorPanel (Moto.Editor.csproj), migrer RefactorPanel du XAML WinUI (Microsoft.UI.Xaml) vers MAUI, puis ajouter un vrai bouton qui l'affiche avec des suggestions."
+        },
+        {
+          "cluster": "Fonctionnalités premium MOTO Editor : \"Auto-refactor avancé\" et \"Optimisation automatique du code\" — dépôt E:\\Corpus\\MOTO-Editor",
+          "premium_feature": "Auto-refactor avancé — RefactorWalkthroughService (parcours interactif avec checkpoints)",
+          "verdict": "DEAD_CODE",
+          "evidence": "Classe avec logique réelle (pile de checkpoints, curseur d'étapes) : E:\\Corpus\\MOTO-Editor\\Moto.Core\\Moto.AI\\Agents\\AdvancedAgentServices.cs:109-143 (BeginWalkthrough/NextStep/CommitCheckpoint/RollbackToLastCheckpoint). Enregistrée en DI : Moto.Editor\\DependencyInjection\\MotoServiceCollectionExtensions.cs:359. Grep sur l'ensemble du dépôt pour BeginWalkthrough|NextStep\\(\\)|CommitCheckpoint|RollbackToLastCheckpoint : les seules occurrences sont les définitions elles-mêmes dans AdvancedAgentServices.cs — aucun bouton, commande de palette ou autre service ne les appelle.",
+          "smallest_next_step": "Une fois RefactorPanel reconstruit (voir finding précédent), câbler son bouton \"appliquer plusieurs corrections\" pour appeler walkthroughService.BeginWalkthrough(...) avant d'enchaîner les fixs."
+        },
+        {
+          "cluster": "Fonctionnalités premium MOTO Editor : \"Auto-refactor avancé\" et \"Optimisation automatique du code\" — dépôt E:\\Corpus\\MOTO-Editor",
+          "premium_feature": "Optimisation automatique du code — LocalRlFeedbackLoop (boucle RL locale de tri des suggestions)",
+          "verdict": "DEAD_CODE",
+          "evidence": "Logique réelle (moyenne de reward par agentId façon bandit UCB-lite) : E:\\Corpus\\MOTO-Editor\\Moto.Core\\Moto.AI\\Agents\\AdvancedAgentServices.cs:83-106. Enregistrée en DI : Moto.Editor\\DependencyInjection\\MotoServiceCollectionExtensions.cs:358. Son seul consommateur dans le dépôt est SmartSnippetSuggestionService (Moto.Core\\Moto.AI\\Suggestions\\SmartSnippetSuggestionService.cs:29,36,58,83), qui n'est LUI-MÊME enregistré nulle part dans MotoServiceCollectionExtensions.cs et n'est instancié par aucun autre fichier (grep sur \"SmartSnippetSuggestionService\" ne trouve que sa propre définition et de la doc/arborescence, pas d'appelant). Toute la chaîne est donc morte. Remarque d'incertitude : cette classe pondère des suggestions de snippets IA, pas de l'optimisation de code au sens perf/lisibilité — le lien avec \"Optimisation automatique du code\" annoncé par Tom est une extrapolation de ma part, pas une certitude établie dans le dépôt.",
+          "smallest_next_step": "Enregistrer SmartSnippetSuggestionService dans le DI et appeler .Suggest(...) depuis un vrai point d'entrée éditeur (ex. l'autocomplétion ou un raccourci) ; sinon LocalRlFeedbackLoop restera un mort-vivant même une fois SmartSnippetSuggestionService branché ailleurs."
+        },
+        {
+          "cluster": "Fonctionnalités premium MOTO Editor : \"Auto-refactor avancé\" et \"Optimisation automatique du code\" — dépôt E:\\Corpus\\MOTO-Editor",
+          "premium_feature": "Optimisation automatique du code — AdaptiveModelSelector (choix du modèle IA selon complexité de la tâche)",
+          "verdict": "DEAD_CODE",
+          "evidence": "Classe réelle mais très simple (switch TaskComplexity → AiModel) : E:\\Corpus\\MOTO-Editor\\Moto.Core\\Performance\\AdaptiveModelSelector.cs:19-28. Enregistrée en DI : Moto.Editor\\DependencyInjection\\MotoServiceCollectionExtensions.cs:193. Grep sur tout le dépôt pour \"SelectModel\" : la seule occurrence est la définition de la méthode elle-même (AdaptiveModelSelector.cs:19) — aucun appelant. La propriété statique `Instance` n'est lue nulle part non plus. Aucun bouton, commande ou service (y compris le chemin IA actif MotoAiKernel/Ollama mentionné en commentaire dans MotoServiceCollectionExtensions.cs:176) ne s'en sert pour réellement sélectionner un modèle selon la complexité.",
+          "smallest_next_step": "Appeler AdaptiveModelSelector.SelectModel(...) depuis le point où le moteur IA (MotoAiKernel / chemin Ollama) choisit effectivement quel modèle charger, et faire dépendre ce choix du résultat au lieu d'un modèle fixe."
+        },
+        {
+          "cluster": "MOTO Editor premium features: Auto-linking intelligent & Auto-documentation complète",
+          "premium_feature": "Auto-linking intelligent",
+          "verdict": "DEAD_CODE",
+          "evidence": "Two competing implementations exist. The one that's actually wired into a pipeline is Moto.Core.AI.AutoLink.AutoLinkEngine (E:\\Corpus\\MOTO-Editor\\Moto.Core\\Moto.AI\\AutoLink\\AutoLinkEngine.cs:22-45), a real regex+ProjectMap heuristic engine, used by ContextAnalyzer.Analyze() (Moto.Core\\Moto.AI\\Context\\ContextAnalyzer.cs:19,33), which is itself wrapped by ContextEngine.AnalyzeNow() (Moto.Core\\Moto.AI\\Context\\ContextEngine.cs:20,96). ContextEngine IS registered in DI as a singleton (Moto.Editor\\DependencyInjection\\MotoServiceCollectionExtensions.cs:217-220: `services.AddSingleton<Moto.Core.AI.Context.ContextEngine>(...)`), but a repo-wide grep found zero call sites resolving/injecting/instantiating ContextEngine anywhere in Moto.Editor — no `GetRequiredService<ContextEngine>()`, no field, no `new ContextEngine(...)` outside that one DI registration. On the UI side, MainPage.xaml:198 hosts `<views:AutoLinkView x:Name=\"AutoLinkPanel\">`, and MainPage.Routing.cs:91 registers a command `_commandRegistry.Register(\"ai.autolink\", () => AutoLinkPanel.IsVisible = !AutoLinkPanel.IsVisible)` — but this command id is absent from the command-palette's static catalog (Moto.Core\\Moto.AI\\Commands\\CommandPaletteEngine.cs:117-181, no \"ai.autolink\" entry) and absent from the title-bar's tap targets (Moto.Editor\\Views\\CustomMenuBarView.xaml:46,54,62 only wire \"explorer\", \"search\", \"collab\") — so no actual UI element can ever fire it. Even if fired, `AutoLinkView.Load(report)` (Moto.Editor\\Views\\AutoLinkView.xaml.cs:25) is never called by anything, so the panel would stay empty. A second, entirely separate class also named AutoLinkEngine exists at Moto.Core\\Moto.AI\\Internal\\AutoLinkEngine.cs:14 (DetectMissingLinks/GenerateLinkFixes) and is 100% orphaned — never instantiated anywhere in the codebase. The only other 'usage' of AutoLinkEngine, in Moto.Core\\Platform\\AvaloniaLinuxGenerator.cs:176,250, is inside a raw C# string template for generating a separate unbuilt Moto.Linux project, not a real call in the running app.",
+          "smallest_next_step": "In MainPage (Moto.Editor), resolve the already-registered ContextEngine from DI, call `_contextEngine.AnalyzeNow(currentFile, workspace)` when a file is active, feed the result into `AutoLinkPanel.Load(...)`, and add an \"ai.autolink\" entry to CommandPaletteEngine's static command list (or a button binding) so the panel is actually reachable."
+        },
+        {
+          "cluster": "Fonctionnalités premium candidates (Analyse de projet profonde / Suggestions proactives avancées) — MOTO-Editor",
+          "premium_feature": "AgentScorer (pondération multi-agents — brique candidate pour \"Analyse de projet profonde\")",
+          "verdict": "DEAD_CODE",
+          "evidence": "Classe réelle avec vraie logique de scoring pondéré : Moto.Core/Moto.AI/Orchestration/AgentScorer.cs:13-40. Enregistrée en DI (`services.AddSingleton<AgentScorer>()`) : MotoServiceCollectionExtensions.cs:150 — mais aucun `GetService<AgentScorer>()`/`GetRequiredService<AgentScorer>()` nulle part dans le dépôt (grep vide). Elle n'est en fait consommée qu'en interne, via une instance neuve (`new AgentScorer()`, pas celle du DI) par AgentOrchestratorV3.cs:34 et AgentOrchestrator.cs (celui-ci n'étant même pas enregistré en DI). AgentOrchestratorV3 est bien enregistré en DI (MotoServiceCollectionExtensions.cs:166) mais rien n'appelle `GetCombinedSuggestionsV3` ni ne résout `AgentOrchestratorV3` via DI en dehors des tests unitaires (Moto.Core.Tests/AI/Orchestration/AgentOrchestratorV3Tests.cs, Moto.Core.Tests/DependencyInjectionTests.cs:41 qui vérifie juste l'enregistrement). Le dépôt le confirme lui-même en commentaire : Moto.Editor/Models/ChatTaskRecord.cs:12-13 « MOTO n'a aujourd'hui aucun sous-agent réellement invoqué depuis l'UI (AgentOrchestratorV3/SpecializedAgentRegistry existent mais ne sont appelés par rien) ».",
+          "smallest_next_step": "Ajouter un vrai point d'entrée (bouton dans ProactivePanel.xaml.cs ou commande palette \"Analyse profonde\") qui appelle `AgentOrchestratorV3.GetCombinedSuggestionsV3(...)` résolu via DI, et faire injecter le `AgentScorer` du conteneur DI dans AgentOrchestratorV3 au lieu de `new AgentScorer()`."
+        },
+        {
+          "cluster": "Fonctionnalités premium candidates (Analyse de projet profonde / Suggestions proactives avancées) — MOTO-Editor",
+          "premium_feature": "PresenceAwareSuggestionGate (limiter l'IA lourde en forte présence collaborateurs — brique candidate pour \"Analyse de projet profonde\")",
+          "verdict": "DEAD_CODE",
+          "evidence": "Classe réelle (logique de seuil simple mais fonctionnelle) : Moto.Core/Settings/PresenceAwareSuggestionGate.cs:11-41. Enregistrée en DI, deux fois (redondant) : MotoServiceCollectionExtensions.cs:214 et :316. Injectée dans Moto.Core.AI.Context.ContextEngine (MotoServiceCollectionExtensions.cs:217-220, utilisée dans ContextEngine.cs:73 via `_presenceGate.ShouldRunHeavyAi()`) — mais ce ContextEngine n'est jamais résolu via `GetService<...ContextEngine>()` ni référencé nulle part dans Moto.Editor (aucun champ `_contextEngine`, aucun appel à `.Start()`/`.AnalyzeNow()`/`.SetActiveFile()` sur cette classe précisément ; seule trace hors définition est une simple ligne de texte marketing dans Moto.Editor/Views/AboutProView.xaml.cs:27 « ContextEngine (suggestions senior) », qui n'invoque rien). La gate est aussi injectée dans Moto.Core/Moto.AI/Workspace/ProactiveSuggestions.cs:6-20, une classe jamais instanciée nulle part (`new ProactiveSuggestions(` : 0 résultat dans tout le dépôt) et dont le fichier ressemble à un patch non fusionné (commentaires littéraux \"// ── AJOUT : dépendance\", \"// ── CONSTRUCTEUR : ajouter le paramètre\"). Enfin, la méthode censée nourrir la gate en données réelles, `UpdateActiveCollaborators` (PresenceAwareSuggestionGate.cs:24), est documentée « Appelé par CollabPresence quand la présence change » (ligne 23) mais Moto.Core/Collab/CollabPresence.cs (lu intégralement) ne référence PresenceAwareSuggestionGate nulle part — le compteur `_activeCollaborators` reste donc à 0 en permanence, même dans l'hypothèse où la gate serait un jour appelée.",
+          "smallest_next_step": "Faire appeler `CollabPresence` (ou son point d'intégration UI) vers `PresenceAwareSuggestionGate.UpdateActiveCollaborators(count)` à chaque changement de présence, ET résoudre + démarrer réellement `ContextEngine` depuis MainPage (ex. dans ResolveExtensionServices : `services.GetService<ContextEngine>()`, puis `.Start()` et `.SetActiveFile(...)` sur le fichier actif) pour que `ShouldRunHeavyAi()` ait enfin un appelant en production."
+        },
+        {
+          "cluster": "MOTO Editor — Marketplace de plugins & Sandbox plugin avancée (Moto.Editor / Moto.Core)",
+          "premium_feature": "MarketplaceClientPro (Marketplace de plugins — comptes/signatures/dépendances/updates v2)",
+          "verdict": "DEAD_CODE",
+          "evidence": "Classe réelle avec vrai travail : login (LoginAsync, MarketplaceClientPro.cs:58-76), résolution de dépendances transitives (ResolveDependenciesAsync:110-131), détection de mises à jour (CheckUpdatesAsync:134-148), vérification de signature (VerifySignature:96-107, explicitement notée 'placeholder Ed25519'). Enregistré en DI : MotoServiceCollectionExtensions.cs:142. Recherche exhaustive sur tout le dépôt : la SEULE autre occurrence est un test qui vérifie juste sa présence en DI (Moto.Core.Tests\\DependencyInjectionTests.cs:44, 'Assert.Contains(types, t => t.Name == \"MarketplaceClientPro\")') — aucune vue, aucun bouton, aucun autre service n'appelle une seule de ses méthodes.",
+          "smallest_next_step": "Faire appeler MarketplaceClientPro.LoginAsync()/GetCatalogProAsync() depuis une vue réelle (ex. bouton 'Compte' dans PluginGalleryView), au lieu de laisser seul MarketplaceClient v1 câblé au bouton 🧱 Plugins."
+        },
+        {
+          "cluster": "MOTO Editor — Marketplace de plugins & Sandbox plugin avancée (Moto.Editor / Moto.Core)",
+          "premium_feature": "PluginMalwareScanner (Marketplace de plugins — scan anti-malware à l'upload)",
+          "verdict": "DEAD_CODE",
+          "evidence": "Classe réelle avec vraie logique de détection (extensions dangereuses, patterns regex, hash SHA256) : E:\\Corpus\\MOTO-Editor\\Moto.Core\\Security\\PluginMalwareScanner.cs:25-190. Enregistré en DI côté éditeur : MotoServiceCollectionExtensions.cs:159. Le SEUL appelant trouvé est Moto.Marketplace.Api\\Controllers\\PluginsController.cs:8 (scanner.ScanPluginArchiveAsync) — mais ce projet Moto.Marketplace.Api n'est PAS référencé dans MotoEditor.sln (seuls Moto.Editor, Moto.Core, Snake2000.Engine y figurent, cf. grep '^Project' sur MotoEditor.sln) et son Program.cs contient deux blocs 'var app = builder.Build(); ... app.Run();' dupliqués (Program.cs:16 et :68-71, avec un commentaire 'Ajouter dans...' révélant un fragment collé, pas du code intégré) — ce projet ne compile même pas tel quel et n'est jamais construit/exécuté avec le vrai produit. Donc dans le produit réellement livré (Moto.Editor/Moto.Core), rien n'appelle jamais ScanPluginArchiveAsync ni ScanFileAsync.",
+          "smallest_next_step": "Ajouter Moto.Marketplace.Api à MotoEditor.sln, réparer Program.cs (doublon builder.Build()/app.Run()) et PluginsController.cs (fragment sans namespace/classe), OU plus simplement faire appeler PluginMalwareScanner directement depuis MarketplaceClient.InstallAsync() côté client avant l'écriture du fichier .dll (MarketplaceClient.cs:107)."
+        },
+        {
+          "cluster": "MOTO Editor — Marketplace de plugins & Sandbox plugin avancée (Moto.Editor / Moto.Core)",
+          "premium_feature": "PluginSandboxService (Sandbox plugin avancée — capability flags)",
+          "verdict": "DEAD_CODE",
+          "evidence": "Classe réelle (capabilities par plugin, GrantCapability/HasCapability/ExecuteSandboxedAsync) : E:\\Corpus\\MOTO-Editor\\Moto.Core\\Settings\\PluginSandboxService.cs:16-61. MAIS explicitement exclue de la COMPILATION de Moto.Core : Moto.Core.csproj:84 ('<Compile Remove=\"Settings\\PluginSandboxService.cs\" />') — le fichier n'est même pas dans l'assembly livré. Cohérent avec l'enregistrement DI commenté : MotoServiceCollectionExtensions.cs:386 ('EXCLU ... : services.AddSingleton<PluginSandboxService>();'). Confirmé par CLAUDE.md:500-503 ('bloqués par le cluster marketplace/plugin-SDK hors périmètre').",
+          "smallest_next_step": "Retirer la ligne <Compile Remove=\"Settings\\PluginSandboxService.cs\" /> de Moto.Core.csproj:84, dé-commenter l'enregistrement DI (MotoServiceCollectionExtensions.cs:386), puis faire appeler ExecuteSandboxedAsync() par PluginRegistry.RegisterAsync() avant d'exécuter un plugin non bundlé."
+        },
+        {
+          "cluster": "MOTO Editor — Marketplace de plugins & Sandbox plugin avancée (Moto.Editor / Moto.Core)",
+          "premium_feature": "PluginSandboxMinimalService (Sandbox plugin avancée — deny-by-default + timeout)",
+          "verdict": "DEAD_CODE",
+          "evidence": "Classe réelle (GrantDefault/Grant/Can/RunGuardedAsync avec timeout réel via Task.WhenAny) : E:\\Corpus\\MOTO-Editor\\Moto.Core\\Security\\PluginSandboxMinimalService.cs:16-79. Explicitement exclue de la compilation de Moto.Core : Moto.Core.csproj:92 ('<Compile Remove=\"Security\\PluginSandboxMinimalService.cs\" />'). Aucune trace d'enregistrement DI (absente de MotoServiceCollectionExtensions.cs). Confirmé texto par CLAUDE.md:862-865 : 'PluginSandboxMinimalService.cs (sandbox de sécurité, logique réelle) rest[e] ... jamais instancié[e], non touché[e] par ce chantier'.",
+          "smallest_next_step": "Retirer <Compile Remove=\"Security\\PluginSandboxMinimalService.cs\" /> de Moto.Core.csproj:92, l'enregistrer en DI, puis faire appeler RunGuardedAsync() avant l'exécution d'une commande de plugin (ex. dans ChatService.PluginCommandHandler, MainPage.Extensions.cs:186)."
+        },
+        {
+          "cluster": "MOTO Editor — Marketplace de plugins & Sandbox plugin avancée (Moto.Editor / Moto.Core)",
+          "premium_feature": "VerifiedPublisherService (Marketplace de plugins — programme d'éditeurs vérifiés)",
+          "verdict": "DEAD_CODE",
+          "evidence": "Classe réelle (RegisterPublisher/GetPublisher/IsVerified sur un dictionnaire de PublisherInfo) : E:\\Corpus\\MOTO-Editor\\Moto.Core\\Settings\\VerifiedPublisherService.cs:20-43. Enregistrée en DI : MotoServiceCollectionExtensions.cs:388. Recherche exhaustive sur le dépôt : aucune occurrence de RegisterPublisher(...), GetPublisher(...) ou IsVerified(...) en dehors du fichier de définition lui-même et de la ligne DI — aucune vue (PluginGalleryView, MarketplaceView) n'affiche de badge 'vérifié', aucune commande ne l'appelle.",
+          "smallest_next_step": "Appeler VerifiedPublisherService.IsVerified(entry.Author) depuis PluginGalleryView.AddCard() (PluginGalleryView.xaml.cs:115) pour afficher un badge 'Éditeur vérifié' sur les entrées du catalogue Marketplace."
+        },
+        {
+          "cluster": "Premium features: \"Intégration cloud optionnelle\" + \"Collaboration en temps réel\" — MOTO-Editor (E:\\Corpus\\MOTO-Editor)",
+          "premium_feature": "Collaboration en temps réel — rôles collaboratifs (CollabRoleService)",
+          "verdict": "DEAD_CODE",
+          "evidence": "Implémentation réelle (pas un stub) : E:\\Corpus\\MOTO-Editor\\Moto.Core\\Settings\\CollabRoleService.cs:13-38 gère un rôle courant (Editor/Reviewer/Observer), un event RoleChanged, et une garde derrière SettingsCatalog.Collab.RoleBasedUiEnabled. Enregistré en DI : Moto.Editor\\DependencyInjection\\MotoServiceCollectionExtensions.cs:305. Seul consommateur trouvé : le constructeur de Moto.Editor\\Views\\ReviewLaneView.xaml.cs:21 (`CollabRoleService roles`). Mais ReviewLaneView lui-même n'est jamais instancié/affiché nulle part (voir finding suivant) : pas de `<views:ReviewLaneView>` dans MainPage.xaml, pas de `GetRequiredService<ReviewLaneView>()`, aucune entrée menu/palette. La seule autre mention est purement documentaire dans Moto.Core\\Moto.AI\\Catalog\\FeatureCatalog.cs:159 (chaîne de notes statique \"CollabRoleService\", ne fait aucun appel réel — juste une étiquette \"AlreadyImplemented\").",
+          "smallest_next_step": "Ajouter un point d'entrée qui résout et affiche réellement ReviewLaneView (qui consomme CollabRoleService) — p.ex. un onglet ou une commande de palette dans MainPage.xaml.cs qui fait `serviceProvider.GetRequiredService<ReviewLaneView>()` et l'ajoute au layout."
+        },
+        {
+          "cluster": "Premium features: \"Intégration cloud optionnelle\" + \"Collaboration en temps réel\" — MOTO-Editor (E:\\Corpus\\MOTO-Editor)",
+          "premium_feature": "Collaboration en temps réel — review lanes / commentaires (ReviewLaneService)",
+          "verdict": "DEAD_CODE",
+          "evidence": "Implémentation réelle avec persistance disque et file hors-ligne : E:\\Corpus\\MOTO-Editor\\Moto.Core\\Settings\\ReviewLaneService.cs:29-127 (AddComment, FlushOfflineQueue, SetStatus, GetReplaySequence, Persist/Load JSON dans %AppData%\\MotoEditor\\.moto\\review\\). Enregistré en DI : MotoServiceCollectionExtensions.cs:306. Consommé uniquement par Moto.Editor\\Views\\ReviewLaneView.xaml.cs:15,21,30,47,65,82. ReviewLaneView est bien enregistré en DI comme Transient (MotoServiceCollectionExtensions.cs:362) et compile (pas d'exclusion dans Moto.Editor.csproj), MAIS rien dans le dépôt ne le résout ni ne l'affiche : aucune référence XAML `<views:ReviewLaneView>`, aucun `GetRequiredService<ReviewLaneView>` trouvé par grep global. Donc chaîne complète morte malgré une View entièrement fonctionnelle.",
+          "smallest_next_step": "Instancier et afficher ReviewLaneView quelque part dans l'UI (ex. un panneau à côté de l'éditeur, résolu via DI dans MainPage.xaml.cs) et appeler `SetFile(path)` quand le fichier actif change."
+        },
+        {
+          "cluster": "Premium features: \"Intégration cloud optionnelle\" + \"Collaboration en temps réel\" — MOTO-Editor (E:\\Corpus\\MOTO-Editor)",
+          "premium_feature": "Collaboration en temps réel — sessions pair-programming chronométrées (PairSessionTimerService)",
+          "verdict": "DEAD_CODE",
+          "evidence": "Implémentation réelle : E:\\Corpus\\MOTO-Editor\\Moto.Core\\Settings\\PairSessionTimerService.cs:12-62, timer System.Timers.Timer, events SessionEnded/Tick, StartSession/EndSession. Enregistré en DI : MotoServiceCollectionExtensions.cs:308. Aucun appelant trouvé nulle part dans le dépôt (grep sur `PairSessionTimerService`, `.StartSession(` ne remonte que MainPage.Extensions.cs/MainPage.UI.cs qui appellent `_globalUsage.StartSession()`, un service totalement différent — pas PairSessionTimerService). La seule autre occurrence est une note purement descriptive dans Moto.Core\\Moto.AI\\Catalog\\FeatureCatalog.cs:166 (\"PairProgrammingEngine + PairSessionTimerService\", chaîne statique, aucun appel réel).",
+          "smallest_next_step": "Ajouter un bouton \"Démarrer session pair\" dans une vue collab existante qui appelle `pairSessionTimerService.StartSession()` et affiche `Remaining`/écoute `Tick`."
+        },
+        {
+          "cluster": "Premium features: \"Intégration cloud optionnelle\" + \"Collaboration en temps réel\" — MOTO-Editor (E:\\Corpus\\MOTO-Editor)",
+          "premium_feature": "Collaboration en temps réel — tableau blanc partagé (WhiteboardService)",
+          "verdict": "DEAD_CODE",
+          "evidence": "Implémentation réelle : E:\\Corpus\\MOTO-Editor\\Moto.Core\\Settings\\WhiteboardService.cs:25-57 (AddElement, Clear, GetElements, event WhiteboardChanged). Enregistré en DI : MotoServiceCollectionExtensions.cs:309. Son seul consommateur, Moto.Editor\\Views\\WhiteboardView.xaml.cs (constructeur ligne 16, boutons OnAddRect/OnAddEllipse/OnAddArrow/OnClear), est explicitement EXCLU de la compilation dans Moto.Editor\\Moto.Editor.csproj:267-268 (`<Compile Remove=\"Views\\WhiteboardView.xaml.cs\" />`, `<MauiXaml Remove=\"Views\\WhiteboardView.xaml\" />`) — commentaire dans MotoServiceCollectionExtensions.cs:363 confirme : \"EXCLU (voir Moto.Editor.csproj, 2e vague) : services.AddTransient<WhiteboardView>();\". Donc le service compile et est câblé en DI, mais son unique appelant potentiel ne fait même pas partie du binaire construit — mort plus profondément que les autres.",
+          "smallest_next_step": "Ré-inclure WhiteboardView.xaml/.xaml.cs dans Moto.Editor.csproj, ré-enregistrer `services.AddTransient<WhiteboardView>()`, puis l'exposer via un onglet/bouton dans l'UI."
+        },
+        {
+          "cluster": "Premium features: \"Intégration cloud optionnelle\" + \"Collaboration en temps réel\" — MOTO-Editor (E:\\Corpus\\MOTO-Editor)",
+          "premium_feature": "Collaboration en temps réel — annotations de ligne / notes de réunion (AnnotationLayerService)",
+          "verdict": "DEAD_CODE",
+          "evidence": "Implémentation réelle avec persistance JSON : E:\\Corpus\\MOTO-Editor\\Moto.Core\\Settings\\AnnotationLayerService.cs:28-96 (AddAnnotation, LinkMeetingNote, GetAnnotationsForFile, Persist/Load dans .moto\\annotations\\). Enregistré en DI : MotoServiceCollectionExtensions.cs:307. Recherche globale (`grep -rn \"AnnotationLayerService\"` sur tout le dépôt hors le fichier lui-même et son enregistrement DI) ne retourne AUCUN autre résultat — aucune vue, aucun autre service, aucun ViewModel ne le référence. C'est le cas le plus net : zéro trace d'appel réel, même pas une View morte.",
+          "smallest_next_step": "Créer un point d'entrée minimal, ex. un menu contextuel clic-droit sur une ligne d'éditeur qui appelle `annotationLayerService.AddAnnotation(...)`."
+        },
+        {
+          "cluster": "Premium features: \"Intégration cloud optionnelle\" + \"Collaboration en temps réel\" — MOTO-Editor (E:\\Corpus\\MOTO-Editor)",
+          "premium_feature": "Collaboration en temps réel — intégration PR légère (LightweightPrService)",
+          "verdict": "DEAD_CODE",
+          "evidence": "Implémentation réelle qui délègue à `gh` CLI via TerminalService : E:\\Corpus\\MOTO-Editor\\Moto.Core\\Settings\\LightweightPrService.cs:22-55 (OpenPrAsync, ClosePrAsync, CommentPrAsync exécutent `gh pr create/close/comment` via `_terminal.ExecuteAsync`). Enregistré en DI : MotoServiceCollectionExtensions.cs:311. Recherche globale ne retourne aucune autre référence au type `LightweightPrService` ni aux méthodes `OpenPrAsync/ClosePrAsync/CommentPrAsync` nulle part dans le dépôt (grep exhaustif). Aucun bouton, aucune commande, aucun test ne l'invoque.",
+          "smallest_next_step": "Ajouter une commande de palette (\"Ouvrir une PR\") câblée à `lightweightPrService.OpenPrAsync(title, branch)` dans CommandPaletteEngine ou une vue Git existante (GitPanelView)."
+        },
+        {
+          "cluster": "Premium features: \"Intégration cloud optionnelle\" + \"Collaboration en temps réel\" — MOTO-Editor (E:\\Corpus\\MOTO-Editor)",
+          "premium_feature": "Collaboration en temps réel — configurations d'exécution partagées (SharedRunConfigService)",
+          "verdict": "DEAD_CODE",
+          "evidence": "Implémentation réelle : E:\\Corpus\\MOTO-Editor\\Moto.Core\\Settings\\SharedRunConfigService.cs:22-61 (Save/Load de RunConfiguration en JSON dans .moto\\run-configs.json). Enregistré en DI : MotoServiceCollectionExtensions.cs:299. Recherche globale sur `SharedRunConfigService` et sur `SharedRunConfigService\\.` (appels de méthode) ne retourne rien d'autre dans tout le dépôt. Aucune UI de gestion de run-configs ne le référence.",
+          "smallest_next_step": "Ajouter une vue/dialogue \"Run Configurations\" qui appelle `sharedRunConfigService.Load()`/`Save(...)`, même minimal."
+        },
+        {
+          "cluster": "Premium features: \"Intégration cloud optionnelle\" + \"Collaboration en temps réel\" — MOTO-Editor (E:\\Corpus\\MOTO-Editor)",
+          "premium_feature": "Collaboration en temps réel — scratchpads partagés (SharedScratchpadService)",
+          "verdict": "DEAD_CODE",
+          "evidence": "Implémentation réelle : E:\\Corpus\\MOTO-Editor\\Moto.Core\\Settings\\SharedScratchpadService.cs:21-61 (AppendSnippet, GetSnippets, Persist JSON dans .moto\\scratchpads\\). Enregistré en DI : MotoServiceCollectionExtensions.cs:300. Le commentaire du fichier dit explicitement \"La synchro P2P utilise le transport CollabSession existant (non réinventé)\" mais aucun code ne relie réellement SharedScratchpadService à CollabSession — recherche globale sur `SharedScratchpadService` ne retourne aucune référence en dehors du fichier et de son enregistrement DI.",
+          "smallest_next_step": "Ajouter un petit panneau scratchpad dans CollabPanelView (déjà affiché dans MainPage.xaml:226) qui appelle `sharedScratchpadService.AppendSnippet(...)`."
+        },
+        {
+          "cluster": "Premium features: \"Intégration cloud optionnelle\" + \"Collaboration en temps réel\" — MOTO-Editor (E:\\Corpus\\MOTO-Editor)",
+          "premium_feature": "Intégration cloud optionnelle",
+          "verdict": "DEAD_CODE",
+          "evidence": "Aucun des 8 services fournis en pistes ne concerne le cloud ; recherche complémentaire a trouvé un cluster dédié bien réel : E:\\Corpus\\MOTO-Editor\\Moto.Core\\Cloud\\CloudSyncEngine.cs (116 lignes), CloudSyncService.cs (201 lignes), CloudProviderClient.cs (346 lignes) avec classes CloudAuthResult/CloudFileInfo/CloudSyncConfig etc. — logique non triviale, pas des stubs. Mais recherche exhaustive dans Moto.Editor\\DependencyInjection\\MotoServiceCollectionExtensions.cs ne montre AUCUN `AddSingleton<CloudSyncEngine>`, `AddSingleton<CloudSyncService>` ou `AddSingleton<CloudProviderClient>` — ces classes ne sont même pas enregistrées dans le conteneur DI (contrairement aux 8 services collab). Recherche globale hors du dossier Moto.Core\\Cloud et de Moto.Core.Tests\\Cloud : aucune autre référence trouvée. Donc plus mort encore que les services collab : ni DI ni appelant.",
+          "smallest_next_step": "D'abord enregistrer CloudSyncService/CloudSyncEngine/CloudProviderClient dans MotoServiceCollectionExtensions.cs, puis ajouter un point d'entrée (bouton Paramètres \"Synchroniser avec le cloud\") qui l'invoque — actuellement rien ne relie ce cluster au reste de l'app."
+        },
+        {
+          "cluster": "Debug IA avancé / Profiling IA (MOTO-Editor, dépôt E:\\Corpus\\MOTO-Editor)",
+          "premium_feature": "Debug IA avancé — Moto.Core/Debug/DebugEnginePro.cs (classe DebugEnginePro)",
+          "verdict": "DEAD_CODE",
+          "evidence": "Classe réelle (breakpoints conditionnels, watch expressions, call stack) définie Moto.Core/Debug/DebugEnginePro.cs:48-120. Enregistrée en DI : Moto.Editor/DependencyInjection/MotoServiceCollectionExtensions.cs:237 `services.AddTransient<DebugEnginePro>();`. Seule autre référence dans tout le dépôt : Moto.Core.Tests/DependencyInjectionTests.cs:45, qui vérifie juste qu'elle est enregistrée (`Assert.Contains(types, t => t.Name == \"DebugEnginePro\")`) — aucune assertion comportementale. Le panneau UI qui ressemble le plus (nom proche) est DebugPanelProView (Moto.Editor/Views/DebugPanelProView.xaml.cs), ouvert réellement via un menu/WindowManager (Moto.Editor/MainPage.Extensions.cs:751-756, kind=\"debug\"), mais ce panneau utilise une implémentation totalement parallèle et distincte : NetcoredbgAdapter + BreakpointManager (DebugPanelProView.xaml.cs:14-15,26-40 ; ConditionalBreakpointDialog.xaml.cs:12-13,25,60-95) — jamais DebugEnginePro.AddConditionalBreakpoint/AddWatch/EvaluateWatchesAsync/GetCallStackAsync. Aucun `new DebugEnginePro`, aucun `Resolve<DebugEnginePro>` nulle part dans Moto.Editor. Remarque additionnelle : même le vrai DebugPanelProView est actuellement cassé côté UI — sa seule instanciation `new Views.DebugPanelProView()` (MainPage.Extensions.cs:755) n'appelle jamais `.SetServices(...)`, donc `_adapter`/`_breakpointManager` restent null et tous les boutons (Continue/Step/Watch) font un early-return silencieux. À noter aussi : DebugEnginePro n'a rien de spécifiquement 'IA' — c'est un débogueur générique, pas un service d'assistance IA au débogage.",
+          "smallest_next_step": "Choisir une seule implémentation : soit brancher DebugPanelProView sur DebugEnginePro (au lieu de NetcoredbgAdapter/BreakpointManager), soit supprimer DebugEnginePro et documenter que le 'debug avancé' réel passe par NetcoredbgAdapter/BreakpointManager — dans les deux cas, corriger d'abord MainPage.Extensions.cs:755 pour appeler SetServices(...) afin que le panneau ouvert soit fonctionnel."
+        },
+        {
+          "cluster": "Debug IA avancé / Profiling IA (MOTO-Editor, dépôt E:\\Corpus\\MOTO-Editor)",
+          "premium_feature": "Profiling IA — Moto.Core/Performance/ProfilingHeatmapExporter.cs (classe ProfilingHeatmapExporter)",
+          "verdict": "DEAD_CODE",
+          "evidence": "Service réel : construit une heatmap JSON à partir des métriques de PerformanceProfiler et l'écrit sur disque (Moto.Core/Performance/ProfilingHeatmapExporter.cs:24-44). Enregistré en DI singleton avec factory : MotoServiceCollectionExtensions.cs:187 `services.AddSingleton<ProfilingHeatmapExporter>(sp => new ProfilingHeatmapExporter(sp.GetRequiredService<PerformanceProfiler>()));`. Aucun appel à `.ExportAsync(...)` nulle part ailleurs dans le dépôt. Le seul export réellement branché à un bouton UI (`OnExportClicked`, Moto.Editor/Views/PerformanceDashboardView.xaml.cs:52-60) appelle directement `_profiler.ExportMetrics()` (pas ProfilingHeatmapExporter) — et de toute façon PerformanceDashboardView est explicitement exclue de la compilation MAUI (Moto.Editor/Moto.Editor.csproj:217-218 `<Compile Remove=\"Views\\PerformanceDashboardView.xaml.cs\" />`, commentaire csproj:264-268 : 'jamais résolues nulle part dans le code réel — exclues de la compilation'). Le propre commentaire du dépôt le confirme : Moto.Editor/Views/StatusBarPanelView.xaml.cs:22-28 dit explicitement que ProfilingHeatmapExporter est 'déjà réel et utilisé ailleurs' mais 'juste jamais branché nulle part dans l'interface'.",
+          "smallest_next_step": "Ajouter un bouton (ex. dans PerformanceStatusBarView ou un menu 'Exporter le profil') qui appelle `ProfilingHeatmapExporter.ExportAsync(cheminFichier)` via le service résolu en DI."
+        },
+        {
+          "cluster": "Debug IA avancé / Profiling IA (MOTO-Editor, dépôt E:\\Corpus\\MOTO-Editor)",
+          "premium_feature": "Profiling IA — Moto.Core/Moto.AI/Embedded/AiObservabilityService.cs (classe AiObservabilityService)",
+          "verdict": "DEAD_CODE",
+          "evidence": "Service réel et le plus proche sémantiquement de 'Profiling IA' : métriques temps réel IA, alertes RAM/CPU/échec inférence, logs structurés, export JSON (Moto.Core/Moto.AI/Embedded/AiObservabilityService.cs:17-129). Enregistré en DI singleton : MotoServiceCollectionExtensions.cs:179. Recherche exhaustive de `.RecordMetric(`, `.LogEvent(`, `ExportLogsJson`, `ExportMetricsJson`, `GetSnapshot()` dans tout le dépôt (hors le fichier lui-même) : zéro résultat — rien n'alimente jamais ses métriques ni ne lit son snapshot. La seule vue de monitoring IA réellement ouverte par l'UI (tap sur l'icône 🧠 de la barre de statut, StatusBarPanelView.xaml.cs:101 → MainPage.xaml.cs:634-651 `OnAiMonitorTapped` → `Views.AiMonitoringView`) utilise en réalité CircuitBreakerStateService + StructuredLogCollector (Moto.Editor/Views/AiMonitoringView.xaml.cs:17-24), pas AiObservabilityService.",
+          "smallest_next_step": "Faire appeler `AiObservabilityService.RecordMetric(...)`/`LogEvent(...)` depuis le pipeline d'inférence réel (ex. MotoAiKernel/OllamaClient) et afficher `GetSnapshot()` dans AiMonitoringView."
+        },
+        {
+          "cluster": "Debug IA avancé / Profiling IA (MOTO-Editor, dépôt E:\\Corpus\\MOTO-Editor)",
+          "premium_feature": "Profiling IA — Moto.Core/Performance/MemoryPressureMonitor.cs (classe MemoryPressureMonitor)",
+          "verdict": "DEAD_CODE",
+          "evidence": "Service réel : bascule automatiquement en UltraLiteMode si la RAM dépasse un seuil, via un Timer interne (Moto.Core/Performance/MemoryPressureMonitor.cs:19-55). Enregistré en DI singleton avec factory : MotoServiceCollectionExtensions.cs:188 `services.AddSingleton<MemoryPressureMonitor>(sp => new MemoryPressureMonitor(sp.GetRequiredService<UltraLiteMode>()));`. Recherche exhaustive : aucune autre classe ne prend `MemoryPressureMonitor` en paramètre de constructeur, aucun `GetRequiredService<MemoryPressureMonitor>()`/`GetService<MemoryPressureMonitor>()` explicite, aucune lecture de `.IsInPressureMode` ni abonnement à `.PressureModeChanged` nulle part dans le dépôt. Comme .NET DI résout les singletons paresseusement (lazy), et que rien ne le demande jamais au conteneur, son constructeur (qui démarre le Timer de surveillance) ne s'exécute probablement jamais en pratique — pire que 'jamais consulté', il n'est jamais instancié du tout.",
+          "smallest_next_step": "Résoudre explicitement `MemoryPressureMonitor` au démarrage de l'app (ex. dans MauiProgram/App.xaml.cs, `serviceProvider.GetRequiredService<MemoryPressureMonitor>();`) pour au minimum démarrer sa surveillance, puis exposer `IsInPressureMode`/`PressureModeChanged` dans la barre de statut."
+        },
+        {
+          "cluster": "Debug IA avancé / Profiling IA (MOTO-Editor, dépôt E:\\Corpus\\MOTO-Editor)",
+          "premium_feature": "Profiling IA — Moto.Core/Moto.AI/Embedded/SystemLoadMonitor.cs (classe SystemLoadMonitor)",
+          "verdict": "DEAD_CODE",
+          "evidence": "Service réel : échantillonne CPU/RAM système toutes les 500ms, calcule OverallLoad incluant InferenceHostRamMB (Moto.Core/Moto.AI/Embedded/SystemLoadMonitor.cs:39-91). Enregistré en DI singleton : MotoServiceCollectionExtensions.cs:178. Mais ses seuls consommateurs dans le dépôt sont AdaptiveResourceGovernor (AI.Embedded), AiModeManager et AiAutoBenchmark (constructeurs à AdaptiveResourceGovernor.cs:35, AiModeManager.cs:25, AiAutoBenchmark.cs:31) — et ces trois classes sont explicitement 'mises de côté' et NON enregistrées en DI, comme le dit le commentaire du dépôt lui-même : MotoServiceCollectionExtensions.cs:169-176 'Cluster entier mis de côté pour cette passe : ... AdaptiveResourceGovernor/InferenceWatchdog/AiModeManager/AiAutoBenchmark. Le chemin Ollama (MotoAiKernel) reste la voie IA active.' Aucun `new AiModeManager`/`new AdaptiveResourceGovernor`/`new AiAutoBenchmark` nulle part en dehors de leurs propres fichiers. La seule autre instanciation de SystemLoadMonitor dans tout le dépôt est dans un test (Moto.Core.Tests/AI/Embedded/InferenceHostE2ETests.cs:84), pas dans le code de production.",
+          "smallest_next_step": "Soit réactiver et enregistrer AdaptiveResourceGovernor/AiModeManager (le seul chemin qui consomme SystemLoadMonitor), soit brancher SystemLoadMonitor.LoadChanged directement dans AiObservabilityService/AiMonitoringView pour afficher la charge système réelle."
+        },
+        {
+          "cluster": "Fonctionnalités premium visées : \"Génération de modules entiers\" et \"Intégration Git intelligente\" — dépôt E:\\Corpus\\MOTO-Editor",
+          "premium_feature": "Intégration Git intelligente — plomberie Git (GitService)",
+          "verdict": "DEAD_CODE",
+          "evidence": "GitService (E:\\Corpus\\MOTO-Editor\\Moto.Core\\Services\\GitService.cs:33-297) est une implémentation réelle et complète : Init/AddRemote/Stage/Unstage/Commit/Push/Pull/Fetch/Merge/Rebase/Checkout/branches/Status/Diff/Log/Stash, tout via `git` CLI (TerminalService), pas un placeholder. Enregistré en DI (Moto.Editor\\DependencyInjection\\MotoServiceCollectionExtensions.cs:374). Son seul consommateur est GitPanelView (Moto.Editor\\Views\\GitPanelView.xaml.cs:20-110, boutons Stage/Commit/Push/Pull/Fetch/Branches/Log câblés correctement en interne). MAIS GitPanelView elle-même n'est jamais instanciée nulle part en dehors de sa propre déclaration et de son enregistrement DI transitoire (MotoServiceCollectionExtensions.cs:406) : grep exhaustif sur GitPanelView/GetRequiredService<GitPanelView> ne renvoie aucun appelant. Le switch exhaustif d'ouverture de fenêtres OpenSpecializedWindow (Moto.Editor\\MainPage.Extensions.cs:742-865, cases editor/debug/analytics/plugin/cortex/neural/workspace/aichat/platform/globaldashboard/threadlist/backgroundtasks/claudeshell/default) ne contient aucun cas \"git\". La palette de commandes statique (Moto.Core\\Moto.AI\\Commands\\CommandPaletteEngine.cs:119-180) ne contient aucune entrée git. Aucune barre latérale/onglet ne référence GitPanelView.",
+          "smallest_next_step": "Ajouter un case \"git\" dans OpenSpecializedWindow (Moto.Editor\\MainPage.Extensions.cs:862, avant le default) qui ouvre `new GitPanelView(gitService)` via WindowManager, plus une entrée `_commandRegistry.Register(\"git.panel\", ...)` (Moto.Editor\\MainPage.Routing.cs) et une entrée palette correspondante."
+        },
+        {
+          "cluster": "Fonctionnalités premium visées : \"Génération de modules entiers\" et \"Intégration Git intelligente\" — dépôt E:\\Corpus\\MOTO-Editor",
+          "premium_feature": "Intégration Git intelligente — couche \"intelligente\" (CommitMessageAgent / agents Git)",
+          "verdict": "DEAD_CODE",
+          "evidence": "CommitMessageAgent (Moto.Core\\Moto.AI\\Agents\\LlmBackedAgents.cs:80-82, catalogué \"AI Git Commit Writer\" dans FeatureCatalog.cs:114 comme AlreadyImplemented) est enregistré comme ISpecializedAgent (MotoServiceCollectionExtensions.cs:336) dans SpecializedAgentRegistry. Le code lui-même documente que ce registre n'est jamais consommé côté UI : commentaire explicite dans Moto.Editor\\Models\\ChatTaskRecord.cs:11-15 — « MOTO n'a aujourd'hui aucun sous-agent réellement invoqué depuis l'UI (AgentOrchestratorV3/SpecializedAgentRegistry existent mais ne sont appelés par rien...) ». Aucune couche IA (résumé de diff, message de commit généré, résolution de conflit assistée) n'est donc branchée au-dessus de GitService aujourd'hui — seul le CLI brut existe, et il est lui-même injoignable (voir finding précédent).",
+          "smallest_next_step": "Dans GitPanelView.OnCommitClicked (Moto.Editor\\Views\\GitPanelView.xaml.cs:72), appeler SpecializedAgentRegistry pour résoudre CommitMessageAgent et pré-remplir CommitMessageEntry.Text à partir de `_git.GetDiffAsync(staged:true)` avant l'appel à `_git.CommitAsync`."
+        },
+        {
+          "cluster": "Fonctionnalités premium visées : \"Génération de modules entiers\" et \"Intégration Git intelligente\" — dépôt E:\\Corpus\\MOTO-Editor",
+          "premium_feature": "Génération de modules entiers — moteur de génération (CodeGenerationEngine)",
+          "verdict": "DEAD_CODE",
+          "evidence": "CodeGenerationEngine.GenerateModule (Moto.Core\\Moto.AI\\Internal\\CodeGenerationEngine.cs:22-57) fait un vrai travail : génère 3 fichiers C# réels et paramétrés (interface, composant, système ECS) avec du contenu templaté cohérent (pas une constante). Mais cette classe n'est instanciée (`new CodeGenerationEngine()`) que dans AutoLinkEngine.cs:19, CodeFixEngine.cs:16 et StoryModeEngine.cs:46 — or aucune de ces trois classes n'est elle-même jamais instanciée ailleurs dans le dépôt compilé (aucun `new AutoLinkEngine(`/`new CodeFixEngine(`/`new StoryModeEngine(` en dehors de leurs propres fichiers ; la seule autre occurrence, AvaloniaLinuxGenerator.cs:176, est exclue de la compilation MAUI d'après le commentaire de MotoServiceCollectionExtensions.cs:103-105 : « Linux : MAUI n'est pas supporté... donc Moto.Editor.Platforms.Linux n'est jamais compilé »). De plus, IntentDetector (Moto.Core\\Moto.AI\\Internal\\IntentDetector.cs:12-105, qui détecte l'intention \"génère un module X\" à partir d'une phrase) n'a aucune instanciation `new IntentDetector(` nulle part dans le dépôt : zéro appelant.",
+          "smallest_next_step": "Dans MotoAiService.ExecuteAsync (Moto.Editor\\Services\\MotoAiService.cs:35-41), appeler `new IntentDetector().Detect(request.UserText)` et, si Kind==GenerateModule, appeler `new CodeGenerationEngine().GenerateModule(...)` pour remplir `AiResponse.FileChanges` avant de retourner la réponse."
+        },
+        {
+          "cluster": "Fonctionnalités premium visées : \"Génération de modules entiers\" et \"Intégration Git intelligente\" — dépôt E:\\Corpus\\MOTO-Editor",
+          "premium_feature": "Piste non pertinente pour les 2 features citées — AgentMarketplaceService",
+          "verdict": "DEAD_CODE",
+          "evidence": "AgentMarketplaceService (Moto.Core\\Moto.AI\\Agents\\AdvancedAgentServices.cs:61-80) ne correspond ni à \"Génération de modules\" ni à \"Git intelligent\" — c'est une place de marché pour les 20 agents spécialisés IA. `ListAvailable()` délègue réellement à SpecializedAgentRegistry (ligne 72-73), mais `Install(agentId)` (lignes 75-79) ne fait qu'un log, aucune installation réelle. Seul consommateur : AgentMarketplaceView (Moto.Editor\\Views\\AgentMarketplaceView.xaml.cs:14-37), elle-même jamais instanciée hors de sa déclaration DI (MotoServiceCollectionExtensions.cs:395) — absente de OpenSpecializedWindow (MainPage.Extensions.cs:742-865) et de la palette de commandes.",
+          "smallest_next_step": "Non prioritaire pour les 2 features demandées ; si conservé, ajouter un case dans OpenSpecializedWindow pour rendre AgentMarketplaceView atteignable."
+        },
+        {
+          "cluster": "Fonctionnalités premium visées : \"Génération de modules entiers\" et \"Intégration Git intelligente\" — dépôt E:\\Corpus\\MOTO-Editor",
+          "premium_feature": "Piste non pertinente pour les 2 features citées — IncrementalIndexer",
+          "verdict": "DEAD_CODE",
+          "evidence": "IncrementalIndexer (Moto.Core\\Performance\\IncrementalIndexer.cs:11-97) est un indexeur de symboles pour recherche/GoTo, sans rapport avec la génération de modules ou Git. Le travail est réel (hash SHA256 par fichier, extraction de symboles, recherche) mais `LoadFromDisk`/`SaveToDisk` sont des TODO vides (lignes 88-96). Enregistré en DI (MotoServiceCollectionExtensions.cs:189) mais `IndexFileAsync`/`Search` ne sont appelés nulle part ailleurs dans le dépôt.",
+          "smallest_next_step": "Non pertinent pour les 2 features demandées ; à laisser de côté sauf si une feature de recherche/GoTo dédiée est planifiée."
+        }
+      ],
+      "STUB": [
+        {
+          "cluster": "Fonctionnalités premium MOTO Editor : \"Auto-refactor avancé\" et \"Optimisation automatique du code\" — dépôt E:\\Corpus\\MOTO-Editor",
+          "premium_feature": "Auto-refactor avancé — flag PerformanceProfile.AutoRefactor / CanAutoRefactor",
+          "verdict": "STUB",
+          "evidence": "PerformanceEngine.cs définit un bool AutoRefactor par profil (E:\\Corpus\\MOTO-Editor\\Moto.Core\\Performance\\PerformanceEngine.cs:51,103,121,139,157) et Moto.Core\\Moto.AI\\Internal\\PerformanceEngine.cs:166 expose `public bool CanAutoRefactor => CurrentConfig.AutoRefactor;`. Le seul lecteur de ce flag dans tout le dépôt est Moto.Editor\\Views\\PerformanceView.xaml.cs:61, qui se contente de l'afficher en texte (\"oui/{minutes}min\" ou \"non\") sans déclencher la moindre action. CanAutoRefactor lui-même n'est lu nulle part ailleurs (grep confirmé, 1 seule occurrence = sa définition). PerformanceView n'est en plus jamais instanciée nulle part dans le dépôt (aucun `new PerformanceView` ni enregistrement DI trouvé) — même cet affichage texte n'est jamais montré à l'utilisateur.",
+          "smallest_next_step": "Décider d'abord où afficher PerformanceView (elle n'est visible nulle part aujourd'hui), puis remplacer l'affichage texte par un vrai déclenchement (timer basé sur RefactorIntervalMin qui appelle RefactorEngine.AnalyzeAsync quand CanAutoRefactor est vrai)."
+        },
+        {
+          "cluster": "MOTO Editor — Marketplace de plugins & Sandbox plugin avancée (Moto.Editor / Moto.Core)",
+          "premium_feature": "VulnerabilityScannerService (Sandbox plugin avancée / sécurité marketplace — scan CVE)",
+          "verdict": "STUB",
+          "evidence": "Classe enregistrée en DI (MotoServiceCollectionExtensions.cs:387) et compilée normalement, mais son unique méthode utile ScanPluginAsync() (E:\\Corpus\\MOTO-Editor\\Moto.Core\\Settings\\VulnerabilityScannerService.cs:48-58) ne fait jamais l'analyse promise : le commentaire dit 'En production : analyser les dépendances du plugin, matcher avec _knownVulns' mais le code ne le fait pas — 'findings' reste une liste vide construite en dur (ligne 53), quel que soit pluginPath. En plus d'être un stub, elle n'est jamais appelée nulle part ailleurs dans le dépôt : seule autre occurrence trouvée est une simple étiquette descriptive dans FeatureCatalog.cs:184 ('wow.security_audits', ... FeatureStatus.AlreadyImplemented, \"VulnerabilityScannerService\") — un texte de catalogue, pas un appel réel.",
+          "smallest_next_step": "Implémenter la vraie comparaison des dépendances du plugin contre _knownVulns dans ScanPluginAsync() (VulnerabilityScannerService.cs:48-58), puis l'appeler depuis MarketplaceClient.InstallAsync() avant d'écrire le .dll téléchargé (MarketplaceClient.cs:107)."
+        },
+        {
+          "cluster": "Fonctionnalités premium visées : \"Génération de modules entiers\" et \"Intégration Git intelligente\" — dépôt E:\\Corpus\\MOTO-Editor",
+          "premium_feature": "Génération de modules entiers — seul chemin UI vivant (MotoAiPage)",
+          "verdict": "STUB",
+          "evidence": "Le seul point d'entrée UI plausible pour \"générer un module\" est MotoAiPage (Moto.Editor\\Pages\\MotoAiPage.xaml.cs:25-56, accessible via la commande palette \"ai.motopage\" → MainPage.Routing.cs:108 `Navigation.PushAsync(new Pages.MotoAiPage())`, donc réellement navigable). Mais MotoAiService.ExecuteAsync (Moto.Editor\\Services\\MotoAiService.cs:35-41) délègue uniquement à MotoAiKernel.RouteAsync (Moto.Core\\Moto.AI\\Internal\\MotoAiKernel.cs:31-48), qui ne fait qu'appeler Ollama ou renvoyer un texte de repli — il ne touche jamais IntentDetector ni CodeGenerationEngine. Le commentaire du code (MotoAiService.cs:50-56) le confirme explicitement : « AiResponse.FileChanges n'est aujourd'hui JAMAIS rempli par ExecuteAsync... cette méthode fonctionnera dès que cette extraction existera, pas avant. » Donc même le bouton \"Appliquer\" (OnApplyClicked, MotoAiPage.xaml.cs:58-89) n'a jamais rien à appliquer en pratique.",
+          "smallest_next_step": "Voir le next_step du finding précédent (câbler IntentDetector + CodeGenerationEngine dans MotoAiService.ExecuteAsync) — c'est la même lacune vue côté UI."
+        },
+        {
+          "cluster": "Fonctionnalités premium visées : \"Génération de modules entiers\" et \"Intégration Git intelligente\" — dépôt E:\\Corpus\\MOTO-Editor",
+          "premium_feature": "Piste non pertinente pour les 2 features citées — DependencyUpdateBotService",
+          "verdict": "STUB",
+          "evidence": "DependencyUpdateBotService (Moto.Core\\Settings\\DependencyUpdateBotService.cs:21-42) ne correspond à aucune des 2 features demandées. `ScanDependenciesAsync()` (lignes 27-35) retourne toujours une liste vide (« En production : parser le .csproj, interroger NuGet... Ici : structure prête pour l'intégration ») — pas de vrai scan. Enregistré en DI (MotoServiceCollectionExtensions.cs:420) mais aucun appelant de `ScanDependenciesAsync`/`EstimatePerfImpact` trouvé ailleurs dans le dépôt.",
+          "smallest_next_step": "Non prioritaire pour les 2 features demandées ; si le but est des PRs Git automatiques de mise à jour de dépendances (lien possible avec \"Git intelligent\"), il faudrait d'abord implémenter le vrai scan puis appeler GitService.CommitAsync/PushAsync depuis un nouveau point d'entrée UI."
+        },
+        {
+          "cluster": "Fonctionnalités premium visées : \"Génération de modules entiers\" et \"Intégration Git intelligente\" — dépôt E:\\Corpus\\MOTO-Editor",
+          "premium_feature": "Piste non pertinente pour les 2 features citées — LocalModelDistillationService",
+          "verdict": "STUB",
+          "evidence": "LocalModelDistillationService (Moto.Core\\Moto.AI\\Agents\\AdvancedAgentServices.cs:12-26) concerne la distillation de modèles IA, sans rapport avec Git ou la génération de modules de code. `PlanDistillationAsync` (lignes 17-25) ne fait qu'un log et renvoie une chaîne de texte fixe décrivant un plan — « L'opération lourde (entraînement/extraction) est déléguée hors éditeur » : aucun travail réel de distillation. Enregistré en DI (MotoServiceCollectionExtensions.cs:355) mais `PlanDistillationAsync` n'est appelé nulle part ailleurs dans le dépôt.",
+          "smallest_next_step": "Non pertinent pour les 2 features demandées."
+        }
+      ],
+      "PARTIAL": [
+        {
+          "cluster": "MOTO Editor — Fonctionnalités premium (agents IA) : CommitMessageAgent, ReleaseAgent, BuildAgent, TestAgent, MigrationAgent, ArchitectureAgent",
+          "premium_feature": "BuildAgent",
+          "verdict": "PARTIAL",
+          "evidence": "Aucune classe nommée BuildAgent. Il existe en revanche un vrai moteur de build non-IA, `BuildEngine` (Moto.Core/Services/BuildEngine.cs:33-153), qui lance réellement `dotnet build` via Process (lignes 74-118) et parse les diagnostics par regex (lignes 37-39, 128-143). Il est bien câblé : Moto.Editor/MainPage.xaml.cs:42 (`private readonly BuildEngine _build = new();`), appelé dans `OnBuildClicked` (Moto.Editor/MainPage.UI.cs:87-100, `await _build.BuildAsync(_currentRoot)`), lui-même enregistré comme commande palette `run.build` (Moto.Editor/MainPage.Routing.cs:83) et rappelé depuis MainPage.Extensions.cs:528. Mais ce n'est pas une couche IA/agent : les `BuildDiagnostic`/`BuildResult` (BuildEngine.cs:12-26) ne sont consommés que pour mettre à jour la barre de statut (MainPage.UI.cs:91-96) — grep sur `BuildDiagnostic`/`BuildResult` ne montre aucun autre consommateur, donc aucune analyse IA des erreurs ni proposition de correctif automatique n'existe.",
+          "smallest_next_step": "Après un échec dans OnBuildClicked (Moto.Editor/MainPage.UI.cs:94), passer result.Diagnostics à MotoAiKernel.RouteAsync pour générer une suggestion de correctif affichée dans la barre de statut ou un panneau."
+        },
+        {
+          "cluster": "MOTO Editor premium features: Auto-linking intelligent & Auto-documentation complète",
+          "premium_feature": "Auto-documentation complète",
+          "verdict": "PARTIAL",
+          "evidence": "The generation engine is real and does get invoked automatically today. Moto.Core\\Doc\\DocEngine.cs:65-147 (`GenerateAsync`) performs genuine project analysis (ProjectUnderstandingEngine/PatternDetectorEngine) and writes 6 real markdown files (README/Structure/Arborescence/Modules/Systems/Architecture) to `.moto/docs/`. It is instantiated for real (not via DI — plain `new`) every time a project is opened: Moto.Editor\\MainPage.Panels.cs:634 `_docEngine = new DocEngine(path);` and line 647-648 `if (SettingsEngine.Shared.GetBool(\"doc_on_project_open\")) _ = _docEngine.GenerateAsync();`, with that setting defaulting to `true` (Moto.Core\\Settings\\SettingsCatalog.Doc.cs:10-13, same for `doc_auto_update` which drives the FileSystemWatcher-based auto-regeneration in DocEngine.cs:196-215,217-227). As direct evidence this pipeline is actually executing in this very repo, `E:\\Corpus\\MOTO-Editor\\.moto\\docs\\Structure.md`, `Arborescence.md`, `Modules.md`, `README.md`, `Architecture.md`, `Systems.md` exist on disk with today's timestamp (2026-09-03 15:32) and their content format matches DocGenerators.cs output exactly (e.g. Structure.md:1-16 headers '# Structure du projet MOTO-Editor', '## 📁 Organisation par dossiers'). However, the dedicated UI surface for this feature is entirely dead: `DocPanelView.Load(report)` (Moto.Editor\\Views\\DocPanelView.xaml.cs:27) is never called by anything, so the panel hosted at MainPage.xaml:206 (`x:Name=\"DocPanel\"`) always renders empty. Its `RegenerateRequested`/`OpenFileRequested` events (DocPanelView.xaml.cs:17,20) are declared but never subscribed anywhere. The commands meant to open it — `ai.doc` (MainPage.Routing.cs:97) and `help.doc` (MainPage.Routing.cs:119) — are, like ai.autolink, absent from CommandPaletteEngine's static catalog and from CustomMenuBarView's tap targets, so a user has no in-app way to open/see the panel at all. A second, fully orphaned duplicate implementation also exists at Moto.Core\\Moto.AI\\Internal\\AutoDocEngine.cs:14,19 (`GenerateFullDocumentation`) — never referenced by any other file in the repo (DI or otherwise).",
+          "smallest_next_step": "After `_docEngine.GenerateAsync()` in MainPage.Panels.cs:648, dispatch the resulting DocReport to `DocPanel.Load(report)` on the main thread, and add \"ai.doc\"/\"help.doc\" to CommandPaletteEngine's static command list so the panel is actually reachable from the UI."
+        },
+        {
+          "cluster": "MOTO Editor — Marketplace de plugins & Sandbox plugin avancée (Moto.Editor / Moto.Core)",
+          "premium_feature": "MarketplaceClient (Marketplace de plugins — client v1)",
+          "verdict": "PARTIAL",
+          "evidence": "Classe réelle avec vraie logique (HTTP, vérification SHA256) : E:\\Corpus\\MOTO-Editor\\Moto.Core\\Plugins\\Marketplace\\MarketplaceClient.cs:39-129. Enregistré en DI : Moto.Editor\\DependencyInjection\\MotoServiceCollectionExtensions.cs:141. RÉELLEMENT appelé depuis un point d'entrée UI concret : bouton '🧱 Plugins' (Moto.Editor\\MainPage.Panels.cs:339) → PluginGalleryView, résolu et câblé dans Moto.Editor\\MainPage.Extensions.cs:151 et :166-167 (SetServices) et instancié en :772 ; PluginGalleryView.xaml.cs:69 appelle GetCatalogAsync(), :169 appelle InstallAsync(). MAIS : aucun serveur marketplace.moto-editor.dev n'a jamais été déployé — GetCatalogAsync avale l'exception et renvoie toujours une liste vide (MarketplaceClient.cs:59-75), confirmé explicitement par CLAUDE.md:856-861 et par le commentaire honnête ajouté dans PluginGalleryView.xaml.cs:71-77 ('aucun serveur de marketplace distant n'est disponible'). Donc le câblage UI→client est réel, mais la fonctionnalité 'Marketplace' ne délivre jamais de vrai contenu faute de backend.",
+          "smallest_next_step": "Déployer (ou pointer vers) un vrai serveur marketplace derrière l'URL en dur de MarketplaceClient.cs:49, pour que GetCatalogAsync() cesse de toujours renvoyer une liste vide."
+        },
+        {
+          "cluster": "Fonctionnalités premium visées : \"Génération de modules entiers\" et \"Intégration Git intelligente\" — dépôt E:\\Corpus\\MOTO-Editor",
+          "premium_feature": "Intégration Git intelligente — connexion compte GitHub (GitHubAccountService)",
+          "verdict": "PARTIAL",
+          "evidence": "GitHubAccountService (instancié Moto.Editor\\MainPage.Routing.cs:24 `new()`) implémente un vrai device-flow OAuth (StartDeviceFlowAsync/PollForTokenAsync/FetchUsernameAsync, MainPage.Routing.cs:212-234) et est câblé à un vrai menu utilisateur (case \"user\" ligne 177, OnGitHubUserClickedAsync ligne 202). Mais le commentaire du code à la ligne 206 admet explicitement que la partie utile n'existe pas : « Publier/importer un projet et télécharger les mises à jour depuis le dépôt ne sont pas encore câblés — la connexion elle-même est la première brique. » Cette connexion n'appelle jamais GitService (aucun lien trouvé entre GitHubAccountService et GitService dans tout le dépôt).",
+          "smallest_next_step": "Après connexion réussie (MainPage.Routing.cs:231-234), proposer un bouton \"Publier ce projet\" qui appelle GitService.AddRemoteAsync + GitService.PushAsync avec le token OAuth récupéré."
+        }
+      ],
+      "NOT_FOUND": [
+        {
+          "cluster": "MOTO Editor — Fonctionnalités premium (agents IA) : CommitMessageAgent, ReleaseAgent, BuildAgent, TestAgent, MigrationAgent, ArchitectureAgent",
+          "premium_feature": "ReleaseAgent",
+          "verdict": "NOT_FOUND",
+          "evidence": "Aucune classe/service nommé ReleaseAgent, ReleaseManager ou ReleaseEngine dans tout le dépôt (grep vide sur ces noms et variantes). La brique la plus proche est `ChangelogAgent` (Moto.Core/Moto.AI/Agents/LlmBackedAgents.cs:106-116), mais elle appartient exactement à la même chaîne morte que CommitMessageAgent (même SpecializedAgentRegistry jamais appelé). `UpdateManager` (Moto.Core/Updates/UpdateManager.cs:31) existe et gère les mises à jour de MOTO Editor lui-même (vérification périodique d'une nouvelle version de l'appli) — ce n'est pas une fonctionnalité de préparation de release pour les projets de l'utilisateur, donc pas la même chose. Le seul document qui prétend que « release notes »/« changelogs » sont livrés est Moto.Core/Moto.AI/Catalog/FeatureCatalog.cs:180-181 (`wow.release_notes` → ChangelogAgent, statut Available/AlreadyImplemented) — mais CLAUDE.md:877-879 avertit explicitement que ce catalogue s'auto-déclare et ment déjà sur au moins une autre feature (SnapshotResumeService), donc ce statut n'a aucune valeur probante.",
+          "smallest_next_step": "à concevoir depuis zéro"
+        },
+        {
+          "cluster": "MOTO Editor — Fonctionnalités premium (agents IA) : CommitMessageAgent, ReleaseAgent, BuildAgent, TestAgent, MigrationAgent, ArchitectureAgent",
+          "premium_feature": "MigrationAgent",
+          "verdict": "NOT_FOUND",
+          "evidence": "Aucune classe MigrationAgent ni fonctionnalité d'assistance à la migration de code/projet utilisateur. Le seul code contenant « Migration » dans Moto.Core est Moto.Core/Settings/SettingsMigrationEngine.cs:1-40 et Moto.Core/Settings/SettingsMigrationV2Engine.cs:1-46, plus la vue Moto.Editor/Views/MigrationOverlay.xaml.cs:1-30 — ces trois fichiers migrent uniquement le format interne settings.json de MOTO Editor lui-même (v1→v2), pas le code ou l'architecture d'un projet utilisateur. Grep sur `Migrat` dans tout Moto.Core ne retourne que ces 2 fichiers + 2 fichiers sans rapport (ConfirmationPolicyEngine, AiConfirmationService, faux positifs sur le mot « migration »).",
+          "smallest_next_step": "à concevoir depuis zéro"
+        },
+        {
+          "cluster": "Fonctionnalités premium MOTO Editor : \"Auto-refactor avancé\" et \"Optimisation automatique du code\" — dépôt E:\\Corpus\\MOTO-Editor",
+          "premium_feature": "Auto-refactor avancé — plugin dédié Moto.Plugins.AutoRefactorPro (commandes /refactor, /refactor all, /refactor fix, /refactor preview)",
+          "verdict": "NOT_FOUND",
+          "evidence": "Il existe un fichier Moto.Plugins.AutoRefactorPro\\AutoRefactorProPlugin.cs qui ressemble exactement à la feature premium visée (Description=\"Refactorisation automatique avancée avec XENO + Roslyn + apprentissage\", commandes slash /refactor*, appelle RefactorEngine.AnalyzeAsync/ApplyFixAsync/RecordFeedback). Mais ce dossier ne contient AUCUN .csproj (seul le .cs existe), et E:\\Corpus\\MOTO-Editor\\MotoEditor.sln ne référence que 3 projets : Moto.Editor, Moto.Core, Snake2000.Engine — Moto.Plugins.AutoRefactorPro n'est pas dans la solution et n'est jamais compilé. De plus il implémente `IMotoPlugin`, interface confirmée absente du dépôt par le commentaire explicite Moto.Editor\\MainPage.Extensions.cs:174-177 : \"4 autres plugins — MotoDarkPro/CortexBooster/AutoRefactorPro/Template — référencent une interface IMotoPlugin qui n'existe nulle part, restent hors scope\".",
+          "smallest_next_step": "Créer réellement l'interface IMotoPlugin, ajouter un .csproj pour Moto.Plugins.AutoRefactorPro, l'inclure dans MotoEditor.sln, puis l'enregistrer via PluginRegistry.RegisterAsync (actuellement seul Moto.Plugin.SampleFormat est enregistré, cf. commentaire MainPage.Extensions.cs:169-180)."
+        }
+      ]
+    },
+    "raw_cluster_reports": [
+      {
+        "cluster": "Fonctionnalités premium MOTO Editor (XENO-SSS intégré / Agents multi-étapes / Orchestrateur complet)",
+        "findings": [
+          {
+            "premium_feature": "XENO-SSS intégré",
+            "verdict": "DEAD_CODE",
+            "evidence": "Il existe au moins TROIS implémentations réelles et mutuellement indépendantes du concept \"pipeline XENO-SSS\", aucune reliée à l'UI : (1) Moto.Core/Moto.AI/Orchestration/AgentOrchestratorV3.cs:24-29 — pipeline 6 étapes (Scanner→Analyzer→Synthesizer→Connector→Validator→Scorer), vrai code combinant CortexEngine+ContextualActionsEngine+AgentScorer via GetCombinedSuggestionsV3 (ligne 46). Enregistré en DI : Moto.Editor/DependencyInjection/MotoServiceCollectionExtensions.cs:166. Mais `GetCombinedSuggestionsV3` n'est appelé nulle part ailleurs dans le dépôt (grep global : seule sa définition). (2) Snake2000.Engine/AgentIntegrated/Pipeline/XenoPipelineV5.cs:12-48 — pipeline parallèle réel (Architecture/Performance/Security/Testing agents + boucle de feedback). Enregistré en DI (lazy) : MotoServiceCollectionExtensions.cs:225-228. Son seul consommateur est `XenoFeedbackOverlay.SetPipeline` (Moto.Editor/Views/XenoFeedbackOverlay.xaml.cs:23-26), mais `XenoFeedbackOverlay` elle-même n'est instanciée/ajoutée à AUCUNE page (grep sur le nom de classe : seuls son propre .xaml/.xaml.cs la référencent). CLAUDE.md:558-563 confirme explicitly : \"XenoFeedbackOverlay : PAS de point d'entrée [...] aucun déclencheur visible\". (3) Moto.Core/Integration/XenoGateway.cs:35-77 (`LocalXenoGateway.RunFullPipeline`) — encore un 3e pipeline réel (Scanner/Analyzer/Synthesizer/Connector/Validator de Snake2000.Engine), consommé par NoCodeOrchestrator.cs:75, lui-même relié uniquement à `BeginnerModesView.SetNoCode` (Moto.Editor/Views/BeginnerModesView.xaml.cs:39-42) — mais `IXenoGateway` n'a AUCUN enregistrement DI (grep sur MotoServiceCollectionExtensions.cs : 0 résultat) et `SetNoCode` n'est appelé par rien. Une 4e brique (Moto.Core/Integration/XenoClient.cs + XenoTaskService.cs) est un client HTTP vers un host externe imaginaire (127.0.0.1:8377) jamais vérifié comme existant. Conclusion : \"XENO-SSS\" désigne au moins 3 pipelines de code réel et non-stub, mais zéro chemin UI ne mène à l'un d'eux.",
+            "smallest_next_step": "Ajouter une commande de palette (même schéma que ai.motopage/ai.globaldashboard dans CommandPaletteEngine.cs) qui résout XenoPipelineV5 depuis le conteneur DI, appelle ExecuteAsync(context), puis fait overlay.SetPipeline(pipeline) + overlay.ShowResult(result) sur une XenoFeedbackOverlay ajoutée à une page réelle."
+          },
+          {
+            "premium_feature": "Agents multi-étapes",
+            "verdict": "DEAD_CODE",
+            "evidence": "SubagentOrchestrator (Moto.Core/Moto.AI/Agents/SubagentOrchestrator.cs:13-46) implémente une vraie délégation récursive à profondeur limitée (`ExecuteWithSubagentsAsync`, lignes 26-46, avec garde-fou `MaxSubagentDepth`). SpecializedAgentRegistry (Moto.Core/Moto.AI/Agents/SpecializedAgentRegistry.cs:9-31) est un vrai registre/dispatcher (`DispatchAsync`, ligne 23) avec 8 agents concrets enregistrés (SecurityHintAgent, PrivacyScannerAgent, etc. — MotoServiceCollectionExtensions.cs:341-352). Les deux sont enregistrés en DI (lignes 351 et 378). Mais `SubagentOrchestrator`/`ExecuteWithSubagentsAsync` n'apparaît nulle part ailleurs dans le dépôt qu'à sa propre définition et sa ligne DI (grep global). Le seul consommateur réel de `SpecializedAgentRegistry` autre que SubagentOrchestrator lui-même est `AgentMarketplaceService` (Moto.Core/Moto.AI/Agents/AdvancedAgentServices.cs:61-79, `ListAvailable()`/`Install()` réels), utilisé uniquement par `AgentMarketplaceView` (Moto.Editor/Views/AgentMarketplaceView.xaml.cs:14, `AddTransient` en DI ligne 395) — mais `AgentMarketplaceView` n'est jamais navigué/instancié nulle part (aucun `PushAsync`, aucune entrée XAML, aucune commande de palette trouvée par grep). Le commentaire de Moto.Editor/Models/ChatTaskRecord.cs:11-14 confirme explicitement cet état : \"MOTO n'a aujourd'hui aucun sous-agent réellement invoqué depuis l'UI (AgentOrchestratorV3/SpecializedAgentRegistry existent mais ne sont appelés par rien)\".",
+            "smallest_next_step": "Ajouter une entrée de palette de commandes qui appelle Navigation.PushAsync(new AgentMarketplaceView(...)) (résolu via DI), et/ou un bouton qui appelle SubagentOrchestrator.ExecuteWithSubagentsAsync(...) avec une vraie requête pour rendre le chemin bout-en-bout observable."
+          },
+          {
+            "premium_feature": "Orchestrateur complet",
+            "verdict": "DEAD_CODE",
+            "evidence": "Le candidat le plus proche du nom est AgentOrchestratorV3 (Moto.Core/Moto.AI/Orchestration/AgentOrchestratorV3.cs:29), qui combine effectivement plusieurs moteurs (CortexEngine + ContextualActionsEngine + ProactiveAnalyticsEngine + AgentScorer) en un seul pipeline pondéré — même évidence que ci-dessus : enregistré en DI (MotoServiceCollectionExtensions.cs:166) mais `GetCombinedSuggestionsV3` jamais appelé hors définition/tests. Même son prédécesseur plus simple `AgentOrchestrator` (v1, Moto.Core/Moto.AI/Orchestration/AgentOrchestrator.cs:58, `GetCombinedSuggestions`) n'est ni enregistré en DI ni appelé nulle part — donc AUCUNE version de l'orchestrateur (v1 ou v3) n'est câblée. Un autre candidat plausible pour \"orchestrateur complet\" — `MultiAgentSuggestionEngine` (Moto.Core/Moto.AI/Orchestration/MultiAgentSuggestionEngine.cs:11-22, qui fusionnerait Cortex+Neural+Workspace) — est encore plus en amont : le commentaire MotoServiceCollectionExtensions.cs:209 dit explicitement \"MultiAgentSuggestionEngine : mis de côté (API Cortex/Neural/Workspace jamais implémentée)\", et la classe n'est même pas enregistrée en DI (aucune instanciation trouvée nulle part). Enfin, NeuralMode_Optimized (Moto.Core/Moto.AI/Neural/NeuralMode_Optimized.cs:11) — piste de départ donnée pour cette investigation — n'a AUCUN rapport constaté avec un \"orchestrateur\" : c'est un moteur d'embeddings TF-IDF autonome, enregistré en DI (MotoServiceCollectionExtensions.cs:230-231) mais jamais consommé par aucun autre service ni l'UI (grep global : seule sa propre définition + la ligne DI). À noter : le service réellement utilisé pour la recherche par embeddings est une classe différente, `NeuralMode` (sans suffixe), consommée par `MultiAgentSuggestionEngine` — lui-même non câblé.",
+            "smallest_next_step": "Décider d'abord QUEL orchestrateur incarne \"orchestrateur complet\" dans la vision de Tom (V3 seul, ou fusion Cortex+Neural+Workspace) avant de coder quoi que ce soit ; une fois choisi, le plus petit pas concret est d'appeler AgentOrchestratorV3.GetCombinedSuggestionsV3(...) depuis un point déjà réel de l'UI (par ex. le même endroit qui affiche déjà les suggestions de l'agent v1/actions contextuelles) pour comparer les deux sorties côte à côte."
+          }
+        ]
+      },
+      {
+        "cluster": "MOTO Editor — Fonctionnalités premium (agents IA) : CommitMessageAgent, ReleaseAgent, BuildAgent, TestAgent, MigrationAgent, ArchitectureAgent",
+        "findings": [
+          {
+            "premium_feature": "CommitMessageAgent",
+            "verdict": "DEAD_CODE",
+            "evidence": "Classe réelle : Moto.Core/Moto.AI/Agents/LlmBackedAgents.cs:80-89 (`CommitMessageAgent : LlmBackedAgent`), qui hérite de `LlmBackedAgent : ISpecializedAgent` (LlmBackedAgents.cs:13) et fait un vrai travail : construit un prompt à partir du diff (ligne 88-89) et l'envoie à `Kernel.RouteAsync` (LlmBackedAgents.cs:39). Enregistré en DI : Moto.Editor/DependencyInjection/MotoServiceCollectionExtensions.cs:336 (`services.AddSingleton<ISpecializedAgent, CommitMessageAgent>();`). Mais aucun appelant réel : le seul chemin d'exécution passe par `SpecializedAgentRegistry.DispatchAsync` (Moto.Core/Moto.AI/Agents/SpecializedAgentRegistry.cs:23-30), lui-même seulement utilisé par `SubagentOrchestrator` (Moto.Core/Moto.AI/Agents/SubagentOrchestrator.cs) — jamais appelé nulle part (grep sur `SubagentOrchestrator` : uniquement sa définition et son enregistrement DI ligne 378, aucun `.ExecuteWithSubagentsAsync(` ailleurs) — et par `AgentMarketplaceService`/`AgentMarketplaceView` (Moto.Core/Moto.AI/Agents/AdvancedAgentServices.cs:61-80, Moto.Editor/Views/AgentMarketplaceView.xaml.cs), une vue enregistrée en DI (ligne 395) mais jamais résolue/ouverte par aucune commande ou fenêtre (grep sur `AgentMarketplaceView` : uniquement DI + son propre fichier/XAML). Le code source lui-même le documente : Moto.Editor/Models/ChatTaskRecord.cs:11-15 dit explicitement « MOTO n'a aujourd'hui aucun sous-agent réellement invoqué depuis l'UI (AgentOrchestratorV3/SpecializedAgentRegistry existent mais ne sont appelés par rien) », confirmé par CLAUDE.md:90-91.",
+            "smallest_next_step": "Ajouter un bouton « Générer message de commit » dans Moto.Editor/Views/GitPanelView.xaml.cs qui appelle SpecializedAgentRegistry.DispatchAsync(\"agent.commit.message\", ...) avec le diff renvoyé par GitService."
+          },
+          {
+            "premium_feature": "ReleaseAgent",
+            "verdict": "NOT_FOUND",
+            "evidence": "Aucune classe/service nommé ReleaseAgent, ReleaseManager ou ReleaseEngine dans tout le dépôt (grep vide sur ces noms et variantes). La brique la plus proche est `ChangelogAgent` (Moto.Core/Moto.AI/Agents/LlmBackedAgents.cs:106-116), mais elle appartient exactement à la même chaîne morte que CommitMessageAgent (même SpecializedAgentRegistry jamais appelé). `UpdateManager` (Moto.Core/Updates/UpdateManager.cs:31) existe et gère les mises à jour de MOTO Editor lui-même (vérification périodique d'une nouvelle version de l'appli) — ce n'est pas une fonctionnalité de préparation de release pour les projets de l'utilisateur, donc pas la même chose. Le seul document qui prétend que « release notes »/« changelogs » sont livrés est Moto.Core/Moto.AI/Catalog/FeatureCatalog.cs:180-181 (`wow.release_notes` → ChangelogAgent, statut Available/AlreadyImplemented) — mais CLAUDE.md:877-879 avertit explicitement que ce catalogue s'auto-déclare et ment déjà sur au moins une autre feature (SnapshotResumeService), donc ce statut n'a aucune valeur probante.",
+            "smallest_next_step": "à concevoir depuis zéro"
+          },
+          {
+            "premium_feature": "BuildAgent",
+            "verdict": "PARTIAL",
+            "evidence": "Aucune classe nommée BuildAgent. Il existe en revanche un vrai moteur de build non-IA, `BuildEngine` (Moto.Core/Services/BuildEngine.cs:33-153), qui lance réellement `dotnet build` via Process (lignes 74-118) et parse les diagnostics par regex (lignes 37-39, 128-143). Il est bien câblé : Moto.Editor/MainPage.xaml.cs:42 (`private readonly BuildEngine _build = new();`), appelé dans `OnBuildClicked` (Moto.Editor/MainPage.UI.cs:87-100, `await _build.BuildAsync(_currentRoot)`), lui-même enregistré comme commande palette `run.build` (Moto.Editor/MainPage.Routing.cs:83) et rappelé depuis MainPage.Extensions.cs:528. Mais ce n'est pas une couche IA/agent : les `BuildDiagnostic`/`BuildResult` (BuildEngine.cs:12-26) ne sont consommés que pour mettre à jour la barre de statut (MainPage.UI.cs:91-96) — grep sur `BuildDiagnostic`/`BuildResult` ne montre aucun autre consommateur, donc aucune analyse IA des erreurs ni proposition de correctif automatique n'existe.",
+            "smallest_next_step": "Après un échec dans OnBuildClicked (Moto.Editor/MainPage.UI.cs:94), passer result.Diagnostics à MotoAiKernel.RouteAsync pour générer une suggestion de correctif affichée dans la barre de statut ou un panneau."
+          },
+          {
+            "premium_feature": "TestAgent",
+            "verdict": "DEAD_CODE",
+            "evidence": "Aucune classe nommée TestAgent. Deux classes voisines existent et font un vrai travail : `TestSkeletonAgent` (Moto.Core/Moto.AI/Agents/LlmBackedAgents.cs:54-64, génère un squelette de tests xUnit via LLM) et `TestFlakinessAgent` (Moto.Core/Moto.AI/Agents/StaticAnalysisAgents.cs:236-268, détecte les tests instables par heuristique sur un historique pass/fail). Toutes deux enregistrées en DI (Moto.Editor/DependencyInjection/MotoServiceCollectionExtensions.cs:334 et :347) mais appartiennent à la même chaîne ISpecializedAgent → SpecializedAgentRegistry → SubagentOrchestrator/AgentMarketplace jamais appelée (voir preuve détaillée sous CommitMessageAgent). Par ailleurs il n'existe même pas de commande d'exécution de tests non-IA : Moto.Editor/MainPage.Routing.cs:83-86 ne liste que `run.build`, `run.play`, `run.stop`, `run.sandbox` — aucun `run.test` ni invocation de `dotnet test` trouvée dans le dépôt.",
+            "smallest_next_step": "Ajouter une commande `run.test` dans Moto.Editor/MainPage.Routing.cs qui appelle SpecializedAgentRegistry.DispatchAsync(\"agent.tests.micro\", ...) ou (\"agent.test.flakiness\", ...) sur le fichier/projet courant."
+          },
+          {
+            "premium_feature": "MigrationAgent",
+            "verdict": "NOT_FOUND",
+            "evidence": "Aucune classe MigrationAgent ni fonctionnalité d'assistance à la migration de code/projet utilisateur. Le seul code contenant « Migration » dans Moto.Core est Moto.Core/Settings/SettingsMigrationEngine.cs:1-40 et Moto.Core/Settings/SettingsMigrationV2Engine.cs:1-46, plus la vue Moto.Editor/Views/MigrationOverlay.xaml.cs:1-30 — ces trois fichiers migrent uniquement le format interne settings.json de MOTO Editor lui-même (v1→v2), pas le code ou l'architecture d'un projet utilisateur. Grep sur `Migrat` dans tout Moto.Core ne retourne que ces 2 fichiers + 2 fichiers sans rapport (ConfirmationPolicyEngine, AiConfirmationService, faux positifs sur le mot « migration »).",
+            "smallest_next_step": "à concevoir depuis zéro"
+          },
+          {
+            "premium_feature": "ArchitectureAgent",
+            "verdict": "DEAD_CODE",
+            "evidence": "Classe réelle : Snake2000.Engine/AgentIntegrated/Specialized/SpecializedAgents.cs:22-45 (`ArchitectureAgent : ISpecializedAgent`) — attention, c'est une interface `ISpecializedAgent` DIFFÉRENTE (définie ligne 13 dans ce même fichier, namespace Snake2000.Engine.AgentIntegrated.Specialized) de celle utilisée par CommitMessageAgent/TestFlakinessAgent (namespace Moto.Core.AI.Agents). Fait un vrai travail heuristique (détection service-locator, Thread.Sleep, fichiers volumineux, lignes 28-36). Elle est instanciée en dur dans `XenoPipelineV5` (Snake2000.Engine/AgentIntegrated/Pipeline/XenoPipelineV5.cs:14, `private readonly ArchitectureAgent _architecture = new();`), et `XenoPipelineV5` est bien enregistré en DI (Moto.Editor/DependencyInjection/MotoServiceCollectionExtensions.cs:225-228, singleton lazy-wrapped). Le seul consommateur de son résultat est `XenoFeedbackOverlay` (Moto.Editor/Views/XenoFeedbackOverlay.xaml.cs:15-45, `SetPipeline`/`ShowResult`), mais cette vue n'est enregistrée NULLE PART dans le conteneur DI et n'est instanciée par aucun autre fichier du dépôt (grep : seulement sa propre définition et son XAML). CLAUDE.md:558-564 confirme explicitement et sans ambiguïté : « `XenoFeedbackOverlay` : PAS de point d'entrée … aucun déclencheur visible (\"lancer un pipeline Xeno\") n'existe aujourd'hui dans l'interface de MOTO Editor ».",
+            "smallest_next_step": "Ajouter un bouton/commande palette qui résout XenoPipelineV5 via DI, instancie XenoFeedbackOverlay, appelle SetPipeline(pipeline) puis pipeline.ExecuteAsync(context) sur le fichier ouvert et affiche ShowResult(...)."
+          }
+        ]
+      },
+      {
+        "cluster": "Fonctionnalités premium MOTO Editor : \"Auto-refactor avancé\" et \"Optimisation automatique du code\" — dépôt E:\\Corpus\\MOTO-Editor",
+        "findings": [
+          {
+            "premium_feature": "Auto-refactor avancé — RefactorFixer / RefactorLearningStore (moteur de diff + persistance du feedback)",
+            "verdict": "DEAD_CODE",
+            "evidence": "RefactorFixer.cs (E:\\Corpus\\MOTO-Editor\\Moto.Core\\Refactor\\RefactorFixer.cs:1-44) fait un vrai travail (ApplyFixAsync remplace les lignes, GenerateDiff calcule un diff texte) et RefactorLearningStore.cs (...\\RefactorLearningStore.cs:1-93) persiste un vrai fichier JSON de feedback utilisateur (RecordFeedback/GetAdjustedScore/SaveFeedback). Les deux sont enregistrés en DI : Moto.Editor\\DependencyInjection\\MotoServiceCollectionExtensions.cs:185-186 (services.AddSingleton<RefactorFixer>(); / <RefactorLearningStore>();). Mais leur SEUL appelant dans tout le dépôt est RefactorEngine (Moto.Core\\Refactor\\RefactorEngine.cs:9-14, qui fait `new RefactorFixer()`/`new RefactorLearningStore()` — même pas les instances DI), lui-même appelé uniquement par Moto.Editor\\Views\\RefactorPanel.xaml.cs:10-15. Or RefactorEngine.cs et RefactorAnalyzer.cs sont explicitement exclus de la compilation dans Moto.Core.csproj:69-70 (`<Compile Remove=\"Refactor\\RefactorEngine.cs\" />` etc.), et RefactorPanel.xaml / RefactorPanel.xaml.cs sont exclus de Moto.Editor.csproj:196-197 (`<Compile Remove=\"Views\\RefactorPanel.xaml.cs\" />`, `<MauiXaml Remove=\"Views\\RefactorPanel.xaml\" />`). La seule chaîne d'appel possible ne compile même pas dans le binaire livré.",
+            "smallest_next_step": "Retirer les <Compile Remove> de RefactorEngine.cs/RefactorAnalyzer.cs (Moto.Core.csproj) et de RefactorPanel (Moto.Editor.csproj), migrer RefactorPanel du XAML WinUI (Microsoft.UI.Xaml) vers MAUI, puis ajouter un vrai bouton qui l'affiche avec des suggestions."
+          },
+          {
+            "premium_feature": "Auto-refactor avancé — RefactorWalkthroughService (parcours interactif avec checkpoints)",
+            "verdict": "DEAD_CODE",
+            "evidence": "Classe avec logique réelle (pile de checkpoints, curseur d'étapes) : E:\\Corpus\\MOTO-Editor\\Moto.Core\\Moto.AI\\Agents\\AdvancedAgentServices.cs:109-143 (BeginWalkthrough/NextStep/CommitCheckpoint/RollbackToLastCheckpoint). Enregistrée en DI : Moto.Editor\\DependencyInjection\\MotoServiceCollectionExtensions.cs:359. Grep sur l'ensemble du dépôt pour BeginWalkthrough|NextStep\\(\\)|CommitCheckpoint|RollbackToLastCheckpoint : les seules occurrences sont les définitions elles-mêmes dans AdvancedAgentServices.cs — aucun bouton, commande de palette ou autre service ne les appelle.",
+            "smallest_next_step": "Une fois RefactorPanel reconstruit (voir finding précédent), câbler son bouton \"appliquer plusieurs corrections\" pour appeler walkthroughService.BeginWalkthrough(...) avant d'enchaîner les fixs."
+          },
+          {
+            "premium_feature": "Auto-refactor avancé — plugin dédié Moto.Plugins.AutoRefactorPro (commandes /refactor, /refactor all, /refactor fix, /refactor preview)",
+            "verdict": "NOT_FOUND",
+            "evidence": "Il existe un fichier Moto.Plugins.AutoRefactorPro\\AutoRefactorProPlugin.cs qui ressemble exactement à la feature premium visée (Description=\"Refactorisation automatique avancée avec XENO + Roslyn + apprentissage\", commandes slash /refactor*, appelle RefactorEngine.AnalyzeAsync/ApplyFixAsync/RecordFeedback). Mais ce dossier ne contient AUCUN .csproj (seul le .cs existe), et E:\\Corpus\\MOTO-Editor\\MotoEditor.sln ne référence que 3 projets : Moto.Editor, Moto.Core, Snake2000.Engine — Moto.Plugins.AutoRefactorPro n'est pas dans la solution et n'est jamais compilé. De plus il implémente `IMotoPlugin`, interface confirmée absente du dépôt par le commentaire explicite Moto.Editor\\MainPage.Extensions.cs:174-177 : \"4 autres plugins — MotoDarkPro/CortexBooster/AutoRefactorPro/Template — référencent une interface IMotoPlugin qui n'existe nulle part, restent hors scope\".",
+            "smallest_next_step": "Créer réellement l'interface IMotoPlugin, ajouter un .csproj pour Moto.Plugins.AutoRefactorPro, l'inclure dans MotoEditor.sln, puis l'enregistrer via PluginRegistry.RegisterAsync (actuellement seul Moto.Plugin.SampleFormat est enregistré, cf. commentaire MainPage.Extensions.cs:169-180)."
+          },
+          {
+            "premium_feature": "Auto-refactor avancé — flag PerformanceProfile.AutoRefactor / CanAutoRefactor",
+            "verdict": "STUB",
+            "evidence": "PerformanceEngine.cs définit un bool AutoRefactor par profil (E:\\Corpus\\MOTO-Editor\\Moto.Core\\Performance\\PerformanceEngine.cs:51,103,121,139,157) et Moto.Core\\Moto.AI\\Internal\\PerformanceEngine.cs:166 expose `public bool CanAutoRefactor => CurrentConfig.AutoRefactor;`. Le seul lecteur de ce flag dans tout le dépôt est Moto.Editor\\Views\\PerformanceView.xaml.cs:61, qui se contente de l'afficher en texte (\"oui/{minutes}min\" ou \"non\") sans déclencher la moindre action. CanAutoRefactor lui-même n'est lu nulle part ailleurs (grep confirmé, 1 seule occurrence = sa définition). PerformanceView n'est en plus jamais instanciée nulle part dans le dépôt (aucun `new PerformanceView` ni enregistrement DI trouvé) — même cet affichage texte n'est jamais montré à l'utilisateur.",
+            "smallest_next_step": "Décider d'abord où afficher PerformanceView (elle n'est visible nulle part aujourd'hui), puis remplacer l'affichage texte par un vrai déclenchement (timer basé sur RefactorIntervalMin qui appelle RefactorEngine.AnalyzeAsync quand CanAutoRefactor est vrai)."
+          },
+          {
+            "premium_feature": "Optimisation automatique du code — LocalRlFeedbackLoop (boucle RL locale de tri des suggestions)",
+            "verdict": "DEAD_CODE",
+            "evidence": "Logique réelle (moyenne de reward par agentId façon bandit UCB-lite) : E:\\Corpus\\MOTO-Editor\\Moto.Core\\Moto.AI\\Agents\\AdvancedAgentServices.cs:83-106. Enregistrée en DI : Moto.Editor\\DependencyInjection\\MotoServiceCollectionExtensions.cs:358. Son seul consommateur dans le dépôt est SmartSnippetSuggestionService (Moto.Core\\Moto.AI\\Suggestions\\SmartSnippetSuggestionService.cs:29,36,58,83), qui n'est LUI-MÊME enregistré nulle part dans MotoServiceCollectionExtensions.cs et n'est instancié par aucun autre fichier (grep sur \"SmartSnippetSuggestionService\" ne trouve que sa propre définition et de la doc/arborescence, pas d'appelant). Toute la chaîne est donc morte. Remarque d'incertitude : cette classe pondère des suggestions de snippets IA, pas de l'optimisation de code au sens perf/lisibilité — le lien avec \"Optimisation automatique du code\" annoncé par Tom est une extrapolation de ma part, pas une certitude établie dans le dépôt.",
+            "smallest_next_step": "Enregistrer SmartSnippetSuggestionService dans le DI et appeler .Suggest(...) depuis un vrai point d'entrée éditeur (ex. l'autocomplétion ou un raccourci) ; sinon LocalRlFeedbackLoop restera un mort-vivant même une fois SmartSnippetSuggestionService branché ailleurs."
+          },
+          {
+            "premium_feature": "Optimisation automatique du code — AdaptiveModelSelector (choix du modèle IA selon complexité de la tâche)",
+            "verdict": "DEAD_CODE",
+            "evidence": "Classe réelle mais très simple (switch TaskComplexity → AiModel) : E:\\Corpus\\MOTO-Editor\\Moto.Core\\Performance\\AdaptiveModelSelector.cs:19-28. Enregistrée en DI : Moto.Editor\\DependencyInjection\\MotoServiceCollectionExtensions.cs:193. Grep sur tout le dépôt pour \"SelectModel\" : la seule occurrence est la définition de la méthode elle-même (AdaptiveModelSelector.cs:19) — aucun appelant. La propriété statique `Instance` n'est lue nulle part non plus. Aucun bouton, commande ou service (y compris le chemin IA actif MotoAiKernel/Ollama mentionné en commentaire dans MotoServiceCollectionExtensions.cs:176) ne s'en sert pour réellement sélectionner un modèle selon la complexité.",
+            "smallest_next_step": "Appeler AdaptiveModelSelector.SelectModel(...) depuis le point où le moteur IA (MotoAiKernel / chemin Ollama) choisit effectivement quel modèle charger, et faire dépendre ce choix du résultat au lieu d'un modèle fixe."
+          }
+        ]
+      },
+      {
+        "cluster": "MOTO Editor premium features: Auto-linking intelligent & Auto-documentation complète",
+        "findings": [
+          {
+            "premium_feature": "Auto-linking intelligent",
+            "verdict": "DEAD_CODE",
+            "evidence": "Two competing implementations exist. The one that's actually wired into a pipeline is Moto.Core.AI.AutoLink.AutoLinkEngine (E:\\Corpus\\MOTO-Editor\\Moto.Core\\Moto.AI\\AutoLink\\AutoLinkEngine.cs:22-45), a real regex+ProjectMap heuristic engine, used by ContextAnalyzer.Analyze() (Moto.Core\\Moto.AI\\Context\\ContextAnalyzer.cs:19,33), which is itself wrapped by ContextEngine.AnalyzeNow() (Moto.Core\\Moto.AI\\Context\\ContextEngine.cs:20,96). ContextEngine IS registered in DI as a singleton (Moto.Editor\\DependencyInjection\\MotoServiceCollectionExtensions.cs:217-220: `services.AddSingleton<Moto.Core.AI.Context.ContextEngine>(...)`), but a repo-wide grep found zero call sites resolving/injecting/instantiating ContextEngine anywhere in Moto.Editor — no `GetRequiredService<ContextEngine>()`, no field, no `new ContextEngine(...)` outside that one DI registration. On the UI side, MainPage.xaml:198 hosts `<views:AutoLinkView x:Name=\"AutoLinkPanel\">`, and MainPage.Routing.cs:91 registers a command `_commandRegistry.Register(\"ai.autolink\", () => AutoLinkPanel.IsVisible = !AutoLinkPanel.IsVisible)` — but this command id is absent from the command-palette's static catalog (Moto.Core\\Moto.AI\\Commands\\CommandPaletteEngine.cs:117-181, no \"ai.autolink\" entry) and absent from the title-bar's tap targets (Moto.Editor\\Views\\CustomMenuBarView.xaml:46,54,62 only wire \"explorer\", \"search\", \"collab\") — so no actual UI element can ever fire it. Even if fired, `AutoLinkView.Load(report)` (Moto.Editor\\Views\\AutoLinkView.xaml.cs:25) is never called by anything, so the panel would stay empty. A second, entirely separate class also named AutoLinkEngine exists at Moto.Core\\Moto.AI\\Internal\\AutoLinkEngine.cs:14 (DetectMissingLinks/GenerateLinkFixes) and is 100% orphaned — never instantiated anywhere in the codebase. The only other 'usage' of AutoLinkEngine, in Moto.Core\\Platform\\AvaloniaLinuxGenerator.cs:176,250, is inside a raw C# string template for generating a separate unbuilt Moto.Linux project, not a real call in the running app.",
+            "smallest_next_step": "In MainPage (Moto.Editor), resolve the already-registered ContextEngine from DI, call `_contextEngine.AnalyzeNow(currentFile, workspace)` when a file is active, feed the result into `AutoLinkPanel.Load(...)`, and add an \"ai.autolink\" entry to CommandPaletteEngine's static command list (or a button binding) so the panel is actually reachable."
+          },
+          {
+            "premium_feature": "Auto-documentation complète",
+            "verdict": "PARTIAL",
+            "evidence": "The generation engine is real and does get invoked automatically today. Moto.Core\\Doc\\DocEngine.cs:65-147 (`GenerateAsync`) performs genuine project analysis (ProjectUnderstandingEngine/PatternDetectorEngine) and writes 6 real markdown files (README/Structure/Arborescence/Modules/Systems/Architecture) to `.moto/docs/`. It is instantiated for real (not via DI — plain `new`) every time a project is opened: Moto.Editor\\MainPage.Panels.cs:634 `_docEngine = new DocEngine(path);` and line 647-648 `if (SettingsEngine.Shared.GetBool(\"doc_on_project_open\")) _ = _docEngine.GenerateAsync();`, with that setting defaulting to `true` (Moto.Core\\Settings\\SettingsCatalog.Doc.cs:10-13, same for `doc_auto_update` which drives the FileSystemWatcher-based auto-regeneration in DocEngine.cs:196-215,217-227). As direct evidence this pipeline is actually executing in this very repo, `E:\\Corpus\\MOTO-Editor\\.moto\\docs\\Structure.md`, `Arborescence.md`, `Modules.md`, `README.md`, `Architecture.md`, `Systems.md` exist on disk with today's timestamp (2026-09-03 15:32) and their content format matches DocGenerators.cs output exactly (e.g. Structure.md:1-16 headers '# Structure du projet MOTO-Editor', '## 📁 Organisation par dossiers'). However, the dedicated UI surface for this feature is entirely dead: `DocPanelView.Load(report)` (Moto.Editor\\Views\\DocPanelView.xaml.cs:27) is never called by anything, so the panel hosted at MainPage.xaml:206 (`x:Name=\"DocPanel\"`) always renders empty. Its `RegenerateRequested`/`OpenFileRequested` events (DocPanelView.xaml.cs:17,20) are declared but never subscribed anywhere. The commands meant to open it — `ai.doc` (MainPage.Routing.cs:97) and `help.doc` (MainPage.Routing.cs:119) — are, like ai.autolink, absent from CommandPaletteEngine's static catalog and from CustomMenuBarView's tap targets, so a user has no in-app way to open/see the panel at all. A second, fully orphaned duplicate implementation also exists at Moto.Core\\Moto.AI\\Internal\\AutoDocEngine.cs:14,19 (`GenerateFullDocumentation`) — never referenced by any other file in the repo (DI or otherwise).",
+            "smallest_next_step": "After `_docEngine.GenerateAsync()` in MainPage.Panels.cs:648, dispatch the resulting DocReport to `DocPanel.Load(report)` on the main thread, and add \"ai.doc\"/\"help.doc\" to CommandPaletteEngine's static command list so the panel is actually reachable from the UI."
+          }
+        ]
+      },
+      {
+        "cluster": "Fonctionnalités premium candidates (Analyse de projet profonde / Suggestions proactives avancées) — MOTO-Editor",
+        "findings": [
+          {
+            "premium_feature": "ProactiveAnalyticsEngine (télémétrie suggestions/palette, alimente \"Suggestions proactives avancées\")",
+            "verdict": "REAL_WIRED",
+            "evidence": "Classe réelle (persistance JSON, agrégats) : Moto.Core/Moto.AI/Analytics/ProactiveAnalyticsEngine.cs:47. Enregistrée en DI : Moto.Editor/DependencyInjection/MotoServiceCollectionExtensions.cs:146. Appelée en production : Moto.Editor/MainPage.Extensions.cs:394 (`_analytics.Record(...PaletteCommandExecuted, command)` à chaque commande palette exécutée) et Moto.Editor/MainPage.Extensions.cs:762 (`view.SetAnalytics(_analytics)` à l'ouverture de la fenêtre Analytics). Un vrai panneau flottant l'affiche (Moto.Editor/MainPage.xaml.cs:308 `new AnalyticsDashboardView()`, ajouté via AddFloatingPanel ligne 318) et la commande slash réelle \"/analytics\" (tapée dans la barre IA) le pilote : Moto.Editor/MainPage.Routing.cs:560-619 (sous-commandes top/underperform/export/dashboard, dashboard bascule `_analyticsDashboard.IsVisible` et rappelle SetAnalytics ligne 607-609). Rendu réel des stats : Moto.Editor/Views/AnalyticsDashboardView.xaml.cs:36-61 (RenderTopCommands/RenderSuggestions/RenderHeatmap utilisent GetTopPaletteCommands/GetTopSuggestions/GetUnderperformingSuggestions/GetAllStats).",
+            "smallest_next_step": "déjà fait"
+          },
+          {
+            "premium_feature": "ProactiveSuggestionsEngine (suggestions proactives affichées au fil de l'usage)",
+            "verdict": "REAL_WIRED",
+            "evidence": "Classe réelle : Moto.Core/Moto.AI/Suggestions/ProactiveSuggestionsEngine.cs:25 (GetSuggestions filtre via FeatureFlagService et ProactiveAnalyticsEngine.IsDismissed). Enregistrée en DI avec ses vraies dépendances : MotoServiceCollectionExtensions.cs:164. Réellement invoquée en boucle : Moto.Editor/MainPage.Extensions.cs:544-546 (timer 30s `SetupProactiveTimer`) déclenche RefreshProactiveSuggestions (lignes 552-564) qui appelle `_proactiveEngine.GetSuggestions(context)` puis `_proactivePanel.UpdateSuggestions(suggestions)`. Le panneau ProactivePanel a `IsVisible=\"False\"` par défaut (Moto.Editor/Views/ProactivePanel.xaml:5) mais UpdateSuggestions le rend visible automatiquement dès qu'il y a des suggestions (Moto.Editor/Views/ProactivePanel.xaml.cs:41), et le clic sur une carte appelle `RecordExecution` puis déclenche `SuggestionInvoked` (ProactivePanel.xaml.cs:97-102), câblé à `OnAiCommandSubmitted` dans MainPage.Extensions.cs:265. Donc suggestions générées, affichées et cliquables sans action manuelle préalable de l'utilisateur — invocation UI/automatique réelle confirmée.",
+            "smallest_next_step": "déjà fait"
+          },
+          {
+            "premium_feature": "ContextualActionsEngine (actions contextuelles proposées selon l'état de l'éditeur)",
+            "verdict": "REAL_WIRED",
+            "evidence": "Classe réelle avec scoring contextuel : Moto.Core/Moto.AI/Actions/ContextualActionsEngine.cs:48. Utilisée directement (instance propre, pas via DI) dans MainPage.Extensions.cs:53 (`_actionsEngine = new()`) puis appelée depuis ShowContextualActions() (ligne 489, `_actionsEngine.GetActions(...)`), atteignable via la commande slash réelle \"/actions\" : Moto.Editor/MainPage.Routing.cs:387-389. Cette même commande est listée dans la palette de commandes (Ctrl+Maj+P, hotkey réellement câblé dans MainPage.Extensions.cs:453-467) : Moto.Core/Moto.AI/Commands/CommandPaletteEngine.cs:174 (\"slash.actions\" → \"/actions\"). Le moteur est aussi injecté via DI dans CommandPaletteEngine (MotoServiceCollectionExtensions.cs:163) qui l'utilise à chaque ouverture de palette pour ajouter les actions dynamiques (CommandPaletteEngine.cs:57-71).",
+            "smallest_next_step": "déjà fait"
+          },
+          {
+            "premium_feature": "AgentScorer (pondération multi-agents — brique candidate pour \"Analyse de projet profonde\")",
+            "verdict": "DEAD_CODE",
+            "evidence": "Classe réelle avec vraie logique de scoring pondéré : Moto.Core/Moto.AI/Orchestration/AgentScorer.cs:13-40. Enregistrée en DI (`services.AddSingleton<AgentScorer>()`) : MotoServiceCollectionExtensions.cs:150 — mais aucun `GetService<AgentScorer>()`/`GetRequiredService<AgentScorer>()` nulle part dans le dépôt (grep vide). Elle n'est en fait consommée qu'en interne, via une instance neuve (`new AgentScorer()`, pas celle du DI) par AgentOrchestratorV3.cs:34 et AgentOrchestrator.cs (celui-ci n'étant même pas enregistré en DI). AgentOrchestratorV3 est bien enregistré en DI (MotoServiceCollectionExtensions.cs:166) mais rien n'appelle `GetCombinedSuggestionsV3` ni ne résout `AgentOrchestratorV3` via DI en dehors des tests unitaires (Moto.Core.Tests/AI/Orchestration/AgentOrchestratorV3Tests.cs, Moto.Core.Tests/DependencyInjectionTests.cs:41 qui vérifie juste l'enregistrement). Le dépôt le confirme lui-même en commentaire : Moto.Editor/Models/ChatTaskRecord.cs:12-13 « MOTO n'a aujourd'hui aucun sous-agent réellement invoqué depuis l'UI (AgentOrchestratorV3/SpecializedAgentRegistry existent mais ne sont appelés par rien) ».",
+            "smallest_next_step": "Ajouter un vrai point d'entrée (bouton dans ProactivePanel.xaml.cs ou commande palette \"Analyse profonde\") qui appelle `AgentOrchestratorV3.GetCombinedSuggestionsV3(...)` résolu via DI, et faire injecter le `AgentScorer` du conteneur DI dans AgentOrchestratorV3 au lieu de `new AgentScorer()`."
+          },
+          {
+            "premium_feature": "PresenceAwareSuggestionGate (limiter l'IA lourde en forte présence collaborateurs — brique candidate pour \"Analyse de projet profonde\")",
+            "verdict": "DEAD_CODE",
+            "evidence": "Classe réelle (logique de seuil simple mais fonctionnelle) : Moto.Core/Settings/PresenceAwareSuggestionGate.cs:11-41. Enregistrée en DI, deux fois (redondant) : MotoServiceCollectionExtensions.cs:214 et :316. Injectée dans Moto.Core.AI.Context.ContextEngine (MotoServiceCollectionExtensions.cs:217-220, utilisée dans ContextEngine.cs:73 via `_presenceGate.ShouldRunHeavyAi()`) — mais ce ContextEngine n'est jamais résolu via `GetService<...ContextEngine>()` ni référencé nulle part dans Moto.Editor (aucun champ `_contextEngine`, aucun appel à `.Start()`/`.AnalyzeNow()`/`.SetActiveFile()` sur cette classe précisément ; seule trace hors définition est une simple ligne de texte marketing dans Moto.Editor/Views/AboutProView.xaml.cs:27 « ContextEngine (suggestions senior) », qui n'invoque rien). La gate est aussi injectée dans Moto.Core/Moto.AI/Workspace/ProactiveSuggestions.cs:6-20, une classe jamais instanciée nulle part (`new ProactiveSuggestions(` : 0 résultat dans tout le dépôt) et dont le fichier ressemble à un patch non fusionné (commentaires littéraux \"// ── AJOUT : dépendance\", \"// ── CONSTRUCTEUR : ajouter le paramètre\"). Enfin, la méthode censée nourrir la gate en données réelles, `UpdateActiveCollaborators` (PresenceAwareSuggestionGate.cs:24), est documentée « Appelé par CollabPresence quand la présence change » (ligne 23) mais Moto.Core/Collab/CollabPresence.cs (lu intégralement) ne référence PresenceAwareSuggestionGate nulle part — le compteur `_activeCollaborators` reste donc à 0 en permanence, même dans l'hypothèse où la gate serait un jour appelée.",
+            "smallest_next_step": "Faire appeler `CollabPresence` (ou son point d'intégration UI) vers `PresenceAwareSuggestionGate.UpdateActiveCollaborators(count)` à chaque changement de présence, ET résoudre + démarrer réellement `ContextEngine` depuis MainPage (ex. dans ResolveExtensionServices : `services.GetService<ContextEngine>()`, puis `.Start()` et `.SetActiveFile(...)` sur le fichier actif) pour que `ShouldRunHeavyAi()` ait enfin un appelant en production."
+          }
+        ]
+      },
+      {
+        "cluster": "MOTO Editor — Marketplace de plugins & Sandbox plugin avancée (Moto.Editor / Moto.Core)",
+        "findings": [
+          {
+            "premium_feature": "MarketplaceClient (Marketplace de plugins — client v1)",
+            "verdict": "PARTIAL",
+            "evidence": "Classe réelle avec vraie logique (HTTP, vérification SHA256) : E:\\Corpus\\MOTO-Editor\\Moto.Core\\Plugins\\Marketplace\\MarketplaceClient.cs:39-129. Enregistré en DI : Moto.Editor\\DependencyInjection\\MotoServiceCollectionExtensions.cs:141. RÉELLEMENT appelé depuis un point d'entrée UI concret : bouton '🧱 Plugins' (Moto.Editor\\MainPage.Panels.cs:339) → PluginGalleryView, résolu et câblé dans Moto.Editor\\MainPage.Extensions.cs:151 et :166-167 (SetServices) et instancié en :772 ; PluginGalleryView.xaml.cs:69 appelle GetCatalogAsync(), :169 appelle InstallAsync(). MAIS : aucun serveur marketplace.moto-editor.dev n'a jamais été déployé — GetCatalogAsync avale l'exception et renvoie toujours une liste vide (MarketplaceClient.cs:59-75), confirmé explicitement par CLAUDE.md:856-861 et par le commentaire honnête ajouté dans PluginGalleryView.xaml.cs:71-77 ('aucun serveur de marketplace distant n'est disponible'). Donc le câblage UI→client est réel, mais la fonctionnalité 'Marketplace' ne délivre jamais de vrai contenu faute de backend.",
+            "smallest_next_step": "Déployer (ou pointer vers) un vrai serveur marketplace derrière l'URL en dur de MarketplaceClient.cs:49, pour que GetCatalogAsync() cesse de toujours renvoyer une liste vide."
+          },
+          {
+            "premium_feature": "MarketplaceClientPro (Marketplace de plugins — comptes/signatures/dépendances/updates v2)",
+            "verdict": "DEAD_CODE",
+            "evidence": "Classe réelle avec vrai travail : login (LoginAsync, MarketplaceClientPro.cs:58-76), résolution de dépendances transitives (ResolveDependenciesAsync:110-131), détection de mises à jour (CheckUpdatesAsync:134-148), vérification de signature (VerifySignature:96-107, explicitement notée 'placeholder Ed25519'). Enregistré en DI : MotoServiceCollectionExtensions.cs:142. Recherche exhaustive sur tout le dépôt : la SEULE autre occurrence est un test qui vérifie juste sa présence en DI (Moto.Core.Tests\\DependencyInjectionTests.cs:44, 'Assert.Contains(types, t => t.Name == \"MarketplaceClientPro\")') — aucune vue, aucun bouton, aucun autre service n'appelle une seule de ses méthodes.",
+            "smallest_next_step": "Faire appeler MarketplaceClientPro.LoginAsync()/GetCatalogProAsync() depuis une vue réelle (ex. bouton 'Compte' dans PluginGalleryView), au lieu de laisser seul MarketplaceClient v1 câblé au bouton 🧱 Plugins."
+          },
+          {
+            "premium_feature": "PluginMalwareScanner (Marketplace de plugins — scan anti-malware à l'upload)",
+            "verdict": "DEAD_CODE",
+            "evidence": "Classe réelle avec vraie logique de détection (extensions dangereuses, patterns regex, hash SHA256) : E:\\Corpus\\MOTO-Editor\\Moto.Core\\Security\\PluginMalwareScanner.cs:25-190. Enregistré en DI côté éditeur : MotoServiceCollectionExtensions.cs:159. Le SEUL appelant trouvé est Moto.Marketplace.Api\\Controllers\\PluginsController.cs:8 (scanner.ScanPluginArchiveAsync) — mais ce projet Moto.Marketplace.Api n'est PAS référencé dans MotoEditor.sln (seuls Moto.Editor, Moto.Core, Snake2000.Engine y figurent, cf. grep '^Project' sur MotoEditor.sln) et son Program.cs contient deux blocs 'var app = builder.Build(); ... app.Run();' dupliqués (Program.cs:16 et :68-71, avec un commentaire 'Ajouter dans...' révélant un fragment collé, pas du code intégré) — ce projet ne compile même pas tel quel et n'est jamais construit/exécuté avec le vrai produit. Donc dans le produit réellement livré (Moto.Editor/Moto.Core), rien n'appelle jamais ScanPluginArchiveAsync ni ScanFileAsync.",
+            "smallest_next_step": "Ajouter Moto.Marketplace.Api à MotoEditor.sln, réparer Program.cs (doublon builder.Build()/app.Run()) et PluginsController.cs (fragment sans namespace/classe), OU plus simplement faire appeler PluginMalwareScanner directement depuis MarketplaceClient.InstallAsync() côté client avant l'écriture du fichier .dll (MarketplaceClient.cs:107)."
+          },
+          {
+            "premium_feature": "PluginRegistry (Marketplace de plugins — registre/chargement de plugins)",
+            "verdict": "REAL_WIRED",
+            "evidence": "Classe réelle : E:\\Corpus\\MOTO-Editor\\Moto.Core\\Plugins\\PluginRegistry.cs:11-94, avec RegisterAsync() (ligne 47) qui appelle réellement plugin.InitializeAsync() et injecte les réglages dans SettingsCatalog.All. Enregistré en DI : MotoServiceCollectionExtensions.cs:143. Réellement invoqué au démarrage réel de l'app : Moto.Editor\\MainPage.Extensions.cs:180 ('_ = RegisterBundledPluginsAsync();') enregistre le plugin bundlé SampleFormatPlugin, et GetActivePlugins() (ligne 23) est affiché dans la vraie galerie ouverte par le bouton '🧱 Plugins' (PluginGalleryView.xaml.cs:58, MainPage.Panels.cs:339). Confirmé narrativement par CLAUDE.md:790-828 ('UN VRAI PLUGIN CHARGÉ ET FONCTIONNEL', testé depuis 2 surfaces réelles). Limite : seul le plugin bundlé (ProjectReference) est chargé, pas de chargement dynamique d'un dossier plugins/ externe (CLAUDE.md:832-835) — mais le service lui-même est bien réel et branché.",
+            "smallest_next_step": "déjà fait"
+          },
+          {
+            "premium_feature": "PluginSandboxService (Sandbox plugin avancée — capability flags)",
+            "verdict": "DEAD_CODE",
+            "evidence": "Classe réelle (capabilities par plugin, GrantCapability/HasCapability/ExecuteSandboxedAsync) : E:\\Corpus\\MOTO-Editor\\Moto.Core\\Settings\\PluginSandboxService.cs:16-61. MAIS explicitement exclue de la COMPILATION de Moto.Core : Moto.Core.csproj:84 ('<Compile Remove=\"Settings\\PluginSandboxService.cs\" />') — le fichier n'est même pas dans l'assembly livré. Cohérent avec l'enregistrement DI commenté : MotoServiceCollectionExtensions.cs:386 ('EXCLU ... : services.AddSingleton<PluginSandboxService>();'). Confirmé par CLAUDE.md:500-503 ('bloqués par le cluster marketplace/plugin-SDK hors périmètre').",
+            "smallest_next_step": "Retirer la ligne <Compile Remove=\"Settings\\PluginSandboxService.cs\" /> de Moto.Core.csproj:84, dé-commenter l'enregistrement DI (MotoServiceCollectionExtensions.cs:386), puis faire appeler ExecuteSandboxedAsync() par PluginRegistry.RegisterAsync() avant d'exécuter un plugin non bundlé."
+          },
+          {
+            "premium_feature": "PluginSandboxMinimalService (Sandbox plugin avancée — deny-by-default + timeout)",
+            "verdict": "DEAD_CODE",
+            "evidence": "Classe réelle (GrantDefault/Grant/Can/RunGuardedAsync avec timeout réel via Task.WhenAny) : E:\\Corpus\\MOTO-Editor\\Moto.Core\\Security\\PluginSandboxMinimalService.cs:16-79. Explicitement exclue de la compilation de Moto.Core : Moto.Core.csproj:92 ('<Compile Remove=\"Security\\PluginSandboxMinimalService.cs\" />'). Aucune trace d'enregistrement DI (absente de MotoServiceCollectionExtensions.cs). Confirmé texto par CLAUDE.md:862-865 : 'PluginSandboxMinimalService.cs (sandbox de sécurité, logique réelle) rest[e] ... jamais instancié[e], non touché[e] par ce chantier'.",
+            "smallest_next_step": "Retirer <Compile Remove=\"Security\\PluginSandboxMinimalService.cs\" /> de Moto.Core.csproj:92, l'enregistrer en DI, puis faire appeler RunGuardedAsync() avant l'exécution d'une commande de plugin (ex. dans ChatService.PluginCommandHandler, MainPage.Extensions.cs:186)."
+          },
+          {
+            "premium_feature": "VulnerabilityScannerService (Sandbox plugin avancée / sécurité marketplace — scan CVE)",
+            "verdict": "STUB",
+            "evidence": "Classe enregistrée en DI (MotoServiceCollectionExtensions.cs:387) et compilée normalement, mais son unique méthode utile ScanPluginAsync() (E:\\Corpus\\MOTO-Editor\\Moto.Core\\Settings\\VulnerabilityScannerService.cs:48-58) ne fait jamais l'analyse promise : le commentaire dit 'En production : analyser les dépendances du plugin, matcher avec _knownVulns' mais le code ne le fait pas — 'findings' reste une liste vide construite en dur (ligne 53), quel que soit pluginPath. En plus d'être un stub, elle n'est jamais appelée nulle part ailleurs dans le dépôt : seule autre occurrence trouvée est une simple étiquette descriptive dans FeatureCatalog.cs:184 ('wow.security_audits', ... FeatureStatus.AlreadyImplemented, \"VulnerabilityScannerService\") — un texte de catalogue, pas un appel réel.",
+            "smallest_next_step": "Implémenter la vraie comparaison des dépendances du plugin contre _knownVulns dans ScanPluginAsync() (VulnerabilityScannerService.cs:48-58), puis l'appeler depuis MarketplaceClient.InstallAsync() avant d'écrire le .dll téléchargé (MarketplaceClient.cs:107)."
+          },
+          {
+            "premium_feature": "VerifiedPublisherService (Marketplace de plugins — programme d'éditeurs vérifiés)",
+            "verdict": "DEAD_CODE",
+            "evidence": "Classe réelle (RegisterPublisher/GetPublisher/IsVerified sur un dictionnaire de PublisherInfo) : E:\\Corpus\\MOTO-Editor\\Moto.Core\\Settings\\VerifiedPublisherService.cs:20-43. Enregistrée en DI : MotoServiceCollectionExtensions.cs:388. Recherche exhaustive sur le dépôt : aucune occurrence de RegisterPublisher(...), GetPublisher(...) ou IsVerified(...) en dehors du fichier de définition lui-même et de la ligne DI — aucune vue (PluginGalleryView, MarketplaceView) n'affiche de badge 'vérifié', aucune commande ne l'appelle.",
+            "smallest_next_step": "Appeler VerifiedPublisherService.IsVerified(entry.Author) depuis PluginGalleryView.AddCard() (PluginGalleryView.xaml.cs:115) pour afficher un badge 'Éditeur vérifié' sur les entrées du catalogue Marketplace."
+          }
+        ]
+      },
+      {
+        "cluster": "Premium features: \"Intégration cloud optionnelle\" + \"Collaboration en temps réel\" — MOTO-Editor (E:\\Corpus\\MOTO-Editor)",
+        "findings": [
+          {
+            "premium_feature": "Collaboration en temps réel — rôles collaboratifs (CollabRoleService)",
+            "verdict": "DEAD_CODE",
+            "evidence": "Implémentation réelle (pas un stub) : E:\\Corpus\\MOTO-Editor\\Moto.Core\\Settings\\CollabRoleService.cs:13-38 gère un rôle courant (Editor/Reviewer/Observer), un event RoleChanged, et une garde derrière SettingsCatalog.Collab.RoleBasedUiEnabled. Enregistré en DI : Moto.Editor\\DependencyInjection\\MotoServiceCollectionExtensions.cs:305. Seul consommateur trouvé : le constructeur de Moto.Editor\\Views\\ReviewLaneView.xaml.cs:21 (`CollabRoleService roles`). Mais ReviewLaneView lui-même n'est jamais instancié/affiché nulle part (voir finding suivant) : pas de `<views:ReviewLaneView>` dans MainPage.xaml, pas de `GetRequiredService<ReviewLaneView>()`, aucune entrée menu/palette. La seule autre mention est purement documentaire dans Moto.Core\\Moto.AI\\Catalog\\FeatureCatalog.cs:159 (chaîne de notes statique \"CollabRoleService\", ne fait aucun appel réel — juste une étiquette \"AlreadyImplemented\").",
+            "smallest_next_step": "Ajouter un point d'entrée qui résout et affiche réellement ReviewLaneView (qui consomme CollabRoleService) — p.ex. un onglet ou une commande de palette dans MainPage.xaml.cs qui fait `serviceProvider.GetRequiredService<ReviewLaneView>()` et l'ajoute au layout."
+          },
+          {
+            "premium_feature": "Collaboration en temps réel — review lanes / commentaires (ReviewLaneService)",
+            "verdict": "DEAD_CODE",
+            "evidence": "Implémentation réelle avec persistance disque et file hors-ligne : E:\\Corpus\\MOTO-Editor\\Moto.Core\\Settings\\ReviewLaneService.cs:29-127 (AddComment, FlushOfflineQueue, SetStatus, GetReplaySequence, Persist/Load JSON dans %AppData%\\MotoEditor\\.moto\\review\\). Enregistré en DI : MotoServiceCollectionExtensions.cs:306. Consommé uniquement par Moto.Editor\\Views\\ReviewLaneView.xaml.cs:15,21,30,47,65,82. ReviewLaneView est bien enregistré en DI comme Transient (MotoServiceCollectionExtensions.cs:362) et compile (pas d'exclusion dans Moto.Editor.csproj), MAIS rien dans le dépôt ne le résout ni ne l'affiche : aucune référence XAML `<views:ReviewLaneView>`, aucun `GetRequiredService<ReviewLaneView>` trouvé par grep global. Donc chaîne complète morte malgré une View entièrement fonctionnelle.",
+            "smallest_next_step": "Instancier et afficher ReviewLaneView quelque part dans l'UI (ex. un panneau à côté de l'éditeur, résolu via DI dans MainPage.xaml.cs) et appeler `SetFile(path)` quand le fichier actif change."
+          },
+          {
+            "premium_feature": "Collaboration en temps réel — sessions pair-programming chronométrées (PairSessionTimerService)",
+            "verdict": "DEAD_CODE",
+            "evidence": "Implémentation réelle : E:\\Corpus\\MOTO-Editor\\Moto.Core\\Settings\\PairSessionTimerService.cs:12-62, timer System.Timers.Timer, events SessionEnded/Tick, StartSession/EndSession. Enregistré en DI : MotoServiceCollectionExtensions.cs:308. Aucun appelant trouvé nulle part dans le dépôt (grep sur `PairSessionTimerService`, `.StartSession(` ne remonte que MainPage.Extensions.cs/MainPage.UI.cs qui appellent `_globalUsage.StartSession()`, un service totalement différent — pas PairSessionTimerService). La seule autre occurrence est une note purement descriptive dans Moto.Core\\Moto.AI\\Catalog\\FeatureCatalog.cs:166 (\"PairProgrammingEngine + PairSessionTimerService\", chaîne statique, aucun appel réel).",
+            "smallest_next_step": "Ajouter un bouton \"Démarrer session pair\" dans une vue collab existante qui appelle `pairSessionTimerService.StartSession()` et affiche `Remaining`/écoute `Tick`."
+          },
+          {
+            "premium_feature": "Collaboration en temps réel — tableau blanc partagé (WhiteboardService)",
+            "verdict": "DEAD_CODE",
+            "evidence": "Implémentation réelle : E:\\Corpus\\MOTO-Editor\\Moto.Core\\Settings\\WhiteboardService.cs:25-57 (AddElement, Clear, GetElements, event WhiteboardChanged). Enregistré en DI : MotoServiceCollectionExtensions.cs:309. Son seul consommateur, Moto.Editor\\Views\\WhiteboardView.xaml.cs (constructeur ligne 16, boutons OnAddRect/OnAddEllipse/OnAddArrow/OnClear), est explicitement EXCLU de la compilation dans Moto.Editor\\Moto.Editor.csproj:267-268 (`<Compile Remove=\"Views\\WhiteboardView.xaml.cs\" />`, `<MauiXaml Remove=\"Views\\WhiteboardView.xaml\" />`) — commentaire dans MotoServiceCollectionExtensions.cs:363 confirme : \"EXCLU (voir Moto.Editor.csproj, 2e vague) : services.AddTransient<WhiteboardView>();\". Donc le service compile et est câblé en DI, mais son unique appelant potentiel ne fait même pas partie du binaire construit — mort plus profondément que les autres.",
+            "smallest_next_step": "Ré-inclure WhiteboardView.xaml/.xaml.cs dans Moto.Editor.csproj, ré-enregistrer `services.AddTransient<WhiteboardView>()`, puis l'exposer via un onglet/bouton dans l'UI."
+          },
+          {
+            "premium_feature": "Collaboration en temps réel — annotations de ligne / notes de réunion (AnnotationLayerService)",
+            "verdict": "DEAD_CODE",
+            "evidence": "Implémentation réelle avec persistance JSON : E:\\Corpus\\MOTO-Editor\\Moto.Core\\Settings\\AnnotationLayerService.cs:28-96 (AddAnnotation, LinkMeetingNote, GetAnnotationsForFile, Persist/Load dans .moto\\annotations\\). Enregistré en DI : MotoServiceCollectionExtensions.cs:307. Recherche globale (`grep -rn \"AnnotationLayerService\"` sur tout le dépôt hors le fichier lui-même et son enregistrement DI) ne retourne AUCUN autre résultat — aucune vue, aucun autre service, aucun ViewModel ne le référence. C'est le cas le plus net : zéro trace d'appel réel, même pas une View morte.",
+            "smallest_next_step": "Créer un point d'entrée minimal, ex. un menu contextuel clic-droit sur une ligne d'éditeur qui appelle `annotationLayerService.AddAnnotation(...)`."
+          },
+          {
+            "premium_feature": "Collaboration en temps réel — intégration PR légère (LightweightPrService)",
+            "verdict": "DEAD_CODE",
+            "evidence": "Implémentation réelle qui délègue à `gh` CLI via TerminalService : E:\\Corpus\\MOTO-Editor\\Moto.Core\\Settings\\LightweightPrService.cs:22-55 (OpenPrAsync, ClosePrAsync, CommentPrAsync exécutent `gh pr create/close/comment` via `_terminal.ExecuteAsync`). Enregistré en DI : MotoServiceCollectionExtensions.cs:311. Recherche globale ne retourne aucune autre référence au type `LightweightPrService` ni aux méthodes `OpenPrAsync/ClosePrAsync/CommentPrAsync` nulle part dans le dépôt (grep exhaustif). Aucun bouton, aucune commande, aucun test ne l'invoque.",
+            "smallest_next_step": "Ajouter une commande de palette (\"Ouvrir une PR\") câblée à `lightweightPrService.OpenPrAsync(title, branch)` dans CommandPaletteEngine ou une vue Git existante (GitPanelView)."
+          },
+          {
+            "premium_feature": "Collaboration en temps réel — configurations d'exécution partagées (SharedRunConfigService)",
+            "verdict": "DEAD_CODE",
+            "evidence": "Implémentation réelle : E:\\Corpus\\MOTO-Editor\\Moto.Core\\Settings\\SharedRunConfigService.cs:22-61 (Save/Load de RunConfiguration en JSON dans .moto\\run-configs.json). Enregistré en DI : MotoServiceCollectionExtensions.cs:299. Recherche globale sur `SharedRunConfigService` et sur `SharedRunConfigService\\.` (appels de méthode) ne retourne rien d'autre dans tout le dépôt. Aucune UI de gestion de run-configs ne le référence.",
+            "smallest_next_step": "Ajouter une vue/dialogue \"Run Configurations\" qui appelle `sharedRunConfigService.Load()`/`Save(...)`, même minimal."
+          },
+          {
+            "premium_feature": "Collaboration en temps réel — scratchpads partagés (SharedScratchpadService)",
+            "verdict": "DEAD_CODE",
+            "evidence": "Implémentation réelle : E:\\Corpus\\MOTO-Editor\\Moto.Core\\Settings\\SharedScratchpadService.cs:21-61 (AppendSnippet, GetSnippets, Persist JSON dans .moto\\scratchpads\\). Enregistré en DI : MotoServiceCollectionExtensions.cs:300. Le commentaire du fichier dit explicitement \"La synchro P2P utilise le transport CollabSession existant (non réinventé)\" mais aucun code ne relie réellement SharedScratchpadService à CollabSession — recherche globale sur `SharedScratchpadService` ne retourne aucune référence en dehors du fichier et de son enregistrement DI.",
+            "smallest_next_step": "Ajouter un petit panneau scratchpad dans CollabPanelView (déjà affiché dans MainPage.xaml:226) qui appelle `sharedScratchpadService.AppendSnippet(...)`."
+          },
+          {
+            "premium_feature": "Intégration cloud optionnelle",
+            "verdict": "DEAD_CODE",
+            "evidence": "Aucun des 8 services fournis en pistes ne concerne le cloud ; recherche complémentaire a trouvé un cluster dédié bien réel : E:\\Corpus\\MOTO-Editor\\Moto.Core\\Cloud\\CloudSyncEngine.cs (116 lignes), CloudSyncService.cs (201 lignes), CloudProviderClient.cs (346 lignes) avec classes CloudAuthResult/CloudFileInfo/CloudSyncConfig etc. — logique non triviale, pas des stubs. Mais recherche exhaustive dans Moto.Editor\\DependencyInjection\\MotoServiceCollectionExtensions.cs ne montre AUCUN `AddSingleton<CloudSyncEngine>`, `AddSingleton<CloudSyncService>` ou `AddSingleton<CloudProviderClient>` — ces classes ne sont même pas enregistrées dans le conteneur DI (contrairement aux 8 services collab). Recherche globale hors du dossier Moto.Core\\Cloud et de Moto.Core.Tests\\Cloud : aucune autre référence trouvée. Donc plus mort encore que les services collab : ni DI ni appelant.",
+            "smallest_next_step": "D'abord enregistrer CloudSyncService/CloudSyncEngine/CloudProviderClient dans MotoServiceCollectionExtensions.cs, puis ajouter un point d'entrée (bouton Paramètres \"Synchroniser avec le cloud\") qui l'invoque — actuellement rien ne relie ce cluster au reste de l'app."
+          }
+        ]
+      },
+      {
+        "cluster": "Debug IA avancé / Profiling IA (MOTO-Editor, dépôt E:\\Corpus\\MOTO-Editor)",
+        "findings": [
+          {
+            "premium_feature": "Debug IA avancé — Moto.Core/Debug/DebugEnginePro.cs (classe DebugEnginePro)",
+            "verdict": "DEAD_CODE",
+            "evidence": "Classe réelle (breakpoints conditionnels, watch expressions, call stack) définie Moto.Core/Debug/DebugEnginePro.cs:48-120. Enregistrée en DI : Moto.Editor/DependencyInjection/MotoServiceCollectionExtensions.cs:237 `services.AddTransient<DebugEnginePro>();`. Seule autre référence dans tout le dépôt : Moto.Core.Tests/DependencyInjectionTests.cs:45, qui vérifie juste qu'elle est enregistrée (`Assert.Contains(types, t => t.Name == \"DebugEnginePro\")`) — aucune assertion comportementale. Le panneau UI qui ressemble le plus (nom proche) est DebugPanelProView (Moto.Editor/Views/DebugPanelProView.xaml.cs), ouvert réellement via un menu/WindowManager (Moto.Editor/MainPage.Extensions.cs:751-756, kind=\"debug\"), mais ce panneau utilise une implémentation totalement parallèle et distincte : NetcoredbgAdapter + BreakpointManager (DebugPanelProView.xaml.cs:14-15,26-40 ; ConditionalBreakpointDialog.xaml.cs:12-13,25,60-95) — jamais DebugEnginePro.AddConditionalBreakpoint/AddWatch/EvaluateWatchesAsync/GetCallStackAsync. Aucun `new DebugEnginePro`, aucun `Resolve<DebugEnginePro>` nulle part dans Moto.Editor. Remarque additionnelle : même le vrai DebugPanelProView est actuellement cassé côté UI — sa seule instanciation `new Views.DebugPanelProView()` (MainPage.Extensions.cs:755) n'appelle jamais `.SetServices(...)`, donc `_adapter`/`_breakpointManager` restent null et tous les boutons (Continue/Step/Watch) font un early-return silencieux. À noter aussi : DebugEnginePro n'a rien de spécifiquement 'IA' — c'est un débogueur générique, pas un service d'assistance IA au débogage.",
+            "smallest_next_step": "Choisir une seule implémentation : soit brancher DebugPanelProView sur DebugEnginePro (au lieu de NetcoredbgAdapter/BreakpointManager), soit supprimer DebugEnginePro et documenter que le 'debug avancé' réel passe par NetcoredbgAdapter/BreakpointManager — dans les deux cas, corriger d'abord MainPage.Extensions.cs:755 pour appeler SetServices(...) afin que le panneau ouvert soit fonctionnel."
+          },
+          {
+            "premium_feature": "Profiling IA — Moto.Core/Performance/PerformanceProfiler.cs (classe PerformanceProfiler)",
+            "verdict": "REAL_WIRED",
+            "evidence": "Service réel : échantillonne CPU/RAM/GC/threads via Process/GC toutes les 2s (Moto.Core/Performance/PerformanceProfiler.cs:19-26,68-88). Enregistré en DI singleton : MotoServiceCollectionExtensions.cs:128. RÉELLEMENT appelé : Moto.Editor/Views/StatusBarPanelView.xaml.cs:34-43 instancie `new PerformanceStatusBarView(profiler)` et l'insère dans la barre de statut (`RightChips.Children.Insert(0, perf)`), et PerformanceStatusBarView.xaml.cs:19-32,64-70 lit `_profiler.GetMetrics()` toutes les secondes pour afficher Mémoire/CPU/Threads/GC. StatusBarPanelView est bien déclarée et compilée dans l'UI réelle : Moto.Editor/MainPage.xaml:180 `<views:StatusBarPanelView x:Name=\"StatusBar\" .../>`. Attention : ce profiler n'est PAS spécifique à l'IA, c'est un profiler éditeur générique (CPU/RAM/GC du process complet) — s'il doit incarner 'Profiling IA' au sens strict (mesures propres à l'inférence IA), il ne couvre pas ce besoin ; voir AiObservabilityService/SystemLoadMonitor ci-dessous pour la partie réellement 'IA'.",
+            "smallest_next_step": "déjà fait (pour un profiling éditeur générique affiché dans la barre de statut) — mais si 'Profiling IA' doit signifier des métriques d'inférence IA, il reste à brancher un vrai consommateur IA-spécifique (voir AiObservabilityService)."
+          },
+          {
+            "premium_feature": "Profiling IA — Moto.Core/Performance/ProfilingHeatmapExporter.cs (classe ProfilingHeatmapExporter)",
+            "verdict": "DEAD_CODE",
+            "evidence": "Service réel : construit une heatmap JSON à partir des métriques de PerformanceProfiler et l'écrit sur disque (Moto.Core/Performance/ProfilingHeatmapExporter.cs:24-44). Enregistré en DI singleton avec factory : MotoServiceCollectionExtensions.cs:187 `services.AddSingleton<ProfilingHeatmapExporter>(sp => new ProfilingHeatmapExporter(sp.GetRequiredService<PerformanceProfiler>()));`. Aucun appel à `.ExportAsync(...)` nulle part ailleurs dans le dépôt. Le seul export réellement branché à un bouton UI (`OnExportClicked`, Moto.Editor/Views/PerformanceDashboardView.xaml.cs:52-60) appelle directement `_profiler.ExportMetrics()` (pas ProfilingHeatmapExporter) — et de toute façon PerformanceDashboardView est explicitement exclue de la compilation MAUI (Moto.Editor/Moto.Editor.csproj:217-218 `<Compile Remove=\"Views\\PerformanceDashboardView.xaml.cs\" />`, commentaire csproj:264-268 : 'jamais résolues nulle part dans le code réel — exclues de la compilation'). Le propre commentaire du dépôt le confirme : Moto.Editor/Views/StatusBarPanelView.xaml.cs:22-28 dit explicitement que ProfilingHeatmapExporter est 'déjà réel et utilisé ailleurs' mais 'juste jamais branché nulle part dans l'interface'.",
+            "smallest_next_step": "Ajouter un bouton (ex. dans PerformanceStatusBarView ou un menu 'Exporter le profil') qui appelle `ProfilingHeatmapExporter.ExportAsync(cheminFichier)` via le service résolu en DI."
+          },
+          {
+            "premium_feature": "Profiling IA — Moto.Core/Moto.AI/Embedded/AiObservabilityService.cs (classe AiObservabilityService)",
+            "verdict": "DEAD_CODE",
+            "evidence": "Service réel et le plus proche sémantiquement de 'Profiling IA' : métriques temps réel IA, alertes RAM/CPU/échec inférence, logs structurés, export JSON (Moto.Core/Moto.AI/Embedded/AiObservabilityService.cs:17-129). Enregistré en DI singleton : MotoServiceCollectionExtensions.cs:179. Recherche exhaustive de `.RecordMetric(`, `.LogEvent(`, `ExportLogsJson`, `ExportMetricsJson`, `GetSnapshot()` dans tout le dépôt (hors le fichier lui-même) : zéro résultat — rien n'alimente jamais ses métriques ni ne lit son snapshot. La seule vue de monitoring IA réellement ouverte par l'UI (tap sur l'icône 🧠 de la barre de statut, StatusBarPanelView.xaml.cs:101 → MainPage.xaml.cs:634-651 `OnAiMonitorTapped` → `Views.AiMonitoringView`) utilise en réalité CircuitBreakerStateService + StructuredLogCollector (Moto.Editor/Views/AiMonitoringView.xaml.cs:17-24), pas AiObservabilityService.",
+            "smallest_next_step": "Faire appeler `AiObservabilityService.RecordMetric(...)`/`LogEvent(...)` depuis le pipeline d'inférence réel (ex. MotoAiKernel/OllamaClient) et afficher `GetSnapshot()` dans AiMonitoringView."
+          },
+          {
+            "premium_feature": "Profiling IA — Moto.Core/Performance/MemoryPressureMonitor.cs (classe MemoryPressureMonitor)",
+            "verdict": "DEAD_CODE",
+            "evidence": "Service réel : bascule automatiquement en UltraLiteMode si la RAM dépasse un seuil, via un Timer interne (Moto.Core/Performance/MemoryPressureMonitor.cs:19-55). Enregistré en DI singleton avec factory : MotoServiceCollectionExtensions.cs:188 `services.AddSingleton<MemoryPressureMonitor>(sp => new MemoryPressureMonitor(sp.GetRequiredService<UltraLiteMode>()));`. Recherche exhaustive : aucune autre classe ne prend `MemoryPressureMonitor` en paramètre de constructeur, aucun `GetRequiredService<MemoryPressureMonitor>()`/`GetService<MemoryPressureMonitor>()` explicite, aucune lecture de `.IsInPressureMode` ni abonnement à `.PressureModeChanged` nulle part dans le dépôt. Comme .NET DI résout les singletons paresseusement (lazy), et que rien ne le demande jamais au conteneur, son constructeur (qui démarre le Timer de surveillance) ne s'exécute probablement jamais en pratique — pire que 'jamais consulté', il n'est jamais instancié du tout.",
+            "smallest_next_step": "Résoudre explicitement `MemoryPressureMonitor` au démarrage de l'app (ex. dans MauiProgram/App.xaml.cs, `serviceProvider.GetRequiredService<MemoryPressureMonitor>();`) pour au minimum démarrer sa surveillance, puis exposer `IsInPressureMode`/`PressureModeChanged` dans la barre de statut."
+          },
+          {
+            "premium_feature": "Profiling IA — Moto.Core/Moto.AI/Embedded/SystemLoadMonitor.cs (classe SystemLoadMonitor)",
+            "verdict": "DEAD_CODE",
+            "evidence": "Service réel : échantillonne CPU/RAM système toutes les 500ms, calcule OverallLoad incluant InferenceHostRamMB (Moto.Core/Moto.AI/Embedded/SystemLoadMonitor.cs:39-91). Enregistré en DI singleton : MotoServiceCollectionExtensions.cs:178. Mais ses seuls consommateurs dans le dépôt sont AdaptiveResourceGovernor (AI.Embedded), AiModeManager et AiAutoBenchmark (constructeurs à AdaptiveResourceGovernor.cs:35, AiModeManager.cs:25, AiAutoBenchmark.cs:31) — et ces trois classes sont explicitement 'mises de côté' et NON enregistrées en DI, comme le dit le commentaire du dépôt lui-même : MotoServiceCollectionExtensions.cs:169-176 'Cluster entier mis de côté pour cette passe : ... AdaptiveResourceGovernor/InferenceWatchdog/AiModeManager/AiAutoBenchmark. Le chemin Ollama (MotoAiKernel) reste la voie IA active.' Aucun `new AiModeManager`/`new AdaptiveResourceGovernor`/`new AiAutoBenchmark` nulle part en dehors de leurs propres fichiers. La seule autre instanciation de SystemLoadMonitor dans tout le dépôt est dans un test (Moto.Core.Tests/AI/Embedded/InferenceHostE2ETests.cs:84), pas dans le code de production.",
+            "smallest_next_step": "Soit réactiver et enregistrer AdaptiveResourceGovernor/AiModeManager (le seul chemin qui consomme SystemLoadMonitor), soit brancher SystemLoadMonitor.LoadChanged directement dans AiObservabilityService/AiMonitoringView pour afficher la charge système réelle."
+          }
+        ]
+      },
+      {
+        "cluster": "Fonctionnalités premium visées : \"Génération de modules entiers\" et \"Intégration Git intelligente\" — dépôt E:\\Corpus\\MOTO-Editor",
+        "findings": [
+          {
+            "premium_feature": "Intégration Git intelligente — plomberie Git (GitService)",
+            "verdict": "DEAD_CODE",
+            "evidence": "GitService (E:\\Corpus\\MOTO-Editor\\Moto.Core\\Services\\GitService.cs:33-297) est une implémentation réelle et complète : Init/AddRemote/Stage/Unstage/Commit/Push/Pull/Fetch/Merge/Rebase/Checkout/branches/Status/Diff/Log/Stash, tout via `git` CLI (TerminalService), pas un placeholder. Enregistré en DI (Moto.Editor\\DependencyInjection\\MotoServiceCollectionExtensions.cs:374). Son seul consommateur est GitPanelView (Moto.Editor\\Views\\GitPanelView.xaml.cs:20-110, boutons Stage/Commit/Push/Pull/Fetch/Branches/Log câblés correctement en interne). MAIS GitPanelView elle-même n'est jamais instanciée nulle part en dehors de sa propre déclaration et de son enregistrement DI transitoire (MotoServiceCollectionExtensions.cs:406) : grep exhaustif sur GitPanelView/GetRequiredService<GitPanelView> ne renvoie aucun appelant. Le switch exhaustif d'ouverture de fenêtres OpenSpecializedWindow (Moto.Editor\\MainPage.Extensions.cs:742-865, cases editor/debug/analytics/plugin/cortex/neural/workspace/aichat/platform/globaldashboard/threadlist/backgroundtasks/claudeshell/default) ne contient aucun cas \"git\". La palette de commandes statique (Moto.Core\\Moto.AI\\Commands\\CommandPaletteEngine.cs:119-180) ne contient aucune entrée git. Aucune barre latérale/onglet ne référence GitPanelView.",
+            "smallest_next_step": "Ajouter un case \"git\" dans OpenSpecializedWindow (Moto.Editor\\MainPage.Extensions.cs:862, avant le default) qui ouvre `new GitPanelView(gitService)` via WindowManager, plus une entrée `_commandRegistry.Register(\"git.panel\", ...)` (Moto.Editor\\MainPage.Routing.cs) et une entrée palette correspondante."
+          },
+          {
+            "premium_feature": "Intégration Git intelligente — couche \"intelligente\" (CommitMessageAgent / agents Git)",
+            "verdict": "DEAD_CODE",
+            "evidence": "CommitMessageAgent (Moto.Core\\Moto.AI\\Agents\\LlmBackedAgents.cs:80-82, catalogué \"AI Git Commit Writer\" dans FeatureCatalog.cs:114 comme AlreadyImplemented) est enregistré comme ISpecializedAgent (MotoServiceCollectionExtensions.cs:336) dans SpecializedAgentRegistry. Le code lui-même documente que ce registre n'est jamais consommé côté UI : commentaire explicite dans Moto.Editor\\Models\\ChatTaskRecord.cs:11-15 — « MOTO n'a aujourd'hui aucun sous-agent réellement invoqué depuis l'UI (AgentOrchestratorV3/SpecializedAgentRegistry existent mais ne sont appelés par rien...) ». Aucune couche IA (résumé de diff, message de commit généré, résolution de conflit assistée) n'est donc branchée au-dessus de GitService aujourd'hui — seul le CLI brut existe, et il est lui-même injoignable (voir finding précédent).",
+            "smallest_next_step": "Dans GitPanelView.OnCommitClicked (Moto.Editor\\Views\\GitPanelView.xaml.cs:72), appeler SpecializedAgentRegistry pour résoudre CommitMessageAgent et pré-remplir CommitMessageEntry.Text à partir de `_git.GetDiffAsync(staged:true)` avant l'appel à `_git.CommitAsync`."
+          },
+          {
+            "premium_feature": "Intégration Git intelligente — connexion compte GitHub (GitHubAccountService)",
+            "verdict": "PARTIAL",
+            "evidence": "GitHubAccountService (instancié Moto.Editor\\MainPage.Routing.cs:24 `new()`) implémente un vrai device-flow OAuth (StartDeviceFlowAsync/PollForTokenAsync/FetchUsernameAsync, MainPage.Routing.cs:212-234) et est câblé à un vrai menu utilisateur (case \"user\" ligne 177, OnGitHubUserClickedAsync ligne 202). Mais le commentaire du code à la ligne 206 admet explicitement que la partie utile n'existe pas : « Publier/importer un projet et télécharger les mises à jour depuis le dépôt ne sont pas encore câblés — la connexion elle-même est la première brique. » Cette connexion n'appelle jamais GitService (aucun lien trouvé entre GitHubAccountService et GitService dans tout le dépôt).",
+            "smallest_next_step": "Après connexion réussie (MainPage.Routing.cs:231-234), proposer un bouton \"Publier ce projet\" qui appelle GitService.AddRemoteAsync + GitService.PushAsync avec le token OAuth récupéré."
+          },
+          {
+            "premium_feature": "Génération de modules entiers — moteur de génération (CodeGenerationEngine)",
+            "verdict": "DEAD_CODE",
+            "evidence": "CodeGenerationEngine.GenerateModule (Moto.Core\\Moto.AI\\Internal\\CodeGenerationEngine.cs:22-57) fait un vrai travail : génère 3 fichiers C# réels et paramétrés (interface, composant, système ECS) avec du contenu templaté cohérent (pas une constante). Mais cette classe n'est instanciée (`new CodeGenerationEngine()`) que dans AutoLinkEngine.cs:19, CodeFixEngine.cs:16 et StoryModeEngine.cs:46 — or aucune de ces trois classes n'est elle-même jamais instanciée ailleurs dans le dépôt compilé (aucun `new AutoLinkEngine(`/`new CodeFixEngine(`/`new StoryModeEngine(` en dehors de leurs propres fichiers ; la seule autre occurrence, AvaloniaLinuxGenerator.cs:176, est exclue de la compilation MAUI d'après le commentaire de MotoServiceCollectionExtensions.cs:103-105 : « Linux : MAUI n'est pas supporté... donc Moto.Editor.Platforms.Linux n'est jamais compilé »). De plus, IntentDetector (Moto.Core\\Moto.AI\\Internal\\IntentDetector.cs:12-105, qui détecte l'intention \"génère un module X\" à partir d'une phrase) n'a aucune instanciation `new IntentDetector(` nulle part dans le dépôt : zéro appelant.",
+            "smallest_next_step": "Dans MotoAiService.ExecuteAsync (Moto.Editor\\Services\\MotoAiService.cs:35-41), appeler `new IntentDetector().Detect(request.UserText)` et, si Kind==GenerateModule, appeler `new CodeGenerationEngine().GenerateModule(...)` pour remplir `AiResponse.FileChanges` avant de retourner la réponse."
+          },
+          {
+            "premium_feature": "Génération de modules entiers — seul chemin UI vivant (MotoAiPage)",
+            "verdict": "STUB",
+            "evidence": "Le seul point d'entrée UI plausible pour \"générer un module\" est MotoAiPage (Moto.Editor\\Pages\\MotoAiPage.xaml.cs:25-56, accessible via la commande palette \"ai.motopage\" → MainPage.Routing.cs:108 `Navigation.PushAsync(new Pages.MotoAiPage())`, donc réellement navigable). Mais MotoAiService.ExecuteAsync (Moto.Editor\\Services\\MotoAiService.cs:35-41) délègue uniquement à MotoAiKernel.RouteAsync (Moto.Core\\Moto.AI\\Internal\\MotoAiKernel.cs:31-48), qui ne fait qu'appeler Ollama ou renvoyer un texte de repli — il ne touche jamais IntentDetector ni CodeGenerationEngine. Le commentaire du code (MotoAiService.cs:50-56) le confirme explicitement : « AiResponse.FileChanges n'est aujourd'hui JAMAIS rempli par ExecuteAsync... cette méthode fonctionnera dès que cette extraction existera, pas avant. » Donc même le bouton \"Appliquer\" (OnApplyClicked, MotoAiPage.xaml.cs:58-89) n'a jamais rien à appliquer en pratique.",
+            "smallest_next_step": "Voir le next_step du finding précédent (câbler IntentDetector + CodeGenerationEngine dans MotoAiService.ExecuteAsync) — c'est la même lacune vue côté UI."
+          },
+          {
+            "premium_feature": "Piste non pertinente pour les 2 features citées — AgentMarketplaceService",
+            "verdict": "DEAD_CODE",
+            "evidence": "AgentMarketplaceService (Moto.Core\\Moto.AI\\Agents\\AdvancedAgentServices.cs:61-80) ne correspond ni à \"Génération de modules\" ni à \"Git intelligent\" — c'est une place de marché pour les 20 agents spécialisés IA. `ListAvailable()` délègue réellement à SpecializedAgentRegistry (ligne 72-73), mais `Install(agentId)` (lignes 75-79) ne fait qu'un log, aucune installation réelle. Seul consommateur : AgentMarketplaceView (Moto.Editor\\Views\\AgentMarketplaceView.xaml.cs:14-37), elle-même jamais instanciée hors de sa déclaration DI (MotoServiceCollectionExtensions.cs:395) — absente de OpenSpecializedWindow (MainPage.Extensions.cs:742-865) et de la palette de commandes.",
+            "smallest_next_step": "Non prioritaire pour les 2 features demandées ; si conservé, ajouter un case dans OpenSpecializedWindow pour rendre AgentMarketplaceView atteignable."
+          },
+          {
+            "premium_feature": "Piste non pertinente pour les 2 features citées — DependencyUpdateBotService",
+            "verdict": "STUB",
+            "evidence": "DependencyUpdateBotService (Moto.Core\\Settings\\DependencyUpdateBotService.cs:21-42) ne correspond à aucune des 2 features demandées. `ScanDependenciesAsync()` (lignes 27-35) retourne toujours une liste vide (« En production : parser le .csproj, interroger NuGet... Ici : structure prête pour l'intégration ») — pas de vrai scan. Enregistré en DI (MotoServiceCollectionExtensions.cs:420) mais aucun appelant de `ScanDependenciesAsync`/`EstimatePerfImpact` trouvé ailleurs dans le dépôt.",
+            "smallest_next_step": "Non prioritaire pour les 2 features demandées ; si le but est des PRs Git automatiques de mise à jour de dépendances (lien possible avec \"Git intelligent\"), il faudrait d'abord implémenter le vrai scan puis appeler GitService.CommitAsync/PushAsync depuis un nouveau point d'entrée UI."
+          },
+          {
+            "premium_feature": "Piste non pertinente pour les 2 features citées — IncrementalIndexer",
+            "verdict": "DEAD_CODE",
+            "evidence": "IncrementalIndexer (Moto.Core\\Performance\\IncrementalIndexer.cs:11-97) est un indexeur de symboles pour recherche/GoTo, sans rapport avec la génération de modules ou Git. Le travail est réel (hash SHA256 par fichier, extraction de symboles, recherche) mais `LoadFromDisk`/`SaveToDisk` sont des TODO vides (lignes 88-96). Enregistré en DI (MotoServiceCollectionExtensions.cs:189) mais `IndexFileAsync`/`Search` ne sont appelés nulle part ailleurs dans le dépôt.",
+            "smallest_next_step": "Non pertinent pour les 2 features demandées ; à laisser de côté sauf si une feature de recherche/GoTo dédiée est planifiée."
+          },
+          {
+            "premium_feature": "Piste non pertinente pour les 2 features citées — LocalModelDistillationService",
+            "verdict": "STUB",
+            "evidence": "LocalModelDistillationService (Moto.Core\\Moto.AI\\Agents\\AdvancedAgentServices.cs:12-26) concerne la distillation de modèles IA, sans rapport avec Git ou la génération de modules de code. `PlanDistillationAsync` (lignes 17-25) ne fait qu'un log et renvoie une chaîne de texte fixe décrivant un plan — « L'opération lourde (entraînement/extraction) est déléguée hors éditeur » : aucun travail réel de distillation. Enregistré en DI (MotoServiceCollectionExtensions.cs:355) mais `PlanDistillationAsync` n'est appelé nulle part ailleurs dans le dépôt.",
+            "smallest_next_step": "Non pertinent pour les 2 features demandées."
+          }
+        ]
+      }
+    ]
+  },
+  "workflowProgress": [
+    {
+      "type": "workflow_phase",
+      "index": 1,
+      "title": "Investigation"
+    },
+    {
+      "type": "workflow_phase",
+      "index": 2,
+      "title": "Synthese"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 1,
+      "label": "probe:orchestrateur_agents",
+      "phaseIndex": 1,
+      "phaseTitle": "Investigation",
+      "agentId": "ae30b3bb999f3f6f9",
+      "agentType": "Explore",
+      "model": "claude-sonnet-5",
+      "state": "done",
+      "startedAt": 1788442591227,
+      "queuedAt": 1788442589224,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "lastToolSummary": "Fonctionnalités premium MOTO Editor (XENO-SSS intégré / Age…",
+      "promptPreview": "Dépôt : E:\\Corpus\\MOTO-Editor (solution .NET MAUI, projets Moto.Editor et Moto.Core).\nTu es en LECTURE SEULE : utilise Grep/Glob/Read uniquement, aucune modification.\n\nContexte : Tom (le porteur du projet) vise un jour une version payante de MOTO Editor\navec ces fonctionnalités premium : XENO-SSS intégré, Agents multi-étapes, Orchestrateur complet.\nPistes de départ pour les services C# concernés (…",
+      "lastProgressAt": 1788442837990,
+      "tokens": 110800,
+      "toolCalls": 55,
+      "durationMs": 244608,
+      "resultPreview": "{\"cluster\":\"Fonctionnalités premium MOTO Editor (XENO-SSS intégré / Agents multi-étapes / Orchestrateur complet)\",\"findings\":[{\"premium_feature\":\"XENO-SSS intégré\",\"verdict\":\"DEAD_CODE\",\"evidence\":\"Il existe au moins TROIS implémentations réelles et mutuellement indépendantes du concept \\\"pipeline XENO-SSS\\\", aucune reliée à l'UI : (1) Moto.Core/Moto.AI/Orchestration/AgentOrchestratorV3.cs:24-29 —…"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 2,
+      "label": "probe:agents_nommes",
+      "phaseIndex": 1,
+      "phaseTitle": "Investigation",
+      "agentId": "a59d2330ca23f07b2",
+      "agentType": "Explore",
+      "model": "claude-sonnet-5",
+      "state": "done",
+      "startedAt": 1788442591158,
+      "queuedAt": 1788442589225,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "lastToolSummary": "MOTO Editor — Fonctionnalités premium (agents IA) : CommitM…",
+      "promptPreview": "Dépôt : E:\\Corpus\\MOTO-Editor (solution .NET MAUI, projets Moto.Editor et Moto.Core).\nTu es en LECTURE SEULE : utilise Grep/Glob/Read uniquement, aucune modification.\n\nContexte : Tom (le porteur du projet) vise un jour une version payante de MOTO Editor\navec ces fonctionnalités premium : CommitMessageAgent, ReleaseAgent, BuildAgent, TestAgent, MigrationAgent, ArchitectureAgent.\nPistes de départ po…",
+      "lastProgressAt": 1788442883144,
+      "tokens": 125966,
+      "toolCalls": 57,
+      "durationMs": 291984,
+      "resultPreview": "{\"cluster\":\"MOTO Editor — Fonctionnalités premium (agents IA) : CommitMessageAgent, ReleaseAgent, BuildAgent, TestAgent, MigrationAgent, ArchitectureAgent\",\"findings\":[{\"premium_feature\":\"CommitMessageAgent\",\"verdict\":\"DEAD_CODE\",\"evidence\":\"Classe réelle : Moto.Core/Moto.AI/Agents/LlmBackedAgents.cs:80-89 (`CommitMessageAgent : LlmBackedAgent`), qui hérite de `LlmBackedAgent : ISpecializedAgent` …"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 3,
+      "label": "probe:refactor_optimisation",
+      "phaseIndex": 1,
+      "phaseTitle": "Investigation",
+      "agentId": "a3278e786ae757c2a",
+      "agentType": "Explore",
+      "model": "claude-sonnet-5",
+      "state": "done",
+      "startedAt": 1788442592328,
+      "queuedAt": 1788442589225,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "lastToolSummary": "Fonctionnalités premium MOTO Editor : \"Auto-refactor avancé…",
+      "promptPreview": "Dépôt : E:\\Corpus\\MOTO-Editor (solution .NET MAUI, projets Moto.Editor et Moto.Core).\nTu es en LECTURE SEULE : utilise Grep/Glob/Read uniquement, aucune modification.\n\nContexte : Tom (le porteur du projet) vise un jour une version payante de MOTO Editor\navec ces fonctionnalités premium : Auto-refactor avancé, Optimisation automatique du code.\nPistes de départ pour les services C# concernés (à véri…",
+      "lastProgressAt": 1788442826546,
+      "tokens": 97907,
+      "toolCalls": 49,
+      "durationMs": 233164,
+      "resultPreview": "{\"cluster\":\"Fonctionnalités premium MOTO Editor : \\\"Auto-refactor avancé\\\" et \\\"Optimisation automatique du code\\\" — dépôt E:\\\\Corpus\\\\MOTO-Editor\",\"findings\":[{\"premium_feature\":\"Auto-refactor avancé — RefactorFixer / RefactorLearningStore (moteur de diff + persistance du feedback)\",\"verdict\":\"DEAD_CODE\",\"evidence\":\"RefactorFixer.cs (E:\\\\Corpus\\\\MOTO-Editor\\\\Moto.Core\\\\Refactor\\\\RefactorFixer.cs:…"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 4,
+      "label": "probe:linking_documentation",
+      "phaseIndex": 1,
+      "phaseTitle": "Investigation",
+      "agentId": "a9a2cc8b9ae989169",
+      "agentType": "Explore",
+      "model": "claude-sonnet-5",
+      "state": "done",
+      "startedAt": 1788442592701,
+      "queuedAt": 1788442589225,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "lastToolSummary": "MOTO Editor premium features: Auto-linking intelligent & Au…",
+      "promptPreview": "Dépôt : E:\\Corpus\\MOTO-Editor (solution .NET MAUI, projets Moto.Editor et Moto.Core).\nTu es en LECTURE SEULE : utilise Grep/Glob/Read uniquement, aucune modification.\n\nContexte : Tom (le porteur du projet) vise un jour une version payante de MOTO Editor\navec ces fonctionnalités premium : Auto-linking intelligent, Auto-documentation complète.\nPistes de départ pour les services C# concernés (à vérif…",
+      "lastProgressAt": 1788442877076,
+      "tokens": 117065,
+      "toolCalls": 58,
+      "durationMs": 283693,
+      "resultPreview": "{\"cluster\":\"MOTO Editor premium features: Auto-linking intelligent & Auto-documentation complète\",\"findings\":[{\"premium_feature\":\"Auto-linking intelligent\",\"verdict\":\"DEAD_CODE\",\"evidence\":\"Two competing implementations exist. The one that's actually wired into a pipeline is Moto.Core.AI.AutoLink.AutoLinkEngine (E:\\\\Corpus\\\\MOTO-Editor\\\\Moto.Core\\\\Moto.AI\\\\AutoLink\\\\AutoLinkEngine.cs:22-45), a rea…"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 5,
+      "label": "probe:analyse_suggestions",
+      "phaseIndex": 1,
+      "phaseTitle": "Investigation",
+      "agentId": "a45496ff3b66d8c9e",
+      "agentType": "Explore",
+      "model": "claude-sonnet-5",
+      "state": "done",
+      "startedAt": 1788442592011,
+      "queuedAt": 1788442589225,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "lastToolSummary": "Fonctionnalités premium candidates (Analyse de projet profo…",
+      "promptPreview": "Dépôt : E:\\Corpus\\MOTO-Editor (solution .NET MAUI, projets Moto.Editor et Moto.Core).\nTu es en LECTURE SEULE : utilise Grep/Glob/Read uniquement, aucune modification.\n\nContexte : Tom (le porteur du projet) vise un jour une version payante de MOTO Editor\navec ces fonctionnalités premium : Analyse de projet profonde, Suggestions proactives avancées.\nPistes de départ pour les services C# concernés (à…",
+      "lastProgressAt": 1788442884668,
+      "tokens": 133318,
+      "toolCalls": 49,
+      "durationMs": 291286,
+      "resultPreview": "{\"cluster\":\"Fonctionnalités premium candidates (Analyse de projet profonde / Suggestions proactives avancées) — MOTO-Editor\",\"findings\":[{\"premium_feature\":\"ProactiveAnalyticsEngine (télémétrie suggestions/palette, alimente \\\"Suggestions proactives avancées\\\")\",\"verdict\":\"REAL_WIRED\",\"evidence\":\"Classe réelle (persistance JSON, agrégats) : Moto.Core/Moto.AI/Analytics/ProactiveAnalyticsEngine.cs:47…"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 6,
+      "label": "probe:marketplace_sandbox",
+      "phaseIndex": 1,
+      "phaseTitle": "Investigation",
+      "agentId": "a2b14ac8de1a7114b",
+      "agentType": "Explore",
+      "model": "claude-sonnet-5",
+      "state": "done",
+      "startedAt": 1788442592326,
+      "queuedAt": 1788442589225,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "lastToolSummary": "MOTO Editor — Marketplace de plugins & Sandbox plugin avanc…",
+      "promptPreview": "Dépôt : E:\\Corpus\\MOTO-Editor (solution .NET MAUI, projets Moto.Editor et Moto.Core).\nTu es en LECTURE SEULE : utilise Grep/Glob/Read uniquement, aucune modification.\n\nContexte : Tom (le porteur du projet) vise un jour une version payante de MOTO Editor\navec ces fonctionnalités premium : Marketplace de plugins, Sandbox plugin avancée.\nPistes de départ pour les services C# concernés (à vérifier, pa…",
+      "lastProgressAt": 1788442808050,
+      "tokens": 109844,
+      "toolCalls": 38,
+      "durationMs": 214668,
+      "resultPreview": "{\"cluster\":\"MOTO Editor — Marketplace de plugins & Sandbox plugin avancée (Moto.Editor / Moto.Core)\",\"findings\":[{\"premium_feature\":\"MarketplaceClient (Marketplace de plugins — client v1)\",\"verdict\":\"PARTIAL\",\"evidence\":\"Classe réelle avec vraie logique (HTTP, vérification SHA256) : E:\\\\Corpus\\\\MOTO-Editor\\\\Moto.Core\\\\Plugins\\\\Marketplace\\\\MarketplaceClient.cs:39-129. Enregistré en DI : Moto.Edito…"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 7,
+      "label": "probe:cloud_collaboration",
+      "phaseIndex": 1,
+      "phaseTitle": "Investigation",
+      "agentId": "ad21d0f342171f880",
+      "agentType": "Explore",
+      "model": "claude-sonnet-5",
+      "state": "done",
+      "startedAt": 1788442592029,
+      "queuedAt": 1788442589225,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "lastToolSummary": "Premium features: \"Intégration cloud optionnelle\" + \"Collab…",
+      "promptPreview": "Dépôt : E:\\Corpus\\MOTO-Editor (solution .NET MAUI, projets Moto.Editor et Moto.Core).\nTu es en LECTURE SEULE : utilise Grep/Glob/Read uniquement, aucune modification.\n\nContexte : Tom (le porteur du projet) vise un jour une version payante de MOTO Editor\navec ces fonctionnalités premium : Intégration cloud optionnelle, Collaboration en temps réel.\nPistes de départ pour les services C# concernés (à …",
+      "lastProgressAt": 1788442781003,
+      "tokens": 81789,
+      "toolCalls": 28,
+      "durationMs": 187620,
+      "resultPreview": "{\"cluster\":\"Premium features: \\\"Intégration cloud optionnelle\\\" + \\\"Collaboration en temps réel\\\" — MOTO-Editor (E:\\\\Corpus\\\\MOTO-Editor)\",\"findings\":[{\"premium_feature\":\"Collaboration en temps réel — rôles collaboratifs (CollabRoleService)\",\"verdict\":\"DEAD_CODE\",\"evidence\":\"Implémentation réelle (pas un stub) : E:\\\\Corpus\\\\MOTO-Editor\\\\Moto.Core\\\\Settings\\\\CollabRoleService.cs:13-38 gère un rôle …"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 8,
+      "label": "probe:debug_profiling",
+      "phaseIndex": 1,
+      "phaseTitle": "Investigation",
+      "agentId": "a455a7ddc9266352a",
+      "agentType": "Explore",
+      "model": "claude-sonnet-5",
+      "state": "done",
+      "startedAt": 1788442591959,
+      "queuedAt": 1788442589225,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "lastToolSummary": "Debug IA avancé / Profiling IA (MOTO-Editor, dépôt E:\\Corpu…",
+      "promptPreview": "Dépôt : E:\\Corpus\\MOTO-Editor (solution .NET MAUI, projets Moto.Editor et Moto.Core).\nTu es en LECTURE SEULE : utilise Grep/Glob/Read uniquement, aucune modification.\n\nContexte : Tom (le porteur du projet) vise un jour une version payante de MOTO Editor\navec ces fonctionnalités premium : Debug IA avancé, Profiling IA.\nPistes de départ pour les services C# concernés (à vérifier, pas à prendre pour …",
+      "lastProgressAt": 1788442874280,
+      "tokens": 91784,
+      "toolCalls": 45,
+      "durationMs": 280898,
+      "resultPreview": "{\"cluster\":\"Debug IA avancé / Profiling IA (MOTO-Editor, dépôt E:\\\\Corpus\\\\MOTO-Editor)\",\"findings\":[{\"premium_feature\":\"Debug IA avancé — Moto.Core/Debug/DebugEnginePro.cs (classe DebugEnginePro)\",\"verdict\":\"DEAD_CODE\",\"evidence\":\"Classe réelle (breakpoints conditionnels, watch expressions, call stack) définie Moto.Core/Debug/DebugEnginePro.cs:48-120. Enregistrée en DI : Moto.Editor/DependencyInj…"
+    },
+    {
+      "type": "workflow_agent",
+      "index": 9,
+      "label": "probe:modules_git",
+      "phaseIndex": 1,
+      "phaseTitle": "Investigation",
+      "agentId": "a8a9b5d2db0e5e0c7",
+      "agentType": "Explore",
+      "model": "claude-sonnet-5",
+      "state": "done",
+      "startedAt": 1788442592332,
+      "queuedAt": 1788442589226,
+      "attempt": 1,
+      "lastToolName": "StructuredOutput",
+      "lastToolSummary": "Fonctionnalités premium visées : \"Génération de modules ent…",
+      "promptPreview": "Dépôt : E:\\Corpus\\MOTO-Editor (solution .NET MAUI, projets Moto.Editor et Moto.Core).\nTu es en LECTURE SEULE : utilise Grep/Glob/Read uniquement, aucune modification.\n\nContexte : Tom (le porteur du projet) vise un jour une version payante de MOTO Editor\navec ces fonctionnalités premium : Génération de modules entiers, Intégration Git intelligente.\nPistes de départ pour les services C# concernés (à…",
+      "lastProgressAt": 1788442939109,
+      "tokens": 139261,
+      "toolCalls": 59,
+      "durationMs": 345726,
+      "resultPreview": "{\"cluster\":\"Fonctionnalités premium visées : \\\"Génération de modules entiers\\\" et \\\"Intégration Git intelligente\\\" — dépôt E:\\\\Corpus\\\\MOTO-Editor\",\"findings\":[{\"premium_feature\":\"Intégration Git intelligente — plomberie Git (GitService)\",\"verdict\":\"DEAD_CODE\",\"evidence\":\"GitService (E:\\\\Corpus\\\\MOTO-Editor\\\\Moto.Core\\\\Services\\\\GitService.cs:33-297) est une implémentation réelle et complète : Ini…"
+    }
+  ],
+  "totalTokens": 1007734,
+  "totalToolCalls": 438
+}
