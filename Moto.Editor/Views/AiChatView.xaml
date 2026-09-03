@@ -1,8 +1,38 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:local="clr-namespace:Moto.Editor.Views"
              x:Class="Moto.Editor.Views.AiChatView"
              BackgroundColor="{StaticResource BgSide}">
+
+    <ContentView.Resources>
+        <ResourceDictionary>
+            <!-- ★ AJOUT (03/09, bouton "copier" manquant sur le code) : distingue
+                 texte normal / bloc de code dans une réponse IA (ChatMessage.Segments). -->
+            <local:ChatSegmentSelector x:Key="SegmentSelector">
+                <local:ChatSegmentSelector.TextTemplate>
+                    <DataTemplate>
+                        <Label Text="{Binding Text}" FontSize="12" TextColor="White" />
+                    </DataTemplate>
+                </local:ChatSegmentSelector.TextTemplate>
+                <local:ChatSegmentSelector.CodeTemplate>
+                    <DataTemplate>
+                        <Border StrokeShape="RoundRectangle 6" Stroke="{StaticResource BorderCol}"
+                                BackgroundColor="#171614" Padding="8,6">
+                            <Grid ColumnDefinitions="*,Auto">
+                                <Label Grid.Column="0" Text="{Binding Text}" FontFamily="Consolas"
+                                       FontSize="11.5" TextColor="#C9C4BC" LineBreakMode="CharacterWrap" />
+                                <Button Grid.Column="1" Text="Copier" FontSize="10" Padding="6,2"
+                                        VerticalOptions="Start" BackgroundColor="Transparent"
+                                        TextColor="{StaticResource Txt2}"
+                                        Clicked="OnCopyCodeClicked" BindingContext="{Binding .}" />
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </local:ChatSegmentSelector.CodeTemplate>
+            </local:ChatSegmentSelector>
+        </ResourceDictionary>
+    </ContentView.Resources>
 
     <Grid RowDefinitions="Auto,*,Auto,Auto,Auto" Padding="6">
 
@@ -48,8 +78,14 @@
                             Padding="10,6" Margin="4,3"
                             MaximumWidthRequest="420"
                             HorizontalOptions="{Binding Alignment}">
-                        <VerticalStackLayout Spacing="2">
-                            <Label Text="{Binding Content}" FontSize="12" TextColor="White" />
+                        <VerticalStackLayout Spacing="4">
+                            <!-- ★ CORRIGÉ (03/09) : Label plat unique remplacé par un rendu
+                                 par segments (Segments, voir ChatMessage.cs) — permet de
+                                 distinguer un bloc de code (police mono + bouton copier) du
+                                 reste, ce qu'un seul Label ne pouvait pas faire. -->
+                            <VerticalStackLayout Spacing="4"
+                                                 BindableLayout.ItemsSource="{Binding Segments}"
+                                                 BindableLayout.ItemTemplateSelector="{StaticResource SegmentSelector}" />
                             <Label Text="{Binding TimeLabel}" FontSize="9"
                                    TextColor="{StaticResource Txt2}" HorizontalOptions="End" />
                         </VerticalStackLayout>

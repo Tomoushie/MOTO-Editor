@@ -131,10 +131,19 @@ jour, même limite déjà documentée pour le panneau Tâches avant sa
 correction (ici, pas corrigée, cadre différent : une fenêtre de
 consultation ponctuelle, pas un suivi en direct).
 
-**Trouvé en testant ce chantier, hors scope, noté pour plus tard** :
-qualité des réponses de l'IA locale ("MOTO interne"/Ollama) — (1) aucun
-bouton pour copier un bloc de code dans une réponse IA, (2) le modèle ne
-connaît pas sa propre identité par défaut (répond "je suis Qwen, créé par
+✅ **1er des 2 soucis IA corrigé, même soir (commit à suivre)** : bouton
+"copier" sur les blocs de code. `ChatMessage.Content` était rendu par un
+SEUL `Label` plat (aucune distinction texte/code) — ajouté `ChatMessage
+.Segments` (découpe simple sur les balises ``` , PAS un vrai parseur
+Markdown/CommonMark, juste texte vs code) + `ChatSegmentSelector`
+(`AiChatView.xaml.cs`) choisissant un template texte normal ou un bloc
+code (police Consolas + bouton "Copier" via `Clipboard.SetTextAsync`,
+même API déjà utilisée dans `AboutView.xaml.cs`). Confirmé par Tom de
+bout en bout : rendu du bloc de code distinct, clic sur "Copier" +
+collage confirmés (`print("Bonjour")`).
+
+**Reste noté pour plus tard** : qualité des réponses de l'IA locale
+("MOTO interne"/Ollama) — le modèle ne connaît pas sa propre identité par défaut (répond "je suis Qwen, créé par
 Alibaba Cloud" et décrit MOTO Editor comme un logiciel de modélisation 3D
 — totalement faux), et même avec une instruction manuelle explicite de
 Tom ("Tu es MOTO AI...") le modèle répond en 2e personne ("vous êtes une

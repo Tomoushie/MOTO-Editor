@@ -10,6 +10,20 @@ using Moto.Editor.Services;
 namespace Moto.Editor.Views
 {
     /// <summary>
+    /// ★ AJOUT (03/09, bouton "copier" manquant sur le code) : choisit le
+    /// template selon ChatContentSegment.IsCode — texte normal ou bloc de code
+    /// (police mono + bouton copier).
+    /// </summary>
+    public sealed class ChatSegmentSelector : DataTemplateSelector
+    {
+        public DataTemplate? TextTemplate { get; set; }
+        public DataTemplate? CodeTemplate { get; set; }
+
+        protected override DataTemplate OnSelectTemplate(object item, BindableObject container)
+            => ((ChatContentSegment)item).IsCode ? CodeTemplate! : TextTemplate!;
+    }
+
+    /// <summary>
     /// Panneau de chat agent : liste de messages, saisie en bas, sélecteurs
     /// mode/modèle, pièces jointes. Branché comme les autres panneaux IA via
     /// AddFloatingPanel (MainPage.Panels.cs) — titre/fermeture/glisser fournis
@@ -61,6 +75,15 @@ namespace Moto.Editor.Views
             // comme externes que les vrais providers cloud (OpenAI/Anthropic/Mistral).
             Chat.PreferInternal = !ChatService.IsExternalProviderName(model);
             ModelChanged?.Invoke(model);
+        }
+
+        /// <summary>
+        /// ★ AJOUT (03/09, bouton "copier" manquant sur le code, trouvé par Tom).
+        /// </summary>
+        private async void OnCopyCodeClicked(object sender, EventArgs e)
+        {
+            if ((sender as Button)?.BindingContext is ChatContentSegment segment)
+                await Clipboard.SetTextAsync(segment.Text);
         }
 
         // ------------------------------------------------------------------
