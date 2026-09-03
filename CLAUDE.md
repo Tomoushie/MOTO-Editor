@@ -1136,6 +1136,77 @@ apprenant/recrutant du Rust qu'en comptant sur l'IA seule (terrain où
 l'assistance IA est la moins fiable). Aucune décision prise à ce stade —
 juste la carte pour en reparler au bon moment.
 
+## Agents autonomes en tâche de fond — jalon 1 livré (03/09)
+
+Demandé par Tom après avoir vu deux sessions Claude Code se parler entre
+elles pour vérifier qu'elles ne travaillaient pas sur le même fichier. Il
+a choisi l'option la plus ambitieuse ("vrais agents autonomes, accès
+fichiers/terminal, se notifient en direct") — plan conçu ET vérifié
+contre le vrai code (workflow de conception, 3 architectures + jugement +
+synthèse, `Docs/probes/agent-messaging-design-2026-09-03.json`) avant
+d'écrire quoi que ce soit, découpé en 3 jalons croissants.
+
+**Jalon 1 (commit `9bdc6bf`), livré et testé de bout en bout** : commande
+`/agent <objectif>` dans le chat existant (AiChatView, bandeau IA,
+Accueil), AUCUNE nouvelle interface. Nouveau namespace
+`Moto.Core.AI.Autonomy` :
+- `AgentAction`/`AgentActionKind`/`AgentActionParser` : `MotoAiKernel.
+  RouteAsync` ne fait aucun appel d'outil structuré (juste du texte) —
+  le parseur extrait une action typée (ReadFile/WriteFile/RunCommand/
+  Finish) d'un format à balises tolérant, jamais d'exception (repli sur
+  `Malformed`, compté comme un pas raté contre le budget de la boucle).
+- `IAgentTool` + `ReadFileTool`/`WriteFileTool`/`RunCommandTool`/
+  `FinishTool` : une fine enveloppe par capacité réelle, `IsMutating`
+  dit à la boucle quels appels DOIVENT passer par la confirmation.
+- `BackgroundAgentLoop` : boucle bornée perçoit→décide→agit→observe
+  (garde nombre de pas / durée / 3 refus consécutifs). Appelle SANS
+  CONDITION `AiConfirmationService.RequestAsync` (le vrai mécanisme déjà
+  existant, réutilisé tel quel) avant tout outil mutant — même exigence
+  que SelfRepairAgent. Le texte de confirmation est construit
+  UNIQUEMENT à partir des champs littéraux de l'action, jamais de
+  l'auto-description du modèle.
+- `BackgroundAgentService` : point d'entrée DI, démarre un run en tâche
+  détachée (`Task.Run`), expose `ObservableCollection<AgentRunRecord>
+  Runs` (même convention que `ChatService.Tasks`/`ChatTaskRecord`).
+
+Réutilise 2 valeurs de `ConfirmationAction` déjà présentes mais jamais
+utilisées ailleurs (`ModifyCode`/`ExecuteCommand`, vérifié) plutôt que
+d'en ajouter de nouvelles.
+
+**3 bugs réels trouvés en construisant/testant (pas supposés)** :
+1. `TerminalService.ExecuteAsync` n'acceptait aucun `CancellationToken`
+   — une commande qui ne se termine jamais aurait bloqué la boucle
+   au-delà de sa propre garde de durée. Nouvelle surcharge annulable
+   (tue le process si annulé) ; l'ancienne délègue dessus avec
+   `CancellationToken.None`, comportement inchangé pour GitService.
+2. `ConfirmationHandler` (`MainPage.Extensions.cs`) n'était jamais
+   marshalé vers le thread UI — inoffensif tant que seul un clic (déjà
+   sur le thread UI) l'appelait, aurait planté au premier agent (tâche
+   d'arrière-plan touchant `ConfirmationOverlay` hors thread UI).
+   `MainThread.InvokeOnMainThreadAsync` corrige pour tous les appelants.
+3. **Le plus intéressant** : `/agent crée un fichier hello.txt...`
+   contient "crée" ET "projet" — les 2 mots que `AutoProjectBuilder.
+   ShouldHandle` (`MainPage.Routing.cs`) utilise pour détecter une
+   demande de génération de projet complet. Sur le chemin Accueil/
+   bandeau IA (`OnAiCommandSubmitted`) — SÉPARÉ du chemin AiChatView
+   (`ChatService.PluginCommandHandler`, atteint uniquement depuis
+   `SendAsync`) — la commande se faisait détourner : un vrai projet
+   "MotoProject" générique était créé sur le disque à la place, trouvé
+   en testant avec Tom (capture d'écran), pas deviné. `/agent`
+   intercepte maintenant en premier sur les DEUX chemins.
+
+Confirmé par Tom en conditions réelles : popup de confirmation avec le
+vrai chemin/contenu affichés, "Autoriser" cliqué, fichier vérifié
+PRÉSENT sur le disque avec le bon contenu.
+
+**Jalon 2 (prochain, pas commencé)** : 2 agents + `AgentMessageBus`
+(pub/sub en mémoire) + `SemaphoreSlim` dans `AiConfirmationService`
+(bug latent réel déjà identifié : `ConfirmationOverlay` n'a qu'UN SEUL
+`_tcs` partagé, 2 confirmations concurrentes se marcheraient dessus) +
+journal d'audit NDJSON permanent. **Jalon 3** : panneau "Agents en
+cours" (première vraie UI de ce chantier) + confinement des chemins au
+dossier du projet + confirmations groupées.
+
 ## Références
 
 - Mémoire Claude (`~/.claude/projects/E--Corpus/memory/`) : chercher les
