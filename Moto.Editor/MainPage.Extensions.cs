@@ -1004,8 +1004,15 @@ namespace Moto.Editor
             // d'abandonner avec "Aucune conversation active."
             var thread = _chatService.CurrentThread ?? _chatService.CreateThread();
 
+            // ★ CORRECTIF (04/09, chantier "sans projet ouvert" demandé par Tom) :
+            // utilisait `_currentRoot ?? string.Empty` — sans workspace ouvert, ça
+            // atterrissait dans AgentPathResolver.EffectiveRoot() sur
+            // Directory.GetCurrentDirectory() (le dossier de l'EXE, ex. bin/Release/…).
+            // GetWorkspaceRoot() est la convention DÉJÀ établie ailleurs dans l'appli
+            // pour ce même cas (AutoProjectBuilder, AiSettingsService, plugins) :
+            // Documents\MotoProjects. Réutilisée telle quelle, rien de nouveau inventé.
             var agentId = $"agent-{_backgroundAgentService.Runs.Count + 1}";
-            _backgroundAgentService.Start(agentId, goal, _currentRoot ?? string.Empty, message =>
+            _backgroundAgentService.Start(agentId, goal, GetWorkspaceRoot(), message =>
             {
                 MainThread.BeginInvokeOnMainThread(() =>
                 {
