@@ -998,6 +998,12 @@ namespace Moto.Editor
                 {
                     thread.Messages.Add(new ChatMessage { Role = "ai", Content = message });
                     thread.LastActivityUtc = DateTime.UtcNow;
+                    // ★ CORRECTIF (04/09, remarqué par Tom) : chaque autre point d'entrée
+                    // du chat (SendAsync, etc.) rafraîchit les tuiles Sessions/Messages/
+                    // Tokens de l'Accueil après avoir ajouté un message — celui-ci ne le
+                    // faisait pas, donc les agents en tâche de fond ne faisaient jamais
+                    // progresser ces compteurs, même pendant que l'app tournait.
+                    RefreshHomeStats();
                 });
             });
 
