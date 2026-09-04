@@ -1136,7 +1136,7 @@ apprenant/recrutant du Rust qu'en comptant sur l'IA seule (terrain où
 l'assistance IA est la moins fiable). Aucune décision prise à ce stade —
 juste la carte pour en reparler au bon moment.
 
-## Agents autonomes en tâche de fond — jalons 1 et 2 livrés (03-04/09)
+## Agents autonomes en tâche de fond — jalons 1, 2 et 3 livrés (03-04/09)
 
 Demandé par Tom après avoir vu deux sessions Claude Code se parler entre
 elles pour vérifier qu'elles ne travaillaient pas sur le même fichier. Il
@@ -1251,14 +1251,58 @@ est en mémoire seulement, sans fichier de sauvegarde) — donc elles
 repartent forcément à 0 à chaque relance de l'app. Un vrai système de
 persistance des conversations serait un chantier séparé.
 
-Limite connue, non corrigée (prévue au jalon 3) : sans dossier de
-travail ouvert, les agents écrivent dans le dossier de l'exécutable
-(`bin/Release/…`) faute de racine de workspace — sans danger mais pas
-idéal.
+**Jalon 3 (commit `ffafe40`), livré et testé de bout en bout** :
+- `AgentRunsView` (nouveau) : PREMIÈRE vraie interface de ce chantier
+  (jalon 1/2 n'en avaient aucune, tout passait par le chat). Liste les
+  `AgentRunRecord` en direct (statut/durée/objectif), bouton "Arrêter"
+  par run, aperçu des messages entre agents, bouton pour ouvrir le
+  dossier des journaux NDJSON. Ouverture via `Ctrl+Maj+P` → "Agents en
+  cours" (même patron que les autres fenêtres spécialisées : `WindowKind.
+  AgentRuns`, `OpenSpecializedWindow("agentruns")`).
+- `AgentPathResolver.IsWithinRoot` (nouveau) : confinement — refuse tout
+  ReadFile/WriteFile dont le chemin résolu sort du dossier du projet
+  (ou du dossier courant si aucun workspace n'est ouvert), AVANT même de
+  proposer une confirmation à l'humain.
+- Indice de commande dangereuse (rm/del, git push --force, format/
+  diskpart, curl|sh) affiché dans la confirmation — jamais un blocage,
+  la décision reste entièrement humaine.
+- `AgentGlobalBudget` (nouveau) : plafond de 200 appels IA partagé entre
+  TOUS les agents de la session, au-delà du `maxSteps` propre à chaque run.
 
-**Jalon 3 (prochain, pas commencé)** : panneau "Agents en cours"
-(première vraie UI de ce chantier) + confinement des chemins au dossier
-du projet + confirmations groupées.
+**Bug réel trouvé EN CONCEVANT ce panneau** (jamais vécu avant, faute
+d'interface) : `BackgroundAgentService.Start` enveloppait la boucle dans
+`Task.Run` — invisible sans UI, mais un vrai panneau liant `Status`/
+`Steps` en direct y aurait planté ou mal affiché (MAUI exige que les
+objets liés à l'UI soient modifiés sur le thread UI). Corrigé en
+retirant `Task.Run` : `RunAsync`, toujours démarré depuis le thread UI,
+reprend ses `await` sur le `SynchronizationContext` de l'UI — même
+mécanisme déjà éprouvé par `ChatService.RunTrackedAsync`, aucune
+gymnastique de marshaling ajoutée.
+
+Point du plan original volontairement écarté (décision explicite de
+Tom) : les "confirmations groupées" pour un changement multi-fichiers
+n'ont pas de prise avec l'architecture actuelle (un agent ne propose
+qu'UNE action à la fois) — les ajouter demanderait de réécrire la boucle
+pour qu'un agent puisse proposer plusieurs actions d'un coup, un
+chantier à part entière, pas fait.
+
+Testé de bout en bout avec Tom (04/09) : panneau qui s'ouvre et se met à
+jour en direct, bouton Arrêter (y compris annulation en plein milieu
+d'une écriture — le run se termine proprement en "Annulé", sans
+plantage), confinement qui refuse automatiquement un chemin hors projet
+(`C:\Windows\test.txt`), avertissement affiché sur une commande `del`,
+bouton d'ouverture du dossier des journaux. Petit oubli trouvé au
+premier test (statut affiché en anglais brut, `Status.ToString()`) et
+corrigé dans la foulée (`StatusLabel`, libellés français).
+
+Limite restante, jamais corrigée (aucun jalon ne la prévoyait) : sans
+dossier de travail ouvert, les agents écrivent toujours dans le dossier
+de l'exécutable (`bin/Release/…`) — désormais bien CONFINÉ à ce dossier
+par le jalon 3, mais ce n'est toujours pas le dossier du PROJET de Tom.
+
+Ce chantier des 3 jalons prévus est maintenant CLOS. Toute suite
+(persistance des runs entre sessions, planification de tâches récurrentes,
+etc.) serait un nouveau chantier, pas une continuation de celui-ci.
 
 ## Références
 
