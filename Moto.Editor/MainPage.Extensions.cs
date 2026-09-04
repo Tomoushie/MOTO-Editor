@@ -984,6 +984,16 @@ namespace Moto.Editor
                 return await HandleDiagnoseCommandAsync(arg);
             }
 
+            // ★ AJOUT (04/09, préréglages /refactor, /test, /doc) : même priorité
+            // que /agent et /diagnose ci-dessus — commandes de cœur, jamais un
+            // plugin tiers. Voir HandlePresetAgentCommand.
+            if (text.StartsWith("/refactor", StringComparison.OrdinalIgnoreCase))
+                return HandlePresetAgentCommand("refactor", text.Length > "/refactor".Length ? text["/refactor".Length..].Trim() : string.Empty);
+            if (text.StartsWith("/test", StringComparison.OrdinalIgnoreCase))
+                return HandlePresetAgentCommand("test", text.Length > "/test".Length ? text["/test".Length..].Trim() : string.Empty);
+            if (text.StartsWith("/doc", StringComparison.OrdinalIgnoreCase))
+                return HandlePresetAgentCommand("doc", text.Length > "/doc".Length ? text["/doc".Length..].Trim() : string.Empty);
+
             if (_pluginRegistry == null) return null;
 
             foreach (var plugin in _pluginRegistry.GetActivePlugins())
@@ -1136,6 +1146,74 @@ namespace Moto.Editor
                 ? "✅ Rien à signaler par ces vérifications rapides."
                 : $"{total} constat(s) au total. Ce sont des heuristiques (pas d'analyse profonde) — à vérifier avant d'agir, pas à suivre les yeux fermés.");
             return sb.ToString();
+        }
+
+        // ★ AJOUT (04/09, suite de "agents spécialisés" demandé par Tom — la
+        // partie qui ÉCRIT réellement des fichiers, après les agents de
+        // diagnostic ci-dessus). RefactorAgent/TestAgent/DocAgent ne sont PAS
+        // de nouveaux agents autonomes séparés avec leur propre boucle : ce
+        // sont des PRÉRÉGLAGES du système /agent déjà construit et éprouvé
+        // (jalons 1 à 3) — une instruction pré-écrite à la place d'un texte
+        // libre à taper. Héritent donc automatiquement, sans rien dupliquer :
+        // confirmation humaine obligatoire avant chaque écriture, confinement
+        // au dossier de travail, avertissement sur commande dangereuse, budget
+        // global de pas, panneau "Agents en cours", journal d'audit.
+        private string HandlePresetAgentCommand(string preset, string? pathArg)
+        {
+            string path;
+            if (!string.IsNullOrWhiteSpace(pathArg))
+            {
+                path = Path.IsPathRooted(pathArg) ? pathArg : Path.Combine(GetWorkspaceRoot(), pathArg);
+            }
+            else if (_viewModel.SelectedDocument != null && !string.IsNullOrWhiteSpace(_viewModel.SelectedDocument.Path))
+            {
+                path = _viewModel.SelectedDocument.Path;
+            }
+            else
+            {
+                return $"Utilisation : /{preset} [chemin]\nOuvre d'abord un fichier dans l'éditeur, ou précise un chemin.";
+            }
+
+            if (!File.Exists(path))
+                return $"Fichier introuvable : {pathArg ?? path}";
+
+            // Chemin relatif à l'espace de travail quand c'est possible : plus lisible
+            // dans le message, ET c'est exactement ce que résoudront les outils
+            // ReadFile/WriteFile de l'agent (AgentPathResolver.EffectiveRoot, voir
+            // AgentTools.cs) — pas la peine de lui donner un chemin absolu différent.
+            var root = GetWorkspaceRoot();
+            string displayPath;
+            try
+            {
+                displayPath = path.StartsWith(root, StringComparison.OrdinalIgnoreCase)
+                    ? Path.GetRelativePath(root, path)
+                    : path;
+            }
+            catch { displayPath = path; }
+
+            var goal = preset switch
+            {
+                "refactor" =>
+                    $"Refactore le fichier \"{displayPath}\" pour améliorer sa lisibilité et sa " +
+                    "maintenabilité, SANS changer son comportement (mêmes entrées, mêmes sorties). " +
+                    "Lis-le d'abord avec ReadFile, puis écris la version corrigée avec WriteFile sur " +
+                    "exactement ce même chemin. Résume en 2-3 phrases ce que tu as changé et pourquoi.",
+                "test" =>
+                    $"Écris des tests pour le fichier \"{displayPath}\". Lis-le d'abord avec ReadFile " +
+                    "pour comprendre son comportement, puis crée un NOUVEAU fichier de test à côté " +
+                    "(ne modifie JAMAIS le fichier original) avec WriteFile, en suivant les " +
+                    "conventions déjà utilisées dans ce projet si tu peux les repérer. Résume en 2-3 " +
+                    "phrases ce que tu as testé.",
+                "doc" =>
+                    $"Documente le fichier \"{displayPath}\" : lis-le d'abord avec ReadFile, puis " +
+                    "ajoute des commentaires (XML doc pour le C#, docstring/commentaires adaptés " +
+                    "sinon) sur les méthodes et classes publiques qui n'en ont pas déjà, SANS changer " +
+                    "le comportement du code. Écris la version documentée avec WriteFile sur " +
+                    "exactement ce même chemin. Résume en 2-3 phrases ce que tu as documenté.",
+                _ => throw new ArgumentOutOfRangeException(nameof(preset))
+            };
+
+            return HandleAgentCommand(goal);
         }
     }
 }

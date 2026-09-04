@@ -405,6 +405,26 @@ namespace Moto.Editor
                 return;
             }
 
+            // ★ AJOUT (04/09, préréglages /refactor, /test, /doc) : même raison
+            // d'être et même mécanique que le bloc /agent plus haut — ces trois
+            // commandes DÉLÈGUENT à HandleAgentCommand (via HandlePresetAgentCommand),
+            // donc leur ack ressemble et se comporte exactement comme "/agent ...".
+            if (text.StartsWith("/refactor", StringComparison.OrdinalIgnoreCase) ||
+                text.StartsWith("/test", StringComparison.OrdinalIgnoreCase) ||
+                text.StartsWith("/doc", StringComparison.OrdinalIgnoreCase))
+            {
+                var preset = text.Split(' ', 2)[0].TrimStart('/').ToLowerInvariant();
+                var presetArg = text.Length > preset.Length + 1 ? text[(preset.Length + 1)..].Trim() : string.Empty;
+                var presetAck = HandlePresetAgentCommand(preset, presetArg);
+                var presetThread = _chatService.CurrentThread ?? _chatService.CreateThread();
+                presetThread.Messages.Add(new ChatMessage { Role = "ai", Content = presetAck });
+                presetThread.LastActivityUtc = DateTime.UtcNow;
+                ShowAiReplyAsTab(presetAck, char.ToUpperInvariant(preset[0]) + preset[1..]);
+                StatusBar.SetStatus("🤖 Agent démarré.");
+                RefreshHomeStats();
+                return;
+            }
+
             // ★ /analytics : rapport + export + dashboard
             if (text.StartsWith("/analytics", StringComparison.OrdinalIgnoreCase))
             {
