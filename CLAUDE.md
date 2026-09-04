@@ -1295,13 +1295,19 @@ bouton d'ouverture du dossier des journaux. Petit oubli trouvé au
 premier test (statut affiché en anglais brut, `Status.ToString()`) et
 corrigé dans la foulée (`StatusLabel`, libellés français).
 
-Limite restante, jamais corrigée (aucun jalon ne la prévoyait) : sans
-dossier de travail ouvert, les agents écrivent toujours dans le dossier
-de l'exécutable (`bin/Release/…`) — désormais bien CONFINÉ à ce dossier
-par le jalon 3, mais ce n'est toujours pas le dossier du PROJET de Tom.
+**Correctif hors-jalon (commit `e145714`), traité tout de suite après —
+Tom a choisi de l'adresser plutôt que de le laisser en limite connue** :
+`HandleAgentCommand` passait `_currentRoot ?? string.Empty`, qui
+atterrissait sur `Directory.GetCurrentDirectory()` (le dossier de
+l'exécutable) sans workspace ouvert. Remplacé par `GetWorkspaceRoot()`,
+la convention DÉJÀ établie ailleurs dans l'appli pour ce même cas
+(`AutoProjectBuilder`, `AiSettingsService`, dossier des plugins) :
+`Documents\MotoProjects`. Rien de nouveau inventé — juste réaligné sur
+l'existant. Testé avec Tom : `/agent` sans projet ouvert écrit bien dans
+`Documents\MotoProjects`.
 
-Ce chantier des 3 jalons prévus est maintenant CLOS. Toute suite
-(persistance des runs entre sessions, planification de tâches récurrentes,
+Ce chantier des 3 jalons prévus (plus ce correctif) est maintenant CLOS.
+Toute suite (persistance des runs entre sessions, planification de tâches récurrentes,
 etc.) serait un nouveau chantier, pas une continuation de celui-ci.
 
 ## Références
