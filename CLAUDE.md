@@ -1310,6 +1310,55 @@ Ce chantier des 3 jalons prévus (plus ce correctif) est maintenant CLOS.
 Toute suite (persistance des runs entre sessions, planification de tâches récurrentes,
 etc.) serait un nouveau chantier, pas une continuation de celui-ci.
 
+## Agents de diagnostic (Syntax/Complexity/Consistency/Pattern) — livré (04/09)
+
+Demandé par Tom (liste relayée d'un autre outil, vérifiée avant de
+construire — voir mémoire dédiée). Découverte clé : MOTO Editor contient
+déjà une famille `ISpecializedAgent`/`SpecializedAgentRegistry`
+(sécurité, secrets/PII, TODO, format, complexité approximative,
+squelettes de tests…) — entièrement câblée en DI mais **jamais résolue
+ni appelée par aucune UI** (code mort confirmé). Décision : diagnostics
+d'abord, action (Refactor/Test/Doc, qui écriraient des fichiers) plus
+tard comme préréglages du système `/agent` déjà confirmé-gaté — pas de
+nouveau mécanisme de sécurité à inventer pour ceux-là.
+
+`Moto.Core/Moto.AI/Agents/DiagnosticAgents.cs` (nouveau) : `SyntaxAgent`
+(équilibre accolades/parenthèses/crochets), `ComplexityAgent` (points de
+décision, toujours un constat rendu), `ConsistencyAgent` (casse des noms
+de méthodes, limité à un seul fichier), `PatternAgent` (imbrication
+profonde + nombres magiques, toujours "info"). Tous des `HeuristicAgent`
+(jamais de LLM, jamais mutants — donc jamais de confirmation à
+demander : ils ne font que lire/signaler). `StripStringsAndComments`
+(nouveau, dans `HeuristicAgent`) : tokenizer léger qui ignore chaînes/
+commentaires pour réduire les faux positifs — "PAS de parsing profond"
+reste la règle.
+
+Commande `/diagnose [chemin]` (sans argument : fichier actif de
+l'éditeur) — dispatche 9 agents (les 4 ci-dessus + 5 existants
+réveillés). `DependencyRiskAgent`/`TestFlakinessAgent`/
+`AgentCostEstimatorAgent` exclus délibérément (CodeSnippet d'une autre
+forme, produirait des constats absurdes sur du code source).
+
+**3 bugs réels trouvés en câblant ce code mort à une vraie commande pour
+la première fois** :
+1. Dépendance circulaire dans `AgentCostEstimatorAgent` (son constructeur
+   demandait le registre, qui a besoin de tous les agents — dont lui —
+   pour se construire) : faisait échouer TOUTE résolution du registre.
+   Corrigé via `IServiceProvider` résolu tardivement dans `ExecuteAsync`.
+2. Le rapport n'apparaissait nulle part tant qu'AiChatView n'était pas
+   ouvert (`/agent` a le même défaut, masqué par sa popup de
+   confirmation). `ShowAiReplyAsTab` (nouveau, factorisé depuis le
+   mécanisme déjà existant pour une réponse IA normale) ouvre maintenant
+   la réponse comme onglet fichier pour `/agent` ET `/diagnose`.
+3. Cet onglet s'ouvrait bien mais restait VIDE : `OpenFilePath` crée le
+   document avec `Text=""` puis le sélectionne, ce qui déclenche
+   `LoadDocumentIntoEditor` AVANT que le texte correct soit posé dessus.
+   Un second appel explicite corrige — bénéficie aussi à la réponse IA
+   normale au passage.
+
+Testé de bout en bout avec Tom sur un vrai fichier du dépôt
+(`MotoKernel.cs`) : rapport correct et lisible.
+
 ## Références
 
 - Mémoire Claude (`~/.claude/projects/E--Corpus/memory/`) : chercher les
