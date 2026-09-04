@@ -1136,7 +1136,7 @@ apprenant/recrutant du Rust qu'en comptant sur l'IA seule (terrain où
 l'assistance IA est la moins fiable). Aucune décision prise à ce stade —
 juste la carte pour en reparler au bon moment.
 
-## Agents autonomes en tâche de fond — jalon 1 livré (03/09)
+## Agents autonomes en tâche de fond — jalons 1 et 2 livrés (03-04/09)
 
 Demandé par Tom après avoir vu deux sessions Claude Code se parler entre
 elles pour vérifier qu'elles ne travaillaient pas sur le même fichier. Il
@@ -1199,13 +1199,66 @@ Confirmé par Tom en conditions réelles : popup de confirmation avec le
 vrai chemin/contenu affichés, "Autoriser" cliqué, fichier vérifié
 PRÉSENT sur le disque avec le bon contenu.
 
-**Jalon 2 (prochain, pas commencé)** : 2 agents + `AgentMessageBus`
-(pub/sub en mémoire) + `SemaphoreSlim` dans `AiConfirmationService`
-(bug latent réel déjà identifié : `ConfirmationOverlay` n'a qu'UN SEUL
-`_tcs` partagé, 2 confirmations concurrentes se marcheraient dessus) +
-journal d'audit NDJSON permanent. **Jalon 3** : panneau "Agents en
-cours" (première vraie UI de ce chantier) + confinement des chemins au
-dossier du projet + confirmations groupées.
+**Jalon 2 (commits `092795b` + `8a11ba2`), livré et testé avec 2 agents
+réels sur le même fichier** :
+- `AgentMessageBus` (nouveau) : pub/sub en mémoire, UNE seule instance
+  partagée en DI entre tous les runs (`BackgroundAgentService.
+  MessageBus`) — c'est ce qui permet à deux agents lancés séparément de
+  se voir. Historique plafonné à 30 messages.
+- `SendMessageTool` (nouveau `AgentActionKind.SendMessage`, jamais
+  mutant) : un agent peut vraiment envoyer un message à un autre (ou à
+  tous) via le bus. `BackgroundAgentLoop` injecte dans le prompt de
+  chaque tour les notes reçues depuis le tour précédent, et détecte les
+  conflits (deux agents qui touchent le même fichier) pour prévenir
+  l'agent concerné.
+- `AgentAuditLog` (nouveau) : un fichier NDJSON par workspace (nom haché
+  SHA256), une ligne par événement (proposition/décision/exécution),
+  flush immédiat — exploitable même après un crash.
+- Bug latent réel corrigé (identifié en lisant le code, pas supposé) :
+  `ConfirmationOverlay` n'a qu'UN SEUL `TaskCompletionSource` partagé,
+  sans file d'attente — sans danger tant qu'un seul point d'entrée
+  humain existait, mais deux agents demandant une confirmation en même
+  temps l'auraient corrompue. `AiConfirmationService.RequestAsync`
+  sérialise maintenant via un `SemaphoreSlim` (comportement inchangé
+  pour un appelant unique).
+
+**2 bugs réels trouvés PENDANT le test avec Tom (2 agents écrivant
+chacun une ligne dans le même `notes.txt`), corrigés dans la foulée** :
+1. Les agents (petit modèle local) répétaient indéfiniment la même
+   écriture au lieu de reconnaître l'objectif atteint. Garde-fou
+   déterministe ajouté dans `BackgroundAgentLoop` : suivi de la
+   dernière mutation réussie (Kind+Path) — au 2e doublon, avertissement
+   injecté dans le contexte du modèle ; au 3e, la boucle force elle-même
+   l'arrêt (`Completed`) indépendamment de la réponse du modèle. Testé :
+   arrêt confirmé après seulement 2 demandes de confirmation.
+2. `WriteFile` remplace TOUT le contenu du fichier (jamais documenté
+   nulle part) — deux agents écrivant chacun une ligne s'écrasaient l'un
+   l'autre. Règles ajoutées au prompt : lire le fichier avant d'y
+   ajouter du contenu, ne jamais répéter une action qui a réussi.
+
+**3e bug réel, trouvé en creusant une remarque de Tom ("les stats ne
+s'additionnent pas")** : `HandleAgentCommand` ajoutait bien les messages
+de progression de l'agent au thread de chat, mais — contrairement à
+tous les autres points d'entrée du chat — n'appelait jamais
+`RefreshHomeStats()` ensuite. Les tuiles Sessions/Messages/Tokens/
+Patterns appris de l'Accueil ne bougeaient donc jamais pendant qu'un
+agent travaillait. Corrigé (commit `8a11ba2`), testé : les tuiles
+bougent bien en direct maintenant.
+
+Cause distincte, PAS un bug, remise à plus tard (choix explicite de
+Tom) : ces stats ne sont sauvegardées nulle part (`ChatService.Threads`
+est en mémoire seulement, sans fichier de sauvegarde) — donc elles
+repartent forcément à 0 à chaque relance de l'app. Un vrai système de
+persistance des conversations serait un chantier séparé.
+
+Limite connue, non corrigée (prévue au jalon 3) : sans dossier de
+travail ouvert, les agents écrivent dans le dossier de l'exécutable
+(`bin/Release/…`) faute de racine de workspace — sans danger mais pas
+idéal.
+
+**Jalon 3 (prochain, pas commencé)** : panneau "Agents en cours"
+(première vraie UI de ce chantier) + confinement des chemins au dossier
+du projet + confirmations groupées.
 
 ## Références
 
