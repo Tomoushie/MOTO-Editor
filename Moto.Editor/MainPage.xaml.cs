@@ -395,7 +395,15 @@ namespace Moto.Editor
                 // activation de la fenêtre, voir GlobalHotkeyService.Register plus bas)
                 // n'avait pas de contrepartie pour la cacher — fermer le dernier fichier
                 // ouvert la laissait affichée par-dessus l'écran d'Accueil.
-                if (!hasDocs) AiBar.Hide();
+                // ★ CORRECTIF (04/09, trouvé par Tom) : jusqu'ici, ouvrir un fichier ne
+                // faisait JAMAIS apparaître AiBar — seule une réactivation de FENÊTRE
+                // (alt-tab, etc., voir GlobalHotkeyService.Register plus bas) le
+                // faisait, un événement Windows sans rapport avec le fait d'ouvrir un
+                // document. Repéré par Tom via le correctif "chevauchement WebView"
+                // (EditorPaneView.xaml) : l'espace réservé apparaissait immédiatement,
+                // mais la barre elle-même n'apparaissait dedans qu'après 30s-1min,
+                // au hasard d'une prochaine activation de fenêtre.
+                if (hasDocs) AiBar.Show(); else AiBar.Hide();
             };
 
             // Panneaux Présentation / Remote / Collab : handlers déjà écrits dans

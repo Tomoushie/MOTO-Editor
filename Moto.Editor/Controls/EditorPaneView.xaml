@@ -194,7 +194,20 @@
         </Border>
 
         <!-- ═══ Ligne 4 : éditeur ═══ -->
-        <controls:CodeEditorView Grid.Row="4" x:Name="Editor" x:FieldModifier="Public" Margin="0" />
+        <!-- ★ CORRECTIF (04/09, trouvé par Tom : la barre IA flottante — AiBar,
+             MainPage.xaml — n'apparaissait qu'en scrollant jusqu'au bout d'un
+             long fichier, cachée derrière le code le reste du temps).
+             CodeEditorView héberge un WebView (voir CodeEditorView.xaml) — sous
+             Windows, un WebView a sa PROPRE fenêtre native ("airspace") qui
+             s'affiche TOUJOURS par-dessus le reste de l'interface XAML, quel
+             que soit l'ordre de déclaration dans le Grid (limitation connue de
+             la plateforme, pas un bug d'ordre de calque classique). Impossible
+             de faire passer AiBar AU-DESSUS du WebView par un simple z-index ;
+             la solution qui marche réellement est d'empêcher les deux de se
+             chevaucher : cette marge réserve ~110px en bas (hauteur d'AiBar +
+             sa propre marge de 40, MainPage.xaml) où le WebView ne s'étend
+             JAMAIS, quel que soit le défilement du code à l'intérieur. -->
+        <controls:CodeEditorView Grid.Row="4" x:Name="Editor" x:FieldModifier="Public" Margin="0,0,0,110" />
 
     </Grid>
 
