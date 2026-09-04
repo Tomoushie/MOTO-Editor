@@ -1359,6 +1359,31 @@ la première fois** :
 Testé de bout en bout avec Tom sur un vrai fichier du dépôt
 (`MotoKernel.cs`) : rapport correct et lisible.
 
+### Bandeau IA flottant invisible sur les fichiers longs (commit `7daeda6`)
+
+Trouvé par Tom EN TESTANT `/diagnose` : la barre IA flottante (`AiBar`)
+n'apparaissait qu'en défilant jusqu'au bout du fichier ouvert. 2 bugs
+réels empilés :
+1. `CodeEditorView` héberge un `WebView` (coloration syntaxique) — sous
+   Windows, un WebView a sa PROPRE fenêtre native ("airspace") qui
+   s'affiche TOUJOURS par-dessus le reste du XAML, quel que soit l'ordre
+   de déclaration dans le Grid (limitation connue de la plateforme, pas
+   un bug d'ordre de calque classique — un simple z-index ne peut pas le
+   résoudre). Corrigé en réservant ~110px en bas de `CodeEditorView`
+   (`EditorPaneView.xaml`, hauteur d'`AiBar` + sa marge) où le WebView ne
+   s'étend jamais, quel que soit le défilement du code à l'intérieur.
+2. Une fois cet espace réservé, un second bug est devenu visible :
+   `AiBar` n'apparaissait dedans qu'après 30s à 1min, au hasard d'une
+   prochaine réactivation de la FENÊTRE (alt-tab, etc.) — seul
+   déclencheur existant (`GlobalHotkeyService.Register`,
+   `onWindowActivated`). Ouvrir un fichier ne la montrait jamais par
+   elle-même. Corrigé : le `CollectionChanged` de
+   `_viewModel.Documents` (qui la cachait déjà à la fermeture du dernier
+   fichier) l'affiche maintenant aussi à l'ouverture d'un document.
+
+Testé avec Tom sur un vrai fichier long (`CLAUDE.md`, 800+ lignes) :
+apparaît instantanément, y compris en haut du fichier.
+
 ## Références
 
 - Mémoire Claude (`~/.claude/projects/E--Corpus/memory/`) : chercher les
