@@ -17,14 +17,25 @@ namespace Moto.Core.AI.Autonomy
         private readonly MotoAiKernel _kernel;
         private readonly AiConfirmationService _confirmation;
         private readonly IReadOnlyList<IAgentTool> _tools;
+        private readonly AgentMessageBus _messageBus;
 
         public ObservableCollection<AgentRunRecord> Runs { get; } = new();
 
-        public BackgroundAgentService(MotoAiKernel kernel, AiConfirmationService confirmation, IReadOnlyList<IAgentTool> tools)
+        /// <summary>★ AJOUT (jalon 2) : UNE seule instance partagée entre TOUS les
+        /// runs (créée une fois en DI, voir MotoServiceCollectionExtensions.cs) —
+        /// c'est ce qui permet à deux agents lancés séparément de se voir.</summary>
+        public AgentMessageBus MessageBus => _messageBus;
+
+        public BackgroundAgentService(
+            MotoAiKernel kernel,
+            AiConfirmationService confirmation,
+            IReadOnlyList<IAgentTool> tools,
+            AgentMessageBus messageBus)
         {
             _kernel = kernel ?? throw new ArgumentNullException(nameof(kernel));
             _confirmation = confirmation ?? throw new ArgumentNullException(nameof(confirmation));
             _tools = tools ?? throw new ArgumentNullException(nameof(tools));
+            _messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
         }
 
         /// <summary>
@@ -40,7 +51,7 @@ namespace Moto.Core.AI.Autonomy
             var run = new AgentRunRecord { AgentId = agentId, Goal = goal };
             Runs.Insert(0, run);
 
-            var loop = new BackgroundAgentLoop(_kernel, _confirmation, _tools);
+            var loop = new BackgroundAgentLoop(_kernel, _confirmation, _tools, _messageBus);
             _ = System.Threading.Tasks.Task.Run(() => loop.RunAsync(run, workspaceRoot, narrate));
 
             return run;

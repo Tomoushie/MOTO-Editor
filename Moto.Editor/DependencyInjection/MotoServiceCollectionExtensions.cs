@@ -153,17 +153,23 @@ namespace Moto.Editor.DependencyInjection
             // (ReadFile/WriteFile/RunCommand/Finish) — SendMessageTool arrive au
             // jalon 2 (messagerie inter-agents).
             services.AddSingleton<MotoAiKernel>(_ => new MotoAiKernel(workspaceRoot));
+            // ★ AJOUT (jalon 2) : UNE instance partagée par toute l'appli — c'est
+            // elle qui permet à deux agents lancés séparément de se voir/se
+            // coordonner (voir AgentMessageBus.cs).
+            services.AddSingleton<AgentMessageBus>();
             services.AddSingleton<IReadOnlyList<IAgentTool>>(sp => new List<IAgentTool>
             {
                 new ReadFileTool(),
                 new WriteFileTool(),
                 new RunCommandTool(sp.GetRequiredService<TerminalService>()),
+                new SendMessageTool(sp.GetRequiredService<AgentMessageBus>()),
                 new FinishTool()
             });
             services.AddSingleton<BackgroundAgentService>(sp => new BackgroundAgentService(
                 sp.GetRequiredService<MotoAiKernel>(),
                 sp.GetRequiredService<AiConfirmationService>(),
-                sp.GetRequiredService<IReadOnlyList<IAgentTool>>()));
+                sp.GetRequiredService<IReadOnlyList<IAgentTool>>(),
+                sp.GetRequiredService<AgentMessageBus>()));
             services.AddSingleton<ProactiveAnalyticsEngine>(_ => new ProactiveAnalyticsEngine(workspaceRoot));
             // LanguageServerManager : LSP mis de côté pour cette passe (voir Moto.Core.csproj)
             services.AddSingleton<ConfirmationPolicyEngine>(sp => new ConfirmationPolicyEngine(sp.GetRequiredService<SettingsEngine>()));

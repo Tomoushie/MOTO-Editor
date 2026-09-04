@@ -11,15 +11,15 @@ using System;
 
 namespace Moto.Core.AI.Autonomy
 {
-    /// <summary>
-    /// Les seules actions qu'un agent autonome peut proposer au jalon 1.
-    /// SendMessage (jalon 2, messagerie inter-agents) volontairement absent ici.
-    /// </summary>
+    /// <summary>Les actions qu'un agent autonome peut proposer.</summary>
     public enum AgentActionKind
     {
         ReadFile,
         WriteFile,
         RunCommand,
+        /// <summary>★ AJOUT (jalon 2) : envoie un message à un autre agent (ou à
+        /// tous) via AgentMessageBus — jamais mutant, jamais de confirmation.</summary>
+        SendMessage,
         Finish,
         /// <summary>Réponse du modèle qui ne correspond à aucun format reconnu —
         /// jamais une exception, toujours ce cas de repli (voir AgentActionParser).</summary>
@@ -40,6 +40,10 @@ namespace Moto.Core.AI.Autonomy
         public string? Content { get; set; }
         public string? Command { get; set; }
         public string? Summary { get; set; }
+
+        /// <summary>★ AJOUT (jalon 2) : destinataire d'un SendMessage — null =
+        /// diffusé à tous les agents.</summary>
+        public string? ToAgentId { get; set; }
 
         /// <summary>Texte brut du modèle ayant produit cette action — jamais utilisé
         /// pour construire un message de confirmation (voir IAgentTool.DescribeForConfirmation),

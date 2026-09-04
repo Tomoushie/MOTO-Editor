@@ -34,7 +34,7 @@ namespace Moto.Core.AI.Autonomy
 
             var lines = modelOutput.Replace("\r\n", "\n").Split('\n');
             AgentActionKind? kind = null;
-            string? path = null, command = null, summary = null;
+            string? path = null, command = null, summary = null, toAgentId = null;
             string? content = null;
 
             for (var i = 0; i < lines.Length; i++)
@@ -52,6 +52,10 @@ namespace Moto.Core.AI.Autonomy
                 else if (TryExtractValue(line, "COMMAND:", out var commandText))
                 {
                     command = commandText;
+                }
+                else if (TryExtractValue(line, "TO:", out var toText))
+                {
+                    toAgentId = toText;
                 }
                 else if (TryExtractValue(line, "SUMMARY:", out var summaryText))
                 {
@@ -76,6 +80,7 @@ namespace Moto.Core.AI.Autonomy
             action.Command = command;
             action.Summary = summary;
             action.Content = content;
+            action.ToAgentId = string.IsNullOrWhiteSpace(toAgentId) ? null : toAgentId.Trim();
 
             // Validation minimale : une action sans les champs qu'elle exige n'est
             // pas exploitable — mieux vaut Malformed (nouvelle tentative) qu'un
@@ -85,6 +90,7 @@ namespace Moto.Core.AI.Autonomy
                 AgentActionKind.ReadFile => !string.IsNullOrWhiteSpace(path),
                 AgentActionKind.WriteFile => !string.IsNullOrWhiteSpace(path) && content is not null,
                 AgentActionKind.RunCommand => !string.IsNullOrWhiteSpace(command),
+                AgentActionKind.SendMessage => !string.IsNullOrWhiteSpace(summary),
                 AgentActionKind.Finish => true,
                 _ => false
             };
@@ -98,6 +104,7 @@ namespace Moto.Core.AI.Autonomy
             "readfile" or "read_file" or "read" => AgentActionKind.ReadFile,
             "writefile" or "write_file" or "write" => AgentActionKind.WriteFile,
             "runcommand" or "run_command" or "run" or "command" => AgentActionKind.RunCommand,
+            "sendmessage" or "send_message" or "send" or "message" => AgentActionKind.SendMessage,
             "finish" or "done" or "terminé" or "termine" => AgentActionKind.Finish,
             _ => null
         };

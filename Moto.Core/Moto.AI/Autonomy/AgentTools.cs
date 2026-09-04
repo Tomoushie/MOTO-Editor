@@ -29,7 +29,9 @@ namespace Moto.Core.AI.Autonomy
         /// </summary>
         string DescribeForConfirmation(AgentAction action, string workspaceRoot);
 
-        Task<string> ExecuteAsync(AgentAction action, string workspaceRoot, CancellationToken ct);
+        /// <summary>★ AJOUT (jalon 2) : `agentId` — nécessaire pour SendMessageTool
+        /// (l'expéditeur du message), ignoré par les 4 autres outils.</summary>
+        Task<string> ExecuteAsync(AgentAction action, string workspaceRoot, string agentId, CancellationToken ct);
     }
 
     /// <summary>Résout un chemin potentiellement relatif contre la racine du
@@ -55,7 +57,7 @@ namespace Moto.Core.AI.Autonomy
 
         public string DescribeForConfirmation(AgentAction action, string workspaceRoot) => string.Empty; // jamais appelé
 
-        public async Task<string> ExecuteAsync(AgentAction action, string workspaceRoot, CancellationToken ct)
+        public async Task<string> ExecuteAsync(AgentAction action, string workspaceRoot, string agentId, CancellationToken ct)
         {
             var full = AgentPathResolver.Resolve(workspaceRoot, action.Path ?? string.Empty);
             if (!File.Exists(full))
@@ -89,7 +91,7 @@ namespace Moto.Core.AI.Autonomy
             return $"Chemin : {full}\n\nContenu proposé :\n{preview}";
         }
 
-        public async Task<string> ExecuteAsync(AgentAction action, string workspaceRoot, CancellationToken ct)
+        public async Task<string> ExecuteAsync(AgentAction action, string workspaceRoot, string agentId, CancellationToken ct)
         {
             var full = AgentPathResolver.Resolve(workspaceRoot, action.Path ?? string.Empty);
             try
@@ -121,7 +123,7 @@ namespace Moto.Core.AI.Autonomy
         public string DescribeForConfirmation(AgentAction action, string workspaceRoot) =>
             $"Commande : {action.Command}\nDossier : {workspaceRoot}";
 
-        public async Task<string> ExecuteAsync(AgentAction action, string workspaceRoot, CancellationToken ct)
+        public async Task<string> ExecuteAsync(AgentAction action, string workspaceRoot, string agentId, CancellationToken ct)
         {
             var result = await _terminal.ExecuteAsync(action.Command ?? string.Empty, workspaceRoot, ct);
             var output = string.IsNullOrWhiteSpace(result.Output) ? "(aucune sortie)" : result.Output;
@@ -139,7 +141,39 @@ namespace Moto.Core.AI.Autonomy
 
         public string DescribeForConfirmation(AgentAction action, string workspaceRoot) => string.Empty; // jamais appelé
 
-        public Task<string> ExecuteAsync(AgentAction action, string workspaceRoot, CancellationToken ct) =>
+        public Task<string> ExecuteAsync(AgentAction action, string workspaceRoot, string agentId, CancellationToken ct) =>
             Task.FromResult(action.Summary ?? "Terminé.");
+    }
+
+    /// <summary>★ AJOUT (jalon 2) : envoie un vrai message à un autre agent (ou à
+    /// tous, si ToAgentId est vide) via AgentMessageBus. Jamais mutant — aucune
+    /// confirmation requise, un message n'écrit rien sur le disque.</summary>
+    public sealed class SendMessageTool : IAgentTool
+    {
+        private readonly AgentMessageBus _bus;
+
+        public SendMessageTool(AgentMessageBus bus)
+        {
+            _bus = bus ?? throw new ArgumentNullException(nameof(bus));
+        }
+
+        public AgentActionKind Handles => AgentActionKind.SendMessage;
+        public bool IsMutating => false;
+
+        public string DescribeForConfirmation(AgentAction action, string workspaceRoot) => string.Empty; // jamais appelé
+
+        public Task<string> ExecuteAsync(AgentAction action, string workspaceRoot, string agentId, CancellationToken ct)
+        {
+            _bus.Post(new AgentMessage
+            {
+                FromAgentId = agentId,
+                ToAgentId = action.ToAgentId,
+                Kind = AgentMessageKind.Note,
+                Text = action.Summary ?? string.Empty
+            });
+
+            var target = action.ToAgentId ?? "tous les agents";
+            return Task.FromResult($"Message envoyé à {target} : {action.Summary}");
+        }
     }
 }

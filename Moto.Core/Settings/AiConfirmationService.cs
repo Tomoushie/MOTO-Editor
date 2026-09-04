@@ -2,6 +2,7 @@
 // Service de confirmation pour les actions sensibles déclenchées par l'IA.
 // Permet à l'utilisateur de valider/annuler avant application.
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace Moto.Core.Settings
@@ -52,6 +53,18 @@ namespace Moto.Core.Settings
         /// </summary>
         public Func<ConfirmationRequest, Task<bool>>? ConfirmationHandler { get; set; }
 
+        // ★ AJOUT (03/09, jalon 2 — agents autonomes) : ConfirmationOverlay
+        // (Moto.Editor/Views/ConfirmationOverlay.xaml.cs) n'a qu'UN SEUL
+        // TaskCompletionSource partagé, sans file d'attente — vérifié en lisant
+        // le code, pas supposé. Tant qu'un seul point d'entrée humain existait (un
+        // clic à la fois), ce n'était jamais un problème réel. Avec 2 agents en
+        // tâche de fond pouvant demander une confirmation au même moment, un 2e
+        // appel avant que le 1er ait sa réponse écraserait le TaskCompletionSource
+        // du 1er. Ce sémaphore sérialise les demandes : la 2e attend que la 1re
+        // popup soit refermée avant de s'afficher — comportement inchangé pour un
+        // appelant unique (le sémaphore n'est jamais disputé).
+        private readonly SemaphoreSlim _requestGate = new(1, 1);
+
         /// <summary>
         /// Demande confirmation à l'utilisateur.
         /// Si aucun handler n'est injecté, refuse par défaut (sécurité).
@@ -65,6 +78,7 @@ namespace Moto.Core.Settings
                 return ConfirmationResult.No("Aucun handler de confirmation disponible.");
             }
 
+            await _requestGate.WaitAsync();
             try
             {
                 var confirmed = await ConfirmationHandler(request);
@@ -74,6 +88,10 @@ namespace Moto.Core.Settings
             {
                 System.Diagnostics.Debug.WriteLine($"[Confirmation] Erreur handler : {ex.Message}");
                 return ConfirmationResult.No($"Erreur : {ex.Message}");
+            }
+            finally
+            {
+                _requestGate.Release();
             }
         }
 
