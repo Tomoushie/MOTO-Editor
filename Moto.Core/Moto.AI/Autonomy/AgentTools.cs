@@ -36,17 +36,38 @@ namespace Moto.Core.AI.Autonomy
 
     /// <summary>Résout un chemin potentiellement relatif contre la racine du
     /// workspace — un agent qui répond "hello.txt" doit écrire dans le PROJET
-    /// ouvert, pas dans le dossier courant du process. Le refus d'écrire hors du
-    /// dossier du projet (chemins absolus qui s'évadent) est prévu au jalon 3
-    /// (durcissement), pas ici : au jalon 1, la confirmation humaine — qui
-    /// affiche toujours le chemin résolu en toutes lettres — reste le garde-fou.</summary>
+    /// ouvert, pas dans le dossier courant du process.
+    /// ★ AJOUT (jalon 3) : IsWithinRoot — le refus d'écrire/lire hors du dossier
+    /// du projet, prévu depuis le jalon 1 mais pas encore fait (la confirmation
+    /// humaine, qui affiche toujours le chemin résolu en toutes lettres, était
+    /// le seul garde-fou jusqu'ici). Vérifié par BackgroundAgentLoop AVANT même
+    /// de proposer une confirmation — un chemin qui s'évade ne doit pas arriver
+    /// jusqu'à l'humain, il doit être refusé automatiquement.</summary>
     internal static class AgentPathResolver
     {
+        /// <summary>Racine effective : le workspace ouvert, ou le dossier courant
+        /// du process si aucun workspace n'est ouvert (même repli que Resolve) —
+        /// le confinement doit s'appliquer aux DEUX cas, jamais être désactivé
+        /// faute de workspace.</summary>
+        public static string EffectiveRoot(string workspaceRoot) =>
+            string.IsNullOrWhiteSpace(workspaceRoot) ? Directory.GetCurrentDirectory() : workspaceRoot;
+
         public static string Resolve(string workspaceRoot, string path)
         {
             if (Path.IsPathRooted(path)) return path;
-            var root = string.IsNullOrWhiteSpace(workspaceRoot) ? Directory.GetCurrentDirectory() : workspaceRoot;
-            return Path.GetFullPath(Path.Combine(root, path));
+            return Path.GetFullPath(Path.Combine(EffectiveRoot(workspaceRoot), path));
+        }
+
+        /// <summary>Vrai si `resolvedPath` (déjà passé par Resolve) reste SOUS la
+        /// racine effective — bloque un chemin absolu qui pointe ailleurs, ou un
+        /// "../.." qui s'évade du dossier du projet.</summary>
+        public static bool IsWithinRoot(string workspaceRoot, string resolvedPath)
+        {
+            var root = Path.GetFullPath(EffectiveRoot(workspaceRoot));
+            var rootWithSep = root.EndsWith(Path.DirectorySeparatorChar) ? root : root + Path.DirectorySeparatorChar;
+            var full = Path.GetFullPath(resolvedPath);
+            return full.Equals(root, StringComparison.OrdinalIgnoreCase)
+                || full.StartsWith(rootWithSep, StringComparison.OrdinalIgnoreCase);
         }
     }
 

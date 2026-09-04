@@ -170,6 +170,9 @@ namespace Moto.Core.AI.Commands
                 // ★ AJOUT (03/09, panneau "Tâches en arrière-plan" réel) : suit les
                 // vrais appels IA (ChatService.Tasks), pas une simulation.
                 new() { Id = "ai.backgroundtasks", Title = "Tâches en arrière-plan", Description = "Suit les appels IA en cours et récemment terminés.", Category = CommandCategory.Menu, CommandText = "menu:ai.backgroundtasks" },
+                // ★ AJOUT (jalon 3, agents autonomes en tâche de fond) : première
+                // vraie interface de ce chantier (voir /agent <objectif> dans le chat).
+                new() { Id = "ai.agentruns", Title = "Agents en cours", Description = "Liste les agents autonomes actifs/récents, permet d'en arrêter un, montre leurs messages.", Category = CommandCategory.Menu, CommandText = "menu:ai.agentruns" },
                 // ★ AJOUT (03/09, réveil de GitPanelView, trouvé par la sonde
                 // disponibilité premium) : commit/push/pull/branches/diff/log réels,
                 // jusqu'ici sans aucun point d'entrée.

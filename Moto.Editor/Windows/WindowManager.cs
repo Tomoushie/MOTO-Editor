@@ -18,7 +18,7 @@ namespace Moto.Editor.Windows
     // appels IA (ChatService.Tasks), pas une simulation.
     // ★ AJOUT (03/09, réveil de GitPanelView) : trouvé par la sonde disponibilité
     // premium — GitService/GitPanelView entièrement construits mais injoignables.
-    public enum WindowKind { Main, Editor, Debug, Analytics, Plugin, Settings, Marketplace, Cortex, Neural, Workspace, AiChat, Platform, GlobalDashboard, ThreadList, ClaudeShell, BackgroundTasks, Git }
+    public enum WindowKind { Main, Editor, Debug, Analytics, Plugin, Settings, Marketplace, Cortex, Neural, Workspace, AiChat, Platform, GlobalDashboard, ThreadList, ClaudeShell, BackgroundTasks, Git, AgentRuns }
 
     public sealed class WindowManager
     {

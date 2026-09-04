@@ -157,6 +157,10 @@ namespace Moto.Editor.DependencyInjection
             // elle qui permet à deux agents lancés séparément de se voir/se
             // coordonner (voir AgentMessageBus.cs).
             services.AddSingleton<AgentMessageBus>();
+            // ★ AJOUT (jalon 3) : plafond IA partagé entre TOUS les runs de la
+            // session (voir AgentGlobalBudget.cs) — distinct du maxSteps propre à
+            // chaque BackgroundAgentLoop.
+            services.AddSingleton<AgentGlobalBudget>();
             services.AddSingleton<IReadOnlyList<IAgentTool>>(sp => new List<IAgentTool>
             {
                 new ReadFileTool(),
@@ -169,7 +173,8 @@ namespace Moto.Editor.DependencyInjection
                 sp.GetRequiredService<MotoAiKernel>(),
                 sp.GetRequiredService<AiConfirmationService>(),
                 sp.GetRequiredService<IReadOnlyList<IAgentTool>>(),
-                sp.GetRequiredService<AgentMessageBus>()));
+                sp.GetRequiredService<AgentMessageBus>(),
+                sp.GetRequiredService<AgentGlobalBudget>()));
             services.AddSingleton<ProactiveAnalyticsEngine>(_ => new ProactiveAnalyticsEngine(workspaceRoot));
             // LanguageServerManager : LSP mis de côté pour cette passe (voir Moto.Core.csproj)
             services.AddSingleton<ConfirmationPolicyEngine>(sp => new ConfirmationPolicyEngine(sp.GetRequiredService<SettingsEngine>()));

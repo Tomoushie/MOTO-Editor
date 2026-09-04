@@ -870,6 +870,19 @@ namespace Moto.Editor
                     });
                     break;
 
+                // ★ AJOUT (jalon 3, agents autonomes) : première vraie interface de
+                // ce chantier — liste les AgentRunRecord en direct, permet
+                // d'arrêter un run, montre les messages échangés entre agents.
+                case "agentruns":
+                    if (_backgroundAgentService == null) { StatusBar.SetStatus("Agents : service indisponible."); break; }
+                    _windowManager.OpenOrFocus(Moto.Editor.Windows.WindowKind.AgentRuns, () =>
+                    {
+                        var view = new Views.AgentRunsView(_backgroundAgentService) { IsVisible = true };
+                        return new Microsoft.Maui.Controls.Window(
+                            new Moto.Editor.Windows.SpecializedWindowPage("Agents en cours", view));
+                    });
+                    break;
+
                 // ★ AJOUT (03/09, réveil de GitPanelView, trouvé par la sonde
                 // disponibilité premium) : GitService/GitPanelView entièrement
                 // construits (commit/push/pull/branches/diff/log réels) mais
@@ -1007,7 +1020,7 @@ namespace Moto.Editor
                 });
             });
 
-            return $"🤖 Agent « {agentId} » démarré — objectif : {goal}\nSuis sa progression ci-dessous, étape par étape. Chaque action qui écrit un fichier ou lance une commande te demandera confirmation avant de s'exécuter.";
+            return $"🤖 Agent « {agentId} » démarré — objectif : {goal}\nSuis sa progression ci-dessous, étape par étape. Chaque action qui écrit un fichier ou lance une commande te demandera confirmation avant de s'exécuter.\n(Astuce : Ctrl+Maj+P → « Agents en cours » liste tous les agents actifs et permet d'en arrêter un.)";
         }
     }
 }

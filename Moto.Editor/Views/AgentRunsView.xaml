@@ -1,0 +1,85 @@
+<!-- Moto.Editor/Views/AgentRunsView.xaml
+     Panneau "Agents en cours" (jalon 3) : première vraie interface du chantier
+     agents autonomes (jalon 1/2 n'en avaient aucune, tout passait par le chat).
+     Même patron que BackgroundTasksView.xaml (liste live + minuteur), plus une
+     petite liste "Messages entre agents" (AgentMessageBus.History) et un accès
+     au dossier des journaux NDJSON. -->
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Moto.Editor.Views.AgentRunsView"
+             BackgroundColor="{DynamicResource BgSide}">
+
+  <Grid RowDefinitions="Auto,2*,Auto,Auto,1*,Auto">
+
+    <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Padding="14,10">
+      <Label Text="Agents en cours" FontAttributes="Bold" TextColor="{StaticResource Txt1}"/>
+      <Label Grid.Column="1" x:Name="ActiveCountLabel" Text="0 actif(s)"
+             TextColor="{DynamicResource MotoSubtleText}" FontSize="12"/>
+    </Grid>
+
+    <CollectionView Grid.Row="1" x:Name="RunList" SelectionMode="None" Margin="10,0">
+      <CollectionView.EmptyView>
+        <Label Text="Aucun agent pour l'instant. Tape /agent &lt;objectif&gt; dans le chat pour en démarrer un."
+               TextColor="{DynamicResource MotoSubtleText}" FontSize="12.5"
+               Padding="10,20" HorizontalTextAlignment="Center"/>
+      </CollectionView.EmptyView>
+      <CollectionView.ItemTemplate>
+        <DataTemplate>
+          <Border Background="{DynamicResource BgPanel}" Stroke="{DynamicResource BorderCol}"
+                  StrokeShape="RoundRectangle 10" Padding="12,10" Margin="0,0,0,8">
+            <Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="8" RowSpacing="4">
+              <Label Grid.Row="0" Grid.Column="0" Text="{Binding StatusIcon}"
+                     TextColor="{StaticResource Accent}" FontSize="13"/>
+              <Label Grid.Row="0" Grid.Column="1" Text="{Binding AgentId}" FontAttributes="Bold"
+                     TextColor="{StaticResource Txt1}" FontSize="13" LineBreakMode="TailTruncation"/>
+              <Label Grid.Row="0" Grid.Column="2" Text="{Binding DurationLabel}"
+                     TextColor="{DynamicResource MotoSubtleText}" FontSize="12"/>
+
+              <Label Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" Text="{Binding Goal}"
+                     TextColor="{DynamicResource MotoSubtleText}" FontSize="11.5" LineBreakMode="TailTruncation"/>
+
+              <Label Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Text="{Binding StatusLabel}"
+                     TextColor="{DynamicResource MotoSubtleText}" FontSize="11"/>
+              <Button Grid.Row="2" Grid.Column="2" Text="Arrêter" FontSize="11" Padding="8,3"
+                      IsVisible="{Binding IsActive}"
+                      BackgroundColor="Transparent" TextColor="{StaticResource Warning}"
+                      Clicked="OnCancelRunClicked" CommandParameter="{Binding Id}"/>
+            </Grid>
+          </Border>
+        </DataTemplate>
+      </CollectionView.ItemTemplate>
+    </CollectionView>
+
+    <BoxView Grid.Row="2" HeightRequest="1" Color="{DynamicResource BorderCol}" Margin="14,4"/>
+
+    <Label Grid.Row="3" Text="Messages entre agents" FontAttributes="Bold" FontSize="12.5"
+           TextColor="{StaticResource Txt1}" Padding="14,8,14,4"/>
+
+    <CollectionView Grid.Row="4" x:Name="MessageList" SelectionMode="None" Margin="10,0">
+      <CollectionView.EmptyView>
+        <Label Text="Aucun échange pour l'instant."
+               TextColor="{DynamicResource MotoSubtleText}" FontSize="12" Padding="10,10"
+               HorizontalTextAlignment="Center"/>
+      </CollectionView.EmptyView>
+      <CollectionView.ItemTemplate>
+        <DataTemplate>
+          <Grid ColumnDefinitions="Auto,*,Auto" Padding="4,3" ColumnSpacing="6">
+            <Label Grid.Column="0" Text="{Binding Icon}" FontSize="11.5"/>
+            <Label Grid.Column="1" Text="{Binding Label}" FontSize="11.5"
+                   TextColor="{DynamicResource MotoSubtleText}" LineBreakMode="TailTruncation"/>
+            <Label Grid.Column="2" Text="{Binding TimeLabel}" FontSize="10.5"
+                   TextColor="{DynamicResource MotoSubtleText}"/>
+          </Grid>
+        </DataTemplate>
+      </CollectionView.ItemTemplate>
+    </CollectionView>
+
+    <Grid Grid.Row="5" ColumnDefinitions="*,Auto" Padding="14,8">
+      <Label x:Name="BudgetLabel" Text="Budget IA : 0/200" TextColor="{DynamicResource MotoSubtleText}"
+             FontSize="12" VerticalOptions="Center"/>
+      <Button Grid.Column="1" Text="Ouvrir le dossier des journaux" FontSize="12" Padding="8,4"
+              BackgroundColor="Transparent" TextColor="{DynamicResource MotoSubtleText}"
+              Clicked="OnOpenAuditFolderClicked"/>
+    </Grid>
+  </Grid>
+</ContentView>

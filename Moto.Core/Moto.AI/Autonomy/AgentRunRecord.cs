@@ -87,7 +87,63 @@ namespace Moto.Core.AI.Autonomy
                     Notify(nameof(EndedUtc));
                 }
                 Notify();
+                Notify(nameof(StatusIcon));
+                Notify(nameof(StatusLabel));
+                Notify(nameof(IsActive));
             }
+        }
+
+        // ── AJOUT (jalon 3, panneau "Agents en cours") : mêmes idiomes que
+        // ChatTaskRecord (Moto.Editor/Models/ChatTaskRecord.cs) — StatusIcon/
+        // DurationLabel/Tick() — pour qu'AgentRunsView n'ait aucun nouveau
+        // patron de binding à apprendre. ──
+
+        public string StatusIcon => Status switch
+        {
+            AgentRunStatus.Running => "◔",
+            AgentRunStatus.AwaitingConfirmation => "⏸",
+            AgentRunStatus.Completed => "✓",
+            AgentRunStatus.Failed => "✕",
+            AgentRunStatus.Cancelled => "⏹",
+            AgentRunStatus.StepLimitReached => "⏱",
+            _ => "?"
+        };
+
+        /// <summary>★ CORRECTIF (jalon 3, trouvé en testant avec Tom) : AgentRunsView
+        /// affichait Status.ToString() brut ("Running"/"Completed"...) — seul
+        /// endroit anglais au milieu d'une interface entièrement française.</summary>
+        public string StatusLabel => Status switch
+        {
+            AgentRunStatus.Running => "En cours",
+            AgentRunStatus.AwaitingConfirmation => "En attente de confirmation",
+            AgentRunStatus.Completed => "Terminé",
+            AgentRunStatus.Failed => "Échoué",
+            AgentRunStatus.Cancelled => "Annulé",
+            AgentRunStatus.StepLimitReached => "Limite atteinte",
+            _ => "?"
+        };
+
+        /// <summary>Vrai tant que le run peut encore faire quelque chose — pilote
+        /// la visibilité du bouton "Arrêter" dans AgentRunsView.</summary>
+        public bool IsActive => Status is AgentRunStatus.Running or AgentRunStatus.AwaitingConfirmation;
+
+        /// <summary>Recalculée à la demande — appeler Tick() depuis un minuteur UI
+        /// pendant que IsActive est vrai pour un affichage qui avance en direct.</summary>
+        public string DurationLabel
+        {
+            get
+            {
+                var elapsed = (EndedUtc ?? DateTime.UtcNow) - StartedUtc;
+                return elapsed.TotalMinutes >= 1
+                    ? $"{(int)elapsed.TotalMinutes}min {elapsed.Seconds:D2}s"
+                    : $"{Math.Max(0, elapsed.Seconds)}s";
+            }
+        }
+
+        /// <summary>Force le recalcul de DurationLabel — appelé par le minuteur du panneau.</summary>
+        public void Tick()
+        {
+            if (IsActive) Notify(nameof(DurationLabel));
         }
     }
 }

@@ -34,6 +34,7 @@ namespace Moto.Core.AI.Autonomy
         private readonly AiConfirmationService _confirmation;
         private readonly IReadOnlyList<IAgentTool> _tools;
         private readonly AgentMessageBus _messageBus;
+        private readonly AgentGlobalBudget _globalBudget;
         private readonly int _maxSteps;
         private readonly TimeSpan _maxDuration;
 
@@ -42,6 +43,7 @@ namespace Moto.Core.AI.Autonomy
             AiConfirmationService confirmation,
             IReadOnlyList<IAgentTool> tools,
             AgentMessageBus messageBus,
+            AgentGlobalBudget globalBudget,
             int maxSteps = 10,
             TimeSpan? maxDuration = null)
         {
@@ -49,6 +51,7 @@ namespace Moto.Core.AI.Autonomy
             _confirmation = confirmation ?? throw new ArgumentNullException(nameof(confirmation));
             _tools = tools ?? throw new ArgumentNullException(nameof(tools));
             _messageBus = messageBus ?? throw new ArgumentNullException(nameof(messageBus));
+            _globalBudget = globalBudget ?? throw new ArgumentNullException(nameof(globalBudget));
             _maxSteps = maxSteps;
             _maxDuration = maxDuration ?? TimeSpan.FromMinutes(5);
         }
@@ -92,6 +95,17 @@ namespace Moto.Core.AI.Autonomy
                     {
                         run.Status = AgentRunStatus.StepLimitReached;
                         narrate($"⏱ Agent « {run.AgentId} » arrêté (durée maximale atteinte).");
+                        return;
+                    }
+
+                    // ★ AJOUT (jalon 3) : plafond partagé entre TOUS les agents de la
+                    // session — un run individuellement raisonnable peut quand même
+                    // contribuer à une consommation IA sans fin si plusieurs agents
+                    // se succèdent sur une longue session.
+                    if (!_globalBudget.TryConsume())
+                    {
+                        run.Status = AgentRunStatus.StepLimitReached;
+                        narrate($"⏱ Agent « {run.AgentId} » arrêté — plafond global d'appels IA atteint pour cette session ({_globalBudget.Limit} au total, protège contre une consommation illimitée si plusieurs agents s'enchaînent).");
                         return;
                     }
 
@@ -149,6 +163,40 @@ namespace Moto.Core.AI.Autonomy
                     var record = new AgentStepRecord { Index = step, ActionKind = action.Kind, Summary = summary };
                     run.Steps.Add(record);
 
+                    // ★ AJOUT (jalon 3, durcissement) : confinement — refusé AVANT
+                    // même de proposer une confirmation, pour ReadFile ET WriteFile
+                    // (les deux seules actions avec un Path). Un chemin qui s'évade
+                    // du dossier du projet ne doit jamais arriver jusqu'à l'humain.
+                    if (!string.IsNullOrWhiteSpace(action.Path))
+                    {
+                        var resolvedPath = AgentPathResolver.Resolve(workspaceRoot, action.Path!);
+                        if (!AgentPathResolver.IsWithinRoot(workspaceRoot, resolvedPath))
+                        {
+                            record.Confirmation = ConfirmationState.Declined;
+                            record.ObservationSummary = "🛡 Refusé : chemin hors du dossier du projet.";
+                            narrate($"🛡 Étape {step} : refusé — « {action.Path} » sort du dossier du projet.");
+                            auditLog.Append(new
+                            {
+                                ts = DateTime.UtcNow,
+                                agentId = run.AgentId,
+                                kind = "security_violation",
+                                action = action.Kind.ToString(),
+                                path = action.Path,
+                                resolvedPath
+                            });
+                            history.Add((action, $"Refusé : « {action.Path} » sort du dossier du projet — reste À L'INTÉRIEUR du dossier du projet, ou termine (Finish) si ce n'est pas possible."));
+
+                            consecutiveDeclines++;
+                            if (consecutiveDeclines >= MaxConsecutiveDeclines)
+                            {
+                                run.Status = AgentRunStatus.Cancelled;
+                                narrate($"⏹ Agent « {run.AgentId} » arrêté après {MaxConsecutiveDeclines} refus consécutifs.");
+                                return;
+                            }
+                            continue;
+                        }
+                    }
+
                     if (action.Kind == AgentActionKind.Finish)
                     {
                         narrate($"✅ Étape {step} : {summary}");
@@ -176,6 +224,13 @@ namespace Moto.Core.AI.Autonomy
                                 conflictNote = $"\n\n⚠ {recentTouch.FromAgentId} a touché ce même fichier il y a {elapsed.TotalSeconds:F0}s.";
                             }
                         }
+
+                        // ★ AJOUT (jalon 3, durcissement) : indice visuel seulement,
+                        // ne bloque jamais — la décision reste entièrement humaine.
+                        var dangerHint = action.Kind == AgentActionKind.RunCommand
+                            ? DangerousCommandHint(action.Command)
+                            : null;
+                        if (dangerHint != null) conflictNote += $"\n\n{dangerHint}";
 
                         _messageBus.Post(new AgentMessage
                         {
@@ -328,6 +383,34 @@ namespace Moto.Core.AI.Autonomy
                 run.Status = AgentRunStatus.Failed;
                 narrate($"❌ Agent « {run.AgentId} » : erreur inattendue — {ex.Message}");
             }
+        }
+
+        /// <summary>★ AJOUT (jalon 3, durcissement) : reconnaît quelques motifs de
+        /// commandes réputées risquées, pour les signaler dans la boîte de
+        /// confirmation — un avertissement visuel de plus, JAMAIS un blocage
+        /// automatique (la décision reste entièrement humaine, comme partout
+        /// ailleurs dans ce chantier). Reconnaissance simple par sous-chaîne :
+        /// pas exhaustive, ne remplace pas la vigilance de la personne qui clique
+        /// "Autoriser".</summary>
+        private static string? DangerousCommandHint(string? command)
+        {
+            if (string.IsNullOrWhiteSpace(command)) return null;
+            var lower = command.ToLowerInvariant();
+
+            if (lower.Contains("rm -rf") || lower.Contains("rmdir /s") || lower.Contains("remove-item") ||
+                System.Text.RegularExpressions.Regex.IsMatch(lower, @"(^|[\s&|;])del(\s|$)"))
+                return "⚠ Cette commande supprime potentiellement des fichiers.";
+
+            if (lower.Contains("git push --force") || lower.Contains("git push -f"))
+                return "⚠ Ceci force un push Git — peut écraser l'historique distant.";
+
+            if (lower.Contains("format ") || lower.Contains("diskpart"))
+                return "⚠ Cette commande touche au formatage/partitionnement du disque.";
+
+            if (lower.Contains("curl") && (lower.Contains("| sh") || lower.Contains("|sh") || lower.Contains("| bash") || lower.Contains("|bash")))
+                return "⚠ Cette commande télécharge et exécute un script distant sans l'inspecter d'abord.";
+
+            return null;
         }
 
         private static string DefaultSummary(AgentAction action) => action.Kind switch

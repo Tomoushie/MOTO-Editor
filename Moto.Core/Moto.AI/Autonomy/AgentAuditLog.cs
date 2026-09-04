@@ -18,13 +18,18 @@ namespace Moto.Core.AI.Autonomy
         private readonly string _filePath;
         private readonly object _gate = new();
 
+        /// <summary>★ AJOUT (jalon 3) : dossier de base, exposé pour que le panneau
+        /// "Agents en cours" (Moto.Editor, pas ce projet) puisse l'ouvrir dans
+        /// l'explorateur sans dupliquer ce chemin ni deviner le nom de fichier
+        /// haché d'un workspace précis.</summary>
+        public static string BaseFolder { get; } = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
+            "MotoEditor", "AgentAudit");
+
         public AgentAuditLog(string workspaceRoot)
         {
-            var dir = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData),
-                "MotoEditor", "AgentAudit");
-            Directory.CreateDirectory(dir);
-            _filePath = Path.Combine(dir, $"{SanitizeForFileName(workspaceRoot)}.ndjson");
+            Directory.CreateDirectory(BaseFolder);
+            _filePath = Path.Combine(BaseFolder, $"{SanitizeForFileName(workspaceRoot)}.ndjson");
         }
 
         public string FilePath => _filePath;
