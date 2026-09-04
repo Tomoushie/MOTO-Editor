@@ -35,6 +35,62 @@ public abstract class HeuristicAgent : ISpecializedAgent
                       .Select((text, i) => (i + 1, text))
                       .ToList();
     }
+
+    /// <summary>★ AJOUT (jalon "diagnostics", 04/09) : remplace le contenu des
+    /// littéraux chaîne/caractère et des commentaires par des espaces (même
+    /// longueur, pour ne pas décaler les numéros de ligne) — sans ça, un
+    /// SyntaxAgent qui compte des accolades trouverait plein de faux positifs
+    /// dans du texte comme des chaînes JSON ou des exemples en commentaire.
+    /// Reste un TOKENIZER LÉGER (pas un vrai lexer C#) : ne gère pas
+    /// spécialement les chaînes verbatim (@"...") ni les raw string literals
+    /// ("""...""") — un cas très rare dans ce dépôt, documenté plutôt que
+    /// silencieusement ignoré. "PAS de parsing profond" reste la règle de
+    /// cette famille d'agents (voir le commentaire de HeuristicAgent).</summary>
+    protected static string StripStringsAndComments(string content)
+    {
+        var sb = new System.Text.StringBuilder(content.Length);
+        bool inLineComment = false, inBlockComment = false, inString = false, inChar = false;
+        for (int i = 0; i < content.Length; i++)
+        {
+            char c = content[i];
+            char next = i + 1 < content.Length ? content[i + 1] : '\0';
+
+            if (inLineComment)
+            {
+                sb.Append(c == '\n' ? '\n' : ' ');
+                if (c == '\n') inLineComment = false;
+                continue;
+            }
+            if (inBlockComment)
+            {
+                sb.Append(c == '\n' ? '\n' : ' ');
+                if (c == '*' && next == '/') { inBlockComment = false; sb.Append(' '); i++; }
+                continue;
+            }
+            if (inString)
+            {
+                if (c == '\\' && next != '\0') { sb.Append("  "); i++; continue; }
+                sb.Append(c == '\n' ? '\n' : ' ');
+                if (c == '"') inString = false;
+                continue;
+            }
+            if (inChar)
+            {
+                if (c == '\\' && next != '\0') { sb.Append("  "); i++; continue; }
+                sb.Append(' ');
+                if (c == '\'') inChar = false;
+                continue;
+            }
+
+            if (c == '/' && next == '/') { inLineComment = true; sb.Append("  "); i++; continue; }
+            if (c == '/' && next == '*') { inBlockComment = true; sb.Append("  "); i++; continue; }
+            if (c == '"') { inString = true; sb.Append(' '); continue; }
+            if (c == '\'') { inChar = true; sb.Append(' '); continue; }
+
+            sb.Append(c);
+        }
+        return sb.ToString();
+    }
 }
 
 /// <summary>P1 — Security hint : checks statiques légers de vulnérabilités courantes.</summary>
@@ -203,11 +259,23 @@ public sealed class SmartTodoAgent : HeuristicAgent
     }
 }
 
-/// <summary>P2 — Agent cost estimator : estime le coût CPU/mémoire et propose une alternative.</summary>
+/// <summary>P2 — Agent cost estimator : estime le coût CPU/mémoire et propose une alternative.
+/// ★ CORRECTIF (04/09, bug réel trouvé en câblant SpecializedAgentRegistry à une
+/// vraie commande pour la première fois — /diagnose) : ce constructeur demandait
+/// directement un SpecializedAgentRegistry, qui lui-même a besoin de TOUS les
+/// ISpecializedAgent enregistrés (dont CET agent) pour se construire — une
+/// dépendance circulaire. Invisible tant que rien ne résolvait jamais le
+/// registre (code mort), elle a fait échouer silencieusement TOUTE la
+/// résolution de SpecializedAgentRegistry dès le premier vrai appelant.
+/// IServiceProvider (résolu tardivement, dans ExecuteAsync plutôt que dans le
+/// constructeur) casse le cycle : le registre n'est demandé qu'une fois le
+/// graphe DI entièrement construit. System.IServiceProvider fait partie du
+/// BCL — pas besoin d'ajouter Microsoft.Extensions.DependencyInjection à ce
+/// projet (Moto.Core reste portable, sans dépendance MAUI/DI).</summary>
 public sealed class AgentCostEstimatorAgent : ISpecializedAgent
 {
-    private readonly SpecializedAgentRegistry _registry;
-    public AgentCostEstimatorAgent(SpecializedAgentRegistry registry) => _registry = registry;
+    private readonly IServiceProvider _services;
+    public AgentCostEstimatorAgent(IServiceProvider services) => _services = services;
 
     public AgentDescriptor Descriptor => new()
     {
@@ -217,7 +285,8 @@ public sealed class AgentCostEstimatorAgent : ISpecializedAgent
 
     public Task<SpecializedAgentResult> ExecuteAsync(SpecializedAgentRequest request, CancellationToken ct = default)
     {
-        var target = request.Context.TryGetValue("targetAgent", out var id) ? _registry.Get(id) : null;
+        var registry = (SpecializedAgentRegistry?)_services.GetService(typeof(SpecializedAgentRegistry));
+        var target = registry != null && request.Context.TryGetValue("targetAgent", out var id) ? registry.Get(id) : null;
         if (target is null)
             return Task.FromResult(SpecializedAgentResult.Fail("Agent cible inconnu."));
 

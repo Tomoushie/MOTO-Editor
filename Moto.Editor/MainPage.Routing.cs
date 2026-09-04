@@ -367,7 +367,40 @@ namespace Moto.Editor
                 var thread = _chatService.CurrentThread ?? _chatService.CreateThread();
                 thread.Messages.Add(new ChatMessage { Role = "ai", Content = ack });
                 thread.LastActivityUtc = DateTime.UtcNow;
+                // ★ CORRECTIF (04/09, trouvé en testant /diagnose avec Tom, latent
+                // ici aussi) : voir ShowAiReplyAsTab plus bas — sans panneau
+                // AiChatView ouvert, ce message n'apparaissait NULLE PART depuis ce
+                // bandeau flottant. Masqué jusqu'ici pour /agent par la popup de
+                // confirmation (retour visible bien réel, juste pour un autre
+                // message) ; la narration pas-à-pas qui suit reste, elle, visible
+                // seulement dans AiChatView/l'historique — pas corrigé ici (ferait
+                // du fichier ouvert un composant "vivant", chantier séparé).
+                ShowAiReplyAsTab(ack, "Agent");
                 StatusBar.SetStatus("🤖 Agent démarré.");
+                RefreshHomeStats();
+                return;
+            }
+
+            // ★ AJOUT (04/09, agents de diagnostic) : même raison d'être que le
+            // bloc /agent juste au-dessus — chemin Accueil/bandeau IA séparé de
+            // HandlePluginCommandAsync (atteint uniquement depuis AiChatView).
+            if (text.Equals("/diagnose", StringComparison.OrdinalIgnoreCase) ||
+                text.StartsWith("/diagnose ", StringComparison.OrdinalIgnoreCase))
+            {
+                var arg = text.Length > "/diagnose".Length ? text["/diagnose".Length..].Trim() : string.Empty;
+                var report = await HandleDiagnoseCommandAsync(arg);
+                var diagThread = _chatService.CurrentThread ?? _chatService.CreateThread();
+                diagThread.Messages.Add(new ChatMessage { Role = "ai", Content = report });
+                diagThread.LastActivityUtc = DateTime.UtcNow;
+                // ★ CORRECTIF (04/09, bug réel trouvé avec Tom : "aucune réponse en
+                // vue" bien que le statut affichait "Diagnostic terminé") : le
+                // rapport n'était ajouté qu'à thread.Messages, jamais montré nulle
+                // part tant qu'AiChatView n'est pas ouvert — /diagnose n'a AUCUNE
+                // popup de confirmation pour compenser (rien n'est jamais mutant).
+                // ShowAiReplyAsTab réutilise le mécanisme déjà existant et testé
+                // pour une réponse IA normale depuis ce même bandeau (voir plus bas).
+                ShowAiReplyAsTab(report, "Diagnostic");
+                StatusBar.SetStatus("🔍 Diagnostic terminé.");
                 RefreshHomeStats();
                 return;
             }
@@ -538,9 +571,6 @@ namespace Moto.Editor
                 App.Breadcrumb($"OnAiCommandSubmitted — reply longueur={reply?.Length ?? -1}");
                 if (!string.IsNullOrWhiteSpace(reply))
                 {
-                    var repliesDir = Path.Combine(Path.GetTempPath(), "MotoEditor-Reponses-IA");
-                    Directory.CreateDirectory(repliesDir);
-
                     // ★ AJOUT (31/08) : si la réponse contient un bloc de code, on ouvre
                     // CE code (avec la bonne extension) plutôt que le message entier —
                     // repéré par Tom : "demander du code ne fonctionne pas, il se
@@ -551,11 +581,13 @@ namespace Moto.Editor
                     var content = extracted?.Code ?? reply;
                     var extension = extracted?.Extension ?? ".md";
 
-                    var replyPath = Path.Combine(repliesDir, $"Reponse-IA-{DateTime.Now:yyyyMMdd-HHmmss}{extension}");
-                    File.WriteAllText(replyPath, content);
-                    _viewModel.OpenFilePath(replyPath);
-                    if (_viewModel.SelectedDocument != null)
-                        _viewModel.SelectedDocument.Text = content;
+                    // ★ REFACTOR (04/09) : ce bloc écrivait/ouvrait/posait le texte en
+                    // dur ici — factorisé dans ShowAiReplyAsTab pour que /agent et
+                    // /diagnose (ajoutés le même jour) le réutilisent, plutôt que de
+                    // dupliquer 4 lignes 3 fois. Voir ShowAiReplyAsTab pour le VRAI
+                    // bug corrigé au passage (contrôle éditeur vide malgré un texte
+                    // correct en mémoire, trouvé en testant /diagnose avec Tom).
+                    ShowAiReplyAsTab(content, "Reponse-IA", extension);
                     StatusBar.SetStatus(extracted != null ? "✔ Code généré." : "✔ Réponse IA générée.");
                     App.Breadcrumb("OnAiCommandSubmitted — onglet ouvert avec succès");
                 }
@@ -578,6 +610,38 @@ namespace Moto.Editor
             {
                 AiBar.SetBusy(false);
                 RefreshHomeStats();
+            }
+        }
+
+        /// <summary>★ AJOUT (04/09) : extrait de la logique déjà existante plus
+        /// haut ("Réponse IA générée" — repérée par Tom le 30/08, "ne génère
+        /// rien du tout") pour que /agent et /diagnose puissent la réutiliser
+        /// telle quelle, au lieu de se contenter d'ajouter à thread.Messages
+        /// (invisible tant qu'AiChatView n'est pas ouvert). Ouvre `content`
+        /// comme un onglet fichier temporaire — le même mécanisme déjà
+        /// existant et testé pour une réponse IA normale depuis ce bandeau.</summary>
+        private void ShowAiReplyAsTab(string content, string filePrefix, string extension = ".md")
+        {
+            var repliesDir = Path.Combine(Path.GetTempPath(), "MotoEditor-Reponses-IA");
+            Directory.CreateDirectory(repliesDir);
+            var replyPath = Path.Combine(repliesDir, $"{filePrefix}-{DateTime.Now:yyyyMMdd-HHmmss}{extension}");
+            File.WriteAllText(replyPath, content);
+            _viewModel.OpenFilePath(replyPath);
+            if (_viewModel.SelectedDocument != null)
+            {
+                _viewModel.SelectedDocument.Text = content;
+                // ★ CORRECTIF (04/09, bug réel trouvé en testant /diagnose avec Tom :
+                // l'onglet s'ouvrait bien, mais restait VIDE malgré un vrai rapport en
+                // mémoire). Cause : OpenFilePath crée le document avec Text="" puis
+                // l'assigne à SelectedDocument — cette assignation déclenche
+                // SYNCHRONEMENT LoadDocumentIntoEditor (voir WireEditorPane) qui copie
+                // ce texte encore vide dans le contrôle éditeur visible. La ligne
+                // au-dessus corrige le MODÈLE (EditorDocument.Text) mais rien ne
+                // redéclenche l'affichage. Un second appel explicite ici force le
+                // contrôle éditeur à se resynchroniser avec le texte désormais correct.
+                // Concerne aussi la réponse IA "normale" (plus haut dans ce fichier),
+                // qui utilise maintenant ShowAiReplyAsTab et hérite du correctif.
+                LoadDocumentIntoEditor(_viewModel.SelectedDocument);
             }
         }
 

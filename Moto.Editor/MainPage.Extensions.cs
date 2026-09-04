@@ -9,6 +9,7 @@ using Microsoft.Maui.ApplicationModel;
 using Microsoft.Maui.Controls;
 using Moto.Core.AI;
 using Moto.Core.AI.Actions;
+using Moto.Core.AI.Agents;
 using Moto.Core.AI.Commands;
 using Moto.Core.AI.Suggestions;
 using Moto.Core.I18n;
@@ -256,6 +257,8 @@ namespace Moto.Editor
 
                 // ★ AJOUT (03/09, jalon 1 — "agents autonomes en tâche de fond").
                 _backgroundAgentService = services.GetService<Moto.Core.AI.Autonomy.BackgroundAgentService>();
+                // ★ AJOUT (04/09, agents de diagnostic) : voir /diagnose plus bas.
+                _specializedAgents = services.GetService<Moto.Core.AI.Agents.SpecializedAgentRegistry>();
 
                 // Ajoute les overlays au RootGrid
                 if (_commandPalette != null)
@@ -972,6 +975,15 @@ namespace Moto.Editor
             if (text.StartsWith("/agent ", StringComparison.OrdinalIgnoreCase))
                 return HandleAgentCommand(text["/agent ".Length..].Trim());
 
+            // ★ AJOUT (04/09, agents de diagnostic demandés par Tom) : même
+            // priorité que /agent — commande de cœur, jamais un plugin tiers.
+            if (text.Equals("/diagnose", StringComparison.OrdinalIgnoreCase) ||
+                text.StartsWith("/diagnose ", StringComparison.OrdinalIgnoreCase))
+            {
+                var arg = text.Length > "/diagnose".Length ? text["/diagnose".Length..].Trim() : string.Empty;
+                return await HandleDiagnoseCommandAsync(arg);
+            }
+
             if (_pluginRegistry == null) return null;
 
             foreach (var plugin in _pluginRegistry.GetActivePlugins())
@@ -1028,6 +1040,102 @@ namespace Moto.Editor
             });
 
             return $"🤖 Agent « {agentId} » démarré — objectif : {goal}\nSuis sa progression ci-dessous, étape par étape. Chaque action qui écrit un fichier ou lance une commande te demandera confirmation avant de s'exécuter.\n(Astuce : Ctrl+Maj+P → « Agents en cours » liste tous les agents actifs et permet d'en arrêter un.)";
+        }
+
+        // ★ AJOUT (04/09, agents de diagnostic demandés par Tom) : les agents
+        // ci-dessous sont RÉELLEMENT dispatchés (règle listée, pas registry.All)
+        // parce que DependencyRiskAgent/TestFlakinessAgent/AgentCostEstimatorAgent
+        // attendent un CodeSnippet d'une AUTRE forme (liste de dépendances,
+        // historique de tests, id d'agent cible) — leur passer du code source
+        // produirait des constats absurdes. Tous les agents ci-dessous sont
+        // JAMAIS mutants (RequiresLlm=false, ISpecializedAgent ne touche jamais
+        // au disque) : aucune confirmation à demander, il n'y a rien à approuver.
+        private static readonly string[] DiagnosticAgentIds =
+        {
+            "agent.syntax.balance", "agent.complexity", "agent.consistency.naming",
+            "agent.pattern.suggest", "agent.security.hint", "agent.privacy.scanner",
+            "agent.format.policy", "agent.todo.assistant", "agent.code.health"
+        };
+
+        /// <summary>
+        /// `/diagnose [chemin]` — sans argument, diagnostique l'onglet actif de
+        /// l'éditeur (_viewModel.SelectedDocument). Contrairement à /agent, tout
+        /// est SYNCHRONE et rapide (aucun appel LLM, aucune boucle) : le résultat
+        /// est un seul message, pas une progression pas à pas.
+        /// </summary>
+        private async Task<string> HandleDiagnoseCommandAsync(string? pathArg)
+        {
+            if (_specializedAgents == null)
+                return "🔍 Diagnostic indisponible (service non résolu).";
+
+            string path;
+            string content;
+
+            if (!string.IsNullOrWhiteSpace(pathArg))
+            {
+                var full = Path.IsPathRooted(pathArg) ? pathArg : Path.Combine(GetWorkspaceRoot(), pathArg);
+                if (!File.Exists(full))
+                    return $"Fichier introuvable : {pathArg}";
+                path = full;
+                try { content = await File.ReadAllTextAsync(full); }
+                catch (Exception ex) { return $"Impossible de lire {pathArg} : {ex.Message}"; }
+            }
+            else if (_viewModel.SelectedDocument != null && !string.IsNullOrWhiteSpace(_viewModel.SelectedDocument.Text))
+            {
+                path = string.IsNullOrWhiteSpace(_viewModel.SelectedDocument.Path)
+                    ? _viewModel.SelectedDocument.Title
+                    : _viewModel.SelectedDocument.Path;
+                content = _viewModel.SelectedDocument.Text;
+            }
+            else
+            {
+                return "Utilisation : /diagnose [chemin]\nOuvre d'abord un fichier dans l'éditeur, ou précise un chemin.";
+            }
+
+            var request = new SpecializedAgentRequest { FilePath = path, CodeSnippet = content };
+            var sb = new System.Text.StringBuilder();
+            sb.AppendLine($"🔍 Diagnostic de « {Path.GetFileName(path)} » :");
+            int total = 0;
+
+            foreach (var id in DiagnosticAgentIds)
+            {
+                var agent = _specializedAgents.Get(id);
+                if (agent == null) continue;
+
+                Moto.Core.AI.Agents.SpecializedAgentResult result;
+                try { result = await agent.ExecuteAsync(request); }
+                catch (Exception ex) { result = Moto.Core.AI.Agents.SpecializedAgentResult.Fail(ex.Message); }
+
+                if (!result.Success) continue;
+
+                if (result.Findings.Count > 0)
+                {
+                    sb.AppendLine();
+                    sb.AppendLine($"**{agent.Descriptor.Name}** — {result.Findings.Count} constat(s) :");
+                    foreach (var f in result.Findings.Take(10))
+                    {
+                        var icon = f.Severity switch { "critical" => "🔴", "warning" => "🟠", _ => "🔵" };
+                        var lineInfo = f.Line > 0 ? $"L{f.Line} : " : "";
+                        sb.Append($"{icon} {lineInfo}{f.Message}");
+                        if (!string.IsNullOrWhiteSpace(f.Suggestion)) sb.Append($" → {f.Suggestion}");
+                        sb.AppendLine();
+                        total++;
+                    }
+                    if (result.Findings.Count > 10)
+                        sb.AppendLine($"… et {result.Findings.Count - 10} de plus.");
+                }
+                else if (!string.IsNullOrWhiteSpace(result.Output))
+                {
+                    sb.AppendLine();
+                    sb.AppendLine($"**{agent.Descriptor.Name}** — {result.Output}");
+                }
+            }
+
+            sb.AppendLine();
+            sb.AppendLine(total == 0
+                ? "✅ Rien à signaler par ces vérifications rapides."
+                : $"{total} constat(s) au total. Ce sont des heuristiques (pas d'analyse profonde) — à vérifier avant d'agir, pas à suivre les yeux fermés.");
+            return sb.ToString();
         }
     }
 }

@@ -71,6 +71,11 @@ namespace Moto.Editor
         // par Tom). Résolu comme _gitService ci-dessus (DI, déjà un singleton
         // avec ses vraies dépendances — voir MotoServiceCollectionExtensions.cs).
         private Moto.Core.AI.Autonomy.BackgroundAgentService? _backgroundAgentService;
+        // ★ AJOUT (04/09, agents de diagnostic demandés par Tom) : famille
+        // ISpecializedAgent DÉJÀ construite et enregistrée en DI depuis un
+        // chantier antérieur (plan "premium"), mais jusqu'ici jamais résolue
+        // ni appelée depuis l'UI — voir /diagnose (MainPage.Extensions.cs).
+        private Moto.Core.AI.Agents.SpecializedAgentRegistry? _specializedAgents;
         private CortexView _cortexPanel;
         private NeuralView _neuralPanel;
         private AIWorkspaceView _workspacePanel;

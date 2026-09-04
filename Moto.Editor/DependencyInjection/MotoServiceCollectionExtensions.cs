@@ -378,6 +378,13 @@ namespace Moto.Editor.DependencyInjection
             services.AddSingleton<ISpecializedAgent, SmartTodoAgent>();
             services.AddSingleton<ISpecializedAgent, TestFlakinessAgent>();
             services.AddSingleton<ISpecializedAgent, CodeHealthAgent>();
+            // ★ AJOUT (04/09, demandé explicitement par Tom) : Syntax/Complexity/
+            // Consistency/Pattern — voir DiagnosticAgents.cs. Jamais mutants,
+            // jamais de confirmation nécessaire (ils ne font que lire/signaler).
+            services.AddSingleton<ISpecializedAgent, SyntaxAgent>();
+            services.AddSingleton<ISpecializedAgent, ComplexityAgent>();
+            services.AddSingleton<ISpecializedAgent, ConsistencyAgent>();
+            services.AddSingleton<ISpecializedAgent, PatternAgent>();
 
             // Registre
             services.AddSingleton<SpecializedAgentRegistry>();
