@@ -12,6 +12,13 @@ public partial class MotoAiKernel
     private readonly LocalModelService _localAi;
     private readonly string _workspace;
 
+    // ★ CORRECTIF (05/09, sur demande de Tom) : appel Ollama DIRECT, indépendant
+    // de _localAi/AiProviderManager (chantier en cours ailleurs, pas terminé —
+    // voir commentaire de TryOllamaAsync). _localAi reste tel quel pour ce
+    // chantier ; ce champ-ci restaure le seul chemin déjà éprouvé (bonjour.txt,
+    // "del test.txt", jalons 1-3) sans rien retirer de l'autre.
+    private readonly OllamaClient _ollamaDirect = new();
+
     public MotoAiKernel(LocalModelService? localAi = null)
         : this(string.Empty, localAi)
     {
@@ -51,20 +58,26 @@ public partial class MotoAiKernel
     {
         try
         {
-            // ★ CORRECTIF (05/09) : _localAi (LocalModelService) a remplacé
-            // l'ancien _ollama (OllamaClient) — renommage fait dans le
-            // constructeur mais jamais répercuté ici (CS0103, trouvé en
-            // recompilant), chantier en cours non terminé, pas le mien. Pas de
-            // IsAvailableAsync sur la nouvelle classe : elle gère déjà son
-            // propre repli (AiProviderManager.CompleteWithFallbackAsync), donc
-            // un Success=false ici joue exactement le même rôle qu'avant.
-            var result = await _localAi.GenerateAsync(prompt, system, ct);
-            if (!result.Success) return null;
+            // ★ CORRECTIF (05/09, revu le même jour sur demande de Tom) : la
+            // 1re version de ce correctif rebranchait sur _localAi
+            // (LocalModelService → AiProviderManager) pour recompiler après le
+            // renommage _ollama→_localAi trouvé cassé (CS0103) — mais ce chemin
+            // s'est révélé être un SQUELETTE qui échoue toujours instantanément
+            // (moteur interne jamais implémenté + aucun fournisseur jamais
+            // configuré sur CETTE instance précise d'AiProviderManager) :
+            // /agent, /refactor, /test, /doc ne produisaient plus RIEN, sans
+            // erreur visible. _ollamaDirect (ci-dessus) restaure le seul chemin
+            // déjà éprouvé en test réel (bonjour.txt, "del test.txt", jalons
+            // 1-3) — _localAi reste intact pour le chantier en cours ailleurs,
+            // simplement plus utilisé par CET appel précis tant qu'il n'est pas
+            // terminé.
+            if (!await _ollamaDirect.IsAvailableAsync(ct)) return null;
 
+            var content = await _ollamaDirect.GenerateAsync(prompt, ct, system);
             return new AiResponse
             {
                 Success = true,
-                Content = result.Content,
+                Content = content,
                 Provider = "ollama",
             };
         }
