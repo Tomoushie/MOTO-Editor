@@ -71,6 +71,11 @@ namespace Moto.Core.Settings
 
         public int GetInt(string key, int defaultValue = 0) => Get(key, defaultValue);
 
+        // ★ AJOUT (05/09, correctif de compilation) : manquait à côté de
+        // GetBool/GetInt/GetString ci-dessus — LocalModelService.cs (chantier en
+        // cours, non touché par ailleurs) l'appelle pour lire la température IA.
+        public double GetDouble(string key, double defaultValue = 0) => Get(key, defaultValue);
+
         public string GetString(string key, string defaultValue = "") => Get(key, defaultValue ?? string.Empty);
 
         private void Load()

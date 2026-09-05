@@ -9,19 +9,19 @@ namespace Moto.Core.AI.Internal;
 
 public partial class MotoAiKernel
 {
-    private readonly OllamaClient _ollama;
+    private readonly LocalModelService _localAi;
     private readonly string _workspace;
 
-    public MotoAiKernel(OllamaClient? ollama = null)
-        : this(string.Empty, ollama)
+    public MotoAiKernel(LocalModelService? localAi = null)
+        : this(string.Empty, localAi)
     {
     }
 
     /// <summary>Surcharge liée à un workspace (utilisée par MotoAiService côté éditeur).</summary>
-    public MotoAiKernel(string workspace, OllamaClient? ollama = null)
+    public MotoAiKernel(string workspace, LocalModelService? localAi = null)
     {
         _workspace = workspace ?? string.Empty;
-        _ollama = ollama ?? new OllamaClient();
+        _localAi = localAi ?? new LocalModelService();
     }
 
     /// <summary>
@@ -51,13 +51,20 @@ public partial class MotoAiKernel
     {
         try
         {
-            if (!await _ollama.IsAvailableAsync(ct)) return null;
+            // ★ CORRECTIF (05/09) : _localAi (LocalModelService) a remplacé
+            // l'ancien _ollama (OllamaClient) — renommage fait dans le
+            // constructeur mais jamais répercuté ici (CS0103, trouvé en
+            // recompilant), chantier en cours non terminé, pas le mien. Pas de
+            // IsAvailableAsync sur la nouvelle classe : elle gère déjà son
+            // propre repli (AiProviderManager.CompleteWithFallbackAsync), donc
+            // un Success=false ici joue exactement le même rôle qu'avant.
+            var result = await _localAi.GenerateAsync(prompt, system, ct);
+            if (!result.Success) return null;
 
-            var content = await _ollama.GenerateAsync(prompt, ct, system);
             return new AiResponse
             {
                 Success = true,
-                Content = content,
+                Content = result.Content,
                 Provider = "ollama",
             };
         }
