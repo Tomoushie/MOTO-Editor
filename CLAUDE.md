@@ -1384,6 +1384,63 @@ réels empilés :
 Testé avec Tom sur un vrai fichier long (`CLAUDE.md`, 800+ lignes) :
 apparaît instantanément, y compris en haut du fichier.
 
+### `/refactor`, `/test`, `/doc` + 3 pannes tierces trouvées en testant (commits `fa415b3`, `bc71d3a`, `ac6dfce`, `828b232`)
+
+Phase B du chantier : la partie qui écrit réellement des fichiers.
+PAS de nouveaux agents autonomes séparés — `HandlePresetAgentCommand`
+(`MainPage.Extensions.cs`) construit une instruction pré-écrite et
+délègue tel quel à `HandleAgentCommand`, donc hérite automatiquement de
+tout ce qui existe déjà pour `/agent` (confirmation humaine,
+confinement de chemin, budget global, panneau "Agents en cours").
+Câblé aux deux points d'entrée existants, même priorité que `/agent`
+et `/diagnose`.
+
+En testant avec Tom le 05/09, 3 pannes réelles trouvées EN CASCADE —
+**aucune dans ce code-là** :
+
+1. **Le dépôt ne compilait plus du tout.** Un chantier tiers en cours
+   (non committé, probablement un autre outil IA que Tom utilise en
+   parallèle) avait renommé `_ollama`→`_localAi` dans
+   `MotoAiKernel.cs` sans mettre à jour son usage (`CS0103`), et un
+   nouveau fichier `LocalModelService.cs` appelait
+   `SettingsEngine.GetDouble`, qui n'existait pas. Confirmé avec Tom
+   avant de toucher à du code tiers en cours (`AskUserQuestion`) →
+   corrigé au minimum, sans changer l'intention de l'autre chantier
+   (commit `bc71d3a`).
+2. **Une fois compilable, plus aucune action réelle ne sortait des
+   agents** (0 seconde, "Aucun échange" dans le panneau, rien dans le
+   journal d'audit). Cause : le nouveau chemin `_localAi` →
+   `AiProviderManager.CompleteWithFallbackAsync` est un SQUELETTE —
+   moteur interne toujours en échec (jamais implémenté, juste un
+   commentaire disant qu'il devrait l'être un jour) et aucun
+   fournisseur externe configuré sur CETTE instance précise (une page
+   de réglages ailleurs configure une AUTRE instance sans lien).
+   Confirmé avec Tom (`AskUserQuestion`) → `TryOllamaAsync` rebranché
+   sur un appel Ollama direct (`_ollamaDirect`, nouveau champ,
+   identique au mécanisme déjà éprouvé jalons 1-3) ; `_localAi` laissé
+   intact pour le chantier tiers (commit `ac6dfce`).
+3. **Plantage réel de toute l'application** pendant un test, cause
+   identifiée dans `%TEMP%\moto-editor-crash.log` :
+   `ArgumentException` sur `AppWindowTitleBar.set_ExtendsContentIntoTitleBar`
+   (`SnapLayoutsHelper.ApplyTitleBarColors`), déclenché par un
+   changement de focus de fenêtre — SANS RAPPORT avec `/agent`, même
+   famille que l'enquête "barre bleue" déjà en pause (voir mémoire
+   dédiée). Cause exacte non élucidée (hors périmètre) ; try/catch
+   ajouté pour que ce raté ponctuel ne fasse plus planter toute l'app
+   (commit `828b232`). Confirmé par Tom : comportement visuel
+   inchangé après coup (barre bleue toujours présente, connue,
+   séparée).
+
+**Confirmé de bout en bout par Tom** après ces 3 correctifs :
+`/agent crée un fichier confirmation-test.txt contenant "ok"` → popup
+de confirmation, autorisation, fichier créé. Limite connue et attendue
+(pas un bug) : sur un gros fichier (QWEN.md, ~9300 caractères),
+`/refactor`/`/agent` épuisent leurs tentatives sans jamais écrire —
+`WriteFile` réécrit TOUJOURS le fichier entier, donc un petit modèle
+local (qwen2.5-coder:7b) galère à le recopier fidèlement dans le
+format strict attendu. À garder en tête avant de compter sur ces
+préréglages pour de vrais fichiers de code volumineux.
+
 ## Références
 
 - Mémoire Claude (`~/.claude/projects/E--Corpus/memory/`) : chercher les
