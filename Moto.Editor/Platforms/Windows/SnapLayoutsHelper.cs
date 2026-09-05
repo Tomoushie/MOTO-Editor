@@ -41,6 +41,20 @@ public static class SnapLayoutsHelper
         Moto.Editor.App.Breadcrumb(
             $"ApplyTitleBarColors — IsCustomizationSupported = {AppWindowTitleBar.IsCustomizationSupported()}");
 
+        // ★ AJOUT (05/09, plantage réel trouvé par Tom) : cette méthode se
+        // ré-exécute à CHAQUE changement de focus de la fenêtre (Activated ET
+        // Deactivated, voir ConfigureSnapLayouts) — des centaines de fois par
+        // session sans souci, confirmé par le journal. Une fois, sur ce poste,
+        // set_ExtendsContentIntoTitleBar a levé ArgumentException ("Paramètre
+        // incorrect") côté natif WinRT, non rattrapée, plantant TOUTE
+        // l'application (Microsoft.UI.Xaml.Application.UnhandledException,
+        // moto-editor-crash.log). Cause exacte non élucidée (chantier "barre
+        // bleue" déjà en pause, voir CLAUDE.md/mémoire dédiée) — ce try/catch ne
+        // la résout pas, il empêche seulement qu'un raté ponctuel et rare de
+        // cet appel emporte toute l'appli : la barre de titre garde alors ses
+        // couleurs précédentes pour cette fois, rien de plus grave.
+        try
+        {
         // 1) Titre étendu
         appWindow.TitleBar.ExtendsContentIntoTitleBar = true;
 
@@ -83,6 +97,11 @@ public static class SnapLayoutsHelper
         Moto.Editor.App.Breadcrumb(
             $"ApplyTitleBarColors — relu : BackgroundColor={appWindow.TitleBar.BackgroundColor} " +
             $"ForegroundColor={appWindow.TitleBar.ForegroundColor}");
+        }
+        catch (Exception ex)
+        {
+            Moto.Editor.App.Breadcrumb($"ApplyTitleBarColors — EXCEPTION rattrapée (barre de titre inchangée cette fois) : {ex}");
+        }
     }
 
     public static void ConfigureSnapLayouts(Microsoft.UI.Xaml.Window window,
