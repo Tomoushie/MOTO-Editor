@@ -80,6 +80,17 @@ namespace Moto.Core.AI.Autonomy
             (AgentActionKind Kind, string? Path)? lastSuccessfulMutation = null;
             var repeatCount = 0;
 
+            // ★ AJOUT (05/09, cause réelle trouvée grâce au journal "non_mutating_step"
+            // ajouté juste au-dessus dans ce fichier) : le filet ci-dessus ne couvre
+            // QUE les écritures répétées — un petit modèle local qui relit le MÊME
+            // fichier en boucle (ReadFile, ReadFile, ReadFile...) sans jamais passer à
+            // WriteFile n'était rattrapé par RIEN, et épuisait tout son budget de pas
+            // sans jamais rien accomplir (observé sur /refactor, y compris sur un
+            // fichier de 14 lignes — donc pas une question de taille de fichier).
+            // Même patron que ci-dessus, appliqué aux actions NON mutantes.
+            (AgentActionKind Kind, string? Path)? lastNonMutatingAction = null;
+            var nonMutatingRepeatCount = 0;
+
             try
             {
                 for (var step = 1; step <= _maxSteps; step++)
@@ -138,6 +149,21 @@ namespace Moto.Core.AI.Autonomy
                             Summary = "Réponse du modèle non reconnue."
                         });
                         narrate($"🤖 Étape {step} : réponse non reconnue, nouvelle tentative.");
+                        // ★ AJOUT (05/09, diagnostic demandé en creusant pourquoi /refactor
+                        // n'aboutit jamais même sur un petit fichier) : jusqu'ici, un pas
+                        // Malformed ne laissait AUCUNE trace de ce que le modèle a RÉELLEMENT
+                        // répondu — juste "non reconnu". Le journal existe déjà pour les
+                        // propositions/décisions ; on y ajoute ce cas précis (texte tronqué,
+                        // ce journal reste un fichier texte lisible par n'importe qui y ayant
+                        // accès, pas la peine d'y mettre plus que nécessaire).
+                        auditLog.Append(new
+                        {
+                            ts = DateTime.UtcNow,
+                            agentId = run.AgentId,
+                            kind = "malformed",
+                            step,
+                            rawOutput = raw.Length > 1500 ? raw.Substring(0, 1500) + "…(tronqué)" : raw
+                        });
                         history.Add((action, "Format non reconnu — réponds STRICTEMENT avec le format demandé, une seule action."));
                         continue;
                     }
@@ -372,7 +398,41 @@ namespace Moto.Core.AI.Autonomy
 
                     record.ObservationSummary = observation;
                     narrate($"🤖 Étape {step} : {observation}");
-                    history.Add((action, observation));
+                    // ★ AJOUT (05/09, même diagnostic que ci-dessus pour Malformed) :
+                    // sans ceci, un ReadFile qui réussit (donc jamais mutant, jamais dans
+                    // le journal jusqu'ici) est invisible — impossible de distinguer "le
+                    // modèle n'a jamais essayé de lire le fichier" de "il l'a lu puis a
+                    // échoué à formuler l'écriture".
+                    auditLog.Append(new
+                    {
+                        ts = DateTime.UtcNow,
+                        agentId = run.AgentId,
+                        kind = "non_mutating_step",
+                        step,
+                        action = action.Kind.ToString(),
+                        path = action.Path,
+                        observation = observation.Length > 300 ? observation.Substring(0, 300) + "…(tronqué)" : observation
+                    });
+
+                    // ★ AJOUT (05/09, filet anti-boucle de lecture — voir commentaire
+                    // plus haut) : un rappel poli une fois ne suffisait pas forcément
+                    // (le modèle peut relire 2, 3 fois de suite) — le message se durcit
+                    // à chaque répétition supplémentaire au lieu de rester identique,
+                    // pour augmenter la pression au fil des tentatives plutôt que de
+                    // répéter un conseil déjà ignoré.
+                    var nonMutKey = (action.Kind, action.Path);
+                    nonMutatingRepeatCount = lastNonMutatingAction.HasValue && lastNonMutatingAction.Value == nonMutKey
+                        ? nonMutatingRepeatCount + 1
+                        : 0;
+                    lastNonMutatingAction = nonMutKey;
+
+                    var historyObservation = nonMutatingRepeatCount switch
+                    {
+                        0 => observation,
+                        1 => observation + " ⚠ Tu viens DÉJÀ de faire exactement ça à l'étape précédente (même résultat ci-dessus, inutile de relire). Si c'était un ReadFile, passe MAINTENANT à ACTION: WriteFile avec le contenu corrigé sur ce même chemin.",
+                        _ => observation + " 🛑 Tu répètes la MÊME action pour la " + (nonMutatingRepeatCount + 1) + "e fois d'affilée sans le moindre progrès. ARRÊTE de relire. Ta TOUTE PROCHAINE réponse doit être ACTION: WriteFile (avec le contenu corrigé) ou ACTION: Finish si tu ne peux pas continuer."
+                    };
+                    history.Add((action, historyObservation));
                 }
 
                 run.Status = AgentRunStatus.StepLimitReached;
