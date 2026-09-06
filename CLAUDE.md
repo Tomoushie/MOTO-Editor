@@ -1433,13 +1433,61 @@ En testant avec Tom le 05/09, 3 pannes réelles trouvées EN CASCADE —
 
 **Confirmé de bout en bout par Tom** après ces 3 correctifs :
 `/agent crée un fichier confirmation-test.txt contenant "ok"` → popup
-de confirmation, autorisation, fichier créé. Limite connue et attendue
-(pas un bug) : sur un gros fichier (QWEN.md, ~9300 caractères),
-`/refactor`/`/agent` épuisent leurs tentatives sans jamais écrire —
-`WriteFile` réécrit TOUJOURS le fichier entier, donc un petit modèle
-local (qwen2.5-coder:7b) galère à le recopier fidèlement dans le
-format strict attendu. À garder en tête avant de compter sur ces
-préréglages pour de vrais fichiers de code volumineux.
+de confirmation, autorisation, fichier créé.
+
+**4e panne, trouvée le même jour — théorie "fichier trop gros" ci-dessus
+FAUSSE, corrigée ici** : `/refactor` échouait aussi sur un fichier de 14
+lignes (`TEST-REFACTOR-A-SUPPRIMER.cs`), donc ce n'était pas une
+question de taille. Cause réelle trouvée en lisant le journal d'audit
+directement (`%LOCALAPPDATA%\MotoEditor\AgentAudit\*.ndjson`) : le
+garde-fou anti-répétition ne couvrait QUE les actions qui écrivent
+(WriteFile/RunCommand) — un modèle local pouvait relire le même fichier
+(ReadFile) indéfiniment sans jamais proposer d'écriture, sans que rien
+ne l'arrête, jusqu'à épuiser son budget de pas. Corrigé (commit
+`08194a6`) : garde-fou symétrique pour les actions non-mutantes (rappel
+qui se durcit à chaque répétition, poussant vers WriteFile/Finish) +
+journal étendu (`malformed`/`non_mutating_step`) pour voir enfin ce que
+le modèle répond à CHAQUE pas, pas seulement ceux qui écrivent. Testé
+par Tom : `/refactor` produit maintenant une vraie proposition
+d'écriture avec confirmation sur ce fichier.
+
+**Pannes 5 à 9, même journée, commit `c5ae7e8`** — toutes des défauts de
+TOLÉRANCE du parseur (`AgentActionParser.cs`) face à qwen2.5-coder:7b,
+jamais un bug de câblage, chacune diagnostiquée en lisant le journal
+d'audit NDJSON en clair avant d'écrire le correctif :
+5. `SUMMARY:` parfois placée À L'INTÉRIEUR du bloc `CONTENT: <<< ... >>>`
+   au lieu de juste après → écrite telle quelle dans le fichier cible
+   (casserait la compilation d'un vrai fichier de code). Filet dans
+   `ExtractDelimitedContent` : une dernière ligne de contenu qui
+   ressemble à `SUMMARY:` est retirée et récupérée comme résumé.
+6. `Finish` ne laissait AUCUNE trace dans le journal — indiscernable
+   d'une vraie fin de tâche. Journalisé comme les autres pas
+   (`BackgroundAgentLoop.cs`).
+7. Verbes d'action inventés collés au vocabulaire de l'objectif
+   (`RefactorFile`, `RefactorCode`, `RefactorContent`...) au lieu du nom
+   d'outil exact. Remplacé la liste exacte par un patron large : tout
+   verbe commençant par "refactor", ou contenant write/update/modify,
+   vaut `WriteFile`.
+8. La formulation des instructions ("PATH: chemin/relatif au projet")
+   ressemblait à un chemin littéral à cause du "/" — recopiée telle
+   quelle comme PATH, repoussée à raison par le confinement de chemin.
+   Reformulée avec un exemple sans ambiguïté (`BackgroundAgentLoop.cs`).
+9. Tous les champs parfois sur une seule ligne séparés par " | ", et/ou
+   délimiteurs `<<< >>>` du contenu parfois complètement omis — les deux
+   faisaient disparaître du texte silencieusement. Champs "|"-joints
+   séparés en vraies lignes avant le parsing (sans toucher un "|"
+   légitime dans du code) ; contenu sans délimiteurs accepté, s'arrête
+   dès qu'une autre balise commence.
+
+**CONFIRMÉ PAR TOM (06/09)** : après ces 9 correctifs cumulés, `/refactor`
+sur `TEST-REFACTOR-A-SUPPRIMER.cs` aboutit à une vraie proposition
+d'écriture bien formée, popup de confirmation, autorisation, et un
+fichier réellement réécrit — vérifié directement sur disque (pas
+seulement via le popup). Le mécanisme confirmation → écriture réelle
+fonctionne de bout en bout. Non résolu, à garder en tête : pas testé
+sur un modèle local plus costaud (qwen2.5-coder:14b, Qwen3.8-27B,
+gpt-oss:20.9B, tous disponibles) — qwen2.5-coder:7b reste petit et peut
+révéler de nouvelles variantes de format non encore vues.
 
 ## Références
 
