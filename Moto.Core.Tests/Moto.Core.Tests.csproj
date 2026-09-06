@@ -1,0 +1,69 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    ★ AJOUT (06/09) : Moto.Core.Tests existait sur disque (23 fichiers de test
+    réels) depuis le commit d'import initial (5d370be) mais n'avait JAMAIS eu
+    de .csproj — donc jamais compilé, jamais exécuté, absent de MotoEditor.sln.
+    Cible net8.0-windows10.0.19041.0 (comme Moto.Core et Moto.Editor, pas
+    net8.0 tout court comme Moto.Tests) car DependencyInjectionTests.cs
+    référence Moto.Editor.DependencyInjection — donc ce projet doit aussi
+    référencer Moto.Editor, qui est verrouillé sur ce TFM Windows.
+  -->
+  <PropertyGroup>
+    <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
+    <SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <IsPackable>false</IsPackable>
+    <IsTestProject>true</IsTestProject>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.9.0" />
+    <PackageReference Include="xunit" Version="2.7.0" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.5.7">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="coverlet.collector" Version="6.0.1">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <!-- DependencyInjectionTests.cs : new ServiceCollection() + .AddLogging() —
+         Moto.Core ne référence que les paquets .Abstractions (types, pas
+         d'implémentation concrète), il faut les paquets concrets ici. -->
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="10.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Moto.Core\Moto.Core.csproj" />
+    <ProjectReference Include="..\Moto.Editor\Moto.Editor.csproj" />
+  </ItemGroup>
+
+  <!--
+    ★ EXCLUSION (06/09) : ces 2 fichiers testent IsolatedInferenceHost et
+    EmbeddedLlmEngine — le cluster IA embarquée (ONNX) que Moto.Core.csproj
+    exclut lui-même explicitement de la compilation ("jamais compilé, doublons
+    internes non réconciliés", voir ses <Compile Remove> Moto.AI\Embedded\...).
+    Ces types n'existent donc pas dans l'assembly Moto.Core réel — rien n'est
+    perdu, juste mis de côté au même titre que le code qu'ils testent ; à
+    réintégrer ensemble si ce chantier IA embarquée reprend.
+  -->
+  <ItemGroup>
+    <Compile Remove="AI\Embedded\InferenceHostE2ETests.cs" />
+    <Compile Remove="AI\Embedded\AdvancedOptimizationsE2ETests.cs" />
+    <!--
+      MarketplaceE2ETests.cs teste PluginManifestPro avec des champs (Id, Name,
+      Version, Kind, Category, Dependencies) et des types (PluginKind,
+      PluginCategory, PluginDependencyInfo) qui n'existent QUE dans
+      Plugins\Marketplace\MarketplaceServerClient.cs — lui-même déjà exclu de
+      Moto.Core.csproj ("serveur Marketplace distant... hors périmètre de
+      cette passe"). Le vrai PluginManifestPro (Plugins\PluginManifestPro.cs)
+      ne porte que les compteurs marketplace (DownloadCount/LikeCount/...),
+      pas ces champs. Même sort que le cluster ONNX ci-dessus.
+    -->
+    <Compile Remove="Plugins\MarketplaceE2ETests.cs" />
+  </ItemGroup>
+
+</Project>

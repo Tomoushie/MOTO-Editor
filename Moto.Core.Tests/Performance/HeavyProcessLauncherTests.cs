@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System.Text.Json;
 using Moto.Core.Performance;
+using Xunit;
 
 namespace Moto.Core.Tests.Performance;
 

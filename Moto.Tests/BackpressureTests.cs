@@ -21,7 +21,7 @@ public class BackpressureTests
     public async Task FiveSimultaneousLoads_ShouldThrottleToConfiguredSlots()
     {
         var settings = SettingsEngine.Shared;
-        int allowedSlots = settings.Shared.Ai.Advanced.MaxConcurrentPrefetch.Value;
+        int allowedSlots = SettingsCatalog.Ai.Advanced.MaxConcurrentPrefetch.Value;
 
         var governor = new AdaptivePrefetchService(settings, _log);
 

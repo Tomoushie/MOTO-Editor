@@ -20,7 +20,7 @@ namespace Moto.Core.Tests.Collab
         public async Task Queue_PersistsBetweenRestarts()
         {
             var queue1 = new CrdtOfflineQueue(_tempDir);
-            await queue1.EnqueueAsync(new QueuedOperator { DocumentId = "d1", ActorId = "a1", Lamport = 1, Kind = "insert", Position = 0, Text = "X" });
+            await queue1.EnqueueAsync(new QueuedOperation { DocumentId = "d1", ActorId = "a1", Lamport = 1, Kind = "insert", Position = 0, Text = "X" });
 
             // Simule un redémarrage
             var queue2 = new CrdtOfflineQueue(_tempDir);
@@ -31,9 +31,9 @@ namespace Moto.Core.Tests.Collab
         public async Task DequeueAll_ReturnsInLamportOrder()
         {
             var queue = new CrdtOfflineQueue(_tempDir);
-            await queue.EnqueueAsync(new QueuedOperator { DocumentId = "d1", ActorId = "a1", Lamport = 3, Kind = "insert", Position = 0, Text = "C" });
-            await queue.EnqueueAsync(new QueuedOperator { DocumentId = "d1", ActorId = "a1", Lamport = 1, Kind = "insert", Position = 0, Text = "A" });
-            await queue.EnqueueAsync(new QueuedOperator { DocumentId = "d1", ActorId = "a1", Lamport = 2, Kind = "insert", Position = 0, Text = "B" });
+            await queue.EnqueueAsync(new QueuedOperation { DocumentId = "d1", ActorId = "a1", Lamport = 3, Kind = "insert", Position = 0, Text = "C" });
+            await queue.EnqueueAsync(new QueuedOperation { DocumentId = "d1", ActorId = "a1", Lamport = 1, Kind = "insert", Position = 0, Text = "A" });
+            await queue.EnqueueAsync(new QueuedOperation { DocumentId = "d1", ActorId = "a1", Lamport = 2, Kind = "insert", Position = 0, Text = "B" });
 
             var ops = await queue.DequeueAllAsync();
             Assert.Equal(3, ops.Count);
@@ -47,7 +47,7 @@ namespace Moto.Core.Tests.Collab
         public async Task RequeueFailed_IncrementsRetryCount()
         {
             var queue = new CrdtOfflineQueue(_tempDir);
-            var op = new QueuedOperator { DocumentId = "d1", ActorId = "a1", Lamport = 1, Kind = "insert", Position = 0, Text = "X", RetryCount = 0 };
+            var op = new QueuedOperation { DocumentId = "d1", ActorId = "a1", Lamport = 1, Kind = "insert", Position = 0, Text = "X", RetryCount = 0 };
 
             await queue.RequeueFailedAsync(op);
             Assert.Equal(1, queue.Size);
@@ -61,10 +61,10 @@ namespace Moto.Core.Tests.Collab
         {
             var queue = new CrdtOfflineQueue(_tempDir);
             var local = new[] {
-                new QueuedOperator { DocumentId = "d1", ActorId = "local", Lamport = 1, Kind = "insert", Position = 0, Text = "L" }
+                new QueuedOperation { DocumentId = "d1", ActorId = "local", Lamport = 1, Kind = "insert", Position = 0, Text = "L" }
             };
             var remote = new[] {
-                new QueuedOperator { DocumentId = "d1", ActorId = "remote", Lamport = 2, Kind = "insert", Position = 1, Text = "R" }
+                new QueuedOperation { DocumentId = "d1", ActorId = "remote", Lamport = 2, Kind = "insert", Position = 1, Text = "R" }
             };
 
             var resolution = queue.ResolveConflicts("AB", local, remote);

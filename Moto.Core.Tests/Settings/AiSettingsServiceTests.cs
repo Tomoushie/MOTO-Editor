@@ -122,15 +122,29 @@ namespace Moto.Core.Tests.Settings
             catch { /* Nettoyage best-effort */ }
         }
 
-        private sealed class FakeSettingsStore : AiSettingsService.ISettingsStore
+        // Implémente ISettingsStore au complet (Get<T>/Set<T>/GetBool/GetString/GetRaw) —
+        // découvert à la compilation (06/09) : cette classe ne fournissait que GetRaw
+        // et un Set(string, object) non générique, alors que l'interface réelle
+        // (Moto.Core/Settings/ISettingsStore.cs) est plus large ; AiSettingsService
+        // s'appuie sur les accesseurs typés en interne.
+        private sealed class FakeSettingsStore : ISettingsStore
         {
             private readonly Dictionary<string, object> _data = new();
+
+            public T Get<T>(string key, T defaultValue)
+                => _data.TryGetValue(key, out var value) && value is T typed ? typed : defaultValue;
+
+            public void Set<T>(string key, T value)
+                => _data[key] = value!;
 
             public object? GetRaw(string key)
                 => _data.TryGetValue(key, out var value) ? value : null;
 
-            public void Set(string key, object value)
-                => _data[key] = value;
+            public bool GetBool(string key, bool defaultValue = false)
+                => Get(key, defaultValue);
+
+            public string GetString(string key, string defaultValue = "")
+                => Get(key, defaultValue);
         }
     }
 }

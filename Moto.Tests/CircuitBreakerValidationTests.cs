@@ -19,7 +19,7 @@ public class CircuitBreakerValidationTests
     public async Task ThreeConsecutiveFailures_ShouldOpenCircuit_AndIncrementFallback()
     {
         var watchdog = new InferenceWatchdogStub(_settings, _log);
-        int threshold = _settings.Shared.Ai.Advanced.CircuitBreakerThreshold.Value;
+        int threshold = SettingsCatalog.Ai.Advanced.CircuitBreakerThreshold.Value;
 
         for (int i = 0; i < threshold; i++)
             await watchdog.SimulateInferenceFailureAsync();
@@ -59,7 +59,7 @@ internal sealed class InferenceWatchdogStub
     public Task SimulateInferenceFailureAsync()
     {
         _failures++;
-        int threshold = _settings.Shared.Ai.Advanced.CircuitBreakerThreshold.Value;
+        int threshold = SettingsCatalog.Ai.Advanced.CircuitBreakerThreshold.Value;
         if (_failures >= threshold && CircuitState != "Open")
         {
             CircuitState = "Open";

@@ -1,7 +1,15 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
+    <!--
+      ★ CORRECTION (06/09, réintégration au build) : net8.0 (tout court) ne
+      compilait déjà plus — Moto.Core cible net8.0-windows10.0.19041.0 (MAUI),
+      NuGet refuse la référence de projet (NU1201, incompatibilité de TFM).
+      Les fichiers obj\ présents sur disque dataient d'avant ce retargeting de
+      Moto.Core, pas d'un build réussi récent.
+    -->
+    <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
+    <SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <IsPackable>false</IsPackable>
@@ -25,6 +33,18 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Moto.Core\Moto.Core.csproj" />
+  </ItemGroup>
+
+  <!--
+    ★ EXCLUSION (06/09) : les 6 fichiers de E2E\ testent le même cluster IA
+    embarquée (ONNX) que Moto.Core.csproj exclut déjà lui-même
+    (EmbeddedLlmEngine, LayeredModelLoader, ModelSecurityService,
+    SpeculativeDecoder, AiWatchdogService, ModelDownloaderService — voir ses
+    <Compile Remove> Moto.AI\Embedded\...). Rien n'est perdu, juste mis de
+    côté au même titre que le code qu'ils testent.
+  -->
+  <ItemGroup>
+    <Compile Remove="E2E\**\*.cs" />
   </ItemGroup>
 
 </Project>

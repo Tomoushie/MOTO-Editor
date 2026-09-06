@@ -70,7 +70,7 @@ namespace Moto.Core.Tests.Collab
             // 100 insertions
             for (int i = 0; i < 100; i++)
             {
-                await client.InsertAsync(i, (char)('A' + (i % 26)), "doc1");
+                await client.InsertAsync(i, ((char)('A' + (i % 26))).ToString(), "doc1");
             }
 
             var content = await client.RebuildAsync(initial);
