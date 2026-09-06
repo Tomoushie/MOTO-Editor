@@ -225,6 +225,22 @@ namespace Moto.Core.AI.Autonomy
 
                     if (action.Kind == AgentActionKind.Finish)
                     {
+                        // ★ AJOUT (06/09, même diagnostic que la veille pour Malformed/
+                        // non_mutating_step) : Finish ne laissait AUCUNE trace dans le
+                        // journal — impossible de distinguer "tâche vraiment terminée
+                        // après une vraie écriture" de "le modèle a abandonné après une
+                        // seule lecture, sans jamais rien écrire" (observé sur /refactor :
+                        // Finish appelé juste après le tout premier ReadFile — run affiché
+                        // "terminé" dans le panneau, sans la moindre demande de
+                        // confirmation ni explication visible).
+                        auditLog.Append(new
+                        {
+                            ts = DateTime.UtcNow,
+                            agentId = run.AgentId,
+                            kind = "finish",
+                            step,
+                            summary
+                        });
                         narrate($"✅ Étape {step} : {summary}");
                         run.Status = AgentRunStatus.Completed;
                         return;
@@ -494,7 +510,12 @@ namespace Moto.Core.AI.Autonomy
             sb.AppendLine();
             sb.AppendLine("À CHAQUE réponse, propose UNE SEULE action, dans EXACTEMENT ce format (rien d'autre autour) :");
             sb.AppendLine("ACTION: ReadFile | WriteFile | RunCommand | SendMessage | Finish");
-            sb.AppendLine("PATH: chemin/relatif au projet (pour ReadFile et WriteFile uniquement)");
+            // (06/09) Formulation corrigée : l'ancien texte ("chemin/relatif au
+            // projet") ressemblait lui-même à un chemin littéral à cause du "/" —
+            // un modèle local l'a pris au pied de la lettre et a écrit
+            // "PATH: /chemin/relatif/au/projet/MonFichier.cs" (refusé à raison par
+            // le confinement de chemin). Exemple concret sans "/" trompeur.
+            sb.AppendLine("PATH: le chemin du fichier, RELATIF au dossier du projet (par exemple : MonDossier/MonFichier.cs, jamais un chemin commençant par / ou C:\\) — pour ReadFile et WriteFile uniquement");
             sb.AppendLine("CONTENT: <<<");
             sb.AppendLine("contenu complet du fichier (pour WriteFile uniquement)");
             sb.AppendLine(">>>");
