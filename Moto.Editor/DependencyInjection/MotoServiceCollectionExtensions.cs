@@ -345,7 +345,8 @@ namespace Moto.Editor.DependencyInjection
             // ══════════════ PHASE 5 : OPTIMISATIONS ══════════════
             services.AddSingleton<AdaptivePrefetchService>();
             services.AddSingleton<SpeculativeLogitsVerifier>();
-            services.AddSingleton<PresenceAwareSuggestionGate>();
+            // PresenceAwareSuggestionGate : déjà enregistré plus haut (hooks ContextEngine) —
+            // doublon trouvé le 06/09 via DependencyInjectionTests, retiré ici.
 
             // ══════════════ PHASE 6 : MONITORING ══════════════
             services.AddSingleton<CircuitBreakerStateService>();
@@ -454,7 +455,8 @@ namespace Moto.Editor.DependencyInjection
             services.AddSingleton<PluginFuzzingService>();
             services.AddSingleton<CrashTriageService>();
             services.AddSingleton<PerfBundleService>();
-            services.AddSingleton<FeatureFlagService>();
+            // FeatureFlagService : déjà enregistré plus haut (hooks ContextEngine) —
+            // doublon trouvé le 06/09 via DependencyInjectionTests, retiré ici.
             services.AddSingleton<TelemetryPrivacyService>();
             services.AddSingleton<DependencyUpdateBotService>();
 

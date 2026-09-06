@@ -95,10 +95,34 @@ namespace Moto.Core.AI.Commands
                     c.Title.ToLowerInvariant().Contains(normalized) ||
                     c.Description.ToLowerInvariant().Contains(normalized) ||
                     c.Category.ToString().ToLowerInvariant().Contains(normalized) ||
-                    c.Shortcut.ToLowerInvariant().Contains(normalized))
+                    c.Shortcut.ToLowerInvariant().Contains(normalized) ||
+                    // ★ AJOUT (06/09) : le commentaire de la méthode promettait un
+                    // "matching fuzzy" depuis le début, mais le code ne faisait que du
+                    // Contains() exact — une faute de frappe ("termnal") ne trouvait
+                    // jamais "terminal". Filet de secours en sous-séquence (façon
+                    // fzf/VS Code : chaque lettre de la requête doit apparaître dans le
+                    // titre, dans l'ordre, avec des trous permis).
+                    IsFuzzySubsequence(c.Title.ToLowerInvariant(), normalized))
                 .OrderByDescending(c => ComputeMatchScore(c, normalized))
                 .Take(30)
                 .ToList();
+        }
+
+        /// <summary>Vrai si chaque caractère de <paramref name="query"/> apparaît dans
+        /// <paramref name="text"/>, dans le même ordre, avec des trous permis entre eux.</summary>
+        private static bool IsFuzzySubsequence(string text, string query)
+        {
+            if (query.Length == 0) return true;
+            var qi = 0;
+            foreach (var ch in text)
+            {
+                if (ch == query[qi])
+                {
+                    qi++;
+                    if (qi == query.Length) return true;
+                }
+            }
+            return false;
         }
 
         private static double ComputeMatchScore(PaletteCommand command, string query)

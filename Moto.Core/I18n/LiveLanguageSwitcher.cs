@@ -55,6 +55,19 @@ namespace Moto.Core.I18n
             {
                 // 2. Traduire via IA si nécessaire
                 await TranslateMissingKeysAsync(targetCode, ct).ConfigureAwait(false);
+
+                // ★ CORRECTION (06/09) : les traductions atterrissaient dans
+                // _runtimeTranslations (lu par Translate() ci-dessous), mais
+                // LanguageManager n'avait jamais de LanguagePack pour targetCode — donc
+                // SetLanguage(targetCode) plus bas ne trouvait rien et ne changeait
+                // JAMAIS _currentLanguageCode (retour silencieux, log warning). Résultat :
+                // CurrentLanguageCode restait bloqué sur l'ancienne langue malgré des
+                // traductions IA réellement générées et disponibles.
+                _languageManager.RegisterRuntimePack(new LanguagePack
+                {
+                    Info = new LanguageInfo { Code = targetCode, Name = targetCode, NativeName = targetCode, IsBuiltIn = false },
+                    Translations = _runtimeTranslations.TryGetValue(targetCode, out var t) ? t : new Dictionary<string, string>()
+                });
             }
 
             // 3. Appliquer le changement

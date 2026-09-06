@@ -36,9 +36,23 @@ namespace Moto.Core.AI.Suggestions
         {
             _actionsEngine = actionsEngine ?? throw new ArgumentNullException(nameof(actionsEngine));
             _analytics = analytics;
-            _featureFlags = featureFlags ?? new FeatureFlagService(
-                SettingsEngine.Shared,
-                new StructuredLogCollector());
+            _featureFlags = featureFlags ?? CreateDefaultFeatureFlags();
+        }
+
+        // ★ CORRECTION (06/09) : le FeatureFlagService de repli était créé "vide" — son
+        // IsEnabled("feature.proactive_suggestions") ne retournait true QUE si
+        // SettingsCatalog.DevOps.FeatureFlagsEnabled était lui-même désactivé (cas où
+        // IsEnabled court-circuite à true) ; sinon le flag, jamais enregistré sur cette
+        // instance jetable, valait toujours false → GetSuggestions() vide en permanence
+        // pour QUICONQUE construit ce moteur sans fournir explicitement son propre
+        // FeatureFlagService déjà configuré (pas seulement dans les tests). On enregistre
+        // ici un défaut explicite "activé" — cohérent avec le commentaire de la classe
+        // ("désactive... si le flag est off", donc activé par défaut).
+        private static FeatureFlagService CreateDefaultFeatureFlags()
+        {
+            var flags = new FeatureFlagService(SettingsEngine.Shared, new StructuredLogCollector());
+            flags.RegisterFlag("feature.proactive_suggestions", () => true);
+            return flags;
         }
 
         // Méthode productrice de suggestions avec garde FeatureFlag

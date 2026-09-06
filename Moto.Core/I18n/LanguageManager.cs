@@ -157,6 +157,18 @@ namespace Moto.Core.I18n
             return result.OrderBy(l => l.Name).ToList();
         }
 
+        /// <summary>
+        /// Enregistre un pack directement en mémoire, sans passer par le disque —
+        /// utilisé par LiveLanguageSwitcher pour une langue traduite à la volée par IA
+        /// (voir son commentaire : sans ceci, CurrentLanguageCode ne changeait jamais
+        /// pour une langue non native, SetLanguage() ne trouvant aucun pack correspondant).
+        /// </summary>
+        public void RegisterRuntimePack(LanguagePack pack)
+        {
+            if (pack?.Info == null) return;
+            _loadedPacks[pack.Info.Code] = pack;
+        }
+
         /// <summary>Installe un pack de langue depuis un fichier.</summary>
         public bool InstallLanguagePack(string sourcePath)
         {

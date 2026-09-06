@@ -162,8 +162,16 @@ namespace Moto.Core.AI.Actions
                     if (!context.IsMaximized) score -= 0.4;
                     break;
 
-                // Terminal : pertinent si caché
+                // Terminal : pertinent si caché.
+                // ★ CORRECTION (06/09) : terminal.open et terminal.test partageaient la
+                // même pénalité (-0.3), insuffisante pour terminal.open (Relevance 0.7 →
+                // 0.4, encore au-dessus du seuil 0.2 → jamais réellement exclu malgré
+                // GetActions_TerminalVisible_ExcludesTerminalOpen). Séparé : terminal.open
+                // descend maintenant sous le seuil quand le terminal est déjà visible ;
+                // terminal.test garde son comportement d'origine (non testé, non touché).
                 case "terminal.open":
+                    if (context.IsTerminalVisible) score -= 0.6;
+                    break;
                 case "terminal.test":
                     if (context.IsTerminalVisible) score -= 0.3;
                     break;

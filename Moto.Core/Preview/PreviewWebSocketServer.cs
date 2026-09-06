@@ -74,10 +74,26 @@ namespace Moto.Core.Preview
         /// <summary>Arrête le serveur.</summary>
         public void Stop()
         {
-            _cts?.Cancel();
-            _listener?.Stop();
-            _listener?.Close();
-            _logger.LogInformation("[PreviewWS] Serveur arrêté");
+            // ★ CORRECTION (06/09) : cause confirmée des 4 échecs WebSocketLiveReloadTests
+            // — arrêter le HttpListener PENDANT qu'un client est encore en train de
+            // ReceiveAsync (tâches AcceptLoopAsync/HandleClientAsync en arrière-plan,
+            // fire-and-forget) peut lever ObjectDisposedException/WebSocketException à
+            // ce moment précis. Sans try/catch, ça remontait tel quel jusqu'à Dispose()
+            // — y compris lors d'un arrêt normal de l'appli, pas seulement en test.
+            // Défensif comme le reste du fichier (AcceptLoopAsync/HandleClientAsync ont
+            // déjà leurs propres try/catch) plutôt qu'une vraie séquence de fermeture
+            // propre par client (plus gros chantier, pas fait ici).
+            try
+            {
+                _cts?.Cancel();
+                _listener?.Stop();
+                _listener?.Close();
+                _logger.LogInformation("[PreviewWS] Serveur arrêté");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "[PreviewWS] Erreur pendant l'arrêt (sans gravité)");
+            }
         }
 
         /// <summary>

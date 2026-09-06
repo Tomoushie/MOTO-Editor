@@ -108,7 +108,15 @@ namespace Moto.Core.AI.Analytics
                 }
             }
 
-            _ = SaveAsync();
+            // ★ CORRECTION (06/09) : "_ = SaveAsync()" (fire-and-forget) laissait une
+            // fenêtre où une nouvelle instance créée juste après (autre process, ou même
+            // process comme dans CommandPaletteE2ETests) pouvait lire le disque AVANT que
+            // l'écriture réelle soit terminée — IsDismissed() sur cette nouvelle instance
+            // retournait alors false malgré le dismiss. Le nom de la méthode ("plus jamais
+            // montrée") implique une persistance garantie avant de rendre la main, pas
+            // seulement "éventuellement". Record() plus haut garde son fire-and-forget
+            // (appelé bien plus souvent, pas concerné par un test qui échoue).
+            SaveAsync().GetAwaiter().GetResult();
         }
 
         /// <summary>Vérifie si une suggestion a été dismissée.</summary>

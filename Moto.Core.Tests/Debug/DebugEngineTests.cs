@@ -28,9 +28,20 @@ namespace Moto.Core.Tests.Debug
         {
             using var engine = new DebugEngine();
 
-            // Sans session démarrée, devrait retourner une liste vide ou throw
-            var result = engine.SetBreakpointsAsync("/test.cs", new[] { 10, 20 }).Result;
-            Assert.NotNull(result);
+            // ★ CORRECTION (06/09) : le nom du test tolère les deux issues (throw OU
+            // liste vide) mais le corps, lui, n'acceptait QUE "liste non nulle" — sans
+            // try/catch, l'InvalidOperationException réelle ("Session de debug non
+            // démarrée.") faisait échouer le test alors que throw fait partie du contrat
+            // annoncé par son propre nom. On accepte maintenant explicitement les deux.
+            try
+            {
+                var result = engine.SetBreakpointsAsync("/test.cs", new[] { 10, 20 }).Result;
+                Assert.NotNull(result);
+            }
+            catch (AggregateException ex) when (ex.InnerException is InvalidOperationException)
+            {
+                // Comportement accepté : refuse explicitement sans session démarrée.
+            }
         }
 
         [Fact]
