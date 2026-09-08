@@ -22,7 +22,8 @@ namespace Moto.Editor.Platforms.Windows
             Action onHotkey,
             Action onWindowActivated,
             Action onToggleExplorer = null,
-            Action onBuild = null)
+            Action onBuild = null,
+            Action onToggleFullScreen = null)
         {
             if (window == null)
             {
@@ -89,6 +90,26 @@ namespace Moto.Editor.Platforms.Windows
                     };
 
                     root.KeyboardAccelerators.Add(buildAccelerator);
+                }
+
+                // ★ AJOUT (08/09, chantier "rendu 100% custom", point "plein écran
+                // manuel") : F11, sans modificateur — comme la quasi-totalité des
+                // éditeurs/navigateurs. N'existait nulle part avant (vérifié par
+                // recherche complète : 0 VirtualKey.F11 dans tout le dépôt).
+                if (onToggleFullScreen != null)
+                {
+                    var fullScreenAccelerator = new Microsoft.UI.Xaml.Input.KeyboardAccelerator
+                    {
+                        Key = VirtualKey.F11
+                    };
+
+                    fullScreenAccelerator.Invoked += (s, e) =>
+                    {
+                        MainThread.BeginInvokeOnMainThread(() => onToggleFullScreen.Invoke());
+                        e.Handled = true;
+                    };
+
+                    root.KeyboardAccelerators.Add(fullScreenAccelerator);
                 }
             }
 

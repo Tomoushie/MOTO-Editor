@@ -187,6 +187,43 @@ public static class SnapLayoutsHelper
         }
     }
 
+    // ★ AJOUT (08/09, chantier "rendu 100% custom", "plein écran manuel") :
+    // état minimal — une seule fenêtre principale dans MOTO Editor (même
+    // hypothèse que Application.Current.Windows[0] utilisée ailleurs dans le
+    // projet, ex. CustomMenuBarView.xaml.cs).
+    private static bool _isFullScreen;
+
+    /// <summary>
+    /// Bascule plein écran / fenêtré. AppWindow.SetPresenter(Overlapped) en
+    /// sortie de plein écran RECRÉE un présentateur par défaut (avec bordure) —
+    /// la personnalisation "sans bordure permanente" de ce chantier doit donc
+    /// être réappliquée immédiatement après, sinon la bande/bordure native
+    /// reviendrait à chaque sortie du plein écran.
+    /// </summary>
+    public static void ToggleFullScreen(Microsoft.UI.Xaml.Window window)
+    {
+        var hwnd = WindowNative.GetWindowHandle(window);
+        var windowId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(hwnd);
+        var appWindow = AppWindow.GetFromWindowId(windowId);
+
+        if (!_isFullScreen)
+        {
+            appWindow.SetPresenter(AppWindowPresenterKind.FullScreen);
+            _isFullScreen = true;
+            Moto.Editor.App.Breadcrumb("ToggleFullScreen — entré en plein écran");
+        }
+        else
+        {
+            appWindow.SetPresenter(AppWindowPresenterKind.Overlapped);
+            if (appWindow.Presenter is OverlappedPresenter presenter)
+            {
+                presenter.SetBorderAndTitleBar(false, false);
+            }
+            _isFullScreen = false;
+            Moto.Editor.App.Breadcrumb("ToggleFullScreen — sorti du plein écran, sans-bordure réappliqué");
+        }
+    }
+
     public static void ConfigureSnapLayouts(Microsoft.UI.Xaml.Window window,
         FrameworkElement btnMin, FrameworkElement btnMax, FrameworkElement btnClose,
         FrameworkElement dragZone)

@@ -491,7 +491,9 @@ namespace Moto.Editor
             // pour le détail. Passe par _commandRegistry.Execute plutôt que d'appeler
             // OnBuildClicked directement, pour rester le même point d'entrée unique que
             // la palette/le menu (un seul endroit à changer si "run.build" évolue).
-            GlobalHotkeyService.Register(nativeWindow, onHotkey: () => AiBar.Toggle(), onWindowActivated: () => { if (!Home.IsVisible) AiBar.Show(); }, onToggleExplorer: () => ToggleSide(isExplorer: true), onBuild: () => _commandRegistry.Execute("run.build"));
+            // ★ AJOUT (08/09, chantier "rendu 100% custom", point "plein écran
+            // manuel") : F11 — voir Platforms.Windows.SnapLayoutsHelper.ToggleFullScreen.
+            GlobalHotkeyService.Register(nativeWindow, onHotkey: () => AiBar.Toggle(), onWindowActivated: () => { if (!Home.IsVisible) AiBar.Show(); }, onToggleExplorer: () => ToggleSide(isExplorer: true), onBuild: () => _commandRegistry.Execute("run.build"), onToggleFullScreen: () => Platforms.Windows.SnapLayoutsHelper.ToggleFullScreen(nativeWindow));
 
             // ★ AJOUT (02/09, état des lieux) : Ctrl+Shift+P (palette de commandes)
             // était câblé trop tôt (constructeur de MainPage, fenêtre native pas
