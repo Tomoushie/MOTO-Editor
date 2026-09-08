@@ -133,14 +133,13 @@ namespace Moto.Editor
             window.HandlerChanged += (s, e) =>
             {
                 Breadcrumb("Window.HandlerChanged");
-                // ★ RÉTABLI (08/09) : la 5e tentative (sans bordure permanente +
-                // DwmSetWindowAttribute combinés) a été testée pour de vrai et N'A
-                // PAS supprimé la bande bleue non plus — voir la mémoire du chantier
-                // pour le détail des 5 tentatives. Revenu à l'approche coopérative.
+                // ★ CHANTIER "RENDU 100% CUSTOM" (08/09, accord explicite de Tom
+                // après 6 tentatives "coopératives" toutes infructueuses contre la
+                // bande bleue — voir moto-editor-titlebar-msix-investigation).
+                // Sans bordure PERMANENTE : jamais réactivé, ici comme ailleurs.
                 if (window.Handler?.PlatformView is Microsoft.UI.Xaml.Window native)
                 {
-                    // Masque la barre de titre native : le contenu s'étend dessous.
-                    native.ExtendsContentIntoTitleBar = true;
+                    native.ExtendsContentIntoTitleBar = false;
                 }
             };
             window.Created += OnWindowsWindowCreated;
@@ -177,18 +176,26 @@ namespace Moto.Editor
                 // espace au lieu de vide, même correctif que window.Title plus haut.
                 appWindow.Title = " ";
 
-                // ★ 5 TENTATIVES au total pour cette bande bleue (08/09 pour les
-                // tentatives 2 à 5, historique complet dans la mémoire du chantier
-                // moto-editor-titlebar-msix-investigation) :
-                // 1. couleurs AppWindowTitleBar seules = insuffisant ;
-                // 2. sans bordure seul (ExtendsContentIntoTitleBar resté true) = bande inchangée ;
-                // 3. sans bordure permanent (ExtendsContentIntoTitleBar=false partout) = bande inchangée ;
-                // 4. DwmSetWindowAttribute seul (avec ExtendsContentIntoTitleBar=true) = hr=0 (accepté) mais bande inchangée ;
-                // 5. sans bordure permanent + DwmSetWindowAttribute COMBINÉS = hr=0 (accepté) mais bande TOUJOURS inchangée.
-                // Toutes testées EN DIRECT (lancement réel + capture d'écran), pas
-                // supposées. Revenu à l'approche coopérative (1, la moins pire) —
-                // ne pas retenter 2-5 sans relire la mémoire du chantier d'abord.
-                Platforms.Windows.SnapLayoutsHelper.ApplyTitleBarColors(appWindow);
+                // ★ CHANTIER "RENDU 100% CUSTOM" (08/09, démarré après 6 tentatives
+                // "coopératives" toutes infructueuses contre la bande bleue —
+                // historique complet dans moto-editor-titlebar-msix-investigation).
+                // Sans bordure PERMANENTE, jamais réversible : ApplyTitleBarColors
+                // N'EST PLUS APPELÉE ICI (reposerait ExtendsContentIntoTitleBar=true).
+                // ApplyDwmAttributeColors (couleurs DWM + backdrop + coins arrondis)
+                // reste utile indépendamment de l'état sans-bordure.
+                appWindow.TitleBar.ExtendsContentIntoTitleBar = false;
+
+                if (appWindow.Presenter is Microsoft.UI.Windowing.OverlappedPresenter titleBarPresenter)
+                {
+                    titleBarPresenter.SetBorderAndTitleBar(false, false);
+                    Breadcrumb("OnWindowsWindowCreated — SetBorderAndTitleBar(false,false) appliqué");
+                }
+                else
+                {
+                    Breadcrumb($"OnWindowsWindowCreated — Presenter inattendu ({appWindow.Presenter?.GetType().Name}), SetBorderAndTitleBar non appliqué");
+                }
+
+                Platforms.Windows.SnapLayoutsHelper.ApplyDwmAttributeColors(appWindow);
 
                 // ★ CORRECTION (30/08) : aucune taille n'était fixée nulle part — la
                 // fenêtre s'ouvrait à la taille par défaut de WinUI (bien plus large que
@@ -302,7 +309,7 @@ namespace Moto.Editor
                     }
                 }
 
-                Breadcrumb("OnWindowsWindowCreated — sortie (succès, ApplyTitleBarColors exécuté)");
+                Breadcrumb("OnWindowsWindowCreated — sortie (succès, sans bordure + ApplyDwmAttributeColors exécutés)");
             }
             catch (Exception ex)
             {

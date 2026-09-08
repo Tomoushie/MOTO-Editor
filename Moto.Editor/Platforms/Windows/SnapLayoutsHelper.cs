@@ -170,6 +170,15 @@ public static class SnapLayoutsHelper
                 var backdropNone = (uint)1; // DWMSBT_NONE
                 var hrBackdrop = DwmSetWindowAttribute(hwnd, DWMWA_SYSTEMBACKDROP_TYPE, ref backdropNone, sizeof(uint));
                 Moto.Editor.App.Breadcrumb($"ApplyDwmAttributeColors — DWMWA_SYSTEMBACKDROP_TYPE=NONE (hr={hrBackdrop})");
+
+                // ★ AJOUT (08/09, chantier "rendu 100% custom") : demande
+                // explicitement les coins arrondis standards de Windows 11
+                // (DWMWCP_ROUND), pour ne pas perdre ce détail visuel maintenant que
+                // la fenêtre est sans bordure native de façon permanente — sans ça,
+                // rien ne garantit que DWM continue de les appliquer par défaut.
+                var cornerRound = (uint)2; // DWMWCP_ROUND
+                var hrCorner = DwmSetWindowAttribute(hwnd, DWMWA_WINDOW_CORNER_PREFERENCE, ref cornerRound, sizeof(uint));
+                Moto.Editor.App.Breadcrumb($"ApplyDwmAttributeColors — DWMWA_WINDOW_CORNER_PREFERENCE=ROUND (hr={hrCorner})");
             }
         }
         catch (Exception dwmEx)
@@ -187,13 +196,12 @@ public static class SnapLayoutsHelper
         var appWindow = AppWindow.GetFromWindowId(windowId);
         var nonClientSource = InputNonClientPointerSource.GetForWindowId(windowId);
 
-        // ★ RÉTABLI (08/09) : la tentative "sans bordure + DWM" combinée (5e au
-        // total, voir App.xaml.cs) a échoué comme les 4 précédentes — bande bleue
-        // toujours inchangée. Redondant avec l'appel fait dès OnWindowsWindowCreated
-        // (App.xaml.cs), mais sans coût : ré-appliquer les mêmes valeurs ne fait rien
-        // de plus que les reconfirmer — gardé pour que ConfigureSnapLayouts reste
-        // utilisable seule.
-        ApplyTitleBarColors(appWindow);
+        // ★ CHANGÉ (08/09, chantier "rendu 100% custom", accord de Tom) : la
+        // fenêtre est désormais sans bordure PERMANENTE (voir App.xaml.cs) — appeler
+        // ApplyTitleBarColors ici reposerait ExtendsContentIntoTitleBar=true et
+        // annulerait ce mode. ApplyDwmAttributeColors seule (couleurs DWM + backdrop),
+        // sans toucher à l'état sans-bordure.
+        ApplyDwmAttributeColors(appWindow);
 
         // Zone de drag : UNIQUEMENT la zone centrale
         SetRegion(nonClientSource, NonClientRegionKind.Caption, dragZone);
@@ -203,6 +211,53 @@ public static class SnapLayoutsHelper
         SetRegion(nonClientSource, NonClientRegionKind.Minimize, btnMin);
         SetRegion(nonClientSource, NonClientRegionKind.Maximize, btnMax);
         SetRegion(nonClientSource, NonClientRegionKind.Close, btnClose);
+
+        // ★ AJOUT (08/09, "zones de sécurité" au sens de Tom) : sans bordure native,
+        // Windows n'a plus AUCUNE zone de redimensionnement — à recréer nous-mêmes.
+        // NonClientRegionKind ne définit que 4 valeurs de bordure (Top/Left/Bottom/
+        // RightBorder), pas de coin séparé (vérifié sur learn.microsoft.com,
+        // WindowsAppSDK 1.8 — pas une supposition) : les coins se comportent
+        // correctement à l'intersection de deux bordures adjacentes.
+        ConfigureResizeBorders(appWindow, nonClientSource);
+    }
+
+    /// <summary>
+    /// ★ AJOUT (08/09, chantier "rendu 100% custom") : bordures de redimensionnement
+    /// invisibles, recalculées à chaque changement de taille (AppWindow.Changed).
+    /// Épaisseur ~6px DIP, une valeur standard de bordure de redimensionnement
+    /// Windows, convertie en pixels physiques via DragZoneHelper (cohérent avec le
+    /// reste de ce fichier). Top/Bottom couvrent toute la largeur (y compris les
+    /// coins) ; Left/Right couvrent la hauteur restante entre les deux, pour éviter
+    /// tout chevauchement de zones enregistrées deux fois.
+    /// </summary>
+    private const double ResizeBorderThicknessDip = 6;
+
+    public static void ConfigureResizeBorders(AppWindow appWindow, InputNonClientPointerSource nonClientSource)
+    {
+        void Appliquer()
+        {
+            var thickness = DragZoneHelper.DipToPhysical(ResizeBorderThicknessDip);
+            var size = appWindow.Size; // déjà en pixels physiques (API AppWindow)
+            var innerHeight = Math.Max(0, size.Height - (2 * thickness));
+
+            nonClientSource.SetRegionRects(NonClientRegionKind.TopBorder,
+                new[] { new global::Windows.Graphics.RectInt32(0, 0, size.Width, thickness) });
+            nonClientSource.SetRegionRects(NonClientRegionKind.BottomBorder,
+                new[] { new global::Windows.Graphics.RectInt32(0, size.Height - thickness, size.Width, thickness) });
+            nonClientSource.SetRegionRects(NonClientRegionKind.LeftBorder,
+                new[] { new global::Windows.Graphics.RectInt32(0, thickness, thickness, innerHeight) });
+            nonClientSource.SetRegionRects(NonClientRegionKind.RightBorder,
+                new[] { new global::Windows.Graphics.RectInt32(size.Width - thickness, thickness, thickness, innerHeight) });
+
+            Moto.Editor.App.Breadcrumb(
+                $"ConfigureResizeBorders — taille={size.Width}x{size.Height} épaisseur={thickness}px");
+        }
+
+        Appliquer();
+        appWindow.Changed += (s, args) =>
+        {
+            if (args.DidSizeChange) Appliquer();
+        };
     }
 
     private static void SetRegion(InputNonClientPointerSource source, NonClientRegionKind kind, FrameworkElement element)
@@ -288,6 +343,7 @@ public static class SnapLayoutsHelper
     private const uint DWMWA_CAPTION_COLOR = 35;
     private const uint DWMWA_TEXT_COLOR = 36;
     private const uint DWMWA_SYSTEMBACKDROP_TYPE = 38;
+    private const uint DWMWA_WINDOW_CORNER_PREFERENCE = 33;
 
     [System.Runtime.InteropServices.DllImport("dwmapi.dll", PreserveSig = true)]
     private static extern int DwmSetWindowAttribute(IntPtr hwnd, uint dwAttribute, ref uint pvAttribute, uint cbAttribute);
