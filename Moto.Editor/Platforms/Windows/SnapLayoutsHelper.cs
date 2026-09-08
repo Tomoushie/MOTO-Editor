@@ -107,6 +107,44 @@ public static class SnapLayoutsHelper
         Moto.Editor.App.Breadcrumb(
             $"ApplyTitleBarColors — relu : BackgroundColor={appWindow.TitleBar.BackgroundColor} " +
             $"ForegroundColor={appWindow.TitleBar.ForegroundColor}");
+
+        // ★ AJOUT (08/09) puis ★★ TESTÉ EN DIRECT (08/09, même jour) : DwmSetWindowAttribute
+        // (DWMWA_CAPTION_COLOR/DWMWA_BORDER_COLOR/DWMWA_TEXT_COLOR), PAS AppWindowTitleBar.
+        // Build Debug relancé réellement, capture d'écran vérifiée, journal relu :
+        // les 3 appels renvoient hr=0 (S_OK, ACCEPTÉS pour de vrai — pas un échec
+        // silencieux) à chaque réapplication (8 fois observées sur une session), et
+        // pourtant LA BANDE BLEUE RESTE VISUELLEMENT INCHANGÉE. Root cause donc encore
+        // plus profonde que supposé : ce n'est pas qu'AppWindowTitleBar échoue et
+        // qu'une API plus bas niveau réussirait — Windows accepte la demande de
+        // couleur (hr=0) puis peint quand même l'accentuation par-dessus dans cette
+        // configuration (ExtendsContentIntoTitleBar=true). Gardé malgré l'échec sur CE
+        // point précis : recommandation officielle Microsoft, sans effet de bord
+        // négatif observé, peut avoir un effet sur d'autres configurations/postes.
+        // Isolé dans son propre try/catch : un échec ici ne doit JAMAIS remettre en
+        // cause le correctif "sûr" déjà appliqué au-dessus.
+        try
+        {
+            var hwnd = Microsoft.UI.Win32Interop.GetWindowFromWindowId(appWindow.Id);
+            if (hwnd != IntPtr.Zero)
+            {
+                var captionColor = ToColorRef("#17181C"); // même couleur que CustomMenuBarView/BgSide
+                var borderColor = ToColorRef("#17181C");
+                var textColor = ToColorRef("#E5E7EB"); // Txt1
+
+                var hrCaption = DwmSetWindowAttribute(hwnd, DWMWA_CAPTION_COLOR, ref captionColor, sizeof(uint));
+                var hrBorder = DwmSetWindowAttribute(hwnd, DWMWA_BORDER_COLOR, ref borderColor, sizeof(uint));
+                var hrText = DwmSetWindowAttribute(hwnd, DWMWA_TEXT_COLOR, ref textColor, sizeof(uint));
+
+                // hr = 0 (S_OK) si accepté ; toute autre valeur = HRESULT d'échec,
+                // vérifiable dans le journal sans dépendre du jugement à l'œil.
+                Moto.Editor.App.Breadcrumb(
+                    $"ApplyTitleBarColors — DwmSetWindowAttribute : caption(hr={hrCaption}) border(hr={hrBorder}) text(hr={hrText})");
+            }
+        }
+        catch (Exception dwmEx)
+        {
+            Moto.Editor.App.Breadcrumb($"ApplyTitleBarColors — DwmSetWindowAttribute EXCEPTION (sans gravité, correctif AppWindowTitleBar déjà appliqué au-dessus) : {dwmEx}");
+        }
         }
         catch (Exception ex)
         {
@@ -210,6 +248,32 @@ public static class SnapLayoutsHelper
             Convert.ToByte(hex[..2], 16),
             Convert.ToByte(hex[2..4], 16),
             Convert.ToByte(hex[4..6], 16));
+    }
+
+    // ══════════════════════════════════════════════════════════════
+    // ★ AJOUT (08/09) : DwmSetWindowAttribute (dwmapi.dll) — pas d'équivalent
+    // dans WinAppSDK/AppWindowTitleBar. Voir le commentaire dans
+    // ApplyTitleBarColors ci-dessus pour le pourquoi.
+    // ══════════════════════════════════════════════════════════════
+    private const uint DWMWA_BORDER_COLOR = 34;
+    private const uint DWMWA_CAPTION_COLOR = 35;
+    private const uint DWMWA_TEXT_COLOR = 36;
+
+    [System.Runtime.InteropServices.DllImport("dwmapi.dll", PreserveSig = true)]
+    private static extern int DwmSetWindowAttribute(IntPtr hwnd, uint dwAttribute, ref uint pvAttribute, uint cbAttribute);
+
+    /// <summary>
+    /// Convertit "#RRGGBB" en COLORREF (0x00BBGGRR) — ordre INVERSE de RGB,
+    /// piège classique de cette API Win32 (à ne pas confondre avec ToColor()
+    /// ci-dessus, qui produit un global::Windows.UI.Color pour AppWindowTitleBar).
+    /// </summary>
+    private static uint ToColorRef(string hex)
+    {
+        hex = hex.TrimStart('#');
+        byte r = Convert.ToByte(hex[..2], 16);
+        byte g = Convert.ToByte(hex[2..4], 16);
+        byte b = Convert.ToByte(hex[4..6], 16);
+        return (uint)((b << 16) | (g << 8) | r);
     }
 }
 #endif
