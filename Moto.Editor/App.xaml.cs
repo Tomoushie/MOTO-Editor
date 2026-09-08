@@ -133,6 +133,14 @@ namespace Moto.Editor
             window.HandlerChanged += (s, e) =>
             {
                 Breadcrumb("Window.HandlerChanged");
+                // ★ RÉTABLI (08/09) : la tentative "sans bordure, permanent" a été
+                // testée pour de vrai (lancement réel + vérification visuelle) et
+                // N'A PAS supprimé la bande bleue (inchangée, même avec
+                // ExtendsContentIntoTitleBar=false ET SetBorderAndTitleBar(false,false)
+                // combinés proprement, sans jamais les faire cohabiter/osciller comme
+                // le 02/09). Revenu à l'approche coopérative — voir la mémoire du
+                // chantier pour la piste suivante (DwmSetWindowAttribute avec
+                // DWMWA_CAPTION_COLOR/DWMWA_BORDER_COLOR, jamais essayée).
                 if (window.Handler?.PlatformView is Microsoft.UI.Xaml.Window native)
                 {
                     // Masque la barre de titre native : le contenu s'étend dessous.
@@ -173,28 +181,31 @@ namespace Moto.Editor
                 // espace au lieu de vide, même correctif que window.Title plus haut.
                 appWindow.Title = " ";
 
-                // ★ CORRECTION (30/08, 2e passe) : couleurs/extension de la title bar
-                // appliquées ICI, dès la création de la fenêtre — avant, elles
-                // n'étaient posées que dans MainPage.OnPageLoaded (bien plus tard,
-                // après le premier rendu), laissant Windows afficher/figer la barre
-                // bleue par défaut entre-temps (repéré par Tom). Ce qui dépend des
-                // FrameworkElement de MainPage (zone de drag, boutons) reste posé
-                // plus tard par SnapLayoutsHelper.ConfigureSnapLayouts.
+                // ★ TENTÉ PUIS ABANDONNÉ (08/09, chantier barre bleue — 2e tentative
+                // "sans bordure", cette fois PERMANENTE et propre, sans jamais faire
+                // cohabiter les deux approches comme le 02/09) : ExtendsContentIntoTitleBar
+                // posé à false (ici ET dans window.HandlerChanged) + SetBorderAndTitleBar
+                // (false, false), sans jamais y revenir. Testé pour de vrai — lancement
+                // réel du build Debug, vérification visuelle directe (pas une supposition) :
+                // LA BANDE BLEUE PERSISTE, inchangée, même dans cette version propre et
+                // permanente. Aucun crash cette fois (contrairement au 02/09), mais aucun
+                // gain visuel non plus. Confirme que le paint de la bande a lieu au niveau
+                // du compositeur DWM, indépendamment de ExtendsContentIntoTitleBar et de
+                // SetBorderAndTitleBar — ces deux API ne sont simplement pas le bon levier
+                // contre le réglage Windows 11 "couleur d'accentuation". Retiré proprement.
+                // Piste suivante, jamais tentée : DwmSetWindowAttribute (P/Invoke natif)
+                // avec DWMWA_CAPTION_COLOR / DWMWA_BORDER_COLOR (ajoutés Windows 11,
+                // recommandés par Microsoft précisément pour ce scénario — API de plus bas
+                // niveau que AppWindowTitleBar, jamais essayée dans ce chantier). Voir la
+                // mémoire du chantier pour le détail complet.
+                //
+                // Couleurs/extension de la title bar appliquées ICI, dès la création de
+                // la fenêtre — avant, elles n'étaient posées que dans MainPage.OnPageLoaded
+                // (bien plus tard, après le premier rendu), laissant Windows afficher/figer
+                // la barre bleue par défaut entre-temps (repéré par Tom). Ce qui dépend des
+                // FrameworkElement de MainPage (zone de drag, boutons) reste posé plus tard
+                // par SnapLayoutsHelper.ConfigureSnapLayouts.
                 Platforms.Windows.SnapLayoutsHelper.ApplyTitleBarColors(appWindow);
-
-                // ★ TENTÉ PUIS ABANDONNÉ (02/09) : OverlappedPresenter.SetBorderAndTitleBar
-                // (false, false) — testé prudemment, étape par étape, avec journal détaillé.
-                // Résultat : la fenêtre restait visible (mieux que les 3 tentatives
-                // précédentes) et le redimensionnement au bord continuait de fonctionner,
-                // mais le résultat visuel a EMPIRÉ plutôt que réglé le problème : double
-                // bande (une petite changeant de couleur au focus, une grande toujours
-                // bleue) et disparition des boutons ─▢✕ natifs, sans que la bande native
-                // ne disparaisse pour autant. Correspond exactement au comportement encore
-                // non résolu documenté dans microsoft-ui-xaml#9374 (même symptôme, jamais
-                // vraiment corrigé côté Microsoft). Retiré proprement — voir la mémoire du
-                // chantier pour le détail complet et la piste "fenêtre sans bordure avec
-                // rendu 100% custom" restée non tentée (bien plus gros chantier, hors de
-                // portée d'une tentative prudente).
 
                 // ★ CORRECTION (30/08) : aucune taille n'était fixée nulle part — la
                 // fenêtre s'ouvrait à la taille par défaut de WinUI (bien plus large que

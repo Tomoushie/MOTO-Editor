@@ -28,6 +28,16 @@ public static class SnapLayoutsHelper
     /// premier rendu de la page, laissant le temps à Windows d'afficher/figer la
     /// barre de titre native bleue par défaut — repéré par Tom). Ne dépend d'aucun
     /// FrameworkElement MAUI (juste l'AppWindow), donc appelable immédiatement.
+    ///
+    /// ★ RÉTABLIE (08/09) : la tentative "sans bordure permanente" (qui avait
+    /// temporairement rendu cette méthode inutilisée) a été testée pour de vrai
+    /// et N'A PAS supprimé la bande bleue (voir App.xaml.cs, OnWindowsWindowCreated,
+    /// pour le compte-rendu complet). Cette méthode (approche "coopérative") reste
+    /// donc le correctif "sûr" en usage — insuffisant seul contre le réglage
+    /// Windows 11 "couleur d'accentuation" (microsoft-ui-xaml#9374), mais pas pire
+    /// que l'alternative testée. Piste suivante notée dans la mémoire du chantier :
+    /// DwmSetWindowAttribute (DWMWA_CAPTION_COLOR/DWMWA_BORDER_COLOR), jamais
+    /// essayée, API de plus bas niveau qu'AppWindowTitleBar.
     /// </summary>
     public static void ApplyTitleBarColors(AppWindow appWindow)
     {
