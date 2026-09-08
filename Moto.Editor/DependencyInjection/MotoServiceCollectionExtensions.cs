@@ -65,6 +65,7 @@ using Moto.Editor.Windows;
 // ── XENO
 using Snake2000.Engine.AgentIntegrated.Pipeline;
 using Moto.Core.Integration;
+using Moto.Editor.AI.Beginner;
 
 namespace Moto.Editor.DependencyInjection
 {
@@ -493,10 +494,15 @@ namespace Moto.Editor.DependencyInjection
             // (127.0.0.1:5001, voir Moto.Core/Integration/OrchestratorClient.cs).
             // Remplace 4 fichiers morts (XenoBridge/XenoClient/XenoTaskService/
             // MotoAi) qui pointaient vers un hôte/des routes qui n'ont jamais
-            // existé côté serveur. Pas encore branché à une UI — décision en
-            // attente sur quel écran (MotoAiPage ? BeginnerAssistant ?) en
-            // devient le point d'entrée.
+            // existé côté serveur.
             services.AddSingleton<IOrchestratorClient, OrchestratorClient>();
+
+            // ★ AJOUT (08/09, Tom) : BeginnerAssistant ressuscité — son ancien
+            // IXenoBridge interne (jamais implémenté) est remplacé par
+            // IOrchestratorClient ci-dessus. Point d'entrée UI :
+            // Pages/BeginnerAssistantPage.
+            services.AddSingleton<IOllamaClient, Moto.Editor.AI.OllamaClient>();
+            services.AddSingleton<BeginnerAssistant>();
 
             return services;
         }

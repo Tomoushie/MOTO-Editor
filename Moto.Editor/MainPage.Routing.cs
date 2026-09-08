@@ -107,6 +107,10 @@ namespace Moto.Editor
             // s'auto-construit) — fire-and-forget, comme les autres actions
             // ci-dessus qui ne bloquent pas sur un résultat.
             _commandRegistry.Register("ai.motopage", () => _ = Navigation.PushAsync(new Pages.MotoAiPage()));
+            // ★ AJOUT (08/09, Tom) : point d'entrée UI de BeginnerAssistant,
+            // désormais branché sur l'orchestrateur XENO-SSS∞ réel (voir
+            // Pages/BeginnerAssistantPage.xaml.cs).
+            _commandRegistry.Register("ai.beginnerassistant", () => _ = Navigation.PushAsync(new Pages.BeginnerAssistantPage()));
             // ★ AJOUT (03/09, réveil de GlobalDashboardView) : ouvre dans sa propre
             // fenêtre (même mécanisme que le bouton ⧉ des panneaux ancrés) — pas
             // ajouté au dock IA lui-même dans cette passe, pour rester un petit

@@ -1,7 +1,9 @@
 // Moto.Editor/AI/Beginner/BeginnerAssistant.cs
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading.Tasks;
+using Moto.Core.Integration;
 
 namespace Moto.Editor.AI.Beginner
 {
@@ -37,6 +39,11 @@ namespace Moto.Editor.AI.Beginner
 
         /// <summary>
         /// Contenu du fichier actif.
+        /// ⚠️ Pour FixFile/MakeBetter/GenerateMissingFiles (routées vers
+        /// l'orchestrateur, voir plus bas) : ce champ ne sert qu'aux actions
+        /// locales (ExplainCode/ExplainErrors). L'orchestrateur relit le
+        /// fichier LUI-MÊME depuis le disque (même machine) — un buffer
+        /// modifié mais non enregistré dans MOTO Editor n'est donc pas vu.
         /// </summary>
         public string Content { get; set; } = string.Empty;
 
@@ -84,45 +91,6 @@ namespace Moto.Editor.AI.Beginner
     }
 
     /// <summary>
-    /// Requête envoyée à XENO-SSS∞.
-    /// </summary>
-    public class XenoTaskRequest
-    {
-        public string WorkspacePath { get; set; } = string.Empty;
-
-        /// <summary>
-        /// Exemples :
-        /// - fix-file
-        /// - improve-file
-        /// - generate-missing-files
-        /// - validate-fix
-        /// </summary>
-        public string Task { get; set; } = string.Empty;
-
-        /// <summary>
-        /// Paramètre additionnel, souvent un chemin de fichier.
-        /// </summary>
-        public string Parameter { get; set; } = string.Empty;
-
-        /// <summary>
-        /// Contenu utile pour éviter à XENO de relire le fichier si MOTO l'a déjà.
-        /// </summary>
-        public string Content { get; set; } = string.Empty;
-    }
-
-    /// <summary>
-    /// Réponse renvoyée par XENO-SSS∞ via un bridge.
-    /// </summary>
-    public class XenoTaskResult
-    {
-        public bool Success { get; set; }
-        public string Summary { get; set; } = string.Empty;
-
-        public List<string> Details { get; } = new List<string>();
-        public List<FilePatch> Patches { get; } = new List<FilePatch>();
-    }
-
-    /// <summary>
     /// Client local Ollama.
     /// MOTO Editor peut implémenter cette interface avec HttpClient.
     /// </summary>
@@ -132,29 +100,31 @@ namespace Moto.Editor.AI.Beginner
     }
 
     /// <summary>
-    /// Bridge vers XENO-SSS∞.
-    /// Important : MOTO Editor ne doit pas exécuter lui-même
-    /// les analyses lourdes, générations ou validations.
-    /// </summary>
-    public interface IXenoBridge
-    {
-        Task<XenoTaskResult> ExecuteAsync(XenoTaskRequest request);
-    }
-
-    /// <summary>
     /// Assistant débutant de MOTO Editor.
-    /// Il transforme des actions simples en requêtes locales
-    /// vers MOTO AI ou XENO-SSS∞.
+    /// Il transforme des actions simples en requêtes locales (Ollama)
+    /// ou en appels réels à l'orchestrateur XENO-SSS∞.
+    ///
+    /// ★ CORRECTION (08/09, Tom) : le pont interne (`IXenoBridge`, jamais
+    /// implémenté ni instancié nulle part — voir [[moto-editor-xeno-bridge-usage]])
+    /// est remplacé par `IOrchestratorClient` (Moto.Core/Integration), le
+    /// client HTTP réel vérifié contre l'orchestrateur en direct. Deux
+    /// canaux, comme demandé :
+    /// - `/chat` pour les suggestions textuelles (repli de MakeBetter).
+    /// - `/generate-batch` avec `ecrire:false` pour les patchs de code
+    ///   (FixFile, MakeBetter, GenerateMissingFiles) : le code proposé part
+    ///   en brouillon côté orchestrateur, JAMAIS sur le vrai fichier — la
+    ///   confirmation + l'écriture réelle restent du ressort de MOTO Editor
+    ///   (voir Pages/BeginnerAssistantPage).
     /// </summary>
     public class BeginnerAssistant
     {
         private readonly IOllamaClient _ollama;
-        private readonly IXenoBridge _xeno;
+        private readonly IOrchestratorClient _orchestrator;
 
-        public BeginnerAssistant(IOllamaClient ollama, IXenoBridge xeno)
+        public BeginnerAssistant(IOllamaClient ollama, IOrchestratorClient orchestrator)
         {
-            _ollama = ollama;
-            _xeno = xeno;
+            _ollama = ollama ?? throw new ArgumentNullException(nameof(ollama));
+            _orchestrator = orchestrator ?? throw new ArgumentNullException(nameof(orchestrator));
         }
 
         /// <summary>
@@ -178,13 +148,13 @@ namespace Moto.Editor.AI.Beginner
                     return ExplainCodeAsync(request.FilePath, request.Content);
 
                 case BeginnerAction.FixFile:
-                    return FixFileAsync(request.WorkspacePath, request.FilePath, request.Content);
+                    return FixFileAsync(request.FilePath);
 
                 case BeginnerAction.MakeBetter:
-                    return MakeBetterAsync(request.WorkspacePath, request.FilePath, request.Content);
+                    return MakeBetterAsync(request.FilePath, request.Content);
 
                 case BeginnerAction.GenerateMissingFiles:
-                    return GenerateMissingFilesAsync(request.WorkspacePath, request.FilePath, request.Content);
+                    return GenerateMissingFilesAsync(request.FilePath);
 
                 case BeginnerAction.ExplainErrors:
                     return ExplainErrorsAsync(request.FilePath, request.Content, request.CompilerErrors);
@@ -204,7 +174,8 @@ namespace Moto.Editor.AI.Beginner
 
         /// <summary>
         /// 1. Explain This Code.
-        /// Lecture seule, aucun changement de fichier.
+        /// Lecture seule, aucun changement de fichier. Reste sur Ollama local
+        /// (Tom n'a demandé de remplacer que le canal xeno, pas celui-ci).
         /// </summary>
         private async Task<BeginnerResult> ExplainCodeAsync(string filePath, string content)
         {
@@ -222,83 +193,77 @@ namespace Moto.Editor.AI.Beginner
 
         /// <summary>
         /// 2. Fix This File.
-        /// Action d'écriture, déléguée à XENO-SSS∞.
+        /// Patch de code réel via /generate-batch (ecrire:false).
         /// </summary>
-        private async Task<BeginnerResult> FixFileAsync(
-            string workspacePath,
-            string filePath,
-            string content)
+        private async Task<BeginnerResult> FixFileAsync(string filePath)
         {
-            var xenoResult = await _xeno.ExecuteAsync(new XenoTaskRequest
+            var patch = await _orchestrator.GenerateWithoutWritingAsync(new OrchestratorGenerateRequest
             {
-                WorkspacePath = workspacePath,
-                Task = "fix-file",
-                Parameter = filePath,
-                Content = content
+                FilePath = filePath,
+                Instruction = "Corrige les erreurs et problèmes dans ce fichier. Renvoie le fichier complet corrigé.",
+                Tache = "code"
             });
 
-            return FromXenoResult("Réparation du fichier", xenoResult);
+            return await FromGenerateResultAsync("Réparation du fichier", filePath, patch);
         }
 
         /// <summary>
         /// 3. Make This Better.
-        /// Refactor léger, sans changement de comportement.
+        /// Refactor léger, sans changement de comportement — d'abord un
+        /// patch via /generate-batch ; si l'orchestrateur ne produit rien
+        /// de valide, repli sur une suggestion TEXTUELLE via /chat (plus de
+        /// repli local Ollama : un seul canal IA pour cet assistant, comme
+        /// demandé par Tom le 08/09).
         /// </summary>
-        private async Task<BeginnerResult> MakeBetterAsync(
-            string workspacePath,
-            string filePath,
-            string content)
+        private async Task<BeginnerResult> MakeBetterAsync(string filePath, string content)
         {
-            var xenoResult = await _xeno.ExecuteAsync(new XenoTaskRequest
+            var patch = await _orchestrator.GenerateWithoutWritingAsync(new OrchestratorGenerateRequest
             {
-                WorkspacePath = workspacePath,
-                Task = "improve-file",
-                Parameter = filePath,
-                Content = content
+                FilePath = filePath,
+                Instruction = "Propose une amélioration légère (refactor) de ce fichier, sans changer son comportement. Renvoie le fichier complet amélioré.",
+                Tache = "code"
             });
 
-            if (xenoResult.Success)
+            if (patch.Success && patch.Valide && !string.IsNullOrWhiteSpace(patch.ProposedContent))
             {
-                return FromXenoResult("Amélioration du fichier", xenoResult);
+                return await FromGenerateResultAsync("Amélioration du fichier", filePath, patch);
             }
 
-            // Si XENO ne peut pas produire un patch fiable,
-            // on retombe sur une explication locale via Ollama.
-            var prompt = BeginnerPromptFactory.MakeBetter(filePath, content);
-            var answer = await _ollama.GenerateAsync(prompt);
+            var chat = await _orchestrator.ChatAsync("raisonnement", BeginnerPromptFactory.MakeBetter(filePath, content));
 
             return new BeginnerResult
             {
-                Success = true,
+                Success = chat.Success,
                 Title = "Améliorations proposées",
-                Explanation = answer,
+                Explanation = chat.Success
+                    ? chat.Texte
+                    : $"XENO-SSS∞ n'a pas pu proposer de suggestion. {chat.Error}",
                 RequiresUserConfirmation = false
             };
         }
 
         /// <summary>
         /// 4. Generate Missing Files.
-        /// Génération structurelle déléguée à XENO-SSS∞.
+        /// ⚠️ /generate-batch travaille sur UN fichier cible, pas sur un
+        /// ensemble de fichiers manquants — cette action complète donc le
+        /// contenu STRUCTUREL de `filePath` lui-même (classes/méthodes/using
+        /// manquants), elle ne crée pas de nouveaux fichiers annexes.
         /// </summary>
-        private async Task<BeginnerResult> GenerateMissingFilesAsync(
-            string workspacePath,
-            string filePath,
-            string content)
+        private async Task<BeginnerResult> GenerateMissingFilesAsync(string filePath)
         {
-            var xenoResult = await _xeno.ExecuteAsync(new XenoTaskRequest
+            var patch = await _orchestrator.GenerateWithoutWritingAsync(new OrchestratorGenerateRequest
             {
-                WorkspacePath = workspacePath,
-                Task = "generate-missing-files",
-                Parameter = filePath,
-                Content = content
+                FilePath = filePath,
+                Instruction = "Complète ce fichier avec le contenu structurel manquant (classes, méthodes, using) nécessaire à sa cohérence. Renvoie le fichier complet.",
+                Tache = "code"
             });
 
-            return FromXenoResult("Fichiers manquants générés", xenoResult);
+            return await FromGenerateResultAsync("Contenu manquant généré", filePath, patch);
         }
 
         /// <summary>
         /// 5. Explain Errors.
-        /// Lecture seule, pédagogie locale.
+        /// Lecture seule, pédagogie locale (Ollama, inchangé).
         /// </summary>
         private async Task<BeginnerResult> ExplainErrorsAsync(
             string filePath,
@@ -318,29 +283,68 @@ namespace Moto.Editor.AI.Beginner
         }
 
         /// <summary>
-        /// Convertit une réponse XENO en résultat exploitable par l'UI.
+        /// Convertit un verdict de /generate-batch en résultat exploitable par
+        /// l'UI. Relit le fichier ORIGINAL depuis le disque (et non le
+        /// paramètre `content` fourni par l'appelant, potentiellement obsolète)
+        /// pour que le diff affiché corresponde exactement à ce que
+        /// l'orchestrateur a réellement lu.
         /// </summary>
-        private BeginnerResult FromXenoResult(string title, XenoTaskResult xenoResult)
+        private async Task<BeginnerResult> FromGenerateResultAsync(string title, string filePath, OrchestratorGenerateResult result)
         {
-            var result = new BeginnerResult
+            if (!result.Success)
             {
-                Success = xenoResult.Success,
-                Title = title,
-                Explanation = xenoResult.Summary,
-                RequiresUserConfirmation = xenoResult.Patches.Count > 0
-            };
-
-            result.Suggestions.AddRange(xenoResult.Details);
-            result.Patches.AddRange(xenoResult.Patches);
-
-            if (!xenoResult.Success)
-            {
-                result.Explanation =
-                    "XENO-SSS∞ n'a pas pu terminer l'opération proprement. " +
-                    "Vérifie les détails, puis réessaie avec un fichier plus simple ou un workspace valide.";
+                return new BeginnerResult
+                {
+                    Success = false,
+                    Title = title,
+                    Explanation = "XENO-SSS∞ n'a pas pu terminer l'opération proprement. " +
+                        "Vérifie les détails, puis réessaie avec un fichier plus simple ou un workspace valide. " +
+                        (result.Error ?? string.Empty)
+                };
             }
 
-            return result;
+            if (!result.Valide || string.IsNullOrWhiteSpace(result.ProposedContent))
+            {
+                return new BeginnerResult
+                {
+                    Success = false,
+                    Title = title,
+                    Explanation = $"XENO-SSS∞ a répondu mais le résultat n'a pas été jugé valide : {result.Raison}. " +
+                        "Réessaie avec un fichier plus simple ou une instruction plus précise."
+                };
+            }
+
+            var originalContent = string.Empty;
+            try
+            {
+                if (File.Exists(filePath))
+                {
+                    originalContent = await File.ReadAllTextAsync(filePath);
+                }
+            }
+            catch
+            {
+                // Lecture best-effort : un "avant" vide n'empêche pas d'afficher
+                // le patch proposé, il rend juste le diff moins lisible.
+            }
+
+            var beginnerResult = new BeginnerResult
+            {
+                Success = true,
+                Title = title,
+                Explanation = $"Patch proposé par {result.ModeleUtilise} — jamais écrit sans ta confirmation.",
+                RequiresUserConfirmation = true
+            };
+
+            beginnerResult.Patches.Add(new FilePatch
+            {
+                FilePath = filePath,
+                Reason = title,
+                OriginalContent = originalContent,
+                ProposedContent = result.ProposedContent!
+            });
+
+            return beginnerResult;
         }
     }
 

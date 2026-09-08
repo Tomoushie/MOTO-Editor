@@ -181,6 +181,7 @@ namespace Moto.Core.AI.Commands
                 // avant application. Voir CLAUDE.md pour la limite connue (l'aperçu
                 // de fichiers est toujours vide pour l'instant).
                 new() { Id = "ai.motopage", Title = "MOTO AI (mode Débutant/Expert)", Description = "Exécute une instruction unique sur un workspace, avec aperçu des changements.", Category = CommandCategory.Menu, CommandText = "menu:ai.motopage" },
+                new() { Id = "ai.beginnerassistant", Title = "Beginner Assistant (Orchestrator)", Description = "Demande un patch ou une suggestion à l'orchestrateur XENO-SSS∞ ; rien n'est écrit sans confirmation.", Category = CommandCategory.Menu, CommandText = "menu:ai.beginnerassistant" },
                 // ★ AJOUT (03/09, réveil de GlobalDashboardView) : jamais navigable
                 // auparavant (fichier exclu du build, .xaml sous un nom corrompu).
                 new() { Id = "ai.globaldashboard", Title = "Tableau de bord global", Description = "Statistiques cumulées : fichiers, lignes, IA, exports, builds.", Category = CommandCategory.Menu, CommandText = "menu:ai.globaldashboard" },

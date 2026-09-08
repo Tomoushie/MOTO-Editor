@@ -3,14 +3,17 @@ using System.Net.Http;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
+using Moto.Editor.AI.Beginner;
 
 namespace Moto.Editor.AI
 {
     /// <summary>
     /// Client Ollama local.
     /// Permet à MOTO Editor d'utiliser des modèles locaux sans dépendance cloud.
+    /// ★ AJOUT (08/09) : implémente IOllamaClient (Beginner) pour être
+    /// injectable dans BeginnerAssistant via DI — signature déjà identique.
     /// </summary>
-    public class OllamaClient
+    public class OllamaClient : IOllamaClient
     {
         private static readonly HttpClient Http = new HttpClient();
 
