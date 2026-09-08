@@ -102,6 +102,22 @@
          en vrai jeton sémantique au lieu d'être fondu dans Error. -->
     <Color x:Key="Danger">#DC2626</Color>
 
+    <!-- ★ AJOUT (08/09, chantier visuel — valeurs proposées via /chat de
+         l'orchestrateur XENO-SSS∞, relues et une corrigée avant application) :
+         Error/Warning/Danger n'avaient pas d'équivalent positif (Success) ni
+         neutre-informatif (Info), et Accent (#D97757) n'avait aucune variante
+         d'état — chaque bouton/badge accentué devait improviser sa propre
+         teinte de survol au lieu de réutiliser un jeton. -->
+    <Color x:Key="Success">#60BF60</Color>
+    <Color x:Key="Info">#7986CB</Color>
+    <Color x:Key="AccentHover">#C8553D</Color>
+    <!-- Lavis translucide (15% d'opacité) plutôt qu'une teinte opaque quasi
+         identique à Accent (c'est ce que l'orchestrateur avait proposé) — même
+         principe que BorderSoft/BorderMuted ci-dessous (alpha, pas une
+         nouvelle couleur), pour un fond subtil derrière un badge/pastille
+         teinté Accent sans l'aplatir. -->
+    <Color x:Key="AccentMuted">#26D97757</Color>
+
     <!-- ══════════════════ Espacement ══════════════════ -->
     <!-- ★ AJOUT (01/09, direction "Hybride Claude") : échelle officielle, à
          utiliser pour tout NOUVEAU travail (Spacing/RowSpacing/ColumnSpacing,
@@ -128,7 +144,24 @@
     <Shadow x:Key="ShadowMd" Brush="Black" Offset="0,4" Radius="16" Opacity="0.32" />
     <Shadow x:Key="ShadowLg" Brush="Black" Offset="0,8" Radius="28" Opacity="0.40" />
 
-    <!-- ══════════════════ Tailles de police de l'interface (hors éditeur) ══════════════════ -->
+    <!-- ══════════════════ Typographie ══════════════════ -->
+    <!-- ★ AJOUT (08/09, chantier visuel) : aucune FontFamily n'était déclarée
+         nulle part — chaque contrôle héritait silencieusement de la police par
+         défaut de la plateforme, sans jeton contrôlable. Valeurs vérifiées
+         contre le vrai code source de VS Code (src/vs/workbench/browser/media/
+         style.css, via /chat de l'orchestrateur XENO-SSS∞) puis ADAPTÉES : VS
+         Code déclare "Segoe WPC", "Segoe UI", sans-serif (repli façon CSS que
+         MAUI ne comprend pas — FontFamily y est une chaîne simple, pas une
+         liste) et "Segoe WPC" est un alias interne à l'Electron de VS Code,
+         absent d'un vrai poste Windows. "Segoe UI Variable" est la police
+         système recommandée pour WinUI 3, la cible principale de MOTO Editor
+         (macOS/Linux restent des cibles CI, pas l'usage quotidien réel — voir
+         Docs/Moto.Editor.build-pipeline.md). Consolas (police à chasse fixe
+         Windows, même source VS Code) sert au code affiché dans les panneaux
+         IA (ex. le diff de BeginnerAssistantPage). -->
+    <x:String x:Key="FontFamilyUi">Segoe UI Variable</x:String>
+    <x:String x:Key="FontFamilyMono">Consolas</x:String>
+
     <!-- ★ AJOUT (31/08) : demandé par Tom (point 9) — le curseur "taille de police"
          des Réglages ne changeait que le contenu des fichiers ouverts. Ces 2 valeurs
          sont recalculées par SettingsApplier à partir du même réglage
@@ -138,6 +171,12 @@
          (utilisées avant la première application des réglages). -->
     <x:Double x:Key="FontSizeUiText">13</x:Double>
     <x:Double x:Key="FontSizeUiSmall">11</x:Double>
+    <!-- ★ AJOUT (08/09) : la hiérarchie s'arrêtait à 2 tailles (texte/petit) —
+         rien au-dessus pour distinguer un titre de page d'un texte courant.
+         Non lié au curseur de Réglages ci-dessus (celui-ci ne concerne que le
+         texte courant/petit d'origine) : valeurs fixes pour l'instant. -->
+    <x:Double x:Key="FontSizeUiHeading">18</x:Double>
+    <x:Double x:Key="FontSizeUiTitle">22</x:Double>
 
     <!-- ══════════════════ Styles ══════════════════ -->
     <Style x:Key="TxtSecondary" TargetType="Label">

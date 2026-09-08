@@ -76,7 +76,8 @@
                         IsReadOnly="True"
                         HeightRequest="160"
                         BackgroundColor="#1a1a1a"
-                        TextColor="White" />
+                        TextColor="White"
+                        FontFamily="{StaticResource FontFamilyMono}" />
 
                 <Label Text="Proposé par l'orchestrateur"
                        FontSize="12" />
@@ -84,7 +85,8 @@
                         IsReadOnly="True"
                         HeightRequest="160"
                         BackgroundColor="#102a1a"
-                        TextColor="White" />
+                        TextColor="White"
+                        FontFamily="{StaticResource FontFamilyMono}" />
 
                 <Button x:Name="ApplyButton"
                         Text="Appliquer (écrit réellement sur disque)"
