@@ -149,6 +149,27 @@ public static class SnapLayoutsHelper
                 // vérifiable dans le journal sans dépendre du jugement à l'œil.
                 Moto.Editor.App.Breadcrumb(
                     $"ApplyDwmAttributeColors — caption(hr={hrCaption}) border(hr={hrBorder}) text(hr={hrText})");
+
+                // ★ AJOUT (08/09, 6e tentative, accord de Tom — "on tente, tant pis
+                // si Microsoft n'a jamais résolu ça") : MOTO Editor ne pose jamais
+                // explicitement de SystemBackdrop nulle part (vérifié par grep :
+                // 0 occurrence de Mica/Acrylic/SystemBackdrop avant cette ligne).
+                // Sans réglage explicite, l'attribut DWM correspondant vaut
+                // DWMSBT_AUTO (0) — "laisser DWM décider tout seul", qui PEUT choisir
+                // un arrière-plan type Mica pour une fenêtre "moderne" sans qu'aucun
+                // code de l'app ne l'ait demandé. Le fil microsoft-ui-xaml#9374 (lu le
+                // 08/09) documente précisément ce déclencheur : ExtendsContentIntoTitleBar
+                // + un backdrop Mica/Acrylic actif. Ici, on force DWMSBT_NONE (1) —
+                // explicitement AUCUN backdrop.
+                // ★★ TESTÉ EN DIRECT (08/09, 6e tentative, accord de Tom) : hr=0
+                // (accepté) à chaque réapplication — MÊME RÉSULTAT que les 5
+                // précédentes, bande bleue TOUJOURS inchangée. Cette hypothèse
+                // (backdrop implicite) est donc écartée aussi. Gardé (comme les
+                // 3 couleurs ci-dessus) : sans effet de bord négatif observé, juste
+                // sans effet sur ce problème précis.
+                var backdropNone = (uint)1; // DWMSBT_NONE
+                var hrBackdrop = DwmSetWindowAttribute(hwnd, DWMWA_SYSTEMBACKDROP_TYPE, ref backdropNone, sizeof(uint));
+                Moto.Editor.App.Breadcrumb($"ApplyDwmAttributeColors — DWMWA_SYSTEMBACKDROP_TYPE=NONE (hr={hrBackdrop})");
             }
         }
         catch (Exception dwmEx)
@@ -266,6 +287,7 @@ public static class SnapLayoutsHelper
     private const uint DWMWA_BORDER_COLOR = 34;
     private const uint DWMWA_CAPTION_COLOR = 35;
     private const uint DWMWA_TEXT_COLOR = 36;
+    private const uint DWMWA_SYSTEMBACKDROP_TYPE = 38;
 
     [System.Runtime.InteropServices.DllImport("dwmapi.dll", PreserveSig = true)]
     private static extern int DwmSetWindowAttribute(IntPtr hwnd, uint dwAttribute, ref uint pvAttribute, uint cbAttribute);
