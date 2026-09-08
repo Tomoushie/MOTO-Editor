@@ -108,20 +108,30 @@ public static class SnapLayoutsHelper
             $"ApplyTitleBarColors — relu : BackgroundColor={appWindow.TitleBar.BackgroundColor} " +
             $"ForegroundColor={appWindow.TitleBar.ForegroundColor}");
 
-        // ★ AJOUT (08/09) puis ★★ TESTÉ EN DIRECT (08/09, même jour) : DwmSetWindowAttribute
-        // (DWMWA_CAPTION_COLOR/DWMWA_BORDER_COLOR/DWMWA_TEXT_COLOR), PAS AppWindowTitleBar.
-        // Build Debug relancé réellement, capture d'écran vérifiée, journal relu :
-        // les 3 appels renvoient hr=0 (S_OK, ACCEPTÉS pour de vrai — pas un échec
-        // silencieux) à chaque réapplication (8 fois observées sur une session), et
-        // pourtant LA BANDE BLEUE RESTE VISUELLEMENT INCHANGÉE. Root cause donc encore
-        // plus profonde que supposé : ce n'est pas qu'AppWindowTitleBar échoue et
-        // qu'une API plus bas niveau réussirait — Windows accepte la demande de
-        // couleur (hr=0) puis peint quand même l'accentuation par-dessus dans cette
-        // configuration (ExtendsContentIntoTitleBar=true). Gardé malgré l'échec sur CE
-        // point précis : recommandation officielle Microsoft, sans effet de bord
-        // négatif observé, peut avoir un effet sur d'autres configurations/postes.
-        // Isolé dans son propre try/catch : un échec ici ne doit JAMAIS remettre en
-        // cause le correctif "sûr" déjà appliqué au-dessus.
+        // ★ AJOUT (08/09) : DwmSetWindowAttribute, extrait dans sa propre méthode
+        // (voir ApplyDwmAttributeColors ci-dessous) — appelée seule (sans le reste
+        // de cette méthode) par la tentative "sans bordure + DWM" combinée.
+        ApplyDwmAttributeColors(appWindow);
+        }
+        catch (Exception ex)
+        {
+            Moto.Editor.App.Breadcrumb($"ApplyTitleBarColors — EXCEPTION rattrapée (barre de titre inchangée cette fois) : {ex}");
+        }
+    }
+
+    /// <summary>
+    /// ★ EXTRAIT (08/09) d'ApplyTitleBarColors pour pouvoir être appelée SEULE,
+    /// indépendamment de l'approche "coopérative" (qui pose
+    /// ExtendsContentIntoTitleBar=true, incompatible avec la tentative "sans
+    /// bordure"). Testée en direct le 08/09 AVEC ExtendsContentIntoTitleBar=true
+    /// (donc via ApplyTitleBarColors) : hr=0 sur les 3 attributs (acceptés pour de
+    /// vrai) mais bande bleue inchangée — voir la mémoire du chantier.
+    /// Pas encore testée avec ExtendsContentIntoTitleBar=false (fenêtre sans
+    /// bordure) : c'est exactement ce que cette extraction permet de tenter,
+    /// sans reposer ExtendsContentIntoTitleBar=true au passage.
+    /// </summary>
+    public static void ApplyDwmAttributeColors(AppWindow appWindow)
+    {
         try
         {
             var hwnd = Microsoft.UI.Win32Interop.GetWindowFromWindowId(appWindow.Id);
@@ -138,17 +148,12 @@ public static class SnapLayoutsHelper
                 // hr = 0 (S_OK) si accepté ; toute autre valeur = HRESULT d'échec,
                 // vérifiable dans le journal sans dépendre du jugement à l'œil.
                 Moto.Editor.App.Breadcrumb(
-                    $"ApplyTitleBarColors — DwmSetWindowAttribute : caption(hr={hrCaption}) border(hr={hrBorder}) text(hr={hrText})");
+                    $"ApplyDwmAttributeColors — caption(hr={hrCaption}) border(hr={hrBorder}) text(hr={hrText})");
             }
         }
         catch (Exception dwmEx)
         {
-            Moto.Editor.App.Breadcrumb($"ApplyTitleBarColors — DwmSetWindowAttribute EXCEPTION (sans gravité, correctif AppWindowTitleBar déjà appliqué au-dessus) : {dwmEx}");
-        }
-        }
-        catch (Exception ex)
-        {
-            Moto.Editor.App.Breadcrumb($"ApplyTitleBarColors — EXCEPTION rattrapée (barre de titre inchangée cette fois) : {ex}");
+            Moto.Editor.App.Breadcrumb($"ApplyDwmAttributeColors — EXCEPTION (sans gravité) : {dwmEx}");
         }
     }
 
@@ -161,9 +166,12 @@ public static class SnapLayoutsHelper
         var appWindow = AppWindow.GetFromWindowId(windowId);
         var nonClientSource = InputNonClientPointerSource.GetForWindowId(windowId);
 
-        // Redondant avec l'appel fait dès OnWindowsWindowCreated (App.xaml.cs), mais
-        // sans coût : ré-appliquer les mêmes valeurs ne fait rien de plus que les
-        // reconfirmer — gardé pour que ConfigureSnapLayouts reste utilisable seule.
+        // ★ RÉTABLI (08/09) : la tentative "sans bordure + DWM" combinée (5e au
+        // total, voir App.xaml.cs) a échoué comme les 4 précédentes — bande bleue
+        // toujours inchangée. Redondant avec l'appel fait dès OnWindowsWindowCreated
+        // (App.xaml.cs), mais sans coût : ré-appliquer les mêmes valeurs ne fait rien
+        // de plus que les reconfirmer — gardé pour que ConfigureSnapLayouts reste
+        // utilisable seule.
         ApplyTitleBarColors(appWindow);
 
         // Zone de drag : UNIQUEMENT la zone centrale

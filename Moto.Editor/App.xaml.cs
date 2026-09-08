@@ -133,14 +133,10 @@ namespace Moto.Editor
             window.HandlerChanged += (s, e) =>
             {
                 Breadcrumb("Window.HandlerChanged");
-                // ★ RÉTABLI (08/09) : la tentative "sans bordure, permanent" a été
-                // testée pour de vrai (lancement réel + vérification visuelle) et
-                // N'A PAS supprimé la bande bleue (inchangée, même avec
-                // ExtendsContentIntoTitleBar=false ET SetBorderAndTitleBar(false,false)
-                // combinés proprement, sans jamais les faire cohabiter/osciller comme
-                // le 02/09). Revenu à l'approche coopérative — voir la mémoire du
-                // chantier pour la piste suivante (DwmSetWindowAttribute avec
-                // DWMWA_CAPTION_COLOR/DWMWA_BORDER_COLOR, jamais essayée).
+                // ★ RÉTABLI (08/09) : la 5e tentative (sans bordure permanente +
+                // DwmSetWindowAttribute combinés) a été testée pour de vrai et N'A
+                // PAS supprimé la bande bleue non plus — voir la mémoire du chantier
+                // pour le détail des 5 tentatives. Revenu à l'approche coopérative.
                 if (window.Handler?.PlatformView is Microsoft.UI.Xaml.Window native)
                 {
                     // Masque la barre de titre native : le contenu s'étend dessous.
@@ -181,30 +177,17 @@ namespace Moto.Editor
                 // espace au lieu de vide, même correctif que window.Title plus haut.
                 appWindow.Title = " ";
 
-                // ★ TENTÉ PUIS ABANDONNÉ (08/09, chantier barre bleue — 2e tentative
-                // "sans bordure", cette fois PERMANENTE et propre, sans jamais faire
-                // cohabiter les deux approches comme le 02/09) : ExtendsContentIntoTitleBar
-                // posé à false (ici ET dans window.HandlerChanged) + SetBorderAndTitleBar
-                // (false, false), sans jamais y revenir. Testé pour de vrai — lancement
-                // réel du build Debug, vérification visuelle directe (pas une supposition) :
-                // LA BANDE BLEUE PERSISTE, inchangée, même dans cette version propre et
-                // permanente. Aucun crash cette fois (contrairement au 02/09), mais aucun
-                // gain visuel non plus. Confirme que le paint de la bande a lieu au niveau
-                // du compositeur DWM, indépendamment de ExtendsContentIntoTitleBar et de
-                // SetBorderAndTitleBar — ces deux API ne sont simplement pas le bon levier
-                // contre le réglage Windows 11 "couleur d'accentuation". Retiré proprement.
-                // Piste suivante, jamais tentée : DwmSetWindowAttribute (P/Invoke natif)
-                // avec DWMWA_CAPTION_COLOR / DWMWA_BORDER_COLOR (ajoutés Windows 11,
-                // recommandés par Microsoft précisément pour ce scénario — API de plus bas
-                // niveau que AppWindowTitleBar, jamais essayée dans ce chantier). Voir la
-                // mémoire du chantier pour le détail complet.
-                //
-                // Couleurs/extension de la title bar appliquées ICI, dès la création de
-                // la fenêtre — avant, elles n'étaient posées que dans MainPage.OnPageLoaded
-                // (bien plus tard, après le premier rendu), laissant Windows afficher/figer
-                // la barre bleue par défaut entre-temps (repéré par Tom). Ce qui dépend des
-                // FrameworkElement de MainPage (zone de drag, boutons) reste posé plus tard
-                // par SnapLayoutsHelper.ConfigureSnapLayouts.
+                // ★ 5 TENTATIVES au total pour cette bande bleue (08/09 pour les
+                // tentatives 2 à 5, historique complet dans la mémoire du chantier
+                // moto-editor-titlebar-msix-investigation) :
+                // 1. couleurs AppWindowTitleBar seules = insuffisant ;
+                // 2. sans bordure seul (ExtendsContentIntoTitleBar resté true) = bande inchangée ;
+                // 3. sans bordure permanent (ExtendsContentIntoTitleBar=false partout) = bande inchangée ;
+                // 4. DwmSetWindowAttribute seul (avec ExtendsContentIntoTitleBar=true) = hr=0 (accepté) mais bande inchangée ;
+                // 5. sans bordure permanent + DwmSetWindowAttribute COMBINÉS = hr=0 (accepté) mais bande TOUJOURS inchangée.
+                // Toutes testées EN DIRECT (lancement réel + capture d'écran), pas
+                // supposées. Revenu à l'approche coopérative (1, la moins pire) —
+                // ne pas retenter 2-5 sans relire la mémoire du chantier d'abord.
                 Platforms.Windows.SnapLayoutsHelper.ApplyTitleBarColors(appWindow);
 
                 // ★ CORRECTION (30/08) : aucune taille n'était fixée nulle part — la
