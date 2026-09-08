@@ -97,16 +97,34 @@ namespace Moto.Core.Integration
         /// n'a jamais existé côté orchestrateur).</summary>
         public string Endpoint { get; set; } = "http://127.0.0.1:5001";
 
+        /// <summary>
+        /// Token Bearer pour l'authentification côté orchestrateur.
+        /// Correspond à ORCHESTRATOR_API_TOKEN côté serveur.
+        /// Si null ou vide, aucun header Authorization n'est envoyé.
+        /// </summary>
+        public string? ApiToken { get; set; }
+
         public OrchestratorClient(HttpClient? httpClient = null)
         {
             _http = httpClient ?? new HttpClient();
+        }
+
+        /// <summary>Ajoute le header Authorization si un token est configuré.</summary>
+        private void ApplyAuthHeader(HttpRequestMessage request)
+        {
+            if (!string.IsNullOrWhiteSpace(ApiToken))
+            {
+                request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", ApiToken);
+            }
         }
 
         public async Task<OrchestratorHealth> GetHealthAsync(CancellationToken ct = default)
         {
             try
             {
-                using var response = await _http.GetAsync($"{Endpoint.TrimEnd('/')}/health", ct).ConfigureAwait(false);
+                using var request = new HttpRequestMessage(HttpMethod.Get, $"{Endpoint.TrimEnd('/')}/health");
+                ApplyAuthHeader(request);
+                using var response = await _http.SendAsync(request, ct).ConfigureAwait(false);
                 var body = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
 
                 if (!response.IsSuccessStatusCode)
@@ -152,7 +170,9 @@ namespace Moto.Core.Integration
                 var json = JsonSerializer.Serialize(payload);
 
                 using var content = new StringContent(json, Encoding.UTF8, "application/json");
-                using var response = await _http.PostAsync($"{Endpoint.TrimEnd('/')}/chat", content, ct).ConfigureAwait(false);
+                using var request = new HttpRequestMessage(HttpMethod.Post, $"{Endpoint.TrimEnd('/')}/chat") { Content = content };
+                ApplyAuthHeader(request);
+                using var response = await _http.SendAsync(request, ct).ConfigureAwait(false);
                 var body = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
 
                 using var doc = JsonDocument.Parse(body);
@@ -205,7 +225,13 @@ namespace Moto.Core.Integration
                 var json = JsonSerializer.Serialize(payload);
 
                 using var content = new StringContent(json, Encoding.UTF8, "application/json");
-                using var response = await _http.PostAsync($"{Endpoint.TrimEnd('/')}/generate-batch", content, ct).ConfigureAwait(false);
+                // ★ CORRECTION (08/09) : nommée "httpRequest", pas "request" — le
+                // paramètre de la méthode s'appelle déjà "request" (OrchestratorGenerateRequest),
+                // la même variable locale ici masquait le paramètre et empêchait de
+                // compiler (CS0841/CS0136 sur les lignes ci-dessus qui lisent request.FilePath).
+                using var httpRequest = new HttpRequestMessage(HttpMethod.Post, $"{Endpoint.TrimEnd('/')}/generate-batch") { Content = content };
+                ApplyAuthHeader(httpRequest);
+                using var response = await _http.SendAsync(httpRequest, ct).ConfigureAwait(false);
                 var body = await response.Content.ReadAsStringAsync(ct).ConfigureAwait(false);
 
                 using var doc = JsonDocument.Parse(body);

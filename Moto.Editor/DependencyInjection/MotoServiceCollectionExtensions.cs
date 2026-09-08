@@ -495,7 +495,18 @@ namespace Moto.Editor.DependencyInjection
             // Remplace 4 fichiers morts (XenoBridge/XenoClient/XenoTaskService/
             // MotoAi) qui pointaient vers un hôte/des routes qui n'ont jamais
             // existé côté serveur.
-            services.AddSingleton<IOrchestratorClient, OrchestratorClient>();
+            // ★ CORRECTION (08/09) : ApiToken alimenté par ORCHESTRATOR_API_TOKEN
+            // (variable d'environnement) — requis depuis le middleware MiMo.
+            services.AddSingleton<IOrchestratorClient>(sp =>
+            {
+                var client = new OrchestratorClient();
+                var token = System.Environment.GetEnvironmentVariable("ORCHESTRATOR_API_TOKEN");
+                if (!string.IsNullOrWhiteSpace(token))
+                {
+                    client.ApiToken = token;
+                }
+                return client;
+            });
 
             // ★ AJOUT (08/09, Tom) : BeginnerAssistant ressuscité — son ancien
             // IXenoBridge interne (jamais implémenté) est remplacé par

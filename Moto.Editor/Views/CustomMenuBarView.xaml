@@ -36,7 +36,7 @@
              x:Class="Moto.Editor.Views.CustomMenuBarView"
              HeightRequest="38"
              BackgroundColor="{StaticResource BgSide}">
-    <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,*,Auto,Auto,Auto,Auto,Auto">
+    <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,*,Auto,Auto,Auto,Auto,Auto">
 
         <!-- Nav (ex-ActivityBarView, maintenant sur la même ligne) -->
         <Border Grid.Column="0" Padding="12,6" Margin="14,0,0,0" StrokeThickness="0" BackgroundColor="Transparent">
@@ -78,13 +78,24 @@
             </Border.GestureRecognizers>
         </Border>
 
+        <!-- ★ AJOUT (08/09) : Beginner Assistant (Orchestrateur) — point d'entrée UI
+             direct vers Pages/BeginnerAssistantPage, routed via ai.beginnerassistant
+             (MainPage.Routing.cs). Même patron que les items ci-dessus. -->
+        <Border Grid.Column="4" Padding="12,6" StrokeThickness="0" BackgroundColor="Transparent">
+            <Label Text="Assistant" FontSize="{DynamicResource FontSizeUiText}" FontFamily="Segoe UI Variable Text"
+                   TextColor="{StaticResource Txt1}" />
+            <Border.GestureRecognizers>
+                <TapGestureRecognizer Tapped="OnNavTapped" CommandParameter="ai.beginnerassistant" />
+            </Border.GestureRecognizers>
+        </Border>
+
         <!-- Zone de drag (tout l'espace libre) -->
-        <Border x:Name="TitleBarDragZone" x:FieldModifier="Public" Grid.Column="4"
+        <Border x:Name="TitleBarDragZone" x:FieldModifier="Public" Grid.Column="5"
                 BackgroundColor="Transparent"
                 HorizontalOptions="Fill" VerticalOptions="Fill" />
 
         <!-- ★ Bouton Update (visible seulement si MAJ disponible) -->
-        <Border Grid.Column="5" x:Name="UpdateBadge"
+        <Border Grid.Column="6" x:Name="UpdateBadge"
                 BackgroundColor="{StaticResource Accent}"
                 Stroke="Transparent" StrokeThickness="0"
                 StrokeShape="RoundRectangle 12"
@@ -108,7 +119,7 @@
              pastille rectangulaire. Une vraie photo personnalisable (via les
              Réglages) serait la suite logique — pas construite dans cette passe
              (upload/persistance d'image), signalé à Tom plutôt que bâclé. -->
-        <Border Grid.Column="6" WidthRequest="30" HeightRequest="30" Margin="0,0,4,0" StrokeThickness="0"
+        <Border Grid.Column="7" WidthRequest="30" HeightRequest="30" Margin="0,0,4,0" StrokeThickness="0"
                 BackgroundColor="{StaticResource BgSide}"
                 StrokeShape="RoundRectangle 15" VerticalOptions="Center">
             <Label Text="{x:Static controls:MotoIcons.Person}" FontFamily="{x:Static controls:MotoIcons.FontFamily}"
@@ -124,7 +135,7 @@
              repéré par Tom). L'avatar seul suffit désormais comme point d'entrée. -->
 
         <!-- Boutons fenêtre -->
-        <Border x:Name="BtnMin" x:FieldModifier="Public" Grid.Column="7" WidthRequest="52"
+        <Border x:Name="BtnMin" x:FieldModifier="Public" Grid.Column="8" WidthRequest="52"
                 BackgroundColor="Transparent" StrokeThickness="0">
             <Label Text="─" HorizontalOptions="Center" VerticalOptions="Center"
                    FontSize="14" TextColor="{StaticResource Txt1}" />
@@ -133,7 +144,7 @@
             </Border.GestureRecognizers>
         </Border>
 
-        <Border x:Name="BtnMax" x:FieldModifier="Public" Grid.Column="8" WidthRequest="52"
+        <Border x:Name="BtnMax" x:FieldModifier="Public" Grid.Column="9" WidthRequest="52"
                 BackgroundColor="Transparent" StrokeThickness="0">
             <Label Text="□" HorizontalOptions="Center" VerticalOptions="Center"
                    FontSize="14" TextColor="{StaticResource Txt1}" />
@@ -142,7 +153,7 @@
             </Border.GestureRecognizers>
         </Border>
 
-        <Border x:Name="BtnClose" x:FieldModifier="Public" Grid.Column="9" WidthRequest="52"
+        <Border x:Name="BtnClose" x:FieldModifier="Public" Grid.Column="10" WidthRequest="52"
                 BackgroundColor="Transparent" StrokeThickness="0">
             <Label Text="×" HorizontalOptions="Center" VerticalOptions="Center"
                    FontSize="16" TextColor="{StaticResource Txt1}" />
