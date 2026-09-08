@@ -4,7 +4,7 @@
              xmlns:settings="clr-namespace:Moto.Editor.Settings"
              x:Class="Moto.Editor.Pages.SettingsPage"
              Title="Paramètres"
-             BackgroundColor="#1E2025">
+             BackgroundColor="{StaticResource BgApp}">
 
     <ContentPage.Resources>
 
@@ -104,7 +104,7 @@
 
         <!-- Barre du haut -->
         <Grid Grid.Row="0" Grid.ColumnSpan="2" ColumnDefinitions="Auto,*,Auto"
-              BackgroundColor="#17181C" Padding="12,8">
+              BackgroundColor="{StaticResource BgSide}" Padding="12,8">
             <Label Grid.Column="0" Text="⚙ MOTO Editor — Paramètres"
                    FontSize="{StaticResource FontSizeUiTitle}"
                    FontAttributes="Bold" />
@@ -115,7 +115,7 @@
 
         <!-- Sidebar : recherche + sections -->
         <Grid Grid.Row="1" Grid.Column="0" RowDefinitions="Auto,*"
-              BackgroundColor="#17181C" Padding="8">
+              BackgroundColor="{StaticResource BgSide}" Padding="8">
 
             <Entry Grid.Row="0" x:Name="SearchEntry"
                    Placeholder="Rechercher un paramètre…"
