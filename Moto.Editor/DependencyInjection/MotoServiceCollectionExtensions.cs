@@ -64,6 +64,7 @@ using Moto.Editor.Windows;
 
 // ── XENO
 using Snake2000.Engine.AgentIntegrated.Pipeline;
+using Moto.Core.Integration;
 
 namespace Moto.Editor.DependencyInjection
 {
@@ -487,6 +488,15 @@ namespace Moto.Editor.DependencyInjection
         public static IServiceCollection AddMotoAiServices(this IServiceCollection services)
         {
             services.AddSingleton<ModelProfileService>();
+
+            // ★ AJOUT (08/09) : vrai client HTTP vers l'orchestrateur XENO-SSS∞
+            // (127.0.0.1:5001, voir Moto.Core/Integration/OrchestratorClient.cs).
+            // Remplace 4 fichiers morts (XenoBridge/XenoClient/XenoTaskService/
+            // MotoAi) qui pointaient vers un hôte/des routes qui n'ont jamais
+            // existé côté serveur. Pas encore branché à une UI — décision en
+            // attente sur quel écran (MotoAiPage ? BeginnerAssistant ?) en
+            // devient le point d'entrée.
+            services.AddSingleton<IOrchestratorClient, OrchestratorClient>();
 
             return services;
         }
