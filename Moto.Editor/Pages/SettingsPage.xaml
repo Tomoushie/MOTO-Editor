@@ -8,12 +8,28 @@
 
     <ContentPage.Resources>
 
+        <!-- ★ AJOUT (08/09, chantier visuel) : Segoe UI Variable appliqué à ce
+             panneau via un style implicite SCOPÉ À CETTE PAGE (n'affecte pas
+             App.xaml ni les autres écrans). -->
+        <Style TargetType="Label">
+            <Setter Property="FontFamily" Value="{StaticResource FontFamilyUi}" />
+        </Style>
+        <Style TargetType="Entry">
+            <Setter Property="FontFamily" Value="{StaticResource FontFamilyUi}" />
+        </Style>
+        <Style TargetType="Button">
+            <Setter Property="FontFamily" Value="{StaticResource FontFamilyUi}" />
+        </Style>
+        <Style TargetType="Picker">
+            <Setter Property="FontFamily" Value="{StaticResource FontFamilyUi}" />
+        </Style>
+
         <!-- Template : Toggle (Switch) -->
         <DataTemplate x:Key="TplToggle">
             <Grid ColumnDefinitions="*,Auto" Padding="16,12">
                 <VerticalStackLayout Spacing="2">
-                    <Label Text="{Binding Def.Title}" FontSize="13" FontAttributes="Bold" />
-                    <Label Text="{Binding Def.Description}" FontSize="11" Opacity="0.6" />
+                    <Label Text="{Binding Def.Title}" FontSize="{DynamicResource FontSizeUiText}" FontAttributes="Bold" />
+                    <Label Text="{Binding Def.Description}" FontSize="{DynamicResource FontSizeUiSmall}" Opacity="0.6" />
                 </VerticalStackLayout>
                 <Switch Grid.Column="1" IsToggled="{Binding BoolValue}" VerticalOptions="Center" />
             </Grid>
@@ -23,8 +39,8 @@
         <DataTemplate x:Key="TplInt">
             <Grid ColumnDefinitions="*,Auto" Padding="16,12">
                 <VerticalStackLayout Spacing="2">
-                    <Label Text="{Binding Def.Title}" FontSize="13" FontAttributes="Bold" />
-                    <Label Text="{Binding Def.Description}" FontSize="11" Opacity="0.6" />
+                    <Label Text="{Binding Def.Title}" FontSize="{DynamicResource FontSizeUiText}" FontAttributes="Bold" />
+                    <Label Text="{Binding Def.Description}" FontSize="{DynamicResource FontSizeUiSmall}" Opacity="0.6" />
                 </VerticalStackLayout>
                 <HorizontalStackLayout Grid.Column="1" Spacing="6" VerticalOptions="Center">
                     <Button Text="−" Command="{Binding DecrementCommand}" Padding="8,2" FontSize="12" />
@@ -38,12 +54,12 @@
         <DataTemplate x:Key="TplEnum">
             <Grid ColumnDefinitions="*,Auto" Padding="16,12">
                 <VerticalStackLayout Spacing="2">
-                    <Label Text="{Binding Def.Title}" FontSize="13" FontAttributes="Bold" />
-                    <Label Text="{Binding Def.Description}" FontSize="11" Opacity="0.6" />
+                    <Label Text="{Binding Def.Title}" FontSize="{DynamicResource FontSizeUiText}" FontAttributes="Bold" />
+                    <Label Text="{Binding Def.Description}" FontSize="{DynamicResource FontSizeUiSmall}" Opacity="0.6" />
                 </VerticalStackLayout>
                 <Picker Grid.Column="1" ItemsSource="{Binding Def.Options}"
                         SelectedItem="{Binding OptionValue}"
-                        WidthRequest="180" FontSize="11" VerticalOptions="Center" />
+                        WidthRequest="180" FontSize="{DynamicResource FontSizeUiSmall}" VerticalOptions="Center" />
             </Grid>
         </DataTemplate>
 
@@ -51,11 +67,11 @@
         <DataTemplate x:Key="TplString">
             <Grid ColumnDefinitions="*,Auto" Padding="16,12">
                 <VerticalStackLayout Spacing="2">
-                    <Label Text="{Binding Def.Title}" FontSize="13" FontAttributes="Bold" />
-                    <Label Text="{Binding Def.Description}" FontSize="11" Opacity="0.6" />
+                    <Label Text="{Binding Def.Title}" FontSize="{DynamicResource FontSizeUiText}" FontAttributes="Bold" />
+                    <Label Text="{Binding Def.Description}" FontSize="{DynamicResource FontSizeUiSmall}" Opacity="0.6" />
                 </VerticalStackLayout>
                 <Entry Grid.Column="1" Text="{Binding StringValue}"
-                       WidthRequest="240" FontSize="11" VerticalOptions="Center" />
+                       WidthRequest="240" FontSize="{DynamicResource FontSizeUiSmall}" VerticalOptions="Center" />
             </Grid>
         </DataTemplate>
 
@@ -63,13 +79,13 @@
         <DataTemplate x:Key="TplAction">
             <Grid ColumnDefinitions="*,Auto" Padding="16,12">
                 <VerticalStackLayout Spacing="2">
-                    <Label Text="{Binding Def.Title}" FontSize="13" FontAttributes="Bold" />
-                    <Label Text="{Binding Def.Description}" FontSize="11" Opacity="0.6" />
+                    <Label Text="{Binding Def.Title}" FontSize="{DynamicResource FontSizeUiText}" FontAttributes="Bold" />
+                    <Label Text="{Binding Def.Description}" FontSize="{DynamicResource FontSizeUiSmall}" Opacity="0.6" />
                 </VerticalStackLayout>
                 <Button Grid.Column="1"
                         Text="{Binding ActionLabel}"
                         Command="{Binding ActionCommand}"
-                        FontSize="11" Padding="10,4"
+                        FontSize="{DynamicResource FontSizeUiSmall}" Padding="10,4"
                         VerticalOptions="Center" />
             </Grid>
         </DataTemplate>
@@ -89,9 +105,11 @@
         <!-- Barre du haut -->
         <Grid Grid.Row="0" Grid.ColumnSpan="2" ColumnDefinitions="Auto,*,Auto"
               BackgroundColor="#17181C" Padding="12,8">
-            <Label Grid.Column="0" Text="⚙ MOTO Editor — Paramètres" FontAttributes="Bold" />
+            <Label Grid.Column="0" Text="⚙ MOTO Editor — Paramètres"
+                   FontSize="{StaticResource FontSizeUiTitle}"
+                   FontAttributes="Bold" />
             <Button Grid.Column="2" Text="Éditer settings.json"
-                    FontSize="11" Padding="8,4"
+                    FontSize="{DynamicResource FontSizeUiSmall}" Padding="8,4"
                     Clicked="OnEditJsonClicked" />
         </Grid>
 
