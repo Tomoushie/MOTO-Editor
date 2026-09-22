@@ -8,6 +8,7 @@
 // aurait cassé le contrat public existant (SettingsApplier.cs appelle
 // editor.FontSizeMode).
 using System;
+using System.Text.RegularExpressions;
 using Microsoft.Maui.Controls;
 using SkiaSharp;
 using SkiaSharp.Views.Maui;
@@ -34,6 +35,16 @@ namespace Moto.Editor.Controls
         }
 
         public event EventHandler<string> EditorChanged;
+
+        // Même regex que l'ancien CodeEditorView (JS) : les groupes NON reconnus
+        // (espaces, ponctuation, identifiants) ne sont volontairement PAS
+        // capturés ici -- ils sont dessinés tels quels entre deux correspondances,
+        // jamais supprimés (contrairement au découpage par espaces d'origine, qui
+        // avalait espaces ET ponctuation -- corrigé le 22/09, signalé par Tom :
+        // le texte s'affichait collé sans le moindre espace).
+        private static readonly Regex TokenRegex = new(
+            "(//.*)|(\"[^\"]*\")|\\b(\\d+(?:\\.\\d+)?)\\b|\\b(public|private|protected|internal|static|void|string|int|bool|double|float|var|class|interface|namespace|using|return|if|else|for|foreach|while|switch|case|break|continue|new|async|await|true|false|null|this|get|set|readonly)\\b",
+            RegexOptions.Compiled);
 
         public CodeEditorViewSkia()
         {
@@ -79,44 +90,55 @@ namespace Moto.Editor.Controls
                 TextSize = (float)FontSizeMode
             };
 
+            // Le brouillon de l'Orchestrator dessinait le bandeau de gouttière
+            // (DrawRect ci-dessous) mais n'y écrivait jamais le numéro -- gouttière
+            // vide. Trouvé le 22/09 en relisant ce fichier, corrigé au passage.
+            var gutterTextPaint = new SKPaint
+            {
+                Color = SKColor.Parse("#6b7280"),
+                Typeface = lineNumberPaint.Typeface,
+                TextSize = (float)FontSizeMode,
+                TextAlign = SKTextAlign.Right
+            };
+
             for (int i = 0; i < lines.Length; i++)
             {
-                canvas.DrawRect(0, i * (lineNumberPaint.TextSize * 1.5f) + 20, 52, lineNumberPaint.TextSize * 1.5f, lineNumberPaint);
+                float rowTop = i * (lineNumberPaint.TextSize * 1.5f) + 20;
+                canvas.DrawRect(0, rowTop, 52, lineNumberPaint.TextSize * 1.5f, lineNumberPaint);
+                canvas.DrawText((i + 1).ToString(), 44, rowTop + lineNumberPaint.TextSize * 1.15f, gutterTextPaint);
 
                 float x = 60;
-                var words = lines[i].Split(new[] { ' ', ',', '.', ';', '(', ')', '[', ']', '{', '}', ':' }, StringSplitOptions.RemoveEmptyEntries);
-                foreach (var word in words)
+                float y = i * (lineNumberPaint.TextSize * 1.5f) + 40;
+                string line = lines[i];
+                int pos = 0;
+                foreach (Match m in TokenRegex.Matches(line))
                 {
-                    if (word.StartsWith("//"))
+                    if (m.Index > pos)
                     {
-                        codePaint.Color = SKColor.Parse("#6a9955");
-                        canvas.DrawText(word.Substring(2), x, i * (lineNumberPaint.TextSize * 1.5f) + 40, codePaint);
-                        x += codePaint.MeasureText(word.Substring(2));
-                    }
-                    else if (word.StartsWith("\"") && word.EndsWith("\""))
-                    {
-                        codePaint.Color = SKColor.Parse("#ce9178");
-                        canvas.DrawText(word, x, i * (lineNumberPaint.TextSize * 1.5f) + 40, codePaint);
-                        x += codePaint.MeasureText(word);
-                    }
-                    else if (double.TryParse(word, out _))
-                    {
-                        codePaint.Color = SKColor.Parse("#b5cea8");
-                        canvas.DrawText(word, x, i * (lineNumberPaint.TextSize * 1.5f) + 40, codePaint);
-                        x += codePaint.MeasureText(word);
-                    }
-                    else if (new[] { "public", "private", "protected", "internal", "static", "void", "string", "int", "bool", "double", "float", "var", "class", "interface", "namespace", "using", "return", "if", "else", "for", "foreach", "while", "switch", "case", "break", "continue", "new", "async", "await", "true", "false", "null", "this", "get", "set", "readonly" }.Contains(word))
-                    {
-                        codePaint.Color = SKColor.Parse("#569cd6");
-                        canvas.DrawText(word, x, i * (lineNumberPaint.TextSize * 1.5f) + 40, codePaint);
-                        x += codePaint.MeasureText(word);
-                    }
-                    else
-                    {
+                        // Segment NON coloré entre 2 correspondances : espaces,
+                        // ponctuation, identifiants -- dessiné tel quel, jamais
+                        // supprimé (voir commentaire sur TokenRegex plus haut).
+                        string plain = line.Substring(pos, m.Index - pos);
                         codePaint.Color = SKColor.Parse("#dcdfe4");
-                        canvas.DrawText(word, x, i * (lineNumberPaint.TextSize * 1.5f) + 40, codePaint);
-                        x += codePaint.MeasureText(word);
+                        canvas.DrawText(plain, x, y, codePaint);
+                        x += codePaint.MeasureText(plain);
                     }
+
+                    string color = m.Groups[1].Success ? "#6a9955"   // commentaire //...
+                                 : m.Groups[2].Success ? "#ce9178"   // chaîne "..."
+                                 : m.Groups[3].Success ? "#b5cea8"   // nombre
+                                 : "#569cd6";                        // mot-clé
+                    codePaint.Color = SKColor.Parse(color);
+                    canvas.DrawText(m.Value, x, y, codePaint);
+                    x += codePaint.MeasureText(m.Value);
+                    pos = m.Index + m.Length;
+                }
+
+                if (pos < line.Length)
+                {
+                    string tail = line.Substring(pos);
+                    codePaint.Color = SKColor.Parse("#dcdfe4");
+                    canvas.DrawText(tail, x, y, codePaint);
                 }
             }
         }
