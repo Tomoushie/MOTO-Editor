@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MOTO Editor — Script de Vente (PDF)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/fontsource/css/inter@latest/index.css">
+<style>
+:root{--accent:#007ACC;--accent2:#005A9E;--ink:#181A1E;--muted:#5A6069;--paper:#fff;--bg:#F7F8FA;--line:#D6D9DF;--green:#2E7D32;--red:#C62828;--amber:#B26A00;--violet:#7C3AED;}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+html,body{background:var(--bg);font-family:'Inter',system-ui,sans-serif;color:var(--ink);}
+@page{size:A4;margin:0;}
+.toolbar{position:fixed;top:14px;right:14px;z-index:99;}
+.toolbar button{background:var(--accent);color:#fff;border:none;border-radius:8px;padding:10px 16px;font-weight:600;font-size:13px;cursor:pointer;box-shadow:0 4px 12px rgba(0,122,204,.35);}
+.page{width:210mm;min-height:296mm;background:var(--paper);margin:20px auto;padding:14mm 14mm 12mm;position:relative;box-shadow:0 8px 30px rgba(0,0,0,.12);overflow:hidden;page-break-after:always;}
+@media print{.toolbar{display:none;}body{background:#fff;}.page{margin:0;box-shadow:none;width:210mm;height:296mm;min-height:0;}}
+.brand{display:flex;align-items:center;gap:8px;font-weight:700;font-size:10px;letter-spacing:.12em;color:var(--accent);text-transform:uppercase;}
+.brand .hex{width:20px;height:20px;background:var(--accent);color:#fff;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;}
+.pageno{position:absolute;bottom:7mm;right:14mm;font-size:8.5px;color:var(--muted);}
+.footline{position:absolute;bottom:7mm;left:14mm;font-size:8.5px;color:var(--muted);}
+.cover{height:100%;display:flex;flex-direction:column;justify-content:space-between;background:linear-gradient(160deg,#0d1418 0%,#111214 55%,#0a2233 100%);color:#E8EAED;margin:-14mm;padding:18mm 14mm;}
+.cover .tag{display:inline-block;border:1px solid rgba(0,122,204,.6);color:#7cc4ff;border-radius:999px;padding:5px 14px;font-size:10px;letter-spacing:.15em;text-transform:uppercase;}
+.cover h1{font-size:34px;line-height:1.15;font-weight:800;margin:16px 0 8px;}
+.cover h1 span{color:#4da3ff;}
+.cover p{color:#9AA0A6;font-size:12.5px;max-width:130mm;line-height:1.6;}
+.cover .big-hex{width:60px;height:60px;background:var(--accent);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:800;color:#fff;box-shadow:0 10px 40px rgba(0,122,204,.5);}
+.cover .meta{display:flex;gap:20px;font-size:9.5px;color:#9AA0A6;flex-wrap:wrap;}
+.cover .meta b{color:#E8EAED;display:block;font-size:11px;}
+h2.sec{font-size:16.5px;color:var(--accent2);border-left:4px solid var(--accent);padding-left:9px;margin:4mm 0 3mm;}
+h3.sub{font-size:11.5px;margin:3mm 0 2mm;color:var(--ink);}
+p.txt{font-size:9.8px;line-height:1.55;color:#33383F;margin-bottom:2.5mm;}
+.muted{color:var(--muted);}.accent{color:var(--accent);font-weight:600;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:3.5mm;}
+.card{border:1px solid var(--line);border-radius:9px;padding:3mm 3.5mm;background:#FBFCFE;}
+.card h4{font-size:10.5px;margin-bottom:1.8mm;}
+.card ul{list-style:none;}
+.card li{font-size:8.8px;line-height:1.45;margin-bottom:1.2mm;padding-left:11px;position:relative;}
+.card li::before{content:"";position:absolute;left:0;top:4px;width:4.5px;height:4.5px;border-radius:50%;background:var(--accent);opacity:.7;}
+.chip{display:inline-block;border-radius:999px;padding:1px 8px;font-size:8px;font-weight:700;color:#fff;}
+table.t{width:100%;border-collapse:collapse;font-size:8.8px;margin-top:2mm;}
+table.t th{background:#111214;color:#E8EAED;text-align:left;padding:1.8mm 2.2mm;font-size:8.4px;}
+table.t td{border-bottom:1px solid var(--line);padding:1.7mm 2.2mm;vertical-align:top;line-height:1.45;}
+table.t tr:nth-child(even) td{background:#F2F5F8;}
+.toc li{font-size:10px;margin-bottom:2mm;list-style:none;display:flex;justify-content:space-between;border-bottom:1px dotted var(--line);padding-bottom:1.2mm;}
+.say{background:#E8F5E9;border:1px solid var(--green);border-radius:9px;padding:2.5mm 3.5mm;font-size:9.4px;line-height:1.55;margin:2mm 0;color:#1B4332;}
+.say b{color:var(--green);}
+.ex{background:#111214;color:#E8EAED;border-radius:8px;padding:2.5mm 3.5mm;font-size:8.8px;line-height:1.55;margin:2mm 0;white-space:pre-wrap;}
+</style>
+</head>
+<body>
+<div class="toolbar"><button onclick="window.print()">⬇ Télécharger en PDF</button></div>
+
+<!-- P1 -->
+<div class="page"><div class="cover">
+<div>
+<div class="big-hex">M</div><div style="height:7mm"></div>
+<span class="tag">Script de vente · v1.0 · Septembre 2026</span>
+<h1>Script de vente<br><span>MOTO Editor</span></h1>
+<p>Vendre sans trahir la doctrine : dire vrai, dire mesuré, dire utile. Pitches prêts à l'emploi, trame de découverte, démo 5 minutes, traitement des objections, closing doux et relances — pour un fondateur solo, sans budget et sans force de vente.</p>
+</div>
+<div class="meta">
+<div><b>Cible</b>Indés · power users · privacy · accessibilité</div>
+<div><b>Offre</b>Gratuit · Pro 10 € · Max 20-25 €</div>
+<div><b>Ton</b>Honnête, mesuré, sans hype</div>
+</div>
+</div></div>
+
+<!-- P2 -->
+<div class="page">
+<div class="brand"><div class="hex">M</div>MOTO Editor · Script de vente</div>
+<h2 class="sec" style="margin-top:4mm">Sommaire</h2>
+<ul class="toc">
+<li><span>1. Principes & profils acheteurs</span><span class="muted">p.2</span></li>
+<li><span>2. Pitches (15 s / 30 s / 2 min)</span><span class="muted">p.3</span></li>
+<li><span>3. Découverte (méthode SPIN)</span><span class="muted">p.3</span></li>
+<li><span>4. Démo 5 minutes chronométrée</span><span class="muted">p.4</span></li>
+<li><span>5. Objections → réponses</span><span class="muted">p.5</span></li>
+<li><span>6. Offre, closing & relances</span><span class="muted">p.6</span></li>
+<li><span>7. Modèles prêts à envoyer</span><span class="muted">p.7</span></li>
+<li><span>8. Éthique, lignes rouges & KPIs</span><span class="muted">p.8</span></li>
+</ul>
+<h2 class="sec">1. Principes & profils acheteurs</h2>
+<div class="grid2">
+<div class="card"><h4>Principes de vente (charte)</h4><ul>
+<li>Vendre un essai, pas un achat : le gratuit complet fait le travail.</li>
+<li>Un chiffre = une mesure ; une promesse = un ticket public.</li>
+<li>Jamais dénigrer VS Code/Zed/Cursor : comparer avec des faits.</li>
+<li>Le Pro finance le projet ; il ne débloque jamais l'essentiel.</li>
+<li>Objectif : 320-380 Pro (3 000 € net/mois) — pas une armée.</li>
+</ul></div>
+<div class="card"><h4>Profils & angle d'attaque</h4><ul>
+<li><b>Indé / petite équipe</b> → coût, légèreté, « Pro optionnel ».</li>
+<li><b>Power user</b> → 100+ réglages, docks, palette.</li>
+<li><b>Privacy-conscious</b> → « votre code ne quitte jamais la machine ».</li>
+<li><b>Accessibilité</b> → UI Automation, clavier, contrastes.</li>
+</ul></div>
+</div>
+<div class="footline">Script de vente · Septembre 2026</div><div class="pageno">2 / 8</div>
+</div>
+
+<!-- P3 -->
+<div class="page">
+<div class="brand"><div class="hex">M</div>MOTO Editor · Script de vente</div>
+<h2 class="sec" style="margin-top:4mm">2. Pitches</h2>
+<div class="say"><b>15 s (ascenseur) :</b> « MOTO Editor, c'est un éditeur de code 100 % local : ton code ne quitte jamais ta machine. Léger, sans cloud, IA incluse, gratuit. »</div>
+<div class="say"><b>30 s (conversation) :</b> « C'est un IDE fait maison, construit par une personne et trois IA. Interface minimaliste, plus de 100 réglages, terminal, IA locale. La version gratuite est complète ; le Pro à 10 € sert surtout à faire vivre le projet. »</div>
+<div class="say"><b>2 min (structuré) :</b> « Tu connais le problème : VS Code pèse lourd, les IA envoient ton code dans le cloud, et les réglages passent par 50 extensions. MOTO Editor prend le contre-pied : natif et léger, IA 100 % locale, et toute la complexité dans les réglages plutôt que dans l'interface. C'est open source, donc auditable. Essaie-le sur un seul projet : si ça ne te plaît pas, tu n'as rien perdu. »</div>
+<h2 class="sec">3. Découverte (méthode SPIN)</h2>
+<table class="t">
+<tr><th style="width:26mm">Type</th><th>Questions à poser (écouter plus que parler)</th></tr>
+<tr><td><b>Situation</b></td><td>« Tu utilises quoi aujourd'hui ? » · « C'est quoi ton setup IA actuel ? » · « Tu travailles sur quel type de projets ? »</td></tr>
+<tr><td><b>Problème</b></td><td>« Le démarrage / la mémoire, ça te gêne ? » · « Ton code passe par des serveurs tiers avec ton IA ? » · « Tu te retrouves dans la surcharge d'extensions ? »</td></tr>
+<tr><td><b>Implication</b></td><td>« Si un extrait de code sensible partait dans un cloud, ça représenterait quoi pour toi ? » · « Combien de temps cumulé perds-tu par semaine ? »</td></tr>
+<tr><td><b>Bénéfice</b></td><td>« Si tu avais un éditeur léger, 100 % local, avec IA locale et 100+ réglages, ça changerait quoi ? » · « Qu'est-ce qui te ferait dire "celui-là, je le garde" ? »</td></tr>
+</table>
+<p class="txt muted">Règle : ne présenter que les fonctionnalités qui répondent aux douleurs exprimées. Le reste est du bruit.</p>
+<div class="footline">Script de vente · Septembre 2026</div><div class="pageno">3 / 8</div>
+</div>
+
+<!-- P4 -->
+<div class="page">
+<div class="brand"><div class="hex">M</div>MOTO Editor · Script de vente</div>
+<h2 class="sec" style="margin-top:4mm">4. Démo 5 minutes chronométrée</h2>
+<table class="t">
+<tr><th style="width:14mm">Temps</th><th style="width:40mm">Étape</th><th>Ce qu'on dit / montre</th></tr>
+<tr><td>0:00</td><td>Démarrage à froid</td><td>Chronomètre visible : « &lt; 1 s, &lt; 300 Mo — pas d'Electron. » Laisser l'accueil minimaliste respirer.</td></tr>
+<tr><td>0:30</td><td>Ouvrir un projet</td><td>Explorateur, onglets, recherche par nom. « Tout est natif. »</td></tr>
+<tr><td>1:30</td><td>Dock du bas + terminal</td><td>Ouvrir le terminal (Ctrl+`), lancer une commande. Glisser un panneau IA à droite. « Modularité façon Zed. »</td></tr>
+<tr><td>2:30</td><td>IA locale</td><td>Ghost text (Tab), chat, puis <b>preview diff</b> : « L'IA propose, je vois le diff, j'applique moi-même. Jamais automatique. » Montrer « 0 octet envoyé ».</td></tr>
+<tr><td>3:30</td><td>Réglages</td><td>Ouvrir les Réglages, taper une recherche, changer le thème en direct. « Plus de 100 paramètres, sans extension. »</td></tr>
+<tr><td>4:30</td><td>Conclusion + CTA</td><td>« Gratuit, open source, ton code reste chez toi. Le lien est là ; le Pro à 10 € sert à faire vivre le projet. »</td></tr>
+</table>
+<h3 class="sub">Règles de démo</h3>
+<div class="grid2">
+<div class="card"><h4>Toujours</h4><ul>
+<li>Démo sur un vrai petit projet, en local, hors-ligne (wifi coupé = preuve privacy).</li>
+<li>Montrer un échec si ça arrive : « voilà le diff, je refuse » = confiance.</li>
+<li>Terminer par un seul CTA (lien téléchargement ou newsletter).</li>
+</ul></div>
+<div class="card"><h4>Jamais</h4><ul>
+<li>Promettre une fonction non livrée (LSP, macOS) sans dire « en chantier, ticket public ».</li>
+<li>Comparer en direct avec un concurrent installé.</li>
+<li>Dépasser 5 minutes : proposer la suite par écrit.</li>
+</ul></div>
+</div>
+<div class="footline">Script de vente · Septembre 2026</div><div class="pageno">4 / 8</div>
+</div>
+
+<!-- P5 -->
+<div class="page">
+<div class="brand"><div class="hex">M</div>MOTO Editor · Script de vente</div>
+<h2 class="sec" style="margin-top:4mm">5. Objections → réponses</h2>
+<table class="t">
+<tr><th style="width:46mm">Objection</th><th>Réponse (ton honnête)</th></tr>
+<tr><td>« VS Code est gratuit et me suffit »</td><td>« C'est la référence, oui. MOTO est pour ceux qui veulent plus léger, 100 % local, sans extension qui ralentit. Garde VS Code : essaie MOTO sur un seul projet. »</td></tr>
+<tr><td>« Je n'en ai jamais entendu parler »</td><td>« Normal, on débute. Le code est open source, auditable ; la roadmap est publique. Voici la communauté. »</td></tr>
+<tr><td>« Pourquoi payer si c'est gratuit ? »</td><td>« Le gratuit reste complet, à vie. Pro = builds signés en avance, support prioritaire, et surtout le projet qui continue. 10 €, résiliable en un clic. »</td></tr>
+<tr><td>« Mon code est sûr avec l'IA ? »</td><td>« L'IA tourne chez toi (Ollama/ONNX), zéro cloud. Et chaque suggestion passe par un diff que tu valides — jamais d'auto-application. »</td></tr>
+<tr><td>« C'est seulement Windows ? »</td><td>« Oui, aujourd'hui, honnêtement. macOS/Linux sont au plan H3 ; l'avancement est public. »</td></tr>
+<tr><td>« Dev solo = risque d'abandon »</td><td>« Open source : même si je m'arrête, le code reste et la communauté peut reprendre. Et les releases sont régulières, vérifiables. »</td></tr>
+<tr><td>« Zed/Cursor sont plus forts en IA »</td><td>« Ce sont d'excellents produits. Notre différence : 100 % local et privacy, sans abonnement obligatoire. Choisis selon ta priorité. »</td></tr>
+<tr><td>« Je vais attendre la v1.0 »</td><td>« Très bien. Inscris-toi à la newsletter : tu seras prévenu, et tu peux suivre le build in public en attendant. »</td></tr>
+</table>
+<p class="txt muted">Méthode : accueillir l'objection (« c'est une bonne question »), répondre en une phrase factuelle, puis proposer un essai sans engagement. Ne jamais insister plus d'une relance.</p>
+<div class="footline">Script de vente · Septembre 2026</div><div class="pageno">5 / 8</div>
+</div>
+
+<!-- P6 -->
+<div class="page">
+<div class="brand"><div class="hex">M</div>MOTO Editor · Script de vente</div>
+<h2 class="sec" style="margin-top:4mm">6. Offre, closing & relances</h2>
+<h3 class="sub">Présentation de l'offre (ordre imposé)</h3>
+<table class="t">
+<tr><th>Plan</th><th>Prix</th><th style="width:70mm">Ce que ça finance / apporte</th></tr>
+<tr><td>Gratuit (cœur open source)</td><td>0 €</td><td>Tout l'essentiel, à vie. C'est le produit, pas l'appât.</td></tr>
+<tr><td>Pro</td><td>10 €/mois · 96 €/an</td><td>Builds nightly signés, support prioritaire, badge soutien.</td></tr>
+<tr><td>Max</td><td>20-25 €/mois</td><td>Agents premium, accès anticipé, 1 h de visio feedback/mois.</td></tr>
+</table>
+<h3 class="sub">Techniques de closing (douces, conformes charte)</h3>
+<div class="grid2">
+<div class="card"><h4>Close d'essai</h4><ul><li>« Si tu veux, je t'envoie le lien et tu l'essaies sur un projet cette semaine. »</li><li>Objectif réel = téléchargement + newsletter, pas paiement immédiat.</li></ul></div>
+<div class="card"><h4>Close alternatif (après intérêt démontré)</h4><ul><li>« Tu préfères 10 €/mois ou 96 €/an ? »</li><li>« Le Pro, c'est surtout ta façon de garder le projet vivant. »</li></ul></div>
+</div>
+<h3 class="sub">Relances (max 2, espacées)</h3>
+<div class="say"><b>J+3 :</b> « Salut ! Tu as pu jeter un œil à MOTO Editor ? Même 5 minutes. Un retour honnête m'aide plus qu'un téléchargement. »</div>
+<div class="say"><b>J+14 :</b> « Petit mot pour te montrer ce qui a bougé en deux semaines : [3 nouveautés]. Si le local-first te parle, c'est le moment. Sinon, pas de souci — la newsletter reste ouverte. »</div>
+<p class="txt muted">Après 2 relances sans réponse : stop. La personne reste en newsletter ; le contenu fera le travail.</p>
+<div class="footline">Script de vente · Septembre 2026</div><div class="pageno">6 / 8</div>
+</div>
+
+<!-- P7 -->
+<div class="page">
+<div class="brand"><div class="hex">M</div>MOTO Editor · Script de vente</div>
+<h2 class="sec" style="margin-top:4mm">7. Modèles prêts à envoyer</h2>
+<h3 class="sub">Tagline (Product Hunt / site)</h3>
+<div class="ex">MOTO Editor — the 100% local IDE built by one dev and three AIs.
+No cloud. No Electron. Free & open source.</div>
+<h3 class="sub">DM / message court (Reddit, Discord, X)</h3>
+<div class="ex">Salut ! J'ai vu ton message sur le poids de VS Code.
+Je construis un éditeur 100 % local, léger, open source (IA locale incluse).
+Si tu veux essayer : [lien]. Les retours honnêtes sont bienvenus, même négatifs.</div>
+<h3 class="sub">E-mail de bienvenue newsletter</h3>
+<div class="ex">Bienvenue ! Ici Tom, je construis MOTO Editor avec trois IA.
+Ce que tu recevras : 1 e-mail / 2 semaines, les vraies métriques,
+les vrais bugs, et les vraies victoires. Rien d'autre.
+Premier lien : [télécharger] · [rejoindre le Discord]</div>
+<h3 class="sub">Réponse à un avis négatif public</h3>
+<div class="ex">Merci pour ce retour précis. Oui, [problème] est réel : ticket #X ouvert,
+palliatif en attendant, correctif prévu dans la prochaine release.
+Le fil reste public. — Tom</div>
+<div class="footline">Script de vente · Septembre 2026</div><div class="pageno">7 / 8</div>
+</div>
+
+<!-- P8 -->
+<div class="page">
+<div class="brand"><div class="hex">M</div>MOTO Editor · Script de vente</div>
+<h2 class="sec" style="margin-top:4mm">8. Éthique, lignes rouges & KPIs</h2>
+<div class="grid2">
+<div class="card" style="border-color:var(--red)"><h4 style="color:var(--red)">Lignes rouges (jamais)</h4><ul>
+<li>Faux chiffres, fausses urgences (« plus que 3 places ! »), faux témoignages.</li>
+<li>Dénigrer un concurrent ou un utilisateur sceptique.</li>
+<li>Promettre une date ferme ou une feature non livrée.</li>
+<li>Acheter des listes, des followers, des avis.</li>
+<li>Verrouiller l'essentiel derrière le payant.</li>
+</ul></div>
+<div class="card" style="border-color:var(--green)"><h4 style="color:var(--green)">Ce qui vend vraiment</h4><ul>
+<li>La transparence (bugs publics, métriques réelles).</li>
+<li>Le wifi coupé pendant la démo IA.</li>
+<li>Le diff que l'on refuse en direct (« l'IA propose, tu décides »).</li>
+<li>La réponse &lt; 24 h à chaque message.</li>
+<li>L'histoire : « un non-développeur + 3 IA ».</li>
+</ul></div>
+</div>
+<h3 class="sub">KPIs de vente (revue mensuelle, 10 min)</h3>
+<table class="t">
+<tr><th>Indicateur</th><th>Cible</th><th style="width:60mm">Pourquoi</th></tr>
+<tr><td>Essais (téléchargements) / mois</td><td>500+ post-lancement</td><td>Haut de l'entonnoir.</td></tr>
+<tr><td>Conversion essai → Pro</td><td>2 – 2,5 %</td><td>Qualité du produit + du pitch.</td></tr>
+<tr><td>Temps de réponse messages</td><td>&lt; 24 h</td><td>Confiance = ventes.</td></tr>
+<tr><td>Churn Pro mensuel</td><td>&lt; 3 %</td><td>Santé du récurrent.</td></tr>
+<tr><td>MRR</td><td>3 800 € (an 3)</td><td>= 3 000 € net/mois.</td></tr>
+</table>
+<h3 class="sub">Conclusion</h3>
+<p class="txt">Ce script ne cherche pas à convaincre tout le monde : il cherche les <b>bons</b> utilisateurs — ceux pour qui local, légèreté et privacy comptent. Vendre MOTO Editor, c'est montrer le produit, dire la vérité sur ses limites, et proposer un essai sans risque. Le reste (320-380 Pro) suit mécaniquement.</p>
+<div class="footline">Script de vente · Fin du document</div><div class="pageno">8 / 8</div>
+</div>
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MOTO Editor — Plan de Contenu (PDF)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/fontsource/css/inter@latest/index.css">
+<style>
+:root{--accent:#007ACC;--accent2:#005A9E;--ink:#181A1E;--muted:#5A6069;--paper:#fff;--bg:#F7F8FA;--line:#D6D9DF;--green:#2E7D32;--red:#C62828;--amber:#B26A00;--violet:#7C3AED;}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+html,body{background:var(--bg);font-family:'Inter',system-ui,sans-serif;color:var(--ink);}
+@page{size:A4;margin:0;}
+.toolbar{position:fixed;top:14px;right:14px;z-index:99;}
+.toolbar button{background:var(--accent);color:#fff;border:none;border-radius:8px;padding:10px 16px;font-weight:600;font-size:13px;cursor:pointer;box-shadow:0 4px 12px rgba(0,122,204,.35);}
+.page{width:210mm;min-height:296mm;background:var(--paper);margin:20px auto;padding:14mm 14mm 12mm;position:relative;box-shadow:0 8px 30px rgba(0,0,0,.12);overflow:hidden;page-break-after:always;}
+@media print{.toolbar{display:none;}body{background:#fff;}.page{margin:0;box-shadow:none;width:210mm;height:296mm;min-height:0;}}
+.brand{display:flex;align-items:center;gap:8px;font-weight:700;font-size:10px;letter-spacing:.12em;color:var(--accent);text-transform:uppercase;}
+.brand .hex{width:20px;height:20px;background:var(--accent);color:#fff;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;}
+.pageno{position:absolute;bottom:7mm;right:14mm;font-size:8.5px;color:var(--muted);}
+.footline{position:absolute;bottom:7mm;left:14mm;font-size:8.5px;color:var(--muted);}
+.cover{height:100%;display:flex;flex-direction:column;justify-content:space-between;background:linear-gradient(160deg,#0d1418 0%,#111214 55%,#0a2233 100%);color:#E8EAED;margin:-14mm;padding:18mm 14mm;}
+.cover .tag{display:inline-block;border:1px solid rgba(0,122,204,.6);color:#7cc4ff;border-radius:999px;padding:5px 14px;font-size:10px;letter-spacing:.15em;text-transform:uppercase;}
+.cover h1{font-size:34px;line-height:1.15;font-weight:800;margin:16px 0 8px;}
+.cover h1 span{color:#4da3ff;}
+.cover p{color:#9AA0A6;font-size:12.5px;max-width:130mm;line-height:1.6;}
+.cover .big-hex{width:60px;height:60px;background:var(--accent);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:800;color:#fff;box-shadow:0 10px 40px rgba(0,122,204,.5);}
+.cover .meta{display:flex;gap:20px;font-size:9.5px;color:#9AA0A6;flex-wrap:wrap;}
+.cover .meta b{color:#E8EAED;display:block;font-size:11px;}
+h2.sec{font-size:16.5px;color:var(--accent2);border-left:4px solid var(--accent);padding-left:9px;margin:4mm 0 3mm;}
+h3.sub{font-size:11.5px;margin:3mm 0 2mm;color:var(--ink);}
+p.txt{font-size:9.8px;line-height:1.55;color:#33383F;margin-bottom:2.5mm;}
+.muted{color:var(--muted);}.accent{color:var(--accent);font-weight:600;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:3.5mm;}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:3mm;}
+.card{border:1px solid var(--line);border-radius:9px;padding:3mm 3.5mm;background:#FBFCFE;}
+.card h4{font-size:10.5px;margin-bottom:1.8mm;}
+.card ul{list-style:none;}
+.card li{font-size:8.8px;line-height:1.45;margin-bottom:1.2mm;padding-left:11px;position:relative;}
+.card li::before{content:"";position:absolute;left:0;top:4px;width:4.5px;height:4.5px;border-radius:50%;background:var(--accent);opacity:.7;}
+.chip{display:inline-block;border-radius:999px;padding:1px 8px;font-size:8px;font-weight:700;color:#fff;}
+table.t{width:100%;border-collapse:collapse;font-size:8.6px;margin-top:2mm;}
+table.t th{background:#111214;color:#E8EAED;text-align:left;padding:1.8mm 2.2mm;font-size:8.2px;}
+table.t td{border-bottom:1px solid var(--line);padding:1.6mm 2.2mm;vertical-align:top;line-height:1.4;}
+table.t tr:nth-child(even) td{background:#F2F5F8;}
+.toc li{font-size:10px;margin-bottom:2mm;list-style:none;display:flex;justify-content:space-between;border-bottom:1px dotted var(--line);padding-bottom:1.2mm;}
+.ex{background:#111214;color:#E8EAED;border-radius:8px;padding:2.5mm 3.5mm;font-size:8.6px;line-height:1.5;margin:2mm 0;white-space:pre-wrap;}
+</style>
+</head>
+<body>
+<div class="toolbar"><button onclick="window.print()">⬇ Télécharger en PDF</button></div>
+
+<!-- P1 -->
+<div class="page"><div class="cover">
+<div>
+<div class="big-hex">M</div><div style="height:7mm"></div>
+<span class="tag">Plan de contenu · v1.0 · Septembre 2026</span>
+<h1>Plan de contenu<br><span>MOTO Editor</span></h1>
+<p>12 semaines de contenus prêts à produire, 30+ idées en backlog, routine hebdomadaire de 2-3 h pour un fondateur solo, séquence de lancement et gouvernance éditoriale. Le contenu est le budget marketing : régulier, honnête, mesurable.</p>
+</div>
+<div class="meta">
+<div><b>Rythme</b>3 contenus / semaine</div>
+<div><b>Temps</b>2-3 h / semaine</div>
+<div><b>Canaux</b>X · TikTok/Shorts · YouTube · GitHub · Newsletter</div>
+<div><b>Angle</b>Build in public « 1 humain + 3 IA »</div>
+</div>
+</div></div>
+
+<!-- P2 -->
+<div class="page">
+<div class="brand"><div class="hex">M</div>MOTO Editor · Plan de contenu</div>
+<h2 class="sec" style="margin-top:4mm">Sommaire</h2>
+<ul class="toc">
+<li><span>1. Objectifs, piliers & méthode de production</span><span class="muted">p.2</span></li>
+<li><span>2. Routine hebdomadaire (2-3 h)</span><span class="muted">p.3</span></li>
+<li><span>3. Calendrier 12 semaines (semaines 1-6)</span><span class="muted">p.4</span></li>
+<li><span>4. Calendrier 12 semaines (semaines 7-12)</span><span class="muted">p.5</span></li>
+<li><span>5. Backlog 30+ idées classées</span><span class="muted">p.6</span></li>
+<li><span>6. Modèles de contenus prêts à remplir</span><span class="muted">p.7</span></li>
+<li><span>7. Séquence de lancement & gouvernance</span><span class="muted">p.8</span></li>
+</ul>
+<h2 class="sec">1. Objectifs, piliers & méthode</h2>
+<div class="grid3">
+<div class="card"><h4>Objectifs (an 1)</h4><ul>
+<li>2 000 abonnés cumulés · 500 newsletter · 300 étoiles GitHub (mars 2027).</li>
+<li>1 000 waitlist (mai 2027) · 5 000 téléchargements mois 1 (juin 2027).</li>
+<li>Construire l'audience <b>avant</b> le produit fini.</li>
+</ul></div>
+<div class="card"><h4>5 piliers éditoriaux</h4><ul>
+<li>Build in public (métriques, victoires, échecs).</li>
+<li>Récit non-développeur (« si lui peut… »).</li>
+<li>Pédagogie IA (orchestrer 3 IA sur un vrai projet).</li>
+<li>Démos produit (60-90 s).</li>
+<li>Plaidoyer local-first / privacy.</li>
+</ul></div>
+<div class="card"><h4>Méthode « 1 capture → 4 contenus »</h4><ul>
+<li>1 session écran enregistrée en travaillant (OBS).</li>
+<li>→ extrait 30-60 s (TikTok/Shorts) + clip 20 s (X).</li>
+<li>→ version 3-5 min (YouTube) + résumé écrit (newsletter).</li>
+<li>Brouillons IA, relecture & vécu humains obligatoires.</li>
+</ul></div>
+</div>
+<p class="txt muted">Ton (charte éditoriale) : honnête, mesuré, pédagogique. Un chiffre = une mesure ; les échecs se publient ; jamais de date ferme ; jamais de dénigrement.</p>
+<div class="footline">Plan de contenu · Septembre 2026</div><div class="pageno">2 / 8</div>
+</div>
+
+<!-- P3 -->
+<div class="page">
+<div class="brand"><div class="hex">M</div>MOTO Editor · Plan de contenu</div>
+<h2 class="sec" style="margin-top:4mm">2. Routine hebdomadaire (2-3 h)</h2>
+<table class="t">
+<tr><th style="width:26mm">Moment</th><th>Action</th><th style="width:24mm">Temps</th></tr>
+<tr><td>Lundi</td><td>Choisir l'idée de la semaine dans les notes du chantier ; planifier 3 posts + 1 e-mail (brouillons IA, relecture humaine).</td><td>30 min</td></tr>
+<tr><td>En continu</td><td>OBS tourne pendant le travail réel (pas de session dédiée) ; noter les « galères » dans un carnet d'idées.</td><td>0 min</td></tr>
+<tr><td>Vendredi</td><td>Publier la vidéo courte + le thread métriques ; programmer la newsletter (1/2 sem.).</td><td>45 min</td></tr>
+<tr><td>Chaque jour</td><td>Répondre à 100 % des commentaires (&lt; 24 h) — priorité absolue sur la production.</td><td>10 min/j</td></tr>
+<tr><td>Fin de mois</td><td>Revue KPIs (10 min) : garder le format qui performe, abandonner le pire ; remplir le tableau Notion.</td><td>10 min</td></tr>
+</table>
+<h3 class="sub">Outils gratuits (zéro carte bancaire)</h3>
+<div class="grid3">
+<div class="card"><h4>Créer</h4><ul><li>OBS (capture) · CapCut (montage + sous-titres)</li><li>Canva (visuels charte #111214/#007ACC)</li><li>Notion (calendrier + backlog)</li></ul></div>
+<div class="card"><h4>Capturer l'audience</h4><ul><li>Beehiiv (newsletter, gratuit ≤ 2 500)</li><li>GitHub Pages (landing + waitlist)</li><li>Formulaire e-mail uniquement</li></ul></div>
+<div class="card"><h4>Mesurer</h4><ul><li>GoatCounter (stats site)</li><li>Stats natives des plateformes</li><li>1 tableau, 4 colonnes : abonnés / inscrits / étoiles / replies</li></ul></div>
+</div>
+<div class="footline">Plan de contenu · Septembre 2026</div><div class="pageno">3 / 8</div>
+</div>
+
+<!-- P4 -->
+<div class="page">
+<div class="brand"><div class="hex">M</div>MOTO Editor · Plan de contenu</div>
+<h2 class="sec" style="margin-top:4mm">3. Calendrier — semaines 1 à 6</h2>
+<table class="t">
+<tr><th style="width:12mm">Sem.</th><th>Pilier</th><th>Contenus de la semaine (3)</th><th style="width:34mm">Objectif</th></tr>
+<tr><td>1</td><td>Récit</td><td>Post origine « Je ne sais pas coder, je construis un IDE avec 3 IA » · bio + landing · post « pourquoi local-first ».</td><td>Poser l'histoire</td></tr>
+<tr><td>2</td><td>Pédagogie IA</td><td>Thread « Mes 3 IA : rôles, règles, relectures » · capture écran du workflow · réponse aux premiers commentaires.</td><td>Crédibilité méthode</td></tr>
+<tr><td>3</td><td>Démo</td><td>Vidéo 30 s « L'IA écrit, je valide » · post « l'échec de la semaine » (honnête) · e-mail #1.</td><td>Preuve produit</td></tr>
+<tr><td>4</td><td>Build in public</td><td>Thread métriques J-30 · article Dev.to #1 « Réhabiliter un code qui n'a jamais compilé » · post remerciements.</td><td>SEO + confiance</td></tr>
+<tr><td>5</td><td>Démo</td><td>Vidéo terminal + docks (60 s) · post « pourquoi pas de cloud » · clip 20 s X.</td><td>Différenciation</td></tr>
+<tr><td>6</td><td>Pédagogie</td><td>Thread « 100+ réglages : les 3 que j'utilise chaque jour » · vidéo ghost text · e-mail #2.</td><td>Profondeur produit</td></tr>
+</table>
+<h3 class="sub">Points de contrôle</h3>
+<div class="grid2">
+<div class="card"><h4>Fin S6 attendu</h4><ul><li>≈ 500 abonnés cumulés · 100 newsletter · 100 étoiles.</li><li>1 format « gagnant » identifié (à doubler), 1 abandonné.</li></ul></div>
+<div class="card"><h4>Si en dessous</h4><ul><li>Réduire le format, pas la fréquence.</li><li>Reposter le meilleur contenu sur un 2ᵉ canal.</li><li>Commenter 10 posts/jour dans la niche (visibilité gratuite).</li></ul></div>
+</div>
+<div class="footline">Plan de contenu · Septembre 2026</div><div class="pageno">4 / 8</div>
+</div>
+
+<!-- P5 -->
+<div class="page">
+<div class="brand"><div class="hex">M</div>MOTO Editor · Plan de contenu</div>
+<h2 class="sec" style="margin-top:4mm">4. Calendrier — semaines 7 à 12</h2>
+<table class="t">
+<tr><th style="width:12mm">Sem.</th><th>Pilier</th><th>Contenus de la semaine (3)</th><th style="width:34mm">Objectif</th></tr>
+<tr><td>7</td><td>Récit</td><td>Article Dev.to #2 « La barre bleue : un bug WinUI3 que je combats en public » · thread résumé · réponses.</td><td>Transparence = confiance</td></tr>
+<tr><td>8</td><td>Démo</td><td>Vidéo 60 s « 3 docks, glisser-déposer » · thread métriques · e-mail #3.</td><td>Parité Zed visible</td></tr>
+<tr><td>9</td><td>Plaidoyer</td><td>Article « Local-first : ce que ça change concrètement (Ollama, ONNX, sandbox) » · post wifi coupé · clip.</td><td>Niche privacy</td></tr>
+<tr><td>10</td><td>Démo</td><td>Vidéo « preview diff : l'IA n'applique jamais seule » · post sécurité Ed25519 · réponses.</td><td>Confiance technique</td></tr>
+<tr><td>11</td><td>Pédagogie</td><td>Thread « Ce que 3 IA m'ont appris sur la revue de code » · teaser bêta (waitlist) · e-mail #4.</td><td>Ouvrir la waitlist</td></tr>
+<tr><td>12</td><td>Build in public</td><td>Vidéo récap 90 s « 12 semaines, 1 IDE » · thread métriques S12 · annonce prochaine phase.</td><td>1 000 waitlist</td></tr>
+</table>
+<h3 class="sub">Enchaînement avec le plan marketing</h3>
+<p class="txt">S1-S12 = phase P0/P1 du plan marketing (fondations + accélération). La waitlist ouverte en S11 alimente P2 (pré-lancement), puis le lancement v1.0 (P3, juin 2027) réutilise les 5 meilleurs contenus de ces 12 semaines comme assets de lancement.</p>
+<div class="footline">Plan de contenu · Septembre 2026</div><div class="pageno">5 / 8</div>
+</div>
+
+<!-- P6 -->
+<div class="page">
+<div class="brand"><div class="hex">M</div>MOTO Editor · Plan de contenu</div>
+<h2 class="sec" style="margin-top:4mm">5. Backlog 30+ idées classées par pilier</h2>
+<table class="t">
+<tr><th style="width:30mm">Pilier</th><th>Idées prêtes à tourner</th></tr>
+<tr><td>Build in public</td><td>Métriques hebdo · « ce que j'ai cassé cette semaine » · coûts réels du projet (€) · stars vs moral · journal de la barre bleue · revenus transparents an 1.</td></tr>
+<tr><td>Récit non-dév</td><td>« Lire un error log pour la première fois » · « Ce que je ne comprends toujours pas » · « Ma journée : 15 h, 3 IA, 0 ligne écrite à la main » · « Pourquoi je refuse de mentir sur les chiffres ».</td></tr>
+<tr><td>Pédagogie IA</td><td>Les règles que je donne à Claude Code · Qwen vs Copilot vs Claude : qui fait quoi · « Une revue croisée qui a sauvé un commit » · prompt de changelog · comment je relis du code que je ne sais pas écrire.</td></tr>
+<tr><td>Démos</td><td>Terminal réel · ghost text · recherche palette · export 9 formats · Time Machine · Health panel · thème clair/sombre · 100+ réglages en 60 s.</td></tr>
+<tr><td>Plaidoyer local</td><td>Wifi coupé en démo · « Ton code dans le cloud de qui ? » · IA locale vs cloud : coûts réels · sandbox & Ed25519 expliqués simplement · RGPD sans serveur.</td></tr>
+<tr><td>Communauté</td><td>Remerciements contributeurs · réponses aux meilleurs commentaires en vidéo · sondages « quelle feature ensuite ? » · coulisses d'un commit.</td></tr>
+</table>
+<p class="txt muted">Règle du backlog : chaque idée doit tenir en une phrase et produire un contenu en &lt; 45 min. Sinon, elle retourne au carnet.</p>
+<div class="footline">Plan de contenu · Septembre 2026</div><div class="pageno">6 / 8</div>
+</div>
+
+<!-- P7 -->
+<div class="page">
+<div class="brand"><div class="hex">M</div>MOTO Editor · Plan de contenu</div>
+<h2 class="sec" style="margin-top:4mm">6. Modèles de contenus prêts à remplir</h2>
+<h3 class="sub">Thread métriques hebdo</h3>
+<div class="ex">Semaine [N] — MOTO Editor
+· [X] actifs ([+Y %]) · [Z] Pro · [S] étoiles GitHub
+· 0 octet de code utilisateur envoyé au cloud (toujours)
+· Chantier en cours : [sujet] ([avancement %], ticket #X)</div>
+<h3 class="sub">Post « échec honnête »</h3>
+<div class="ex">Cette semaine, j'ai cassé [chose].
+Cause : [explication simple]. Correctif : [ticket #X / commit].
+Leçon : [une phrase]. La suite en public.</div>
+<h3 class="sub">Article Dev.to (structure)</h3>
+<div class="ex">Titre : « [Problème réel] : ce que [n] semaines de [sujet] m'ont appris »
+1. Contexte en 3 phrases · 2. Ce que j'ai essayé (et raté)
+3. Ce qui a marché (code/captures) · 4. Leçon + lien repo + newsletter</div>
+<h3 class="sub">Vidéo 60-90 s (script)</h3>
+<div class="ex">0-5 s : accroche visuelle (résultat, pas logo) · 5-20 s : le problème
+20-50 s : la démo réelle, sans coupes suspectes · 50-60 s : « gratuit,
+local, open source — lien en bio » + métrique honnête du jour</div>
+<div class="footline">Plan de contenu · Septembre 2026</div><div class="pageno">7 / 8</div>
+</div>
+
+<!-- P8 -->
+<div class="page">
+<div class="brand"><div class="hex">M</div>MOTO Editor · Plan de contenu</div>
+<h2 class="sec" style="margin-top:4mm">7. Séquence de lancement & gouvernance</h2>
+<h3 class="sub">Séquence lancement v1.0 (juin 2027)</h3>
+<table class="t">
+<tr><th style="width:20mm">Moment</th><th>Contenus</th></tr>
+<tr><td>J-30</td><td>Compte à rebours : 4 teasers (1/semaine) · kit presse (logo, captures, fiche 1 page) · e-mail waitlist « ça arrive ».</td></tr>
+<tr><td>J-7</td><td>Vidéo démo 90 s finale · page Product Hunt prête · thread « pourquoi j'ai construit ça ».</td></tr>
+<tr><td>Jour J</td><td>Product Hunt + Show HN + Reddit + e-mail waitlist + Discord en live · réponses &lt; 1 h toute la journée.</td></tr>
+<tr><td>J+7</td><td>Post « merci + chiffres réels » (téléchargements, bugs trouvés, correctifs prévus) · article récap.</td></tr>
+</table>
+<h3 class="sub">Gouvernance : checklist avant publication (10 points, charte)</h3>
+<div class="grid2">
+<div class="card"><ul>
+<li>Ton conforme au canal · aucun superlatif non prouvé.</li>
+<li>Aucun dénigrement · nom & baseline corrects.</li>
+<li>Couleurs/typo/logo conformes · capture sans donnée perso.</li>
+</ul></div>
+<div class="card"><ul>
+<li>Aucun secret/token/chemin perso · liens testés.</li>
+<li>Contenu IA relu par un humain · fréquence respectée.</li>
+<li>Un seul CTA par contenu.</li>
+</ul></div>
+</div>
+<h3 class="sub">KPIs contenu (revue mensuelle)</h3>
+<table class="t">
+<tr><th>KPI</th><th>Cible S12</th><th style="width:56mm">Décision si raté</th></tr>
+<tr><td>Abonnés cumulés</td><td>500</td><td>Doubler le format gagnant, pas le volume.</td></tr>
+<tr><td>Inscrits newsletter</td><td>100</td><td>CTA newsletter dans chaque vidéo.</td></tr>
+<tr><td>Étoiles GitHub</td><td>100</td><td>Lien repo systématique + README soigné.</td></tr>
+<tr><td>Taux de réponse</td><td>100 % &lt; 24 h</td><td>Réduire la production, garder la réponse.</td></tr>
+</table>
+<h3 class="sub">Conclusion</h3>
+<p class="txt">Ce plan ne produit pas du « contenu » : il documente un chantier réel, à rythme soutenable (2-3 h/semaine), avec une règle d'or — <b>la régularité bat l'intensité</b>. En 12 semaines, il construit l'actif qui rendra le lancement de juin 2027 possible : une audience qui attend, qui fait confiance, et qui a déjà vu les bugs être corrigés en public.</p>
+<div class="footline">Plan de contenu · Fin du document</div><div class="pageno">8 / 8</div>
+</div>
+</body>
+</html>

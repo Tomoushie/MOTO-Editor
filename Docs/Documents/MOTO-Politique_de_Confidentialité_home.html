@@ -1,0 +1,266 @@
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Politique de confidentialité — MOTO Editor</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/fontsource/css/inter@latest/index.css">
+<style>
+:root{
+  --bg:#111214;--bg2:#17191C;--panel:#1B1E22;--panel2:#20242A;
+  --line:#2A2E35;--ink:#E8EAED;--muted:#9AA0A6;--dim:#6B7178;
+  --accent:#007ACC;--accent-h:#1E9BE0;--accent-soft:rgba(0,122,204,.12);
+  --green:#4CAF50;--red:#EF5350;--amber:#FFA726;--violet:#B39DDB;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--ink);font-family:'Inter',sans-serif;line-height:1.65;-webkit-font-smoothing:antialiased;}
+a{color:var(--accent-h);text-decoration:none;}
+a:hover{text-decoration:underline;}
+code{background:#0B0C0E;border:1px solid var(--line);color:#7CC4FF;padding:2px 7px;border-radius:6px;font-family:'Consolas','Courier New',monospace;font-size:.86em;}
+
+/* ── Header ── */
+header{position:sticky;top:0;z-index:50;background:rgba(17,18,20,.86);backdrop-filter:blur(12px);border-bottom:1px solid var(--line);}
+.hwrap{max-width:1060px;margin:0 auto;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;gap:16px;}
+.logo{display:flex;align-items:center;gap:11px;font-weight:800;font-size:16px;letter-spacing:.3px;}
+.hex{display:inline-flex;width:32px;height:32px;background:var(--accent);color:#fff;font-weight:900;font-size:17px;align-items:center;justify-content:center;clip-path:polygon(50% 0%,100% 25%,100% 75%,50% 100%,0% 75%,0% 25%);flex-shrink:0;}
+.logo small{display:block;font-size:10px;color:var(--muted);font-weight:500;letter-spacing:1.4px;text-transform:uppercase;}
+nav{display:flex;gap:4px;flex-wrap:wrap;}
+nav a{color:var(--muted);font-size:12.5px;padding:6px 12px;border-radius:8px;transition:.18s;}
+nav a:hover{color:var(--ink);background:var(--panel2);text-decoration:none;}
+
+/* ── Hero ── */
+.hero{max-width:1060px;margin:0 auto;padding:64px 24px 40px;}
+.badge{display:inline-block;background:var(--accent-soft);border:1px solid rgba(0,122,204,.35);color:#7CC4FF;font-size:11.5px;font-weight:600;padding:5px 14px;border-radius:999px;letter-spacing:.5px;margin-bottom:20px;}
+.hero h1{font-size:clamp(30px,5vw,48px);font-weight:800;line-height:1.15;letter-spacing:-1px;}
+.hero h1 span{color:var(--accent-h);}
+.hero .lead{margin-top:18px;font-size:16.5px;color:var(--muted);max-width:720px;}
+.hero .meta{display:flex;gap:26px;flex-wrap:wrap;margin-top:28px;font-size:12.5px;color:var(--dim);}
+.hero .meta b{display:block;color:var(--ink);font-size:13.5px;margin-bottom:2px;}
+
+/* ── KPI strip ── */
+.kpis{max-width:1060px;margin:8px auto 0;padding:0 24px;display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;}
+.kpi{background:linear-gradient(180deg,var(--panel) 0%,var(--bg2) 100%);border:1px solid var(--line);border-radius:14px;padding:22px;transition:.2s;}
+.kpi:hover{border-color:var(--accent);transform:translateY(-2px);}
+.kpi .n{font-size:32px;font-weight:800;color:#7CC4FF;letter-spacing:-1px;}
+.kpi .t{font-size:13.5px;font-weight:600;margin-top:4px;}
+.kpi .d{font-size:12.5px;color:var(--muted);margin-top:6px;}
+
+/* ── Sections ── */
+main{max-width:1060px;margin:0 auto;padding:56px 24px 20px;}
+section{margin-bottom:56px;scroll-margin-top:90px;}
+.shead{display:flex;align-items:center;gap:12px;margin-bottom:8px;}
+.shead .idx{font-size:12px;font-weight:700;color:var(--accent-h);background:var(--accent-soft);border-radius:8px;padding:4px 10px;}
+h2{font-size:24px;font-weight:800;letter-spacing:-.4px;}
+.sdesc{color:var(--muted);font-size:14.5px;max-width:760px;margin:10px 0 22px;}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px 24px;margin-bottom:14px;}
+.card h3{font-size:15.5px;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.card h3 .dot{width:7px;height:7px;border-radius:50%;background:var(--accent);flex-shrink:0;}
+.card p,.card li{font-size:13.5px;color:#C4C9CF;}
+.card ul{list-style:none;margin-top:8px;}
+.card li{padding:5px 0 5px 20px;position:relative;}
+.card li::before{content:"";position:absolute;left:2px;top:13px;width:6px;height:6px;border-radius:50%;background:var(--accent);opacity:.8;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+.do{border:1px solid rgba(76,175,80,.35);background:rgba(76,175,80,.06);}
+.do h3{color:var(--green);}
+.dont{border:1px solid rgba(239,83,80,.35);background:rgba(239,83,80,.06);}
+.dont h3{color:var(--red);}
+.principle{background:linear-gradient(135deg,#0D2333 0%,#101318 100%);border:1px solid rgba(0,122,204,.4);border-radius:16px;padding:30px 32px;margin:26px 0;}
+.principle h3{color:#7CC4FF;font-size:13px;letter-spacing:1.6px;text-transform:uppercase;margin-bottom:12px;}
+.principle .big{font-size:22px;font-weight:800;color:#fff;line-height:1.3;margin-bottom:10px;}
+.principle p{color:#B9C0C7;font-size:14px;max-width:760px;}
+table{width:100%;border-collapse:collapse;font-size:13px;background:var(--panel);border-radius:14px;overflow:hidden;}
+table th{background:#0D2333;color:#7CC4FF;text-align:left;padding:12px 16px;font-size:12px;letter-spacing:.4px;text-transform:uppercase;border-bottom:1px solid rgba(0,122,204,.3);}
+table td{padding:12px 16px;border-bottom:1px solid var(--line);color:#C4C9CF;vertical-align:top;}
+table tr:last-child td{border-bottom:none;}
+table tr:hover td{background:rgba(255,255,255,.015);}
+.chip{display:inline-block;border-radius:999px;padding:2px 11px;font-size:11px;font-weight:700;color:#fff;white-space:nowrap;}
+.chip.g{background:var(--green);}
+.chip.a{background:var(--amber);color:#1a1a1a;}
+.rights{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px;}
+.trow{display:flex;justify-content:space-between;gap:14px;align-items:baseline;}
+.trow .d{font-size:11.5px;color:var(--dim);white-space:nowrap;}
+footer{border-top:1px solid var(--line);margin-top:40px;}
+.fwrap{max-width:1060px;margin:0 auto;padding:34px 24px;display:flex;justify-content:space-between;align-items:center;gap:20px;flex-wrap:wrap;font-size:12.5px;color:var(--dim);}
+.fwrap .logo small{font-size:9px;}
+@media(max-width:820px){
+  .grid2,.grid3{grid-template-columns:1fr;}
+  nav{display:none;}
+  .hero{padding-top:44px;}
+}
+@media print{header .hwrap nav{display:none;}body{background:#fff;color:#000;}}
+</style>
+</head>
+<body>
+
+<header>
+<div class="hwrap">
+<div class="logo">
+<div class="hex">M</div>
+<div>MOTO Editor<small>Politique de confidentialité</small></div>
+</div>
+<nav>
+<a href="#principe">Principe</a>
+<a href="#donnees">Données locales</a>
+<a href="#ia">IA locale</a>
+<a href="#site">Site & newsletter</a>
+<a href="#droits">Vos droits</a>
+<a href="#contact">Contact</a>
+</nav>
+</div>
+</header>
+
+<!-- ══ HERO ══ -->
+<div class="hero">
+<span class="badge">v1.0 · Révisée le 2 septembre 2026 · RGPD</span>
+<h1>Votre code ne nous <span>regarde pas</span>.</h1>
+<p class="lead">MOTO Editor est un éditeur local-first : votre code, la mémoire de l'IA et vos réglages restent sur votre machine. Cette politique décrit, honnêtement et sans détour, les très rares données traitées — où, pourquoi, et les droits dont vous disposez.</p>
+<div class="meta">
+<div><b>Éditeur</b>Fondateur solo (Tomoushie)</div>
+<div><b>Dépôt public</b>Tomoushie/MOTO-Editor</div>
+<div><b>Télémétrie</b>Aucune</div>
+<div><b>Doctrine</b>« Dire vrai, dire mesuré, dire utile »</div>
+</div>
+</div>
+
+<div class="kpis">
+<div class="kpi"><div class="n">0 octet</div><div class="t">Code transmis à l'extérieur</div><div class="d">Par conception architecturale, pas par simple promesse.</div></div>
+<div class="kpi"><div class="n">0 compte</div><div class="t">Aucune inscription requise</div><div class="d">L'éditeur fonctionne intégralement hors ligne.</div></div>
+<div class="kpi"><div class="n">0 télémétrie</div><div class="t">Aucune mesure d'usage</div><div class="d">Ni analytics, ni rapport d'erreur automatique.</div></div>
+<div class="kpi"><div class="n">100 %</div><div class="t">IA locale par défaut</div><div class="d">Modèles exécutés sur votre machine via Ollama.</div></div>
+</div>
+
+<main>
+
+<!-- ══ 1 · PRINCIPE ══ -->
+<section id="principe">
+<div class="shead"><span class="idx">01</span><h2>Le principe fondamental</h2></div>
+<p class="sdesc">L'architecture du produit rend la plupart des obligations de confidentialité inutiles : plutôt que de protéger des données après les avoir collectées, MOTO Editor ne les collecte pas.</p>
+<div class="grid2">
+<div class="card dont"><h3><span class="dot"></span>Ce que MOTO Editor ne fait pas</h3><ul>
+<li>Aucun envoi de code source ou d'extrait de projet vers un serveur.</li>
+<li>Aucune télémétrie, analytics ou identifiant machine.</li>
+<li>Aucun compte utilisateur, authentification ni licence en ligne.</li>
+<li>Aucun cookie, tracker publicitaire ou SDK tiers.</li>
+</ul></div>
+<div class="card do"><h3><span class="dot"></span>Ce que MOTO Editor fait</h3><ul>
+<li>Lit et écrit uniquement dans vos dossiers locaux (<code>.moto/</code>) et réglages.</li>
+<li>Exécute l'IA localement — vos prompts restent chez vous.</li>
+<li>Ne consulte Internet que si vous l'exigez explicitement.</li>
+<li>Documente publiquement chaque exception éventuelle.</li>
+</ul></div>
+</div>
+<div class="principle">
+<h3>Engagement</h3>
+<div class="big">« Nous ne pouvons pas divulguer ce que nous n'avons pas. »</div>
+<p>Si un jour un seul octet devait changer de trajectoire, il serait annoncé publiquement avant la mise en ligne — jamais de réduction silencieuse de vos garanties.</p>
+</div>
+</section>
+
+<!-- ══ 2 · DONNÉES LOCALES ══ -->
+<section id="donnees">
+<div class="shead"><span class="idx">02</span><h2>Données traitées localement</h2></div>
+<p class="sdesc">Les seules données écrites par MOTO Editor le sont sur votre disque, en formats ouverts (JSON / Markdown), sans jamais quitter votre machine. Vous pouvez les lire, les copier, les supprimer ou les versionner avec Git.</p>
+<table>
+<tr><th>Donnée</th><th>Emplacement local</th><th>Finalité</th></tr>
+<tr><td>Paramètres & préférences</td><td><code>%AppData%/MotoEditor/settings.json</code></td><td>Personnalisation de l'interface</td></tr>
+<tr><td>Mémoire cognitive IA</td><td><code>.moto/cortex/memory.json</code></td><td>Adapter les suggestions à votre style</td></tr>
+<tr><td>Snapshots Time Machine</td><td><code>.moto/timemachine/*.json</code></td><td>Restaurer des versions de fichiers</td></tr>
+<tr><td>Documentation générée</td><td><code>.moto/docs/*.md</code></td><td>Docs auto-générées du projet</td></tr>
+<tr><td>Historique du terminal</td><td>Mémoire / session locale</td><td>Confort de saisie des commandes</td></tr>
+</table>
+<div class="grid2" style="margin-top:14px">
+<div class="card"><h3><span class="dot"></span>Base légale (RGPD)</h3><p>Art. 6.1.b — exécution du contrat : ces écritures sont techniquement nécessaires au fonctionnement demandé. Art. 6.1.f — intérêt légitime : améliorer l'expérience sur votre propre machine, sans transmission.</p></div>
+<div class="card"><h3><span class="dot"></span>Maîtrise totale</h3><ul>
+<li>Le dossier <code>.moto/</code> est supprimable sans casser l'éditeur.</li>
+<li><code>settings.json</code> est lisible et éditable en texte clair.</li>
+<li>Un réglage « Réinitialiser » efface préférences et mémoire IA.</li>
+</ul></div>
+</div>
+</section>
+
+<!-- ══ 3 · IA LOCALE + TÉLÉMÉTRIE ══ -->
+<section id="ia">
+<div class="shead"><span class="idx">03</span><h2>IA locale & télémétrie</h2></div>
+<p class="sdesc">Les fonctionnalités IA s'appuient par défaut sur des modèles exécutés localement via Ollama. Aucun flux réseau vers l'éditeur du projet.</p>
+<div class="grid2">
+<div class="card"><h3><span class="dot"></span>Fonctionnement de l'IA</h3><ul>
+<li>Votre code est soumis au modèle local — rien d'autre n'est transmis.</li>
+<li>Si vous configurez un provider distant (opt-in explicite), vos requêtes transitent par ce service : c'est votre choix, documenté dans les réglages.</li>
+<li>Un agent <code>PrivacyScanner</code> filtre les sorties IA contre les fuites de données sensibles.</li>
+</ul></div>
+<div class="card"><h3><span class="dot"></span>Télémétrie & traceurs</h3>
+<table style="margin-top:6px;background:transparent;border-radius:0">
+<tr><td>Télémétrie d'usage</td><td><span class="chip g">Absente</span></td></tr>
+<tr><td>Rapports d'erreur auto</td><td><span class="chip g">Absents</span></td></tr>
+<tr><td>Cookies & traceurs</td><td><span class="chip g">Absents</span></td></tr>
+<tr><td>Connexion sortante</td><td><span class="chip a">Opt-in uniquement</span></td></tr>
+</table>
+</div>
+</div>
+</section>
+
+<!-- ══ 4 · SITE & NEWSLETTER ══ -->
+<section id="site">
+<div class="shead"><span class="idx">04</span><h2>Site web, newsletter & support</h2></div>
+<p class="sdesc">Le site vitrine et la communication suivent la même doctrine : le minimum absolu. Liste exhaustive des sous-traitants à la version 1.0.</p>
+<div class="grid3">
+<div class="card"><h3><span class="dot"></span>Site vitrine</h3><p>Pages statiques sur GitHub Pages, sans compte ni formulaire intrusive. Aucun cookie publicitaire ni pixel de suivi.</p></div>
+<div class="card"><h3><span class="dot"></span>Statistiques (GoatCounter)</h3><p>Outil sans cookies, agrégé, hébergé en UE. Aucune donnée individuelle : pas d'IP stockée, pas d'identifiant.</p></div>
+<div class="card"><h3><span class="dot"></span>Newsletter</h3><p>Une seule donnée : votre e-mail, saisi volontairement. Désinscription en un clic. Jamais de cession à des tiers.</p></div>
+</div>
+<div class="card"><h3><span class="dot"></span>Support (GitHub Issues / Discussions)</h3><p>Vous choisissez vous-même ce que vous publiez — ces contenus sont publics et relèvent de la politique GitHub. Ne collez jamais de secrets, chemins sensibles ou données personnelles dans un ticket. Pour toute demande sensible, ouvrez une Issue avec le libellé <b>privacy</b> et demandez un canal privé.</p></div>
+</section>
+
+<!-- ══ 5 · DROITS ══ -->
+<section id="droits">
+<div class="shead"><span class="idx">05</span><h2>Vos droits (RGPD)</h2></div>
+<p class="sdesc">L'essentiel de vos données vit chez vous — sous votre contrôle direct. Pour le reste (e-mail newsletter, tickets publics), vous disposez de l'intégralité des droits RGPD, exercés sous 30 jours maximum.</p>
+<div class="rights">
+<div class="card"><h3><span class="dot"></span>Accès & rectification</h3><p>Obtenir la liste des données détenues et corriger toute information erronée. En pratique : votre e-mail de newsletter.</p></div>
+<div class="card"><h3><span class="dot"></span>Effacement & opposition</h3><p>Suppression immédiate via le lien de désinscription ou sur demande. Cesser tout envoi à tout moment, sans justification.</p></div>
+<div class="card"><h3><span class="dot"></span>Portabilité & limitation</h3><p>Export de vos données en JSON/CSV, ou gel du traitement pendant l'examen d'une contestation.</p></div>
+<div class="card"><h3><span class="dot"></span>Réclamation</h3><p>Si la réponse ne vous satisfait pas, vous pouvez saisir la CNIL (cnil.fr) ou l'autorité de protection de votre pays.</p></div>
+</div>
+</section>
+
+<!-- ══ 6 · CONTACT + HISTORIQUE ══ -->
+<section id="contact">
+<div class="shead"><span class="idx">06</span><h2>Contact & révisions</h2></div>
+<div class="grid2">
+<div class="card"><h3><span class="dot"></span>Nous contacter</h3><ul>
+<li>GitHub : Issue sur <code>Tomoushie/MOTO-Editor</code>, libellé <b>privacy</b>.</li>
+<li>Vulnérabilité de sécurité : libellé <b>security</b>, réponse sous 7 jours.</li>
+<li>Délai de réponse légal : ≤ 30 jours, en général bien moins.</li>
+</ul></div>
+<div class="card"><h3><span class="dot"></span>Historique des révisions</h3>
+<table style="margin-top:6px;background:transparent">
+<tr><td><b>v1.0</b></td><td>2 septembre 2026</td><td>Première publication</td></tr>
+</table>
+<p style="margin-top:12px;font-size:12.5px;color:var(--dim)">Toute évolution sera annoncée dans les notes de version et sur le site. La date de révision fait foi.</p>
+</div>
+</div>
+<div class="principle">
+<h3>En une phrase</h3>
+<div class="big">La meilleure politique de confidentialité est une architecture qui rend la collecte inutile.</div>
+<p>MOTO Editor s'y tient — et ce document évoluera publiquement si un seul octet devait changer de trajectoire.</p>
+</div>
+</section>
+
+</main>
+
+<footer>
+<div class="fwrap">
+<div class="logo">
+<div class="hex" style="width:26px;height:26px;font-size:14px">M</div>
+<div>MOTO Editor<small>© 2026 · Politique de confidentialité v1.0</small></div>
+</div>
+<div>Dire vrai · Dire mesuré · Dire utile — <a href="#principe">relire le principe</a></div>
+</div>
+</footer>
+
+</body>
+</html>

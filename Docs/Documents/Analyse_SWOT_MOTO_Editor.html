@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MOTO Editor — Analyse SWOT (Rapport PDF)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/fontsource/css/inter@latest/index.css">
+<style>
+  :root{
+    --accent:#007ACC; --accent-dark:#005A9E; --ink:#181A1E; --muted:#5A6069;
+    --paper:#FFFFFF; --bg:#F7F8FA; --line:#D6D9DF;
+    --s:#2E7D32; --s-bg:#E8F5E9; --w:#C62828; --w-bg:#FFEBEE;
+    --o:#0066CC; --o-bg:#E3F2FD; --t:#B26A00; --t-bg:#FFF3E0;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  html,body{background:var(--bg);font-family:'Inter',system-ui,sans-serif;color:var(--ink);}
+  @page{size:A4;margin:0;}
+  .toolbar{position:fixed;top:14px;right:14px;z-index:99;display:flex;gap:8px;}
+  .toolbar button{background:var(--accent);color:#fff;border:none;border-radius:8px;padding:10px 16px;font-weight:600;font-size:13px;cursor:pointer;box-shadow:0 4px 12px rgba(0,122,204,.35);}
+  .toolbar button:hover{background:var(--accent-dark);}
+  .page{width:210mm;min-height:296mm;background:var(--paper);margin:24px auto;padding:16mm 16mm 14mm;position:relative;box-shadow:0 8px 30px rgba(0,0,0,.12);overflow:hidden;page-break-after:always;}
+  @media print{ .toolbar{display:none;} body{background:#fff;} .page{margin:0;box-shadow:none;width:210mm;height:296mm;min-height:0;} }
+
+  .brand{display:flex;align-items:center;gap:8px;font-weight:700;font-size:11px;letter-spacing:.12em;color:var(--accent);text-transform:uppercase;}
+  .brand .hex{width:22px;height:22px;background:var(--accent);color:#fff;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;}
+  .pageno{position:absolute;bottom:8mm;right:16mm;font-size:9px;color:var(--muted);}
+  .footline{position:absolute;bottom:8mm;left:16mm;font-size:9px;color:var(--muted);}
+
+  /* Couverture */
+  .cover{height:100%;display:flex;flex-direction:column;justify-content:space-between;background:linear-gradient(160deg,#0d1418 0%,#111214 55%,#0a2233 100%);color:#E8EAED;margin:-16mm;padding:20mm 16mm;border-radius:0;}
+  .cover .tag{display:inline-block;border:1px solid rgba(0,122,204,.6);color:#7cc4ff;border-radius:999px;padding:5px 14px;font-size:10px;letter-spacing:.15em;text-transform:uppercase;}
+  .cover h1{font-size:40px;line-height:1.15;font-weight:800;margin:18px 0 10px;}
+  .cover h1 span{color:#4da3ff;}
+  .cover p{color:#9AA0A6;font-size:13px;max-width:120mm;line-height:1.6;}
+  .cover .big-hex{width:64px;height:64px;background:var(--accent);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:800;color:#fff;box-shadow:0 10px 40px rgba(0,122,204,.5);}
+  .cover .meta{display:flex;gap:24px;font-size:10px;color:#9AA0A6;}
+  .cover .meta b{color:#E8EAED;display:block;font-size:12px;}
+
+  h2.sec{font-size:20px;color:var(--accent-dark);border-left:4px solid var(--accent);padding-left:10px;margin:6mm 0 5mm;}
+  h3.sub{font-size:13px;margin:4mm 0 2mm;color:var(--ink);}
+  p.txt{font-size:10.5px;line-height:1.65;color:#33383F;margin-bottom:3mm;}
+  .muted{color:var(--muted);}
+
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:4mm;}
+  .quad{border-radius:10px;padding:4mm 4mm 3mm;border:1px solid;}
+  .quad h4{font-size:12px;display:flex;align-items:center;gap:6px;margin-bottom:2mm;}
+  .quad .dot{width:9px;height:9px;border-radius:50%;}
+  .quad ul{list-style:none;}
+  .quad li{font-size:9.3px;line-height:1.5;margin-bottom:1.4mm;padding-left:10px;position:relative;}
+  .quad li::before{content:"";position:absolute;left:0;top:5px;width:4px;height:4px;border-radius:50%;background:currentColor;opacity:.6;}
+  .qS{background:var(--s-bg);border-color:var(--s);color:#1B4332;} .qS h4,.qS .dot{color:var(--s);background:none;} .qS .dot{background:var(--s);}
+  .qW{background:var(--w-bg);border-color:var(--w);color:#5C1616;} .qW h4{color:var(--w);} .qW .dot{background:var(--w);}
+  .qO{background:var(--o-bg);border-color:var(--o);color:#0A2E4E;} .qO h4{color:var(--o);} .qO .dot{background:var(--o);}
+  .qT{background:var(--t-bg);border-color:var(--t);color:#4E2E00;} .qT h4{color:var(--t);} .qT .dot{background:var(--t);}
+
+  table.score{width:100%;border-collapse:collapse;font-size:9.3px;margin-top:2mm;}
+  table.score th{background:#111214;color:#E8EAED;text-align:left;padding:2.2mm 2.5mm;font-size:9px;letter-spacing:.05em;}
+  table.score td{border-bottom:1px solid var(--line);padding:2mm 2.5mm;vertical-align:top;}
+  table.score tr:nth-child(even) td{background:#F2F5F8;}
+  .bar{height:5px;background:#E4E9EE;border-radius:3px;overflow:hidden;min-width:26mm;}
+  .bar i{display:block;height:100%;border-radius:3px;}
+  .pill{display:inline-block;border-radius:999px;padding:1px 8px;font-size:8.5px;font-weight:700;color:#fff;}
+
+  .tows{width:100%;border-collapse:collapse;font-size:9.3px;}
+  .tows th{padding:2.2mm;color:#fff;font-size:9.5px;}
+  .tows td{border:1px solid var(--line);padding:2.5mm;vertical-align:top;line-height:1.5;}
+  .rec{display:flex;gap:3mm;align-items:flex-start;margin-bottom:3mm;}
+  .rec .n{flex:0 0 9mm;height:9mm;border-radius:8px;background:var(--accent);color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:13px;}
+  .rec b{font-size:11px;} .rec p{font-size:9.8px;color:#33383F;line-height:1.55;margin-top:1mm;}
+  .kpirow{display:grid;grid-template-columns:repeat(4,1fr);gap:3mm;margin:4mm 0;}
+  .kpi{border:1px solid var(--line);border-radius:10px;padding:3mm;text-align:center;background:#FBFCFE;}
+  .kpi .v{font-size:17px;font-weight:800;} .kpi .l{font-size:8.3px;color:var(--muted);margin-top:1mm;}
+  .toc li{font-size:11px;margin-bottom:2.5mm;list-style:none;display:flex;justify-content:space-between;border-bottom:1px dotted var(--line);padding-bottom:1.5mm;}
+</style>
+</head>
+<body>
+
+<div class="toolbar">
+  <button onclick="window.print()">⬇ Télécharger en PDF</button>
+</div>
+
+<!-- ═══════════ PAGE 1 · COUVERTURE ═══════════ -->
+<div class="page"><div class="cover">
+  <div>
+    <div class="brand" style="color:#7cc4ff"><div class="big-hex">M</div></div>
+    <div style="height:8mm"></div>
+    <span class="tag">Rapport stratégique · Confidentiel</span>
+    <h1>Analyse <span>SWOT</span><br>MOTO Editor</h1>
+    <p>Forces, faiblesses, opportunités et menaces de l'IDE local-first minimaliste. Synthèse stratégique pour le positionnement sur le marché des éditeurs de code modernes.</p>
+  </div>
+  <div class="meta">
+    <div><b>Septembre 2026</b>Édition v1.0</div>
+    <div><b>Méthode</b>SWOT + matrice TOWS</div>
+    <div><b>Sources</b>Stack Overflow 2025 · Docs projet</div>
+    <div><b>Stack</b>.NET · MAUI · WinUI 3</div>
+  </div>
+</div></div>
+
+<!-- ═══════════ PAGE 2 · SOMMAIRE + SYNTHÈSE ═══════════ -->
+<div class="page">
+  <div class="brand"><div class="hex">M</div>MOTO Editor · Analyse SWOT</div>
+  <h2 class="sec" style="margin-top:6mm">Sommaire & synthèse exécutive</h2>
+  <ul class="toc">
+    <li><span>1. Matrice SWOT synthétique</span><span class="muted">p. 3</span></li>
+    <li><span>2. Forces internes (détail & impact)</span><span class="muted">p. 4</span></li>
+    <li><span>3. Faiblesses internes (détail & gravité)</span><span class="muted">p. 5</span></li>
+    <li><span>4. Opportunités externes (détail & attractivité)</span><span class="muted">p. 6</span></li>
+    <li><span>5. Menaces externes (détail & probabilité)</span><span class="muted">p. 7</span></li>
+    <li><span>6. Stratégies croisées TOWS & score global</span><span class="muted">p. 8</span></li>
+    <li><span>7. Recommandations & conclusion</span><span class="muted">p. 9</span></li>
+  </ul>
+
+  <h3 class="sub">Synthèse exécutive</h3>
+  <p class="txt">MOTO Editor est un IDE <b>100 % local, sans cloud ni Electron</b>, fondé sur une doctrine claire : <b>« façade simple, architecture complexe »</b>. Son interface minimaliste (inspirée de Claude Code / ChatGPT) masque une architecture backend riche : moteurs IA internes (Cortex, Neural, ProjectUnderstanding, TimeMachine), ~300 paramètres data-driven, 3 docks modulaires avec terminal interactif réel, et délégation structurée à XENO-SSS∞.</p>
+  <p class="txt">Le diagnostic SWOT révèle un projet aux <b>forces techniques différenciantes</b> (local-first, sécurité, accessibilité) mais à la <b>notoriété naissante</b>, évoluant sur un marché dominé par VS Code (75,9 %) et pressé par des entrants financés (Cursor, Zed). La voie recommandée : <b>créer et dominer la catégorie « IDE minimaliste, puissant & accessible »</b> plutôt que d'attaquer frontalement les leaders.</p>
+
+  <div class="kpirow">
+    <div class="kpi"><div class="v" style="color:var(--s)">4,1/5</div><div class="l">FORCES (impact moyen)</div></div>
+    <div class="kpi"><div class="v" style="color:var(--w)">3,7/5</div><div class="l">FAIBLESSES (gravité)</div></div>
+    <div class="kpi"><div class="v" style="color:var(--o)">4,1/5</div><div class="l">OPPORTUNITÉS (attractivité)</div></div>
+    <div class="kpi"><div class="v" style="color:var(--t)">3,7/5</div><div class="l">MENACES (probabilité)</div></div>
+  </div>
+  <p class="txt muted">Position nette : les forces et opportunités (moy. 4,1) dépassent les faiblesses et menaces (moy. 3,7) → <b>profil offensif</b>, à condition de transformer la notoriété et la dépendance plateforme en chantiers prioritaires.</p>
+  <div class="footline">Rapport SWOT · Septembre 2026</div><div class="pageno">2 / 9</div>
+</div>
+
+<!-- ═══════════ PAGE 3 · MATRICE SWOT ═══════════ -->
+<div class="page">
+  <div class="brand"><div class="hex">M</div>MOTO Editor · Analyse SWOT</div>
+  <h2 class="sec" style="margin-top:6mm">1. Matrice SWOT synthétique</h2>
+  <div class="grid2">
+    <div class="quad qS"><h4><span class="dot"></span>FORCES (internes)</h4><ul>
+      <li>100 % local, sans cloud ni Electron, ultra-léger</li>
+      <li>Architecture « fait maison » : maîtrise totale, transparence</li>
+      <li>UX minimaliste réduisant la charge cognitive</li>
+      <li>~300 paramètres data-driven (1 ligne = 1 param)</li>
+      <li>3 docks modulaires + terminal interactif réel</li>
+      <li>Moteurs IA internes + 20 agents + pipeline XENO</li>
+      <li>Sécurité : Ed25519, sandbox, isolation d'inférence</li>
+      <li>Accessibilité native via UI Automation (.NET MAUI)</li>
+    </ul></div>
+    <div class="quad qW"><h4><span class="dot"></span>FAIBLESSES (internes)</h4><ul>
+      <li>Notoriété et communauté quasi inexistantes</li>
+      <li>Dépendance à .NET MAUI / WinUI 3 (bug barre de titre)</li>
+      <li>Windows uniquement (macOS/Linux non livrés)</li>
+      <li>Performance brute potentiellement &lt; Rust/GPUI (Zed)</li>
+      <li>Savoir concentré sur une équipe unique</li>
+      <li>Dette : ~300 warnings, LSP/CRDT/DAP/i18n manquants</li>
+    </ul></div>
+    <div class="quad qO"><h4><span class="dot"></span>OPPORTUNITÉS (externes)</h4><ul>
+      <li>Marché IDE en croissance (+10,8 % CAGR, 16,5 Md$ 2026)</li>
+      <li>84 % des devs utilisent ou planifient l'IA</li>
+      <li>Demande d'alternatives légères à VS Code</li>
+      <li>Modèle open source + freemium prouvé par Zed</li>
+      <li>Accessibilité / WCAG : niche sous-servie</li>
+      <li>Tendance local-first & souveraineté des données</li>
+    </ul></div>
+    <div class="quad qT"><h4><span class="dot"></span>MENACES (externes)</h4><ul>
+      <li>Domination écrasante de VS Code (75,9 %)</li>
+      <li>Entrants lourdement financés (Cursor, Windsurf)</li>
+      <li>Croissance rapide de Zed (1,7 % → 7,3 % en 1 an)</li>
+      <li>Adoption entreprise lente pour un outil jeune</li>
+      <li>Fragmentation du marché des alternatives</li>
+      <li>Instabilité du sous-système titlebar WinUI 3 / MAUI</li>
+    </ul></div>
+  </div>
+  <p class="txt muted" style="margin-top:4mm">Lecture : le projet combine des forces rares (local-first, sécurité, accessibilité) avec des opportunités fortes (IA, légèreté, privacy). Les menaces sont structurelles (dominance VS Code) mais évitables par un positionnement de niche.</p>
+  <div class="footline">Rapport SWOT · Septembre 2026</div><div class="pageno">3 / 9</div>
+</div>
+
+<!-- ═══════════ PAGE 4 · FORCES ═══════════ -->
+<div class="page">
+  <div class="brand"><div class="hex">M</div>MOTO Editor · Analyse SWOT</div>
+  <h2 class="sec" style="margin-top:6mm">2. Forces internes — détail & impact</h2>
+  <table class="score">
+    <tr><th style="width:44%">Force</th><th>Justification</th><th style="width:34mm">Impact (1–5)</th></tr>
+    <tr><td><b>Local-first & fait maison</b></td><td>Aucun cloud, aucune dépendance externe ; maîtrise totale du code, privacy by design.</td><td><div class="bar"><i style="width:100%;background:var(--s)"></i></div>5</td></tr>
+    <tr><td><b>Légèreté native</b></td><td>Pile MAUI/WinUI 3 native, sans Electron : démarrage et empreinte mémoire réduits vs VS Code.</td><td><div class="bar"><i style="width:100%;background:var(--s)"></i></div>5</td></tr>
+    <tr><td><b>IA interne riche</b></td><td>MotoAiKernel, Cortex (mémoire+style), Neural (embeddings), TimeMachine, 20 agents spécialisés, délégation XENO-SSS∞.</td><td><div class="bar"><i style="width:100%;background:var(--s)"></i></div>5</td></tr>
+    <tr><td><b>UX minimaliste</b></td><td>Interface type Claude Code/ChatGPT ; divulgation progressive via Settings.</td><td><div class="bar"><i style="width:80%;background:var(--s)"></i></div>4</td></tr>
+    <tr><td><b>Personnalisation data-driven</b></td><td>~300 paramètres, 15 catégories, « 1 ligne = 1 paramètre » : profondeur sans chaos d'extensions.</td><td><div class="bar"><i style="width:80%;background:var(--s)"></i></div>4</td></tr>
+    <tr><td><b>Modularité 3 docks</b></td><td>Docks gauche/droite/bas, glisser-déposer inter-docks, redimensionnement, terminal réel.</td><td><div class="bar"><i style="width:80%;background:var(--s)"></i></div>4</td></tr>
+    <tr><td><b>Sécurité intégrée</b></td><td>Signature Ed25519, AtomicUpdater, anti-ZipSlip, IsolatedInferenceHost, sandbox LLM, PrivacyScanner.</td><td><div class="bar"><i style="width:80%;background:var(--s)"></i></div>4</td></tr>
+    <tr><td><b>Moteurs de performance</b></td><td>LazyFileLoader, IncrementalHighlighter, MiniMapCompressor, AiCache, 4 modes Eco→Ultra.</td><td><div class="bar"><i style="width:80%;background:var(--s)"></i></div>4</td></tr>
+    <tr><td><b>Accessibilité native</b></td><td>Couche UI Automation de .NET MAUI, mature face au défi GPUI de Zed.</td><td><div class="bar"><i style="width:60%;background:var(--s)"></i></div>3</td></tr>
+  </table>
+  <div class="footline">Rapport SWOT · Septembre 2026</div><div class="pageno">4 / 9</div>
+</div>
+
+<!-- ═══════════ PAGE 5 · FAIBLESSES ═══════════ -->
+<div class="page">
+  <div class="brand"><div class="hex">M</div>MOTO Editor · Analyse SWOT</div>
+  <h2 class="sec" style="margin-top:6mm">3. Faiblesses internes — détail & gravité</h2>
+  <table class="score">
+    <tr><th style="width:44%">Faiblesse</th><th>Justification</th><th style="width:34mm">Gravité (1–5)</th></tr>
+    <tr><td><b>Notoriété & communauté</b></td><td>Projet jeune, base d'utilisateurs embryonnaire ; croissance organique lente face aux géants.</td><td><div class="bar"><i style="width:100%;background:var(--w)"></i></div>5</td></tr>
+    <tr><td><b>Dépendance MAUI/WinUI 3</b></td><td>Bug persistant de barre de titre (3 échecs SetBorderAndTitleBar), régressions du sous-système.</td><td><div class="bar"><i style="width:80%;background:var(--w)"></i></div>4</td></tr>
+    <tr><td><b>Windows uniquement</b></td><td>macOS/Linux non livrés (PlatformEngine planifiée) : marché réduit au départ.</td><td><div class="bar"><i style="width:80%;background:var(--w)"></i></div>4</td></tr>
+    <tr><td><b>Équipe unique</b></td><td>Concentration du savoir-faire (direction + implémentation) : risque de pérennité.</td><td><div class="bar"><i style="width:80%;background:var(--w)"></i></div>4</td></tr>
+    <tr><td><b>Perf brute &lt; Rust</b></td><td>C#/.NET moins proche du matériel que le couple Rust+GPUI de Zed sur le rendu GPU.</td><td><div class="bar"><i style="width:60%;background:var(--w)"></i></div>3</td></tr>
+    <tr><td><b>Dette technique</b></td><td>~300 warnings de build ; LSP Roslyn, CRDT réel, DAP, tests, i18n absents (roadmap v1.0).</td><td><div class="bar"><i style="width:60%;background:var(--w)"></i></div>3</td></tr>
+  </table>
+  <h3 class="sub">Lecture</h3>
+  <p class="txt">Aucune faiblesse n'est bloquante en soi : la notoriété se construit (open source), la dépendance plateforme se mitigée (figer WASDK 1.8, chantier titlebar dédié), et la dette se résorbe par itérations. Le risque principal est <b>cumulatif</b> : trop de chantiers ouverts simultanément pour une équipe unique.</p>
+  <div class="footline">Rapport SWOT · Septembre 2026</div><div class="pageno">5 / 9</div>
+</div>
+
+<!-- ═══════════ PAGE 6 · OPPORTUNITÉS ═══════════ -->
+<div class="page">
+  <div class="brand"><div class="hex">M</div>MOTO Editor · Analyse SWOT</div>
+  <h2 class="sec" style="margin-top:6mm">4. Opportunités externes — détail & attractivité</h2>
+  <table class="score">
+    <tr><th style="width:44%">Opportunité</th><th>Justification</th><th style="width:34mm">Attractivité (1–5)</th></tr>
+    <tr><td><b>Adoption massive de l'IA</b></td><td>84 % des devs utilisent/planifient l'IA (Stack Overflow 2025) : le local-first IA est un positionnement porteur.</td><td><div class="bar"><i style="width:100%;background:var(--o)"></i></div>5</td></tr>
+    <tr><td><b>Tendance local-first / privacy</b></td><td>Souveraineté des données, conformité entreprise : avantage structurel vs solutions cloud (Copilot, Cursor).</td><td><div class="bar"><i style="width:100%;background:var(--o)"></i></div>5</td></tr>
+    <tr><td><b>Marché en croissance</b></td><td>14,9 → 16,5 Md$ (2025→2026), CAGR 10,8 % ; outils dev +16 %/an projetés à 2031.</td><td><div class="bar"><i style="width:80%;background:var(--o)"></i></div>4</td></tr>
+    <tr><td><b>Fatigue VS Code</b></td><td>Impact mémoire et surcharge visuelle critiqués : bassin de devs cherchant une alternative légère.</td><td><div class="bar"><i style="width:80%;background:var(--o)"></i></div>4</td></tr>
+    <tr><td><b>Modèle open source + freemium</b></td><td>Validé par Zed (Pro 10 $, Pro+ 60 $) et Cursor (Pro 20 $) : voie de monétisation éprouvée.</td><td><div class="bar"><i style="width:80%;background:var(--o)"></i></div>4</td></tr>
+    <tr><td><b>Niche accessibilité / WCAG</b></td><td>Zed et Cursor en difficulté sur lecteurs d'écran ; MOTO peut devenir la référence inclusive.</td><td><div class="bar"><i style="width:80%;background:var(--o)"></i></div>4</td></tr>
+    <tr><td><b>Marketplace d'agents IA</b></td><td>Agents spécialisés installables (tests, lint, changelog) : écosystème différenciant à construire.</td><td><div class="bar"><i style="width:60%;background:var(--o)"></i></div>3</td></tr>
+  </table>
+  <div class="footline">Rapport SWOT · Septembre 2026</div><div class="pageno">6 / 9</div>
+</div>
+
+<!-- ═══════════ PAGE 7 · MENACES ═══════════ -->
+<div class="page">
+  <div class="brand"><div class="hex">M</div>MOTO Editor · Analyse SWOT</div>
+  <h2 class="sec" style="margin-top:6mm">5. Menaces externes — détail & probabilité</h2>
+  <table class="score">
+    <tr><th style="width:44%">Menace</th><th>Justification</th><th style="width:34mm">Probabilité (1–5)</th></tr>
+    <tr><td><b>Domination VS Code</b></td><td>75,9 % de part de marché, écosystème d'extensions massif, gratuité : barrière à l'entrée colossale.</td><td><div class="bar"><i style="width:100%;background:var(--t)"></i></div>5</td></tr>
+    <tr><td><b>Entrants financés</b></td><td>Cursor (ARR ~2 Md$), Windsurf : visibilité médiatique et moyens marketing considérables.</td><td><div class="bar"><i style="width:80%;background:var(--t)"></i></div>4</td></tr>
+    <tr><td><b>Croissance de Zed</b></td><td>1,7 % → 7,3 % en un an ; occupe déjà la niche « performance + minimalisme ».</td><td><div class="bar"><i style="width:80%;background:var(--t)"></i></div>4</td></tr>
+    <tr><td><b>Adoption entreprise lente</b></td><td>Coûts de formation, risque de migration, maturité perçue : frein sur le segment B2B.</td><td><div class="bar"><i style="width:60%;background:var(--t)"></i></div>3</td></tr>
+    <tr><td><b>Fragmentation</b></td><td>Multiplication des alternatives (Neovim, Helix, Fleet…) dilue la base d'utilisateurs potentiels.</td><td><div class="bar"><i style="width:60%;background:var(--t)"></i></div>3</td></tr>
+    <tr><td><b>Instabilité stack Microsoft</b></td><td>Régressions titlebar WinUI 3/MAUI, échec .NET 10 (30/08), WASDK épinglé : risque technique externe.</td><td><div class="bar"><i style="width:60%;background:var(--t)"></i></div>3</td></tr>
+  </table>
+  <h3 class="sub">Lecture</h3>
+  <p class="txt">La menace VS Code est <b>structurelle mais contournable</b> : MOTO ne doit pas chercher la frontalité mais la création de catégorie. Les menaces techniques (stack Microsoft) se gèrent par prudence : figer les versions, chantiers isolés, tests avant migration.</p>
+  <div class="footline">Rapport SWOT · Septembre 2026</div><div class="pageno">7 / 9</div>
+</div>
+
+<!-- ═══════════ PAGE 8 · TOWS + SCORE ═══════════ -->
+<div class="page">
+  <div class="brand"><div class="hex">M</div>MOTO Editor · Analyse SWOT</div>
+  <h2 class="sec" style="margin-top:6mm">6. Stratégies croisées (matrice TOWS)</h2>
+  <table class="tows">
+    <tr><th style="background:var(--s)">SO · Offensif</th><th style="background:var(--w)">WO · Rattrapage</th></tr>
+    <tr>
+      <td>Capitaliser sur local-first + IA (S1,S3 × O1,O2) : message « IA puissante, données jamais quittent votre machine ».<br>Exploiter la légèreté (S2 × O3) : « l'alternative la plus rapide à VS Code ».<br>Faire de l'accessibilité (S8 × O5) un pilier de marque.</td>
+      <td>Open source pour bâtir notoriété & communauté (W1 × O4).<br>Freemium Pro 10–20 $ pour financer l'équipe (W5 × O4).<br>PlatformEngine pour sortir de Windows-only (W3 × O1).</td>
+    </tr>
+    <tr><th style="background:var(--o)">ST · Défensif</th><th style="background:var(--t)">WT · Survie</th></tr>
+    <tr>
+      <td>Différenciation privacy vs Cursor/Copilot cloud (S1 × T2).<br>Niche « minimaliste + accessible » intouchable par VS Code (S3,S8 × T1).<br>Modularité 3 docks comme avantage vs Zed rigide (S5 × T3).</td>
+      <td>Ne pas attaquer VS Code frontalement : créer une catégorie (W1 × T1).<br>Figer WASDK/MAUI, chantier titlebar isolé (W2 × T6).<br>Documentation + contribution pour réduire le risque équipe unique (W5 × T4).</td>
+    </tr>
+  </table>
+
+  <h3 class="sub">Score global pondéré</h3>
+  <table class="score">
+    <tr><th>Quadrant</th><th>Moyenne</th><th>Score agrégé</th><th>Posture</th></tr>
+    <tr><td><span class="pill" style="background:var(--s)">FORCES</span></td><td>4,1 / 5</td><td><div class="bar"><i style="width:82%;background:var(--s)"></i></div></td><td>Levier principal</td></tr>
+    <tr><td><span class="pill" style="background:var(--o)">OPPORTUNITÉS</span></td><td>4,1 / 5</td><td><div class="bar"><i style="width:82%;background:var(--o)"></i></div></td><td>Fenêtre favorable</td></tr>
+    <tr><td><span class="pill" style="background:var(--w)">FAIBLESSES</span></td><td>3,7 / 5</td><td><div class="bar"><i style="width:74%;background:var(--w)"></i></div></td><td>À transformer</td></tr>
+    <tr><td><span class="pill" style="background:var(--t)">MENACES</span></td><td>3,7 / 5</td><td><div class="bar"><i style="width:74%;background:var(--t)"></i></div></td><td>À contourner</td></tr>
+  </table>
+  <p class="txt muted" style="margin-top:3mm">Écart positif (+0,4 / +0,4) → <b>stratégie offensive ciblée</b> recommandée : attaquer des niches précises (privacy, accessibilité, légèreté) plutôt que le marché de masse.</p>
+  <div class="footline">Rapport SWOT · Septembre 2026</div><div class="pageno">8 / 9</div>
+</div>
+
+<!-- ═══════════ PAGE 9 · RECOMMANDATIONS ═══════════ -->
+<div class="page">
+  <div class="brand"><div class="hex">M</div>MOTO Editor · Analyse SWOT</div>
+  <h2 class="sec" style="margin-top:6mm">7. Recommandations stratégiques & conclusion</h2>
+  <div class="rec"><div class="n">1</div><div><b>Affirmer la proposition de valeur unique</b><p>Message central : « Le seul éditeur où la complexité est cachée derrière un écran parfaitement simple. » Créer et dominer la catégorie « IDE minimaliste, puissant & accessible », sans chercher à surpasser VS Code sur son terrain.</p></div></div>
+  <div class="rec"><div class="n">2</div><div><b>Faire de l'accessibilité un pilier de marque</b><p>Documenter et tester l'accessibilité (UI Automation, WCAG) dès maintenant : avantage durable, difficile à copier par Zed/Cursor, et porte d'entrée vers les entreprises.</p></div></div>
+  <div class="rec"><div class="n">3</div><div><b>Adopter open source + freemium</b><p>Licence permissive ou copyleft pour la confiance et la communauté ; plan Pro 10–20 $/mois (IA avancée, support prioritaire) pour pérenniser l'équipe.</p></div></div>
+  <div class="rec"><div class="n">4</div><div><b>Marketing ciblé sur les points de douleur</b><p>« Libérez votre machine du poids de VS Code », « Un IDE qui grandit avec vous ». Cibler Reddit (r/vscode), Hacker News, Dev.to et les créateurs de contenu outils dev.</p></div></div>
+  <div class="rec"><div class="n">5</div><div><b>Discipline de doctrine & prudence technique</b><p>Respecter « backend d'abord, UI mince » ; figer MAUI/WASDK, traiter la barre de titre en chantier dédié multi-jours ; résorber la dette (~300 warnings) avant toute migration .NET.</p></div></div>
+
+  <h3 class="sub">Conclusion</h3>
+  <p class="txt">MOTO Editor présente un <b>profil SWOT offensif</b> : des forces rares et alignées avec les grandes tendances (local-first, IA, privacy, accessibilité) face à des menaces réelles mais contournables. Sa réussite dépendra moins de la technologie — déjà solide et différenciante — que de <b>l'exécution stratégique</b> : construction de communauté, positionnement de niche, et discipline de roadmap. En dominant la catégorie qu'il invente, MOTO Editor peut raisonnablement viser <b>5 à 10 % de part de marché</b> à cinq ans, dans la trajectoire de Zed (7,3 %).</p>
+  <div class="footline">Rapport SWOT · Septembre 2026 · Fin du document</div><div class="pageno">9 / 9</div>
+</div>
+
+</body>
+</html>

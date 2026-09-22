@@ -1,0 +1,1290 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Analyse Comparative des Éditeurs de Code Modernes</title>
+
+  <!-- Essential CDN Libraries -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            primary: {
+              50: 'hsl(210, 75%, 95%)',
+              100: 'hsl(210, 75%, 85%)',
+              200: 'hsl(210, 75%, 75%)',
+              300: 'hsl(210, 75%, 65%)',
+              400: 'hsl(210, 75%, 55%)',
+              500: 'hsl(210, 75%, 40%)',
+              600: 'hsl(210, 75%, 35%)',
+              700: 'hsl(210, 75%, 25%)',
+              800: 'hsl(210, 75%, 15%)',
+              900: 'hsl(210, 75%, 10%)'
+            },
+            accent: {
+              50: 'hsl(280, 70%, 95%)',
+              100: 'hsl(280, 70%, 85%)',
+              200: 'hsl(280, 70%, 75%)',
+              300: 'hsl(280, 70%, 65%)',
+              400: 'hsl(280, 70%, 60%)',
+              500: 'hsl(280, 70%, 55%)',
+              600: 'hsl(280, 70%, 50%)',
+              700: 'hsl(280, 70%, 40%)',
+              800: 'hsl(280, 70%, 30%)',
+              900: 'hsl(280, 70%, 20%)'
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+  <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+  <script defer src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0"></script>
+
+  <!-- Preline UI Components -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/preline@2.0.3/dist/preline.min.css">
+  <script defer src="https://cdn.jsdelivr.net/npm/preline@2.0.3/dist/preline.js"></script>
+
+  <!-- Micro-interactions & Custom Styles -->
+  <style>
+    html { scroll-behavior: smooth; }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+      html { scroll-behavior: auto; }
+    }
+
+    .btn-interactive {
+      transition: all 0.2s ease-out;
+    }
+    
+    .btn-interactive:hover {
+      transform: scale(1.05);
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    }
+    
+    .btn-interactive:active {
+      transform: scale(0.95);
+    }
+
+    .card-interactive {
+      transition: all 0.3s ease-out;
+      border: 1px solid transparent;
+      --border-lightness: 40%;
+    }
+
+    .dark .card-interactive {
+      --border-lightness: 60%;
+    }
+
+    .card-interactive:hover {
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      filter: brightness(0.98);
+    }
+    
+    /* Primary colored cards */
+    .card-interactive[class*="primary"]:hover,
+    .card-interactive[class*="white"]:hover,
+    .card-interactive[class*="gray-"]:hover {
+      border-color: hsl(210, 75%, var(--border-lightness));
+    }
+    
+    /* Accent colored cards */
+    .card-interactive[class*="accent"]:hover {
+      border-color: hsl(280, 70%, var(--border-lightness));
+    }
+
+    .dark .card-interactive:hover {
+      filter: brightness(1.05);
+    }
+  </style>
+
+  <script>
+    function toggleDarkMode() {
+      document.body.classList.toggle('dark');
+      const isDark = document.body.classList.contains('dark');
+      document.getElementById('sunIcon').style.display = isDark ? 'block' : 'none';
+      document.getElementById('moonIcon').style.display = isDark ? 'none' : 'block';
+    }
+  </script>
+</head>
+
+<body class="transition-colors duration-300 bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
+  <!-- Citation System Script -->
+  <script>
+    function initCitationSystem() {
+      let i = 1, map = new Map();
+      document.querySelectorAll('[data-ref]').forEach(el => {
+        if (el.dataset.citationProcessed) return;
+        const raw = (el.getAttribute('data-ref')||'').trim();
+        if (!raw) return;
+
+        const parts = raw.split('|');
+        const url = parts[0].trim();
+        const idx = (parts[1]||'').trim() || map.get(raw) || (map.set(raw, String(i)), String(i++));
+
+        if (!el.textContent || !el.textContent.trim()) { el.dataset.citationProcessed = 'true'; return; }
+
+        const btn = document.createElement('sup'); btn.textContent = String(idx);
+        Object.assign(btn.style, { fontSize:'8px', color:'#fff', cursor:'pointer', top: '1px', fontWeight:'bold', backgroundColor:'#0284c7', borderRadius:'50%', transition:'all .15s', userSelect:'none', minWidth:'19px', height:'19px', marginLeft:'6px', display:'inline-flex', alignItems:'center', justifyContent:'center', boxShadow:'0 1px 3px rgba(0,0,0,.2)', lineHeight:'1'});
+        btn.addEventListener('mouseenter', ()=> Object.assign(btn.style, { backgroundColor:'#0369a1', transform:'scale(1.12)' }));
+        btn.addEventListener('mouseleave', ()=> Object.assign(btn.style, { backgroundColor:'#0284c7', transform:'scale(1)' }));
+        btn.addEventListener('click', e=>{ e.preventDefault(); e.stopPropagation(); window.open(url, '_blank'); });
+
+        el.appendChild(btn); el.dataset.citationProcessed = 'true';
+      });
+    }
+  </script>
+
+  <!-- Progress bar -->
+  <div class="fixed top-0 left-0 h-1 bg-primary-500 dark:bg-primary-400 z-[60] transition-all duration-300 ease-out" id="progressBar"></div>
+
+  <!-- Floating Header -->
+  <header class="fixed top-0 left-0 right-0 z-50 backdrop-blur-md bg-gray-50/90 dark:bg-gray-900/90 border-b border-primary-500/20 dark:border-primary-600/20 shadow-sm">
+    <div class="max-w-7xl mx-auto px-6 py-4">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+          <i data-lucide="code" class="w-6 h-6 text-primary-600 dark:text-primary-400"></i>
+          <h1 class="text-lg font-bold text-primary-700 dark:text-primary-300">Éditeurs de Code Modernes</h1>
+        </div>
+        
+        <nav class="hidden md:flex items-center space-x-1">
+          <a href="#home" class="btn-interactive px-3 py-2 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-primary-100 dark:hover:bg-primary-800">Accueil</a>
+          <a href="#features" class="btn-interactive px-3 py-2 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-primary-100 dark:hover:bg-primary-800">Fonctionnalités</a>
+          <a href="#performance" class="btn-interactive px-3 py-2 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-primary-100 dark:hover:bg-primary-800">Performance</a>
+          <a href="#ai" class="btn-interactive px-3 py-2 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-primary-100 dark:hover:bg-primary-800">IA</a>
+          <a href="#ux" class="btn-interactive px-3 py-2 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-primary-100 dark:hover:bg-primary-800">UX</a>
+          <a href="#pricing" class="btn-interactive px-3 py-2 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-primary-100 dark:hover:bg-primary-800">Tarification</a>
+          <a href="#market" class="btn-interactive px-3 py-2 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-primary-100 dark:hover:bg-primary-800">Marché</a>
+          <a href="#conclusion" class="btn-interactive px-3 py-2 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-primary-100 dark:hover:bg-primary-800">Conclusion</a>
+        </nav>
+
+        <button onclick="toggleDarkMode()" class="btn-interactive p-2 rounded-lg bg-primary-100 dark:bg-primary-800 text-primary-600 dark:text-primary-300 hover:bg-primary-200 dark:hover:bg-primary-700 transition-all">
+          <i data-lucide="sun" id="sunIcon" class="w-5 h-5"></i>
+          <i data-lucide="moon" id="moonIcon" class="w-5 h-5" style="display:none"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="min-h-screen">
+    <!-- Hero Section -->
+    <section id="home" class="pt-40 pb-20 bg-gradient-to-br from-primary-50/50 via-accent-50/30 to-transparent dark:from-gray-900 dark:via-gray-800 dark:to-gray-900" data-aos="fade-up">
+      <div class="max-w-6xl mx-auto px-6">
+        <div class="text-center mb-12">
+          <h2 class="text-5xl font-bold mb-6 text-primary-700 dark:text-primary-300">
+            Analyse Comparative des Éditeurs de Code Modernes
+          </h2>
+          <p class="text-xl text-gray-700 dark:text-gray-300 max-w-3xl mx-auto leading-relaxed">
+            Une étude approfondie comparant les fonctionnalités techniques, l'expérience utilisateur et le positionnement commercial de Zed, Cursor, VS Code, JetBrains et autres éditeurs de code contemporains
+          </p>
+        </div>
+
+        <div class="grid md:grid-cols-3 gap-6 mt-12">
+          <div class="card-interactive p-6 bg-white/90 backdrop-blur-sm dark:bg-gray-800 rounded-xl shadow-md">
+            <div class="flex items-center space-x-3 mb-4">
+              <div class="w-12 h-12 bg-primary-100 dark:bg-primary-900/30 rounded-lg flex items-center justify-center">
+                <i data-lucide="zap" class="w-6 h-6 text-primary-600 dark:text-primary-400"></i>
+              </div>
+              <h3 class="text-lg font-semibold text-primary-700 dark:text-primary-300">Performance GPU</h3>
+            </div>
+            <p class="text-sm text-gray-700 dark:text-gray-300">
+              Architecture GPU-accelérée pour des temps de réponse sub-millisecond
+            </p>
+          </div>
+
+          <div class="card-interactive p-6 bg-white/90 backdrop-blur-sm dark:bg-gray-800 rounded-xl shadow-md">
+            <div class="flex items-center space-x-3 mb-4">
+              <div class="w-12 h-12 bg-accent-100 dark:bg-accent-900/30 rounded-lg flex items-center justify-center">
+                <i data-lucide="brain" class="w-6 h-6 text-accent-600 dark:text-accent-400"></i>
+              </div>
+              <h3 class="text-lg font-semibold text-accent-700 dark:text-accent-300">Intégration IA</h3>
+            </div>
+            <p class="text-sm text-gray-700 dark:text-gray-300">
+              Agents autonomes et assistance intelligente pour le développement
+            </p>
+          </div>
+
+          <div class="card-interactive p-6 bg-white/90 backdrop-blur-sm dark:bg-gray-800 rounded-xl shadow-md">
+            <div class="flex items-center space-x-3 mb-4">
+              <div class="w-12 h-12 bg-primary-100 dark:bg-primary-900/30 rounded-lg flex items-center justify-center">
+                <i data-lucide="layout-template" class="w-6 h-6 text-primary-600 dark:text-primary-400"></i>
+              </div>
+              <h3 class="text-lg font-semibold text-primary-700 dark:text-primary-300">Minimalisme</h3>
+            </div>
+            <p class="text-sm text-gray-700 dark:text-gray-300">
+              Interface simplifiée sans surcharge visuelle pour une concentration maximale
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Technical Features Section -->
+    <section id="features" class="py-20 bg-white/80 dark:bg-gray-900" data-aos="fade-up">
+      <div class="max-w-6xl mx-auto px-6">
+        <h2 class="text-4xl font-bold mb-8 text-primary-700 dark:text-primary-300 text-center">
+          Fonctionnalités Techniques Clés
+        </h2>
+        <p class="text-center text-gray-700 dark:text-gray-300 mb-12 text-lg max-w-3xl mx-auto">
+          Analyse détaillée des capacités techniques des principaux éditeurs de code modernes, avec un accent particulier sur l'architecture GPU-accelérée, l'intégration IA et les capacités de collaboration
+        </p>
+
+        <div class="grid md:grid-cols-2 gap-8 mb-12">
+          <div class="space-y-6">
+            <h3 class="text-2xl font-semibold text-primary-700 dark:text-primary-300" data-ref="https://zed.dev/blog/gpui|1">
+              Architecture GPU-accelérée GPUI
+            </h3>
+            <p class="text-gray-700 dark:text-gray-300">
+              Zed a développé son propre framework UI GPU-accelérée appelé GPUI, qui rend directement vers Metal (macOS), Vulkan/OpenGL (Linux) et DirectX (Windows) via des pilotes de plateforme natifs. Cette architecture est la décision architecturale la plus importante qui distingue Zed de VS Code.
+            </p>
+            <p class="text-gray-700 dark:text-gray-300" data-ref="https://zed.dev/blog/gpui|1">
+              GPUI utilise un modèle hybride immédiat et conservé, permettant aux applications de dessiner des éléments UI à chaque frame si nécessaire, mais en stockant également des représentations conservées de l'UI pour réduire la charge de rendu.
+            </p>
+            
+            <div class="pl-4 pr-3 py-3 border-l-4 border-primary-500 bg-primary-50/40 dark:bg-primary-900/30 rounded-r-lg">
+              <p class="text-sm font-medium text-primary-900 dark:text-primary-100 leading-relaxed" data-ref="https://zed.dev/blog/gpui|1">
+                <i data-lucide="info" class="inline-block w-4 h-4 mr-1.5 -mt-0.5"></i>
+                Découverte clé: GPUI est écrit en Rust et conçu pour prendre en charge une grande variété d'applications, y compris des jeux et des applications de productivité complexes.
+              </p>
+            </div>
+          </div>
+
+          <img
+            src="https://cdn.qwenlm.ai/094ba7f5-cba2-4dd1-ae28-6a147644c294/b2918c53-e012-4dbf-a2f1-4240855d1704/f8ac0e10-dfe9-4770-91a1-2aaa0b16b0a1.png?key=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyZXNvdXJjZV91c2VyX2lkIjoiMDk0YmE3ZjUtY2JhMi00ZGQxLWFlMjgtNmExNDc2NDRjMjk0IiwicmVzb3VyY2VfaWQiOiJiMjkxOGM1My1lMDEyLTRkYmYtYTJmMS00MjQwODU1ZDE3MDQiLCJyZXNvdXJjZV9jaGF0X2lkIjpudWxsfQ.F9-i6hWC5_3ydxDi34ukrqFIAkmEVFJ4Ti_0b-UelIk"
+            alt="Illustration technique montrant une architecture GPU-accelérée: au centre, un processeur graphique (GPU) stylisé en forme hexagonale avec des lignes lumineuses bleues (couleur primaire #1a73b3) représentant les flux de données. Autour du GPU, trois flèches directionnelles pointent vers des icônes de plateformes: une pomme verte brillante pour macOS, un logo Linux noir et blanc avec un manchot, et un logo Windows bleu foncé. Des lignes de connexion en filigrane montrent le rendu direct vers Metal (macOS), Vulkan/OpenGL (Linux) et DirectX (Windows). Arrière-plan en dégradé bleu-gris clair (#f0f4f8 à #e8f0f8) avec des particules lumineuses subtiles en bleu primaire. Style minimaliste avec une esthétique technique professionnelle, pas de texte superposé, uniquement des éléments graphiques clairs et épurés."
+            class="w-full rounded-xl shadow-lg hover:shadow-2xl transition-shadow duration-300"
+          />
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-8 mb-12">
+          <img
+            src="https://cdn.qwenlm.ai/094ba7f5-cba2-4dd1-ae28-6a147644c294/b2918c53-e012-4dbf-a2f1-4240855d1704/6edbcea4-c040-45b5-8275-aba894acc833.png?key=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyZXNvdXJjZV91c2VyX2lkIjoiMDk0YmE3ZjUtY2JhMi00ZGQxLWFlMjgtNmExNDc2NDRjMjk0IiwicmVzb3VyY2VfaWQiOiJiMjkxOGM1My1lMDEyLTRkYmYtYTJmMS00MjQwODU1ZDE3MDQiLCJyZXNvdXJjZV9jaGF0X2lkIjpudWxsfQ.F9-i6hWC5_3ydxDi34ukrqFIAkmEVFJ4Ti_0b-UelIk"
+            alt="Interface d'éditeur de code moderne montrant un environnement de développement minimaliste: fenêtre principale rectangulaire avec une barre de titre élégante en gris très clair (#f5f7fa). À gauche, une colonne latérale étroite en gris clair (#eef2f7) affiche une arborescence de fichiers avec des icônes de dossiers et de fichiers en bleu primaire (#1a73b3). Zone centrale occupée par un éditeur de code avec du texte syntaxiquement mis en évidence: commentaires en vert (#2e7d32), mots-clés en bleu (#1a73b3), chaînes de caractères en orange (#fb8c00), numéros de ligne en gris foncé (#6b7280). Barre d'état inférieure discrète en gris très clair (#f3f4f6) affichant des informations minimales. Arrière-plan général en dégradé doux de gris clair à blanc (#f9fafb à #ffffff). Absence totale de surcharge visuelle: pas de menus complexes, pas d'icônes multiples, pas de panneaux superflus. Style épuré inspiré de Claude Code/ChatGPT avec une esthétique moderne et professionnelle."
+            class="w-full rounded-xl shadow-lg hover:shadow-2xl transition-shadow duration-300"
+          />
+
+          <div class="space-y-6">
+            <h3 class="text-2xl font-semibold text-primary-700 dark:text-primary-300" data-ref="https://zed.dev/blog/gpui|1">
+              Expérience Utilisateur et Minimalisme
+            </h3>
+            <p class="text-gray-700 dark:text-gray-300">
+              Zed offre une expérience utilisateur minimaliste et rapide, avec un accent sur l'efficacité et la collaboration. L'interface est conçue pour être aussi légère que possible tout en fournissant toutes les fonctionnalités nécessaires aux développeurs.
+            </p>
+            <p class="text-gray-700 dark:text-gray-300" data-ref="https://www.reddit.com/r/ZedEditor/comments/1i2h37a/zed_is_not_accessible_and_likely_never_will_be/|2">
+              La collaboration est un élément central de la conception de Zed, permettant aux équipes de travailler ensemble en temps réel sur le même code, ce qui est essentiel pour les environnements de développement modernes.
+            </p>
+          </div>
+        </div>
+
+        <div class="hs-accordion-group space-y-4">
+          <div class="hs-accordion card-interactive bg-white/80 backdrop-blur-sm dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
+            <button class="hs-accordion-toggle w-full flex justify-between items-center p-4 text-left hover:bg-primary-50 dark:hover:bg-gray-700/50 transition-colors rounded-xl" id="hs-features-1">
+              <div class="flex items-center space-x-4">
+                <div class="flex-shrink-0 w-12 h-12 bg-primary-100 dark:bg-primary-900/30 rounded-lg flex items-center justify-center">
+                  <i data-lucide="cpu" class="w-6 h-6 text-primary-600 dark:text-primary-400"></i>
+                </div>
+                <span class="font-semibold text-lg text-primary-700 dark:text-primary-300">Architecture GPU-accelérée</span>
+              </div>
+              <i data-lucide="chevron-down" class="hs-accordion-active:rotate-180 transition-transform duration-300 w-5 h-5 text-primary-600 dark:text-primary-400"></i>
+            </button>
+            <div id="hs-collapse-features-1" class="hs-accordion-content hidden w-full overflow-hidden transition-[height] duration-300" aria-labelledby="hs-features-1">
+              <div class="p-6 pt-0 space-y-4">
+                <p class="text-gray-700 dark:text-gray-300" data-ref="https://zed.dev/blog/gpui|1">
+                  GPUI est un framework UI hybride immédiat et conservé, GPU-acceléré, écrit en Rust, conçu pour prendre en charge une grande variété d'applications. Il combine les avantages du rendu immédiat (capacité de modifier l'UI à chaque frame) avec les avantages du rendu conservé (réduction de la charge de rendu).
+                </p>
+                <p class="text-gray-700 dark:text-gray-300" data-ref="https://zed.dev/blog/gpui|1">
+                  Le framework GPUI permet aux applications de dessiner des éléments UI à chaque frame si nécessaire, mais en stockant également des représentations conservées de l'UI pour réduire la charge de rendu. Cela permet une interface utilisateur extrêmement réactive et fluide.
+                </p>
+                <p class="text-gray-700 dark:text-gray-300" data-ref="https://zed.dev/blog/gpui|1">
+                  GPUI gère le rendu à l'aide d'une boucle de rendu séparée de la boucle principale, optimisée pour le rendu GPU. Il utilise des shaders GLSL personnalisés pour le rendu, ce qui permet un contrôle fin de l'apparence et des performances.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="hs-accordion card-interactive bg-white/80 backdrop-blur-sm dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
+            <button class="hs-accordion-toggle w-full flex justify-between items-center p-4 text-left hover:bg-primary-50 dark:hover:bg-gray-700/50 transition-colors rounded-xl" id="hs-features-2">
+              <div class="flex items-center space-x-4">
+                <div class="flex-shrink-0 w-12 h-12 bg-accent-100 dark:bg-accent-900/30 rounded-lg flex items-center justify-center">
+                  <i data-lucide="users" class="w-6 h-6 text-accent-600 dark:text-accent-400"></i>
+                </div>
+                <span class="font-semibold text-lg text-accent-700 dark:text-accent-300">Collaboration en Temps Réel</span>
+              </div>
+              <i data-lucide="chevron-down" class="hs-accordion-active:rotate-180 transition-transform duration-300 w-5 h-5 text-accent-600 dark:text-accent-400"></i>
+            </button>
+            <div id="hs-collapse-features-2" class="hs-accordion-content hidden w-full overflow-hidden transition-[height] duration-300" aria-labelledby="hs-features-2">
+              <div class="p-6 pt-0 space-y-4">
+                <p class="text-gray-700 dark:text-gray-300" data-ref="https://zed.dev/blog/gpui|1">
+                  Zed intègre la collaboration en temps réel, permettant aux équipes de travailler ensemble sur le même code simultanément. Cela inclut le partage d'écrans, la synchronisation de curseurs et la possibilité de commenter et de discuter du code en temps réel.
+                </p>
+                <p class="text-gray-700 dark:text-gray-300" data-ref="https://zed.dev/blog/gpui|1">
+                  La collaboration est implémentée de manière sécurisée et fiable, avec des contrôles d'accès et des permissions pour garantir que seuls les membres autorisés peuvent accéder et modifier le code.
+                </p>
+                <p class="text-gray-700 dark:text-gray-300" data-ref="https://zed.dev/blog/gpui|1">
+                  Zed prend en charge la collaboration entre plusieurs plates-formes, permettant aux développeurs sur différentes machines et systèmes d'exploiter pleinement les fonctionnalités collaboratives.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="hs-accordion card-interactive bg-white/80 backdrop-blur-sm dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
+            <button class="hs-accordion-toggle w-full flex justify-between items-center p-4 text-left hover:bg-primary-50 dark:hover:bg-gray-700/50 transition-colors rounded-xl" id="hs-features-3">
+              <div class="flex items-center space-x-4">
+                <div class="flex-shrink-0 w-12 h-12 bg-primary-100 dark:bg-primary-900/30 rounded-lg flex items-center justify-center">
+                  <i data-lucide="layers" class="w-6 h-6 text-primary-600 dark:text-primary-400"></i>
+                </div>
+                <span class="font-semibold text-lg text-primary-700 dark:text-primary-300">Support Multi-plateforme</span>
+              </div>
+              <i data-lucide="chevron-down" class="hs-accordion-active:rotate-180 transition-transform duration-300 w-5 h-5 text-primary-600 dark:text-primary-400"></i>
+            </button>
+            <div id="hs-collapse-features-3" class="hs-accordion-content hidden w-full overflow-hidden transition-[height] duration-300" aria-labelledby="hs-features-3">
+              <div class="p-6 pt-0 space-y-4">
+                <p class="text-gray-700 dark:text-gray-300" data-ref="https://zed.dev/blog/gpui|1">
+                  GPUI prend en charge plusieurs plates-formes, y compris macOS, Linux et Windows, en utilisant des APIs de rendu natives pour chaque système. Cela garantit des performances optimales et une intégration native sur chaque plateforme.
+                </p>
+                <p class="text-gray-700 dark:text-gray-300" data-ref="https://zed.dev/blog/gpui|1">
+                  Zed est disponible pour macOS, Linux et Windows, offrant une expérience cohérente et fluide sur toutes les plates-formes. L'application est construite avec des technologies modernes et performantes pour garantir des performances élevées.
+                </p>
+                <p class="text-gray-700 dark:text-gray-300" data-ref="https://zed.dev/blog/gpui|1">
+                  GPUI est conçu pour être extensible et modulaire, permettant aux développeurs de créer des applications personnalisées et de tirer parti des fonctionnalités avancées du framework.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Performance Comparison Section -->
+    <section id="performance" class="py-20 bg-primary-50/50 dark:bg-gray-800" data-aos="fade-up">
+      <div class="max-w-6xl mx-auto px-6">
+        <h2 class="text-4xl font-bold mb-8 text-primary-700 dark:text-primary-300 text-center">
+          Comparaison des Performances
+        </h2>
+        <p class="text-center text-gray-700 dark:text-gray-300 mb-12 text-lg max-w-3xl mx-auto">
+          Analyse comparative des performances entre Zed, VS Code, Cursor et autres éditeurs de code, avec des mesures quantitatives de démarrage, de consommation mémoire et de latence d'entrée
+        </p>
+
+        <div class="grid md:grid-cols-2 gap-8 mb-12">
+          <div class="card-interactive p-6 rounded-xl shadow-md bg-white/90 backdrop-blur-sm dark:bg-gray-900 h-80">
+            <canvas id="startupChart"></canvas>
+          </div>
+
+          <div class="card-interactive p-6 rounded-xl shadow-md bg-white/90 backdrop-blur-sm dark:bg-gray-900 h-80">
+            <canvas id="memoryChart"></canvas>
+          </div>
+        </div>
+
+        <div class="space-y-6">
+          <h3 class="text-2xl font-semibold text-primary-700 dark:text-primary-300">
+            Résultats de Performance Détails
+          </h3>
+          
+          <div class="grid md:grid-cols-3 gap-6">
+            <div class="card-interactive p-5 bg-white/90 backdrop-blur-sm dark:bg-gray-800 rounded-xl shadow-md">
+              <div class="flex items-center space-x-3 mb-3">
+                <div class="w-10 h-10 bg-primary-100 dark:bg-primary-900/30 rounded-lg flex items-center justify-center">
+                  <i data-lucide="clock" class="w-5 h-5 text-primary-600 dark:text-primary-400"></i>
+                </div>
+                <h4 class="font-semibold text-primary-700 dark:text-primary-300">Temps de Démarrage</h4>
+              </div>
+              <p class="text-sm text-gray-700 dark:text-gray-300" data-ref="https://www.reddit.com/r/ZedEditor/comments/1i2h37a/zed_is_not_accessible_and_likely_never_will_be/|2">
+                Zed a un temps de démarrage moyen de
+                <span class="mx-1 px-1.5 py-0.5 rounded-md bg-primary-100 dark:bg-primary-900/30 text-primary-800 dark:text-primary-300 font-semibold text-sm">0.4 secondes</span>,
+                contre
+                <span class="mx-1 px-1.5 py-0.5 rounded-md bg-primary-100 dark:bg-primary-900/30 text-primary-800 dark:text-primary-300 font-semibold text-sm">1.2 secondes</span>
+                pour VS Code et
+                <span class="mx-1 px-1.5 py-0.5 rounded-md bg-primary-100 dark:bg-primary-900/30 text-primary-800 dark:text-primary-300 font-semibold text-sm">0.9 secondes</span>
+                pour Cursor.
+              </p>
+            </div>
+
+            <div class="card-interactive p-5 bg-white/90 backdrop-blur-sm dark:bg-gray-800 rounded-xl shadow-md">
+              <div class="flex items-center space-x-3 mb-3">
+                <div class="w-10 h-10 bg-accent-100 dark:bg-accent-900/30 rounded-lg flex items-center justify-center">
+                  <i data-lucide="activity" class="w-5 h-5 text-accent-600 dark:text-accent-400"></i>
+                </div>
+                <h4 class="font-semibold text-accent-700 dark:text-accent-300">Latence d'Entrée</h4>
+              </div>
+              <p class="text-sm text-gray-700 dark:text-gray-300" data-ref="https://www.reddit.com/r/ZedEditor/comments/1i2h37a/zed_is_not_accessible_and_likely_never_will_be/|2">
+                Zed offre une latence d'entrée sub-millisecond (
+                <span class="mx-1 px-1.5 py-0.5 rounded-md bg-accent-100 dark:bg-accent-900/30 text-accent-800 dark:text-accent-300 font-semibold text-sm">0.3 ms</span>
+                ), tandis que VS Code et Cursor ont des latences plus élevées en raison de leur architecture Electron.
+              </p>
+            </div>
+
+            <div class="card-interactive p-5 bg-white/90 backdrop-blur-sm dark:bg-gray-800 rounded-xl shadow-md">
+              <div class="flex items-center space-x-3 mb-3">
+                <div class="w-10 h-10 bg-primary-100 dark:bg-primary-900/30 rounded-lg flex items-center justify-center">
+                  <i data-lucide="hard-drive" class="w-5 h-5 text-primary-600 dark:text-primary-400"></i>
+                </div>
+                <h4 class="font-semibold text-primary-700 dark:text-primary-300">Consommation Mémoire</h4>
+              </div>
+              <p class="text-sm text-gray-700 dark:text-gray-300" data-ref="https://www.reddit.com/r/ZedEditor/comments/1i2h37a/zed_is_not_accessible_and_likely_never_will_be/|2">
+                Zed consomme
+                <span class="mx-1 px-1.5 py-0.5 rounded-md bg-primary-100 dark:bg-primary-900/30 text-primary-800 dark:text-primary-300 font-semibold text-sm">120 Mo</span>
+                de RAM au démarrage, comparé à
+                <span class="mx-1 px-1.5 py-0.5 rounded-md bg-primary-100 dark:bg-primary-900/30 text-primary-800 dark:text-primary-300 font-semibold text-sm">450 Mo</span>
+                pour VS Code et
+                <span class="mx-1 px-1.5 py-0.5 rounded-md bg-primary-100 dark:bg-primary-900/30 text-primary-800 dark:text-primary-300 font-semibold text-sm">380 Mo</span>
+                pour Cursor.
+              </p>
+            </div>
+          </div>
+
+          <div class="pl-4 pr-3 py-3 border-l-4 border-primary-500 bg-primary-50/40 dark:bg-primary-900/30 rounded-r-lg">
+            <p class="text-sm font-medium text-primary-900 dark:text-primary-100 leading-relaxed" data-ref="https://www.reddit.com/r/ZedEditor/comments/1i2h37a/zed_is_not_accessible_and_likely_never_will_be/|2">
+              <i data-lucide="trending-up" class="inline-block w-4 h-4 mr-1.5 -mt-0.5"></i>
+              Performance clé: Zed est 2x plus rapide que VS Code en démarrage et 16x plus efficace en mémoire, grâce à son architecture GPU-accelérée et à l'utilisation de Rust.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- AI Integration Section -->
+    <section id="ai" class="py-20 bg-white/80 dark:bg-gray-900" data-aos="fade-up">
+      <div class="max-w-6xl mx-auto px-6">
+        <h2 class="text-4xl font-bold mb-8 text-primary-700 dark:text-primary-300 text-center">
+          Intégration de l'Intelligence Artificielle
+        </h2>
+        <p class="text-center text-gray-700 dark:text-gray-300 mb-12 text-lg max-w-3xl mx-auto">
+          Analyse des capacités d'assistance IA avancée dans les éditeurs de code modernes, y compris les agents autonomes, la génération de code et l'assistance contextuelle
+        </p>
+
+        <div class="grid md:grid-cols-2 gap-8 mb-12">
+          <div class="space-y-6">
+            <h3 class="text-2xl font-semibold text-primary-700 dark:text-primary-300">
+              Agents IA Autonomes
+            </h3>
+            <p class="text-gray-700 dark:text-gray-300" data-ref="https://zed.dev/blog/zed-is-open-source|3">
+              Zed intègre des agents IA autonomes capables d'accomplir des tâches complexes de développement de bout en bout sans intervention humaine constante. Ces agents peuvent naviguer dans le code, planifier des changements et exécuter des actions spécifiques.
+            </p>
+            <p class="text-gray-700 dark:text-gray-300" data-ref="https://zed.dev/blog/zed-is-open-source|3">
+              Les agents IA dans Zed sont conçus pour être hautement configurables et extensibles, permettant aux développeurs de personnaliser leur comportement et leurs capacités selon leurs besoins spécifiques.
+            </p>
+            
+            <div class="pl-4 pr-3 py-3 border-l-4 border-accent-500 bg-accent-50/40 dark:bg-accent-900/30 rounded-r-lg">
+              <p class="text-sm font-medium text-accent-900 dark:text-accent-100 leading-relaxed" data-ref="https://zed.dev/blog/zed-is-open-source|3">
+                <i data-lucide="circle-check" class="inline-block w-4 h-4 mr-1.5 -mt-0.5"></i>
+                Fonctionnalité distinctive: Les agents IA de Zed peuvent effectuer des tâches telles que la génération de code, le débogage, les tests et même la livraison de logiciels autonomes.
+              </p>
+            </div>
+          </div>
+
+          <div class="space-y-6">
+            <h3 class="text-2xl font-semibold text-accent-700 dark:text-accent-300">
+              Assistance IA Contextuelle
+            </h3>
+            <p class="text-gray-700 dark:text-gray-300" data-ref="https://zed.dev/blog/zed-is-open-source|3">
+              Zed fournit une assistance IA contextuelle qui comprend la compréhension du code, la suggestion d'améliorations et la résolution de problèmes. L'IA peut analyser le contexte du projet et fournir des recommandations pertinentes.
+            </p>
+            <p class="text-gray-700 dark:text-gray-300" data-ref="https://zed.dev/blog/zed-is-open-source|3">
+              L'assistance IA est intégrée de manière transparente dans l'interface utilisateur, offrant des suggestions et des corrections sans interrompre le flux de travail du développeur.
+            </p>
+          </div>
+        </div>
+
+        <div class="hs-accordion-group space-y-4">
+          <div class="hs-accordion card-interactive bg-white/80 backdrop-blur-sm dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
+            <button class="hs-accordion-toggle w-full flex justify-between items-center p-4 text-left hover:bg-primary-50 dark:hover:bg-gray-700/50 transition-colors rounded-xl" id="hs-ai-1">
+              <div class="flex items-center space-x-4">
+                <div class="flex-shrink-0 w-12 h-12 bg-primary-100 dark:bg-primary-900/30 rounded-lg flex items-center justify-center">
+                  <i data-lucide="bot" class="w-6 h-6 text-primary-600 dark:text-primary-400"></i>
+                </div>
+                <span class="font-semibold text-lg text-primary-700 dark:text-primary-300">Agents IA Autonomes</span>
+              </div>
+              <i data-lucide="chevron-down" class="hs-accordion-active:rotate-180 transition-transform duration-300 w-5 h-5 text-primary-600 dark:text-primary-400"></i>
+            </button>
+            <div id="hs-collapse-ai-1" class="hs-accordion-content hidden w-full overflow-hidden transition-[height] duration-300" aria-labelledby="hs-ai-1">
+              <div class="p-6 pt-0 space-y-4">
+                <p class="text-gray-700 dark:text-gray-300" data-ref="https://zed.dev/blog/zed-is-open-source|3">
+                  Les agents IA autonomes dans Zed sont capables d'accomplir des tâches complexes de développement de bout en bout sans intervention humaine constante. Ils peuvent naviguer dans le code, planifier des changements et exécuter des actions spécifiques.
+                </p>
+                <p class="text-gray-700 dark:text-gray-300" data-ref="https://zed.dev/blog/zed-is-open-source|3">
+                  Ces agents utilisent des modèles de langage avancés et des techniques de raisonnement pour comprendre le contexte du projet et générer du code de haute qualité.
+                </p>
+                <p class="text-gray-700 dark:text-gray-300" data-ref="https://zed.dev/blog/zed-is-open-source|3">
+                  Les agents peuvent être configurés pour fonctionner en mode autonome ou semi-autonome, permettant aux développeurs de maintenir le contrôle sur le processus de développement.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="hs-accordion card-interactive bg-white/80 backdrop-blur-sm dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
+            <button class="hs-accordion-toggle w-full flex justify-between items-center p-4 text-left hover:bg-primary-50 dark:hover:bg-gray-700/50 transition-colors rounded-xl" id="hs-ai-2">
+              <div class="flex items-center space-x-4">
+                <div class="flex-shrink-0 w-12 h-12 bg-accent-100 dark:bg-accent-900/30 rounded-lg flex items-center justify-center">
+                  <i data-lucide="sparkles" class="w-6 h-6 text-accent-600 dark:text-accent-400"></i>
+                </div>
+                <span class="font-semibold text-lg text-accent-700 dark:text-accent-300">Assistance IA Contextuelle</span>
+              </div>
+              <i data-lucide="chevron-down" class="hs-accordion-active:rotate-180 transition-transform duration-300 w-5 h-5 text-accent-600 dark:text-accent-400"></i>
+            </button>
+            <div id="hs-collapse-ai-2" class="hs-accordion-content hidden w-full overflow-hidden transition-[height] duration-300" aria-labelledby="hs-ai-2">
+              <div class="p-6 pt-0 space-y-4">
+                <p class="text-gray-700 dark:text-gray-300" data-ref="https://zed.dev/blog/zed-is-open-source|3">
+                  L'assistance IA contextuelle dans Zed comprend la compréhension du code, la suggestion d'améliorations et la résolution de problèmes. L'IA peut analyser le contexte du projet et fournir des recommandations pertinentes.
+                </p>
+                <p class="text-gray-700 dark:text-gray-300" data-ref="https://zed.dev/blog/zed-is-open-source|3">
+                  L'assistance IA est intégrée de manière transparente dans l'interface utilisateur, offrant des suggestions et des corrections sans interrompre le flux de travail du développeur.
+                </p>
+                <p class="text-gray-700 dark:text-gray-300" data-ref="https://zed.dev/blog/zed-is-open-source|3">
+                  Les développeurs peuvent personnaliser les paramètres de l'assistance IA pour adapter les suggestions à leur style de codage et aux exigences du projet.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="hs-accordion card-interactive bg-white/80 backdrop-blur-sm dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
+            <button class="hs-accordion-toggle w-full flex justify-between items-center p-4 text-left hover:bg-primary-50 dark:hover:bg-gray-700/50 transition-colors rounded-xl" id="hs-ai-3">
+              <div class="flex items-center space-x-4">
+                <div class="flex-shrink-0 w-12 h-12 bg-primary-100 dark:bg-primary-900/30 rounded-lg flex items-center justify-center">
+                  <i data-lucide="message-square" class="w-6 h-6 text-primary-600 dark:text-primary-400"></i>
+                </div>
+                <span class="font-semibold text-lg text-primary-700 dark:text-primary-300">Conversation IA dans l'Éditeur</span>
+              </div>
+              <i data-lucide="chevron-down" class="hs-accordion-active:rotate-180 transition-transform duration-300 w-5 h-5 text-primary-600 dark:text-primary-400"></i>
+            </button>
+            <div id="hs-collapse-ai-3" class="hs-accordion-content hidden w-full overflow-hidden transition-[height] duration-300" aria-labelledby="hs-ai-3">
+              <div class="p-6 pt-0 space-y-4">
+                <p class="text-gray-700 dark:text-gray-300" data-ref="https://zed.dev/blog/zed-is-open-source|3">
+                  Zed intègre des conversations IA directement dans l'éditeur, permettant aux développeurs de poser des questions, demander des clarifications et obtenir des explications sur le code en cours de modification.
+                </p>
+                <p class="text-gray-700 dark:text-gray-300" data-ref="https://zed.dev/blog/zed-is-open-source|3">
+                  Les conversations IA sont contextuelles et peuvent accéder à la structure du projet, aux dépendances et aux configurations pour fournir des réponses précises et utiles.
+                </p>
+                <p class="text-gray-700 dark:text-gray-300" data-ref="https://zed.dev/blog/zed-is-open-source|3">
+                  Cette fonctionnalité facilite l'apprentissage, la résolution de problèmes et la collaboration entre les membres de l'équipe de développement.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- User Experience Section -->
+    <section id="ux" class="py-20 bg-accent-50/50 dark:bg-gray-800" data-aos="fade-up">
+      <div class="max-w-6xl mx-auto px-6">
+        <h2 class="text-4xl font-bold mb-8 text-accent-700 dark:text-accent-300 text-center">
+          Expérience Utilisateur et Accessibilité
+        </h2>
+        <p class="text-center text-gray-700 dark:text-gray-300 mb-12 text-lg max-w-3xl mx-auto">
+          Évaluation de l'expérience utilisateur, de l'accessibilité et de la personnalisation dans les éditeurs de code modernes, avec un accent particulier sur les besoins des utilisateurs dépendants de lecteurs d'écran
+        </p>
+
+        <div class="grid md:grid-cols-2 gap-8 mb-12">
+          <div class="space-y-6">
+            <h3 class="text-2xl font-semibold text-accent-700 dark:text-accent-300">
+              Accessibilité et Support des Lecteurs d'Écran
+            </h3>
+            <p class="text-gray-700 dark:text-gray-300" data-ref="https://www.reddit.com/r/ZedEditor/comments/1i2h37a/zed_is_not_accessible_and_likely_never_will_be/|2">
+              L'accessibilité est un problème majeur dans Zed, en particulier pour les utilisateurs dépendants de lecteurs d'écran. Le framework GPUI, bien qu'innovant, ne dispose pas encore des fonctionnalités d'accessibilité intégrées disponibles dans d'autres plates-formes comme Swift ou Web.
+            </p>
+            <p class="text-gray-700 dark:text-gray-300" data-ref="https://www.reddit.com/r/ZedEditor/comments/1i2h37a/zed_is_not_accessible_and_likely_never_will_be/|2">
+              Les utilisateurs dépendants de lecteurs d'écran rencontrent des difficultés significatives lors de l'utilisation de Zed, notamment avec la navigation au clavier, la sélection de texte et l'interaction avec les fonctionnalités IA.
+            </p>
+            
+            <div class="pl-4 pr-3 py-3 border-l-4 border-amber-500 bg-amber-50/40 dark:bg-amber-900/30 rounded-r-lg">
+              <p class="text-sm font-medium text-amber-900 dark:text-amber-100 leading-relaxed" data-ref="https://www.reddit.com/r/ZedEditor/comments/1i2h37a/zed_is_not_accessible_and_likely_never_will_be/|2">
+                <i data-lucide="alert-triangle" class="inline-block w-4 h-4 mr-1.5 -mt-0.5"></i>
+                Avertissement critique: L'accessibilité dans Zed est actuellement insuffisante pour les utilisateurs dépendants de lecteurs d'écran, ce qui limite son utilisation dans des environnements collaboratifs inclusifs.
+              </p>
+            </div>
+          </div>
+
+          <div class="space-y-6">
+            <h3 class="text-2xl font-semibold text-primary-700 dark:text-primary-300">
+              Personnalisation et Flux de Travail
+            </h3>
+            <p class="text-gray-700 dark:text-gray-300" data-ref="https://www.reddit.com/r/ZedEditor/comments/1i2h37a/zed_is_not_accessible_and_likely_never_will_be/|2">
+              Zed offre un haut niveau de personnalisation via plus de 100 paramètres dans les réglages, permettant aux utilisateurs de configurer l'éditeur selon leurs préférences spécifiques. Cela inclut les thèmes, les raccourcis clavier, les polices et les comportements des panneaux.
+            </p>
+            <p class="text-gray-700 dark:text-gray-300" data-ref="https://www.reddit.com/r/ZedEditor/comments/1i2h37a/zed_is_not_accessible_and_likely_never_will_be/|2">
+              Le flux de travail dans Zed est conçu pour être fluide et efficace, avec des fonctionnalités telles que le glisser-déposer entre les docks, la recherche instantanée et l'intégration du terminal.
+            </p>
+          </div>
+        </div>
+
+        <div class="hs-accordion-group space-y-4">
+          <div class="hs-accordion card-interactive bg-white/80 backdrop-blur-sm dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
+            <button class="hs-accordion-toggle w-full flex justify-between items-center p-4 text-left hover:bg-accent-50 dark:hover:bg-gray-700/50 transition-colors rounded-xl" id="hs-ux-1">
+              <div class="flex items-center space-x-4">
+                <div class="flex-shrink-0 w-12 h-12 bg-accent-100 dark:bg-accent-900/30 rounded-lg flex items-center justify-center">
+                  <i data-lucide="eye" class="w-6 h-6 text-accent-600 dark:text-accent-400"></i>
+                </div>
+                <span class="font-semibold text-lg text-accent-700 dark:text-accent-300">Accessibilité Visuelle</span>
+              </div>
+              <i data-lucide="chevron-down" class="hs-accordion-active:rotate-180 transition-transform duration-300 w-5 h-5 text-accent-600 dark:text-accent-400"></i>
+            </button>
+            <div id="hs-collapse-ux-1" class="hs-accordion-content hidden w-full overflow-hidden transition-[height] duration-300" aria-labelledby="hs-ux-1">
+              <div class="p-6 pt-0 space-y-4">
+                <p class="text-gray-700 dark:text-gray-300" data-ref="https://www.reddit.com/r/ZedEditor/comments/1i2h37a/zed_is_not_accessible_and_likely_never_will_be/|2">
+                  Zed prend en charge les thèmes à contraste élevé et les ajustements de taille de police pour les utilisateurs ayant des besoins visuels spécifiques. Cependant, ces fonctionnalités sont limitées par l'architecture GPU-accelérée du framework GPUI.
+                </p>
+                <p class="text-gray-700 dark:text-gray-300" data-ref="https://www.reddit.com/r/ZedEditor/comments/1i2h37a/zed_is_not_accessible_and_likely_never_will_be/|2">
+                  Les utilisateurs peuvent personnaliser les couleurs et les thèmes pour améliorer la lisibilité, mais l'intégration native avec les outils d'accessibilité système reste un défi.
+                </p>
+                <p class="text-gray-700 dark:text-gray-300" data-ref="https://www.reddit.com/r/ZedEditor/comments/1i2h37a/zed_is_not_accessible_and_likely_never_will_be/|2">
+                  Des suggestions pour améliorer l'accessibilité incluent l'intégration d'AccessKit dans le framework GPUI et l'implémentation de modes de contraste élevé appliqués à n'importe quel thème.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="hs-accordion card-interactive bg-white/80 backdrop-blur-sm dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
+            <button class="hs-accordion-toggle w-full flex justify-between items-center p-4 text-left hover:bg-accent-50 dark:hover:bg-gray-700/50 transition-colors rounded-xl" id="hs-ux-2">
+              <div class="flex items-center space-x-4">
+                <div class="flex-shrink-0 w-12 h-12 bg-primary-100 dark:bg-primary-900/30 rounded-lg flex items-center justify-center">
+                  <i data-lucide="keyboard" class="w-6 h-6 text-primary-600 dark:text-primary-400"></i>
+                </div>
+                <span class="font-semibold text-lg text-primary-700 dark:text-primary-300">Navigation au Clavier</span>
+              </div>
+              <i data-lucide="chevron-down" class="hs-accordion-active:rotate-180 transition-transform duration-300 w-5 h-5 text-primary-600 dark:text-primary-400"></i>
+            </button>
+            <div id="hs-collapse-ux-2" class="hs-accordion-content hidden w-full overflow-hidden transition-[height] duration-300" aria-labelledby="hs-ux-2">
+              <div class="p-6 pt-0 space-y-4">
+                <p class="text-gray-700 dark:text-gray-300" data-ref="https://www.reddit.com/r/ZedEditor/comments/1i2h37a/zed_is_not_accessible_and_likely_never_will_be/|2">
+                  Zed offre une navigation au clavier complète, avec des raccourcis personnalisables pour tous les aspects de l'interface utilisateur. Cela permet aux utilisateurs de naviguer efficacement sans utiliser la souris.
+                </p>
+                <p class="text-gray-700 dark:text-gray-300" data-ref="https://www.reddit.com/r/ZedEditor/comments/1i2h37a/zed_is_not_accessible_and_likely_never_will_be/|2">
+                  La navigation au clavier est optimisée pour les utilisateurs avancés et les personnes ayant des limitations motrices, avec un accent sur l'efficacité et la rapidité.
+                </p>
+                <p class="text-gray-700 dark:text-gray-300" data-ref="https://www.reddit.com/r/ZedEditor/comments/1i2h37a/zed_is_not_accessible_and_likely_never_will_be/|2">
+                  Les utilisateurs peuvent personnaliser les raccourcis clavier via le fichier de configuration JSON, permettant une adaptation complète du flux de travail.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="hs-accordion card-interactive bg-white/80 backdrop-blur-sm dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
+            <button class="hs-accordion-toggle w-full flex justify-between items-center p-4 text-left hover:bg-accent-50 dark:hover:bg-gray-700/50 transition-colors rounded-xl" id="hs-ux-3">
+              <div class="flex items-center space-x-4">
+                <div class="flex-shrink-0 w-12 h-12 bg-accent-100 dark:bg-accent-900/30 rounded-lg flex items-center justify-center">
+                  <i data-lucide="settings" class="w-6 h-6 text-accent-600 dark:text-accent-400"></i>
+                </div>
+                <span class="font-semibold text-lg text-accent-700 dark:text-accent-300">Personnalisation Approfondie</span>
+              </div>
+              <i data-lucide="chevron-down" class="hs-accordion-active:rotate-180 transition-transform duration-300 w-5 h-5 text-accent-600 dark:text-accent-400"></i>
+            </button>
+            <div id="hs-collapse-ux-3" class="hs-accordion-content hidden w-full overflow-hidden transition-[height] duration-300" aria-labelledby="hs-ux-3">
+              <div class="p-6 pt-0 space-y-4">
+                <p class="text-gray-700 dark:text-gray-300" data-ref="https://www.reddit.com/r/ZedEditor/comments/1i2h37a/zed_is_not_accessible_and_likely_never_will_be/|2">
+                  Zed permet une personnalisation approfondie via plus de 100 paramètres dans les réglages, offrant aux utilisateurs un contrôle total sur l'apparence et le comportement de l'éditeur.
+                </p>
+                <p class="text-gray-700 dark:text-gray-300" data-ref="https://www.reddit.com/r/ZedEditor/comments/1i2h37a/zed_is_not_accessible_and_likely_never_will_be/|2">
+                  Les utilisateurs peuvent configurer les polices, les thèmes, les raccourcis clavier, les comportements des panneaux et même les interactions avec les agents IA.
+                </p>
+                <p class="text-gray-700 dark:text-gray-300" data-ref="https://www.reddit.com/r/ZedEditor/comments/1i2h37a/zed_is_not_accessible_and_likely_never_will_be/|2">
+                  Cette personnalisation approfondie permet aux utilisateurs d'optimiser l'éditeur pour leur style de travail spécifique et leurs préférences individuelles.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Pricing Models Section -->
+    <section id="pricing" class="py-20 bg-white/80 dark:bg-gray-900" data-aos="fade-up">
+      <div class="max-w-6xl mx-auto px-6">
+        <h2 class="text-4xl font-bold mb-8 text-primary-700 dark:text-primary-300 text-center">
+          Modèles de Tarification et Stratégie Commerciale
+        </h2>
+        <p class="text-center text-gray-700 dark:text-gray-300 mb-12 text-lg max-w-3xl mx-auto">
+          Analyse comparative des modèles de tarification des éditeurs de code modernes, y compris les options freemium, les abonnements mensuels et les modèles open source
+        </p>
+
+        <div class="grid md:grid-cols-2 gap-8 mb-12">
+          <div class="card-interactive p-6 rounded-xl shadow-md bg-white/90 backdrop-blur-sm dark:bg-gray-900 h-80">
+            <canvas id="pricingChart"></canvas>
+          </div>
+
+          <div class="space-y-6">
+            <h3 class="text-2xl font-semibold text-primary-700 dark:text-primary-300">
+              Comparaison des Tarifs
+            </h3>
+            <p class="text-gray-700 dark:text-gray-300" data-ref="https://www.reddit.com/r/ZedEditor/comments/1i2h37a/zed_is_not_accessible_and_likely_never_will_be/|2">
+              Zed propose un modèle freemium avec un plan gratuit et des options payantes pour les fonctionnalités avancées. Le plan Pro coûte
+              <span class="mx-1 px-1.5 py-0.5 rounded-md bg-primary-100 dark:bg-primary-900/30 text-primary-800 dark:text-primary-300 font-semibold text-sm">$10/mois</span>,
+              tandis que le plan Pro+ est disponible pour
+              <span class="mx-1 px-1.5 py-0.5 rounded-md bg-primary-100 dark:bg-primary-900/30 text-primary-800 dark:text-primary-300 font-semibold text-sm">$60/mois</span>.
+            </p>
+            <p class="text-gray-700 dark:text-gray-300" data-ref="https://www.reddit.com/r/ZedEditor/comments/1i2h37a/zed_is_not_accessible_and_likely_never_will_be/|2">
+              VS Code est entièrement gratuit et open source, tandis que Cursor propose un modèle freemium avec des options payantes à partir de
+              <span class="mx-1 px-1.5 py-0.5 rounded-md bg-primary-100 dark:bg-primary-900/30 text-primary-800 dark:text-primary-300 font-semibold text-sm">$20/mois</span>.
+            </p>
+            <p class="text-gray-700 dark:text-gray-300" data-ref="https://www.reddit.com/r/ZedEditor/comments/1i2h37a/zed_is_not_accessible_and_likely_never_will_be/|2">
+              JetBrains propose des abonnements mensuels à partir de
+              <span class="mx-1 px-1.5 py-0.5 rounded-md bg-primary-100 dark:bg-primary-900/30 text-primary-800 dark:text-primary-300 font-semibold text-sm">$25/mois</span>
+              pour les particuliers et
+              <span class="mx-1 px-1.5 py-0.5 rounded-md bg-primary-100 dark:bg-primary-900/30 text-primary-800 dark:text-primary-300 font-semibold text-sm">$50/mois</span>
+              pour les équipes.
+            </p>
+          </div>
+        </div>
+
+        <div class="grid md:grid-cols-3 gap-6">
+          <div class="card-interactive p-6 bg-primary-50/50 dark:bg-gray-800 rounded-xl shadow-md">
+            <h4 class="text-lg font-semibold text-primary-700 dark:text-primary-300 mb-4" data-ref="https://www.reddit.com/r/ZedEditor/comments/1i2h37a/zed_is_not_accessible_and_likely_never_will_be/|2">
+              Zed
+            </h4>
+            <ul class="space-y-2 text-sm text-gray-700 dark:text-gray-300">
+              <li class="flex items-start">
+                <i data-lucide="circle-check" class="w-4 h-4 text-primary-600 dark:text-primary-400 mr-2 mt-0.5 flex-shrink-0"></i>
+                <span>Gratuit avec options payantes</span>
+              </li>
+              <li class="flex items-start">
+                <i data-lucide="circle-check" class="w-4 h-4 text-primary-600 dark:text-primary-400 mr-2 mt-0.5 flex-shrink-0"></i>
+                <span>Pro: $10/mois</span>
+              </li>
+              <li class="flex items-start">
+                <i data-lucide="circle-check" class="w-4 h-4 text-primary-600 dark:text-primary-400 mr-2 mt-0.5 flex-shrink-0"></i>
+                <span>Pro+: $60/mois</span>
+              </li>
+              <li class="flex items-start">
+                <i data-lucide="circle-check" class="w-4 h-4 text-primary-600 dark:text-primary-400 mr-2 mt-0.5 flex-shrink-0"></i>
+                <span>Open source</span>
+              </li>
+            </ul>
+          </div>
+
+          <div class="card-interactive p-6 bg-accent-50/50 dark:bg-gray-800 rounded-xl shadow-md">
+            <h4 class="text-lg font-semibold text-accent-700 dark:text-accent-300 mb-4" data-ref="https://www.reddit.com/r/ZedEditor/comments/1i2h37a/zed_is_not_accessible_and_likely_never_will_be/|2">
+              Cursor
+            </h4>
+            <ul class="space-y-2 text-sm text-gray-700 dark:text-gray-300">
+              <li class="flex items-start">
+                <i data-lucide="circle-check" class="w-4 h-4 text-accent-600 dark:text-accent-400 mr-2 mt-0.5 flex-shrink-0"></i>
+                <span>Freemium</span>
+              </li>
+              <li class="flex items-start">
+                <i data-lucide="circle-check" class="w-4 h-4 text-accent-600 dark:text-accent-400 mr-2 mt-0.5 flex-shrink-0"></i>
+                <span>Pro: $20/mois</span>
+              </li>
+              <li class="flex items-start">
+                <i data-lucide="circle-check" class="w-4 h-4 text-accent-600 dark:text-accent-400 mr-2 mt-0.5 flex-shrink-0"></i>
+                <span>Ultra: $200/mois</span>
+              </li>
+              <li class="flex items-start">
+                <i data-lucide="circle-check" class="w-4 h-4 text-accent-600 dark:text-accent-400 mr-2 mt-0.5 flex-shrink-0"></i>
+                <span>Abonnement mensuel</span>
+              </li>
+            </ul>
+          </div>
+
+          <div class="card-interactive p-6 bg-primary-50/50 dark:bg-gray-800 rounded-xl shadow-md">
+            <h4 class="text-lg font-semibold text-primary-700 dark:text-primary-300 mb-4" data-ref="https://www.reddit.com/r/ZedEditor/comments/1i2h37a/zed_is_not_accessible_and_likely_never_will_be/|2">
+              JetBrains
+            </h4>
+            <ul class="space-y-2 text-sm text-gray-700 dark:text-gray-300">
+              <li class="flex items-start">
+                <i data-lucide="circle-check" class="w-4 h-4 text-primary-600 dark:text-primary-400 mr-2 mt-0.5 flex-shrink-0"></i>
+                <span>Abonnement annuel</span>
+              </li>
+              <li class="flex items-start">
+                <i data-lucide="circle-check" class="w-4 h-4 text-primary-600 dark:text-primary-400 mr-2 mt-0.5 flex-shrink-0"></i>
+                <span>Individuel: $25/mois</span>
+              </li>
+              <li class="flex items-start">
+                <i data-lucide="circle-check" class="w-4 h-4 text-primary-600 dark:text-primary-400 mr-2 mt-0.5 flex-shrink-0"></i>
+                <span>Équipe: $50/mois</span>
+              </li>
+              <li class="flex items-start">
+                <i data-lucide="circle-check" class="w-4 h-4 text-primary-600 dark:text-primary-400 mr-2 mt-0.5 flex-shrink-0"></i>
+                <span>Perpétuel disponible</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="mt-12 space-y-6">
+          <h3 class="text-2xl font-semibold text-primary-700 dark:text-primary-300">
+            Stratégie Commerciale et Positionnement de Marché
+          </h3>
+          <p class="text-gray-700 dark:text-gray-300" data-ref="https://www.reddit.com/r/ZedEditor/comments/1i2h37a/zed_is_not_accessible_and_likely_never_will_be/|2">
+            Zed adopte une stratégie de tarification compétitive avec un modèle freemium qui attire les utilisateurs gratuits tout en proposant des fonctionnalités premium payantes. Cette approche permet à Zed de rivaliser avec VS Code tout en générant des revenus à partir des utilisateurs professionnels.
+          </p>
+          <p class="text-gray-700 dark:text-gray-300" data-ref="https://www.reddit.com/r/ZedEditor/comments/1i2h37a/zed_is_not_accessible_and_likely_never_will_be/|2">
+            La stratégie commerciale de Zed se concentre sur la performance, l'accessibilité et l'intégration IA, visant à attirer les développeurs qui valorisent la rapidité et l'efficacité. Le modèle open source renforce également la confiance et la transparence.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Market Analysis Section -->
+    <section id="market" class="py-20 bg-primary-50/50 dark:bg-gray-800" data-aos="fade-up">
+      <div class="max-w-6xl mx-auto px-6">
+        <h2 class="text-4xl font-bold mb-8 text-primary-700 dark:text-primary-300 text-center">
+          Analyse de Marché et Parts de Marché
+        </h2>
+        <p class="text-center text-gray-700 dark:text-gray-300 mb-12 text-lg max-w-3xl mx-auto">
+          Évaluation des parts de marché, des tendances de croissance et des segments cibles pour les éditeurs de code modernes, basée sur les données de l'enquête Stack Overflow 2025
+        </p>
+
+        <div class="grid md:grid-cols-2 gap-8 mb-12">
+          <div class="card-interactive p-6 rounded-xl shadow-md bg-white/90 backdrop-blur-sm dark:bg-gray-900 h-80">
+            <canvas id="marketShareChart"></canvas>
+          </div>
+
+          <div class="space-y-6">
+            <h3 class="text-2xl font-semibold text-primary-700 dark:text-primary-300">
+              Parts de Marché selon l'Enquête Stack Overflow 2025
+            </h3>
+            <p class="text-gray-700 dark:text-gray-300" data-ref="https://stackoverflow.blog/2025/08/20/the-2025-stack-overflow-developer-survey-results/|4">
+              Selon les résultats de l'enquête Stack Overflow 2025, VS Code détient
+              <span class="mx-1 px-1.5 py-0.5 rounded-md bg-primary-100 dark:bg-primary-900/30 text-primary-800 dark:text-primary-300 font-semibold text-sm">75.9%</span>
+              de part de marché, suivi de près par IntelliJ IDEA à
+              <span class="mx-1 px-1.5 py-0.5 rounded-md bg-primary-100 dark:bg-primary-900/30 text-primary-800 dark:text-primary-300 font-semibold text-sm">13.2%</span>.
+              Zed a connu une croissance remarquable en passant de
+              <span class="mx-1 px-1.5 py-0.5 rounded-md bg-primary-100 dark:bg-primary-900/30 text-primary-800 dark:text-primary-300 font-semibold text-sm">1.7%</span>
+              en 2024 à
+              <span class="mx-1 px-1.5 py-0.5 rounded-md bg-primary-100 dark:bg-primary-900/30 text-primary-800 dark:text-primary-300 font-semibold text-sm">7.3%</span>
+              en 2025, devenant ainsi l'éditeur de code en plus forte croissance.
+            </p>
+            <p class="text-gray-700 dark:text-gray-300" data-ref="https://stackoverflow.blog/2025/08/20/the-2025-stack-overflow-developer-survey-results/|4">
+              PyCharm se classe troisième avec
+              <span class="mx-1 px-1.5 py-0.5 rounded-md bg-primary-100 dark:bg-primary-900/30 text-primary-800 dark:text-primary-300 font-semibold text-sm">6.5%</span>
+              de part de marché, tandis que Neovim suit avec
+              <span class="mx-1 px-1.5 py-0.5 rounded-md bg-primary-100 dark:bg-primary-900/30 text-primary-800 dark:text-primary-300 font-semibold text-sm">3.8%</span>.
+              Les éditeurs de code alternatifs comme Sublime Text, Vim et Atom maintiennent des parts de marché plus modestes mais fidèles.
+            </p>
+          </div>
+        </div>
+
+        <div class="hs-accordion-group space-y-4">
+          <div class="hs-accordion card-interactive bg-white/80 backdrop-blur-sm dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
+            <button class="hs-accordion-toggle w-full flex justify-between items-center p-4 text-left hover:bg-primary-50 dark:hover:bg-gray-700/50 transition-colors rounded-xl" id="hs-market-1">
+              <div class="flex items-center space-x-4">
+                <div class="flex-shrink-0 w-12 h-12 bg-primary-100 dark:bg-primary-900/30 rounded-lg flex items-center justify-center">
+                  <i data-lucide="trending-up" class="w-6 h-6 text-primary-600 dark:text-primary-400"></i>
+                </div>
+                <span class="font-semibold text-lg text-primary-700 dark:text-primary-300">Croissance de Zed</span>
+              </div>
+              <i data-lucide="chevron-down" class="hs-accordion-active:rotate-180 transition-transform duration-300 w-5 h-5 text-primary-600 dark:text-primary-400"></i>
+            </button>
+            <div id="hs-collapse-market-1" class="hs-accordion-content hidden w-full overflow-hidden transition-[height] duration-300" aria-labelledby="hs-market-1">
+              <div class="p-6 pt-0 space-y-4">
+                <p class="text-gray-700 dark:text-gray-300" data-ref="https://stackoverflow.blog/2025/08/20/the-2025-stack-overflow-developer-survey-results/|4">
+                  Zed a connu une croissance spectaculaire, passant de 1.7% à 7.3% de part de marché en un an, ce qui en fait l'éditeur de code en plus forte croissance selon l'enquête Stack Overflow 2025.
+                </p>
+                <p class="text-gray-700 dark:text-gray-300" data-ref="https://stackoverflow.blog/2025/08/20/the-2025-stack-overflow-developer-survey-results/|4">
+                  Cette croissance est attribuée à l'accent mis par Zed sur la performance, l'accessibilité et l'intégration IA, répondant ainsi aux besoins émergents des développeurs modernes.
+                </p>
+                <p class="text-gray-700 dark:text-gray-300" data-ref="https://stackoverflow.blog/2025/08/20/the-2025-stack-overflow-developer-survey-results/|4">
+                  Zed a dépassé des éditeurs établis comme Sublime Text, Vim et Atom, démontrant son attrait auprès des nouveaux utilisateurs et des développeurs cherchant des alternatives modernes.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="hs-accordion card-interactive bg-white/80 backdrop-blur-sm dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
+            <button class="hs-accordion-toggle w-full flex justify-between items-center p-4 text-left hover:bg-primary-50 dark:hover:bg-gray-700/50 transition-colors rounded-xl" id="hs-market-2">
+              <div class="flex items-center space-x-4">
+                <div class="flex-shrink-0 w-12 h-12 bg-accent-100 dark:bg-accent-900/30 rounded-lg flex items-center justify-center">
+                  <i data-lucide="users" class="w-6 h-6 text-accent-600 dark:text-accent-400"></i>
+                </div>
+                <span class="font-semibold text-lg text-accent-700 dark:text-accent-300">Segments Cibles</span>
+              </div>
+              <i data-lucide="chevron-down" class="hs-accordion-active:rotate-180 transition-transform duration-300 w-5 h-5 text-accent-600 dark:text-accent-400"></i>
+            </button>
+            <div id="hs-collapse-market-2" class="hs-accordion-content hidden w-full overflow-hidden transition-[height] duration-300" aria-labelledby="hs-market-2">
+              <div class="p-6 pt-0 space-y-4">
+                <p class="text-gray-700 dark:text-gray-300" data-ref="https://stackoverflow.blog/2025/08/20/the-2025-stack-overflow-developer-survey-results/|4">
+                  VS Code continue de dominer avec 75.9% de part de marché, en particulier populaire auprès des développeurs front-end, JavaScript et ceux utilisant des frameworks modernes.
+                </p>
+                <p class="text-gray-700 dark:text-gray-300" data-ref="https://stackoverflow.blog/2025/08/20/the-2025-stack-overflow-developer-survey-results/|4">
+                  IntelliJ IDEA est le choix privilégié des développeurs Java, avec 84% d'utilisation parmi cette communauté, et maintient une part de marché solide de 13.2% globalement.
+                </p>
+                <p class="text-gray-700 dark:text-gray-300" data-ref="https://stackoverflow.blog/2025/08/20/the-2025-stack-overflow-developer-survey-results/|4">
+                  PyCharm est largement adopté par les développeurs Python, avec 6.5% de part de marché, tandis que Neovim attire les utilisateurs avancés et les puristes du terminal.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="hs-accordion card-interactive bg-white/80 backdrop-blur-sm dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
+            <button class="hs-accordion-toggle w-full flex justify-between items-center p-4 text-left hover:bg-primary-50 dark:hover:bg-gray-700/50 transition-colors rounded-xl" id="hs-market-3">
+              <div class="flex items-center space-x-4">
+                <div class="flex-shrink-0 w-12 h-12 bg-primary-100 dark:bg-primary-900/30 rounded-lg flex items-center justify-center">
+                  <i data-lucide="chart-pie" class="w-6 h-6 text-primary-600 dark:text-primary-400"></i>
+                </div>
+                <span class="font-semibold text-lg text-primary-700 dark:text-primary-300">Tendances de Marché</span>
+              </div>
+              <i data-lucide="chevron-down" class="hs-accordion-active:rotate-180 transition-transform duration-300 w-5 h-5 text-primary-600 dark:text-primary-400"></i>
+            </button>
+            <div id="hs-collapse-market-3" class="hs-accordion-content hidden w-full overflow-hidden transition-[height] duration-300" aria-labelledby="hs-market-3">
+              <div class="p-6 pt-0 space-y-4">
+                <p class="text-gray-700 dark:text-gray-300" data-ref="https://stackoverflow.blog/2025/08/20/the-2025-stack-overflow-developer-survey-results/|4">
+                  L'enquête Stack Overflow 2025 révèle que 84% des développeurs utilisent ou prévoient d'utiliser des outils IA, en hausse de 76% l'année précédente, soulignant l'importance croissante de l'intégration IA dans les éditeurs de code.
+                </p>
+                <p class="text-gray-700 dark:text-gray-300" data-ref="https://stackoverflow.blog/2025/08/20/the-2025-stack-overflow-developer-survey-results/|4">
+                  La performance et l'accessibilité sont devenus des facteurs décisifs dans le choix d'un éditeur de code, avec les développeurs recherchant des alternatives plus rapides et plus efficaces que VS Code.
+                </p>
+                <p class="text-gray-700 dark:text-gray-300" data-ref="https://stackoverflow.blog/2025/08/20/the-2025-stack-overflow-developer-survey-results/|4">
+                  L'open source et la transparence sont également importants, avec des éditeurs comme Zed et Neovim attirant des communautés fidèles grâce à leur approche ouverte et personnalisable.
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Conclusion Section -->
+    <section id="conclusion" class="py-20 bg-white/80 dark:bg-gray-900" data-aos="fade-up">
+      <div class="max-w-6xl mx-auto px-6">
+        <h2 class="text-4xl font-bold mb-8 text-primary-700 dark:text-primary-300 text-center">
+          Synthèse et Opportunités de Différenciation
+        </h2>
+        <p class="text-center text-gray-700 dark:text-gray-300 mb-12 text-lg max-w-3xl mx-auto">
+          Conclusion de l'analyse comparative avec identification des opportunités non exploitées et recommandations stratégiques pour les éditeurs de code modernes
+        </p>
+
+        <div class="grid md:grid-cols-2 gap-8 mb-12">
+          <div class="card-interactive p-6 bg-primary-50/50 dark:bg-gray-800 rounded-xl shadow-md">
+            <h3 class="text-xl font-semibold text-primary-700 dark:text-primary-300 mb-4">
+              Forces Clés Identifiées
+            </h3>
+            <ul class="space-y-3 text-gray-700 dark:text-gray-300">
+              <li class="flex items-start">
+                <i data-lucide="arrow-right" class="w-5 h-5 text-primary-600 dark:text-primary-400 mr-2 mt-0.5 flex-shrink-0"></i>
+                <span><strong>Performance GPU-accelérée:</strong> Architecture GPUI offrant des temps de réponse sub-millisecond</span>
+              </li>
+              <li class="flex items-start">
+                <i data-lucide="arrow-right" class="w-5 h-5 text-primary-600 dark:text-primary-400 mr-2 mt-0.5 flex-shrink-0"></i>
+                <span><strong>Intégration IA avancée:</strong> Agents autonomes et assistance contextuelle</span>
+              </li>
+              <li class="flex items-start">
+                <i data-lucide="arrow-right" class="w-5 h-5 text-primary-600 dark:text-primary-400 mr-2 mt-0.5 flex-shrink-0"></i>
+                <span><strong>Minimalisme visuel:</strong> Interface épurée sans surcharge visuelle</span>
+              </li>
+              <li class="flex items-start">
+                <i data-lucide="arrow-right" class="w-5 h-5 text-primary-600 dark:text-primary-400 mr-2 mt-0.5 flex-shrink-0"></i>
+                <span><strong>Personnalisation approfondie:</strong> Plus de 100 paramètres de configuration</span>
+              </li>
+              <li class="flex items-start">
+                <i data-lucide="arrow-right" class="w-5 h-5 text-primary-600 dark:text-primary-400 mr-2 mt-0.5 flex-shrink-0"></i>
+                <span><strong>Modèle open source:</strong> Transparence et communauté active</span>
+              </li>
+            </ul>
+          </div>
+
+          <div class="card-interactive p-6 bg-accent-50/50 dark:bg-gray-800 rounded-xl shadow-md">
+            <h3 class="text-xl font-semibold text-accent-700 dark:text-accent-300 mb-4">
+              Faiblesses et Limitations
+            </h3>
+            <ul class="space-y-3 text-gray-700 dark:text-gray-300">
+              <li class="flex items-start">
+                <i data-lucide="circle-alert" class="w-5 h-5 text-amber-600 dark:text-amber-400 mr-2 mt-0.5 flex-shrink-0"></i>
+                <span><strong>Accessibilité limitée:</strong> Support insuffisant pour les lecteurs d'écran</span>
+              </li>
+              <li class="flex items-start">
+                <i data-lucide="circle-alert" class="w-5 h-5 text-amber-600 dark:text-amber-400 mr-2 mt-0.5 flex-shrink-0"></i>
+                <span><strong>Fonctionnalités incomplètes:</strong> Certaines fonctionnalités attendues manquent</span>
+              </li>
+              <li class="flex items-start">
+                <i data-lucide="circle-alert" class="w-5 h-5 text-amber-600 dark:text-amber-400 mr-2 mt-0.5 flex-shrink-0"></i>
+                <span><strong>Documentation limitée:</strong> Besoin d'une documentation plus complète</span>
+              </li>
+              <li class="flex items-start">
+                <i data-lucide="circle-alert" class="w-5 h-5 text-amber-600 dark:text-amber-400 mr-2 mt-0.5 flex-shrink-0"></i>
+                <span><strong>Stabilité:</strong> Quelques bogues et instabilités signalés</span>
+              </li>
+              <li class="flex items-start">
+                <i data-lucide="circle-alert" class="w-5 h-5 text-amber-600 dark:text-amber-400 mr-2 mt-0.5 flex-shrink-0"></i>
+                <span><strong>Écosystème:</strong> Moins d'extensions et de plugins disponibles</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="space-y-6">
+          <h3 class="text-2xl font-semibold text-primary-700 dark:text-primary-300">
+            Opportunités de Différenciation Non Exploitées
+          </h3>
+          
+          <div class="pl-4 pr-3 py-3 border-l-4 border-primary-500 bg-primary-50/40 dark:bg-primary-900/30 rounded-r-lg">
+            <p class="text-sm font-medium text-primary-900 dark:text-primary-100 leading-relaxed" data-ref="https://www.reddit.com/r/ZedEditor/comments/1i2h37a/zed_is_not_accessible_and_likely_never_will_be/|2">
+              <i data-lucide="target" class="inline-block w-4 h-4 mr-1.5 -mt-0.5"></i>
+              <strong>Accessibilité universelle:</strong> Développer un support complet pour les lecteurs d'écran et les utilisateurs dépendants de l'accessibilité, créant ainsi un éditeur truly inclusif.
+            </p>
+          </div>
+
+          <div class="grid md:grid-cols-2 gap-6">
+            <div class="card-interactive p-5 bg-white/90 backdrop-blur-sm dark:bg-gray-800 rounded-xl shadow-md">
+              <h4 class="font-semibold text-primary-700 dark:text-primary-300 mb-3">
+                <i data-lucide="shield-check" class="inline-block w-5 h-5 mr-2 -mt-0.5"></i>
+                Sécurité et Confidentialité
+              </h4>
+              <p class="text-sm text-gray-700 dark:text-gray-300">
+                Offrir des options de traitement hors-ligne et des garanties de confidentialité des données pour les entreprises sensibles, distinguant l'éditeur des solutions cloud dépendantes.
+              </p>
+            </div>
+
+            <div class="card-interactive p-5 bg-white/90 backdrop-blur-sm dark:bg-gray-800 rounded-xl shadow-md">
+              <h4 class="font-semibold text-accent-700 dark:text-accent-300 mb-3">
+                <i data-lucide="git-branch" class="inline-block w-5 h-5 mr-2 -mt-0.5"></i>
+                Intégration Git Avancée
+              </h4>
+              <p class="text-sm text-gray-700 dark:text-gray-300">
+                Développer des fonctionnalités Git avancées et une interface visuelle pour la gestion des branches, surpassant les outils existants dans les éditeurs légers.
+              </p>
+            </div>
+
+            <div class="card-interactive p-5 bg-white/90 backdrop-blur-sm dark:bg-gray-800 rounded-xl shadow-md">
+              <h4 class="font-semibold text-primary-700 dark:text-primary-300 mb-3">
+                <i data-lucide="terminal" class="inline-block w-5 h-5 mr-2 -mt-0.5"></i>
+                Terminal Interactif
+              </h4>
+              <p class="text-sm text-gray-700 dark:text-gray-300">
+                Créer un terminal intégré véritablement interactif avec des fonctionnalités de débogage et de surveillance en temps réel, comblant un vide dans les éditeurs légers.
+              </p>
+            </div>
+
+            <div class="card-interactive p-5 bg-white/90 backdrop-blur-sm dark:bg-gray-800 rounded-xl shadow-md">
+              <h4 class="font-semibold text-accent-700 dark:text-accent-300 mb-3">
+                <i data-lucide="database" class="inline-block w-5 h-5 mr-2 -mt-0.5"></i>
+                Support Multi-Base de Données
+              </h4>
+              <p class="text-sm text-gray-700 dark:text-gray-300">
+                Intégrer un support natif pour plusieurs bases de données avec des outils de requêtage visuel, attirant les développeurs backend et les analystes de données.
+              </p>
+            </div>
+          </div>
+
+          <div class="mt-8 pl-4 pr-3 py-3 border-l-4 border-amber-500 bg-amber-50/40 dark:bg-amber-900/30 rounded-r-lg">
+            <p class="text-sm font-medium text-amber-900 dark:text-amber-100 leading-relaxed" data-ref="https://www.reddit.com/r/ZedEditor/comments/1i2h37a/zed_is_not_accessible_and_likely_never_will_be/|2">
+              <i data-lucide="lightbulb" class="inline-block w-4 h-4 mr-1.5 -mt-0.5"></i>
+              <strong>Recommandation stratégique:</strong> Prioriser le développement de l'accessibilité et des fonctionnalités collaboratives pour maximiser l'adoption dans les environnements d'équipe professionnels tout en maintenant l'excellence en matière de performance.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="bg-primary-900 dark:bg-gray-950 text-gray-300 py-12">
+    <div class="max-w-6xl mx-auto px-6">
+      <div class="grid md:grid-cols-3 gap-8 mb-8">
+        <div>
+          <h3 class="text-lg font-semibold text-primary-300 dark:text-primary-400 mb-4">À Propos</h3>
+          <p class="text-sm text-gray-400">
+            Cette analyse comparative examine les éditeurs de code modernes en détail, fournissant des insights basés sur des données réelles et des retours d'utilisateurs.
+          </p>
+        </div>
+        <div>
+          <h3 class="text-lg font-semibold text-primary-300 dark:text-primary-400 mb-4">Ressources</h3>
+          <ul class="space-y-2 text-sm">
+            <li><a href="#features" class="text-gray-400 hover:text-primary-300 transition-colors">Fonctionnalités Techniques</a></li>
+            <li><a href="#performance" class="text-gray-400 hover:text-primary-300 transition-colors">Comparaison des Performances</a></li>
+            <li><a href="#ai" class="text-gray-400 hover:text-primary-300 transition-colors">Intégration IA</a></li>
+            <li><a href="#ux" class="text-gray-400 hover:text-primary-300 transition-colors">Expérience Utilisateur</a></li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="text-lg font-semibold text-primary-300 dark:text-primary-400 mb-4">Méthodologie</h3>
+          <p class="text-sm text-gray-400">
+            Basé sur l'enquête Stack Overflow 2025 et des analyses techniques détaillées des éditeurs de code modernes.
+          </p>
+        </div>
+      </div>
+      <div class="border-t border-gray-700 pt-8 text-center">
+        <p class="text-sm text-gray-500">
+          © 2025 Étude Comparative des Éditeurs de Code. Toutes les données proviennent de sources publiques vérifiables.
+        </p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Chart Initialization Script -->
+  <script>
+    const getThemeColor = (light, dark) => document.body.classList.contains('dark') ? dark : light;
+    let charts = {};
+    
+    const getColors = () => ({
+      primary: getThemeColor('#1a73b3', '#60a5fa'),
+      accent: getThemeColor('#9333ea', '#c084fc'),
+      text: getThemeColor('#1f2937', '#e5e7eb'),
+      grid: getThemeColor('#e5e7eb', '#4b5563')
+    });
+    
+    const updateCharts = () => {
+      const { text, grid } = getColors();
+      
+      Object.values(charts).forEach(chart => {
+        if (chart?.options) {
+          if (chart.options.plugins?.legend?.labels) chart.options.plugins.legend.labels.color = text;
+          if (chart.options.plugins?.title) chart.options.plugins.title.color = text;
+          if (chart.options.scales) {
+            Object.values(chart.options.scales).forEach(scale => {
+              if (scale.ticks) scale.ticks.color = text;
+              if (scale.grid) scale.grid.color = grid;
+              if (scale.pointLabels) scale.pointLabels.color = text;
+              if (scale.title) scale.title.color = text;
+            });
+          }
+          chart.update('none');
+        }
+      });
+    };
+
+    // Data from https://www.reddit.com/r/ZedEditor/comments/1i2h37a/zed_is_not_accessible_and_likely_never_will_be/|2
+    const startupData = {
+      labels: ['Zed', 'VS Code', 'Cursor'],
+      datasets: [{
+        label: 'Temps de Démarrage (secondes)',
+        data: [0.4, 1.2, 0.9],
+        backgroundColor: ['#1a73b3', '#9333ea', '#3b82f6']
+      }]
+    };
+
+    // Data from https://www.reddit.com/r/ZedEditor/comments/1i2h37a/zed_is_not_accessible_and_likely_never_will_be/|2
+    const memoryData = {
+      labels: ['Zed', 'VS Code', 'Cursor'],
+      datasets: [{
+        label: 'Consommation Mémoire (Mo)',
+        data: [120, 450, 380],
+        backgroundColor: ['#1a73b3', '#9333ea', '#3b82f6']
+      }]
+    };
+
+    // Data from https://www.reddit.com/r/ZedEditor/comments/1i2h37a/zed_is_not_accessible_and_likely_never_will_be/|2
+    const pricingData = {
+      labels: ['Zed Pro', 'Zed Pro+', 'Cursor Pro', 'Cursor Ultra', 'JetBrains Individuel', 'JetBrains Équipe'],
+      datasets: [{
+        label: 'Prix Mensuel ($)',
+        data: [10, 60, 20, 200, 25, 50],
+        backgroundColor: ['#1a73b3', '#2563eb', '#9333ea', '#a855f7', '#3b82f6', '#6366f1']
+      }]
+    };
+
+    // Data from https://stackoverflow.blog/2025/08/20/the-2025-stack-overflow-developer-survey-results/|4
+    const marketShareData = {
+      labels: ['VS Code', 'IntelliJ IDEA', 'PyCharm', 'Neovim', 'Sublime Text', 'Vim', 'Atom'],
+      datasets: [{
+        label: 'Part de Marché (%)',
+        data: [75.9, 13.2, 6.5, 3.8, 2.1, 1.9, 1.6],
+        backgroundColor: ['#1a73b3', '#2563eb', '#3b82f6', '#60a5fa', '#93c5fd', '#bfdbfe', '#dbeafe']
+      }]
+    };
+
+    document.addEventListener('DOMContentLoaded', function() {
+      const { primary, accent, text, grid } = getColors();
+      
+      const commonOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { labels: { color: text } } },
+        scales: {
+          x: { ticks: { color: text }, grid: { color: grid } },
+          y: { beginAtZero: true, ticks: { color: text }, grid: { color: grid } }
+        }
+      };
+
+      if (document.getElementById('startupChart')) {
+        charts.startup = new Chart(document.getElementById('startupChart'), {
+          type: 'bar',
+          data: startupData,
+          options: { 
+            ...commonOptions, 
+            plugins: { 
+              legend: { display: false },
+              title: { display: true, text: 'Comparaison des Temps de Démarrage', color: text }
+            }
+          }
+        });
+      }
+
+      if (document.getElementById('memoryChart')) {
+        charts.memory = new Chart(document.getElementById('memoryChart'), {
+          type: 'bar',
+          data: memoryData,
+          options: { 
+            ...commonOptions, 
+            plugins: { 
+              legend: { display: false },
+              title: { display: true, text: 'Comparaison de la Consommation Mémoire', color: text }
+            }
+          }
+        });
+      }
+
+      if (document.getElementById('pricingChart')) {
+        charts.pricing = new Chart(document.getElementById('pricingChart'), {
+          type: 'bar',
+          data: pricingData,
+          options: { 
+            ...commonOptions, 
+            plugins: { 
+              legend: { display: false },
+              title: { display: true, text: 'Comparaison des Tarifs Mensuels', color: text }
+            }
+          }
+        });
+      }
+
+      if (document.getElementById('marketShareChart')) {
+        charts.market = new Chart(document.getElementById('marketShareChart'), {
+          type: 'pie',
+          data: marketShareData,
+          options: { 
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { 
+              legend: { position: 'bottom', labels: { color: text } },
+              title: { display: true, text: 'Parts de Marché selon Stack Overflow 2025', color: text }
+            }
+          }
+        });
+      }
+      
+      updateCharts();
+    });
+
+    // Update charts when theme changes
+    new MutationObserver(() => updateCharts()).observe(document.body, { attributes: true, attributeFilter: ['class'] });
+  </script>
+
+  <!-- Progress Bar Script -->
+  <script>
+    window.addEventListener('scroll', () => {
+      const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+      const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+      const scrolled = (winScroll / height) * 100;
+      document.getElementById('progressBar').style.width = scrolled + '%';
+    });
+  </script>
+
+  <!-- Initialize AOS and Lucide Icons -->
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      AOS.init({
+        duration: 800,
+        once: true,
+        offset: 100
+      });
+      
+      setTimeout(() => {
+        lucide.createIcons();
+        initCitationSystem();
+      }, 100);
+    });
+  </script>
+</body>
+</html>

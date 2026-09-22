@@ -222,3 +222,7 @@ Pour éviter les crashs ou les boucles infinies :
 chaque modification doit être testée dans un sandbox avant d’être appliquée,
 tu peux utiliser un AppDomain isolé ou un processus secondaire,
 si le test échoue, MOTO AI restaure la version précédente.
+
+Ajouter l'équivalant de Claude Academy : des cours, des tests de prompt, des cours écrit et en vidéos, des leçons à apprendre, etc.
+
+Permettre la vue fractionnée comme sur Claude Code : avoir deux conversations dans la même fenêtre, même si elle implique deux agents différents.

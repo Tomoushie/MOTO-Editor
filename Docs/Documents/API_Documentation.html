@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MOTO Editor — Documentation API</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/fontsource/css/inter@latest/index.css">
+<style>
+:root{--accent:#007ACC;--accent2:#005A9E;--ink:#181A1E;--muted:#5A6069;--paper:#fff;--bg:#F7F8FA;--line:#D6D9DF;--green:#2E7D32;--red:#C62828;--amber:#B26A00;--violet:#7C3AED;--code-bg:#1E1E1E;--code-text:#D4D4D4;}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--ink);line-height:1.6;}
+.toolbar{position:fixed;top:10px;right:10px;z-index:1000;background:#fff;border:1px solid var(--line);border-radius:8px;padding:8px 16px;box-shadow:0 2px 8px rgba(0,0,0,0.1);}
+.toolbar button{background:var(--accent);color:#fff;border:none;padding:8px 16px;border-radius:4px;cursor:pointer;font-weight:600;}
+.page{max-width:210mm;margin:20px auto;background:var(--paper);padding:20mm;box-shadow:0 4px 20px rgba(0,0,0,0.08);min-height:297mm;}
+.cover{text-align:center;padding-top:40mm;}
+.big-hex{font-size:80px;color:var(--accent);font-weight:900;}
+.tag{display:inline-block;background:var(--accent);color:#fff;padding:4px 12px;border-radius:999px;font-size:11px;font-weight:600;margin-bottom:8mm;}
+h1{font-size:32px;color:var(--ink);margin-bottom:8mm;}
+h2{font-size:22px;color:var(--accent);border-bottom:2px solid var(--accent);padding-bottom:4px;margin:12mm 0 6mm 0;}
+h3{font-size:16px;color:var(--ink);margin:8mm 0 4mm 0;}
+.brand{font-size:11px;color:var(--muted);margin-bottom:4mm;}
+.hex{display:inline-block;color:var(--accent);font-weight:700;}
+.sec{font-size:18px;color:var(--accent);border-bottom:1px solid var(--line);padding-bottom:3px;margin:8mm 0 4mm 0;}
+.toc{list-style:none;margin:4mm 0;}
+.toc li{font-size:12px;margin-bottom:3mm;display:flex;justify-content:space-between;border-bottom:1px dotted var(--line);padding-bottom:2mm;}
+.toc .muted{color:var(--muted);font-size:10px;}
+.card{background:#F7F8FA;border:1px solid var(--line);border-radius:8px;padding:4mm;margin:4mm 0;}
+.card h4{font-size:13px;color:var(--accent);margin-bottom:2mm;}
+.card p, .card li{font-size:11px;color:var(--ink);line-height:1.5;}
+.card ul{margin-left:4mm;}
+table.t{width:100%;border-collapse:collapse;margin:4mm 0;font-size:10px;}
+table.t th{background:var(--accent);color:#fff;padding:3mm;text-align:left;font-weight:700;}
+table.t td{border:1px solid var(--line);padding:2.5mm;vertical-align:top;}
+table.t tr:nth-child(even){background:#FAFBFC;}
+.code{background:var(--code-bg);color:var(--code-text);border-radius:6px;padding:3mm;font-size:9.5px;line-height:1.5;margin:3mm 0;white-space:pre-wrap;font-family:'Consolas','Courier New',monospace;}
+.chip{display:inline-block;border-radius:999px;padding:1px 8px;font-size:9px;font-weight:700;color:#fff;}
+.chip.green{background:var(--green);}
+.chip.amber{background:var(--amber);}
+.chip.red{background:var(--red);}
+.chip.violet{background:var(--violet);}
+.kpirow{display:grid;grid-template-columns:repeat(4,1fr);gap:3mm;margin:4mm 0;}
+.kpi{border:1px solid var(--line);border-radius:8px;padding:3mm;text-align:center;background:#FBFCFE;}
+.kpi .v{font-size:16px;font-weight:800;color:var(--accent);}
+.kpi .l{font-size:8px;color:var(--muted);margin-top:1mm;}
+.muted{color:var(--muted);font-size:10px;}
+.footline{position:absolute;bottom:15mm;left:20mm;font-size:9px;color:var(--muted);}
+.pageno{position:absolute;bottom:15mm;right:20mm;font-size:9px;color:var(--muted);}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:4mm;}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4mm;}
+@media print{
+  body{background:#fff;}
+  .toolbar{display:none;}
+  .page{margin:0;box-shadow:none;padding:15mm;page-break-after:always;}
+  .page:last-child{page-break-after:auto;}
+}
+</style>
+</head>
+<body>
+<div class="toolbar">
+<button onclick="window.print()">⬇ Télécharger en PDF</button>
+</div>
+
+<!-- ══ P1 · COUVERTURE ══ -->
+<div class="page">
+<div class="cover">
+<div>
+<div class="big-hex">M</div>
+<div style="height:8mm"></div>
+<span class="tag">Documentation technique · v1.0</span>
+<h1>Documentation API<br><span style="font-size:24px;color:var(--muted)">MOTO Editor</span></h1>
+<p style="margin-top:8mm;font-size:13px;color:var(--muted);max-width:120mm;margin-left:auto;margin-right:auto;">
+Référence complète des moteurs IA, services, paramètres et agents intégrés. Architecture, flux de délégation et interfaces publiques.
+</p>
+</div>
+<div style="margin-top:20mm;">
+<div class="brand">Septembre 2026 · C# / .NET MAUI / WinUI 3</div>
+</div>
+</div>
+<div class="footline">Documentation API · v1.0</div>
+<div class="pageno">1 / 12</div>
+</div>
+
+<!-- ══ P2 · SOMMAIRE ══ -->
+<div class="page">
+<div class="brand"><span class="hex">M</span> MOTO Editor · Documentation API</div>
+<h2 class="sec">Sommaire</h2>
+<ul class="toc">
+<li><span>1. Vue d'ensemble de l'architecture</span><span class="muted">p.3</span></li>
+<li><span>2. Moteurs IA internes (Moto.Core/AI/)</span><span class="muted">p.4</span></li>
+<li><span>3. Services (Moto.Core/Services/)</span><span class="muted">p.6</span></li>
+<li><span>4. Système de paramètres (data-driven)</span><span class="muted">p.7</span></li>
+<li><span>5. Agents intégrés (AgentIntegrated/)</span><span class="muted">p.8</span></li>
+<li><span>6. Flux de délégation Editor → AI → XENO</span><span class="muted">p.10</span></li>
+<li><span>7. Références croisées et dépendances</span><span class="muted">p.11</span></li>
+<li><span>8. Glossaire et conventions</span><span class="muted">p.12</span></li>
+</ul>
+
+<div class="card" style="margin-top:8mm;">
+<h4>Objectif du document</h4>
+<p>Cette documentation décrit l'ensemble des composants publics de MOTO Editor, leurs responsabilités, leurs interfaces et leurs interactions. Elle s'adresse aux développeurs contribuant au projet, aux intégrateurs souhaitant étendre les fonctionnalités, et aux utilisateurs avancés cherchant à comprendre les mécanismes sous-jacents.</p>
+</div>
+
+<div class="card">
+<h4>Stack technique</h4>
+<div class="kpirow">
+<div class="kpi"><div class="v">C# 12</div><div class="l">LANGAGE</div></div>
+<div class="kpi"><div class="v">.NET 9</div><div class="l">RUNTIME</div></div>
+<div class="kpi"><div class="v">MAUI</div><div class="l">FRAMEWORK</div></div>
+<div class="kpi"><div class="v">WinUI 3</div><div class="l">UI NATIVE</div></div>
+</div>
+</div>
+<div class="footline">Documentation API · v1.0</div>
+<div class="pageno">2 / 12</div>
+</div>
+
+<!-- ══ P3 · VUE D'ENSEMBLE ══ -->
+<div class="page">
+<div class="brand"><span class="hex">M</span> MOTO Editor · Documentation API</div>
+<h2 class="sec">1. Vue d'ensemble de l'architecture</h2>
+
+<h3>Principe de séparation des responsabilités</h3>
+<div class="card">
+<h4>Doctrine fondamentale</h4>
+<p>MOTO Editor repose sur une séparation stricte entre trois couches :</p>
+<ul>
+<li><strong>MOTO Editor</strong> : édite, affiche, ouvre, sauvegarde, lance des commandes (jamais d'analyse profonde du code).</li>
+<li><strong>MOTO AI</strong> : assiste l'utilisateur, prédit, propose, route les demandes (jamais d'auto-application).</li>
+<li><strong>XENO-SSS∞</strong> : opérations structurées sur projet complet (analyse architecturale, génération, validation).</li>
+</ul>
+</div>
+
+<div class="code">// Flux de délégation typique
+Editor.UserAction → AI.RouteIntent() → XENO.ExecuteStructuredOperation()
+                                      ↑
+                                      Fallback: AI.LocalSuggestion()</div>
+
+<h3>Projets et responsabilités</h3>
+<table class="t">
+<tr><th>Projet</th><th>Rôle</th><th>Exemples de composants</th></tr>
+<tr><td><strong>Moto.Editor</strong></td><td>Shell UI MAUI/WinUI 3</td><td>MainPage.xaml, EditorPaneView, SettingsMenuView, TerminalView</td></tr>
+<tr><td><strong>Moto.Core</strong></td><td>Logique métier et moteurs</td><td>MotoAiKernel, CortexEngine, TerminalService, SettingsEngine</td></tr>
+<tr><td><strong>Snake2000.Engine</strong></td><td>Agents spécialisés</td><td>AgentScanner, AgentAnalyzer, AgentSynthesizer, XenoPipeline</td></tr>
+</table>
+
+<h3>Arborescence simplifiée</h3>
+<div class="code">MOTO-Editor/
+├── Snake2000.Engine/AgentIntegrated/    ← 20 agents spécialisés
+├── Moto.Core/
+│   ├── AI/                              ← Moteurs cognitifs
+│   ├── Services/                        ← Build, Run, Terminal, Git
+│   ├── Settings/                        ← Catalogue ~300 paramètres
+│   └── Performance/                     ← Modes Eco/Balanced/Turbo/Ultra
+└── Moto.Editor/                         ← Shell UI (Views, ViewModels, Pages)</div>
+<div class="footline">Documentation API · v1.0</div>
+<div class="pageno">3 / 12</div>
+</div>
+
+<!-- ══ P4 · MOTEURS IA ══ -->
+<div class="page">
+<div class="brand"><span class="hex">M</span> MOTO Editor · Documentation API</div>
+<h2 class="sec">2. Moteurs IA internes (Moto.Core/AI/)</h2>
+
+<h3>Moteurs cognitifs principaux</h3>
+<table class="t">
+<tr><th>Moteur</th><th>Rôle</th><th>Persistance</th><th>État</th></tr>
+<tr><td><code>MotoAiKernel</code></td><td>Routeur d'intentions + fallback providers</td><td>—</td><td><span class="chip green">Livré</span></td></tr>
+<tr><td><code>ProjectUnderstandingEngine</code></td><td>Carte mentale (symboles, relations, issues)</td><td>—</td><td><span class="chip green">Livré</span></td></tr>
+<tr><td><code>CortexEngine</code></td><td>Mémoire cognitive + style utilisateur</td><td><code>.moto/cortex/memory.json</code></td><td><span class="chip green">Livré</span></td></tr>
+<tr><td><code>NeuralMode</code></td><td>Embeddings TF-IDF + retrieval sémantique</td><td>Index mémoire</td><td><span class="chip green">Livré</span></td></tr>
+<tr><td><code>AIWorkspace</code></td><td>Orchestrateur proactif (suggestions contextuelles)</td><td>—</td><td><span class="chip green">Livré</span></td></tr>
+</table>
+
+<h3>Moteurs d'assistance</h3>
+<table class="t">
+<tr><th>Moteur</th><th>Rôle</th><th>Persistance</th><th>État</th></tr>
+<tr><td><code>AutoLinkEngine</code></td><td>Détection refs manquantes + Apply/Dismiss</td><td>—</td><td><span class="chip green">Livré</span></td></tr>
+<tr><td><code>ContextEngine</code></td><td>Suggestions senior proactives</td><td>—</td><td><span class="chip green">Livré</span></td></tr>
+<tr><td><code>TimeMachineEngine</code></td><td>Snapshots sans Git (historique granulaire)</td><td><code>.moto/timemachine/*.json</code></td><td><span class="chip green">Livré</span></td></tr>
+<tr><td><code>HealthMonitorEngine</code></td><td>Santé projet + complexité cyclomatique</td><td>—</td><td><span class="chip green">Livré</span></td></tr>
+<tr><td><code>PatternDetectorEngine</code></td><td>Détection ECS/Factory/Singleton/Observer</td><td>—</td><td><span class="chip green">Livré</span></td></tr>
+</table>
+
+<h3>Moteurs de productivité</h3>
+<table class="t">
+<tr><th>Moteur</th><th>Rôle</th><th>Persistance</th><th>État</th></tr>
+<tr><td><code>DocEngine</code></td><td>Génération 6 markdown auto</td><td><code>.moto/docs/*.md</code></td><td><span class="chip green">Livré</span></td></tr>
+<tr><td><code>PlatformEngine</code></td><td>Portages multiplateforme + CI + validation incrémentale</td><td>—</td><td><span class="chip green">Livré</span></td></tr>
+<tr><td><code>PerformanceEngine</code></td><td>Modes Eco/Balanced/Turbo/Ultra</td><td>Settings</td><td><span class="chip green">Livré</span></td></tr>
+</table>
+<div class="footline">Documentation API · v1.0</div>
+<div class="pageno">4 / 12</div>
+</div>
+
+<!-- ══ P5 · MOTEURS IA (SUITE) ══ -->
+<div class="page">
+<div class="brand"><span class="hex">M</span> MOTO Editor · Documentation API</div>
+<h2 class="sec">2. Moteurs IA internes (suite)</h2>
+
+<h3>Moteurs pédagogiques et collaboratifs</h3>
+<table class="t">
+<tr><th>Moteur</th><th>Rôle</th><th>Persistance</th><th>État</th></tr>
+<tr><td><code>ExplainEverythingEngine</code></td><td>Explications pas-à-pas pour débutants</td><td>—</td><td><span class="chip green">Livré</span></td></tr>
+<tr><td><code>AiTutorEngine</code></td><td>Tutoriel interactif adaptatif</td><td>—</td><td><span class="chip green">Livré</span></td></tr>
+<tr><td><code>NoCodeOrchestrator</code></td><td>Génération visuelle sans code</td><td>—</td><td><span class="chip green">Livré</span></td></tr>
+<tr><td><code>PairProgrammingEngine</code></td><td>Programmation en binôme assistée</td><td>—</td><td><span class="chip green">Livré</span></td></tr>
+<tr><td><code>StoryModeEngine</code></td><td>Narration interactive du code</td><td>—</td><td><span class="chip green">Livré</span></td></tr>
+<tr><td><code>ProjectEvolutionEngine</code></td><td>Suivi de l'évolution architecturale</td><td>—</td><td><span class="chip green">Livré</span></td></tr>
+</table>
+
+<h3>Interfaces publiques clés</h3>
+<div class="card">
+<h4>MotoAiKernel</h4>
+<p>Point d'entrée unique pour toutes les requêtes IA. Route les intentions vers le moteur approprié avec fallback sur les providers locaux (Ollama) ou distants (si configurés).</p>
+<div class="code">public class MotoAiKernel {
+    public async Task&lt;AiResponse&gt; RouteIntentAsync(IntentRequest request);
+    public void RegisterProvider(IAiProvider provider, int priority);
+    public AiResponse GetFallback(IntentRequest request);
+}</div>
+</div>
+
+<div class="card">
+<h4>CortexEngine</h4>
+<p>Maintient la mémoire cognitive de l'utilisateur : préférences de style, patterns récurrents, habitudes de navigation. Persiste dans <code>.moto/cortex/memory.json</code>.</p>
+<div class="code">public class CortexEngine {
+    public void LearnFromAction(UserAction action);
+    public StyleProfile GetCurrentStyle();
+    public IEnumerable&lt;Suggestion&gt; GetContextualSuggestions(DocumentContext ctx);
+}</div>
+</div>
+<div class="footline">Documentation API · v1.0</div>
+<div class="pageno">5 / 12</div>
+</div>
+
+<!-- ══ P6 · SERVICES ══ -->
+<div class="page">
+<div class="brand"><span class="hex">M</span> MOTO Editor · Documentation API</div>
+<h2 class="sec">3. Services (Moto.Core/Services/)</h2>
+
+<h3>Services d'exécution</h3>
+<table class="t">
+<tr><th>Service</th><th>Rôle</th><th>État</th></tr>
+<tr><td><code>BuildEngine</code></td><td>Compilation incrémentale, détection d'erreurs, badges onglets</td><td><span class="chip green">Livré</span></td></tr>
+<tr><td><code>RunEngine</code></td><td>Lancement de projets, gestion des processus enfants</td><td><span class="chip green">Livré</span></td></tr>
+<tr><td><code>SandboxEngine</code></td><td>Exécution isolée avec verrou mot de passe</td><td><span class="chip green">Livré</span></td></tr>
+<tr><td><code>TerminalService</code></td><td>Terminal intégré avec historique, commandes, coloration</td><td><span class="chip green">Livré</span></td></tr>
+</table>
+
+<h3>Services de gestion de projet</h3>
+<table class="t">
+<tr><th>Service</th><th>Rôle</th><th>État</th></tr>
+<tr><td><code>ProjectLockEngine</code></td><td>Verrouillage de fichiers pour édition collaborative</td><td><span class="chip green">Livré</span></td></tr>
+<tr><td><code>ProjectImportEngine</code></td><td>Import VS/VSCode, détection de configurations</td><td><span class="chip green">Livré</span></td></tr>
+<tr><td><code>FileTreeService</code></td><td>Explorateur de fichiers avec filtrage (bin, obj, node_modules)</td><td><span class="chip green">Livré</span></td></tr>
+<tr><td><code>ChatService</code></td><td>Gestion des threads de conversation IA</td><td><span class="chip green">Livré</span></td></tr>
+<tr><td><code>MotoAiService</code></td><td>Facade pour les appels IA depuis l'UI</td><td><span class="chip green">Livré</span></td></tr>
+</table>
+
+<h3>Interfaces publiques clés</h3>
+<div class="card">
+<h4>TerminalService</h4>
+<p>Gère le terminal intégré dans le dock du bas. Supporte l'historique des commandes, la coloration des erreurs, et l'ouverture automatique au lancement de projets.</p>
+<div class="code">public class TerminalService {
+    public void ExecuteCommand(string command);
+    public event EventHandler&lt;TerminalOutput&gt; OnOutput;
+    public void Clear();
+    public IEnumerable&lt;string&gt; GetHistory();
+}</div>
+</div>
+<div class="footline">Documentation API · v1.0</div>
+<div class="pageno">6 / 12</div>
+</div>
+
+<!-- ══ P7 · PARAMÈTRES ══ -->
+<div class="page">
+<div class="brand"><span class="hex">M</span> MOTO Editor · Documentation API</div>
+<h2 class="sec">4. Système de paramètres (data-driven)</h2>
+
+<h3>Architecture du catalogue</h3>
+<div class="card">
+<h4>SettingsCatalog (classe partial)</h4>
+<p>Regroupe ~300 paramètres en 15 catégories. Chaque paramètre est défini de manière déclarative avec type, valeur par défaut, contrainte et catégorie.</p>
+<div class="code">public partial class SettingsCatalog {
+    // Apparence
+    public static readonly SettingDefinition&lt;bool&gt; ShowMinimap = new("editor.minimap.enabled", true);
+    public static readonly SettingDefinition&lt;int&gt; FontSize = new("editor.fontSize", 14, min:8, max:24);
+    public static readonly SettingDefinition&lt;string&gt; Theme = new("appearance.theme", "Moto Dark");
+    
+    // Éditeur
+    public static readonly SettingDefinition&lt;bool&gt; WordWrap = new("editor.wordWrap", false);
+    public static readonly SettingDefinition&lt;int&gt; TabSize = new("editor.tabSize", 4, min:1, max:8);
+    
+    // IA
+    public static readonly SettingDefinition&lt;bool&gt; AiSuggestions = new("ai.suggestions.enabled", true);
+    public static readonly SettingDefinition&lt;string&gt; AiProvider = new("ai.provider", "ollama");
+}</div>
+</div>
+
+<h3>Types de paramètres supportés</h3>
+<table class="t">
+<tr><th>Type</th><th>Description</th><th>Exemple</th></tr>
+<tr><td><code>Toggle</code></td><td>Booléen on/off</td><td><code>ShowMinimap</code></td></tr>
+<tr><td><code>Int</code></td><td>Entier avec min/max</td><td><code>FontSize</code>, <code>TabSize</code></td></tr>
+<tr><td><code>Enum</code></td><td>Liste de valeurs prédéfinies</td><td><code>Theme</code>, <code>PerformanceMode</code></td></tr>
+<tr><td><code>String</code></td><td>Chaîne de caractères</td><td><code>AiProvider</code></td></tr>
+<tr><td><code>Action</code></td><td>Bouton déclenchant une action</td><td><code>ResetToDefaults</code></td></tr>
+</table>
+
+<h3>Persistance et application</h3>
+<div class="card">
+<h4>SettingsEngine.Shared</h4>
+<p>Singleton gérant la persistance dans <code>%AppData%/MotoEditor/settings.json</code>. Charge au démarrage, sauvegarde à chaque modification.</p>
+<div class="code">public class SettingsEngine {
+    public static readonly SettingsEngine Shared = new();
+    
+    public T Get&lt;T&gt;(SettingDefinition&lt;T&gt; definition);
+    public void Set&lt;T&gt;(SettingDefinition&lt;T&gt; definition, T value);
+    public void Save();
+    public void Load();
+}</div>
+</div>
+
+<div class="card">
+<h4>SettingsApplier</h4>
+<p>Applique les paramètres en temps réel : thème, police, minimap, indentation, etc. Écoute les changements via <code>INotifyPropertyChanged</code>.</p>
+</div>
+<div class="footline">Documentation API · v1.0</div>
+<div class="pageno">7 / 12</div>
+</div>
+
+<!-- ══ P8 · AGENTS ══ -->
+<div class="page">
+<div class="brand"><span class="hex">M</span> MOTO Editor · Documentation API</div>
+<h2 class="sec">5. Agents intégrés (AgentIntegrated/)</h2>
+
+<h3>Pipeline XENO</h3>
+<div class="card">
+<h4>Architecture des agents</h4>
+<p>Les agents spécialisés sont orchestrés par <code>XenoPipeline</code> et exécutent des tâches structurées sur le projet complet. Chaque agent a un rôle précis et retourne un <code>AgentResult</code>.</p>
+<div class="code">public class XenoPipeline {
+    public async Task&lt;AgentResult&gt; ExecuteAsync(AgentContext context);
+    public void RegisterAgent(IAgent agent, int priority);
+}
+
+public interface IAgent {
+    string Name { get; }
+    Task&lt;AgentResult&gt; RunAsync(AgentContext context);
+    bool CanHandle(AgentContext context);
+}</div>
+</div>
+
+<h3>Agents principaux</h3>
+<table class="t">
+<tr><th>Agent</th><th>Rôle</th><th>Priorité</th></tr>
+<tr><td><code>AgentScanner</code></td><td>Scan complet du projet, détection de fichiers et dépendances</td><td>1</td></tr>
+<tr><td><code>AgentAnalyzer</code></td><td>Analyse architecturale, détection de patterns et anti-patterns</td><td>2</td></tr>
+<tr><td><code>AgentSynthesizer</code></td><td>Génération de fichiers, connexion des briques</td><td>3</td></tr>
+<tr><td><code>AgentConnector</code></td><td>Connexion des dépendances, validation des imports</td><td>4</td></tr>
+<tr><td><code>AgentValidator</code></td><td>Validation de cohérence, namespaces, types</td><td>5</td></tr>
+</table>
+
+<h3>Agents spécialisés</h3>
+<table class="t">
+<tr><th>Agent</th><th>Rôle</th></tr>
+<tr><td><code>ConsistencyScanner</code></td><td>Détection de fichiers/projets « fantômes », dépendances inutilisées</td></tr>
+<tr><td><code>InconsistencyDetector</code></td><td>Détection d'incohérences structurelles</td></tr>
+<tr><td><code>FileIntegrity</code></td><td>Vérification d'intégrité (hash, reconstruction)</td></tr>
+<tr><td><code>StructuredLogCollector</code></td><td>Logs JSON structurés + explainabilité</td></tr>
+<tr><td><code>DependencyResolver</code></td><td>Résolution automatique de dépendances manquantes</td></tr>
+<tr><td><code>CodeRefactorer</code></td><td>Refactorisation structurée avec validation</td></tr>
+</table>
+<div class="footline">Documentation API · v1.0</div>
+<div class="pageno">8 / 12</div>
+</div>
+
+<!-- ══ P9 · AGENTS (SUITE) ══ -->
+<div class="page">
+<div class="brand"><span class="hex">M</span> MOTO Editor · Documentation API</div>
+<h2 class="sec">5. Agents intégrés (suite)</h2>
+
+<h3>Contexte et résultats</h3>
+<div class="card">
+<h4>AgentContext</h4>
+<p>Objet passé à chaque agent contenant le contexte d'exécution : projet actif, fichiers concernés, requête utilisateur, historique.</p>
+<div class="code">public class AgentContext {
+    public Project ActiveProject { get; }
+    public IEnumerable&lt;string&gt; TargetFiles { get; }
+    public string UserQuery { get; }
+    public IDictionary&lt;string, object&gt; Metadata { get; }
+    
+    public T GetMetadata&lt;T&gt;(string key, T defaultValue = default);
+    public void SetMetadata&lt;T&gt;(string key, T value);
+}</div>
+</div>
+
+<div class="card">
+<h4>AgentResult</h4>
+<p>Résultat retourné par un agent. Peut contenir des fichiers modifiés, des suggestions, des erreurs, ou un état de succès/échec.</p>
+<div class="code">public class AgentResult {
+    public bool Success { get; }
+    public string Message { get; }
+    public IEnumerable&lt;FileChange&gt; Changes { get; }
+    public IEnumerable&lt;Suggestion&gt; Suggestions { get; }
+    public IEnumerable&lt;Diagnostic&gt; Diagnostics { get; }
+    
+    public static AgentResult Succeeded(string message = null);
+    public static AgentResult Failed(string error);
+    public static AgentResult WithChanges(IEnumerable&lt;FileChange&gt; changes);
+}</div>
+</div>
+
+<h3>Registre des agents</h3>
+<div class="card">
+<h4>AgentRegistry</h4>
+<p>Registre central permettant d'enregistrer, découvrir et invoquer les agents. Supporte les priorités et le filtrage par contexte.</p>
+<div class="code">public class AgentRegistry {
+    public void Register(IAgent agent, int priority = 0);
+    public IEnumerable&lt;IAgent&gt; GetAgentsFor(AgentContext context);
+    public IAgent GetByName(string name);
+}</div>
+</div>
+<div class="footline">Documentation API · v1.0</div>
+<div class="pageno">9 / 12</div>
+</div>
+
+<!-- ══ P10 · FLUX ══ -->
+<div class="page">
+<div class="brand"><span class="hex">M</span> MOTO Editor · Documentation API</div>
+<h2 class="sec">6. Flux de délégation Editor → AI → XENO</h2>
+
+<h3>Principe de délégation</h3>
+<div class="card">
+<h4>Analogie avec les éditeurs existants</h4>
+<p>MOTO Editor délègue les opérations complexes à XENO-SSS∞ de la même manière que :</p>
+<ul>
+<li>VS Code appelle Copilot</li>
+<li>Cursor appelle son backend IA</li>
+<li>Zed appelle Claude Code</li>
+</ul>
+<p>Mais en <strong>local, sans cloud</strong>. XENO est l'orchestrateur structuré qui exécute les opérations sur le projet complet.</p>
+</div>
+
+<h3>Flux typique : génération de projet</h3>
+<div class="code">// 1. Utilisateur demande "Créer un projet MAUI avec MVVM"
+Editor.UserAction("CreateProject", new { Template = "maui-mvvm" });
+
+// 2. Editor route vers AI
+var intent = await MotoAiKernel.RouteIntentAsync(new IntentRequest {
+    Type = IntentType.ProjectGeneration,
+    Query = "Créer un projet MAUI avec MVVM",
+    Context = CurrentWorkspace
+});
+
+// 3. AI délègue à XENO
+if (intent.RequiresStructuredOperation) {
+    var xenoResult = await XenoBridge.ExecuteAsync(new XenoRequest {
+        Operation = XenoOperation.CreateProject,
+        Parameters = intent.Parameters,
+        Agents = ["AgentScanner", "AgentSynthesizer", "AgentConnector", "AgentValidator"]
+    });
+    
+    // 4. Editor applique les changements
+    if (xenoResult.Success) {
+        await FileTreeService.RefreshAsync();
+        await BuildEngine.BuildAsync(xenoResult.GeneratedFiles);
+    }
+}</div>
+
+<h3>Flux typique : suggestion contextuelle</h3>
+<div class="code">// 1. Utilisateur tape du code
+Editor.OnTextChanged(document, position);
+
+// 2. CortexEngine apprend de l'action
+CortexEngine.LearnFromAction(new UserAction {
+    Type = ActionType.CodeEdit,
+    Document = document,
+    Position = position,
+    Timestamp = DateTime.Now
+});
+
+// 3. ContextEngine propose des suggestions
+var suggestions = await ContextEngine.GetSuggestionsAsync(new DocumentContext {
+    Document = document,
+    CursorPosition = position,
+    RecentActions = CortexEngine.GetRecentActions(10)
+});
+
+// 4. UI affiche les suggestions (ghost text, panneau)
+Editor.ShowSuggestions(suggestions);</div>
+<div class="footline">Documentation API · v1.0</div>
+<div class="pageno">10 / 12</div>
+</div>
+
+<!-- ══ P11 · RÉFÉRENCES ══ -->
+<div class="page">
+<div class="brand"><span class="hex">M</span> MOTO Editor · Documentation API</div>
+<h2 class="sec">7. Références croisées et dépendances</h2>
+
+<h3>Matrice de dépendances</h3>
+<table class="t">
+<tr><th>Composant</th><th>Dépend de</th><th>Utilisé par</th></tr>
+<tr><td><code>MotoAiKernel</code></td><td>Tous les moteurs IA</td><td>UI, Services, Agents</td></tr>
+<tr><td><code>CortexEngine</code></td><td>—</td><td>ContextEngine, AIWorkspace</td></tr>
+<tr><td><code>NeuralMode</code></td><td>EmbeddingEngine</td><td>CodeRetrieval, NeuralGenerator</td></tr>
+<tr><td><code>TerminalService</code></td><td>—</td><td>TerminalView, RunEngine</td></tr>
+<tr><td><code>SettingsEngine</code></td><td>—</td><td>UI, SettingsApplier, PerformanceEngine</td></tr>
+<tr><td><code>XenoPipeline</code></td><td>AgentRegistry</td><td>MotoAiKernel, Editor</td></tr>
+</table>
+
+<h3>Conventions de nommage</h3>
+<div class="card">
+<h4>Moteurs</h4>
+<p>Suffixe <code>Engine</code> pour les composants exécutant une logique métier complexe.</p>
+<ul>
+<li><code>CortexEngine</code>, <code>NeuralMode</code>, <code>AutoLinkEngine</code></li>
+</ul>
+</div>
+
+<div class="card">
+<h4>Services</h4>
+<p>Suffixe <code>Service</code> pour les composants fournissant une capacité transversale.</p>
+<ul>
+<li><code>TerminalService</code>, <code>ChatService</code>, <code>FileTreeService</code></li>
+</ul>
+</div>
+
+<div class="card">
+<h4>Agents</h4>
+<p>Préfixe <code>Agent</code> pour les composants spécialisés exécutant des tâches structurées.</p>
+<ul>
+<li><code>AgentScanner</code>, <code>AgentAnalyzer</code>, <code>AgentSynthesizer</code></li>
+</ul>
+</div>
+
+<h3>Persistance des données</h3>
+<table class="t">
+<tr><th>Chemin</th><th>Contenu</th><th>Géré par</th></tr>
+<tr><td><code>.moto/cortex/memory.json</code></td><td>Mémoire cognitive, style utilisateur</td><td><code>CortexEngine</code></td></tr>
+<tr><td><code>.moto/timemachine/*.json</code></td><td>Snapshots granulaires</td><td><code>TimeMachineEngine</code></td></tr>
+<tr><td><code>.moto/docs/*.md</code></td><td>Documentation auto-générée</td><td><code>DocEngine</code></td></tr>
+<tr><td><code>%AppData%/MotoEditor/settings.json</code></td><td>Paramètres utilisateur</td><td><code>SettingsEngine</code></td></tr>
+</table>
+<div class="footline">Documentation API · v1.0</div>
+<div class="pageno">11 / 12</div>
+</div>
+
+<!-- ══ P12 · GLOSSAIRE ══ -->
+<div class="page">
+<div class="brand"><span class="hex">M</span> MOTO Editor · Documentation API</div>
+<h2 class="sec">8. Glossaire et conventions</h2>
+
+<h3>Termes clés</h3>
+<table class="t">
+<tr><th>Terme</th><th>Définition</th></tr>
+<tr><td><strong>MOTO Editor</strong></td><td>Éditeur de code ultra-léger, UI minimaliste, local-first</td></tr>
+<tr><td><strong>MOTO AI</strong></td><td>Couche d'assistance IA locale (Ollama + moteurs cognitifs)</td></tr>
+<tr><td><strong>XENO-SSS∞</strong></td><td>Orchestrateur IA structuré pour opérations sur projet complet</td></tr>
+<tr><td><strong>Cortex</strong></td><td>Mémoire cognitive de l'utilisateur (style, habitudes)</td></tr>
+<tr><td><strong>Neural</strong></td><td>Mode embeddings pour retrieval sémantique</td></tr>
+<tr><td><strong>AutoLink</strong></td><td>Détection et résolution automatique de références manquantes</td></tr>
+<tr><td><strong>Time Machine</strong></td><td>Snapshots granulaires sans Git</td></tr>
+<tr><td><strong>SettingsCatalog</strong></td><td>Catalogue data-driven de ~300 paramètres</td></tr>
+</table>
+
+<h3>Conventions de code</h3>
+<div class="card">
+<h4>Asynchronicité</h4>
+<p>Toutes les méthodes effectuant des opérations I/O ou IA sont asynchrones et retournent <code>Task&lt;T&gt;</code>.</p>
+</div>
+
+<div class="card">
+<h4>Injection de dépendances</h4>
+<p>Les services sont injectés via le conteneur MAUI. Les moteurs sont des singletons accessibles via des propriétés statiques (ex: <code>SettingsEngine.Shared</code>).</p>
+</div>
+
+<div class="card">
+<h4>Gestion des erreurs</h4>
+<p>Les erreurs sont capturées et exposées via des <code>Diagnostic</code> ou des <code>AgentResult.Failed</code>. L'UI affiche les erreurs dans les badges d'onglets et le panneau de diagnostics.</p>
+</div>
+
+<h3>Contact et support</h3>
+<div class="card">
+<p>Pour toute question technique, contribution ou signalement de bug :</p>
+<ul>
+<li>GitHub Issues : <code>github.com/moto-editor/moto-editor/issues</code></li>
+<li>Discussions : <code>github.com/moto-editor/moto-editor/discussions</code></li>
+<li>Documentation utilisateur : voir <em>Manuel utilisateur</em></li>
+</ul>
+</div>
+
+<div style="margin-top:10mm;text-align:center;color:var(--muted);font-size:10px;">
+<p>© 2026 MOTO Editor · Documentation API v1.0 · Septembre 2026</p>
+<p>Généré le 2 septembre 2026</p>
+</div>
+<div class="footline">Documentation API · v1.0</div>
+<div class="pageno">12 / 12</div>
+</div>
+
+</body>
+</html>

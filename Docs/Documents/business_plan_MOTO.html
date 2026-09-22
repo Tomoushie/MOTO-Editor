@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MOTO Editor — Business Plan Solo Dev (PDF)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/fontsource/css/inter@latest/index.css">
+<style>
+  :root{
+    --accent:#007ACC; --accent-dark:#005A9E; --ink:#181A1E; --muted:#5A6069;
+    --paper:#FFFFFF; --bg:#F7F8FA; --line:#D6D9DF; --green:#2E7D32; --amber:#B26A00; --risk:#C62828; --violet:#7C3AED;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  html,body{background:var(--bg);font-family:'Inter',system-ui,sans-serif;color:var(--ink);}
+  @page{size:A4;margin:0;}
+  .toolbar{position:fixed;top:14px;right:14px;z-index:99;}
+  .toolbar button{background:var(--accent);color:#fff;border:none;border-radius:8px;padding:10px 16px;font-weight:600;font-size:13px;cursor:pointer;box-shadow:0 4px 12px rgba(0,122,204,.35);}
+  .toolbar button:hover{background:var(--accent-dark);}
+  .page{width:210mm;min-height:296mm;background:var(--paper);margin:24px auto;padding:16mm 16mm 14mm;position:relative;box-shadow:0 8px 30px rgba(0,0,0,.12);overflow:hidden;page-break-after:always;}
+  @media print{ .toolbar{display:none;} body{background:#fff;} .page{margin:0;box-shadow:none;width:210mm;height:296mm;min-height:0;} }
+
+  .brand{display:flex;align-items:center;gap:8px;font-weight:700;font-size:11px;letter-spacing:.12em;color:var(--accent);text-transform:uppercase;}
+  .brand .hex{width:22px;height:22px;background:var(--accent);color:#fff;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;}
+  .pageno{position:absolute;bottom:8mm;right:16mm;font-size:9px;color:var(--muted);}
+  .footline{position:absolute;bottom:8mm;left:16mm;font-size:9px;color:var(--muted);}
+
+  .cover{height:100%;display:flex;flex-direction:column;justify-content:space-between;background:linear-gradient(160deg,#0d1418 0%,#111214 55%,#0a2233 100%);color:#E8EAED;margin:-16mm;padding:20mm 16mm;}
+  .cover .tag{display:inline-block;border:1px solid rgba(0,122,204,.6);color:#7cc4ff;border-radius:999px;padding:5px 14px;font-size:10px;letter-spacing:.15em;text-transform:uppercase;}
+  .cover h1{font-size:36px;line-height:1.15;font-weight:800;margin:18px 0 10px;}
+  .cover h1 span{color:#4da3ff;}
+  .cover p{color:#9AA0A6;font-size:13px;max-width:125mm;line-height:1.6;}
+  .cover .big-hex{width:64px;height:64px;background:var(--accent);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:800;color:#fff;box-shadow:0 10px 40px rgba(0,122,204,.5);}
+  .cover .meta{display:flex;gap:22px;font-size:10px;color:#9AA0A6;}
+  .cover .meta b{color:#E8EAED;display:block;font-size:12px;}
+
+  h2.sec{font-size:18px;color:var(--accent-dark);border-left:4px solid var(--accent);padding-left:10px;margin:5mm 0 4mm;}
+  h3.sub{font-size:12px;margin:4mm 0 2mm;color:var(--ink);}
+  p.txt{font-size:10.2px;line-height:1.6;color:#33383F;margin-bottom:3mm;}
+  .muted{color:var(--muted);} .accent{color:var(--accent);font-weight:600;}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:4mm;}
+  .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:3.5mm;}
+  .card{border:1px solid var(--line);border-radius:10px;padding:3.5mm 4mm;background:#FBFCFE;}
+  .card h4{font-size:11px;margin-bottom:2mm;}
+  .card ul{list-style:none;} .card li{font-size:9.2px;line-height:1.5;margin-bottom:1.4mm;padding-left:12px;position:relative;}
+  .card li::before{content:"";position:absolute;left:0;top:4.5px;width:5px;height:5px;border-radius:50%;background:var(--accent);opacity:.7;}
+  .chip{display:inline-block;border-radius:999px;padding:1px 8px;font-size:8.3px;font-weight:700;color:#fff;}
+  .kpirow{display:grid;grid-template-columns:repeat(4,1fr);gap:3mm;margin:3mm 0;}
+  .kpi{border:1px solid var(--line);border-radius:10px;padding:3mm;text-align:center;background:#FBFCFE;}
+  .kpi .v{font-size:15px;font-weight:800;} .kpi .l{font-size:8px;color:var(--muted);margin-top:1mm;}
+  table.bp{width:100%;border-collapse:collapse;font-size:9.2px;margin-top:2mm;}
+  table.bp th{background:#111214;color:#E8EAED;text-align:left;padding:2mm 2.5mm;font-size:8.8px;}
+  table.bp td{border-bottom:1px solid var(--line);padding:1.9mm 2.5mm;vertical-align:top;}
+  table.bp tr:nth-child(even) td{background:#F2F5F8;}
+  table.bp td.num{text-align:right;font-variant-numeric:tabular-nums;font-weight:600;}
+  table.bp tr.tot td{background:#EAF4FB;font-weight:800;border-top:2px solid var(--accent);}
+  .toc li{font-size:11px;margin-bottom:2.5mm;list-style:none;display:flex;justify-content:space-between;border-bottom:1px dotted var(--line);padding-bottom:1.5mm;}
+  .rec{display:flex;gap:3mm;align-items:flex-start;margin-bottom:2.6mm;}
+  .rec .n{flex:0 0 8mm;height:8mm;border-radius:8px;background:var(--accent);color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:12px;}
+  .rec b{font-size:10.6px;} .rec p{font-size:9.6px;color:#33383F;line-height:1.5;margin-top:1mm;}
+  .bar{height:5px;background:#E4E9EE;border-radius:3px;overflow:hidden;}
+  .bar i{display:block;height:100%;border-radius:3px;}
+</style>
+</head>
+<body>
+
+<div class="toolbar"><button onclick="window.print()">⬇ Télécharger en PDF</button></div>
+
+<!-- ══ P1 · COUVERTURE ══ -->
+<div class="page"><div class="cover">
+  <div>
+    <div class="big-hex">M</div>
+    <div style="height:8mm"></div>
+    <span class="tag">Business plan bootstrap · v1.0</span>
+    <h1>Business Plan<br><span>MOTO Editor</span><br>Mode solo, budget minimal</h1>
+    <p>Un développeur, trois IA d'assistance, zéro levée de fonds : comment transformer un IDE local-first fait maison en micro-entreprise rentable, avec moins de 500 € de mise de départ et des coûts fixes proches de zéro.</p>
+  </div>
+  <div class="meta">
+    <div><b>Septembre 2026</b>Horizon 3 ans</div>
+    <div><b>Modèle</b>Open source + freemium</div>
+    <div><b>Structure</b>Micro-entreprise (FR)</div>
+    <div><b>Mise de départ</b>&lt; 500 €</div>
+  </div>
+</div></div>
+
+<!-- ══ P2 · SOMMAIRE + SYNTHÈSE ══ -->
+<div class="page">
+  <div class="brand"><div class="hex">M</div>MOTO Editor · Business plan</div>
+  <h2 class="sec" style="margin-top:5mm">Sommaire</h2>
+  <ul class="toc">
+    <li><span>1. Synthèse exécutive & porteur de projet</span><span class="muted">p. 2</span></li>
+    <li><span>2. Proposition de valeur & niche</span><span class="muted">p. 3</span></li>
+    <li><span>3. Marché : TAM / SAM / SOM réalistes</span><span class="muted">p. 3</span></li>
+    <li><span>4. Modèle économique & tarification</span><span class="muted">p. 4</span></li>
+    <li><span>5. Go-to-market à budget zéro</span><span class="muted">p. 5</span></li>
+    <li><span>6. Plan financier 3 ans & seuil de rentabilité</span><span class="muted">p. 6</span></li>
+    <li><span>7. Juridique, fiscal & risques</span><span class="muted">p. 7</span></li>
+    <li><span>8. Plan d'action 12 mois, KPIs, conclusion</span><span class="muted">p. 8</span></li>
+  </ul>
+
+  <h2 class="sec">1. Synthèse exécutive & porteur de projet</h2>
+  <p class="txt"><b>MOTO Editor</b> est un IDE 100 % local (sans cloud, sans Electron) qui reproduit les capacités de Zed avec une interface minimaliste type Claude Code, une IA locale et 100+ paramètres. Le projet est déjà construit : 0 erreur de build, 3 docks modulaires, terminal réel, 20 agents IA, sécurité Ed25519.</p>
+  <div class="grid2">
+    <div class="card"><h4>Le porteur de projet</h4><ul>
+      <li>Développeur solo (fondateur), temps partiel (15–20 h/sem.), motivé par le produit.</li>
+      <li>Levier décisif : 3 IA d'assistance (Claude Code, Qwen, Copilot) → productivité ×2–3, équivalent d'une petite équipe sans salaire.</li>
+      <li>Compétences couvertes : C#/.NET, MAUI/WinUI3, sécurité, packaging ; à compléter : marketing (compensé par le « build in public »).</li>
+    </ul></div>
+    <div class="card"><h4>Principes bootstrap</h4><ul>
+      <li>Aucune levée de fonds, aucune dette, aucun salarié.</li>
+      <li>Coûts fixes &lt; 20 €/mois grâce aux tiers gratuits (GitHub, GitHub Pages/Releases).</li>
+      <li>Rentabilité dès le 1ᵉ abonné Pro ; le projet ne peut pas « brûler » de cash.</li>
+      <li>Croissance organique uniquement ; le temps remplace l'argent.</li>
+    </ul></div>
+  </div>
+  <div class="kpirow">
+    <div class="kpi"><div class="v" style="color:var(--accent)">&lt; 500 €</div><div class="l">MISE DE DÉPART</div></div>
+    <div class="kpi"><div class="v" style="color:var(--accent)">≈ 15 €/mois</div><div class="l">COÛTS FIXES</div></div>
+    <div class="kpi"><div class="v" style="color:var(--green)">1</div><div class="l">ABONNÉ = RENTABLE</div></div>
+    <div class="kpi"><div class="v" style="color:var(--violet)">≈ 44 k€</div><div class="l">CA VISÉ AN 3</div></div>
+  </div>
+  <div class="footline">Business plan bootstrap · Septembre 2026</div><div class="pageno">2 / 8</div>
+</div>
+
+<!-- ══ P3 · VALEUR + MARCHÉ ══ -->
+<div class="page">
+  <div class="brand"><div class="hex">M</div>MOTO Editor · Business plan</div>
+  <h2 class="sec" style="margin-top:5mm">2. Proposition de valeur & niche</h2>
+  <div class="grid3">
+    <div class="card"><h4>Pour qui ?</h4><ul>
+      <li>Indés & petites équipes sensibles au coût et à la légèreté.</li>
+      <li>Power users voulant 100+ réglages sans chaos d'extensions.</li>
+      <li>Profils privacy : code jamais envoyé dans le cloud.</li>
+      <li>Utilisateurs attentifs à l'accessibilité (WCAG).</li>
+    </ul></div>
+    <div class="card"><h4>Quel problème ?</h4><ul>
+      <li>VS Code lourd, gourmand en mémoire, interface dense.</li>
+      <li>Cursor/Copilot = code envoyé dans le cloud.</li>
+      <li>Zed jeune, Windows perfectible, accessibilité faible.</li>
+      <li>JetBrains verrouillés et payants.</li>
+    </ul></div>
+    <div class="card"><h4>Pourquoi nous ?</h4><ul>
+      <li>Local-first : IA locale (Ollama/ONNX), rien ne sort de la machine.</li>
+      <li>Natif .NET/MAUI : léger et rapide sans Electron.</li>
+      <li>Minimalisme + profondeur (100+ paramètres data-driven).</li>
+      <li>Histoire forte : « 1 dev + 3 IA construisent un Zed-like ».</li>
+    </ul></div>
+  </div>
+  <p class="txt"><b>Positionnement</b> : ne pas attaquer VS Code frontalement ; créer la catégorie <span class="accent">« IDE minimaliste, local & accessible »</span>. Message : « La puissance d'un IDE moderne, la légèreté d'un éditeur, la confidentialité du local. »</p>
+
+  <h2 class="sec">3. Marché — TAM / SAM / SOM (lecture réaliste solo)</h2>
+  <table class="bp">
+    <tr><th style="width:20mm">Niveau</th><th>Définition</th><th style="width:30mm">Taille (2026)</th><th style="width:46mm">Ce que vise MOTO (3 ans)</th></tr>
+    <tr><td><b>TAM</b></td><td>Marché mondial des IDE / outils dev</td><td class="num">16,5 Md$ (CAGR 10,8 %)</td><td>Hors de portée directe — contexte seulement.</td></tr>
+    <tr><td><b>SAM</b></td><td>Devs cherchant une alternative légère/local-first/IA locale (≈ 2 % du TAM)</td><td class="num">≈ 300 M$</td><td>Segment adressable via open source + communautés EN/FR.</td></tr>
+    <tr><td><b>SOM</b></td><td>Part capturable en bootstrap, sans budget pub significatif</td><td class="num">—</td><td class="num">12 000 actifs · 300 Pro · ≈ 44 k€ de CA en an 3</td></tr>
+  </table>
+  <p class="txt muted">Repères concurrentiels : VS Code 75,9 % de part d'usage ; Zed passé de 1,7 % à 7,3 % en un an (preuve qu'une alternative peut percer) ; 84 % des devs utilisent ou planifient l'IA. Le SOM ci-dessus représente &lt; 0,02 % du TAM : prudent et crédible pour un solo.</p>
+  <div class="footline">Business plan bootstrap · Septembre 2026</div><div class="pageno">3 / 8</div>
+</div>
+
+<!-- ══ P4 · MODÈLE ÉCONOMIQUE ══ -->
+<div class="page">
+  <div class="brand"><div class="hex">M</div>MOTO Editor · Business plan</div>
+  <h2 class="sec" style="margin-top:5mm">4. Modèle économique & tarification</h2>
+  <p class="txt">Modèle <b>open source + freemium</b> (validé par Zed et Cursor) : le gratuit construit l'adoption et la confiance ; le payant finance le fondateur. Aucun paywall sur l'essentiel — la doctrine « pas d'UI factice » s'applique aussi au business.</p>
+  <table class="bp">
+    <tr><th style="width:30mm">Source de revenu</th><th>Description</th><th style="width:24mm">Prix</th><th style="width:26mm">Démarrage</th></tr>
+    <tr><td><b>Pro (cœur du modèle)</b></td><td>Builds nightly signés, support prioritaire, accès anticipé aux agents premium, badge soutien</td><td class="num">10 €/mois ou 96 €/an</td><td>Lancement v1.0 (T3 2027)</td></tr>
+    <tr><td><b>Dons / sponsoring</b></td><td>GitHub Sponsors, Open Collective, Ko-fi — « payer un café »</td><td class="num">Libre</td><td>Dès l'open-sourcing (T1 2027)</td></tr>
+    <tr><td><b>Marketplace agents</b></td><td>Commission 20 % sur agents/thèmes payants de la communauté</td><td class="num">20 %</td><td>An 2–3</td></tr>
+    <tr><td><b>Support B2B</b></td><td>Contrats d'assistance / onboarding pour petites entreprises</td><td class="num">≈ 500 €/an</td><td>An 3 (optionnel)</td></tr>
+  </table>
+  <h3 class="sub">Pourquoi ça marche en bootstrap</h3>
+  <div class="grid2">
+    <div class="card"><h4>Élasticité favorable</h4><ul>
+      <li>Coût marginal d'un utilisateur gratuit ≈ 0 (hébergement GitHub gratuit).</li>
+      <li>10 €/mois = prix psychologique « soutien de créateur », pas un achat entreprise.</li>
+      <li>96 €/an prépayé = trésorerie d'avance, sans facturation complexe.</li>
+    </ul></div>
+    <div class="card"><h4>Garde-fous</h4><ul>
+      <li>Le gratuit reste complet à vie (crédibilité open source, évite le fork hostile).</li>
+      <li>Pro = service & priorité, jamais une fonctionnalité vitale verrouillée.</li>
+      <li>Pas de publicité, pas de revente de données (cohérent privacy-first).</li>
+    </ul></div>
+  </div>
+  <h3 class="sub">Hypothèses de conversion (prudentes)</h3>
+  <table class="bp">
+    <tr><th>Paramètre</th><th>An 1</th><th>An 2</th><th>An 3</th></tr>
+    <tr><td>Utilisateurs actifs</td><td class="num">1 200</td><td class="num">5 000</td><td class="num">12 000</td></tr>
+    <tr><td>Conversion free → Pro</td><td class="num">1,0 %</td><td class="num">2,0 %</td><td class="num">2,5 %</td></tr>
+    <tr><td>Abonnés Pro (fin d'année)</td><td class="num">30</td><td class="num">100</td><td class="num">300</td></tr>
+    <tr><td>Churn mensuel</td><td class="num">4 %</td><td class="num">3 %</td><td class="num">3 %</td></tr>
+  </table>
+  <div class="footline">Business plan bootstrap · Septembre 2026</div><div class="pageno">4 / 8</div>
+</div>
+
+<!-- ══ P5 · GO-TO-MARKET ZÉRO BUDGET ══ -->
+<div class="page">
+  <div class="brand"><div class="hex">M</div>MOTO Editor · Business plan</div>
+  <h2 class="sec" style="margin-top:5mm">5. Go-to-market à budget zéro</h2>
+  <p class="txt">Sans budget pub, l'actif marketing principal est <b>l'histoire</b> : « un développeur solo et trois IA construisent un IDE local-first façon Zed en .NET ». Le <span class="accent">build in public</span> transforme chaque étape du journal de bord en contenu gratuit et crédible.</p>
+  <table class="bp">
+    <tr><th style="width:34mm">Canal</th><th>Action concrète</th><th style="width:20mm">Coût</th><th style="width:26mm">Attendu</th></tr>
+    <tr><td>GitHub (open source)</td><td>Repo public soigné : README, licence, bonnes premières issues, roadmap publique</td><td class="num">0 €</td><td>Stars + contributeurs</td></tr>
+    <tr><td>Hacker News</td><td>« Show HN » au lancement v1.0 + articles techniques (titlebar WinUI3, PieceTable)</td><td class="num">0 €</td><td>Pics de trafic qualifiés</td></tr>
+    <tr><td>Reddit</td><td>r/vscode, r/dotnet, r/SideProject, r/programming — démos courtes, sans spam</td><td class="num">0 €</td><td>Adoption early</td></tr>
+    <tr><td>Dev.to / blog</td><td>1 article/quinzaine : coulisses solo+IA, leçons MAUI, doctrine minimaliste</td><td class="num">0 €</td><td>SEO long terme</td></tr>
+    <tr><td>YouTube / X</td><td>Démos 60–90 s ; #buildinpublic avec métriques transparentes</td><td class="num">0 €</td><td>Viralité potentielle</td></tr>
+    <tr><td>Product Hunt</td><td>Lancement calé sur v1.0 (slot préparé, assets prêts)</td><td class="num">0 €</td><td>2–5 k téléchargements</td></tr>
+    <tr><td>Communauté</td><td>Discord léger + GitHub Discussions ; réponse &lt; 24 h = fidélisation</td><td class="num">0 €</td><td>Rétention & bouche-à-oreille</td></tr>
+    <tr><td>Enveloppe test</td><td>Boosts occasionnels d'un article performant (optionnel, an 2)</td><td class="num">≤ 50 €/mois</td><td>Amplification ciblée</td></tr>
+  </table>
+  <h3 class="sub">Entonnoir d'acquisition (objectif an 2)</h3>
+  <table class="bp">
+    <tr><th>Étape</th><th>Volume annuel</th><th>Taux</th><th>Sortie</th></tr>
+    <tr><td>Impressions (articles, posts, HN)</td><td class="num">250 000</td><td>—</td><td>—</td></tr>
+    <tr><td>Visites site / GitHub</td><td class="num">25 000</td><td class="num">10 %</td><td>—</td></tr>
+    <tr><td>Téléchargements</td><td class="num">12 000</td><td class="num">48 %</td><td>—</td></tr>
+    <tr><td>Actifs 30 j</td><td class="num">5 000</td><td class="num">42 %</td><td>—</td></tr>
+    <tr><td>Pro</td><td class="num">100</td><td class="num">2 %</td><td class="num">≈ 12 k€ de CA</td></tr>
+  </table>
+  <div class="footline">Business plan bootstrap · Septembre 2026</div><div class="pageno">5 / 8</div>
+</div>
+
+<!-- ══ P6 · FINANCIER 3 ANS ══ -->
+<div class="page">
+  <div class="brand"><div class="hex">M</div>MOTO Editor · Business plan</div>
+  <h2 class="sec" style="margin-top:5mm">6. Plan financier 3 ans & seuil de rentabilité</h2>
+  <h3 class="sub">6.1 Mise de départ (&lt; 500 €)</h3>
+  <table class="bp">
+    <tr><th>Poste</th><th>Choix bootstrap</th><th style="width:22mm">Coût</th></tr>
+    <tr><td>Signature de code</td><td>SignPath Foundation (gratuit open source) ou OV premier prix</td><td class="num">0–200 €</td></tr>
+    <tr><td>Domaine + DNS</td><td>moto-editor.dev (~15 €/an)</td><td class="num">15 €</td></tr>
+    <tr><td>Site, CDN, releases</td><td>GitHub Pages + GitHub Releases (gratuits)</td><td class="num">0 €</td></tr>
+    <tr><td>Comptabilité</td><td>Micro-entreprise auto-gérée (outil gratuit)</td><td class="num">0 €</td></tr>
+    <tr><td>Marque (INPI)</td><td>Reportée en an 2 si CA confirmé</td><td class="num">0 €</td></tr>
+    <tr><td>Matériel</td><td>PC du fondateur déjà possédé</td><td class="num">0 €</td></tr>
+    <tr><td>Imprévus</td><td>Marge de sécurité</td><td class="num">100 €</td></tr>
+    <tr class="tot"><td colspan="2">Total mise de départ</td><td class="num">≈ 115–315 €</td></tr>
+  </table>
+  <h3 class="sub">6.2 Compte de résultat simplifié (exercices An 1 → An 3)</h3>
+  <table class="bp">
+    <tr><th style="width:52mm">Ligne</th><th>An 1 (2026-27)</th><th>An 2 (2027-28)</th><th>An 3 (2028-29)</th></tr>
+    <tr><td>CA Pro (abonnements)</td><td class="num">1 800 €</td><td class="num">12 000 €</td><td class="num">36 000 €</td></tr>
+    <tr><td>Dons / sponsoring</td><td class="num">400 €</td><td class="num">1 200 €</td><td class="num">2 400 €</td></tr>
+    <tr><td>Marketplace + B2B</td><td class="num">0 €</td><td class="num">800 €</td><td class="num">6 000 €</td></tr>
+    <tr class="tot"><td>Chiffre d'affaires</td><td class="num">2 200 €</td><td class="num">14 000 €</td><td class="num">44 400 €</td></tr>
+    <tr><td>Charges externes (héberg., domaine, outils, boosts)</td><td class="num">300 €</td><td class="num">900 €</td><td class="num">1 500 €</td></tr>
+    <tr><td>Cotisations micro-entreprise (~21 %)</td><td class="num">460 €</td><td class="num">2 940 €</td><td class="num">9 320 €</td></tr>
+    <tr><td>Investissements (certificat, marque an 2…)</td><td class="num">200 €</td><td class="num">500 €</td><td class="num">500 €</td></tr>
+    <tr class="tot"><td>Résultat net (avant impôt)</td><td class="num">+1 240 €</td><td class="num">+9 660 €</td><td class="num">+33 080 €</td></tr>
+  </table>
+  <h3 class="sub">6.3 Seuils & lecture</h3>
+  <div class="grid2">
+    <div class="card"><h4>Seuil de rentabilité</h4><ul>
+      <li>Coûts fixes ≈ 15 €/mois → rentable dès <b>2 abonnés Pro</b>.</li>
+      <li>Équivalent temps partiel (1 500 €/mois) atteint vers <b>an 3</b> (≈ 300 Pro).</li>
+      <li>Aucun scénario de faillite : le pire cas = quelques centaines € perdus.</li>
+    </ul></div>
+    <div class="card"><h4>Sensibilité</h4><ul>
+      <li>Conversion 1,5 % au lieu de 2,5 % en an 3 → CA ≈ 27 k€ : reste viable.</li>
+      <li>Un « post viral » (HN/PH) peut avancer l'an 2 de 6 mois.</li>
+      <li>Le modèle encaisse un choc : pas de salariés, pas de locaux, pas de stock.</li>
+    </ul></div>
+  </div>
+  <div class="footline">Business plan bootstrap · Septembre 2026</div><div class="pageno">6 / 8</div>
+</div>
+
+<!-- ══ P7 · JURIDIQUE + RISQUES ══ -->
+<div class="page">
+  <div class="brand"><div class="hex">M</div>MOTO Editor · Business plan</div>
+  <h2 class="sec" style="margin-top:5mm">7. Juridique, fiscal & risques</h2>
+  <div class="grid2">
+    <div class="card"><h4>Structure & fiscal (France)</h4><ul>
+      <li><b>Micro-entreprise</b> : création gratuite en ligne ; cotisations ≈ 21 % du CA encaissé ; pas de CA = pas de charges.</li>
+      <li>Franchise de TVA (≈ 39 k€) : pas de TVA à facturer tant que le seuil n'est pas franchi.</li>
+      <li>Ouverture d'un compte bancaire dédié (obligatoire au-delà de 10 k€/an pendant 2 ans).</li>
+      <li>Évolution possible vers SASU/EURL en an 3 si CA &gt; 40 k€ (à ré-arbitrer).</li>
+    </ul></div>
+    <div class="card"><h4>Licence & propriété</h4><ul>
+      <li><b>GPL-3.0</b> pour le cœur (comme Zed) : adoption + protection contre l'appropriation.</li>
+      <li>Marques/logo : dépôt INPI reporté (an 2) ; en attendant, copyright simple.</li>
+      <li>CLA léger pour les contributions externes (garder le contrôle).</li>
+      <li>RGPD : produit 100 % local = quasi aucune donnée collectée → politique de confidentialité courte, argument commercial.</li>
+    </ul></div>
+  </div>
+  <h3 class="sub">Risques & parades (lecture solo)</h3>
+  <table class="bp">
+    <tr><th style="width:44mm">Risque</th><th style="width:14mm">Niveau</th><th>Parade bootstrap</th></tr>
+    <tr><td>Fondateur unique (santé, motivation, temps)</td><td><span class="chip" style="background:var(--risk)">Élevé</span></td><td>Documentation vivante (QWEN.md/CLAUDE.md), IA comme mémoire, communauté comme relais ; rythme soutenable (pas de crunch).</td></tr>
+    <tr><td>Plateforme MAUI/WinUI3 (régressions, barre de titre)</td><td><span class="chip" style="background:var(--risk)">Élevé</span></td><td>Versions figées, chantiers isolés, pas de migration sous pression ; transparence publique sur les bugs.</td></tr>
+    <tr><td>Adoption trop lente (bruit concurrentiel)</td><td><span class="chip" style="background:var(--amber)">Moyen</span></td><td>Coûts ≈ 0 : le projet peut mûrir 2 ans sans mourir ; niche privacy/accessibilité plutôt que masse.</td></tr>
+    <tr><li>Fork ou clone mieux financé</li></td><td><span class="chip" style="background:var(--amber)">Moyen</span></td><td>La GPL impose le partage ; la relation communauté + histoire du créateur ne se forkent pas.</td></tr>
+    <tr><td>Revenus sous les attentes</td><td><span class="chip" style="background:var(--green)">Faible impact</span></td><td>Aucune charge fixe vitale : un CA faible reste un complément de revenu, pas un échec.</td></tr>
+  </table>
+  <p class="txt muted">Principe général du plan : <b>chaque euro dépensé doit soit débloquer un revenu, soit protéger juridiquement le projet</b>. Tout le reste est gratuit ou reporté.</p>
+  <div class="footline">Business plan bootstrap · Septembre 2026</div><div class="pageno">7 / 8</div>
+</div>
+
+<!-- ══ P8 · ACTION 12 MOIS + KPIs ══ -->
+<div class="page">
+  <div class="brand"><div class="hex">M</div>MOTO Editor · Business plan</div>
+  <h2 class="sec" style="margin-top:5mm">8. Plan d'action 12 mois, KPIs & conclusion</h2>
+  <div class="rec"><div class="n">T1</div><div><b>Sept. – déc. 2026 · Préparer le terrain (≈ 5 h/sem.)</b><p>Stabilisation produit (barre de titre, persistance, 100+ paramètres) ; nettoyage du repo pour open-sourcing ; choix GPL-3.0 ; création micro-entreprise ; GitHub Sponsors activé ; 4 articles « build in public ».</p></div></div>
+  <div class="rec"><div class="n">T2</div><div><b>Janv. – mars 2027 · Ouvrir le code</b><p>Mise en open source du cœur ; MotoBridge/XENO démontrable ; Discord + Discussions ouverts ; premières bonnes issues pour contributeurs ; 1 démo YouTube/mois.</p></div></div>
+  <div class="rec"><div class="n">T3</div><div><b>Avr. – juin 2027 · Préparer le lancement</b><p>v1.0 RC ; audit accessibilité ; site one-page + vidéo 90 s ; kit presse ; slot Product Hunt réservé ; page Pro (96 €/an) prête ; checklist de lancement publique.</p></div></div>
+  <div class="rec"><div class="n">T4</div><div><b>Juil. – sept. 2027 · Lancer & itérer</b><p>v1.0 publique ; Show HN + Product Hunt + Reddit ; objectif 500 téléchargements/mois ; premiers 30 Pro ; rétrospective publique ; décision an 2 (marketplace, enveloppe boosts).</p></div></div>
+
+  <h3 class="sub">KPIs suivis (tableau de bord mensuel, 10 min)</h3>
+  <table class="bp">
+    <tr><th>KPI</th><th>An 1</th><th>An 2</th><th>An 3</th></tr>
+    <tr><td>Stars GitHub / contributeurs</td><td class="num">500 / 3</td><td class="num">2 500 / 12</td><td class="num">6 000 / 25</td></tr>
+    <tr><td>Téléchargements cumulés</td><td class="num">3 000</td><td class="num">15 000</td><td class="num">45 000</td></tr>
+    <tr><td>Utilisateurs actifs 30 j</td><td class="num">1 200</td><td class="num">5 000</td><td class="num">12 000</td></tr>
+    <tr><td>Abonnés Pro / MRR</td><td class="num">30 / 300 €</td><td class="num">100 / 1 000 €</td><td class="num">300 / 3 000 €</td></tr>
+    <tr><td>Churn Pro mensuel</td><td class="num">&lt; 4 %</td><td class="num">&lt; 3 %</td><td class="num">&lt; 3 %</td></tr>
+  </table>
+  <h3 class="sub">Conclusion</h3>
+  <p class="txt">Ce business plan assume une vérité simple : <b>un solo ne gagne pas par l'argent, mais par le temps, la niche et l'histoire</b>. Avec &lt; 500 € de mise, &lt; 20 €/mois de coûts et un produit déjà construit, le risque financier est quasi nul ; le vrai capital investi est le temps du fondateur, amplifié par les IA. Si la niche « IDE minimaliste, local & accessible » trouve son public (hypothèse prudente : 2–2,5 % de conversion sur 12 000 actifs), l'activité atteint un revenu temps partiel solide (~33 k€ net/an) en an 3 — base saine pour, alors seulement, envisager une structuration plus lourde.</p>
+  <p class="txt muted">Prochaine décision requise : date d'ouverture du repo public (T1) et choix définitif de la licence (GPL-3.0 recommandé).</p>
+  <div class="footline">Business plan bootstrap · Fin du document</div><div class="pageno">8 / 8</div>
+</div>
+
+</body>
+</html>

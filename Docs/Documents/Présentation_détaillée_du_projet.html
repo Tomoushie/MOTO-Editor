@@ -1,0 +1,639 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MOTO Editor — Présentation Détaillée du Projet (PDF)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/fontsource/css/inter@latest/index.css">
+<style>
+:root{--accent:#007ACC;--accent2:#005A9E;--ink:#181A1E;--muted:#5A6069;--paper:#fff;--bg:#F7F8FA;--line:#D6D9DF;--green:#2E7D32;--red:#C62828;--amber:#B26A00;--violet:#7C3AED;}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+html,body{background:var(--bg);font-family:'Inter',system-ui,sans-serif;color:var(--ink);}
+@page{size:A4;margin:0;}
+.toolbar{position:fixed;top:14px;right:14px;z-index:99;}
+.toolbar button{background:var(--accent);color:#fff;border:none;border-radius:8px;padding:10px 16px;font-weight:600;font-size:13px;cursor:pointer;box-shadow:0 4px 12px rgba(0,122,204,.35);}
+.page{width:210mm;min-height:296mm;background:var(--paper);margin:20px auto;padding:14mm 14mm 12mm;position:relative;box-shadow:0 8px 30px rgba(0,0,0,.12);overflow:hidden;page-break-after:always;}
+@media print{.toolbar{display:none;}body{background:#fff;}.page{margin:0;box-shadow:none;width:210mm;height:296mm;min-height:0;}}
+.brand{display:flex;align-items:center;gap:8px;font-weight:700;font-size:10px;letter-spacing:.12em;color:var(--accent);text-transform:uppercase;}
+.brand .hex{width:20px;height:20px;background:var(--accent);color:#fff;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;}
+.pageno{position:absolute;bottom:7mm;right:14mm;font-size:8.5px;color:var(--muted);}
+.footline{position:absolute;bottom:7mm;left:14mm;font-size:8.5px;color:var(--muted);}
+.cover{height:100%;display:flex;flex-direction:column;justify-content:space-between;background:linear-gradient(160deg,#0d1418 0%,#111214 55%,#0a2233 100%);color:#E8EAED;margin:-14mm;padding:18mm 14mm;}
+.cover .tag{display:inline-block;border:1px solid rgba(0,122,204,.6);color:#7cc4ff;border-radius:999px;padding:5px 14px;font-size:10px;letter-spacing:.15em;text-transform:uppercase;}
+.cover h1{font-size:34px;line-height:1.15;font-weight:800;margin:16px 0 8px;}
+.cover h1 span{color:#4da3ff;}
+.cover p{color:#9AA0A6;font-size:12.5px;max-width:130mm;line-height:1.6;}
+.cover .big-hex{width:60px;height:60px;background:var(--accent);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:800;color:#fff;box-shadow:0 10px 40px rgba(0,122,204,.5);}
+.cover .meta{display:flex;gap:20px;font-size:9.5px;color:#9AA0A6;flex-wrap:wrap;}
+.cover .meta b{color:#E8EAED;display:block;font-size:11px;}
+h2.sec{font-size:16.5px;color:var(--accent2);border-left:4px solid var(--accent);padding-left:9px;margin:4mm 0 3mm;}
+h3.sub{font-size:11.5px;margin:3mm 0 2mm;color:var(--ink);}
+p.txt{font-size:9.8px;line-height:1.55;color:#33383F;margin-bottom:2.5mm;}
+.muted{color:var(--muted);}.accent{color:var(--accent);font-weight:600;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:3.5mm;}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:3mm;}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:3mm;}
+.card{border:1px solid var(--line);border-radius:9px;padding:3mm 3.5mm;background:#FBFCFE;}
+.card h4{font-size:10.5px;margin-bottom:1.8mm;}
+.card ul{list-style:none;}
+.card li{font-size:8.8px;line-height:1.45;margin-bottom:1.2mm;padding-left:11px;position:relative;}
+.card li::before{content:"";position:absolute;left:0;top:4px;width:4.5px;height:4.5px;border-radius:50%;background:var(--accent);opacity:.7;}
+.chip{display:inline-block;border-radius:999px;padding:1px 8px;font-size:8px;font-weight:700;color:#fff;}
+.kpirow{display:grid;grid-template-columns:repeat(4,1fr);gap:3mm;margin:3mm 0;}
+.kpi{border:1px solid var(--line);border-radius:9px;padding:2.5mm;text-align:center;background:#FBFCFE;}
+.kpi .v{font-size:14px;font-weight:800;}
+.kpi .l{font-size:7.6px;color:var(--muted);margin-top:1mm;}
+table.t{width:100%;border-collapse:collapse;font-size:8.8px;margin-top:2mm;}
+table.t th{background:#111214;color:#E8EAED;text-align:left;padding:1.8mm 2.2mm;font-size:8.4px;}
+table.t td{border-bottom:1px solid var(--line);padding:1.7mm 2.2mm;vertical-align:top;line-height:1.45;}
+table.t tr:nth-child(even) td{background:#F2F5F8;}
+table.t td.num{text-align:right;font-weight:600;font-variant-numeric:tabular-nums;}
+table.t tr.tot td{background:#EAF4FB;font-weight:800;border-top:2px solid var(--accent);}
+.toc li{font-size:10px;margin-bottom:2mm;list-style:none;display:flex;justify-content:space-between;border-bottom:1px dotted var(--line);padding-bottom:1.2mm;}
+.bar{height:4.5px;background:#E4E9EE;border-radius:3px;overflow:hidden;}
+.bar i{display:block;height:100%;border-radius:3px;}
+.sw{display:grid;grid-template-columns:repeat(4,1fr);gap:3mm;margin:3mm 0;}
+.sw .c{border-radius:9px;padding:2.5mm;text-align:center;color:#fff;}
+.sw .c b{display:block;font-size:9.5px;}.sw .c span{font-size:7.6px;opacity:.92;}
+.ex{background:#111214;color:#E8EAED;border-radius:8px;padding:2.5mm 3.5mm;font-size:8.6px;line-height:1.55;margin:2mm 0;white-space:pre-wrap;}
+</style>
+</head>
+<body>
+<div class="toolbar"><button onclick="window.print()">⬇ Télécharger en PDF</button></div>
+
+<!-- P1 COUVERTURE -->
+<div class="page"><div class="cover">
+<div>
+<div class="big-hex">M</div><div style="height:7mm"></div>
+<span class="tag">Dossier de présentation · v1.0 · Septembre 2026</span>
+<h1>MOTO Editor<br><span>Présentation détaillée</span> du projet</h1>
+<p>IDE 100 % local, sans cloud ni Electron, construit « fait maison » par un fondateur solo assisté de trois IA. Architecture Zed, interface minimaliste type Claude Code, complexité portée par le backend et 100+ paramètres. Document objectif : acquis réels, limites assumées, feuille de route.</p>
+</div>
+<div class="meta">
+<div><b>Stack</b>.NET 10 · MAUI · WinUI 3</div>
+<div><b>Projets</b>Engine · Core · Editor</div>
+<div><b>Builds</b>0 erreur (3 projets)</div>
+<div><b>Modèle</b>Open source + freemium</div>
+<div><b>Statut</b>Pré-v1.0 (bêta interne)</div>
+</div>
+</div></div>
+
+<!-- P2 SOMMAIRE + FICHE -->
+<div class="page">
+<div class="brand"><div class="hex">M</div>MOTO Editor · Présentation</div>
+<h2 class="sec" style="margin-top:4mm">Sommaire</h2>
+<ul class="toc">
+<li><span>1. Synthèse exécutive & fiche d'identité</span><span class="muted">p.3</span></li>
+<li><span>2. Genèse & méthode « 1 humain + 3 IA »</span><span class="muted">p.4</span></li>
+<li><span>3. Doctrine & vision produit</span><span class="muted">p.5</span></li>
+<li><span>4. Architecture & modules</span><span class="muted">p.6</span></li>
+<li><span>5. Stack technique & contraintes</span><span class="muted">p.7</span></li>
+<li><span>6. L'éditeur : cœur de métier</span><span class="muted">p.8</span></li>
+<li><span>7. Panneaux modulaires façon Zed</span><span class="muted">p.9</span></li>
+<li><span>8. IA intégrée, agents & moteurs internes</span><span class="muted">p.10-11</span></li>
+<li><span>9. Sécurité, mises à jour & privacy</span><span class="muted">p.12</span></li>
+<li><span>10. Performance & optimisations</span><span class="muted">p.13</span></li>
+<li><span>11. Réglages : 100+ paramètres</span><span class="muted">p.14</span></li>
+<li><span>12. Collab, remote, export & docs</span><span class="muted">p.15</span></li>
+<li><span>13. Design & identité visuelle</span><span class="muted">p.16</span></li>
+<li><span>14. Marché & comparaison concurrentielle</span><span class="muted">p.17</span></li>
+<li><span>15. SWOT & positionnement</span><span class="muted">p.18</span></li>
+<li><span>16. Roadmap & modèle économique</span><span class="muted">p.19</span></li>
+<li><span>17. Limites honnêtes, méthode & conclusion</span><span class="muted">p.20</span></li>
+</ul>
+<h2 class="sec">Fiche d'identité</h2>
+<table class="t">
+<tr><th style="width:34mm">Champ</th><th>Valeur</th></tr>
+<tr><td>Nom / dépôt</td><td>MOTO Editor — github.com/Tomoushie/MOTO-Editor (public, branche main)</td></tr>
+<tr><td>Nature</td><td>IDE / éditeur de code 100 % local ; aucun cloud ; aucune dépendance runtime externe</td></tr>
+<tr><td>Stack</td><td>.NET 10 (net10.0-windows10.0.19041.0), C#, MAUI, WinUI 3, Windows App SDK 1.8 épinglé</td></tr>
+<tr><td>Projets</td><td>Snake2000.Engine (XENO) · Moto.Core (374 fichiers) · Moto.Editor</td></tr>
+<tr><td>Équipe</td><td>1 fondateur (non-développeur de métier) + 3 IA (Claude Code = repo, Qwen & Copilot = conseil)</td></tr>
+<tr><td>Références</td><td>Zed (architecture), Claude Code (UX), Zen (menus IA), VS Code (richesse fonctionnelle)</td></tr>
+<tr><td>Baseline</td><td>« Léger. Rapide. Sans dépendance. Tout fait maison. »</td></tr>
+</table>
+<div class="footline">Présentation détaillée · Septembre 2026</div><div class="pageno">2 / 20</div>
+</div>
+
+<!-- P3 SYNTHÈSE -->
+<div class="page">
+<div class="brand"><div class="hex">M</div>MOTO Editor · Présentation</div>
+<h2 class="sec" style="margin-top:4mm">1. Synthèse exécutive</h2>
+<p class="txt">MOTO Editor est un environnement de développement <b>entièrement local</b> qui reproduit les capacités d'un IDE moderne de type Zed — docks modulaires, terminal, IA intégrée, collaboration — avec une <b>interface minimaliste</b> inspirée de Claude Code/ChatGPT et une complexité déplacée vers le backend et vers plus de 100 paramètres de configuration. Le projet est développé « fait maison » : aucun framework UI tiers, aucun service cloud, aucune télémétrie.</p>
+<div class="kpirow">
+<div class="kpi"><div class="v" style="color:var(--accent)">3</div><div class="l">PROJETS · 0 ERREUR BUILD</div></div>
+<div class="kpi"><div class="v" style="color:var(--accent)">374</div><div class="l">FICHIERS MOTO.CORE</div></div>
+<div class="kpi"><div class="v" style="color:var(--accent)">~300</div><div class="l">PARAMÈTRES DATA-DRIVEN</div></div>
+<div class="kpi"><div class="v" style="color:var(--accent)">20</div><div class="l">AGENTS IA SPÉCIALISÉS</div></div>
+</div>
+<div class="kpirow">
+<div class="kpi"><div class="v" style="color:var(--green)">5</div><div class="l">BRIQUES PANNEAUX ZED LIVRÉES</div></div>
+<div class="kpi"><div class="v" style="color:var(--green)">13+</div><div class="l">MOTEURS INTERNES</div></div>
+<div class="kpi"><div class="v" style="color:var(--green)">9</div><div class="l">FORMATS D'EXPORT</div></div>
+<div class="kpi"><div class="v" style="color:var(--amber)">1</div><div class="l">PLATEFORME (WINDOWS, AUJ.)</div></div>
+</div>
+<h3 class="sub">Ce que le projet est (et n'est pas)</h3>
+<div class="grid2">
+<div class="card"><h4>✅ C'est</h4><ul>
+<li>Un éditeur/IDE local-first : édite, affiche, ouvre, sauvegarde, exécute des commandes.</li>
+<li>Un shell modulaire (3 docks) avec terminal interactif réel et glisser-déposer.</li>
+<li>Une IA locale (Ollama/ONNX) assistée d'un pipeline structuré XENO-SSS∞.</li>
+<li>Un chantier transparent : bugs publics, roadmap ouverte, méthode documentée.</li>
+</ul></div>
+<div class="card"><h4>⚠️ Ce n'est (volontairement) pas</h4><ul>
+<li>Pas un produit cloud : aucune donnée ne quitte la machine.</li>
+<li>Pas un clone de code : inspiration Zed/VS Code, réécriture C# intégrale (Zed = GPL).</li>
+<li>Pas encore multiplateforme : Windows d'abord, portages planifiés (PlatformEngine).</li>
+<li>Pas une v1.0 : LSP Roslyn, CRDT réel, DAP, tests, i18n, accessibilité = « à venir ».</li>
+</ul></div>
+</div>
+<div class="footline">Présentation détaillée · Septembre 2026</div><div class="pageno">3 / 20</div>
+</div>
+
+<!-- P4 GENÈSE -->
+<div class="page">
+<div class="brand"><div class="hex">M</div>MOTO Editor · Présentation</div>
+<h2 class="sec" style="margin-top:4mm">2. Genèse & méthode « 1 humain + 3 IA »</h2>
+<p class="txt">Le projet est né d'un constat simple : les IDE modernes sont lourds, cloud-dépendants ou verrouillés. Le fondateur, <b>sans formation de développeur</b>, a choisi une méthode inhabituelle : orchestrer trois IA complémentaires pour construire un vrai produit, en assumant publiquement ce fonctionnement (build in public).</p>
+<table class="t">
+<tr><th style="width:30mm">Rôle</th><th>IA</th><th style="width:60mm">Périmètre réel</th></tr>
+<tr><td>Exécution</td><td><b>Claude Code</b></td><td>Accès direct au dépôt ; applique, vérifie contre le vrai code, commite, capture, publie MSIX.</td></tr>
+<tr><td>Architecture</td><td><b>Qwen</b></td><td>Conseil, diagnostics, documents stratégiques (marché, SWOT, roadmap, budget) ; aucun accès repo.</td></tr>
+<tr><td>Conseil</td><td><b>Copilot</b></td><td>Analyses structurelles, contexte industrie.</td></tr>
+<tr><td>Décision</td><td><b>Tom (fondateur)</b></td><td>Arbitre final ; teste visuellement ; fixe la doctrine et les priorités.</td></tr>
+</table>
+<h3 class="sub">La réhabilitation (état initial → état actuel)</h3>
+<table class="t">
+<tr><th style="width:44mm">Constat initial</th><th>Action</th><th style="width:34mm">Résultat</th></tr>
+<tr><td>Plusieurs sessions IA avaient écrit des morceaux sans jamais les assembler ni compiler</td><td>Lecture de 44-47 fichiers de doc, vérification de chaque affirmation sur disque, activation Git + instantané</td><td>Base saine, annulable</td></tr>
+<tr><td>Moto.Core : 374 fichiers jamais réunis, cœurs manquants</td><td>Reconstruction du csproj + moteurs manquants</td><td>0 erreur, commité</td></tr>
+<tr><td>MainPage.xaml réduite à 16 lignes, abréviation XAML non déclarée</td><td>Reconstruction de la page principale</td><td>Shell fonctionnel</td></tr>
+<tr><td>.NET 8 visé mais absent de la machine</td><td>Bascule .NET 10 ; NuGet débloqué par config locale</td><td>Builds verts</td></tr>
+<tr><td>~15 fichiers fantômes à la racine</td><td>Tri, dossiers, nettoyage progressif</td><td>Dépôt lisible</td></tr>
+</table>
+<h3 class="sub">Discipline de travail installée</h3>
+<div class="grid2">
+<div class="card"><h4>Règles d'or (12)</h4><ul>
+<li>Additif uniquement ; jamais de suppression de feature.</li>
+<li>Code complet, compilable, méthodes &lt; 40 lignes, XML docs.</li>
+<li>Namespaces Microsoft.UI.Xaml pour le natif ; #if WINDOWS.</li>
+<li>Cohérence MotoTheme.xaml ; impacts architecturaux expliqués.</li>
+</ul></div>
+<div class="card"><h4>Garde-fous</h4><ul>
+<li>Revue croisée avant commit pour tout changement structurel (a intercepté 4+ bugs avant test).</li>
+<li>Mémoire persistante : QWEN.md / CLAUDE.md (état, pièges, décisions).</li>
+<li>Jamais de secret en clair ; un PAT exposé = révocation immédiate.</li>
+</ul></div>
+</div>
+<div class="footline">Présentation détaillée · Septembre 2026</div><div class="pageno">4 / 20</div>
+</div>
+
+<!-- P5 DOCTRINE -->
+<div class="page">
+<div class="brand"><div class="hex">M</div>MOTO Editor · Présentation</div>
+<h2 class="sec" style="margin-top:4mm">3. Doctrine & vision produit</h2>
+<div class="grid3">
+<div class="card"><h4>Interface minimaliste</h4><ul><li>Surface type Claude Code/ChatGPT : une saisie, des chips, zéro surcharge.</li><li>Divulgation progressive : la richesse se déverrouille dans les Réglages.</li></ul></div>
+<div class="card"><h4>Complexité backend</h4><ul><li>Moteurs, services, agents dans Moto.Core / Snake2000.Engine.</li><li>100+ paramètres data-driven (1 ligne = 1 paramètre).</li></ul></div>
+<div class="card"><h4>Fait maison</h4><ul><li>Inspiration Zed, réécriture C# intégrale (zéro copie, Zed = GPL).</li><li>Pas de dépendance runtime externe ; pas d'UI factice.</li></ul></div>
+</div>
+<h3 class="sub">Séparation stricte des responsabilités</h3>
+<table class="t">
+<tr><th style="width:34mm">Entité</th><th>Rôle</th><th style="width:60mm">Interdits</th></tr>
+<tr><td><b>MOTO Editor</b></td><td>Édite, affiche, ouvre, sauvegarde, lance des commandes.</td><td>Parser profondément, générer une architecture, valider des namespaces, inventer des systèmes.</td></tr>
+<tr><td><b>MOTO AI</b></td><td>Assiste, prédit, propose, route les demandes.</td><td>Appliquer sans confirmation ; sortir du local.</td></tr>
+<tr><td><b>XENO-SSS∞</b></td><td>Opérations structurées projet complet : Scanner→Analyzer→Synthesizer→Connector→Validator.</td><td>—</td></tr>
+</table>
+<p class="txt"><b>Modèle d'appel</b> : MOTO Editor appelle XENO comme Zed appelle Claude Code — l'éditeur <i>propose</i> et <i>affiche</i>, l'utilisateur (ou XENO) <i>applique</i>. Règle d'architecture vérifiée dans le code : <span class="accent">« MOTO propose, l'utilisateur/XENO applique »</span> (ex. InlineDiffPreviewService ne modifie jamais le document).</p>
+<h3 class="sub">Échelle visuelle de référence (critère du fondateur)</h3>
+<div class="sw">
+<div class="c" style="background:#8a8f98"><b>Cheap</b><span>dépassé</span></div>
+<div class="c" style="background:#5b6472"><b>Faible</b><span>dépassé</span></div>
+<div class="c" style="background:var(--accent)"><b>Moyen</b><span>en cours</span></div>
+<div class="c" style="background:var(--green)"><b>Élevé</b><span>= bêta publique</span></div>
+<div class="c" style="background:var(--violet)"><b>Commercial</b><span>= v1.0 vendable</span></div>
+</div>
+<p class="txt muted">Références visuelles : Claude Code (effets, agencement menus) · Zen (menu IA, modularité explorateur) · VS Code (richesse fonctionnelle) · Zed (architecture).</p>
+<div class="footline">Présentation détaillée · Septembre 2026</div><div class="pageno">5 / 20</div>
+</div>
+
+<!-- P6 ARCHITECTURE -->
+<div class="page">
+<div class="brand"><div class="hex">M</div>MOTO Editor · Présentation</div>
+<h2 class="sec" style="margin-top:4mm">4. Architecture & modules</h2>
+<table class="t">
+<tr><th style="width:44mm">Module</th><th>Contenu</th><th style="width:34mm">État</th></tr>
+<tr><td><b>Moto.Editor</b></td><td>Shell MAUI/WinUI 3 : 4 colonnes, explorateur, onglets+badges, terminal, status bar, palette, overlays, HomeView style Claude Code, MainPage.Panels (docks).</td><td><span class="chip" style="background:var(--green)">0 erreur</span></td></tr>
+<tr><td><b>Moto.Core</b></td><td>374 fichiers : SettingsEngine/Catalog, moteurs cognitifs, IA (MotoAiKernel, Cortex, Neural), services (Git, Terminal, FileTree), sécurité, performance, agents.</td><td><span class="chip" style="background:var(--green)">0 erreur</span></td></tr>
+<tr><td><b>Snake2000.Engine</b></td><td>XENO-SSS∞ : pipeline structuré 5 étapes ; délégation des opérations projet.</td><td><span class="chip" style="background:var(--green)">0 erreur</span></td></tr>
+<tr><td><b>Shared/</b></td><td>Crypto & updates : Sha256Helper, Ed25519, UpdateManifest, PayloadVerifier, PayloadExtractor, ResumableDownloader, AtomicUpdater (non projet, réutilisé).</td><td><span class="chip" style="background:var(--accent)">Stable</span></td></tr>
+</table>
+<h3 class="sub">Flux de délégation (exemple : demande « gen/fix »)</h3>
+<div class="ex">Utilisateur → MOTO Editor (saisie) → MOTO AI (route, effort) → XENO-SSS∞
+Scanner → Analyzer → Synthesizer → Connector → Validator
+→ ProposedEdit / diff → MOTO Editor affiche (InlineDiffPreview) → utilisateur applique.</div>
+<h3 class="sub">Types clés du contrat Editor↔IA (vérifiés dans le code)</h3>
+<table class="t">
+<tr><th style="width:44mm">Type</th><th>Rôle</th></tr>
+<tr><td>ProposedEdit</td><td>Modification proposée (fichier, lignes, remplacement) — appliquée par l'Editor, jamais auto.</td></tr>
+<tr><td>MultiBuffer / BufferExcerpt / BufferPosition</td><td>Vue virtuelle agrégeant plusieurs extraits de fichiers en buffer continu.</td></tr>
+<tr><td>EffortMapper (0→4)</td><td>Profils Ultra rapide → Max (température, tokens, vérification) — déterministe, sans état.</td></tr>
+<tr><td>DiffLine / DiffKind</td><td>Diff visuel avant application (Unchanged/Added/Removed).</td></tr>
+</table>
+<div class="footline">Présentation détaillée · Septembre 2026</div><div class="pageno">6 / 20</div>
+</div>
+
+<!-- P7 STACK -->
+<div class="page">
+<div class="brand"><div class="hex">M</div>MOTO Editor · Présentation</div>
+<h2 class="sec" style="margin-top:4mm">5. Stack technique & contraintes</h2>
+<table class="t">
+<tr><th style="width:40mm">Couche</th><th>Choix</th><th style="width:52mm">Justification / contrainte</th></tr>
+<tr><td>Runtime</td><td>.NET 10 (net10.0-windows10.0.19041.0)</td><td>Machine équipée 9/10 ; .NET 8 absent au départ ; bascule documentée.</td></tr>
+<tr><td>UI</td><td>MAUI + WinUI 3</td><td>Natif Windows, léger, sans Electron ; accès UI Automation (accessibilité).</td></tr>
+<tr><td>Windows App SDK</td><td>1.8 <b>épinglé</b></td><td>Seule version installée/testée ; changer = plantage déjà vécu.</td></tr>
+<tr><td>Packaging</td><td>WindowsPackageType=None + MSIX optionnel</td><td>Deux exécutables : raccourci Bureau (unpackaged) et menu Démarrer (MSIX).</td></tr>
+<tr><td>Éditeur de code</td><td>CodeEditorView = WebView maison</td><td>Gutter, coloration, minimap, scroll horizontal ; pas de composant tiers.</td></tr>
+<tr><td>IA locale</td><td>Ollama + ONNX (qwen2.5-coder, qwen2.5-0.5b embarqué visé)</td><td>Zéro cloud ; décodage spéculatif planifié.</td></tr>
+<tr><td>Mises à jour</td><td>AtomicUpdater + Ed25519 + CDN mirrors</td><td>Backup→extract→swap→rollback auto ; téléchargement résumable.</td></tr>
+<tr><td>Dépendances</td><td>Aucune runtime externe</td><td>Doctrine « sans dépendance » ; NuGet débloqué par config locale projet.</td></tr>
+</table>
+<h3 class="sub">Contraintes techniques assumées (objectivité)</h3>
+<div class="grid2">
+<div class="card"><h4>Connues & documentées</h4><ul>
+<li>Sous-système titlebar WinUI3/MAUI instable (barre bleue : 3 échecs SetBorderAndTitleBar).</li>
+<li>~300 warnings de build (CS8618/CS8625/CS0618) — dette en cours de résorption.</li>
+<li>Windows uniquement aujourd'hui ; macOS/Linux = PlatformEngine (planifié).</li>
+</ul></div>
+<div class="card"><h4>Choix de prudence</h4><ul>
+<li>Pas de migration .NET/MAUI sous pression (échec .NET 10 du 30/08 sur ce projet).</li>
+<li>Fichiers &gt; 400 lignes jamais régénérés d'un bloc (risque de corruption silencieuse).</li>
+<li>Chantiers isolés + revue croisée avant commit.</li>
+</ul></div>
+</div>
+<div class="footline">Présentation détaillée · Septembre 2026</div><div class="pageno">7 / 20</div>
+</div>
+
+<!-- P8 ÉDITEUR -->
+<div class="page">
+<div class="brand"><div class="hex">M</div>MOTO Editor · Présentation</div>
+<h2 class="sec" style="margin-top:4mm">6. L'éditeur : cœur de métier</h2>
+<div class="grid2">
+<div class="card"><h4>Shell 4 colonnes</h4><ul>
+<li>Explorateur de fichiers redimensionnable (DataTemplate 4 colonnes : indent, chevron, glyphe, nom).</li>
+<li>Onglets + badges d'état ; recherche par nom de fichier en direct.</li>
+<li>StatusBar : état, erreurs, monitoring, dashboard performance (item 107).</li>
+<li>Palette de commandes Ctrl+Shift+P (ranking maison).</li>
+</ul></div>
+<div class="card"><h4>CodeEditorView (WebView maison)</h4><ul>
+<li>Gutter + numéros de ligne ; coloration syntaxique incrémentale.</li>
+<li>Mini-map compressée ; scroll horizontal.</li>
+<li>Ghost text (Tab) issu de l'IA locale.</li>
+<li>Undo 1000 niveaux via PieceTableBuffer (Tier 30).</li>
+</ul></div>
+</div>
+<h3 class="sub">Accueil style Claude Code</h3>
+<table class="t">
+<tr><th>Élément</th><th>Description livrée</th></tr>
+<tr><td>Barre de saisie</td><td>« Décris une tâche ou pose une question » + flèche animée ; route vers MOTO AI.</td></tr>
+<tr><td>Chips</td><td>Local (menu overlay au-dessus), Rechercher projet (sélecteur de dossier), dossier+.</td></tr>
+<tr><td>Barre basse</td><td>+ / micro / IA / Cortex · sélecteur modèle (MOTO AI par défaut) · Puissance (Ultra…) · anneau budget « Token : infini ».</td></tr>
+<tr><td>Stats</td><td>Sessions / Messages / Tokens / Patterns appris — compactées.</td></tr>
+</table>
+<h3 class="sub">Terminal & dock du bas (livrés)</h3>
+<p class="txt">Dock du bas avec <b>terminal interactif réel</b> : TerminalService (shell cmd.exe, sortie en direct, envoi de commandes), replié par défaut, ouverture Ctrl+`. Onglets limités aux backends réels (doctrine « pas d'UI factice »). Complété par Output/Diagnostics lorsque leurs services existeront.</p>
+<div class="footline">Présentation détaillée · Septembre 2026</div><div class="pageno">8 / 20</div>
+</div>
+
+<!-- P9 PANNEAUX -->
+<div class="page">
+<div class="brand"><div class="hex">M</div>MOTO Editor · Présentation</div>
+<h2 class="sec" style="margin-top:4mm">7. Panneaux modulaires façon Zed (5 briques livrées)</h2>
+<table class="t">
+<tr><th style="width:10mm">#</th><th style="width:52mm">Brique</th><th>Comportement</th><th style="width:24mm">Réf. commit</th></tr>
+<tr><td>1</td><td>Redimensionnement souris</td><td>Tous docks/panneaux redimensionnables au bord.</td><td>728664f</td></tr>
+<tr><td>2</td><td>Changement de côté</td><td>Bouton dédié ; docks gauche/droite interchangeables.</td><td>livré</td></tr>
+<tr><td>3</td><td>Réordonnancement DnD</td><td>Glisser-déposer des panneaux dans un même dock.</td><td>livré</td></tr>
+<tr><td>4</td><td>DnD inter-docks</td><td>Panneau IA → dock droit (empilé sous explorateur/sessions, zone d'accueil à la demande) ; préférence d'hôte conservée.</td><td>ef8bdeb</td></tr>
+<tr><td>5</td><td>Dock du bas</td><td>Terminal réel + futures sorties (Output/Diagnostics).</td><td>1b7a830</td></tr>
+</table>
+<p class="txt">Panneaux IA concernés : <b>Cortex, Neural, Workspace, Galerie, Analytics, Debug, Plateforme</b>. La revue croisée a intercepté avant test une régression sérieuse (bouton « changer de côté » cassé par la restructuration) + 3 bugs discrets — corrigés dans le même commit.</p>
+<h3 class="sub">Ce que la modularité apporte (vs concurrence)</h3>
+<div class="grid3">
+<div class="card"><h4>Vs VS Code</h4><ul><li>Pas de docks natifs : panneaux groupés manuels.</li><li>MOTO : 3 docks + DnD libre natifs.</li></ul></div>
+<div class="card"><h4>Vs Zed</h4><ul><li>3 docks mais disposition par défaut imposée (critiquée).</li><li>MOTO : disposition au choix, persistable (à finaliser).</li></ul></div>
+<div class="card"><h4>Vs JetBrains</h4><ul><li>Panneaux ancrés + « perspectives » figées.</li><li>MOTO : agencement libre par tâche.</li></ul></div>
+</div>
+<div class="footline">Présentation détaillée · Septembre 2026</div><div class="pageno">9 / 20</div>
+</div>
+
+<!-- P10 IA -->
+<div class="page">
+<div class="brand"><div class="hex">M</div>MOTO Editor · Présentation</div>
+<h2 class="sec" style="margin-top:4mm">8. IA intégrée & agents spécialisés</h2>
+<div class="grid2">
+<div class="card"><h4>Noyau local</h4><ul>
+<li><b>MotoAiKernel</b> : orchestration locale (Ollama + ONNX), 4 modes Eco/Balanced/Turbo/Ultra.</li>
+<li><b>Cortex</b> : mémoire + style de l'utilisateur ; suggestions proactives.</li>
+<li><b>Neural</b> : embeddings locaux, recherche sémantique projet.</li>
+<li><b>ProjectUnderstandingEngine</b> : compréhension structurelle légère.</li>
+<li><b>TimeMachine</b> : instantanés / retour arrière de sessions.</li>
+</ul></div>
+<div class="card"><h4>Surface utilisateur</h4><ul>
+<li>Chat multi-threads dockable ; ghost text (Tab) ; Explain Everything.</li>
+<li>Sélecteur de modèle + « Puissance » (EffortMapper 0→4 : Ultra rapide → Max).</li>
+<li>Preview diff inline avant application (règle : jamais auto-appliqué).</li>
+<li>Explainability logs : chaque suggestion tracée (audit).</li>
+</ul></div>
+</div>
+<h3 class="sub">20 agents spécialisés (cadre SpecializedAgentRegistry)</h3>
+<table class="t">
+<tr><th style="width:52mm">Exemple d'agent</th><th>Priorité / coût</th><th style="width:52mm">Rôle</th></tr>
+<tr><td>agent.tests.micro / TestGeneratorAgent</td><td>P1 · CPU 0.3</td><td>Génère des tests ciblés sur le diff.</td></tr>
+<tr><td>agent.security.hint</td><td>P1</td><td>Signale patterns à risque (secrets, injections).</td></tr>
+<tr><td>agent.code.health / SearchSummarizerAgent</td><td>P1</td><td>Santé du code ; synthèse de recherche projet.</td></tr>
+<tr><td>ChangelogAgent / CommitMessageAgent</td><td>P2</td><td>Notes de version & messages de commit conventionnels.</td></tr>
+<tr><td>DocEngine (6 markdown auto)</td><td>P2</td><td>Documentation générée et maintenue.</td></tr>
+</table>
+<p class="txt muted">Architecture vérifiée : les agents <b>assistants</b> tournent sur MotoAiKernel local ; l'analyse profonde / génération projet est déléguée à XENO-SSS∞. Identifiants d'agents vérifiés un par un dans le dépôt.</p>
+<div class="footline">Présentation détaillée · Septembre 2026</div><div class="pageno">10 / 20</div>
+</div>
+
+<!-- P11 MOTEURS -->
+<div class="page">
+<div class="brand"><div class="hex">M</div>MOTO Editor · Présentation</div>
+<h2 class="sec" style="margin-top:4mm">9. Moteurs internes (catalogue)</h2>
+<table class="t">
+<tr><th style="width:56mm">Moteur / module</th><th>Fonction</th><th style="width:26mm">Statut</th></tr>
+<tr><td>PatternDetectorEngine</td><td>Détection de patterns d'usage (« Patterns appris »).</td><td>Livré</td></tr>
+<tr><td>CodeImprovementEngine</td><td>Suggestions d'amélioration ciblées.</td><td>Livré</td></tr>
+<tr><td>UserHistoryEngine</td><td>Historique d'actions → proactivité.</td><td>Livré</td></tr>
+<tr><td>PedagogyEngine</td><td>Mode pédagogique / explications pas-à-pas.</td><td>Livré</td></tr>
+<tr><td>NavigationAssistantEngine</td><td>Assistance à la navigation projet.</td><td>Livré</td></tr>
+<tr><td>ArchitectureBuilderEngine</td><td>Lecture structurelle (déléguée à XENO pour écriture).</td><td>Livré</td></tr>
+<tr><td>UiGeneratorEngine</td><td>Génération d'UI locale (cadre).</td><td>Livré</td></tr>
+<tr><td>ContextEngine (double hook)</td><td>Contexte actif pour l'IA (fichier, sélection, projet).</td><td>Livré</td></tr>
+<tr><td>AutoLink / Builders / Cortex / Neural</td><td>Liens auto, constructeurs, mémoire, embeddings.</td><td>Livrés</td></tr>
+<tr><td>ConsistencyScanner</td><td>Fichiers/projets « fantômes », deps inutilisées.</td><td>Noté (à brancher)</td></tr>
+<tr><td>InconsistencyDetector / FileIntegrity</td><td>Intégrité fichiers (hash, reconstruction).</td><td>Livré</td></tr>
+<tr><td>StructuredLogCollector</td><td>Logs JSON structurés + Explainability.</td><td>Livré</td></tr>
+</table>
+<h3 class="sub">Répartition Editor / AI / XENO (rappel doctrine)</h3>
+<div class="ex">Editor  = afficher, éditer, ouvrir, sauvegarder, commander   (jamais d'analyse profonde)
+AI      = assister, prédire, proposer, router                 (jamais d'auto-application)
+XENO    = scanner, analyser, synthétiser, connecter, valider  (opérations projet)</div>
+<div class="footline">Présentation détaillée · Septembre 2026</div><div class="pageno">11 / 20</div>
+</div>
+
+<!-- P12 SÉCURITÉ -->
+<div class="page">
+<div class="brand"><div class="hex">M</div>MOTO Editor · Présentation</div>
+<h2 class="sec" style="margin-top:4mm">10. Sécurité, mises à jour & privacy</h2>
+<table class="t">
+<tr><th style="width:48mm">Mécanisme</th><th>Description (vérifiée dans Shared/)</th><th style="width:30mm">Niveau</th></tr>
+<tr><td>Signature Ed25519</td><td>update.priv (secret, jamais committé) / update.pub embarqué (BuildKeys.cs) ; vérification payload + manifeste.</td><td><span class="chip" style="background:var(--green)">Fort</span></td></tr>
+<tr><td>SHA256 double</td><td>Par fichier + payload global dans payload.json.</td><td><span class="chip" style="background:var(--green)">Fort</span></td></tr>
+<tr><td>AtomicUpdater</td><td>Backup → extraction temporaire → swap → rollback automatique en cas d'échec.</td><td><span class="chip" style="background:var(--green)">Fort</span></td></tr>
+<tr><td>ResumableDownloader</td><td>HTTP Range (reprise) + mirrors CDN fallback.</td><td><span class="chip" style="background:var(--accent)">Solide</span></td></tr>
+<tr><td>Anti-ZipSlip</td><td>Extraction contrôlée des chemins (PayloadExtractor).</td><td><span class="chip" style="background:var(--green)">Fort</span></td></tr>
+<tr><td>IsolatedInferenceHost + sandbox</td><td>Inférence LLM isolée ; sandbox chemins/URL pour outils.</td><td><span class="chip" style="background:var(--accent)">Solide</span></td></tr>
+<tr><td>PrivacyScanner</td><td>Détection de fuites de données sensibles dans les sorties IA.</td><td><span class="chip" style="background:var(--accent)">Solide</span></td></tr>
+</table>
+<h3 class="sub">Privacy by design</h3>
+<div class="grid2">
+<div class="card"><h4>Garanties</h4><ul>
+<li>0 octet de code utilisateur envoyé à l'extérieur (IA locale).</li>
+<li>Aucune télémétrie ; opt-in uniquement si ajouté un jour.</li>
+<li>RGPD : quasi aucune donnée collectée → politique courte et vraie.</li>
+</ul></div>
+<div class="card"><h4>Gestion des secrets (règle interne)</h4><ul>
+<li>Jamais de PAT/clé en clair ; incident passé = révocation immédiate.</li>
+<li>Captures publiées inspectées (aucun chemin/identité visible).</li>
+</ul></div>
+</div>
+<div class="footline">Présentation détaillée · Septembre 2026</div><div class="pageno">12 / 20</div>
+</div>
+
+<!-- P13 PERF -->
+<div class="page">
+<div class="brand"><div class="hex">M</div>MOTO Editor · Présentation</div>
+<h2 class="sec" style="margin-top:4mm">11. Performance & optimisations</h2>
+<table class="t">
+<tr><th style="width:52mm">Composant</th><th>Effet</th><th style="width:30mm">Statut</th></tr>
+<tr><td>4 modes Eco / Balanced / Turbo / Ultra</td><td>Arbitre qualité IA vs ressources machine.</td><td>Livré</td></tr>
+<tr><td>LazyFileLoader / PerFileOnDemandService</td><td>Chargement paresseux des gros projets.</td><td>Livré</td></tr>
+<tr><td>IncrementalHighlighter</td><td>Coloration incrémentale (pas de reparse global).</td><td>Livré</td></tr>
+<tr><td>MiniMapCompressor</td><td>Mini-map à coût mémoire réduit.</td><td>Livré</td></tr>
+<tr><td>AiCacheEngine</td><td>Cache des réponses IA (latence & coût locaux).</td><td>Livré</td></tr>
+<tr><td>PieceTableBuffer (Tier 30)</td><td>Buffer de texte optimisé, undo 1000.</td><td>Livré</td></tr>
+<tr><td>PerformanceProfiler + StatusBar</td><td>Mémoire/CPU/fps/mode throttlés (1 s).</td><td>Livré</td></tr>
+<tr><td>CI perf gate + nightly benchmarks</td><td>Tolérance 15 % vs baseline ; audit 150 Mo.</td><td>Workflow livré</td></tr>
+</table>
+<h3 class="sub">Objectifs mesurés (config de référence)</h3>
+<div class="kpirow">
+<div class="kpi"><div class="v" style="color:var(--accent)">&lt; 1 s</div><div class="l">DÉMARRAGE À FROID (VISÉ)</div></div>
+<div class="kpi"><div class="v" style="color:var(--accent)">&lt; 300 Mo</div><div class="l">EMPREINTE MÉMOIRE (VISÉE)</div></div>
+<div class="kpi"><div class="v" style="color:var(--green)">0</div><div class="l">OCTET ENVOYÉ AU CLOUD</div></div>
+<div class="kpi"><div class="v" style="color:var(--green)">1000</div><div class="l">NIVEAUX D'UNDO</div></div>
+</div>
+<p class="txt muted">Honnêteté : la latence IA dépend du modèle local (qwen2.5-coder:7b mesuré lent sur machine modeste → recommandation d'un modèle 3B en mode Eco). Le rendu GPU type GPUI de Zed n'est pas égalé : choix assumé du natif MAUI plutôt que d'un framework maison.</p>
+<div class="footline">Présentation détaillée · Septembre 2026</div><div class="pageno">13 / 20</div>
+</div>
+
+<!-- P14 RÉGLAGES -->
+<div class="page">
+<div class="brand"><div class="hex">M</div>MOTO Editor · Présentation</div>
+<h2 class="sec" style="margin-top:4mm">12. Réglages : 100+ paramètres data-driven</h2>
+<p class="txt">Le système de réglages est le <b>véritable tableau de bord de la complexité</b> : chaque fonctionnalité est un paramètre déclaratif (<span class="accent">1 ligne = 1 paramètre</span>, SettingItem&lt;T&gt;), recherché, templatisé et persisté. La fenêtre Réglages suit le modèle Zed : 15 catégories.</p>
+<div class="grid3">
+<div class="card"><h4>Catégories (15)</h4><ul><li>Général · Apparence · Keymap · Éditeur · Langages & Outils</li><li>Recherche & Fichiers · Fenêtre & Layout · Panneaux</li><li>Debugger · Terminal · Version Control · Collaboration</li><li>IA · Réseau · Développeur</li></ul></div>
+<div class="card"><h4>Capacités</h4><ul><li>Recherche instantanée dans les paramètres.</li><li>Templates de configuration.</li><li>Persistance au redémarrage.</li><li>Exposition progressive (97 exposés, ~300 au catalogue).</li></ul></div>
+<div class="card"><h4>Exemples de familles</h4><ul><li>terminal.* (shell, police, scrollback, départ replié)</li><li>docks.* (hauteurs, visibilité, côtés)</li><li>ai.* (modèle, effort, ghost text, explicabilité)</li><li>perf.* (mode Eco→Ultra, caches)</li></ul></div>
+</div>
+<h3 class="sub">Pourquoi c'est un avantage concurrentiel</h3>
+<table class="t">
+<tr><th style="width:34mm">Concurrent</th><th>Modèle de personnalisation</th><th style="width:52mm">Limite</th></tr>
+<tr><td>VS Code</td><td>settings.json + ~50 000 extensions</td><td>Chaos, instabilité, surcharge.</td></tr>
+<tr><td>Zed</td><td>JSON unique</td><td>Puissant mais abrupt ; dispositions imposées.</td></tr>
+<tr><td>JetBrains</td><td>Dialogues riches</td><td>Verrouillé, peu extensible.</td></tr>
+<tr><td><b>MOTO</b></td><td>Catalogue data-driven + UI minimaliste</td><td>Profondeur sans chaos ; divulgation progressive.</td></tr>
+</table>
+<div class="footline">Présentation détaillée · Septembre 2026</div><div class="pageno">14 / 20</div>
+</div>
+
+<!-- P15 COLLAB -->
+<div class="page">
+<div class="brand"><div class="hex">M</div>MOTO Editor · Présentation</div>
+<h2 class="sec" style="margin-top:4mm">13. Collaboration, remote, export & documentation</h2>
+<div class="grid2">
+<div class="card"><h4>Collaboration & remote</h4><ul>
+<li>Collab temps réel CRDT-light (CollabSession / PatchEngine) ; CRDT réel = v1.0.</li>
+<li>Remote WS + SSH (édition à distance).</li>
+<li>Presence-aware suggestions (évite l'IA lourde en co-édition).</li>
+<li>GitHub OAuth device flow connecté (import/publication à finaliser).</li>
+</ul></div>
+<div class="card"><h4>Export & livrables</h4><ul>
+<li>Export 9 formats ; Présentations auto (pitch / slides / estimation).</li>
+<li>Doc Engine : 6 markdown générés et maintenus.</li>
+<li>Time Machine : instantanés de session rejouables.</li>
+<li>Health : rapport de santé projet (bouton « à venir » assumé).</li>
+</ul></div>
+</div>
+<h3 class="sub">Git & outillage développeur</h3>
+<table class="t">
+<tr><th style="width:44mm">Fonction</th><th>État</th></tr>
+<tr><td>GitService (CLI git) : statut, commits, branches</td><td>Livré</td></tr>
+<tr><td>Diff inline + preview avant application</td><td>Livré</td></tr>
+<tr><td>CommitMessageAgent / ChangelogAgent</td><td>Livrés</td></tr>
+<tr><td>Branches visuelles, blame, historique graphique</td><td>À venir (v1.0)</td></tr>
+</table>
+<div class="footline">Présentation détaillée · Septembre 2026</div><div class="pageno">15 / 20</div>
+</div>
+
+<!-- P16 DESIGN -->
+<div class="page">
+<div class="brand"><div class="hex">M</div>MOTO Editor · Présentation</div>
+<h2 class="sec" style="margin-top:4mm">14. Design & identité visuelle</h2>
+<h3 class="sub">Palette officielle (MotoTheme.xaml)</h3>
+<div class="sw">
+<div class="c" style="background:#111214"><b>#111214</b><span>Fond dark</span></div>
+<div class="c" style="background:#1B1C1F"><b>#1B1C1F</b><span>Surface</span></div>
+<div class="c" style="background:#007ACC"><b>#007ACC</b><span>Accent</span></div>
+<div class="c" style="background:#E8EAED;color:#181A1E"><b>#E8EAED</b><span>Texte</span></div>
+</div>
+<div class="sw">
+<div class="c" style="background:#F7F8FA;color:#181A1E"><b>#F7F8FA</b><span>Fond light</span></div>
+<div class="c" style="background:#FFFFFF;color:#181A1E"><b>#FFFFFF</b><span>Surface light</span></div>
+<div class="c" style="background:#0066CC"><b>#0066CC</b><span>Accent light</span></div>
+<div class="c" style="background:#33353A"><b>#33353A</b><span>Bordures</span></div>
+</div>
+<div class="grid2">
+<div class="card"><h4>Style « Hybride Claude »</h4><ul>
+<li>Arrondis modérés, espacement généreux, ombres discrètes sur flottants.</li>
+<li>Icônes Segoe Fluent Icons vérifiées à l'écran (jamais de case vide).</li>
+<li>Menus déroulants en overlay au-dessus de leur bouton (ne poussent pas le layout).</li>
+<li>Dégradé doux + halo discret sur l'accueil ; animations ciblées (flèche d'envoi).</li>
+</ul></div>
+<div class="card"><h4>Identité</h4><ul>
+<li>Logo hexagone « M » bleu ; baseline « Léger. Rapide. Sans dépendance. Tout fait maison. »</li>
+<li>Typo : Segoe UI / Inter ; titres en sentence case.</li>
+<li>Cohérence dark/light via DynamicResource (thème clair non activé = choix assumé, pas un oubli).</li>
+</ul></div>
+</div>
+<p class="txt muted">Méthode visuelle : chaque élément passe par l'échelle cheap → faible → moyen → élevé → commercial ; rien n'est publié sous « moyen ». Captures publiées sans donnée personnelle, thème dark par défaut.</p>
+<div class="footline">Présentation détaillée · Septembre 2026</div><div class="pageno">16 / 20</div>
+</div>
+
+<!-- P17 MARCHÉ -->
+<div class="page">
+<div class="brand"><div class="hex">M</div>MOTO Editor · Présentation</div>
+<h2 class="sec" style="margin-top:4mm">15. Marché & comparaison concurrentielle</h2>
+<div class="kpirow">
+<div class="kpi"><div class="v" style="color:var(--accent)">16,5 Md$</div><div class="l">MARCHÉ IDE 2026 (CAGR 10,8 %)</div></div>
+<div class="kpi"><div class="v" style="color:var(--accent)">84 %</div><div class="l">DEVS UTILISANT/PLANIFIANT L'IA</div></div>
+<div class="kpi"><div class="v" style="color:var(--accent)">75,9 %</div><div class="l">PART D'USAGE VS CODE</div></div>
+<div class="kpi"><div class="v" style="color:var(--green)">1,7→7,3 %</div><div class="l">ZED EN 1 AN (PREUVE D'OUVERTURE)</div></div>
+</div>
+<table class="t">
+<tr><th>Caractéristique</th><th>MOTO Editor</th><th>Zed</th><th>VS Code</th><th>JetBrains</th><th>Cursor</th></tr>
+<tr><td>Technologie</td><td>C# / MAUI / WinUI3</td><td>Rust / GPUI GPU</td><td>JS / Electron</td><td>Java</td><td>Fork VS Code</td></tr>
+<tr><td>Cloud</td><td><b>Aucun (local-first)</b></td><td>Optionnel</td><td>Oui (Copilot)</td><td>Oui</td><td>Oui (cœur)</td></tr>
+<tr><td>Docks modulaires</td><td>3 docks + DnD</td><td>3 docks</td><td>Panneaux</td><td>Panneaux</td><td>3 docks</td></tr>
+<tr><td>Terminal réel</td><td>Oui</td><td>Oui</td><td>Oui</td><td>Oui</td><td>Oui</td></tr>
+<tr><td>IA</td><td>XENO + locale</td><td>Claude Code</td><td>Copilot</td><td>Natif</td><td>Agent natif</td></tr>
+<tr><td>Personnalisation</td><td>100+ params UI</td><td>JSON</td><td>Extensions</td><td>Thèmes</td><td>Limitée</td></tr>
+<tr><td>Accessibilité</td><td>UI Automation (potentiel fort)</td><td>Défi GPUI</td><td>Bonne</td><td>Bonne</td><td>Débutante</td></tr>
+<tr><td>Prix</td><td>Gratuit → Pro 10-20 €</td><td>Pro $10 / +$60</td><td>Gratuit</td><td>$25-50</td><td>Pro $20 / U $200</td></tr>
+</table>
+<p class="txt muted">Lecture objective : MOTO ne bat Zed ni sur le rendu GPU ni sur la maturité ; il se distingue sur <b>local-first/privacy</b>, <b>personnalisation sans chaos</b> et <b>accessibilité native</b> — trois niches mal servies.</p>
+<div class="footline">Présentation détaillée · Septembre 2026</div><div class="pageno">17 / 20</div>
+</div>
+
+<!-- P18 SWOT -->
+<div class="page">
+<div class="brand"><div class="hex">M</div>MOTO Editor · Présentation</div>
+<h2 class="sec" style="margin-top:4mm">16. SWOT & positionnement</h2>
+<div class="grid2">
+<div class="card" style="border-color:var(--green)"><h4 style="color:var(--green)">Forces</h4><ul>
+<li>100 % local, léger, sans Electron ; sécurité signée Ed25519.</li>
+<li>Architecture modulaire Zed livrée (5 briques) + terminal réel.</li>
+<li>~300 paramètres data-driven ; IA locale + 20 agents.</li>
+<li>Méthode transparente (revues croisées, mémoire QWEN/CLAUDE.md).</li>
+</ul></div>
+<div class="card" style="border-color:var(--red)"><h4 style="color:var(--red)">Faiblesses</h4><ul>
+<li>Notoriété nulle ; équipe d'une personne ; Windows uniquement.</li>
+<li>~300 warnings ; barre bleue non résolue ; LSP/CRDT/DAP absents.</li>
+<li>Dépendance à la stack MAUI/WinUI3 (régressions possibles).</li>
+</ul></div>
+<div class="card" style="border-color:var(--accent)"><h4 style="color:var(--accent)">Opportunités</h4><ul>
+<li>Marché +10,8 %/an ; 84 % de devs vers l'IA ; fatigue VS Code.</li>
+<li>Niches privacy & accessibilité sous-servies ; modèle freemium prouvé.</li>
+<li>Histoire « 1 humain + 3 IA » = actif marketing organique.</li>
+</ul></div>
+<div class="card" style="border-color:var(--amber)"><h4 style="color:var(--amber)">Menaces</h4><ul>
+<li>VS Code 75,9 % ; entrants financés (Cursor, Windsurf) ; Zed rapide.</li>
+<li>Adoption entreprise lente ; fragmentation des alternatives.</li>
+</ul></div>
+</div>
+<h3 class="sub">Positionnement retenu</h3>
+<p class="txt">Ne pas attaquer VS Code frontalement. Créer et dominer la catégorie <span class="accent">« IDE minimaliste, local & accessible »</span> : façade simple type Claude Code, profondeur Zed, confidentialité totale. Objectif prudent : 5-10 % de part de marché à 5 ans (trajectoire Zed comme référence).</p>
+<div class="footline">Présentation détaillée · Septembre 2026</div><div class="pageno">18 / 20</div>
+</div>
+
+<!-- P19 ROADMAP + MODÈLE -->
+<div class="page">
+<div class="brand"><div class="hex">M</div>MOTO Editor · Présentation</div>
+<h2 class="sec" style="margin-top:4mm">17. Roadmap & modèle économique</h2>
+<h3 class="sub">Versions livrées / à venir (FEATURES.md & Roadmap)</h3>
+<table class="t">
+<tr><th style="width:26mm">Version</th><th>Contenu</th><th style="width:20mm">Statut</th></tr>
+<tr><td>v0.1 Fondation</td><td>Shell 4 colonnes, explorateur, onglets, terminal, status bar, CodeEditorView, SettingsEngine, XENO base.</td><td><span class="chip" style="background:var(--green)">Livrée</span></td></tr>
+<tr><td>v0.2 UI moderne</td><td>Layout Zen, chat dockable, ghost text, export 9 formats, présentations, remote WS+SSH, collab CRDT-light, Time Machine/Health/Pattern/AutoLink/Context/Doc/Perf.</td><td><span class="chip" style="background:var(--green)">Livrée</span></td></tr>
+<tr><td>v0.3 IA interne</td><td>Moteurs cognitifs, agents, panneaux modulaires Zed (5 briques), dock bas + terminal réel.</td><td><span class="chip" style="background:var(--green)">Livrée</span></td></tr>
+<tr><td>v1.0</td><td>LSP Roslyn · CRDT réel · DAP debugger · tests · i18n · accessibilité · barre de titre résolue · persistance disposition.</td><td><span class="chip" style="background:var(--amber)">À venir</span></td></tr>
+</table>
+<h3 class="sub">Horizons d'exécution</h3>
+<div class="grid3">
+<div class="card"><h4>H1 (sept.-oct. 26)</h4><ul><li>Barre de titre (chantier dédié, sondes).</li><li>Persistance docks ; 100+ params exposés ; warnings &lt; 50.</li></ul></div>
+<div class="card"><h4>H2 (oct. 26-janv. 27)</h4><ul><li>MotoBridge/Tier 28 (XENO ↔ Editor, diffs affichés).</li><li>LSP Roslyn ; LLM embarqué ONNX ; marketplace agents.</li></ul></div>
+<div class="card"><h4>H3 (janv.-juin 27)</h4><ul><li>PlatformEngine macOS/Linux ; installateurs signés + winget.</li><li>CRDT réel + DAP ; i18n ; accessibilité → v1.0 publique.</li></ul></div>
+</div>
+<h3 class="sub">Modèle économique (bootstrap)</h3>
+<table class="t">
+<tr><th>Source</th><th>Prix</th><th style="width:52mm">Démarrage</th></tr>
+<tr><td>Gratuit (cœur open source, GPL-3.0 visé)</td><td>0 €</td><td>Immédiat (adoption, confiance)</td></tr>
+<tr><td>Pro (builds nightly signés, support prioritaire, agents premium)</td><td>10 €/mois · 96 €/an</td><td>Lancement v1.0</td></tr>
+<tr><td>Dons (GitHub Sponsors / Ko-fi)</td><td>Libre</td><td>Dès l'open-sourcing</td></tr>
+<tr><td>Marketplace (commission) + support B2B</td><td>20 % / ~500 €/an</td><td>An 2-3</td></tr>
+</table>
+<div class="footline">Présentation détaillée · Septembre 2026</div><div class="pageno">19 / 20</div>
+</div>
+
+<!-- P20 LIMITES + CONCLUSION -->
+<div class="page">
+<div class="brand"><div class="hex">M</div>MOTO Editor · Présentation</div>
+<h2 class="sec" style="margin-top:4mm">18. Limites honnêtes, méthode & conclusion</h2>
+<h3 class="sub">Ce qui n'est pas encore vrai aujourd'hui (transparence)</h3>
+<table class="t">
+<tr><th style="width:56mm">Sujet</th><th>État réel</th></tr>
+<tr><td>Barre de titre bleue Windows</td><td>Non résolue ; 3 tentatives SetBorderAndTitleBar échouées ; chantier dédié planifié (H1).</td></tr>
+<tr><td>Multiplateforme</td><td>Windows uniquement ; PlatformEngine = H3.</td></tr>
+<tr><td>LSP / DAP / CRDT réel / tests / i18n / accessibilité</td><td>Annoncés « à venir v1.0 », non livrés.</td></tr>
+<tr><td>Boutons « Santé du projet / Snapshot »</td><td>Présents en UI, backend partiel — assumé comme « à venir », pas caché.</td></tr>
+<tr><td>Dette</td><td>~300 warnings ; fichiers legacy en cours de nettoyage.</td></tr>
+</table>
+<h3 class="sub">Pourquoi cette transparence est un actif</h3>
+<p class="txt">Chaque limite ci-dessus est <b>publique</b> (roadmap, tickets, devlog). Dans un marché où la confiance est le premier critère d'adoption d'un outil de code, « dire vrai, dire mesuré, dire utile » (charte éditoriale) remplace le budget marketing : les échecs documentés (barre bleue, échec .NET 10 du 30/08) sont publiés tels quels.</p>
+<h3 class="sub">Conclusion</h3>
+<p class="txt">MOTO Editor est, à ce jour, un <b>IDE local-first fonctionnel et cohérent</b> : shell modulaire façon Zed complet, terminal réel, IA locale orchestrée, sécurité de niveau professionnel, et un système de réglages qui porte la complexité promise (100+ paramètres). Il n'est ni plus rapide que Zed, ni plus riche que VS Code — et ne cherche pas à l'être : il vise la niche <span class="accent">minimalisme + local + accessibilité</span>, avec une méthode de développement (1 humain + 3 IA, revues croisées, mémoire persistante) qui compense l'absence d'équipe. Le passage en bêta publique est conditionné à l'atteinte du niveau visuel « élevé » et à la v1.0 fonctionnelle (LSP, CRDT réel, DAP, tests, i18n, accessibilité).</p>
+<div class="kpirow">
+<div class="kpi"><div class="v" style="color:var(--accent)">0</div><div class="l">ERREUR BUILD · 3 PROJETS</div></div>
+<div class="kpi"><div class="v" style="color:var(--accent)">5/5</div><div class="l">BRIQUES PANNEAUX ZED</div></div>
+<div class="kpi"><div class="v" style="color:var(--green)">100 %</div><div class="l">LOCAL · 0 CLOUD</div></div>
+<div class="kpi"><div class="v" style="color:var(--amber)">v1.0</div><div class="l">CAP 2027 (JUIN)</div></div>
+</div>
+<div class="footline">Présentation détaillée · Fin du document</div><div class="pageno">20 / 20</div>
+</div>
+
+</body>
+</html>

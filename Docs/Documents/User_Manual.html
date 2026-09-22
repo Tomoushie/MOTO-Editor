@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MOTO Editor — Manuel utilisateur</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/fontsource/css/inter@latest/index.css">
+<style>
+:root{--accent:#007ACC;--accent2:#005A9E;--ink:#181A1E;--muted:#5A6069;--paper:#fff;--bg:#F7F8FA;--line:#D6D9DF;--green:#2E7D32;--red:#C62828;--amber:#B26A00;--violet:#7C3AED;--code-bg:#1E1E1E;--code-text:#D4D4D4;}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--ink);line-height:1.6;}
+.toolbar{position:fixed;top:10px;right:10px;z-index:1000;background:#fff;border:1px solid var(--line);border-radius:8px;padding:8px 16px;box-shadow:0 2px 8px rgba(0,0,0,0.1);}
+.toolbar button{background:var(--accent);color:#fff;border:none;padding:8px 16px;border-radius:4px;cursor:pointer;font-weight:600;}
+.page{max-width:210mm;margin:20px auto;background:var(--paper);padding:20mm;box-shadow:0 4px 20px rgba(0,0,0,0.08);min-height:297mm;}
+.cover{text-align:center;padding-top:40mm;}
+.big-hex{font-size:80px;color:var(--accent);font-weight:900;}
+.tag{display:inline-block;background:var(--accent);color:#fff;padding:4px 12px;border-radius:999px;font-size:11px;font-weight:600;margin-bottom:8mm;}
+h1{font-size:32px;color:var(--ink);margin-bottom:8mm;}
+h2{font-size:22px;color:var(--accent);border-bottom:2px solid var(--accent);padding-bottom:4px;margin:12mm 0 6mm 0;}
+h3{font-size:16px;color:var(--ink);margin:8mm 0 4mm 0;}
+.brand{font-size:11px;color:var(--muted);margin-bottom:4mm;}
+.hex{display:inline-block;color:var(--accent);font-weight:700;}
+.sec{font-size:18px;color:var(--accent);border-bottom:1px solid var(--line);padding-bottom:3px;margin:8mm 0 4mm 0;}
+.toc{list-style:none;margin:4mm 0;}
+.toc li{font-size:12px;margin-bottom:3mm;display:flex;justify-content:space-between;border-bottom:1px dotted var(--line);padding-bottom:2mm;}
+.toc .muted{color:var(--muted);font-size:10px;}
+.card{background:#F7F8FA;border:1px solid var(--line);border-radius:8px;padding:4mm;margin:4mm 0;}
+.card h4{font-size:13px;color:var(--accent);margin-bottom:2mm;}
+.card p, .card li{font-size:11px;color:var(--ink);line-height:1.5;}
+.card ul{margin-left:4mm;}
+table.t{width:100%;border-collapse:collapse;margin:4mm 0;font-size:10px;}
+table.t th{background:var(--accent);color:#fff;padding:3mm;text-align:left;font-weight:700;}
+table.t td{border:1px solid var(--line);padding:2.5mm;vertical-align:top;}
+table.t tr:nth-child(even){background:#FAFBFC;}
+.code{background:var(--code-bg);color:var(--code-text);border-radius:6px;padding:3mm;font-size:9.5px;line-height:1.5;margin:3mm 0;white-space:pre-wrap;font-family:'Consolas','Courier New',monospace;}
+.tip{background:#E3F2FD;border-left:4px solid var(--accent);padding:3mm;border-radius:4px;margin:4mm 0;font-size:11px;}
+.warning{background:#FFF3E0;border-left:4px solid var(--amber);padding:3mm;border-radius:4px;margin:4mm 0;font-size:11px;}
+.footline{position:absolute;bottom:15mm;left:20mm;font-size:9px;color:var(--muted);}
+.pageno{position:absolute;bottom:15mm;right:20mm;font-size:9px;color:var(--muted);}
+@media print{
+  body{background:#fff;}
+  .toolbar{display:none;}
+  .page{margin:0;box-shadow:none;padding:15mm;page-break-after:always;}
+  .page:last-child{page-break-after:auto;}
+}
+</style>
+</head>
+<body>
+<div class="toolbar">
+<button onclick="window.print()">⬇ Télécharger en PDF</button>
+</div>
+
+<!-- ══ P1 · COUVERTURE ══ -->
+<div class="page">
+<div class="cover">
+<div>
+<div class="big-hex">M</div>
+<div style="height:8mm"></div>
+<span class="tag">Guide pratique · v1.0</span>
+<h1>Manuel utilisateur<br><span style="font-size:24px;color:var(--muted)">MOTO Editor</span></h1>
+<p style="margin-top:8mm;font-size:13px;color:var(--muted);max-width:120mm;margin-left:auto;margin-right:auto;">
+Guide complet pour découvrir et maîtriser MOTO Editor : installation, interface, éditeur, IA, paramètres et raccourcis clavier.
+</p>
+</div>
+<div style="margin-top:20mm;">
+<div class="brand">Septembre 2026 · Éditeur IA local-first</div>
+</div>
+</div>
+<div class="footline">Manuel utilisateur · v1.0</div>
+<div class="pageno">1 / 10</div>
+</div>
+
+<!-- ══ P2 · SOMMAIRE ══ -->
+<div class="page">
+<div class="brand"><span class="hex">M</span> MOTO Editor · Manuel utilisateur</div>
+<h2 class="sec">Sommaire</h2>
+<ul class="toc">
+<li><span>1. Installation et premiers pas</span><span class="muted">p.3</span></li>
+<li><span>2. Interface et navigation</span><span class="muted">p.4</span></li>
+<li><span>3. Éditeur de code</span><span class="muted">p.5</span></li>
+<li><span>4. Terminal intégré</span><span class="muted">p.6</span></li>
+<li><span>5. Panneaux IA</span><span class="muted">p.7</span></li>
+<li><span>6. Paramètres</span><span class="muted">p.8</span></li>
+<li><span>7. Raccourcis clavier</span><span class="muted">p.9</span></li>
+<li><span>8. Dépannage et FAQ</span><span class="muted">p.10</span></li>
+</ul>
+
+<div class="card" style="margin-top:8mm;">
+<h4>Bienvenue dans MOTO Editor</h4>
+<p>MOTO Editor est un éditeur de code ultra-léger, entièrement local, conçu pour offrir une expérience moderne, rapide et assistée par IA — sans dépendances cloud, sans frameworks lourds, sans Electron.</p>
+<p style="margin-top:2mm;">Il combine :</p>
+<ul>
+<li>Une UI minimaliste et moderne</li>
+<li>Une IA locale via Ollama</li>
+<li>Une IA structurée via XENO-SSS∞</li>
+<li>Un terminal intégré</li>
+<li>Un système de paramètres data-driven (~300 options)</li>
+</ul>
+</div>
+<div class="footline">Manuel utilisateur · v1.0</div>
+<div class="pageno">2 / 10</div>
+</div>
+
+<!-- ══ P3 · INSTALLATION ══ -->
+<div class="page">
+<div class="brand"><span class="hex">M</span> MOTO Editor · Manuel utilisateur</div>
+<h2 class="sec">1. Installation et premiers pas</h2>
+
+<h3>Prérequis</h3>
+<div class="card">
+<ul>
+<li><strong>Système d'exploitation</strong> : Windows 10/11 (version 1809 ou ultérieure)</li>
+<li><strong>Espace disque</strong> : 200 Mo minimum</li>
+<li><strong>RAM</strong> : 4 Go recommandé</li>
+<li><strong>IA locale (optionnel)</strong> : Ollama installé pour activer les fonctionnalités IA</li>
+</ul>
+</div>
+
+<h3>Installation</h3>
+<div class="card">
+<ol>
+<li>Téléchargez le fichier <code>MotoEditor-Setup.exe</code> depuis le site officiel.</li>
+<li>Exécutez l'installateur et suivez les instructions.</li>
+<li>Lancez MOTO Editor depuis le menu Démarrer ou le raccourci bureau.</li>
+</ol>
+</div>
+
+<div class="tip">
+<strong>💡 Astuce</strong> : Si vous souhaitez utiliser les fonctionnalités IA, installez Ollama (<code>ollama.com</code>) et téléchargez un modèle (ex: <code>ollama pull codellama</code>) avant de lancer MOTO Editor.
+</div>
+
+<h3>Premier lancement</h3>
+<div class="card">
+<p>Au premier lancement, MOTO Editor affiche l'écran d'accueil avec :</p>
+<ul>
+<li>Un explorateur de fichiers à gauche (dock gauche)</li>
+<li>La zone d'édition au centre</li>
+<li>Les panneaux IA à droite (dock droit)</li>
+<li>Le terminal en bas (dock du bas, replié par défaut)</li>
+</ul>
+<p style="margin-top:2mm;">Vous pouvez ouvrir un dossier de projet via <strong>Fichier → Ouvrir un dossier</strong> ou en glissant-déposant un dossier sur la fenêtre.</p>
+</div>
+
+<h3>Importer un projet existant</h3>
+<div class="card">
+<p>MOTO Editor peut importer des projets depuis Visual Studio ou VS Code :</p>
+<ol>
+<li>Cliquez sur <strong>Fichier → Importer un projet</strong>.</li>
+<li>Sélectionnez le dossier contenant le projet (.sln, .csproj, ou dossier VS Code).</li>
+<li>MOTO Editor détecte automatiquement la configuration et importe les paramètres.</li>
+</ol>
+</div>
+<div class="footline">Manuel utilisateur · v1.0</div>
+<div class="pageno">3 / 10</div>
+</div>
+
+<!-- ══ P4 · INTERFACE ══ -->
+<div class="page">
+<div class="brand"><span class="hex">M</span> MOTO Editor · Manuel utilisateur</div>
+<h2 class="sec">2. Interface et navigation</h2>
+
+<h3>Vue d'ensemble</h3>
+<div class="card">
+<p>L'interface de MOTO Editor est organisée en <strong>3 docks redimensionnables</strong> autour de la zone d'édition centrale :</p>
+<ul>
+<li><strong>Dock gauche</strong> : Explorateur de fichiers, recherche dans le projet</li>
+<li><strong>Dock droit</strong> : Panneaux IA (Cortex, Neural, Workspace, AutoLink, Context, etc.)</li>
+<li><strong>Dock du bas</strong> : Terminal intégré, sortie de compilation, diagnostics</li>
+</ul>
+</div>
+
+<h3>Redimensionner les docks</h3>
+<div class="card">
+<p>Glissez les bordures des docks pour les redimensionner. Les docks sont :</p>
+<ul>
+<li><strong>Redimensionnables</strong> : glissez les bordures horizontales/verticales</li>
+<li><strong>Repliables</strong> : double-cliquez sur la bordure pour replier/déplier</li>
+<li><strong>Glisser-déposer</strong> : déplacez les panneaux d'un dock à l'autre</li>
+</ul>
+</div>
+
+<div class="tip">
+<strong>💡 Astuce</strong> : Pour masquer temporairement tous les docks et passer en mode "focus", appuyez sur <code>Ctrl+Shift+F</code>.
+</div>
+
+<h3>Barre de statut</h3>
+<div class="card">
+<p>La barre de statut en bas de la fenêtre affiche :</p>
+<ul>
+<li>Le mode de performance actif (Eco/Balanced/Turbo/Ultra)</li>
+<li>Le nombre d'erreurs/warnings dans le projet</li>
+<li>La position du curseur (ligne, colonne)</li>
+<li>Le langage du fichier actif</li>
+<li>L'état de la connexion IA (locale/distante)</li>
+</ul>
+</div>
+
+<h3>Palette de commandes</h3>
+<div class="card">
+<p>La palette de commandes permet d'accéder rapidement à toutes les fonctionnalités :</p>
+<ul>
+<li>Raccourci : <code>Ctrl+Shift+P</code></li>
+<li>Tapez pour filtrer les commandes</li>
+<li>Appuyez sur <code>Entrée</code> pour exécuter</li>
+</ul>
+</div>
+<div class="footline">Manuel utilisateur · v1.0</div>
+<div class="pageno">4 / 10</div>
+</div>
+
+<!-- ══ P5 · ÉDITEUR ══ -->
+<div class="page">
+<div class="brand"><span class="hex">M</span> MOTO Editor · Manuel utilisateur</div>
+<h2 class="sec">3. Éditeur de code</h2>
+
+<h3>Fonctionnalités principales</h3>
+<div class="card">
+<ul>
+<li><strong>Onglets</strong> : ouvrez plusieurs fichiers, badges d'erreurs, flèches ←/→ pour naviguer</li>
+<li><strong>Split</strong> : divisez l'édition en 2 ou 4 volets (<code>Ctrl+\</code>)</li>
+<li><strong>Minimap</strong> : vue d'ensemble du fichier à droite, interactive</li>
+<li><strong>Ghost text</strong> : suggestions IA affichées en gris, appuyez sur <code>Tab</code> pour accepter</li>
+<li><strong>Coloration syntaxique</strong> : supporte C#, JavaScript, Python, et 50+ langages</li>
+<li><strong>Breadcrumb</strong> : navigation rapide dans la structure du fichier</li>
+</ul>
+</div>
+
+<h3>Onglets et navigation</h3>
+<div class="card">
+<p>Gérez vos fichiers ouverts avec les onglets :</p>
+<ul>
+<li><strong>Fermer</strong> : clic sur la croix ou <code>Ctrl+W</code></li>
+<li><strong>Fermer tous sauf actif</strong> : clic droit → Fermer les autres</li>
+<li><strong>Épingler</strong> : clic droit → Épingler (l'onglet reste à gauche)</li>
+<li><strong>Navigation</strong> : <code>Ctrl+Tab</code> pour basculer entre onglets</li>
+</ul>
+</div>
+
+<h3>Split et multi-édition</h3>
+<div class="card">
+<p>Divisez l'écran pour travailler sur plusieurs fichiers simultanément :</p>
+<ul>
+<li><strong>Split vertical</strong> : <code>Ctrl+\</code> puis <code>V</code></li>
+<li><strong>Split horizontal</strong> : <code>Ctrl+\</code> puis <code>H</code></li>
+<li><strong>4 volets</strong> : <code>Ctrl+\</code> puis <code>4</code></li>
+<li><strong>Fermer le split</strong> : <code>Ctrl+\</code> puis <code>X</code></li>
+</ul>
+</div>
+
+<h3>Minimap interactive</h3>
+<div class="card">
+<p>La minimap à droite affiche une vue d'ensemble du fichier :</p>
+<ul>
+<li>Cliquez pour naviguer rapidement</li>
+<li>Glissez pour faire défiler</li>
+<li>Les erreurs et warnings sont marqués en rouge/orange</li>
+<li>Masquez-la via <strong>Affichage → Minimap</strong> ou les paramètres</li>
+</ul>
+</div>
+<div class="footline">Manuel utilisateur · v1.0</div>
+<div class="pageno">5 / 10</div>
+</div>
+
+<!-- ══ P6 · TERMINAL ══ -->
+<div class="page">
+<div class="brand"><span class="hex">M</span> MOTO Editor · Manuel utilisateur</div>
+<h2 class="sec">4. Terminal intégré</h2>
+
+<h3>Ouvrir le terminal</h3>
+<div class="card">
+<p>Le terminal est intégré dans le dock du bas :</p>
+<ul>
+<li><strong>Raccourci</strong> : <code>Ctrl+`</code> (accent grave)</li>
+<li><strong>Menu</strong> : Affichage → Terminal</li>
+<li><strong>Auto-ouverture</strong> : le terminal s'ouvre automatiquement au lancement d'un projet</li>
+</ul>
+</div>
+
+<h3>Utilisation</h3>
+<div class="card">
+<p>Le terminal supporte toutes les commandes shell standard :</p>
+<div class="code"># Exemples de commandes
+dotnet build
+dotnet run
+npm install
+git status</div>
+<ul>
+<li><strong>Historique</strong> : flèches haut/bas pour naviguer dans l'historique</li>
+<li><strong>Coloration</strong> : les erreurs s'affichent en rouge, les sorties normales en blanc</li>
+<li><strong>Effacer</strong> : <code>Ctrl+L</code> ou commande <code>clear</code></li>
+</ul>
+</div>
+
+<div class="tip">
+<strong>💡 Astuce</strong> : Le terminal est connecté à <code>TerminalService</code>. Les commandes sont historisées et persistées entre les sessions.
+</div>
+
+<h3>Sortie de compilation</h3>
+<div class="card">
+<p>Lorsque vous compilez un projet (<code>Ctrl+Shift+B</code>), la sortie s'affiche dans le terminal :</p>
+<ul>
+<li>Les erreurs sont colorées en rouge avec le fichier et la ligne concernés</li>
+<li>Les warnings sont colorés en orange</li>
+<li>Cliquez sur une erreur pour ouvrir le fichier à la ligne concernée</li>
+</ul>
+</div>
+
+<h3>Diagnostics</h3>
+<div class="card">
+<p>Le panneau de diagnostics affiche les erreurs et warnings en temps réel :</p>
+<ul>
+<li><strong>Ouvrir</strong> : <code>Ctrl+Shift+M</code> ou Affichage → Diagnostics</li>
+<li>Filtrez par type (erreurs, warnings, infos)</li>
+<li>Cliquez pour naviguer vers le fichier concerné</li>
+</ul>
+</div>
+<div class="footline">Manuel utilisateur · v1.0</div>
+<div class="pageno">6 / 10</div>
+</div>
+
+<!-- ══ P7 · PANNEAUX IA ══ -->
+<div class="page">
+<div class="brand"><span class="hex">M</span> MOTO Editor · Manuel utilisateur</div>
+<h2 class="sec">5. Panneaux IA</h2>
+
+<h3>Vue d'ensemble</h3>
+<div class="card">
+<p>Les panneaux IA sont accessibles dans le dock droit. Chaque panneau offre une fonctionnalité spécifique :</p>
+<ul>
+<li><strong>Cortex</strong> : mémoire cognitive, apprentissage de votre style</li>
+<li><strong>Neural</strong> : recherche sémantique dans le projet</li>
+<li><strong>Workspace</strong> : suggestions proactives contextuelles</li>
+<li><strong>AutoLink</strong> : détection et résolution de références manquantes</li>
+<li><strong>Context</strong> : suggestions senior proactives</li>
+<li><strong>Story Mode</strong> : narration interactive du code</li>
+<li><strong>Health</strong> : santé du projet, complexité cyclomatique</li>
+<li><strong>Time Machine</strong> : snapshots granulaires sans Git</li>
+<li><strong>Evolution</strong> : suivi de l'évolution architecturale</li>
+</ul>
+</div>
+
+<h3>Cortex — Mémoire cognitive</h3>
+<div class="card">
+<p>Cortex apprend de vos habitudes et adapte les suggestions :</p>
+<ul>
+<li>Style de code préféré (indentation, nommage)</li>
+<li>Patterns récurrents</li>
+<li>Préférences de navigation</li>
+</ul>
+<p style="margin-top:2mm;">Les données sont persistées dans <code>.moto/cortex/memory.json</code>.</p>
+</div>
+
+<h3>Neural — Recherche sémantique</h3>
+<div class="card">
+<p>Neural utilise des embeddings pour rechercher du code par signification :</p>
+<ul>
+<li>Tapez une description en langage naturel</li>
+<li>Neural trouve les fichiers et fonctions correspondants</li>
+<li>Utile pour retrouver du code oublié ou comprendre un projet inconnu</li>
+</ul>
+</div>
+
+<h3>AutoLink — Références manquantes</h3>
+<div class="card">
+<p>AutoLink détecte les références manquantes et propose des corrections :</p>
+<ul>
+<li>Imports manquants</li>
+<li>Types non résolus</li>
+<li>Dépendances absentes</li>
+</ul>
+<p style="margin-top:2mm;">Cliquez sur <strong>Apply</strong> pour appliquer la correction, ou <strong>Dismiss</strong> pour ignorer.</p>
+</div>
+<div class="footline">Manuel utilisateur · v1.0</div>
+<div class="pageno">7 / 10</div>
+</div>
+
+<!-- ══ P8 · PARAMÈTRES ══ -->
+<div class="page">
+<div class="brand"><span class="hex">M</span> MOTO Editor · Manuel utilisateur</div>
+<h2 class="sec">6. Paramètres</h2>
+
+<h3>Ouvrir les paramètres</h3>
+<div class="card">
+<p>Accédez aux paramètres via :</p>
+<ul>
+<li><strong>Raccourci</strong> : <code>Ctrl+,</code></li>
+<li><strong>Menu</strong> : Fichier → Préférences → Paramètres</li>
+<li><strong>Icône</strong> : cliquez sur l'icône ⚙️ dans la barre de statut</li>
+</ul>
+</div>
+
+<h3>Recherche instantanée</h3>
+<div class="card">
+<p>Les paramètres sont organisés en 15 catégories, mais vous pouvez rechercher instantanément :</p>
+<ul>
+<li>Tapez dans la barre de recherche en haut</li>
+<li>Les paramètres sont filtrés en temps réel</li>
+<li>Exemples : "thème", "police", "minimap", "IA", "terminal"</li>
+</ul>
+</div>
+
+<h3>Catégories principales</h3>
+<div class="card">
+<ul>
+<li><strong>Général</strong> : langue, mise à jour automatique, démarrage</li>
+<li><strong>Apparence</strong> : thème, police, taille de police, minimap</li>
+<li><strong>Keymap</strong> : raccourcis clavier personnalisables</li>
+<li><strong>Éditeur</strong> : indentation, retour à la ligne, numéros de ligne</li>
+<li><strong>Langages & Outils</strong> : paramètres spécifiques par langage</li>
+<li><strong>Recherche & Fichiers</strong> : exclusions, filtrage</li>
+<li><strong>Fenêtre & Layout</strong> : docks, panneaux, mode focus</li>
+<li><strong>Debugger</strong> : points d'arrêt, variables, pile d'appels</li>
+<li><strong>Terminal</strong> : shell, historique, coloration</li>
+<li><strong>Version Control</strong> : Git, diff, merge</li>
+<li><strong>Collaboration</strong> : sessions temps réel, présence</li>
+<li><strong>IA</strong> : provider, suggestions, modes</li>
+<li><strong>Réseau</strong> : proxy, timeout</li>
+<li><strong>Développeur</strong> : logs, debug, expérimental</li>
+</ul>
+</div>
+
+<div class="tip">
+<strong>💡 Astuce</strong> : Les paramètres sont persistés dans <code>%AppData%/MotoEditor/settings.json</code>. Vous pouvez les sauvegarder et les restaurer facilement.
+</div>
+
+<h3>Templates de configuration</h3>
+<div class="card">
+<p>MOTO Editor propose des templates préconfigurés :</p>
+<ul>
+<li><strong>Débutant</strong> : interface simplifiée, suggestions IA maximales</li>
+<li><strong>Intermédiaire</strong> : équilibre entre simplicité et puissance</li>
+<li><strong>Expert</strong> : interface minimaliste, contrôle total</li>
+</ul>
+<p style="margin-top:2mm;">Appliquez un template via <strong>Paramètres → Templates</strong>.</p>
+</div>
+<div class="footline">Manuel utilisateur · v1.0</div>
+<div class="pageno">8 / 10</div>
+</div>
+
+<!-- ══ P9 · RACCOURCIS ══ -->
+<div class="page">
+<div class="brand"><span class="hex">M</span> MOTO Editor · Manuel utilisateur</div>
+<h2 class="sec">7. Raccourcis clavier</h2>
+
+<h3>Navigation</h3>
+<table class="t">
+<tr><th>Action</th><th>Raccourci</th></tr>
+<tr><td>Palette de commandes</td><td><code>Ctrl+Shift+P</code></td></tr>
+<tr><td>Ouvrir un fichier</td><td><code>Ctrl+P</code></td></tr>
+<tr><td>Rechercher dans le fichier</td><td><code>Ctrl+F</code></td></tr>
+<tr><td>Rechercher dans le projet</td><td><code>Ctrl+Shift+F</code></td></tr>
+<tr><td>Remplacer</td><td><code>Ctrl+H</code></td></tr>
+<tr><td>Aller à la ligne</td><td><code>Ctrl+G</code></td></tr>
+<tr><td>Navigation arrière/avant</td><td><code>Alt+←</code> / <code>Alt+→</code></td></tr>
+</table>
+
+<h3>Édition</h3>
+<table class="t">
+<tr><th>Action</th><th>Raccourci</th></tr>
+<tr><td>Couper/Copier/Coller</td><td><code>Ctrl+X</code> / <code>Ctrl+C</code> / <code>Ctrl+V</code></td></tr>
+<tr><td>Annuler/Rétablir</td><td><code>Ctrl+Z</code> / <code>Ctrl+Y</code></td></tr>
+<tr><td>Dupliquer la ligne</td><td><code>Ctrl+D</code></td></tr>
+<tr><td>Supprimer la ligne</td><td><code>Ctrl+Shift+K</code></td></tr>
+<tr><td>Déplacer la ligne haut/bas</td><td><code>Alt+↑</code> / <code>Alt+↓</code></td></tr>
+<tr><td>Commenter/Décommenter</td><td><code>Ctrl+/</code></td></tr>
+<tr><td>Indenter/Désindenter</td><td><code>Tab</code> / <code>Shift+Tab</code></td></tr>
+</table>
+
+<h3>Terminal et IA</h3>
+<table class="t">
+<tr><th>Action</th><th>Raccourci</th></tr>
+<tr><td>Ouvrir le terminal</td><td><code>Ctrl+`</code></td></tr>
+<tr><td>Ouvrir les paramètres</td><td><code>Ctrl+,</code></td></tr>
+<tr><td>Accepter la suggestion IA</td><td><code>Tab</code></td></tr>
+<tr><td>Rejeter la suggestion IA</td><td><code>Esc</code></td></tr>
+<tr><td>Ouvrir le panneau IA</td><td><code>Ctrl+Shift+I</code></td></tr>
+</table>
+
+<h3>Fichiers et projets</h3>
+<table class="t">
+<tr><th>Action</th><th>Raccourci</th></tr>
+<tr><td>Nouveau fichier</td><td><code>Ctrl+N</code></td></tr>
+<tr><td>Ouvrir un dossier</td><td><code>Ctrl+Shift+O</code></td></tr>
+<tr><td>Sauvegarder</td><td><code>Ctrl+S</code></td></tr>
+<tr><td>Sauvegarder tout</td><td><code>Ctrl+Shift+S</code></td></tr>
+<tr><td>Fermer l'onglet</td><td><code>Ctrl+W</code></td></tr>
+<tr><td>Compiler</td><td><code>Ctrl+Shift+B</code></td></tr>
+<tr><td>Lancer le projet</td><td><code>F5</code></td></tr>
+</table>
+<div class="footline">Manuel utilisateur · v1.0</div>
+<div class="pageno">9 / 10</div>
+</div>
+
+<!-- ══ P10 · DÉPANNAGE ══ -->
+<div class="page">
+<div class="brand"><span class="hex">M</span> MOTO Editor · Manuel utilisateur</div>
+<h2 class="sec">8. Dépannage et FAQ</h2>
+
+<h3>Problèmes courants</h3>
+<div class="card">
+<h4>L'IA ne répond pas</h4>
+<ul>
+<li>Vérifiez qu'Ollama est installé et en cours d'exécution</li>
+<li>Vérifiez qu'un modèle est téléchargé (<code>ollama list</code>)</li>
+<li>Vérifiez les paramètres IA dans <strong>Paramètres → IA</strong></li>
+</ul>
+</div>
+
+<div class="card">
+<h4>Le terminal ne s'ouvre pas</h4>
+<ul>
+<li>Vérifiez que le dock du bas n'est pas replié (double-cliquez sur la bordure)</li>
+<li>Essayez le raccourci <code>Ctrl+`</code></li>
+<li>Vérifiez les paramètres du terminal dans <strong>Paramètres → Terminal</strong></li>
+</ul>
+</div>
+
+<div class="card">
+<h4>Les paramètres ne sont pas sauvegardés</h4>
+<ul>
+<li>Vérifiez que le dossier <code>%AppData%/MotoEditor/</code> est accessible en écriture</li>
+<li>Vérifiez les permissions du fichier <code>settings.json</code></li>
+</ul>
+</div>
+
+<h3>FAQ</h3>
+<div class="card">
+<h4>MOTO Editor fonctionne-t-il sans Internet ?</h4>
+<p>Oui, MOTO Editor est entièrement local. Les fonctionnalités IA utilisent Ollama en local. Seules les mises à jour et les fonctionnalités de collaboration nécessitent Internet.</p>
+</div>
+
+<div class="card">
+<h4>Puis-je utiliser MOTO Editor sur macOS ou Linux ?</h4>
+<p>Actuellement, MOTO Editor est disponible uniquement sur Windows. Le support macOS et Linux est prévu pour la version 1.1.</p>
+</div>
+
+<div class="card">
+<h4>Comment signaler un bug ?</h4>
+<p>Utilisez GitHub Issues : <code>github.com/moto-editor/moto-editor/issues</code>. Incluez :</p>
+<ul>
+<li>La version de MOTO Editor</li>
+<li>Votre système d'exploitation</li>
+<li>Les étapes pour reproduire le bug</li>
+<li>Les logs si disponibles (<code>Aide → Exporter les logs</code>)</li>
+</ul>
+</div>
+
+<div class="card">
+<h4>Comment contribuer au projet ?</h4>
+<p>MOTO Editor est open-source. Consultez <code>CONTRIBUTING.md</code> sur GitHub pour les guidelines de contribution.</p>
+</div>
+
+<div style="margin-top:10mm;text-align:center;color:var(--muted);font-size:10px;">
+<p>© 2026 MOTO Editor · Manuel utilisateur v1.0 · Septembre 2026</p>
+<p>Généré le 2 septembre 2026</p>
+</div>
+<div class="footline">Manuel utilisateur · v1.0</div>
+<div class="pageno">10 / 10</div>
+</div>
+
+</body>
+</html>

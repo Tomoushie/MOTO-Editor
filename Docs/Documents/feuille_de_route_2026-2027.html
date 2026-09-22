@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MOTO Editor — Feuille de Route 2026-2027 (Rapport PDF)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/fontsource/css/inter@latest/index.css">
+<style>
+  :root{
+    --accent:#007ACC; --accent-dark:#005A9E; --ink:#181A1E; --muted:#5A6069;
+    --paper:#FFFFFF; --bg:#F7F8FA; --line:#D6D9DF;
+    --h1c:#007ACC; --h2c:#7C3AED; --h3c:#0E8074; --risk:#C62828; --amber:#B26A00;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  html,body{background:var(--bg);font-family:'Inter',system-ui,sans-serif;color:var(--ink);}
+  @page{size:A4;margin:0;}
+  .toolbar{position:fixed;top:14px;right:14px;z-index:99;}
+  .toolbar button{background:var(--accent);color:#fff;border:none;border-radius:8px;padding:10px 16px;font-weight:600;font-size:13px;cursor:pointer;box-shadow:0 4px 12px rgba(0,122,204,.35);}
+  .toolbar button:hover{background:var(--accent-dark);}
+  .page{width:210mm;min-height:296mm;background:var(--paper);margin:24px auto;padding:16mm 16mm 14mm;position:relative;box-shadow:0 8px 30px rgba(0,0,0,.12);overflow:hidden;page-break-after:always;}
+  @media print{ .toolbar{display:none;} body{background:#fff;} .page{margin:0;box-shadow:none;width:210mm;height:296mm;min-height:0;} }
+
+  .brand{display:flex;align-items:center;gap:8px;font-weight:700;font-size:11px;letter-spacing:.12em;color:var(--accent);text-transform:uppercase;}
+  .brand .hex{width:22px;height:22px;background:var(--accent);color:#fff;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;}
+  .pageno{position:absolute;bottom:8mm;right:16mm;font-size:9px;color:var(--muted);}
+  .footline{position:absolute;bottom:8mm;left:16mm;font-size:9px;color:var(--muted);}
+
+  .cover{height:100%;display:flex;flex-direction:column;justify-content:space-between;background:linear-gradient(160deg,#0d1418 0%,#111214 55%,#0a2233 100%);color:#E8EAED;margin:-16mm;padding:20mm 16mm;}
+  .cover .tag{display:inline-block;border:1px solid rgba(0,122,204,.6);color:#7cc4ff;border-radius:999px;padding:5px 14px;font-size:10px;letter-spacing:.15em;text-transform:uppercase;}
+  .cover h1{font-size:38px;line-height:1.15;font-weight:800;margin:18px 0 10px;}
+  .cover h1 span{color:#4da3ff;}
+  .cover p{color:#9AA0A6;font-size:13px;max-width:125mm;line-height:1.6;}
+  .cover .big-hex{width:64px;height:64px;background:var(--accent);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:800;color:#fff;box-shadow:0 10px 40px rgba(0,122,204,.5);}
+  .cover .meta{display:flex;gap:22px;font-size:10px;color:#9AA0A6;}
+  .cover .meta b{color:#E8EAED;display:block;font-size:12px;}
+
+  h2.sec{font-size:19px;color:var(--accent-dark);border-left:4px solid var(--accent);padding-left:10px;margin:5mm 0 4mm;}
+  h3.sub{font-size:12.5px;margin:4mm 0 2mm;color:var(--ink);}
+  p.txt{font-size:10.3px;line-height:1.6;color:#33383F;margin-bottom:3mm;}
+  .muted{color:var(--muted);}
+  .accent{color:var(--accent);font-weight:600;}
+
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:4mm;}
+  .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:3.5mm;}
+  .card{border:1px solid var(--line);border-radius:10px;padding:3.5mm 4mm;background:#FBFCFE;}
+  .card h4{font-size:11px;margin-bottom:2mm;display:flex;align-items:center;gap:2mm;}
+  .card ul{list-style:none;}
+  .card li{font-size:9.2px;line-height:1.5;margin-bottom:1.4mm;padding-left:12px;position:relative;}
+  .card li::before{content:"";position:absolute;left:0;top:4.5px;width:5px;height:5px;border-radius:50%;background:var(--accent);opacity:.7;}
+  .chip{display:inline-block;border-radius:999px;padding:1px 8px;font-size:8.3px;font-weight:700;color:#fff;}
+  .kpirow{display:grid;grid-template-columns:repeat(4,1fr);gap:3mm;margin:3mm 0;}
+  .kpi{border:1px solid var(--line);border-radius:10px;padding:3mm;text-align:center;background:#FBFCFE;}
+  .kpi .v{font-size:16px;font-weight:800;} .kpi .l{font-size:8.2px;color:var(--muted);margin-top:1mm;}
+
+  .horizon{border-radius:10px;padding:3.5mm 4mm;margin-bottom:3.5mm;border:1px solid;}
+  .horizon h4{font-size:12px;display:flex;justify-content:space-between;align-items:center;margin-bottom:2mm;}
+  .horizon ul{list-style:none;columns:2;column-gap:6mm;}
+  .horizon li{font-size:9.1px;line-height:1.5;margin-bottom:1.5mm;padding-left:12px;position:relative;break-inside:avoid;}
+  .horizon li::before{content:"";position:absolute;left:0;top:4.5px;width:5px;height:5px;border-radius:50%;}
+  .hz1{border-color:var(--h1c);background:#EAF4FB;} .hz1 h4{color:var(--h1c);} .hz1 li::before{background:var(--h1c);}
+  .hz2{border-color:var(--h2c);background:#F3EEFC;} .hz2 h4{color:var(--h2c);} .hz2 li::before{background:var(--h2c);}
+  .hz3{border-color:var(--h3c);background:#EAF5F3;} .hz3 h4{color:var(--h3c);} .hz3 li::before{background:var(--h3c);}
+
+  /* Gantt */
+  .gantt{width:100%;border-collapse:collapse;font-size:8.6px;}
+  .gantt th{background:#111214;color:#E8EAED;padding:1.8mm 1.5mm;font-size:8px;font-weight:600;}
+  .gantt td{border:1px solid var(--line);padding:0;height:7.5mm;position:relative;}
+  .gantt td.lab{padding:0 2mm;font-weight:600;font-size:8.6px;background:#F2F5F8;width:34mm;}
+  .bar{position:absolute;top:1.6mm;bottom:1.6mm;border-radius:3px;left:2%;right:2%;}
+  .ms{position:absolute;top:0;bottom:0;width:0;border-left:2px dashed var(--risk);left:50%;}
+  .mslab{position:absolute;top:.4mm;font-size:7.4px;color:var(--risk);font-weight:700;transform:translateX(-50%);left:50%;background:#fff;padding:0 2px;border-radius:3px;}
+
+  table.prio{width:100%;border-collapse:collapse;font-size:9.2px;}
+  table.prio th{background:#111214;color:#E8EAED;text-align:left;padding:2mm 2.5mm;font-size:8.8px;}
+  table.prio td{border-bottom:1px solid var(--line);padding:2mm 2.5mm;vertical-align:top;}
+  table.prio tr:nth-child(even) td{background:#F2F5F8;}
+
+  .matrix{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:1fr 1fr;gap:2.5mm;height:78mm;}
+  .mcell{border-radius:10px;padding:3mm;border:1px solid;}
+  .mcell h5{font-size:9.5px;margin-bottom:1.5mm;}
+  .mcell p{font-size:8.6px;line-height:1.45;}
+  .m-q{background:#E8F5E9;border-color:#2E7D32;} .m-q h5{color:#2E7D32;}
+  .m-p{background:#E3F2FD;border-color:#0066CC;} .m-p h5{color:#0066CC;}
+  .m-f{background:#FFF3E0;border-color:#B26A00;} .m-f h5{color:#B26A00;}
+  .m-e{background:#FFEBEE;border-color:#C62828;} .m-e h5{color:#C62828;}
+
+  .toc li{font-size:11px;margin-bottom:2.5mm;list-style:none;display:flex;justify-content:space-between;border-bottom:1px dotted var(--line);padding-bottom:1.5mm;}
+  .rec{display:flex;gap:3mm;align-items:flex-start;margin-bottom:2.6mm;}
+  .rec .n{flex:0 0 8mm;height:8mm;border-radius:8px;background:var(--accent);color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:12px;}
+  .rec b{font-size:10.6px;} .rec p{font-size:9.6px;color:#33383F;line-height:1.5;margin-top:1mm;}
+</style>
+</head>
+<body>
+
+<div class="toolbar"><button onclick="window.print()">⬇ Télécharger en PDF</button></div>
+
+<!-- ══ PAGE 1 · COUVERTURE ══ -->
+<div class="page"><div class="cover">
+  <div>
+    <div class="big-hex">M</div>
+    <div style="height:8mm"></div>
+    <span class="tag">Document stratégique · v1.0</span>
+    <h1>Feuille de route<br><span>MOTO Editor</span><br>2026 – 2027</h1>
+    <p>Plan d'exécution en trois horizons : stabilisation, orchestration IA (MotoBridge / XENO-SSS∞), puis plateforme & croissance. Doctrine : façade minimaliste, complexité backend, 100+ paramètres.</p>
+  </div>
+  <div class="meta">
+    <div><b>Septembre 2026</b>Édition v1.0</div>
+    <div><b>Horizons</b>H1 · H2 · H3 (10 mois)</div>
+    <div><b>Stack</b>.NET · MAUI · WinUI 3</div>
+    <div><b>Cible</b>v1.0 publique</div>
+  </div>
+</div></div>
+
+<!-- ══ PAGE 2 · SOMMAIRE + ÉTAT DES LIEUX ══ -->
+<div class="page">
+  <div class="brand"><div class="hex">M</div>MOTO Editor · Feuille de route</div>
+  <h2 class="sec" style="margin-top:5mm">Sommaire</h2>
+  <ul class="toc">
+    <li><span>1. Vision, doctrine & état des lieux</span><span class="muted">p. 2</span></li>
+    <li><span>2. Horizon 1 — Stabilisation & finitions (sept.–oct. 2026)</span><span class="muted">p. 3</span></li>
+    <li><span>3. Horizon 2 — Orchestration IA & éditeur profond (oct. 2026 – janv. 2027)</span><span class="muted">p. 4</span></li>
+    <li><span>4. Horizon 3 — Plateforme, distribution & croissance (janv. – juin 2027)</span><span class="muted">p. 5</span></li>
+    <li><span>5. Calendrier Gantt & jalons</span><span class="muted">p. 6</span></li>
+    <li><span>6. Priorisation (matrice impact/effort)</span><span class="muted">p. 7</span></li>
+    <li><span>7. Risques, KPIs & gouvernance</span><span class="muted">p. 8</span></li>
+  </ul>
+
+  <h2 class="sec">1. Vision, doctrine & état des lieux</h2>
+  <p class="txt"><b>Vision</b> : reproduire les capacités de <span class="accent">Zed</span> (3 docks, terminal, IA intégrée, collab) en 100 % fait maison, avec une interface <span class="accent">minimaliste type Claude Code / ChatGPT</span> et une complexité portée par le backend et <span class="accent">100+ paramètres</span> data-driven.</p>
+  <p class="txt"><b>Doctrine</b> : backend d'abord, UI mince · pas d'UI factice · MOTO Editor édite/affiche, MOTO AI assiste/route, XENO-SSS∞ structure · délégation comme « Zed → Claude Code ».</p>
+  <div class="kpirow">
+    <div class="kpi"><div class="v" style="color:var(--accent)">0</div><div class="l">ERREUR BUILD (3 PROJETS)</div></div>
+    <div class="kpi"><div class="v" style="color:var(--accent)">3</div><div class="l">DOCKS MODULAIRES LIVRÉS</div></div>
+    <div class="kpi"><div class="v" style="color:var(--accent)">20</div><div class="l">AGENTS IA SPÉCIALISÉS</div></div>
+    <div class="kpi"><div class="v" style="color:var(--accent)">~300</div><div class="l">PARAMÈTRES CATALOGUE</div></div>
+  </div>
+  <div class="grid2">
+    <div class="card"><h4>✅ Déjà livré</h4><ul>
+      <li>Réhabilitation complète (Snake2000.Engine, Moto.Core, Moto.Editor)</li>
+      <li>Accueil style Claude Code + overlays menus</li>
+      <li>Panneaux Zed : resize, changement de côté, DnD inter-docks</li>
+      <li>Dock du bas + terminal interactif réel (Ctrl+`)</li>
+      <li>Settings : 15 catégories · GitHub OAuth · palette Ctrl+Shift+P</li>
+      <li>Sécurité : Ed25519, sandbox, AtomicUpdater · MSIX + raccourci</li>
+    </ul></div>
+    <div class="card"><h4>⏳ À traiter (acquis du journal de bord)</h4><ul>
+      <li>Barre de titre bleue Windows (chantier dédié, sondes prêtes)</li>
+      <li>MotoBridge / OrchestratorAgent (Tier 28)</li>
+      <li>Persistance de disposition des docks</li>
+      <li>v1.0 : LSP Roslyn · CRDT réel · DAP · tests · i18n · accessibilité</li>
+    </ul></div>
+  </div>
+  <div class="footline">Feuille de route 2026-2027 · Septembre 2026</div><div class="pageno">2 / 8</div>
+</div>
+
+<!-- ══ PAGE 3 · HORIZON 1 ══ -->
+<div class="page">
+  <div class="brand"><div class="hex">M</div>MOTO Editor · Feuille de route</div>
+  <h2 class="sec" style="margin-top:5mm">2. Horizon 1 — Stabilisation & finitions <span class="chip" style="background:var(--h1c)">SEPT. – OCT. 2026</span></h2>
+  <p class="txt">Objectif : <b>zéro défaut visible</b> et base saine avant tout nouveau chantier. Chaque lot passe par revue croisée + rebuild Debug/Release avant commit.</p>
+  <div class="horizon hz1"><h4>A1 · Chantier barre de titre bleue (session dédiée) <span class="chip" style="background:var(--h1c)">PRIORITÉ 1</span></h4>
+    <ul>
+      <li>Sondes : lecture GWL_STYLE (bits WS_CAPTION), Live Visual Tree, teinte de rangée</li>
+      <li>Interdit : retenter SetBorderAndTitleBar (3 échecs, fenêtre invisible)</li>
+      <li>Interdit : migration MAUI/.NET (échec .NET 10 du 30/08, WASDK 1.8 épinglé)</li>
+      <li>Livrable : une seule titlebar, drag custom, boutons –/▢/✕, packagé + non-packagé</li>
+    </ul></div>
+  <div class="horizon hz1"><h4>A2 · Persistance & réglages</h4>
+    <ul>
+      <li>Persistance de disposition : docks (hauteur, visibilité, côté des panneaux)</li>
+      <li>Settings 100+ exposés : terminal.*, docks.*, ghost text, décodage spéculatif</li>
+      <li>Templates de réglages + recherche (déjà partiel) consolidés</li>
+    </ul></div>
+  <div class="horizon hz1"><h4>A3 · Qualité & dette</h4>
+    <ul>
+      <li>Warnings ~300 → objectif &lt; 50 (CS8618/CS8625/CS0618 priorisés)</li>
+      <li>Squelettes de tests xUnit via agent.tests.micro sur Moto.Core</li>
+      <li>Nettoyage code mort (Moto.UI/ non raccordé, doublons CustomMenuBarView)</li>
+      <li>Crash-log + breadcrumbs conservés (observabilité titlebar)</li>
+    </ul></div>
+  <h3 class="sub">Jalon M1 (fin oct. 2026)</h3>
+  <p class="txt">Application <b>sans défaut visuel bloquant</b>, disposition persistante, 100+ paramètres exposés, build &lt; 50 warnings. → Go/No-Go Horizon 2.</p>
+  <div class="footline">Feuille de route 2026-2027 · Septembre 2026</div><div class="pageno">3 / 8</div>
+</div>
+
+<!-- ══ PAGE 4 · HORIZON 2 ══ -->
+<div class="page">
+  <div class="brand"><div class="hex">M</div>MOTO Editor · Feuille de route</div>
+  <h2 class="sec" style="margin-top:5mm">3. Horizon 2 — Orchestration IA & éditeur profond <span class="chip" style="background:var(--h2c)">OCT. 2026 – JANV. 2027</span></h2>
+  <div class="horizon hz2"><h4>B1 · MotoBridge — Tier 28 (cœur de l'horizon) <span class="chip" style="background:var(--h2c)">PRIORITÉ 1</span></h4>
+    <ul>
+      <li>Requêtes gen/fix envoyées à XENO-SSS∞ depuis l'éditeur</li>
+      <li>Réception diffs / logs / patchs dans MOTO Editor</li>
+      <li>Affichage visuel des diffs + validations dans l'interface</li>
+      <li>Supervision temps réel (pipeline Scanner→Analyzer→Synthesizer→Connector→Validator)</li>
+      <li>Branchement OrchestratorAgent + garde de confirmation utilisateur</li>
+    </ul></div>
+  <div class="horizon hz2"><h4>B2 · IA locale renforcée</h4>
+    <ul>
+      <li>Ollama + modèle embarqué ONNX (qwen2.5-0.5b) · décodage spéculatif</li>
+      <li>Cortex/Neural : suggestions proactives branchées sur historique réel</li>
+      <li>Marketplace d'agents installables (cadre SpecializedAgentRegistry prêt)</li>
+      <li>Explainability logs activés par défaut (audit)</li>
+    </ul></div>
+  <div class="horizon hz2"><h4>C1 · Éditeur profond</h4>
+    <ul>
+      <li>LSP Roslyn : inlay hints, diagnostics, complétion typée (point v1.0)</li>
+      <li>Prévisualisation / coloration temps réel (inspiré Tree-sitter de Zed, adapté WebView)</li>
+      <li>PieceTableBuffer (Tier 30) branché sur l'éditeur + undo 1000 niveaux</li>
+      <li>Git avancé : branches visuelles, diff inline via GitService (CLI git)</li>
+    </ul></div>
+  <h3 class="sub">Jalon M2 (janv. 2027)</h3>
+  <p class="txt"><b>MotoBridge opérationnel</b> : un flux complet « demande → XENO → diff affiché → appliqué » démontrable en conditions réelles ; LSP Roslyn actif sur C#. → Go/No-Go Horizon 3.</p>
+  <div class="footline">Feuille de route 2026-2027 · Septembre 2026</div><div class="pageno">4 / 8</div>
+</div>
+
+<!-- ══ PAGE 5 · HORIZON 3 ══ -->
+<div class="page">
+  <div class="brand"><div class="hex">M</div>MOTO Editor · Feuille de route</div>
+  <h2 class="sec" style="margin-top:5mm">4. Horizon 3 — Plateforme, distribution & croissance <span class="chip" style="background:var(--h3c)">JANV. – JUIN 2027</span></h2>
+  <div class="horizon hz3"><h4>D1 · Sortir de Windows</h4>
+    <ul>
+      <li>PlatformEngine : portage macOS/Linux (générateurs Avalonia + CI)</li>
+      <li>Validation incrémentale par plateforme ; feature-parity progressive</li>
+      <li>Accessibilité complète (UI Automation / WCAG) documentée et testée</li>
+      <li>i18n FR/EN (LanguagePack extensible)</li>
+    </ul></div>
+  <div class="horizon hz3"><h4>D2 · Distribution & modèle économique</h4>
+    <ul>
+      <li>Installateur per-user single-file (sans UAC) + MSIX + winget</li>
+      <li>Mises à jour signées Ed25519 (AtomicUpdater) en canal stable/bêta</li>
+      <li>Open source (licence à trancher : MIT vs GPL) + freemium Pro 10–20 $/mois</li>
+      <li>GitHub Releases automatisées + notes de version via ChangelogAgent</li>
+    </ul></div>
+  <div class="horizon hz3"><h4>E1 · Croissance & communauté</h4>
+    <ul>
+      <li>Collab temps réel : CRDT réel + présence (CollabSession/PatchEngine)</li>
+      <li>DAP debugger (point v1.0) dans le dock du bas</li>
+      <li>Marketing ciblé : r/vscode, Hacker News, Dev.to, créateurs outils dev</li>
+      <li>Onboarding : PedagogyEngine, Story Mode, missions guidées</li>
+    </ul></div>
+  <h3 class="sub">Jalon M3 (juin 2027)</h3>
+  <p class="txt"><b>v1.0 publique</b> : Windows + au moins une plateforme secondaire, CRDT collab, DAP, i18n, accessibilité, modèle freemium lancé. Objectif marché : trajectoire 5–10 % à 5 ans.</p>
+  <div class="footline">Feuille de route 2026-2027 · Septembre 2026</div><div class="pageno">5 / 8</div>
+</div>
+
+<!-- ══ PAGE 6 · GANTT ══ -->
+<div class="page">
+  <div class="brand"><div class="hex">M</div>MOTO Editor · Feuille de route</div>
+  <h2 class="sec" style="margin-top:5mm">5. Calendrier Gantt & jalons</h2>
+  <table class="gantt">
+    <tr><th style="width:34mm">Workstream</th><th>S26</th><th>O26</th><th>N26</th><th>D26</th><th>J27</th><th>F27</th><th>M27</th><th>A27</th><th>M27</th><th>J27</th></tr>
+    <tr><td class="lab">A · Stabilisation</td><td colspan="2" style="position:relative"><div class="bar" style="background:var(--h1c)"></div></td><td colspan="8"></td></tr>
+    <tr><td class="lab">B · MotoBridge / IA</td><td></td><td colspan="4" style="position:relative"><div class="bar" style="background:var(--h2c)"></div><div class="ms"></div><div class="mslab">M2</div></td><td colspan="5"></td></tr>
+    <tr><td class="lab">C · Éditeur profond</td><td colspan="2"></td><td colspan="6" style="position:relative"><div class="bar" style="background:var(--h2c);opacity:.75"></div></td><td colspan="2"></td></tr>
+    <tr><td class="lab">D · Plateforme & distri.</td><td colspan="4"></td><td colspan="5" style="position:relative"><div class="bar" style="background:var(--h3c)"></div></td><td></td></tr>
+    <tr><td class="lab">E · Croissance & collab</td><td colspan="7"></td><td colspan="3" style="position:relative"><div class="bar" style="background:var(--h3c);opacity:.75"></div><div class="ms"></div><div class="mslab">M3</div></td></tr>
+    <tr><td class="lab" style="color:var(--risk)">Jalons</td><td colspan="2" style="position:relative"><div class="ms"></div><div class="mslab">M1</div></td><td colspan="8"></td></tr>
+  </table>
+  <p class="txt muted" style="margin-top:3mm"><b>M1</b> fin oct. 2026 (stabilisation) · <b>M2</b> janv. 2027 (MotoBridge opérationnel) · <b>M3</b> juin 2027 (v1.0 publique). Les barres translucides sont des chantiers parallèles.</p>
+
+  <h2 class="sec">6. Priorisation — matrice impact / effort</h2>
+  <div class="matrix">
+    <div class="mcell m-q"><h5>QUICK WINS (fort impact, faible effort)</h5><p>Settings 100+ · persistance disposition · nettoyage warnings · explainability logs · changelog/commit agents.</p></div>
+    <div class="mcell m-p"><h5>PROJETS MAJEURS (fort impact, fort effort)</h5><p>MotoBridge/Tier 28 · barre de titre (session dédiée) · LSP Roslyn · CRDT collab · portage macOS/Linux.</p></div>
+    <div class="mcell m-f"><h5>COMPLÉMENTS (impact moyen)</h5><p>i18n · DAP debugger · marketplace d'agents · installateur winget · onboarding PedagogyEngine.</p></div>
+    <div class="mcell m-e"><h5>À ÉVITER POUR L'INSTANT</h5><p>Migration .NET/MAUI (risque connu) · SetBorderAndTitleBar · refonte UI globale · tout chantier non validé par revue croisée.</p></div>
+  </div>
+  <div class="footline">Feuille de route 2026-2027 · Septembre 2026</div><div class="pageno">6 / 8</div>
+</div>
+
+<!-- ══ PAGE 7 · RISQUES + KPIs ══ -->
+<div class="page">
+  <div class="brand"><div class="hex">M</div>MOTO Editor · Feuille de route</div>
+  <h2 class="sec" style="margin-top:5mm">7. Risques, KPIs & gouvernance</h2>
+  <table class="prio">
+    <tr><th style="width:30%">Risque</th><th style="width:12mm">Niveau</th><th>Parade</th></tr>
+    <tr><td>Instabilité stack MAUI/WinUI 3 (titlebar, régressions)</td><td><span class="chip" style="background:var(--risk)">Élevé</span></td><td>WASDK 1.8 épinglé ; chantiers isolés ; sondes avant correctif ; jamais de migration sous pression.</td></tr>
+    <tr><td>Équipe unique / concentration du savoir</td><td><span class="chip" style="background:var(--risk)">Élevé</span></td><td>QWEN.md / CLAUDE.md à jour ; docs auto (DocEngine) ; open source pour attirer contributeurs.</td></tr>
+    <tr><td>Domination VS Code / entrants financés</td><td><span class="chip" style="background:var(--amber)">Moyen</span></td><td>Stratégie de niche (privacy, accessibilité, légèreté) ; pas d'attaque frontale.</td></tr>
+    <tr><td>Périmètre qui dérive (100+ idées en backlog)</td><td><span class="chip" style="background:var(--amber)">Moyen</span></td><td>Doctrine « backend d'abord, UI mince » ; Go/No-Go à chaque jalon ; Idées à implémenter.txt hors scope courant.</td></tr>
+    <tr><td>Adoption entreprise lente</td><td><span class="chip" style="background:#2E7D32">Faible</span></td><td>Cibler d'abord indépendants & petites équipes ; freemium ; accessibilité comme argument B2B.</td></tr>
+  </table>
+
+  <h3 class="sub">KPIs de suivi (revue à chaque jalon)</h3>
+  <div class="kpirow">
+    <div class="kpi"><div class="v" style="color:var(--h1c)">&lt; 1 s</div><div class="l">DÉMARRAGE À FROID</div></div>
+    <div class="kpi"><div class="v" style="color:var(--h1c)">&lt; 300 Mo</div><div class="l">EMPREINTE MÉMOIRE</div></div>
+    <div class="kpi"><div class="v" style="color:var(--h2c)">100+</div><div class="l">PARAMÈTRES EXPOSÉS</div></div>
+    <div class="kpi"><div class="v" style="color:var(--h2c)">≥ 60 %</div><div class="l">COUVERTURE TESTS MOTO.CORE</div></div>
+  </div>
+  <div class="kpirow">
+    <div class="kpi"><div class="v" style="color:var(--h3c)">1</div><div class="l">FLUX XENO DÉMONTRABLE (M2)</div></div>
+    <div class="kpi"><div class="v" style="color:var(--h3c)">2+</div><div class="l">PLATEFORMES À M3</div></div>
+    <div class="kpi"><div class="v" style="color:var(--h3c)">0</div><div class="l">UI FACTICE LIVRÉE</div></div>
+    <div class="kpi"><div class="v" style="color:var(--h3c)">5-10 %</div><div class="l">PART DE MARCHÉ À 5 ANS</div></div>
+  </div>
+
+  <h3 class="sub">Gouvernance & règles d'or</h3>
+  <div class="grid2">
+    <div class="card"><h4>Processus</h4><ul>
+      <li>Revue croisée systématique avant commit (chantiers structurels)</li>
+      <li>Code complet, additif, compilable ; méthodes &lt; 40 lignes ; XML docs</li>
+      <li>1 ligne = 1 paramètre (SettingsCatalog) ; MotoTheme.xaml via DynamicResource</li>
+      <li>Namespaces Microsoft.UI.Xaml pour le natif Windows ; #if WINDOWS</li>
+    </ul></div>
+    <div class="card"><h4>Frontières d'architecture</h4><ul>
+      <li>MOTO Editor : édite/affiche/ouvre/sauvegarde/commandes</li>
+      <li>MOTO AI : assiste/prédit/route · XENO-SSS∞ : opérations structurées</li>
+      <li>Interdits : parsing profond, architecture projet, validation namespaces, invention de systèmes</li>
+      <li>Sécurité : jamais de clé/PAT en clair ; signatures Ed25519 ; sandbox LLM</li>
+    </ul></div>
+  </div>
+  <div class="footline">Feuille de route 2026-2027 · Septembre 2026</div><div class="pageno">7 / 8</div>
+</div>
+
+<!-- ══ PAGE 8 · CONCLUSION ══ -->
+<div class="page">
+  <div class="brand"><div class="hex">M</div>MOTO Editor · Feuille de route</div>
+  <h2 class="sec" style="margin-top:5mm">Conclusion</h2>
+  <p class="txt">Cette feuille de route traduit la doctrine en plan d'exécution : <b>stabiliser d'abord</b> (Horizon 1), <b>brancher le cerveau</b> (Horizon 2 : MotoBridge/XENO), puis <b>ouvrir la plateforme</b> (Horizon 3). Elle assume deux renoncements tactiques — pas de migration .NET/MAUI sous pression, pas d'attaque frontale de VS Code — au profit d'une stratégie de niche : <span class="accent">IDE minimaliste, puissant & accessible</span>.</p>
+  <p class="txt">Le rythme est volontairement jalonné (M1/M2/M3) avec Go/No-Go : chaque horizon ne démarre que si le précédent est démontré stable. C'est la condition pour qu'une équipe unique livre un produit vendable sans sacrifier la qualité.</p>
+  <div class="rec"><div class="n">1</div><div><b>Sept. – oct. 2026</b><p>Barre de titre en chantier dédié, persistance, 100+ paramètres, dette &lt; 50 warnings.</p></div></div>
+  <div class="rec"><div class="n">2</div><div><b>Oct. 2026 – janv. 2027</b><p>MotoBridge (Tier 28) opérationnel, IA locale renforcée, LSP Roslyn, PieceTable branché.</p></div></div>
+  <div class="rec"><div class="n">3</div><div><b>Janv. – juin 2027</b><p>Portage macOS/Linux, installateurs signés, CRDT + DAP, i18n, accessibilité, freemium → v1.0 publique.</p></div></div>
+  <p class="txt muted" style="margin-top:4mm">Prochaine action immédiate : lancer l'Horizon 1 (A1 barre de titre avec sondes GWL_STYLE + Live Visual Tree). Document maintenu à jour à chaque jalon.</p>
+  <div class="footline">Feuille de route 2026-2027 · Fin du document</div><div class="pageno">8 / 8</div>
+</div>
+
+</body>
+</html>

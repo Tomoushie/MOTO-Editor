@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MOTO Editor — Plan Marketing Solo & Zéro Budget (PDF)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/fontsource/css/inter@latest/index.css">
+<style>
+  :root{
+    --accent:#007ACC; --accent-dark:#005A9E; --ink:#181A1E; --muted:#5A6069;
+    --paper:#FFFFFF; --bg:#F7F8FA; --line:#D6D9DF; --green:#2E7D32; --amber:#B26A00; --risk:#C62828; --violet:#7C3AED;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  html,body{background:var(--bg);font-family:'Inter',system-ui,sans-serif;color:var(--ink);}
+  @page{size:A4;margin:0;}
+  .toolbar{position:fixed;top:14px;right:14px;z-index:99;}
+  .toolbar button{background:var(--accent);color:#fff;border:none;border-radius:8px;padding:10px 16px;font-weight:600;font-size:13px;cursor:pointer;box-shadow:0 4px 12px rgba(0,122,204,.35);}
+  .toolbar button:hover{background:var(--accent-dark);}
+  .page{width:210mm;min-height:296mm;background:var(--paper);margin:24px auto;padding:16mm 16mm 14mm;position:relative;box-shadow:0 8px 30px rgba(0,0,0,.12);overflow:hidden;page-break-after:always;}
+  @media print{ .toolbar{display:none;} body{background:#fff;} .page{margin:0;box-shadow:none;width:210mm;height:296mm;min-height:0;} }
+
+  .brand{display:flex;align-items:center;gap:8px;font-weight:700;font-size:11px;letter-spacing:.12em;color:var(--accent);text-transform:uppercase;}
+  .brand .hex{width:22px;height:22px;background:var(--accent);color:#fff;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;}
+  .pageno{position:absolute;bottom:8mm;right:16mm;font-size:9px;color:var(--muted);}
+  .footline{position:absolute;bottom:8mm;left:16mm;font-size:9px;color:var(--muted);}
+
+  .cover{height:100%;display:flex;flex-direction:column;justify-content:space-between;background:linear-gradient(160deg,#0d1418 0%,#111214 55%,#0a2233 100%);color:#E8EAED;margin:-16mm;padding:20mm 16mm;}
+  .cover .tag{display:inline-block;border:1px solid rgba(0,122,204,.6);color:#7cc4ff;border-radius:999px;padding:5px 14px;font-size:10px;letter-spacing:.15em;text-transform:uppercase;}
+  .cover h1{font-size:36px;line-height:1.15;font-weight:800;margin:18px 0 10px;}
+  .cover h1 span{color:#4da3ff;}
+  .cover p{color:#9AA0A6;font-size:13px;max-width:125mm;line-height:1.6;}
+  .cover .big-hex{width:64px;height:64px;background:var(--accent);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:800;color:#fff;box-shadow:0 10px 40px rgba(0,122,204,.5);}
+  .cover .meta{display:flex;gap:22px;font-size:10px;color:#9AA0A6;}
+  .cover .meta b{color:#E8EAED;display:block;font-size:12px;}
+
+  h2.sec{font-size:18px;color:var(--accent-dark);border-left:4px solid var(--accent);padding-left:10px;margin:5mm 0 4mm;}
+  h3.sub{font-size:12px;margin:4mm 0 2mm;color:var(--ink);}
+  p.txt{font-size:10.2px;line-height:1.6;color:#33383F;margin-bottom:3mm;}
+  .muted{color:var(--muted);} .accent{color:var(--accent);font-weight:600;}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:4mm;}
+  .grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:3.5mm;}
+  .card{border:1px solid var(--line);border-radius:10px;padding:3.5mm 4mm;background:#FBFCFE;}
+  .card h4{font-size:11px;margin-bottom:2mm;}
+  .card ul{list-style:none;} .card li{font-size:9.2px;line-height:1.5;margin-bottom:1.4mm;padding-left:12px;position:relative;}
+  .card li::before{content:"";position:absolute;left:0;top:4.5px;width:5px;height:5px;border-radius:50%;background:var(--accent);opacity:.7;}
+  .chip{display:inline-block;border-radius:999px;padding:1px 8px;font-size:8.3px;font-weight:700;color:#fff;}
+  .kpirow{display:grid;grid-template-columns:repeat(4,1fr);gap:3mm;margin:3mm 0;}
+  .kpi{border:1px solid var(--line);border-radius:10px;padding:3mm;text-align:center;background:#FBFCFE;}
+  .kpi .v{font-size:15px;font-weight:800;} .kpi .l{font-size:8px;color:var(--muted);margin-top:1mm;}
+  table.mk{width:100%;border-collapse:collapse;font-size:9.2px;margin-top:2mm;}
+  table.mk th{background:#111214;color:#E8EAED;text-align:left;padding:2mm 2.5mm;font-size:8.8px;}
+  table.mk td{border-bottom:1px solid var(--line);padding:1.9mm 2.5mm;vertical-align:top;line-height:1.5;}
+  table.mk tr:nth-child(even) td{background:#F2F5F8;}
+  table.mk td.num{text-align:right;font-variant-numeric:tabular-nums;font-weight:600;}
+  table.mk tr.tot td{background:#EAF4FB;font-weight:800;border-top:2px solid var(--accent);}
+  .toc li{font-size:11px;margin-bottom:2.5mm;list-style:none;display:flex;justify-content:space-between;border-bottom:1px dotted var(--line);padding-bottom:1.5mm;}
+  .rec{display:flex;gap:3mm;align-items:flex-start;margin-bottom:2.6mm;}
+  .rec .n{flex:0 0 8mm;height:8mm;border-radius:8px;background:var(--accent);color:#fff;font-weight:800;display:flex;align-items:center;justify-content:center;font-size:12px;}
+  .rec b{font-size:10.6px;} .rec p{font-size:9.6px;color:#33383F;line-height:1.5;margin-top:1mm;}
+  .quote{border-left:4px solid var(--violet);background:#F3EEFC;border-radius:0 10px 10px 0;padding:3mm 4mm;font-size:10.5px;font-style:italic;color:#3b2a63;margin:3mm 0;}
+</style>
+</head>
+<body>
+
+<div class="toolbar"><button onclick="window.print()">⬇ Télécharger en PDF</button></div>
+
+<!-- ══ P1 · COUVERTURE ══ -->
+<div class="page"><div class="cover">
+  <div>
+    <div class="big-hex">M</div>
+    <div style="height:8mm"></div>
+    <span class="tag">Plan marketing bootstrap · v1.0</span>
+    <h1>Plan Marketing<br><span>MOTO Editor</span><br>Solo · zéro budget · sans entreprise</h1>
+    <p>Comment faire connaître un IDE construit par un fondateur qui ne sait pas coder, sans budget ni structure juridique : en transformant chaque contrainte en angle marketing. L'histoire est le budget.</p>
+  </div>
+  <div class="meta">
+    <div><b>Septembre 2026</b>Horizon : lancement v1.0 (T2 2027)</div>
+    <div><b>Budget</b>0–50 €/mois</div>
+    <div><b>Équipe</b>1 fondateur + 3 IA</div>
+    <div><b>Statut</b>Pré-création d'entreprise</div>
+  </div>
+</div></div>
+
+<!-- ══ P2 · SYNTHÈSE + ATOUTS ══ -->
+<div class="page">
+  <div class="brand"><div class="hex">M</div>MOTO Editor · Plan marketing</div>
+  <h2 class="sec" style="margin-top:5mm">Sommaire</h2>
+  <ul class="toc">
+    <li><span>1. Synthèse & contraintes transformées en atouts</span><span class="muted">p. 2</span></li>
+    <li><span>2. Audiences, message central & storytelling</span><span class="muted">p. 3</span></li>
+    <li><span>3. Piliers de contenu & formats</span><span class="muted">p. 4</span></li>
+    <li><span>4. Canaux & outils 100 % gratuits</span><span class="muted">p. 5</span></li>
+    <li><span>5. Calendrier 12 mois (pré-lancement → lancement)</span><span class="muted">p. 6</span></li>
+    <li><span>6. Entonnoir & budget minimal</span><span class="muted">p. 7</span></li>
+    <li><span>7. KPIs, risques & cadre légal</span><span class="muted">p. 8</span></li>
+    <li><span>8. Les 30 premiers jours, pas à pas</span><span class="muted">p. 9</span></li>
+  </ul>
+
+  <h2 class="sec">1. Synthèse & contraintes transformées en atouts</h2>
+  <p class="txt">Un plan marketing classique (pub, influence, salons) est impossible ici. La stratégie retenue est l'<b>inbound organique</b> : attirer par le contenu et l'histoire, sans payer. Le principe : <span class="accent">construire l'audience avant le produit fini</span>, pour que le jour du lancement, il y ait déjà des gens qui attendent.</p>
+  <table class="mk">
+    <tr><th style="width:44mm">Contrainte</th><th style="width:60mm">Angle marketing qui en sort</th><th>Pourquoi ça marche</th></tr>
+    <tr><td>« Je ne sais pas coder »</td><td>« Un non-développeur construit un vrai IDE avec 3 IA »</td><td>Histoire rare, inspirante, viralité grand public (pas seulement les devs).</td></tr>
+    <tr><td>Zéro budget</td><td>Build in public 100 % organique, transparence totale</td><td>La transparence crée la confiance que la publicité ne peut pas acheter.</td></tr>
+    <tr><td>Pas d'entreprise créée</td><td>Communiquer librement dès maintenant ; créer la micro-entreprise au 1ᵉ euro encaissé</td><td>En France, communiquer/teaser est légal avant création ; la micro-entreprise se crée en ligne, gratuitement, en ~15 min.</td></tr>
+    <tr><td>Solo, temps limité</td><td>1 rythme soutenable : 3 contenus/semaine, tous préparés avec les IA</td><td>La régularité bat l'intensité ; les IA rédigent/montent, le fondateur valide et publie.</td></tr>
+    <tr><td>Produit pas fini</td><td>Le chantier EST le contenu (bugs inclus, ex. barre bleue)</td><td>12 mois de récit = 12 mois d'avance sur un lancement silencieux.</td></tr>
+  </table>
+  <div class="quote">Message d'origine (à décliner partout) : « Je ne sais pas coder. Dans 12 mois, je publie mon propre éditeur de code, construit avec trois IA, 100 % local et gratuit. Suivez le chantier, semaine après semaine. »</div>
+  <div class="footline">Plan marketing bootstrap · Septembre 2026</div><div class="pageno">2 / 9</div>
+</div>
+
+<!-- ══ P3 · AUDIENCES + STORYTELLING ══ -->
+<div class="page">
+  <div class="brand"><div class="hex">M</div>MOTO Editor · Plan marketing</div>
+  <h2 class="sec" style="margin-top:5mm">2. Audiences, message central & storytelling</h2>
+  <h3 class="sub">2.1 Trois cercles d'audience (du plus large au plus acheteur)</h3>
+  <table class="mk">
+    <tr><th style="width:34mm">Cercle</th><th>Qui</th><th style="width:44mm">Ce qui les accroche</th><th style="width:30mm">Objectif</th></tr>
+    <tr><td><b>1. Grand public</b></td><td>Curieux d'IA, TikTok/X/YouTube</td><td>« Un humain + 3 IA construisent un logiciel »</td><td>Visibilité, viralité</td></tr>
+    <tr><td><b>2. Makers / no-code</b></td><td>Indés, side-projecteurs, non-développeurs</td><td>« Si lui peut, moi aussi » ; méthodes IA</td><td>Abonnés, newsletter</td></tr>
+    <tr><td><b>3. Développeurs</b></td><td>Devs frustrés de VS Code, privacy-first</td><td>Le produit lui-même : local, léger, 100+ réglages</td><td>Stars GitHub, bêta, Pro</td></tr>
+  </table>
+  <p class="txt muted">Les cercles 1 et 2 apportent le bruit ; le cercle 3 apporte les utilisateurs et les abonnés payants. On parle à chacun dans sa langue, jamais l'inverse.</p>
+  <h3 class="sub">2.2 L'arc narratif en 3 actes (colonne vertébrale de l'année)</h3>
+  <div class="grid3">
+    <div class="card"><h4>Acte 1 — L'origine (sept.–déc. 2026)</h4><ul>
+      <li>« Pourquoi je veux mon propre IDE. »</li>
+      <li>« Je ne sais pas coder : le plan. »</li>
+      <li>Présentation des 3 IA (rôles, règles).</li>
+      <li>Premiers échecs montrés tels quels.</li>
+    </ul></div>
+    <div class="card"><h4>Acte 2 — Le chantier (janv.–mai 2027)</h4><ul>
+      <li>Combats réels : barre bleue, bugs MAUI, MSIX.</li>
+      <li>« Une semaine = une victoire + une galère. »</li>
+      <li>Démos courtes de ce qui marche.</li>
+      <li>Choix expliqués simplement (local-first, privacy).</li>
+    </ul></div>
+    <div class="card"><h4>Acte 3 — Le lancement (juin 2027)</h4><ul>
+      <li>« Il est là. Gratuit. Local. »</li>
+      <li>Démo 90 s, comparatifs honnêtes.</li>
+      <li>Remerciements publics à la communauté.</li>
+      <li>Cap sur la v1.1 (roadmap publique).</li>
+    </ul></div>
+  </div>
+  <h3 class="sub">2.3 Règles de message (cohérentes avec la charte éditoriale)</h3>
+  <div class="grid2">
+    <div class="card"><h4>Toujours</h4><ul>
+      <li>Honnêteté : montrer les échecs (la barre bleue = contenu, pas une honte).</li>
+      <li>Un chiffre = une mesure ; une promesse = un ticket public.</li>
+      <li>Parler bénéfice utilisateur, pas technologie (« votre code reste chez vous »).</li>
+    </ul></div>
+    <div class="card"><h4>Jamais</h4><ul>
+      <li>Promettre une date ferme (« visé : printemps 2027 »).</li>
+      <li>Se vendre comme « développeur expert » (l'anti-histoire casserait la confiance).</li>
+      <li>Dénigrer VS Code/Zed/Cursor ; comparaisons factuelles seulement.</li>
+    </ul></div>
+  </div>
+  <div class="footline">Plan marketing bootstrap · Septembre 2026</div><div class="pageno">3 / 9</div>
+</div>
+
+<!-- ══ P4 · PILIERS + FORMATS ══ -->
+<div class="page">
+  <div class="brand"><div class="hex">M</div>MOTO Editor · Plan marketing</div>
+  <h2 class="sec" style="margin-top:5mm">3. Piliers de contenu & formats</h2>
+  <table class="mk">
+    <tr><th style="width:36mm">Pilier</th><th>Contenu type</th><th style="width:26mm">Fréquence</th><th style="width:30mm">Cercle visé</th></tr>
+    <tr><td><b>Build in public</b></td><td>Métriques hebdo (abonnés, étoiles, galères), captures d'écran du chantier</td><td>1 × / semaine</td><td>1 + 2</td></tr>
+    <tr><td><b>Récit non-développeur</b></td><td>« Ce que j'ai appris cette semaine », erreurs expliquées simplement</td><td>1 × / 2 semaines</td><td>1 + 2</td></tr>
+    <tr><td><b>Pédagogie IA</b></td><td>Comment orchestrer 3 IA sur un vrai projet (règles, relectures, échecs)</td><td>1 × / 2 semaines</td><td>2 + 3</td></tr>
+    <tr><td><b>Démos produit</b></td><td>Vidéos 60–90 s : terminal, docks, IA locale, 100+ réglages</td><td>1 × / mois</td><td>3</td></tr>
+    <tr><td><b>Plaidoyer local-first</b></td><td>« Pourquoi votre code ne devrait pas quitter votre machine » (vulgarisation)</td><td>1 × / mois</td><td>2 + 3</td></tr>
+  </table>
+  <h3 class="sub">Formats par plateforme (règle : 1 enregistrement → 4 contenus)</h3>
+  <div class="grid2">
+    <div class="card"><h4>Vidéo (1 session écran / semaine)</h4><ul>
+      <li>TikTok / Shorts / Reels : extrait 30–60 s (grand public).</li>
+      <li>YouTube : version longue 3–5 min (démo/devlog).</li>
+      <li>X : clip 20 s + thread texte.</li>
+      <li>Newsletter : résumé écrit + lien vidéo.</li>
+    </ul></div>
+    <div class="card"><h4>Texte (1 idée / semaine)</h4><ul>
+      <li>X : thread « semaine N du chantier ».</li>
+      <li>Dev.to : article SEO mensuel (rédigé avec IA, relu, vécu).</li>
+      <li>LinkedIn : version « parcours fondateur » (1 × / mois).</li>
+      <li>GitHub : release notes + README à jour (crédibilité dev).</li>
+    </ul></div>
+  </div>
+  <h3 class="sub">Méthode de production (2 h / semaine, tout compris)</h3>
+  <table class="mk">
+    <tr><th style="width:20mm">Étape</th><th>Qui fait quoi</th><th style="width:30mm">Outil gratuit</th></tr>
+    <tr><td>Capturer</td><td>Le fondateur enregistre l'écran en travaillant (pas de session dédiée)</td><td>OBS Studio</td></tr>
+    <tr><td>Monter</td><td>Découpe auto + sous-titres ; le fondateur valide</td><td>CapCut (auto-subtitles)</td></tr>
+    <tr><td>Rédiger</td><td>Brouillon par l'IA à partir des notes ; le fondateur raconte le vécu</td><td>Qwen / Claude / Copilot</td></tr>
+    <tr><td>Habiller</td><td>Vignettes & visuels charte MOTO (#111214 / #007ACC)</td><td>Canva (gratuit)</td></tr>
+    <tr><td>Planifier</td><td>Calendrier de contenus + publication différée</td><td>Notion + planificateurs natifs</td></tr>
+  </table>
+  <div class="footline">Plan marketing bootstrap · Septembre 2026</div><div class="pageno">4 / 9</div>
+</div>
+
+<!-- ══ P5 · CANAUX + OUTILS ══ -->
+<div class="page">
+  <div class="brand"><div class="hex">M</div>MOTO Editor · Plan marketing</div>
+  <h2 class="sec" style="margin-top:5mm">4. Canaux & outils 100 % gratuits</h2>
+  <table class="mk">
+    <tr><th style="width:30mm">Canal</th><th>Rôle dans l'entonnoir</th><th style="width:30mm">Cadence réaliste</th><th style="width:26mm">Coût</th></tr>
+    <tr><td>TikTok / Shorts / Reels</td><td>Découverte grand public (viralité)</td><td>1 vidéo courte / semaine</td><td>0 €</td></tr>
+    <tr><td>X (Twitter)</td><td>Build in public, threads, communauté dev/makers</td><td>3 posts + 1 thread / sem.</td><td>0 €</td></tr>
+    <tr><td>YouTube</td><td>Crédibilité + démos longues (référencement durable)</td><td>1 vidéo / mois</td><td>0 €</td></tr>
+    <tr><td>GitHub</td><td>Vitrine technique : étoiles = preuve sociale</td><td>Releases + README à jour</td><td>0 €</td></tr>
+    <tr><td>Newsletter</td><td><b>Actif n°1</b> : audience possédée, conversion au lancement</td><td>1 e-mail / 2 semaines</td><td>0 € (Beehiiv ≤ 2 500 ab.)</td></tr>
+    <tr><td>Reddit</td><td>Trafic qualifié (r/SideProject, r/nocode, r/ChatGPT, r/vscode avec parcimonie)</td><td>1 post / 2 semaines</td><td>0 €</td></tr>
+    <tr><td>Dev.to / Hashnode</td><td>SEO long terme, crédibilité</td><td>1 article / mois</td><td>0 €</td></tr>
+    <tr><td>LinkedIn</td><td>Audience pro / journalistes / futurs partenaires</td><td>1 post / mois</td><td>0 €</td></tr>
+    <tr><td>Discord</td><td>Communauté (ouvert à ~100 abonnés, pas avant)</td><td>Animation 20 min / jour</td><td>0 €</td></tr>
+    <tr><td>Product Hunt / HN</td><td>Pics de lancement (une seule fois chacun)</td><td>Jour J (juin 2027)</td><td>0 €</td></tr>
+  </table>
+  <h3 class="sub">Stack d'outils gratuits (zéro carte bancaire)</h3>
+  <div class="grid3">
+    <div class="card"><h4>Création</h4><ul><li>OBS (capture) · CapCut (montage)</li><li>Canva (visuels charte)</li><li>Notion (calendrier éditorial)</li></ul></div>
+    <div class="card"><h4>Capture d'audience</h4><ul><li>Beehiiv/Buttondown (newsletter)</li><li>GitHub Pages (landing + waitlist)</li><li>Formulaire simple (e-mail only)</li></ul></div>
+    <div class="card"><h4>Mesure</h4><ul><li>GoatCounter (stats site, gratuit)</li><li>Stats natives des plateformes</li><li>1 tableau Notion, 10 min / semaine</li></ul></div>
+  </div>
+  <p class="txt muted">Règle d'or : <b>ne jamais louer une audience qu'on ne possède pas</b>. Chaque canal doit renvoyer vers la newsletter ou GitHub — les deux seuls actifs qui survivent aux algorithmes.</p>
+  <div class="footline">Plan marketing bootstrap · Septembre 2026</div><div class="pageno">5 / 9</div>
+</div>
+
+<!-- ══ P6 · CALENDRIER 12 MOIS ══ -->
+<div class="page">
+  <div class="brand"><div class="hex">M</div>MOTO Editor · Plan marketing</div>
+  <h2 class="sec" style="margin-top:5mm">5. Calendrier 12 mois — pré-lancement → lancement</h2>
+  <table class="mk">
+    <tr><th style="width:30mm">Phase</th><th>Actions clés</th><th style="width:42mm">Objectifs chiffrés (cumul)</th></tr>
+    <tr><td><b>P0 · Fondations</b><br>sept.–déc. 2026</td><td>Comptes + bios cohérents ; landing GitHub Pages avec capture e-mail ; 1ᵉʳ post « je ne sais pas coder » ; rythme 3 contenus/sem. ; repo public ouvert (étoiles) ; 4 articles « origine ».</td><td>500 abonnés tous canaux · 100 inscrits newsletter · 100 étoiles GitHub</td></tr>
+    <tr><td><b>P1 · Accélération</b><br>janv.–mars 2027</td><td>1 vidéo courte/sem. ; 1ᵉʳ thread technique IA ; ouverture Discord à 100 abonnés ; démo « 3 IA qui codent » ; premiers lives « chantier » (30 min, mensuels).</td><td>2 000 abonnés · 500 newsletter · 300 étoiles · 50 Discord</td></tr>
+    <tr><td><b>P2 · Pré-lancement</b><br>avr.–mai 2027</td><td>Page waitlist (« accès anticipé bêta ») ; 50 bêta-testeurs recrutés dans la newsletter ; kit presse (logo, captures, fiche 1 page) ; slot Product Hunt réservé ; compte à rebours contenu « J-30 / J-7 ».</td><td>1 000 waitlist · 50 bêta actifs · 500 étoiles</td></tr>
+    <tr><td><b>P3 · Lancement</b><br>juin 2027</td><td>Jour J : Product Hunt + Show HN + Reddit + vidéo 90 s + e-mail waitlist ; réponses à tous les commentaires &lt; 24 h ; post « merci + chiffres » à J+7.</td><td>5 000 téléchargements mois 1 · 50 abonnés Pro · 1 000 newsletter</td></tr>
+    <tr><td><b>P4 · Post-lancement</b><br>juil.–sept. 2027</td><td>Histoires utilisateurs ; comparatifs honnêtes ; itérations produit visibles ; préparation v1.1 publique ; premiers partenariats (newsletters IA/dev, petites chaînes YouTube).</td><td>12 000 actifs · 300 Pro (fin d'année)</td></tr>
+  </table>
+  <h3 class="sub">Rythme hebdomadaire type (2–3 h de marketing / semaine)</h3>
+  <div class="grid2">
+    <div class="card"><h4>Lundi (30 min)</h4><ul><li>Choisir l'idée de la semaine dans les notes du chantier.</li><li>Planifier les 3 posts + 1 e-mail (brouillons IA, relecture humaine).</li></ul></div>
+    <div class="card"><h4>En continu</h4><ul><li>Capturer l'écran en travaillant (OBS).</li><li>Vendredi : publier la vidéo courte + le thread métriques.</li><li>10 min/jour : répondre aux commentaires (priorité absolue).</li></ul></div>
+  </div>
+  <div class="footline">Plan marketing bootstrap · Septembre 2026</div><div class="pageno">6 / 9</div>
+</div>
+
+<!-- ══ P7 · ENTONNOIR + BUDGET ══ -->
+<div class="page">
+  <div class="brand"><div class="hex">M</div>MOTO Editor · Plan marketing</div>
+  <h2 class="sec" style="margin-top:5mm">6. Entonnoir & budget minimal</h2>
+  <h3 class="sub">6.1 L'entonnoir (du viral au payant)</h3>
+  <table class="mk">
+    <tr><th>Étape</th><th>Volume an 1 (objectif)</th><th>Taux</th><th>Sortie</th></tr>
+    <tr><td>Impressions organiques (tous canaux)</td><td class="num">500 000</td><td>—</td><td>—</td></tr>
+    <tr><td>Visites profil / landing</td><td class="num">25 000</td><td class="num">5 %</td><td>—</td></tr>
+    <tr><td>Inscriptions (newsletter / waitlist / star)</td><td class="num">2 500</td><td class="num">10 %</td><td>Audience possédée</td></tr>
+    <tr><td>Téléchargements au lancement</td><td class="num">5 000</td><td class="num">—</td><td>Produit</td></tr>
+    <tr><td>Abonnés Pro (10 €/mois)</td><td class="num">50 → 300</td><td class="num">1–2,5 %</td><td class="num">600 → 3 600 € MRR</td></tr>
+  </table>
+  <h3 class="sub">6.2 Budget marketing an 1 : 0 à 600 €</h3>
+  <table class="mk">
+    <tr><th style="width:52mm">Poste</th><th>Détail</th><th style="width:24mm">Montant an 1</th></tr>
+    <tr><td>Contenu organique (95 % du plan)</td><td>Temps du fondateur + IA déjà abonné</td><td class="num">0 €</td></tr>
+    <tr><td>Nom de domaine</td><td>moto-editor.dev (~15 €/an)</td><td class="num">15 €</td></tr>
+    <tr><td>Boosts opportunistes</td><td>2–3 posts très performants amplifiés (20 €/coup, optionnel)</td><td class="num">0–60 €</td></tr>
+    <tr><td>Visuels pro ponctuels</td><td>Kit presse / bannières (Canva Pro 1–2 mois, optionnel)</td><td class="num">0–25 €</td></tr>
+    <tr><td>Imprévus</td><td>Marge</td><td class="num">50 €</td></tr>
+    <tr class="tot"><td>Total marketing an 1</td><td class="num">65 – 150 €</td></tr>
+  </table>
+  <p class="txt muted">Principe : <b>on n'achète jamais de trafic tant que l'organique n'a pas prouvé</b>. Le seul achat justifié = amplifier un contenu qui performe déjà seul (effet de levier, pas de pari).</p>
+  <h3 class="sub">6.3 Ce que le marketing ne doit PAS coûter</h3>
+  <div class="grid2">
+    <div class="card"><h4>À éviter absolument</h4><ul>
+      <li>Achat de followers / de listes d'e-mails (mort de crédibilité).</li>
+      <li>Influenceurs payants avant le lancement (ROI incontrôlable).</li>
+      <li>Publicité Meta/Google en phase pré-lancement (brûle du cash sans produit).</li>
+      <li>Salons / goodies / swag avant 1 000 utilisateurs.</li>
+    </ul></div>
+    <div class="card"><h4>Investissements « gratuits en temps »</h4><ul>
+      <li>Répondre à chaque commentaire (fidélisation).</li>
+      <li>Citer et remercier publiquement contributeurs & bêta-testeurs.</li>
+      <li>Documenter les échecs (contenu + confiance).</li>
+    </ul></div>
+  </div>
+  <div class="footline">Plan marketing bootstrap · Septembre 2026</div><div class="pageno">7 / 9</div>
+</div>
+
+<!-- ══ P8 · KPIs + RISQUES + LÉGAL ══ -->
+<div class="page">
+  <div class="brand"><div class="hex">M</div>MOTO Editor · Plan marketing</div>
+  <h2 class="sec" style="margin-top:5mm">7. KPIs, risques & cadre légal</h2>
+  <h3 class="sub">7.1 Tableau de bord (10 min / semaine, un seul tableau Notion)</h3>
+  <table class="mk">
+    <tr><th>KPI</th><th>P0 (déc. 26)</th><th>P1 (mars 27)</th><th>P2 (mai 27)</th><th>P3 (juil. 27)</th></tr>
+    <tr><td>Abonnés cumulés (tous canaux)</td><td class="num">500</td><td class="num">2 000</td><td class="num">3 500</td><td class="num">6 000+</td></tr>
+    <tr><td>Inscrits newsletter / waitlist</td><td class="num">100</td><td class="num">500</td><td class="num">1 000</td><td class="num">1 500+</td></tr>
+    <tr><td>Étoiles GitHub</td><td class="num">100</td><td class="num">300</td><td class="num">500</td><td class="num">1 000+</td></tr>
+    <tr><td>Téléchargements</td><td class="num">—</td><td class="num">—</td><td class="num">bêta 50</td><td class="num">5 000 (mois 1)</td></tr>
+    <tr><td>Abonnés Pro</td><td class="num">—</td><td class="num">—</td><td class="num">—</td><td class="num">50</td></tr>
+  </table>
+  <h3 class="sub">7.2 Risques marketing & parades</h3>
+  <table class="mk">
+    <tr><th style="width:46mm">Risque</th><th style="width:14mm">Niveau</th><th>Parade</th></tr>
+    <tr><td>Croissance lente → découragement</td><td><span class="chip" style="background:var(--risk)">Élevé</span></td><td>Objectifs modestes affichés ; juger la tendance trimestrielle, jamais la semaine ; le récit « lent mais honnête » est lui-même du contenu.</td></tr>
+    <tr><td>Retard produit vs attentes créées</td><td><span class="chip" style="background:var(--amber)">Moyen</span></td><td>Jamais de date ferme ; « visé T2 2027 » ; chaque retard annoncé = un contenu transparent.</td></tr>
+    <tr><td>Critiques « l'IA vole les devs » / « pas un vrai dev »</td><td><span class="chip" style="background:var(--amber)">Moyen</span></td><td>Assumer l'angle (c'est la marque) ; répondre une fois, factuellement, puis ignorer ; charte éditoriale comme bouclier.</td></tr>
+    <tr><td>Dépendance aux algorithmes</td><td><span class="chip" style="background:var(--amber)">Moyen</span></td><td>Tout renvoyer vers newsletter + GitHub (audience possédée).</td></tr>
+    <tr><td>Surcharge (produit + marketing solo)</td><td><span class="chip" style="background:var(--amber)">Moyen</span></td><td>Plafond : 3 h de marketing / semaine ; en dessous de 2 contenus/sem., réduire le format, pas la fréquence.</td></tr>
+  </table>
+  <h3 class="sub">7.3 Cadre légal (France, pré-création)</h3>
+  <div class="card"><ul>
+    <li><b>Communiquer avant création</b> : légal (teasing, contenu, waitlist). On ne vend rien avant la structure.</li>
+    <li><b>Encaisser le 1ᵉʳ euro</b> : créer la micro-entreprise (gratuit, en ligne, ~15 min) avant la première vente Pro ; cotisations ≈ 21 % du CA encaissé ; franchise de TVA sous les seuils.</li>
+    <li><b>Dons</b> : GitHub Sponsors/Ko-fi possibles dès P1, mais déclarés dès le 1ᵉʳ euro (même logique).</li>
+    <li><b>RGPD</b> : newsletter = double opt-in + lien de désinscription ; le produit reste 100 % local (argument marketing en soi).</li>
+    <li><b>Propriété</b> : déposer la marque (INPI) uniquement si le CA le justifie (an 2) ; en attendant, copyright + antériorité publique (les posts datés font preuve).</li>
+  </ul></div>
+  <div class="footline">Plan marketing bootstrap · Septembre 2026</div><div class="pageno">8 / 9</div>
+</div>
+
+<!-- ══ P9 · 30 JOURS + CONCLUSION ══ -->
+<div class="page">
+  <div class="brand"><div class="hex">M</div>MOTO Editor · Plan marketing</div>
+  <h2 class="sec" style="margin-top:5mm">8. Les 30 premiers jours, pas à pas</h2>
+  <div class="rec"><div class="n">1</div><div><b>Jours 1–3 · Fondations (2 h)</b><p>Créer les comptes X, TikTok, YouTube, GitHub (profil projet) avec la même identité visuelle (hexagone M, bio unique : « Je ne sais pas coder. Je construis un IDE avec 3 IA. 100 % local. »). Créer la newsletter Beehiiv.</p></div></div>
+  <div class="rec"><div class="n">2</div><div><b>Jours 4–7 · Landing + premier post (2 h)</b><p>Page GitHub Pages une section : promesse + capture + formulaire e-mail. Post n°1 (texte + photo écran) : l'annonce du défi 12 mois. Épingler partout.</p></div></div>
+  <div class="rec"><div class="n">3</div><div><b>Jours 8–14 · Rythme (2 h)</b><p>3 posts (1 avancement, 1 galère honnête, 1 pédagogie IA) + 1 vidéo courte 30 s (« l'IA écrit, je valide »). Répondre à 100 % des commentaires.</p></div></div>
+  <div class="rec"><div class="n">4</div><div><b>Jours 15–21 · Premier thread (2 h)</b><p>Thread « Semaine 2 : ce que 3 IA ont cassé (et réparé) » avec captures réelles du chantier. Lien newsletter en fin de thread.</p></div></div>
+  <div class="rec"><div class="n">5</div><div><b>Jours 22–30 · Bilan (1 h)</b><p>Post métriques J-30 (abonnés, inscrits, étoiles — même petits). Remplir le tableau de bord. Ajuster : garder le format qui a le mieux marché, abandonner le pire.</p></div></div>
+
+  <h3 class="sub">Conclusion</h3>
+  <p class="txt">Ce plan n'achète rien : il <b>raconte</b>. Pour un fondateur solo sans compétences en code, sans budget et sans entreprise, le marketing n'est pas une dépense — c'est le chantier lui-même, rendu public. L'angle « un non-développeur construit un vrai IDE avec trois IA » est plus puissant que n'importe quel budget publicitaire, à une condition : la régularité (3 contenus/semaine) et l'honnêteté (échecs inclus). En 12 mois, ce plan vise 1 000+ inscrits newsletter et 5 000 téléchargements au lancement — une base suffisante pour financer la micro-entreprise dès les premiers abonnés Pro, sans jamais risquer plus de ~150 €.</p>
+  <p class="txt muted">Prochaine action : jour 1 du plan (création des comptes + bio unique). Tout le reste découle du rythme hebdomadaire.</p>
+  <div class="footline">Plan marketing bootstrap · Fin du document</div><div class="pageno">9 / 9</div>
+</div>
+
+</body>
+</html>

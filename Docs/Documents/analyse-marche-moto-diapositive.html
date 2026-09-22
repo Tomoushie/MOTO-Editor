@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MOTO Editor — Analyse de Marché (Diaporama)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/reveal.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/theme/black.css">
+<style>
+  :root{
+    --moto-bg:#111214; --moto-surface:#1B1C1F; --moto-accent:#007ACC;
+    --moto-text:#E8EAED; --moto-border:#33353A; --moto-muted:#9AA0A6;
+    --moto-green:#3FB950; --moto-red:#F85149; --moto-amber:#D29922;
+  }
+  .reveal{ font-family:"Segoe UI",system-ui,-apple-system,sans-serif; }
+  .reveal .slides{ text-align:left; }
+  .reveal .slides section.center-slide{ text-align:center; }
+  .reveal h1,.reveal h2,.reveal h3{ color:var(--moto-text); text-transform:none; letter-spacing:0; }
+  .reveal h1{ font-size:2.2em; } .reveal h2{ font-size:1.5em; color:var(--moto-accent); border-bottom:2px solid var(--moto-accent); padding-bottom:.3em; }
+  .reveal h3{ font-size:1.1em; color:var(--moto-accent); }
+  .reveal p,.reveal li{ color:var(--moto-text); font-size:.72em; line-height:1.5; }
+  .reveal ul{ list-style:none; margin-left:0; }
+  .reveal ul li{ margin-bottom:.5em; padding-left:1.2em; position:relative; }
+  .reveal ul li::before{ content:"▸"; color:var(--moto-accent); position:absolute; left:0; }
+  .reveal .muted{ color:var(--moto-muted); }
+  .reveal .accent{ color:var(--moto-accent); font-weight:600; }
+  .reveal section.divider{ text-align:center; }
+  .reveal section.divider h2{ border:none; font-size:2em; color:var(--moto-accent); }
+  .card{ background:var(--moto-surface); border:1px solid var(--moto-border); border-radius:10px; padding:.6em .9em; margin-bottom:.6em; }
+  .grid2{ display:grid; grid-template-columns:1fr 1fr; gap:.8em; }
+  .grid4{ display:grid; grid-template-columns:1fr 1fr; gap:.6em; }
+  .kpi{ text-align:center; background:var(--moto-surface); border:1px solid var(--moto-border); border-radius:10px; padding:.8em; }
+  .kpi .num{ font-size:1.6em; font-weight:700; color:var(--moto-accent); }
+  .kpi .lbl{ font-size:.6em; color:var(--moto-muted); }
+  .bar-row{ display:flex; align-items:center; margin-bottom:.45em; font-size:.62em; }
+  .bar-row .name{ width:7.5em; color:var(--moto-text); }
+  .bar-row .track{ flex:1; background:var(--moto-surface); border-radius:4px; height:1.1em; overflow:hidden; }
+  .bar-row .fill{ height:100%; background:linear-gradient(90deg,var(--moto-accent),#4da3ff); border-radius:4px; }
+  .bar-row .val{ width:3.5em; text-align:right; color:var(--moto-muted); }
+  table.moto{ width:100%; border-collapse:collapse; font-size:.5em; }
+  table.moto th{ background:var(--moto-accent); color:#fff; padding:.4em; text-align:left; }
+  table.moto td{ border:1px solid var(--moto-border); padding:.4em; color:var(--moto-text); vertical-align:top; }
+  table.moto tr:nth-child(even) td{ background:var(--moto-surface); }
+  .swot{ border-radius:10px; padding:.6em .8em; }
+  .swot h4{ margin:0 0 .4em 0; font-size:.8em; }
+  .swot li{ font-size:.6em; margin-bottom:.3em; }
+  .swot.S{ background:rgba(63,185,80,.12); border:1px solid var(--moto-green); } .swot.S h4{color:var(--moto-green);}
+  .swot.W{ background:rgba(248,81,73,.12); border:1px solid var(--moto-red); } .swot.W h4{color:var(--moto-red);}
+  .swot.O{ background:rgba(0,122,204,.12); border:1px solid var(--moto-accent); } .swot.O h4{color:var(--moto-accent);}
+  .swot.T{ background:rgba(210,153,34,.12); border:1px solid var(--moto-amber); } .swot.T h4{color:var(--moto-amber);}
+  .footer{ position:fixed; bottom:8px; left:16px; font-size:.5em; color:var(--moto-muted); z-index:10; }
+  .logo-hex{ display:inline-block; width:1.4em; height:1.4em; background:var(--moto-accent); color:#fff; border-radius:8px; text-align:center; line-height:1.4em; font-weight:700; margin-right:.3em; }
+</style>
+</head>
+<body>
+<div class="reveal"><div class="slides">
+
+<!-- ══ TITRE ══ -->
+<section class="center-slide">
+  <h1><span class="logo-hex">M</span>MOTO Editor</h1>
+  <h3 style="color:var(--moto-text)">L'Opportunité de la Simplicité</h3>
+  <p class="muted" style="text-align:center">Comment capturer le marché des IDEs modernes<br>Analyse de marché — Septembre 2026</p>
+</section>
+
+<!-- ══ SOMMAIRE ══ -->
+<section>
+  <h2>Sommaire</h2>
+  <ul>
+    <li><span class="accent">1.</span> Fonctionnalités techniques & architecture</li>
+    <li><span class="accent">2.</span> Expérience utilisateur & personnalisation</li>
+    <li><span class="accent">3.</span> Marché des IDEs & parts de marché</li>
+    <li><span class="accent">4.</span> Opportunités de différenciation</li>
+    <li><span class="accent">5.</span> SWOT & recommandations stratégiques</li>
+  </ul>
+</section>
+
+<!-- ══ 1. TECHNIQUE ══ -->
+<section class="divider"><h2>1. Fonctionnalités Techniques</h2><p class="muted">Architecture & comparaison concurrentielle</p></section>
+
+<section>
+  <h2>Performance : le fossé architectural</h2>
+  <div class="grid2">
+    <div class="card"><h3>Zed</h3><p>Framework <span class="accent">GPUI</span> (Rust), rendu GPU direct (Metal/Vulkan/DirectX). Latence &lt; 1 ms.</p></div>
+    <div class="card"><h3>VS Code</h3><p>Base <span class="accent">Electron</span> (JS/TS). Impact mémoire élevé, démarrage lent.</p></div>
+    <div class="card"><h3>MOTO Editor</h3><p>Pile native <span class="accent">C# / .NET MAUI / WinUI 3</span> : expérience native performante, légère.</p></div>
+    <div class="card"><h3>JetBrains</h3><p>Robuste (Java) mais perçu comme <span class="accent">lourd</span>.</p></div>
+  </div>
+</section>
+
+<section>
+  <h2>Intégration IA & modularité</h2>
+  <ul>
+    <li><span class="accent">IA</span> : agent <span class="accent">XENO-SSS∞</span> (modèle « MOTO Editor → XENO comme Zed → Claude Code »), vs Copilot (VS Code), assistants natifs (JetBrains), agents autonomes (Cursor).</li>
+    <li><span class="accent">Docks modulaires</span> : 3 docks (gauche / droite / bas) livrés, redimensionnables, glisser-déposer libre — VS Code n'a pas de docks natifs.</li>
+    <li><span class="accent">Terminal interactif</span> réel dans le dock du bas : transforme l'éditeur en environnement quasi-complet.</li>
+    <li><span class="accent">Accessibilité</span> : couche UI Automation de .NET MAUI = avantage face au défi GPUI de Zed.</li>
+  </ul>
+</section>
+
+<section>
+  <h2>Tableau comparatif technique</h2>
+  <table class="moto">
+    <tr><th>Caractéristique</th><th>MOTO</th><th>Zed</th><th>VS Code</th><th>JetBrains</th><th>Cursor</th></tr>
+    <tr><td>Backend</td><td>C#/MAUI/WinUI3</td><td>Rust/GPUI</td><td>JS/Electron</td><td>Java</td><td>Fork VS Code</td></tr>
+    <tr><td>Performance</td><td>Native, légère</td><td>Très élevée</td><td>Moyenne</td><td>Lourde</td><td>Élevée</td></tr>
+    <tr><td>Docks modulaires</td><td>3 docks ✅</td><td>3 docks</td><td>Panneaux</td><td>Panneaux</td><td>3 docks</td></tr>
+    <tr><td>Terminal</td><td>Oui ✅</td><td>Oui</td><td>Oui</td><td>Oui</td><td>Oui</td></tr>
+    <tr><td>IA</td><td>XENO-SSS∞</td><td>Claude Code</td><td>Copilot</td><td>Natif</td><td>Agent natif</td></tr>
+    <tr><td>Personnalisation</td><td>100+ réglages</td><td>JSON</td><td>Extensions</td><td>Thèmes</td><td>Limitée</td></tr>
+    <tr><td>Accessibilité</td><td>Forte (MAUI)</td><td>Défi majeur</td><td>Bonne</td><td>Bonne</td><td>Débutante</td></tr>
+  </table>
+</section>
+
+<!-- ══ 2. UX ══ -->
+<section class="divider"><h2>2. Expérience Utilisateur</h2><p class="muted">Minimalisme & personnalisation progressive</p></section>
+
+<section>
+  <h2>Philosophie : « façade simple, architecture complexe »</h2>
+  <ul>
+    <li>Interface inspirée de <span class="accent">Claude Code / ChatGPT</span> : surface propre, zéro surcharge visuelle.</li>
+    <li>Résout la <span class="accent">surcharge cognitive</span> des IDEs modernes (VS Code dense, JetBrains verrouillés).</li>
+    <li>Accueil épuré : barre de saisie centrale, stats compactes, barre d'état discrète.</li>
+    <li>Le minimalisme améliore lisibilité et concentration (état de flux).</li>
+  </ul>
+</section>
+
+<section>
+  <h2>Personnalisation progressive</h2>
+  <div class="grid2">
+    <div class="card"><h3>Le dilemme du marché</h3><p>VS Code = personnalisation infinie mais chaos d'extensions. Zed/JetBrains = cohérents mais rigides.</p></div>
+    <div class="card"><h3>La solution MOTO</h3><p><span class="accent">100+ paramètres</span> data-driven (15 catégories, 97 réglages livrés). L'utilisateur active chaque brique (panneaux, agents, docks) à son rythme.</p></div>
+  </div>
+  <p class="muted">Divulgation progressive : simple au départ, profond quand on le souhaite.</p>
+</section>
+
+<!-- ══ 3. MARCHÉ ══ -->
+<section class="divider"><h2>3. Marché des IDEs</h2><p class="muted">Taille, croissance & parts de marché</p></section>
+
+<section>
+  <h2>Un marché en pleine expansion</h2>
+  <div class="grid4">
+    <div class="kpi"><div class="num">16,5 Md$</div><div class="lbl">Taille 2026 (14,9 en 2025)</div></div>
+    <div class="kpi"><div class="num">10,8 %</div><div class="lbl">TCAC marché IDEs</div></div>
+    <div class="kpi"><div class="num">84 %</div><div class="lbl">Développeurs utilisant l'IA (2025)</div></div>
+    <div class="kpi"><div class="num">15,7 Md$</div><div class="lbl">Outils dev. projetés 2031</div></div>
+  </div>
+  <p class="muted">Moteurs : IA généralisée, cloud, demande d'outils légers & personnalisables.</p>
+</section>
+
+<section>
+  <h2>Parts de marché (Stack Overflow 2025)</h2>
+  <div class="bar-row"><span class="name">VS Code</span><div class="track"><div class="fill" style="width:75.9%"></div></div><span class="val">75,9%</span></div>
+  <div class="bar-row"><span class="name">IntelliJ IDEA</span><div class="track"><div class="fill" style="width:13.2%"></div></div><span class="val">13,2%</span></div>
+  <div class="bar-row"><span class="name">Zed</span><div class="track"><div class="fill" style="width:7.3%"></div></div><span class="val">7,3%</span></div>
+  <div class="bar-row"><span class="name">PyCharm</span><div class="track"><div class="fill" style="width:6.5%"></div></div><span class="val">6,5%</span></div>
+  <div class="bar-row"><span class="name">Neovim</span><div class="track"><div class="fill" style="width:3.8%"></div></div><span class="val">3,8%</span></div>
+  <p class="muted">Zed : 1,7 % → 7,3 % en un an = éditeur en plus forte croissance. Preuve qu'une alternative peut percer.</p>
+</section>
+
+<section>
+  <h2>Segments cibles & modèle commercial</h2>
+  <div class="grid2">
+    <div class="card"><h3>Cibles</h3><ul><li>Indépendants & petites équipes (coût/perf)</li><li>Power users (personnalisation extrême)</li><li>Équipes exigeant l'accessibilité (WCAG)</li></ul></div>
+    <div class="card"><h3>Modèle</h3><ul><li><span class="accent">Freemium Open Source</span> (MIT/GPL)</li><li>Plan Pro <span class="accent">10–20 $/mois</span></li><li>Objectif : <span class="accent">5–10 %</span> de part en 5 ans</li></ul></div>
+  </div>
+</section>
+
+<!-- ══ 4. DIFFÉRENCIATION ══ -->
+<section class="divider"><h2>4. Opportunités de Différenciation</h2><p class="muted">Niches non exploitées par la concurrence</p></section>
+
+<section>
+  <h2>Cinq opportunités concrètes</h2>
+  <ul>
+    <li><span class="accent">Paradoxe perso/complexité</span> : combiner simplicité initiale + profondeur illimitée.</li>
+    <li><span class="accent">Personnalisation fine</span> absente des IDEs commerciaux verrouillés.</li>
+    <li><span class="accent">Légèreté</span> : « l'alternative la plus rapide à VS Code ».</li>
+    <li><span class="accent">Terminal interactif complet</span> (souvent factice chez les légers).</li>
+    <li><span class="accent">Accessibilité de premier ordre</span> : pilier de marque, difficile à copier.</li>
+  </ul>
+  <p class="accent">→ Créer et dominer la catégorie « IDE Minimaliste, Puissant & Accessible ».</p>
+</section>
+
+<!-- ══ 5. SWOT ══ -->
+<section class="divider"><h2>5. SWOT & Recommandations</h2><p class="muted">Synthèse stratégique</p></section>
+
+<section>
+  <h2>Matrice SWOT</h2>
+  <div class="grid4">
+    <div class="swot S"><h4>Forces</h4><ul><li>Architecture faite maison</li><li>UX minimaliste</li><li>Perso granulaire (100+ réglages)</li><li>3 docks + terminal livrés</li></ul></div>
+    <div class="swot W"><h4>Faiblesses</h4><ul><li>Notoriété & communauté faibles</li><li>Dépendance à MAUI</li><li>Perf brute &lt; Rust (Zed)</li><li>Équipe unique</li></ul></div>
+    <div class="swot O"><h4>Opportunités</h4><ul><li>Marché +7 à 16 %/an</li><li>Demande d'alternatives</li><li>Open source + freemium</li><li>Besoin d'accessibilité</li></ul></div>
+    <div class="swot T"><h4>Menaces</h4><ul><li>Domination VS Code (75,9 %)</li><li>Entrants financés (Cursor)</li><li>Adoption entreprise lente</li><li>Fragmentation</li></ul></div>
+  </div>
+</section>
+
+<section>
+  <h2>Recommandations stratégiques</h2>
+  <ul>
+    <li><span class="accent">1.</span> Affirmer la proposition unique : « la complexité cachée derrière un écran simple ».</li>
+    <li><span class="accent">2.</span> Faire de l'accessibilité un pilier fondamental de la marque.</li>
+    <li><span class="accent">3.</span> Adopter le modèle Open Source + Freemium (Pro 10–20 $/mois).</li>
+    <li><span class="accent">4.</span> Marketing ciblé sur les points de douleur (lourdeur VS Code, surcharge visuelle).</li>
+    <li><span class="accent">5.</span> Respecter la doctrine « backend d'abord, UI mince » à chaque feature.</li>
+  </ul>
+</section>
+
+<!-- ══ CONCLUSION ══ -->
+<section class="center-slide">
+  <h2 style="border:none">Conclusion</h2>
+  <p style="text-align:center; font-size:.85em">MOTO Editor ne cherche pas à battre VS Code sur son terrain.<br>Il crée une <span class="accent">nouvelle catégorie</span> : minimalisme de façade, puissance de backend.</p>
+  <p class="muted" style="text-align:center">Merci — Septembre 2026</p>
+</section>
+
+</div></div>
+<div class="footer">MOTO Editor — Analyse de marché — Sept. 2026</div>
+<script src="https://cdn.jsdelivr.net/npm/reveal.js@4.6.1/dist/reveal.js"></script>
+<script>
+  Reveal.initialize({ hash:true, controls:true, progress:true, transition:'slide', width:1280, height:800 });
+</script>
+</body>
+</html>

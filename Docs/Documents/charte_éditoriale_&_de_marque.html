@@ -1,0 +1,361 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MOTO Editor — Charte Éditoriale & de Marque (PDF)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/fontsource/css/inter@latest/index.css">
+<style>
+  :root{
+    --accent:#007ACC; --accent-dark:#005A9E; --ink:#181A1E; --muted:#5A6069;
+    --paper:#FFFFFF; --bg:#F7F8FA; --line:#D6D9DF; --green:#2E7D32; --red:#C62828; --amber:#B26A00; --violet:#7C3AED;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  html,body{background:var(--bg);font-family:'Inter',system-ui,sans-serif;color:var(--ink);}
+  @page{size:A4;margin:0;}
+  .toolbar{position:fixed;top:14px;right:14px;z-index:99;}
+  .toolbar button{background:var(--accent);color:#fff;border:none;border-radius:8px;padding:10px 16px;font-weight:600;font-size:13px;cursor:pointer;box-shadow:0 4px 12px rgba(0,122,204,.35);}
+  .toolbar button:hover{background:var(--accent-dark);}
+  .page{width:210mm;min-height:296mm;background:var(--paper);margin:24px auto;padding:16mm 16mm 14mm;position:relative;box-shadow:0 8px 30px rgba(0,0,0,.12);overflow:hidden;page-break-after:always;}
+  @media print{ .toolbar{display:none;} body{background:#fff;} .page{margin:0;box-shadow:none;width:210mm;height:296mm;min-height:0;} }
+
+  .brand{display:flex;align-items:center;gap:8px;font-weight:700;font-size:11px;letter-spacing:.12em;color:var(--accent);text-transform:uppercase;}
+  .brand .hex{width:22px;height:22px;background:var(--accent);color:#fff;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;}
+  .pageno{position:absolute;bottom:8mm;right:16mm;font-size:9px;color:var(--muted);}
+  .footline{position:absolute;bottom:8mm;left:16mm;font-size:9px;color:var(--muted);}
+
+  .cover{height:100%;display:flex;flex-direction:column;justify-content:space-between;background:linear-gradient(160deg,#0d1418 0%,#111214 55%,#0a2233 100%);color:#E8EAED;margin:-16mm;padding:20mm 16mm;}
+  .cover .tag{display:inline-block;border:1px solid rgba(0,122,204,.6);color:#7cc4ff;border-radius:999px;padding:5px 14px;font-size:10px;letter-spacing:.15em;text-transform:uppercase;}
+  .cover h1{font-size:38px;line-height:1.15;font-weight:800;margin:18px 0 10px;}
+  .cover h1 span{color:#4da3ff;}
+  .cover p{color:#9AA0A6;font-size:13px;max-width:125mm;line-height:1.6;}
+  .cover .big-hex{width:64px;height:64px;background:var(--accent);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:800;color:#fff;box-shadow:0 10px 40px rgba(0,122,204,.5);}
+  .cover .meta{display:flex;gap:22px;font-size:10px;color:#9AA0A6;}
+  .cover .meta b{color:#E8EAED;display:block;font-size:12px;}
+
+  h2.sec{font-size:18px;color:var(--accent-dark);border-left:4px solid var(--accent);padding-left:10px;margin:5mm 0 4mm;}
+  h3.sub{font-size:12px;margin:4mm 0 2mm;color:var(--ink);}
+  p.txt{font-size:10.2px;line-height:1.6;color:#33383F;margin-bottom:3mm;}
+  .muted{color:var(--muted);} .accent{color:var(--accent);font-weight:600;}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:4mm;}
+  .card{border:1px solid var(--line);border-radius:10px;padding:3.5mm 4mm;background:#FBFCFE;}
+  .card h4{font-size:11px;margin-bottom:2mm;}
+  .card ul{list-style:none;} .card li{font-size:9.2px;line-height:1.5;margin-bottom:1.4mm;padding-left:12px;position:relative;}
+  .card li::before{content:"";position:absolute;left:0;top:4.5px;width:5px;height:5px;border-radius:50%;background:var(--accent);opacity:.7;}
+  .chip{display:inline-block;border-radius:999px;padding:1px 8px;font-size:8.3px;font-weight:700;color:#fff;}
+  table.ce{width:100%;border-collapse:collapse;font-size:9.2px;margin-top:2mm;}
+  table.ce th{background:#111214;color:#E8EAED;text-align:left;padding:2mm 2.5mm;font-size:8.8px;}
+  table.ce td{border-bottom:1px solid var(--line);padding:1.9mm 2.5mm;vertical-align:top;line-height:1.5;}
+  table.ce tr:nth-child(even) td{background:#F2F5F8;}
+  .toc li{font-size:11px;margin-bottom:2.5mm;list-style:none;display:flex;justify-content:space-between;border-bottom:1px dotted var(--line);padding-bottom:1.5mm;}
+  .do,.dont{border-radius:10px;padding:3mm 4mm;}
+  .do{background:#E8F5E9;border:1px solid var(--green);} .dont{background:#FFEBEE;border:1px solid var(--red);}
+  .do h5{color:var(--green);font-size:10px;margin-bottom:2mm;} .dont h5{color:var(--red);font-size:10px;margin-bottom:2mm;}
+  .do p,.dont p{font-size:9.2px;line-height:1.5;margin-bottom:2mm;}
+  .sw{display:grid;grid-template-columns:repeat(4,1fr);gap:3mm;margin:3mm 0;}
+  .sw .c{border-radius:10px;padding:3mm;text-align:center;color:#fff;}
+  .sw .c b{display:block;font-size:10px;} .sw .c span{font-size:8px;opacity:.9;}
+  .ex{background:#111214;color:#E8EAED;border-radius:8px;padding:3mm 4mm;font-size:9px;line-height:1.6;margin:2mm 0;white-space:pre-wrap;font-family:'Inter',monospace;}
+  .ex .g{color:#7ee787;} .ex .b{color:#79c0ff;} .ex .y{color:#ffa657;}
+</style>
+</head>
+<body>
+
+<div class="toolbar"><button onclick="window.print()">⬇ Télécharger en PDF</button></div>
+
+<!-- ══ P1 · COUVERTURE ══ -->
+<div class="page"><div class="cover">
+  <div>
+    <div class="big-hex">M</div>
+    <div style="height:8mm"></div>
+    <span class="tag">Document de référence · v1.0</span>
+    <h1>Charte éditoriale<br>& <span>de marque</span><br>MOTO Editor</h1>
+    <p>Ton, voix, messages clés, vocabulaire, modèles de contenus et cohérence visuelle : une seule façon de parler de MOTO Editor, sur tous les canaux, pour toutes les audiences.</p>
+  </div>
+  <div class="meta">
+    <div><b>Septembre 2026</b>Édition v1.0</div>
+    <div><b>Baseline</b>« Léger. Rapide. Sans dépendance. Tout fait maison. »</div>
+    <div><b>Application</b>Docs, devlog, social, support, lancements</div>
+  </div>
+</div></div>
+
+<!-- ══ P2 · SOMMAIRE + IDENTITÉ ══ -->
+<div class="page">
+  <div class="brand"><div class="hex">M</div>MOTO Editor · Charte éditoriale</div>
+  <h2 class="sec" style="margin-top:5mm">Sommaire</h2>
+  <ul class="toc">
+    <li><span>1. Objet, périmètre & identité de marque</span><span class="muted">p. 2</span></li>
+    <li><span>2. Audiences & ton de voix</span><span class="muted">p. 3</span></li>
+    <li><span>3. Messages clés & vocabulaire</span><span class="muted">p. 4</span></li>
+    <li><span>4. Règles d'écriture & typologie des contenus</span><span class="muted">p. 5</span></li>
+    <li><span>5. Modèles & exemples (changelog, HN, support)</span><span class="muted">p. 6</span></li>
+    <li><span>6. Cohérence visuelle & canaux</span><span class="muted">p. 7</span></li>
+    <li><span>7. Gouvernance, secrets & gestion de crise</span><span class="muted">p. 8</span></li>
+    <li><span>8. Checklist de publication & conclusion</span><span class="muted">p. 9</span></li>
+  </ul>
+
+  <h2 class="sec">1. Objet, périmètre & identité de marque</h2>
+  <p class="txt">Cette charte définit <b>comment MOTO Editor parle</b> (ton, style, messages) et <b>comment il se montre</b> (couleurs, logo, captures). Elle s'applique à : documentation, README, changelogs, devlog, réseaux sociaux, lancements (HN, Product Hunt), réponses support, site. Elle s'applique au fondateur comme aux contributeurs et aux assistants IA rédigeant des brouillons.</p>
+  <div class="grid2">
+    <div class="card"><h4>Identité</h4><ul>
+      <li><b>Nom</b> : « MOTO Editor » (jamais « MotoEditor », ni « MOTO » seul hors contexte).</li>
+      <li><b>Baseline</b> : « Léger. Rapide. Sans dépendance. Tout fait maison. »</li>
+      <li><b>Logo</b> : hexagone « M », accent #007ACC ; zone de protection = hauteur du hex.</li>
+      <li><b>Doctrine</b> : façade simple, architecture complexe ; 100 % local ; pas d'UI factice.</li>
+    </ul></div>
+    <div class="card"><h4>Valeurs de marque</h4><ul>
+      <li><b>Sobriété</b> : léger, natif, sans Electron, mesuré.</li>
+      <li><b>Confiance</b> : local-first, rien ne quitte la machine, transparence.</li>
+      <li><b>Artisanat</b> : fait maison, code maîtrisé, pas de dépendance cachée.</li>
+      <li><b>Inclusion</b> : accessibilité de premier ordre (WCAG, lecteurs d'écran).</li>
+    </ul></div>
+  </div>
+  <h3 class="sub">Personnalité de marque (si MOTO Editor était une personne)</h3>
+  <p class="txt">Un <b>artisan ingénieur</b> : exigeant sur la technique, modeste sur lui-même. Il montre ses mesures plutôt que des adjectifs, admet ses bugs publiquement, explique ses choix, et ne parle jamais mal des voisins. Il défend la vie privée sans faire la leçon.</p>
+  <div class="footline">Charte éditoriale & de marque · Septembre 2026</div><div class="pageno">2 / 9</div>
+</div>
+
+<!-- ══ P3 · AUDIENCES + TON ══ -->
+<div class="page">
+  <div class="brand"><div class="hex">M</div>MOTO Editor · Charte éditoriale</div>
+  <h2 class="sec" style="margin-top:5mm">2. Audiences & ton de voix</h2>
+  <h3 class="sub">2.1 Audiences prioritaires (personas)</h3>
+  <table class="ce">
+    <tr><th style="width:34mm">Persona</th><th>Attentes</th><th style="width:46mm">Ce qu'on lui dit en priorité</th></tr>
+    <tr><td><b>Indé / petite équipe</b></td><td>Coût maîtrisé, légèreté, efficacité</td><td>Gratuit & open source, léger, Pro à 10 €/mois optionnel.</td></tr>
+    <tr><td><b>Power user</b></td><td>Contrôle total, personnalisation</td><td>100+ paramètres data-driven, docks modulaires, palette.</td></tr>
+    <tr><td><b>Privacy-conscious</b></td><td>Souveraineté du code, IA locale</td><td>100 % local, IA Ollama/ONNX, zéro cloud, sandbox.</td></tr>
+    <tr><td><b>Accessibilité</b></td><td>Lecteurs d'écran, WCAG, clavier</td><td>UI Automation natif, navigation clavier complète, contrastes.</td></tr>
+    <tr><td><b>Communauté .NET</b></td><td>Technique, fait maison, apprentissage</td><td>Coulisses MAUI/WinUI3, devlog solo+IA, contributions.</td></tr>
+  </table>
+  <h3 class="sub">2.2 Ton de voix — 4 dimensions</h3>
+  <div class="sw">
+    <div class="c" style="background:var(--accent)"><b>Honnête</b><span>faits & mesures, jamais de hype</span></div>
+    <div class="c" style="background:var(--green)"><b>Transparent</b><span>bugs publics, roadmap ouverte</span></div>
+    <div class="c" style="background:var(--violet)"><b>Pédagogue</b><span>explique sans condescendance</span></div>
+    <div class="c" style="background:var(--amber)"><b>Sobre</b><span>un adjectif vaut moins qu'un chiffre</span></div>
+  </div>
+  <h3 class="sub">2.3 Déclinaison du ton selon le canal</h3>
+  <table class="ce">
+    <tr><th style="width:34mm">Canal</th><th>Registre</th><th>Personne</th><th style="width:40mm">Exemple d'attaque</th></tr>
+    <tr><td>Documentation</td><td>Neutre, précis, impératif doux</td><td>« vous » / neutre</td><td>« Ouvrez la palette avec Ctrl+Shift+P. »</td></tr>
+    <tr><td>Devlog</td><td>Sincère, récit, leçons apprises</td><td>« je » (fondateur)</td><td>« Cette semaine, j'ai cassé la titlebar… voici comment. »</td></tr>
+    <tr><td>Réseaux sociaux</td><td>Factuel, concis, métriques</td><td>Neutre / « nous »</td><td>« Métriques du mois : 1 240 actifs. 0 octet envoyé au cloud. »</td></tr>
+    <tr><td>Support</td><td>Empathique, solution ou palliatif</td><td>« vous »</td><td>« Merci du signalement — reproduit, ticket #123 ouvert. »</td></tr>
+    <tr><td>Lancements</td><td>Storytelling factuel, preuve</td><td>« nous » / « je »</td><td>« Un dev, trois IA, un IDE local-first : démo en 90 s. »</td></tr>
+  </table>
+  <div class="footline">Charte éditoriale & de marque · Septembre 2026</div><div class="pageno">3 / 9</div>
+</div>
+
+<!-- ══ P4 · MESSAGES + VOCABULAIRE ══ -->
+<div class="page">
+  <div class="brand"><div class="hex">M</div>MOTO Editor · Charte éditoriale</div>
+  <h2 class="sec" style="margin-top:5mm">3. Messages clés & vocabulaire</h2>
+  <h3 class="sub">3.1 Les 5 messages clés (un par pilier)</h3>
+  <table class="ce">
+    <tr><th style="width:26mm">Pilier</th><th>Message clé</th><th style="width:52mm">Preuve à citer (toujours)</th></tr>
+    <tr><td><b>Légèreté</b></td><td>« Un IDE natif, pas une page web déguisée. »</td><td>Sans Electron ; démarrage &lt; 1 s ; &lt; 300 Mo (config de réf.).</td></tr>
+    <tr><td><b>Privacy</b></td><td>« Votre code ne quitte jamais votre machine. »</td><td>IA locale Ollama/ONNX ; sandbox ; PrivacyScanner.</td></tr>
+    <tr><td><b>Minimalisme</b></td><td>« Simple à l'écran, profond dans les réglages. »</td><td>100+ paramètres ; 15 catégories ; divulgation progressive.</td></tr>
+    <tr><td><b>Artisanat</b></td><td>« Tout fait maison, rien de caché. »</td><td>0 dépendance runtime externe ; code open source ; Ed25519.</td></tr>
+    <tr><td><b>Inclusion</b></td><td>« Un IDE pour tous les développeurs. »</td><td>UI Automation ; navigation clavier ; contrastes WCAG.</td></tr>
+  </table>
+  <h3 class="sub">3.2 Vocabulaire — faire / éviter</h3>
+  <div class="grid2">
+    <div class="do"><h5>✅ TOUJOURS / À PRÉFÉRER</h5>
+      <p>local-first · fait maison · natif · léger · sobre · mesuré · accessible · transparent · « vérifié », « mesuré », « testé » · termes techniques exacts (dock, terminal, build, commit).</p>
+      <p>Chiffres avec source ou méthode : « 0,8 s (mesuré sur PC de réf., cold start) ».</p>
+    </div>
+    <div class="dont"><h5>❌ JAMAIS / À ÉVITER</h5>
+      <p>révolutionnaire · le meilleur · killer · magique · disruptif · ultra-rapide (sans chiffre) · « IA magique » · buzzwords non définis · superlatifs non prouvés.</p>
+      <p>Dénigrement concurrent : on compare avec des faits publics (ex. part d'usage Stack Overflow 2025), jamais avec du mépris.</p>
+    </div>
+  </div>
+  <h3 class="sub">3.3 Comparaison concurrents — règle d'or</h3>
+  <p class="txt">Toute comparaison doit être <b>factuelle, sourcée et utile au lecteur</b>. Formule type : « VS Code reste la référence (75,9 % d'usage, Stack Overflow 2025) ; MOTO Editor propose une alternative locale et légère pour ceux qui veulent X. » Jamais « X est nul ».</p>
+  <div class="footline">Charte éditoriale & de marque · Septembre 2026</div><div class="pageno">4 / 9</div>
+</div>
+
+<!-- ══ P5 · RÈGLES D'ÉCRITURE + TYPOLOGIE ══ -->
+<div class="page">
+  <div class="brand"><div class="hex">M</div>MOTO Editor · Charte éditoriale</div>
+  <h2 class="sec" style="margin-top:5mm">4. Règles d'écriture & typologie des contenus</h2>
+  <h3 class="sub">4.1 Règles d'écriture</h3>
+  <div class="grid2">
+    <div class="card"><h4>Style</h4><ul>
+      <li>Phrases courtes (&lt; 25 mots) ; voix active ; un message par phrase.</li>
+      <li>Titres en « sentence case » (« La barre de titre », pas « LA BARRE DE TITRE »).</li>
+      <li>Emojis : 0 dans la doc ; ≤ 1 par post social, jamais en titre.</li>
+      <li>Franglais : éviter ; garder le terme anglais seulement s'il est standard (dock, build, commit, crash).</li>
+      <li>Orthographe : relecture obligatoire ; les fautes dans le code = typos-cli.</li>
+    </ul></div>
+    <div class="card"><h4>Chiffres & promesses</h4><ul>
+      <li>Un chiffre = une mesure ou une source ; sinon « en cours de mesure ».</li>
+      <li>Une promesse = une fonctionnalité livrée ou un ticket public daté.</li>
+      <li>Ne jamais annoncer de date ferme publiquement (« visé : T2 2027 »).</li>
+      <li>Les limites se disent : « pas encore », « en chantier », avec ticket.</li>
+    </ul></div>
+  </div>
+  <h3 class="sub">4.2 Typologie des contenus & fréquence</h3>
+  <table class="ce">
+    <tr><th style="width:38mm">Contenu</th><th>Objectif</th><th style="width:22mm">Fréquence</th><th style="width:34mm">Canal principal</th></tr>
+    <tr><td>Release notes / changelog</td><td>Informer, prouver la cadence</td><td>À chaque release</td><td>GitHub Releases</td></tr>
+    <tr><td>Devlog « solo + 3 IA »</td><td>Histoire, communauté, SEO</td><td>2 × / mois</td><td>Dev.to / blog</td></tr>
+    <tr><td>Article technique profond</td><td>Crédibilité dev</td><td>1 × / mois</td><td>Dev.to / HN</td></tr>
+    <tr><td>Post métriques #buildinpublic</td><td>Confiance, viralité</td><td>1 × / semaine</td><td>X / Reddit</td></tr>
+    <tr><td>Démo courte (60–90 s)</td><td>Preuve visuelle</td><td>1 × / mois</td><td>YouTube / X</td></tr>
+    <tr><td>Réponse support / bug</td><td>Confiance, rétention</td><td>&lt; 24 h</td><td>GitHub Issues / Discord</td></tr>
+    <tr><td>Mise à jour roadmap publique</td><td>Transparence</td><td>À chaque jalon</td><td>GitHub Project</td></tr>
+  </table>
+  <div class="footline">Charte éditoriale & de marque · Septembre 2026</div><div class="pageno">5 / 9</div>
+</div>
+
+<!-- ══ P6 · MODÈLES & EXEMPLES ══ -->
+<div class="page">
+  <div class="brand"><div class="hex">M</div>MOTO Editor · Charte éditoriale</div>
+  <h2 class="sec" style="margin-top:5mm">5. Modèles & exemples</h2>
+  <h3 class="sub">5.1 Changelog (format Added / Changed / Fixed)</h3>
+  <div class="ex"><span class="g">Added</span>   — Terminal interactif dans le dock du bas (Ctrl+`).
+<span class="b">Changed</span> — Glisser-déposer des panneaux IA entre les docks.
+<span class="y">Fixed</span>   — Menu « Local » bloqué à 0×0 (contournement bug MAUI #9850).</div>
+  <h3 class="sub">5.2 Post « Show HN » (lancement)</h3>
+  <div class="ex">Show HN: MOTO Editor – a local-first IDE built by one dev and three AIs (.NET/MAUI)
+
+MOTO Editor is a lightweight, 100% local IDE: no Electron, no cloud.
+What it does today: 3 modular docks, real terminal, 100+ settings,
+local AI (Ollama/ONNX), Ed25519-signed updates.
+What it is not: not faster than Zed at GPU rendering — yet.
+Roadmap and known issues are public. Demo: 90 s. Code: GPL-3.0.</div>
+  <h3 class="sub">5.3 Réponse à un bug (modèle support)</h3>
+  <div class="ex"><span class="b">Merci</span> pour le signalement précis.
+<span class="y">Reproduit</span> sur build 1.0.2 (Windows 11, mode packagé).
+<span class="g">Ticket</span> #123 ouvert, cause probable : sous-système titlebar WinUI3.
+<span class="b">Palliatif</span> : lancer via le raccourci Bureau en attendant.
+On publie le correctif dans la prochaine release + note dans le changelog.</div>
+  <h3 class="sub">5.4 Post métriques hebdo (#buildinpublic)</h3>
+  <div class="ex">Semaine 38 — MOTO Editor
+· 1 240 actifs (+6 %) · 32 Pro · 412 étoiles GitHub
+· 0 octet de code utilisateur envoyé au cloud (toujours)
+· Chantier en cours : barre de titre (ticket #123, avancement 60 %)</div>
+  <div class="footline">Charte éditoriale & de marque · Septembre 2026</div><div class="pageno">6 / 9</div>
+</div>
+
+<!-- ══ P7 · VISUEL + CANAUX ══ -->
+<div class="page">
+  <div class="brand"><div class="hex">M</div>MOTO Editor · Charte éditoriale</div>
+  <h2 class="sec" style="margin-top:5mm">6. Cohérence visuelle & canaux</h2>
+  <h3 class="sub">6.1 Palette officielle (MotoTheme)</h3>
+  <div class="sw">
+    <div class="c" style="background:#111214"><b>#111214</b><span>Fond dark</span></div>
+    <div class="c" style="background:#1B1C1F"><b>#1B1C1F</b><span>Surface dark</span></div>
+    <div class="c" style="background:#007ACC"><b>#007ACC</b><span>Accent</span></div>
+    <div class="c" style="background:#E8EAED;color:#181A1E"><b>#E8EAED</b><span>Texte dark</span></div>
+  </div>
+  <div class="sw">
+    <div class="c" style="background:#F7F8FA;color:#181A1E"><b>#F7F8FA</b><span>Fond light</span></div>
+    <div class="c" style="background:#FFFFFF;color:#181A1E"><b>#FFFFFF</b><span>Surface light</span></div>
+    <div class="c" style="background:#0066CC"><b>#0066CC</b><span>Accent light</span></div>
+    <div class="c" style="background:#181A1E"><b>#181A1E</b><span>Texte light</span></div>
+  </div>
+  <h3 class="sub">6.2 Typographie & logo</h3>
+  <div class="grid2">
+    <div class="card"><h4>Typographie</h4><ul>
+      <li>Web / docs : <b>Inter</b> ; Windows (app) : <b>Segoe UI</b> / Segoe Fluent Icons.</li>
+      <li>Hiérarchie : 3 niveaux max ; interlignage 1,5–1,6 ; jamais de texte &lt; 11 px.</li>
+      <li>Code : police mono lisible (Cascadia Code recommandée dans les captures).</li>
+    </ul></div>
+    <div class="card"><h4>Logo & captures</h4><ul>
+      <li>Hexagone « M » : ne jamais déformer, recolorer hors palette, ou ombrer.</li>
+      <li>Captures par défaut en thème dark ; aucune donnée personnelle visible.</li>
+      <li>Captures recadrées sur l'utile ; pas de bureau ni de barre des tâches.</li>
+      <li>Toute capture publiée passe la checklist (p. 9) avant publication.</li>
+    </ul></div>
+  </div>
+  <h3 class="sub">6.3 Canaux & rôles</h3>
+  <table class="ce">
+    <tr><th style="width:34mm">Canal</th><th>Rôle éditorial</th><th style="width:40mm">Règle spécifique</th></tr>
+    <tr><td>GitHub (repo, releases)</td><td>Vérité technique</td><td>README à jour à chaque jalon ; changelog systématique.</td></tr>
+    <tr><td>Hacker News / Reddit</td><td>Crédibilité, trafic qualifié</td><td>Zéro autopromo creuse ; répondre aux critiques par des faits.</td></tr>
+    <tr><td>Dev.to / blog</td><td>SEO, histoire, pédagogie</td><td>Un apprentissage par article ; lien vers le ticket/commit réel.</td></tr>
+    <tr><td>X / YouTube</td><td>Démo & métriques</td><td>Vidéos sans voix off obligatoire (sous-titres) ; 90 s max.</td></tr>
+    <tr><td>Discord / Issues</td><td>Communauté & support</td><td>Réponse &lt; 24 h ; ton empathique ; jamais de débat technique enflammé.</td></tr>
+    <tr><td>Product Hunt</td><td>Lancement grand public</td><td>Une seule fois par version majeure ; assets conformes charte.</td></tr>
+  </table>
+  <div class="footline">Charte éditoriale & de marque · Septembre 2026</div><div class="pageno">7 / 9</div>
+</div>
+
+<!-- ══ P8 · GOUVERNANCE + CRISE ══ -->
+<div class="page">
+  <div class="brand"><div class="hex">M</div>MOTO Editor · Charte éditoriale</div>
+  <h2 class="sec" style="margin-top:5mm">7. Gouvernance, secrets & gestion de crise</h2>
+  <h3 class="sub">7.1 Circuit de validation</h3>
+  <div class="card" style="margin-bottom:3mm"><ul>
+    <li><b>Rédaction</b> : fondateur ou assistant IA (brouillon) — la charte s'applique aux deux.</li>
+    <li><b>Relecture</b> : conformité charte (ton, chiffres sourcés, vocabulaire) + orthographe.</li>
+    <li><b>Vérification sécurité</b> : aucun secret (PAT, clés, chemins personnels) ; captures inspectées.</li>
+    <li><b>Publication</b> : uniquement via les canaux déclarés ; jamais de compte personnel non identifié.</li>
+  </ul></div>
+  <h3 class="sub">7.2 Secrets & données (règles absolues)</h3>
+  <div class="grid2">
+    <div class="dont"><h5>❌ INTERDIT</h5>
+      <p>Publier un token/PAT/clé (même « par erreur » → révocation immédiate + annonce si exposé public).</p>
+      <p>Capture avec nom d'utilisateur, chemin personnel, code privé, e-mail visible.</p>
+      <p>Métrique inventée ou arrondie à l'avantage du projet.</p>
+    </div>
+    <div class="do"><h5>✅ OBLIGATOIRE</h5>
+      <p>Tout contenu généré par IA est relu et validé par un humain avant publication.</p>
+      <p>Les chiffres sensibles (revenus, utilisateurs) se publient en ordre de grandeur assumé.</p>
+      <p>Chaque article cite ses sources (mesure interne datée ou source externe).</p>
+    </div>
+  </div>
+  <h3 class="sub">7.3 Gestion de crise éditoriale (bug public, bad buzz)</h3>
+  <table class="ce">
+    <tr><th style="width:16mm">Délai</th><th>Action</th><th style="width:60mm">Formule type</th></tr>
+    <tr><td>&lt; 24 h</td><td>Reconnaître, sans justification</td><td>« Oui, c'est un bug réel. Ticket #X ouvert. »</td></tr>
+    <tr><td>&lt; 72 h</td><td>Expliquer la cause + palliatif</td><td>« Cause probable : … ; en attendant : … »</td></tr>
+    <tr><td>Release</td><td>Corriger + changelog « Fixed »</td><td>« Fixed — … (merci à @contributeur). »</td></tr>
+    <tr><td>Après</td><td>Ne rien effacer (transparence)</td><td>Le fil reste public ; pas de réécriture de l'historique.</td></tr>
+  </table>
+  <p class="txt muted">Principe : <b>la transparence est notre marketing</b>. Un bug admis et corrigé rapidement vaut plus en confiance qu'une communication parfaite mais fausse.</p>
+  <div class="footline">Charte éditoriale & de marque · Septembre 2026</div><div class="pageno">8 / 9</div>
+</div>
+
+<!-- ══ P9 · CHECKLIST + CONCLUSION ══ -->
+<div class="page">
+  <div class="brand"><div class="hex">M</div>MOTO Editor · Charte éditoriale</div>
+  <h2 class="sec" style="margin-top:5mm">8. Checklist de publication & conclusion</h2>
+  <h3 class="sub">Checklist avant toute publication (10 points)</h3>
+  <table class="ce">
+    <tr><th style="width:8mm">#</th><th>Contrôle</th><th style="width:20mm">Statut</th></tr>
+    <tr><td>1</td><td>Le ton correspond au canal (doc / devlog / social / support)</td><td>☐</td></tr>
+    <tr><td>2</td><td>Aucun superlatif non prouvé ; chaque chiffre a sa source ou sa méthode</td><td>☐</td></tr>
+    <tr><td>3</td><td>Aucun dénigrement de concurrent ; comparaisons factuelles sourcées</td><td>☐</td></tr>
+    <tr><td>4</td><td>Nom « MOTO Editor » et baseline utilisés correctement</td><td>☐</td></tr>
+    <tr><td>5</td><td>Couleurs, typo et logo conformes à la palette MotoTheme</td><td>☐</td></tr>
+    <tr><td>6</td><td>Capture sans donnée personnelle, recadrée, thème dark par défaut</td><td>☐</td></tr>
+    <tr><td>7</td><td>Aucun secret, token, clé, chemin personnel dans texte ou image</td><td>☐</td></tr>
+    <tr><td>8</td><td>Liens testés ; ticket/commit réel cité si référence à un bug</td><td>☐</td></tr>
+    <tr><td>9</td><td>Contenu IA relu et validé par un humain</td><td>☐</td></tr>
+    <tr><td>10</td><td>Fréquence respectée (changelog à chaque release, devlog 2×/mois…)</td><td>☐</td></tr>
+  </table>
+  <h3 class="sub">KPIs éditoriaux (revue mensuelle)</h3>
+  <div class="grid2">
+    <div class="card"><h4>Cohérence</h4><ul>
+      <li>100 % des releases avec changelog au format A/C/F.</li>
+      <li>100 % des bugs publics avec ticket + réponse &lt; 24 h.</li>
+      <li>0 publication sans relecture checklist.</li>
+    </ul></div>
+    <div class="card"><h4>Impact</h4><ul>
+      <li>Croissance étoiles / téléchargements / actifs (cf. business plan).</li>
+      <li>Taux de réponse communautaire (issues → PR, discussions).</li>
+      <li>Reprise organique des articles (liens entrants, citations).</li>
+    </ul></div>
+  </div>
+  <h3 class="sub">Conclusion</h3>
+  <p class="txt">Cette charte tient en une phrase : <b>« Dire vrai, dire mesuré, dire utile. »</b> MOTO Editor ne peut pas dépenser plus que les géants ; il peut en revanche être plus honnête, plus transparent et plus cohérent qu'eux. La charte transforme cette contrainte en avantage : chaque publication applique la même doctrine que le produit — <span class="accent">façade simple, fond solide, rien de factice</span>.</p>
+  <p class="txt muted">Prochaine révision de la charte : au jalon M3 (v1.0 publique), ou après tout changement de positionnement.</p>
+  <div class="footline">Charte éditoriale & de marque · Fin du document</div><div class="pageno">9 / 9</div>
+</div>
+
+</body>
+</html>

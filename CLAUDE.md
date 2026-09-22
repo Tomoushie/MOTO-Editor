@@ -346,8 +346,9 @@ version figée à la place — aucun rapport avec le code de ce dépôt.
 
 Échelle perso : cheap → faible → moyen → élevé → Commercial.
 - **cheap → faible** : l'IA doit fonctionner (✅ acquis, panneau de chat réel
-  avec Ollama) + la barre de titre bleue Windows doit disparaître (⏸️ en
-  pause, cause réelle trouvée — voir section dédiée plus bas).
+  avec Ollama) + la barre de titre bleue Windows doit disparaître (🔧 chantier
+  "rendu 100% custom" EN COURS depuis le 08/09, plus en pause — voir section
+  dédiée plus bas ; la bande elle-même n'est toujours pas éliminée).
 - **faible → moyen** : stabilité totale — tout ce qui existe doit fonctionner
   PARFAITEMENT (pas de fonctionnalité à moitié branchée). L'état des lieux du
   02/09 a trouvé plusieurs cas concrets qui violent ce palier dès aujourd'hui
@@ -620,28 +621,107 @@ recherche filtre sans planter, "Nouvelle conversation" fonctionne.
   intégré directement DANS le panneau de chat principal — reste une fenêtre
   séparée à ouvrir via la palette, pas un clic sur place.
 
-## Barre de titre bleue Windows — statut : EN PAUSE, cause connue
+## Barre de titre bleue Windows — chantier "rendu 100% custom" EN COURS (08/09)
 
-Bande bleue native persistante malgré `ExtendsContentIntoTitleBar=true`.
-**Cause réelle confirmée** (pas une hypothèse) : réglage Windows 11
-"Afficher la couleur d'accentuation sur les barres de titre" — documenté
-par Microsoft (fixer TOUTES les couleurs de la titlebar est recommandé mais
-pas garanti) et par un ticket GitHub encore ouvert et jamais résolu par
-Microsoft (`microsoft-ui-xaml#9374`, même symptôme).
+**Mise à jour du 22/09 : ce chantier n'est PAS en pause, contrairement à ce
+que disait la version précédente de cette section.** Tom a accepté le 08/09 de
+passer au "rendu 100% custom" après épuisement des 6 tentatives
+"coopératives" — 6 commits du 08/09 (`174ebd0` → `73f7ab1`) documentent la
+séquence complète. HEAD est toujours sur `73f7ab1`.
 
-- Correctif sûr appliqué et gardé (4 couleurs manquantes sur
-  `AppWindowTitleBar`, `SnapLayoutsHelper.ApplyTitleBarColors`) — **insuffisant
-  seul**, testé.
-- Piste radicale testée puis abandonnée proprement (`OverlappedPresenter.
-  SetBorderAndTitleBar(false,false)`) : fenêtre restée visible (mieux que 3
-  tentatives antérieures qui la rendaient invisible), mais résultat visuel
-  PIRE (double bande, boutons natifs disparus). Code entièrement retiré.
-- Seule piste restante, jamais tentée : fenêtre sans bordure **+ rendu 100%
-  custom** de la zone des boutons (réutiliser les boutons MOTO déjà dessinés
-  dans `CustomMenuBarView`). Chantier à part entière, pas une correction
-  ponctuelle — voir mémoire Claude `moto-editor-titlebar-msix-investigation`
-  pour le détail complet de toutes les tentatives (6+ pistes écartées avec
-  preuve avant celle-ci).
+**Cause réelle de la bande bleue, toujours valable** (pas une hypothèse,
+établie le 02/09) : réglage Windows 11 "Afficher la couleur d'accentuation sur
+les barres de titre" — documenté par Microsoft (fixer TOUTES les couleurs de
+la titlebar est recommandé mais pas garanti) et par un ticket GitHub toujours
+ouvert et jamais résolu (`microsoft-ui-xaml#9374`, même symptôme).
+
+### Les 4 tentatives "coopératives" supplémentaires (08/09), toutes échouées
+
+Toutes testées **EN DIRECT** (build Debug relancé pour de vrai, capture
+d'écran + journal `Breadcrumb` relu) — aucune n'est une supposition, et toutes
+échouent avec le **même symptôme** :
+
+| # | commit | approche | résultat |
+|---|---|---|---|
+| 3 | `174ebd0` | `ExtendsContentIntoTitleBar=false` (jamais réactivé, y compris dans `window.HandlerChanged`) + `SetBorderAndTitleBar(false,false)`, posés une seule fois, sans faire cohabiter les 2 approches (contrairement au 02/09 qui crashait) | pas de crash cette fois, redimensionnement au bord OK, **bande bleue inchangée** → revert propre |
+| 4 | `bbe5e94` | + `DwmSetWindowAttribute` (P/Invoke `dwmapi.dll`) : `DWMWA_CAPTION_COLOR`/`BORDER_COLOR`/`TEXT_COLOR` | `hr=0` (S_OK, acceptés pour de vrai, 8 réapplications observées) **et pourtant bande inchangée** → gardé (recommandation officielle Microsoft, isolé dans son try/catch, aucun effet de bord) |
+| 5 | `5e5b33e` | combinaison 3+4, avec `ApplyDwmAttributeColors` extraite en méthode séparée pour ne jamais reposer `ExtendsContentIntoTitleBar=true` | mêmes `hr=0`, bande TOUJOURS inchangée → revert propre |
+| 6 | `e4ccb91` | `DWMWA_SYSTEMBACKDROP_TYPE=DWMSBT_NONE` — hypothèse : un backdrop Mica auto-choisi par DWM serait le déclencheur documenté par #9374 (0 occurrence de `Mica`/`Acrylic`/`SystemBackdrop` dans le dépôt avant ça, vérifié) | `hr=0`, bande TOUJOURS inchangée → gardé |
+
+**Enseignement dur, ne plus retester ces 4 API** : Windows **accepte** la
+demande (`hr=0`) puis peint quand même l'accentuation par-dessus. Le paint a
+lieu au niveau du compositeur DWM, indépendamment d'`AppWindowTitleBar` ET
+d'`OverlappedPresenter`. Ceci **confirme** l'interdiction déjà écrite dans
+`QWEN.md` §9 (« ne plus jamais retenter `SetBorderAndTitleBar` ») — la
+tentative 3 l'a re-vérifiée sur un stack qui ne crashait plus.
+
+### Incrément 1 — sans bordure PERMANENTE + zones de redimensionnement (`e4a92ed`)
+
+La fenêtre est désormais sans bordure **permanente et jamais réversible**
+(choix explicite, contrepartie acceptée du rendu custom) :
+- `App.xaml.cs` (`window.HandlerChanged` ET `OnWindowsWindowCreated`) :
+  `ExtendsContentIntoTitleBar=false` partout, `SetBorderAndTitleBar(false,false)`
+  sur l'`OverlappedPresenter` (avec un log d'avertissement si le présentateur
+  n'est pas du type attendu).
+- **`ApplyTitleBarColors` n'est plus appelée du tout** — elle reposerait
+  `ExtendsContentIntoTitleBar=true` et annulerait le mode. Remplacée partout
+  par `ApplyDwmAttributeColors` seule (couleurs DWM + backdrop + coins).
+- ⚠️ **Dette de code réelle, vérifiée le 22/09** :
+  `SnapLayoutsHelper.ApplyTitleBarColors` n'a plus **AUCUN appelant** dans
+  tout `Moto.Editor` (recherche complète) mais son commentaire XML affirme
+  encore qu'elle « reste donc le correctif "sûr" en usage » — texte écrit à
+  l'étape `bbe5e94` puis rendu faux par `e4a92ed`, jamais relu depuis. À
+  corriger (ou à exclure proprement du build) quand le chantier sera stabilisé.
+- **Zones de sécurité** (le terme de Tom) recréées : `ConfigureResizeBorders`
+  (nouveau) enregistre les 4 zones `TopBorder`/`LeftBorder`/`BottomBorder`/
+  `RightBorder` — sans bordure native, Windows n'a plus AUCUNE zone de
+  redimensionnement. Épaisseur 6 DIP (valeur standard Windows) convertie par
+  `DragZoneHelper`, recalculée à chaque `AppWindow.Changed` (`DidSizeChange`).
+  Top/Bottom couvrent toute la largeur, Left/Right s'arrêtent entre les deux
+  pour éviter un double enregistrement de zone. `NonClientRegionKind` n'a
+  **pas** de valeur "coin" (vérifié sur learn.microsoft.com, WASDK 1.8 — pas
+  une supposition) : les coins fonctionnent par intersection de 2 bordures.
+- `DWMWA_WINDOW_CORNER_PREFERENCE=DWMWCP_ROUND` ajouté, pour ne pas perdre
+  les coins arrondis Windows 11 maintenant que la fenêtre est sans bordure.
+
+### Incrément 2 — plein écran manuel F11 (`73f7ab1`)
+
+`SnapLayoutsHelper.ToggleFullScreen` (`AppWindowPresenterKind.FullScreen`) +
+**F11** via `GlobalHotkeyService` (nouveau paramètre `onToggleFullScreen`,
+même patron que Ctrl+B/F5), câblé dans `MainPage.xaml.cs`. **0
+`VirtualKey.F11` dans tout le dépôt** avant ce commit (vérifié).
+**Piège réel évité** : `SetPresenter(Overlapped)` en sortie de plein écran
+recrée un présentateur par défaut AVEC bordure →
+`SetBorderAndTitleBar(false,false)` est réappliqué immédiatement après, sinon
+toute la personnalisation sans-bordure était perdue à chaque F11.
+
+### Ce qui est vérifié, et ce qui reste ouvert
+
+**Vérifié en direct le 08/09** : `ConfigureResizeBorders` calcule des rects
+cohérents avec la vraie taille de fenêtre (journal : `taille=1632x1263
+épaisseur=6px`) ; double-clic sur la zone de titre → maximiser puis restaurer
+corrects ; bouton Maximiser custom correct ; F11 → plein écran réel (barre des
+tâches masquée, contrairement à Maximiser) et sortie propre avec sans-bordure
+bien réappliqué ; coins arrondis acceptés par DWM (`hr=0`) ; aucune exception
+sur toute la séquence (launch → maximiser → restaurer → plein écran → fermer),
+fermeture propre par Alt+F4. **Constat en passant** : la bande bleue est
+**ABSENTE en plein écran** (elle revient en mode fenêtré) — cohérent avec les
+6 tentatives, mais pas une piste de correctif (on ne va pas forcer le plein
+écran en permanence).
+
+**Toujours OUVERT (à ne pas croire réglé)** :
+- La bande bleue elle-même (cosmétique, inchangée) en mode fenêtré.
+- **Glissé de redimensionnement pixel-précis aux bords/coins NON confirmé par
+  un humain** — limite de l'outil de capture utilisé (bordure de 6px plus fine
+  que la précision d'un clic-glissé estimé sur une capture compressée), pas du
+  code. À faire tester par Tom.
+- **Snap Windows (Survol du bouton Maximiser + flèches) non vérifié** après le
+  passage en sans-bordure.
+- Animations minimiser/restaurer (non traitées).
+- DPI multi-écrans : `DragZoneHelper` utilise une densité globale, pas
+  par-écran.
+- Détail historique du chantier : mémoire Claude
+  `moto-editor-titlebar-msix-investigation`.
 
 ## Point d'entrée pour ouvrir l'Explorateur
 
@@ -908,8 +988,9 @@ mémoire, avant ce correctif :
 ## Modularité façon Zed/VS Code — état des lieux (02/09, sonde 5 domaines)
 
 Demande de Tom : rapprocher MOTO de la modularité/architecture de Zed et
-VS Code (fait-maison, sans dépendance, léger), la barre bleue restant
-explicitement en pause. Sonde en lecture seule sur 5 domaines avant de
+VS Code (fait-maison, sans dépendance, léger), la barre bleue étant alors
+laissée de côté (elle a depuis son propre chantier, voir la section
+"rendu 100% custom" plus haut). Sonde en lecture seule sur 5 domaines avant de
 choisir où coder. Résumé digéré ci-dessous ; le détail complet (fichiers/
 lignes cités) est dans le journal de la Workflow `wf_601f74fd-4fc`
 (02/09) si besoin de retrouver une citation précise.

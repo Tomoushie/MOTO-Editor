@@ -25,3 +25,14 @@ keys/
 ## Packages/NuGet
 *.nupkg
 packages/
+
+## Artefacts générés par l'app elle-même, jamais versionnés
+## .moto/docs/*.md = documentation projet régénérée par DocEngine à CHAQUE
+## ouverture de projet (réglage doc_on_project_open=true par défaut, voir
+## CLAUDE.md) — du contenu dérivé, pas une source.
+.moto/
+
+## Plans locaux de l'outil IA. Chemins explicites volontairement : le
+## .claude/ de la RACINE, lui, reste suivi (il contient le launch.json du
+## projet) — ne pas le mettre en .claude/ global.
+Moto.Editor/.claude/

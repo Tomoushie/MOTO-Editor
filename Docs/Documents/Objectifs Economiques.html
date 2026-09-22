@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MOTO Editor — Plan Cible : 3 000 € net/mois (PDF)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/fontsource/css/inter@latest/index.css">
+<style>
+:root{--accent:#007ACC;--accent2:#005A9E;--ink:#181A1E;--muted:#5A6069;--paper:#fff;--bg:#F7F8FA;--line:#D6D9DF;--green:#2E7D32;--red:#C62828;--amber:#B26A00;--violet:#7C3AED;}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+html,body{background:var(--bg);font-family:'Inter',system-ui,sans-serif;color:var(--ink);}
+@page{size:A4;margin:0;}
+.toolbar{position:fixed;top:14px;right:14px;z-index:99;}
+.toolbar button{background:var(--accent);color:#fff;border:none;border-radius:8px;padding:10px 16px;font-weight:600;font-size:13px;cursor:pointer;box-shadow:0 4px 12px rgba(0,122,204,.35);}
+.page{width:210mm;min-height:296mm;background:var(--paper);margin:20px auto;padding:14mm 14mm 12mm;position:relative;box-shadow:0 8px 30px rgba(0,0,0,.12);overflow:hidden;page-break-after:always;}
+@media print{.toolbar{display:none;}body{background:#fff;}.page{margin:0;box-shadow:none;width:210mm;height:296mm;min-height:0;}}
+.brand{display:flex;align-items:center;gap:8px;font-weight:700;font-size:10px;letter-spacing:.12em;color:var(--accent);text-transform:uppercase;}
+.brand .hex{width:20px;height:20px;background:var(--accent);color:#fff;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:11px;}
+.pageno{position:absolute;bottom:7mm;right:14mm;font-size:8.5px;color:var(--muted);}
+.footline{position:absolute;bottom:7mm;left:14mm;font-size:8.5px;color:var(--muted);}
+.cover{height:100%;display:flex;flex-direction:column;justify-content:space-between;background:linear-gradient(160deg,#0d1418 0%,#111214 55%,#0a2233 100%);color:#E8EAED;margin:-14mm;padding:18mm 14mm;}
+.cover .tag{display:inline-block;border:1px solid rgba(0,122,204,.6);color:#7cc4ff;border-radius:999px;padding:5px 14px;font-size:10px;letter-spacing:.15em;text-transform:uppercase;}
+.cover h1{font-size:34px;line-height:1.15;font-weight:800;margin:16px 0 8px;}
+.cover h1 span{color:#4da3ff;}
+.cover p{color:#9AA0A6;font-size:12.5px;max-width:130mm;line-height:1.6;}
+.cover .big-hex{width:60px;height:60px;background:var(--accent);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:30px;font-weight:800;color:#fff;box-shadow:0 10px 40px rgba(0,122,204,.5);}
+.cover .meta{display:flex;gap:20px;font-size:9.5px;color:#9AA0A6;flex-wrap:wrap;}
+.cover .meta b{color:#E8EAED;display:block;font-size:11px;}
+h2.sec{font-size:16.5px;color:var(--accent2);border-left:4px solid var(--accent);padding-left:9px;margin:4mm 0 3mm;}
+h3.sub{font-size:11.5px;margin:3mm 0 2mm;color:var(--ink);}
+p.txt{font-size:9.8px;line-height:1.55;color:#33383F;margin-bottom:2.5mm;}
+.muted{color:var(--muted);}.accent{color:var(--accent);font-weight:600;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:3.5mm;}
+.grid3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:3mm;}
+.card{border:1px solid var(--line);border-radius:9px;padding:3mm 3.5mm;background:#FBFCFE;}
+.card h4{font-size:10.5px;margin-bottom:1.8mm;}
+.card ul{list-style:none;}
+.card li{font-size:8.8px;line-height:1.45;margin-bottom:1.2mm;padding-left:11px;position:relative;}
+.card li::before{content:"";position:absolute;left:0;top:4px;width:4.5px;height:4.5px;border-radius:50%;background:var(--accent);opacity:.7;}
+.chip{display:inline-block;border-radius:999px;padding:1px 8px;font-size:8px;font-weight:700;color:#fff;}
+.kpirow{display:grid;grid-template-columns:repeat(4,1fr);gap:3mm;margin:3mm 0;}
+.kpi{border:1px solid var(--line);border-radius:9px;padding:2.5mm;text-align:center;background:#FBFCFE;}
+.kpi .v{font-size:14px;font-weight:800;}
+.kpi .l{font-size:7.6px;color:var(--muted);margin-top:1mm;}
+table.t{width:100%;border-collapse:collapse;font-size:8.8px;margin-top:2mm;}
+table.t th{background:#111214;color:#E8EAED;text-align:left;padding:1.8mm 2.2mm;font-size:8.4px;}
+table.t td{border-bottom:1px solid var(--line);padding:1.7mm 2.2mm;vertical-align:top;line-height:1.45;}
+table.t tr:nth-child(even) td{background:#F2F5F8;}
+table.t td.num{text-align:right;font-weight:600;font-variant-numeric:tabular-nums;}
+table.t tr.tot td{background:#EAF4FB;font-weight:800;border-top:2px solid var(--accent);}
+.toc li{font-size:10px;margin-bottom:2mm;list-style:none;display:flex;justify-content:space-between;border-bottom:1px dotted var(--line);padding-bottom:1.2mm;}
+.quote{border-left:4px solid var(--violet);background:#F3EEFC;border-radius:0 9px 9px 0;padding:3mm 4mm;font-size:10px;font-style:italic;color:#3b2a63;margin:3mm 0;}
+.bar{height:4.5px;background:#E4E9EE;border-radius:3px;overflow:hidden;}
+.bar i{display:block;height:100%;border-radius:3px;}
+.formula{background:#111214;color:#E8EAED;border-radius:8px;padding:3mm 4mm;font-size:10px;text-align:center;margin:2.5mm 0;font-weight:600;}
+.formula span{color:#4da3ff;}
+</style>
+</head>
+<body>
+<div class="toolbar"><button onclick="window.print()">⬇ Télécharger en PDF</button></div>
+
+<!-- P1 COUVERTURE -->
+<div class="page"><div class="cover">
+<div>
+<div class="big-hex">M</div><div style="height:7mm"></div>
+<span class="tag">Plan cible personnel · v1.0 · Septembre 2026</span>
+<h1>Objectif : <span>3 000 € net/mois</span><br>avec 0,02 % du marché</h1>
+<p>Le plan chiffré, réaliste et assumé d'un développeur solo : un salaire, pas une licorne. Combien d'abonnés Pro, combien d'utilisateurs, quelle part de marché minuscule, et quelle valeur d'entreprise à 3 ans — sans budget, sans équipe, sans cloud.</p>
+</div>
+<div class="meta">
+<div><b>Cible</b>3 000 € net/mois</div>
+<div><b>Part de marché</b>0,02 – 0,03 %</div>
+<div><b>Conversion</b>1 – 2,5 %</div>
+<div><b>Valeur 3 ans</b>30 000 – 45 000 €</div>
+</div>
+</div></div>
+
+<!-- P2 SYNTHÈSE -->
+<div class="page">
+<div class="brand"><div class="hex">M</div>MOTO Editor · Plan cible</div>
+<h2 class="sec" style="margin-top:4mm">Sommaire</h2>
+<ul class="toc">
+<li><span>1. Synthèse & philosophie de l'objectif</span><span class="muted">p.2</span></li>
+<li><span>2. Calcul 1 — Du net au brut, du brut aux abonnés</span><span class="muted">p.3</span></li>
+<li><span>3. Calcul 2 — Des abonnés aux utilisateurs (conversion)</span><span class="muted">p.4</span></li>
+<li><span>4. Calcul 3 — Des utilisateurs à la part de marché</span><span class="muted">p.5</span></li>
+<li><span>5. Calcul 4 — Valeur d'entreprise à 3 ans</span><span class="muted">p.6</span></li>
+<li><span>6. Trajectoire 3 ans & plan mensuel</span><span class="muted">p.7</span></li>
+<li><span>7. Sensibilité, risques & leviers</span><span class="muted">p.8</span></li>
+<li><span>8. Ce dont tu n'as PAS besoin — conclusion</span><span class="muted">p.9</span></li>
+</ul>
+<h2 class="sec">1. Synthèse & philosophie de l'objectif</h2>
+<div class="quote">« Je ne vise pas l'argent, je viserais juste 3 000 € par mois (salaire pour moi). » — C'est l'objectif le plus intelligent, le plus réaliste et le plus sain pour un développeur solo. Et c'est beaucoup plus facile à atteindre qu'il n'y paraît.</div>
+<div class="kpirow">
+<div class="kpi"><div class="v" style="color:var(--accent)">3 000 €</div><div class="l">NET / MOIS VISÉS</div></div>
+<div class="kpi"><div class="v" style="color:var(--accent)">320–380</div><div class="l">ABONNÉS PRO SUFFISENT</div></div>
+<div class="kpi"><div class="v" style="color:var(--green)">15–19 k</div><div class="l">UTILISATEURS ACTIFS (HYP. 2–2,5 %)</div></div>
+<div class="kpi"><div class="v" style="color:var(--green)">0,02–0,03 %</div><div class="l">DU MARCHÉ IDE MONDIAL</div></div>
+</div>
+<div class="kpirow">
+<div class="kpi"><div class="v" style="color:var(--violet)">30–45 k€</div><div class="l">VALEUR D'ENTREPRISE À 3 ANS</div></div>
+<div class="kpi"><div class="v" style="color:var(--violet)">1–2,5 %</div><div class="l">CONVERSION FREE → PRO</div></div>
+<div class="kpi"><div class="v" style="color:var(--amber)">10–12 €</div><div class="l">PRIX PRO / MOIS</div></div>
+<div class="kpi"><div class="v" style="color:var(--amber)">≈ 21 %</div><div class="l">COTISATIONS MICRO-ENTREPRISE</div></div>
+</div>
+<p class="txt">La chaîne complète du raisonnement tient en une phrase : <b>3 000 € net ⇒ ≈ 3 800 € brut ⇒ 320–380 abonnés Pro ⇒ 12 000–19 000 utilisateurs actifs ⇒ 0,02–0,03 % du marché mondial ⇒ une valeur d'entreprise de 30 000 à 45 000 € en année 3.</b> Chaque maillon est vérifiable, prudent, et aligné avec le business plan bootstrap (12 000 actifs / 300 Pro en an 3).</p>
+<div class="footline">Plan cible · Septembre 2026</div><div class="pageno">2 / 9</div>
+</div>
+
+<!-- P3 CALCUL 1 -->
+<div class="page">
+<div class="brand"><div class="hex">M</div>MOTO Editor · Plan cible</div>
+<h2 class="sec" style="margin-top:4mm">2. Calcul 1 — Du net au brut, du brut aux abonnés</h2>
+<p class="txt">En micro-entreprise (prestations de services), les cotisations sociales représentent ≈ <b>21 %</b> du chiffre d'affaires encaissé. Un salaire net se calcule donc sur le brut restant (≈ 79 %).</p>
+<div class="formula">3 000 € net ÷ 0,79 ≈ <span>3 800 € brut/mois</span></div>
+<h3 class="sub">Combien d'abonnés Pro pour 3 800 € ?</h3>
+<table class="t">
+<tr><th>Prix du plan Pro</th><th>Calcul</th><th style="width:34mm">Abonnés nécessaires</th></tr>
+<tr><td>10 €/mois</td><td>3 800 ÷ 10</td><td class="num"><b>380</b></td></tr>
+<tr><td>12 €/mois (ou 96 €/an lissé)</td><td>3 800 ÷ 12</td><td class="num"><b>≈ 320</b></td></tr>
+<tr><td>Mix 10 € + Max 20–25 €</td><td>panier moyen ~12–13 €</td><td class="num"><b>≈ 300–320</b></td></tr>
+</table>
+<div class="formula">Objectif réel : <span>320 à 380 abonnés Pro</span>. C'est tout.</div>
+<div class="grid2">
+<div class="card"><h4>Ce que ça signifie</h4><ul>
+<li>Pas besoin de millions d'utilisateurs.</li>
+<li>Pas besoin de 1 % du marché.</li>
+<li>Pas besoin de devenir VS Code.</li>
+<li>Une communauté de niche suffit.</li>
+</ul></div>
+<div class="card"><h4>Repères de faisabilité</h4><ul>
+<li>380 abonnés = une salle de concert moyenne, pas une foule.</li>
+<li>Zed Pro ($10) et Cursor Pro ($20) valident ce prix psychologique.</li>
+<li>Le plan annuel 96 € apporte la trésorerie d'avance.</li>
+</ul></div>
+</div>
+<h3 class="sub">Vérification croisée avec le business plan</h3>
+<p class="txt">Le business plan bootstrap prévoit <b>300 Pro en année 3</b> (≈ 3 000 € MRR à 10 €) — soit exactement l'ordre de grandeur de l'objectif salarial. Les deux documents sont cohérents : l'objectif n'est pas un rêve, c'est la même trajectoire vue côté salaire.</p>
+<div class="footline">Plan cible · Septembre 2026</div><div class="pageno">3 / 9</div>
+</div>
+
+<!-- P4 CALCUL 2 -->
+<div class="page">
+<div class="brand"><div class="hex">M</div>MOTO Editor · Plan cible</div>
+<h2 class="sec" style="margin-top:4mm">3. Calcul 2 — Des abonnés aux utilisateurs (conversion)</h2>
+<p class="txt">Taux de conversion free → Pro observés sur le freemium developer-tools : <b>1 %</b> (produit moyen), <b>2 %</b> (bon produit), <b>2,5 %</b> (excellent), <b>3 %</b> (très bien positionné : local-first, privacy, minimalisme). Fourchette de travail retenue : <span class="accent">1 % à 2,5 %</span>.</p>
+<table class="t">
+<tr><th>Conversion</th><th>Calcul (380 Pro à 10 €)</th><th style="width:40mm">Utilisateurs actifs nécessaires</th></tr>
+<tr><td>1,0 %</td><td>380 ÷ 0,010</td><td class="num">38 000</td></tr>
+<tr><td>1,5 %</td><td>380 ÷ 0,015</td><td class="num">≈ 25 300</td></tr>
+<tr><td>2,0 %</td><td>380 ÷ 0,020</td><td class="num"><b>19 000</b></td></tr>
+<tr><td>2,5 %</td><td>380 ÷ 0,025</td><td class="num"><b>15 200</b></td></tr>
+<tr><td>3,0 % (bonus)</td><td>380 ÷ 0,030</td><td class="num">≈ 12 700</td></tr>
+</table>
+<div class="formula">Besoin réaliste : <span>12 000 à 19 000 utilisateurs actifs</span> (hypothèse 2–2,5 %)</div>
+<h3 class="sub">Lecture</h3>
+<div class="grid2">
+<div class="card"><h4>Si le produit est « bon » (2 %)</h4><ul><li>19 000 actifs suffisent.</li><li>C'est le chiffre haut de la fourchette de travail.</li></ul></div>
+<div class="card"><h4>Si le positionnement est excellent (2,5–3 %)</h4><ul><li>12 700–15 200 actifs suffisent.</li><li>La niche privacy/local-first pousse la conversion vers le haut.</li></ul></div>
+</div>
+<p class="txt muted">Levier direct : chaque point de conversion gagné divise le besoin d'audience. La qualité du produit et la clarté de la niche (local-first, minimaliste, accessible) sont donc des leviers <b>mathématiques</b>, pas seulement marketing.</p>
+<div class="footline">Plan cible · Septembre 2026</div><div class="pageno">4 / 9</div>
+</div>
+
+<!-- P5 CALCUL 3 -->
+<div class="page">
+<div class="brand"><div class="hex">M</div>MOTO Editor · Plan cible</div>
+<h2 class="sec" style="margin-top:4mm">4. Calcul 3 — Des utilisateurs à la part de marché</h2>
+<p class="txt">Base mondiale d'utilisateurs d'IDE/éditeurs de code : ≈ <b>50–60 millions</b> (VS Code + JetBrains + écosystème terminal/éditeurs). Rapporté à cette base :</p>
+<div class="formula">12 000 ÷ 60 M ≈ <span>0,02 %</span> · 19 000 ÷ 60 M ≈ <span>0,03 %</span></div>
+<h3 class="sub">Ce que pèsent les autres (ordres de grandeur publics)</h3>
+<table class="t">
+<tr><th style="width:44mm">Produit</th><th>Utilisateurs approx.</th><th style="width:40mm">Part estimée du marché</th></tr>
+<tr><td>VS Code</td><td>30 M+ (75,9 % d'usage)</td><td><div class="bar"><i style="width:100%;background:var(--accent)"></i></div></td></tr>
+<tr><td>JetBrains (tous IDE)</td><td>10 M+</td><td><div class="bar"><i style="width:33%;background:var(--accent)"></i></div></td></tr>
+<tr><td>Cursor</td><td>~2 M</td><td><div class="bar"><i style="width:7%;background:var(--violet)"></i></div></td></tr>
+<tr><td>Zed</td><td>~1 M (7,3 % d'usage SO 2025)</td><td><div class="bar"><i style="width:3.5%;background:var(--violet)"></i></div></td></tr>
+<tr><td>Neovim</td><td>~1 M</td><td><div class="bar"><i style="width:3.5%;background:var(--violet)"></i></div></td></tr>
+<tr><td><b>MOTO Editor (objectif an 3)</b></td><td><b>12 000 – 19 000</b></td><td><div class="bar"><i style="width:1.2%;background:var(--green)"></i></div> <b>0,02–0,03 %</b></td></tr>
+</table>
+<h3 class="sub">Conclusion du calcul</h3>
+<div class="grid2">
+<div class="card"><h4>Ce qu'il NE faut PAS</h4><ul>
+<li>Pas besoin de 1 % du marché.</li>
+<li>Pas besoin de 0,5 % ni même de 0,1 %.</li>
+<li>Pas besoin de battre personne.</li>
+</ul></div>
+<div class="card"><h4>Ce qu'il faut</h4><ul>
+<li><b>0,02 à 0,03 %</b> — ridiculement petit à l'échelle mondiale.</li>
+<li>Totalement atteignable pour un solo dev avec une niche.</li>
+<li>Zed a prouvé le mouvement (1,7 % → 7,3 % en un an) ; MOTO vise 100× moins.</li>
+</ul></div>
+</div>
+<div class="footline">Plan cible · Septembre 2026</div><div class="pageno">5 / 9</div>
+</div>
+
+<!-- P6 CALCUL 4 -->
+<div class="page">
+<div class="brand"><div class="hex">M</div>MOTO Editor · Plan cible</div>
+<h2 class="sec" style="margin-top:4mm">5. Calcul 4 — Valeur d'entreprise à 3 ans : 30 000 – 45 000 €</h2>
+<p class="txt">En année 3, l'activité génère ≈ <b>3 800 € brut/mois</b>, soit ≈ <b>45 600 € de CA annuel</b> (ARR) et ≈ <b>36 000 € net/an</b>. Une micro-activité SaaS indépendante se valorise usuellement entre <b>0,8× et 1× l'ARR</b> (ou 1× à 1,25× le net annuel) sur les places de micro-acquisition.</p>
+<table class="t">
+<tr><th style="width:56mm">Méthode de valorisation</th><th>Base an 3</th><th style="width:34mm">Valeur estimée</th></tr>
+<tr><td>1× résultat net annuel</td><td>≈ 36 000 €</td><td class="num">≈ 36 000 €</td></tr>
+<tr><td>0,8× à 1× ARR (CA récurrent)</td><td>≈ 45 600 €</td><td class="num">36 000 – 45 600 €</td></tr>
+<tr><td>Micro-acquisition (1× à 1,25× net)</td><td>≈ 36 000 €</td><td class="num">36 000 – 45 000 €</td></tr>
+<tr class="tot"><td colspan="2">Fourchette retenue (prudente)</td><td class="num">30 000 – 45 000 €</td></tr>
+</table>
+<h3 class="sub">Ce que cette valeur représente</h3>
+<div class="grid3">
+<div class="card"><h4>Un actif réel</h4><ul><li>Code open source + marque + communauté + 300–380 abonnés récurrents.</li><li>Ce n'est pas une valorisation spéculative : c'est du revenu multiple.</li></ul></div>
+<div class="card"><h4>Une sortie possible</h4><ul><li>Micro-acquisition (indé, petit éditeur) ou continuation.</li><li>À 3 000 €/mois, la « sortie » la plus rationnelle est souvent de rester.</li></ul></div>
+<div class="card"><h4>Un plancher, pas un plafond</h4><ul><li>Si la conversion atteint 3 % ou le prix 12 €, la valeur monte mécaniquement (45–60 k€).</li></ul></div>
+</div>
+<div class="quote">En résumé : l'entreprise ne vaut pas « des millions imaginaires » — elle vaut 12 à 15 mois de ton salaire, soit 30 000 à 45 000 €. C'est une valeur honnête, défendable, et construite sans un euro de dette.</div>
+<div class="footline">Plan cible · Septembre 2026</div><div class="pageno">6 / 9</div>
+</div>
+
+<!-- P7 TRAJECTOIRE -->
+<div class="page">
+<div class="brand"><div class="hex">M</div>MOTO Editor · Plan cible</div>
+<h2 class="sec" style="margin-top:4mm">6. Trajectoire 3 ans & plan mensuel</h2>
+<table class="t">
+<tr><th style="width:26mm">Période</th><th>Utilisateurs actifs</th><th>Abonnés Pro</th><th>Net/mois</th><th style="width:40mm">Jalons produit (roadmap)</th></tr>
+<tr><td>An 1 (2026-27)</td><td>1 200 → 5 000</td><td>30 → 100</td><td>300 → 1 000 €</td><td>M1 stabilisation · M2 MotoBridge · lancement v1.0 (juin 2027)</td></tr>
+<tr><td>An 2 (2027-28)</td><td>5 000 → 12 000</td><td>100 → 250</td><td>1 000 → 2 500 €</td><td>Portage macOS/Linux · marketplace agents · CRDT/DAP</td></tr>
+<tr><td>An 3 (2028-29)</td><td>12 000 → 19 000</td><td>250 → 380</td><td>2 500 → <b>3 000 €+</b></td><td>v1.x mature · accessibilité certifiée · B2B optionnel</td></tr>
+</table>
+<h3 class="sub">Plan mensuel type pour atteindre 380 Pro (post-lancement)</h3>
+<table class="t">
+<tr><th style="width:40mm">Levier</th><th>Volume mensuel</th><th style="width:40mm">Effet sur Pro</th></tr>
+<tr><td>Contenu build-in-public</td><td>3 posts/sem. + 1 vidéo + 1 article</td><td>+800–1 500 utilisateurs/mois</td></tr>
+<tr><td>Newsletter / waitlist</td><td>1 e-mail/2 sem. (base 1 000+)</td><td>Conversion directe 2–3 %</td></tr>
+<tr><td>Lancements ponctuels</td><td>Product Hunt, Show HN (1×/version)</td><td>Pics 2–5 k téléchargements</td></tr>
+<tr><td>Rétention & bouche-à-oreille</td><td>Réponses &lt; 24 h, changelog systématique</td><td>Churn &lt; 3 %/mois</td></tr>
+<tr class="tot"><td colspan="2">Croissance nette visée</td><td>+20 à +30 Pro/mois</td></tr>
+</table>
+<p class="txt muted">À +25 Pro/mois après lancement : 380 Pro ≈ 15–16 mois post-v1.0 → cohérent avec l'atteinte du salaire cible en année 3. Le plan n'exige aucune accélération irréaliste : une pente régulière suffit.</p>
+<div class="footline">Plan cible · Septembre 2026</div><div class="pageno">7 / 9</div>
+</div>
+
+<!-- P8 SENSIBILITÉ -->
+<div class="page">
+<div class="brand"><div class="hex">M</div>MOTO Editor · Plan cible</div>
+<h2 class="sec" style="margin-top:4mm">7. Sensibilité, risques & leviers</h2>
+<table class="t">
+<tr><th style="width:44mm">Scénario</th><th>Effet</th><th style="width:44mm">Parade / levier</th></tr>
+<tr><td>Conversion 1 % (produit moyen)</td><td>38 000 utilisateurs nécessaires</td><td>Renforcer la niche + passer le Pro à 12 € (320 Pro → 32 000 users à 1 %)</td></tr>
+<tr><td>Conversion 2,5 % (positionnement fort)</td><td>15 200 utilisateurs suffisent</td><td>Continuer privacy/local-first/accessibilité = les 3 piliers de conversion</td></tr>
+<tr><td>Churn &gt; 4 %/mois</td><td>Croissance Pro plafonnée</td><td>Changelog régulier, roadmap publique, communauté Discord</td></tr>
+<tr><td>Prix perçu trop bas</td><td>Plus d'abonnés nécessaires</td><td>Plan Max 20–25 € (power users) + bundles marketplace</td></tr>
+<tr><td>Croissance audience lente</td><td>Objectif décalé de 6–12 mois</td><td>Acceptable : coûts ≈ 0, aucun risque de faillite — le temps est le seul coût</td></tr>
+</table>
+<h3 class="sub">Leviers complémentaires de revenu (au-delà du Pro)</h3>
+<div class="grid3">
+<div class="card"><h4>Plan Max (20–25 €)</h4><ul><li>10 % des Pro en Max = +300–600 €/mois à 380 Pro.</li></ul></div>
+<div class="card"><h4>Marketplace (20 %)</h4><ul><li>Agents/thèmes payants de la communauté, an 2-3.</li></ul></div>
+<div class="card"><h4>Sponsors & B2B</h4><ul><li>GitHub Sponsors (bonus) ; support PME ~500 €/an (optionnel).</li></ul></div>
+</div>
+<h3 class="sub">Rappel des garde-fous financiers</h3>
+<div class="card"><ul>
+<li>Coûts fixes &lt; 20 €/mois → le projet ne peut pas « brûler » de cash.</li>
+<li>Aucune dette, aucune levée, aucun salarié → le pire scénario = un complément de revenu, pas un échec.</li>
+<li>Micro-entreprise créée au 1ᵉʳ euro encaissé ; cotisations ≈ 21 % intégrées dans tous les calculs ci-dessus.</li>
+</ul></div>
+<div class="footline">Plan cible · Septembre 2026</div><div class="pageno">8 / 9</div>
+</div>
+
+<!-- P9 CONCLUSION -->
+<div class="page">
+<div class="brand"><div class="hex">M</div>MOTO Editor · Plan cible</div>
+<h2 class="sec" style="margin-top:4mm">8. Ce dont tu n'as PAS besoin — conclusion</h2>
+<div class="grid2">
+<div class="card"><h4>❌ Inutile</h4><ul>
+<li>Être riche · être une startup · avoir un budget</li>
+<li>Avoir une équipe · un serveur · un cloud</li>
+<li>Prendre 1 % du marché · des millions d'utilisateurs</li>
+<li>Battre VS Code, Zed ou Cursor</li>
+</ul></div>
+<div class="card"><h4>✅ Nécessaire (et déjà en place)</h4><ul>
+<li>Une niche forte : local-first, privacy, minimalisme, 100+ réglages</li>
+<li>Un produit réel (pas un concept) + une roadmap crédible</li>
+<li>Une histoire unique : « un non-développeur construit un IDE avec 3 IA »</li>
+<li>Un marketing gratuit régulier (build in public) + 320–380 Pro</li>
+</ul></div>
+</div>
+<h3 class="sub">La chaîne complète, en une ligne</h3>
+<div class="formula">3 000 € net ⇒ 3 800 € brut ⇒ <span>320–380 Pro</span> ⇒ <span>12–19 k actifs</span> ⇒ <span>0,02–0,03 % du marché</span> ⇒ <span>30–45 k€ de valeur</span> (an 3)</div>
+<h3 class="sub">Conclusion</h3>
+<p class="txt">Cet objectif est <b>le plus sain possible</b> pour un développeur solo : il transforme un marché immense en une fraction minuscule et atteignable (0,02–0,03 %), un salaire confortable en quelques centaines d'abonnés, et une entreprise en un actif modeste mais réel (30–45 k€). Rien dans cette chaîne ne dépend d'un investisseur, d'un algorithme viral ou d'un coup de chance — seulement d'un produit de niche bien fait, d'une conversion de 1 à 2,5 %, et d'une régularité de contenu. Le business plan, le plan marketing et la roadmap convergent déjà vers ces chiffres : <span class="accent">il ne reste qu'à exécuter, jalon par jalon</span>.</p>
+<div class="kpirow">
+<div class="kpi"><div class="v" style="color:var(--accent)">320–380</div><div class="l">PRO</div></div>
+<div class="kpi"><div class="v" style="color:var(--accent)">12–19 k</div><div class="l">ACTIFS</div></div>
+<div class="kpi"><div class="v" style="color:var(--green)">0,02–0,03 %</div><div class="l">MARCHÉ</div></div>
+<div class="kpi"><div class="v" style="color:var(--violet)">30–45 k€</div><div class="l">VALEUR AN 3</div></div>
+</div>
+<div class="footline">Plan cible · Fin du document</div><div class="pageno">9 / 9</div>
+</div>
+
+</body>
+</html>

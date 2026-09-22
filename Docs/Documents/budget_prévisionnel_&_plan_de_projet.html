@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MOTO Editor — Budget Prévisionnel & Plan de Projet (PDF)</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/fontsource/css/inter@latest/index.css">
+<style>
+  :root{
+    --accent:#007ACC; --accent-dark:#005A9E; --ink:#181A1E; --muted:#5A6069;
+    --paper:#FFFFFF; --bg:#F7F8FA; --line:#D6D9DF;
+    --h1c:#007ACC; --h2c:#7C3AED; --h3c:#0E8074; --risk:#C62828; --amber:#B26A00; --green:#2E7D32;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  html,body{background:var(--bg);font-family:'Inter',system-ui,sans-serif;color:var(--ink);}
+  @page{size:A4;margin:0;}
+  .toolbar{position:fixed;top:14px;right:14px;z-index:99;}
+  .toolbar button{background:var(--accent);color:#fff;border:none;border-radius:8px;padding:10px 16px;font-weight:600;font-size:13px;cursor:pointer;box-shadow:0 4px 12px rgba(0,122,204,.35);}
+  .toolbar button:hover{background:var(--accent-dark);}
+  .page{width:210mm;min-height:296mm;background:var(--paper);margin:24px auto;padding:16mm 16mm 14mm;position:relative;box-shadow:0 8px 30px rgba(0,0,0,.12);overflow:hidden;page-break-after:always;}
+  @media print{ .toolbar{display:none;} body{background:#fff;} .page{margin:0;box-shadow:none;width:210mm;height:296mm;min-height:0;} }
+
+  .brand{display:flex;align-items:center;gap:8px;font-weight:700;font-size:11px;letter-spacing:.12em;color:var(--accent);text-transform:uppercase;}
+  .brand .hex{width:22px;height:22px;background:var(--accent);color:#fff;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;}
+  .pageno{position:absolute;bottom:8mm;right:16mm;font-size:9px;color:var(--muted);}
+  .footline{position:absolute;bottom:8mm;left:16mm;font-size:9px;color:var(--muted);}
+
+  .cover{height:100%;display:flex;flex-direction:column;justify-content:space-between;background:linear-gradient(160deg,#0d1418 0%,#111214 55%,#0a2233 100%);color:#E8EAED;margin:-16mm;padding:20mm 16mm;}
+  .cover .tag{display:inline-block;border:1px solid rgba(0,122,204,.6);color:#7cc4ff;border-radius:999px;padding:5px 14px;font-size:10px;letter-spacing:.15em;text-transform:uppercase;}
+  .cover h1{font-size:36px;line-height:1.15;font-weight:800;margin:18px 0 10px;}
+  .cover h1 span{color:#4da3ff;}
+  .cover p{color:#9AA0A6;font-size:13px;max-width:125mm;line-height:1.6;}
+  .cover .big-hex{width:64px;height:64px;background:var(--accent);border-radius:16px;display:flex;align-items:center;justify-content:center;font-size:32px;font-weight:800;color:#fff;box-shadow:0 10px 40px rgba(0,122,204,.5);}
+  .cover .meta{display:flex;gap:22px;font-size:10px;color:#9AA0A6;}
+  .cover .meta b{color:#E8EAED;display:block;font-size:12px;}
+
+  h2.sec{font-size:18px;color:var(--accent-dark);border-left:4px solid var(--accent);padding-left:10px;margin:5mm 0 4mm;}
+  h3.sub{font-size:12px;margin:4mm 0 2mm;color:var(--ink);}
+  p.txt{font-size:10.2px;line-height:1.6;color:#33383F;margin-bottom:3mm;}
+  .muted{color:var(--muted);} .accent{color:var(--accent);font-weight:600;}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:4mm;}
+  .card{border:1px solid var(--line);border-radius:10px;padding:3.5mm 4mm;background:#FBFCFE;}
+  .card h4{font-size:11px;margin-bottom:2mm;}
+  .card ul{list-style:none;} .card li{font-size:9.2px;line-height:1.5;margin-bottom:1.4mm;padding-left:12px;position:relative;}
+  .card li::before{content:"";position:absolute;left:0;top:4.5px;width:5px;height:5px;border-radius:50%;background:var(--accent);opacity:.7;}
+  .chip{display:inline-block;border-radius:999px;padding:1px 8px;font-size:8.3px;font-weight:700;color:#fff;}
+  .kpirow{display:grid;grid-template-columns:repeat(4,1fr);gap:3mm;margin:3mm 0;}
+  .kpi{border:1px solid var(--line);border-radius:10px;padding:3mm;text-align:center;background:#FBFCFE;}
+  .kpi .v{font-size:15px;font-weight:800;} .kpi .l{font-size:8px;color:var(--muted);margin-top:1mm;}
+
+  table.bud{width:100%;border-collapse:collapse;font-size:9.2px;margin-top:2mm;}
+  table.bud th{background:#111214;color:#E8EAED;text-align:left;padding:2mm 2.5mm;font-size:8.8px;}
+  table.bud td{border-bottom:1px solid var(--line);padding:1.9mm 2.5mm;vertical-align:top;}
+  table.bud tr:nth-child(even) td{background:#F2F5F8;}
+  table.bud td.num{text-align:right;font-variant-numeric:tabular-nums;font-weight:600;}
+  table.bud tr.tot td{background:#EAF4FB;font-weight:800;border-top:2px solid var(--accent);}
+  .bar{height:5px;background:#E4E9EE;border-radius:3px;overflow:hidden;}
+  .bar i{display:block;height:100%;border-radius:3px;}
+  .toc li{font-size:11px;margin-bottom:2.5mm;list-style:none;display:flex;justify-content:space-between;border-bottom:1px dotted var(--line);padding-bottom:1.5mm;}
+
+  .gantt{width:100%;border-collapse:collapse;font-size:8.6px;}
+  .gantt th{background:#111214;color:#E8EAED;padding:1.8mm 1.5mm;font-size:8px;}
+  .gantt td{border:1px solid var(--line);padding:0;height:7mm;position:relative;}
+  .gantt td.lab{padding:0 2mm;font-weight:600;font-size:8.4px;background:#F2F5F8;width:36mm;}
+  .gbar{position:absolute;top:1.5mm;bottom:1.5mm;border-radius:3px;left:2%;right:2%;}
+  .ms{position:absolute;top:0;bottom:0;width:0;border-left:2px dashed var(--risk);left:50%;}
+  .mslab{position:absolute;top:.4mm;font-size:7.4px;color:var(--risk);font-weight:700;transform:translateX(-50%);left:50%;background:#fff;padding:0 2px;border-radius:3px;}
+
+  .wbs{width:100%;border-collapse:collapse;font-size:8.9px;}
+  .wbs th{background:var(--accent);color:#fff;text-align:left;padding:1.8mm 2mm;font-size:8.6px;}
+  .wbs td{border:1px solid var(--line);padding:1.8mm 2mm;vertical-align:top;line-height:1.45;}
+  .wbs td.b{background:#EAF4FB;font-weight:700;}
+</style>
+</head>
+<body>
+
+<div class="toolbar"><button onclick="window.print()">⬇ Télécharger en PDF</button></div>
+
+<!-- ══ P1 · COUVERTURE ══ -->
+<div class="page"><div class="cover">
+  <div>
+    <div class="big-hex">M</div>
+    <div style="height:8mm"></div>
+    <span class="tag">Dossier de pilotage · v1.0</span>
+    <h1>Budget prévisionnel<br>& <span>Plan de projet</span><br>MOTO Editor</h1>
+    <p>Période couverte : septembre 2026 – juin 2027 (10 mois). Deux scénarios de financement (indépendant « lean » vs startup structurée), plan de travail en 5 workstreams, jalons M1/M2/M3, prévisions de revenus freemium et dispositif de suivi budgétaire.</p>
+  </div>
+  <div class="meta">
+    <div><b>Septembre 2026</b>Édition v1.0</div>
+    <div><b>Horizon</b>10 mois · 3 jalons</div>
+    <div><b>Scénarios</b>A (lean) · B (startup)</div>
+    <div><b>Devise</b>Euro (€)</div>
+  </div>
+</div></div>
+
+<!-- ══ P2 · SOMMAIRE + HYPOTHÈSES ══ -->
+<div class="page">
+  <div class="brand"><div class="hex">M</div>MOTO Editor · Budget & Plan de projet</div>
+  <h2 class="sec" style="margin-top:5mm">Sommaire</h2>
+  <ul class="toc">
+    <li><span>1. Synthèse exécutive & hypothèses</span><span class="muted">p. 2</span></li>
+    <li><span>2. Plan de projet — WBS & livrables</span><span class="muted">p. 3</span></li>
+    <li><span>3. Calendrier & ressources</span><span class="muted">p. 4</span></li>
+    <li><span>4. Budget détaillé — Scénario A (lean)</span><span class="muted">p. 5</span></li>
+    <li><span>5. Scénario B (startup) & comparaison</span><span class="muted">p. 6</span></li>
+    <li><span>6. Revenus freemium & seuil de rentabilité</span><span class="muted">p. 7</span></li>
+    <li><span>7. Suivi budgétaire, risques & conclusion</span><span class="muted">p. 8</span></li>
+  </ul>
+
+  <h2 class="sec">1. Synthèse exécutive & hypothèses</h2>
+  <div class="kpirow">
+    <div class="kpi"><div class="v" style="color:var(--accent)">≈ 12 k€</div><div class="l">SCÉNARIO A (10 MOIS, HORS RÉMUN.)</div></div>
+    <div class="kpi"><div class="v" style="color:var(--accent)">≈ 27 k€</div><div class="l">SCÉNARIO A INCL. RÉMUN. FONDATEUR</div></div>
+    <div class="kpi"><div class="v" style="color:var(--h2c)">≈ 153 k€</div><div class="l">SCÉNARIO B (STARTUP, 12 MOIS)</div></div>
+    <div class="kpi"><div class="v" style="color:var(--green)">M+14</div><div class="l">SEUIL DE RENTABILITÉ ESTIMÉ (A)</div></div>
+  </div>
+  <h3 class="sub">Hypothèses de travail</h3>
+  <div class="grid2">
+    <div class="card"><h4>Projet & équipe</h4><ul>
+      <li>Équipe actuelle : 1 développeur fondateur + 3 IA d'assistance (Claude Code, Qwen, Copilot) — productivité estimée ×2 à ×3 sur le code.</li>
+      <li>Périmètre = feuille de route v1.0 : stabilisation, MotoBridge/XENO, LSP, plateforme, distribution, croissance.</li>
+      <li>Doctrine : backend d'abord, UI mince, pas d'UI factice, 100+ paramètres.</li>
+    </ul></div>
+    <div class="card"><h4>Marché & modèle</h4><ul>
+      <li>Marché IDE 16,5 Md$ (2026), CAGR 10,8 % ; 84 % des devs adoptent l'IA.</li>
+      <li>Modèle : open source + freemium, plan Pro 12 €/mois (hyp. 10–20 $ validée par Zed/Cursor).</li>
+      <li>Conversion free→Pro : 2,5 % ; churn mensuel 3 % ; prix constants sur la période.</li>
+      <li>Provision pour imprévus : 12 % du sous-total de chaque scénario.</li>
+    </ul></div>
+  </div>
+  <p class="txt muted">Méthode : coûts unitaires vérifiés sur tarifs publics 2026 (certificats, comptes développeurs, matériel milieu de gamme, audits externalisés). Tous montants HT arrondis.</p>
+  <div class="footline">Budget prévisionnel & plan de projet · Septembre 2026</div><div class="pageno">2 / 8</div>
+</div>
+
+<!-- ══ P3 · WBS ══ -->
+<div class="page">
+  <div class="brand"><div class="hex">M</div>MOTO Editor · Budget & Plan de projet</div>
+  <h2 class="sec" style="margin-top:5mm">2. Plan de projet — WBS & livrables</h2>
+  <table class="wbs">
+    <tr><th style="width:9mm">Lot</th><th style="width:52mm">Workstream / tâches</th><th>Durée</th><th>Livrable / critère d'acceptation</th><th style="width:16mm">Charge (j.h)</th></tr>
+    <tr><td class="b">A</td><td><b>Stabilisation</b> (H1)<br>· A1 Chantier barre de titre (sondes GWL_STYLE, LVT)<br>· A2 Persistance docks + Settings 100+<br>· A3 Warnings &lt; 50 + tests xUnit</td><td>8 sem.<br>(S26–O26)</td><td>M1 : zéro défaut visuel bloquant ; disposition persistante ; 100+ paramètres exposés.</td><td>40</td></tr>
+    <tr><td class="b">B</td><td><b>MotoBridge / IA</b> (H2)<br>· B1 Tier 28 : requêtes→XENO, diffs affichés, supervision<br>· B2 LLM embarqué ONNX + décodage spéculatif<br>· B3 Marketplace d'agents</td><td>12 sem.<br>(O26–J27)</td><td>M2 : flux complet « demande → XENO → diff → appliqué » démontrable.</td><td>60</td></tr>
+    <tr><td class="b">C</td><td><b>Éditeur profond</b> (H2–H3, parallèle)<br>· C1 LSP Roslyn (inlay hints, diagnostics)<br>· C2 PieceTable + Git avancé<br>· C3 Coloration/prévisualisation temps réel</td><td>16 sem.</td><td>LSP actif sur C# ; undo 1000 niveaux ; coloration incrémentale stable.</td><td>55</td></tr>
+    <tr><td class="b">D</td><td><b>Plateforme & distribution</b> (H3)<br>· D1 Portage macOS/Linux (PlatformEngine)<br>· D2 Installateurs signés + winget + MAJ Ed25519<br>· D3 i18n FR/EN + accessibilité WCAG</td><td>16 sem.<br>(J27–M27)</td><td>Builds signés sur ≥ 2 plateformes ; audit accessibilité documenté.</td><td>60</td></tr>
+    <tr><td class="b">E</td><td><b>Croissance</b> (H3+)<br>· E1 CRDT collab + DAP debugger<br>· E2 Lancement : site, contenu, communautés</td><td>10 sem.<br>(M27–J27)</td><td>M3 : v1.0 publique ; 2 000 téléchargements le 1ᵉ mois.</td><td>35</td></tr>
+    <tr><td class="b" style="background:#EAF4FB">Σ</td><td colspan="3" style="background:#EAF4FB"><b>Charge totale estimée</b> (scénario A, fondateur + IA)</td><td style="background:#EAF4FB"><b>≈ 250 j.h</b></td></tr>
+  </table>
+  <h3 class="sub">Jalons décisionnels (Go / No-Go)</h3>
+  <div class="grid2">
+    <div class="card"><h4 style="color:var(--h1c)">M1 — fin oct. 2026</h4><ul><li>Stabilisation validée → ouverture H2.</li><li>Budget consommé ≤ 30 % du scénario.</li></ul></div>
+    <div class="card"><h4 style="color:var(--h2c)">M2 — janv. 2027</h4><ul><li>MotoBridge opérationnel → ouverture H3.</li><li>Revue qualité : couverture tests ≥ 60 % Moto.Core.</li></ul></div>
+  </div>
+  <div class="footline">Budget prévisionnel & plan de projet · Septembre 2026</div><div class="pageno">3 / 8</div>
+</div>
+
+<!-- ══ P4 · CALENDRIER + RESSOURCES ══ -->
+<div class="page">
+  <div class="brand"><div class="hex">M</div>MOTO Editor · Budget & Plan de projet</div>
+  <h2 class="sec" style="margin-top:5mm">3. Calendrier & plan de ressources</h2>
+  <table class="gantt">
+    <tr><th style="width:36mm">Workstream</th><th>S26</th><th>O26</th><th>N26</th><th>D26</th><th>J27</th><th>F27</th><th>M27</th><th>A27</th><th>M27</th><th>J27</th></tr>
+    <tr><td class="lab">A · Stabilisation</td><td colspan="2" style="position:relative"><div class="gbar" style="background:var(--h1c)"></div><div class="ms"></div><div class="mslab">M1</div></td><td colspan="8"></td></tr>
+    <tr><td class="lab">B · MotoBridge / IA</td><td></td><td colspan="4" style="position:relative"><div class="gbar" style="background:var(--h2c)"></div><div class="ms"></div><div class="mslab">M2</div></td><td colspan="5"></td></tr>
+    <tr><td class="lab">C · Éditeur profond</td><td colspan="2"></td><td colspan="6" style="position:relative"><div class="gbar" style="background:var(--h2c);opacity:.7"></div></td><td colspan="2"></td></tr>
+    <tr><td class="lab">D · Plateforme & distri.</td><td colspan="4"></td><td colspan="5" style="position:relative"><div class="gbar" style="background:var(--h3c)"></div></td><td></td></tr>
+    <tr><td class="lab">E · Croissance & v1.0</td><td colspan="7"></td><td colspan="3" style="position:relative"><div class="gbar" style="background:var(--h3c);opacity:.7"></div><div class="ms"></div><div class="mslab">M3</div></td></tr>
+  </table>
+  <p class="txt muted" style="margin-top:2mm">Enchaînement : A → B → D/E ; C en parallèle de B. M3 (juin 2027) = v1.0 publique.</p>
+
+  <h3 class="sub">Plan de ressources</h3>
+  <table class="bud">
+    <tr><th>Ressource</th><th>Scénario A (lean)</th><th>Scénario B (startup)</th><th>Coût mensuel réf.</th></tr>
+    <tr><td>Développeur fondateur (+ IA)</td><td>100 % — 10 mois</td><td>100 % — 12 mois</td><td>Rémun. 1 500 € (A)</td></tr>
+    <tr><td>Développeur senior C#/MAUI</td><td>—</td><td>100 % dès M2</td><td>4 500 €</td></tr>
+    <tr><td>Designer / QA</td><td>—</td><td>50 % dès M2</td><td>2 000 €</td></tr>
+    <tr><td>Marketing / communauté</td><td>Ponctuel (E2)</td><td>50 % dès H3</td><td>2 000 €</td></tr>
+    <tr><td>Prestataires externes</td><td>Audits (accessibilité)</td><td>Audits + portage macOS/Linux + pentest</td><td>Sur devis</td></tr>
+    <tr><td>Matériel</td><td>PC test GPU + MacBook</td><td>Idem + parc de test multi-OS</td><td>One-shot</td></tr>
+  </table>
+  <p class="txt muted">Les IA d'assistance (Claude Code, Qwen, Copilot) sont considérées comme un multiplicateur de productivité inclus dans les abonnements outils — aucun coût de développement externalisé sur le cœur (doctrine « fait maison »).</p>
+  <div class="footline">Budget prévisionnel & plan de projet · Septembre 2026</div><div class="pageno">4 / 8</div>
+</div>
+
+<!-- ══ P5 · BUDGET A ══ -->
+<div class="page">
+  <div class="brand"><div class="hex">M</div>MOTO Editor · Budget & Plan de projet</div>
+  <h2 class="sec" style="margin-top:5mm">4. Budget détaillé — Scénario A (lean, 10 mois)</h2>
+  <h3 class="sub">4.1 Coûts uniques (investissements)</h3>
+  <table class="bud">
+    <tr><th style="width:52mm">Poste</th><th>Détail</th><th style="width:22mm">Montant (€)</th></tr>
+    <tr><td>Certificat de signature EV</td><td>Signature SmartScreen pour installateurs Windows</td><td class="num">350</td></tr>
+    <tr><td>Compte Apple Developer</td><td>Préparation du portage macOS (D1)</td><td class="num">95</td></tr>
+    <tr><td>Marque (INPI / EUIPO)</td><td>Dépôt « MOTO Editor » + logo hexagonal</td><td class="num">850</td></tr>
+    <tr><td>PC de test (GPU)</td><td>Validation LLM locaux & modes Turbo/Ultra</td><td class="num">1 800</td></tr>
+    <tr><td>MacBook de test</td><td>CI/validation du portage macOS</td><td class="num">1 200</td></tr>
+    <tr><td>Audit accessibilité</td><td>Prestation WCAG 2.2 + lecteurs d'écran</td><td class="num">1 500</td></tr>
+    <tr><td>Assets de lancement</td><td>Vidéo démo, site one-page, kit presse</td><td class="num">1 200</td></tr>
+    <tr class="tot"><td colspan="2">Sous-total investissements</td><td class="num">6 995</td></tr>
+  </table>
+  <h3 class="sub">4.2 Coûts récurrents (sur la période)</h3>
+  <table class="bud">
+    <tr><th style="width:52mm">Poste</th><th>Détail</th><th style="width:22mm">Montant (€)</th></tr>
+    <tr><td>Hébergement / CDN</td><td>Modèles ONNX, MAJ signées, télémétrie opt-in — 60 €/mois × 10</td><td class="num">600</td></tr>
+    <tr><td>Outils & abonnements</td><td>GitHub Pro, domaines, IA assistantes, design — 35 €/mois × 10</td><td class="num">350</td></tr>
+    <tr><td>Publicité ciblée</td><td>Reddit / HN / Dev.to — 250 €/mois × 6 (à partir de H3)</td><td class="num">1 500</td></tr>
+    <tr><td>Juridique / comptabilité</td><td>Micro-structure, CGU/vie privée, contrats — 120 €/mois × 10</td><td class="num">1 200</td></tr>
+    <tr class="tot"><td colspan="2">Sous-total récurrents</td><td class="num">3 650</td></tr>
+  </table>
+  <h3 class="sub">4.3 Total Scénario A</h3>
+  <table class="bud">
+    <tr><td>Investissements + récurrents</td><td class="num">10 645</td></tr>
+    <tr><td>Provision imprévus (12 %)</td><td class="num">1 300</td></tr>
+    <tr class="tot"><td>TOTAL A (hors rémunération fondateur)</td><td class="num">≈ 11 950 €</td></tr>
+    <tr><td>+ Rémunération fondateur (1 500 € × 10)</td><td class="num">15 000</td></tr>
+    <tr class="tot"><td>TOTAL A complet</td><td class="num">≈ 27 000 €</td></tr>
+  </table>
+  <div class="footline">Budget prévisionnel & plan de projet · Septembre 2026</div><div class="pageno">5 / 8</div>
+</div>
+
+<!-- ══ P6 · SCÉNARIO B + COMPARAISON ══ -->
+<div class="page">
+  <div class="brand"><div class="hex">M</div>MOTO Editor · Budget & Plan de projet</div>
+  <h2 class="sec" style="margin-top:5mm">5. Scénario B (startup structurée, 12 mois)</h2>
+  <table class="bud">
+    <tr><th style="width:60mm">Poste</th><th>Détail</th><th style="width:24mm">Montant (€)</th></tr>
+    <tr><td>Masse salariale (hors fondateur)</td><td>Dev senior 4 500 € + designer/QA 2 000 € + marketing 2 000 € × 12 mois</td><td class="num">102 000</td></tr>
+    <tr><td>Investissements (idem A)</td><td>Certificats, marque, matériel, audit accessibilité, assets</td><td class="num">6 995</td></tr>
+    <tr><td>Récurrents renforcés</td><td>CDN, outils, juridique, publicité — enveloppe élargie</td><td class="num">5 000</td></tr>
+    <tr><td>Prestation portage macOS/Linux</td><td>Contractants PlatformEngine (D1)</td><td class="num">12 000</td></tr>
+    <tr><td>Pentest sécurité</td><td>Audit Ed25519 / sandbox / PrivacyScanner avant v1.0</td><td class="num">6 000</td></tr>
+    <tr><td>Salons / événements</td><td>Présence dev-tools (stands, talks)</td><td class="num">5 000</td></tr>
+    <tr><td>Provision imprévus (12 %)</td><td>—</td><td class="num">16 440</td></tr>
+    <tr class="tot"><td>TOTAL B</td><td class="num">≈ 153 000 €</td></tr>
+  </table>
+
+  <h3 class="sub">Comparaison & répartition par catégorie</h3>
+  <table class="bud">
+    <tr><th>Catégorie</th><th>Scénario A</th><th>Scénario B</th><th style="width:52mm">Répartition B</th></tr>
+    <tr><td>Ressources humaines</td><td>15 000 (fondateur)</td><td>102 000</td><td><div class="bar"><i style="width:67%;background:var(--h2c)"></i></div>67 %</td></tr>
+    <tr><td>Investissements</td><td>6 995</td><td>6 995</td><td><div class="bar"><i style="width:5%;background:var(--h1c)"></i></div>5 %</td></tr>
+    <tr><td>Fonctionnement & marketing</td><td>3 650</td><td>23 000</td><td><div class="bar"><i style="width:15%;background:var(--h3c)"></i></div>15 %</td></tr>
+    <tr><td>Prestations externes</td><td>— (inclus audits A)</td><td>23 000</td><td><div class="bar"><i style="width:15%;background:var(--amber)"></i></div>15 %</td></tr>
+    <tr><td>Imprévus</td><td>1 300</td><td>16 440</td><td><div class="bar"><i style="width:11%;background:var(--risk)"></i></div>11 %</td></tr>
+    <tr class="tot"><td>Total</td><td>≈ 27 000</td><td>≈ 153 000</td><td>100 %</td></tr>
+  </table>
+  <p class="txt muted"><b>Lecture</b> : le scénario A privilégie la frugalité et valide le produit à moindre risque ; le scénario B achète du temps (time-to-market −3 à −4 mois) et de la robustesse (pentest, portage délégué). Recommandation : démarrer en A, basculer en B si M2 atteint les KPIs (MotoBridge démontrable + 100+ paramètres).</p>
+  <div class="footline">Budget prévisionnel & plan de projet · Septembre 2026</div><div class="pageno">6 / 8</div>
+</div>
+
+<!-- ══ P7 · REVENUS ══ -->
+<div class="page">
+  <div class="brand"><div class="hex">M</div>MOTO Editor · Budget & Plan de projet</div>
+  <h2 class="sec" style="margin-top:5mm">6. Revenus freemium & seuil de rentabilité</h2>
+  <h3 class="sub">6.1 Trajectoire d'adoption (post-lancement M3, juin 2027)</h3>
+  <table class="bud">
+    <tr><th>Mois post-lancement</th><th>Utilisateurs actifs</th><th>Conversion 2,5 %</th><th>Abonnés Pro</th><th>MRR (12 €)</th></tr>
+    <tr><td>M+1</td><td>2 000</td><td>2,5 %</td><td>50</td><td class="num">600 €</td></tr>
+    <tr><td>M+3</td><td>5 000</td><td>2,5 %</td><td>125</td><td class="num">1 500 €</td></tr>
+    <tr><td>M+6</td><td>12 000</td><td>2,5 %</td><td>300</td><td class="num">3 600 €</td></tr>
+    <tr><td>M+12</td><td>30 000</td><td>2,5 % (plafond prudent)</td><td>750</td><td class="num">9 000 €</td></tr>
+    <tr><td>M+18</td><td>60 000</td><td>3 % (marketplace agents)</td><td>1 800</td><td class="num">21 600 €</td></tr>
+  </table>
+  <h3 class="sub">6.2 Seuils de rentabilité</h3>
+  <div class="grid2">
+    <div class="card"><h4 style="color:var(--green)">Scénario A</h4><ul>
+      <li>Coût total ≈ 27 k€ ; coûts courants post-lancement ≈ 800 €/mois.</li>
+      <li>Break-even mensuel dès MRR ≥ 800 € → atteint vers <b>M+2/M+3</b>.</li>
+      <li>Remboursement de l'investissement initial vers <b>M+14</b>.</li>
+    </ul></div>
+    <div class="card"><h4 style="color:var(--h2c)">Scénario B</h4><ul>
+      <li>Coût total ≈ 153 k€ ; masse salariale courante ≈ 8,5 k€/mois.</li>
+      <li>Break-even mensuel à MRR ≈ 9–10 k€ → atteint vers <b>M+12/M+14</b>.</li>
+      <li>Retour sur investissement complet vers <b>M+24 à M+30</b>.</li>
+    </ul></div>
+  </div>
+  <h3 class="sub">6.3 Revenus complémentaires (optionnels, an 2)</h3>
+  <div class="grid2">
+    <div class="card"><h4>B2B</h4><ul><li>Plan Équipe 50 €/poste/mois (SSO, politiques de réglages, audit logs).</li><li>Support prioritaire & onboarding.</li></ul></div>
+    <div class="card"><h4>Marketplace</h4><ul><li>Commission 20 % sur agents/plugins payants.</li><li>Thèmes & packs de paramètres premium.</li></ul></div>
+  </div>
+  <p class="txt muted">Sensibilité : si la conversion tombe à 1,5 %, le break-even du scénario A glisse à M+5 et celui du scénario B au-delà de M+20 → le scénario B exige alors une levée de fonds ou un ralentissement des recrutements.</p>
+  <div class="footline">Budget prévisionnel & plan de projet · Septembre 2026</div><div class="pageno">7 / 8</div>
+</div>
+
+<!-- ══ P8 · SUIVI + RISQUES + CONCLUSION ══ -->
+<div class="page">
+  <div class="brand"><div class="hex">M</div>MOTO Editor · Budget & Plan de projet</div>
+  <h2 class="sec" style="margin-top:5mm">7. Suivi budgétaire, risques & conclusion</h2>
+  <h3 class="sub">7.1 Dispositif de suivi</h3>
+  <div class="card" style="margin-bottom:3mm"><ul>
+    <li><b>Revue mensuelle</b> : réalisé vs prévisionnel par catégorie ; seuil d'alerte à ±10 % d'écart cumulé.</li>
+    <li><b>Revue de jalon</b> (M1/M2/M3) : Go/No-Go budgétaire — aucun horizon ne démarre si le précédent dépasse son enveloppe de &gt; 15 %.</li>
+    <li><b>Trésorerie</b> : provision imprévus (12 %) intouchable sans décision explicite ; paiements prestataires à 30 % / 70 % à recette.</li>
+    <li><b>Outils</b> : suivi dans settings.json-like local (doctrine data-driven) + rapport mensuel généré par ChangelogAgent.</li>
+  </ul></div>
+  <h3 class="sub">7.2 Risques budgétaires & parades</h3>
+  <table class="bud">
+    <tr><th style="width:48mm">Risque</th><th style="width:14mm">Niveau</th><th>Parade budgétaire</th></tr>
+    <tr><td>Dérapage du chantier barre de titre / stack MAUI</td><td><span class="chip" style="background:var(--risk)">Élevé</span></td><td>Plafond de 3 semaines (A1) ; au-delà, gel et repli sur solution de contournement.</td></tr>
+    <tr><td>Conversion freemium &lt; hypothèse (1,5 % vs 2,5 %)</td><td><span class="chip" style="background:var(--amber)">Moyen</span></td><li></li><td>Activation progressive des revenus B2B/marketplace ; gel des dépenses marketing non mesurables.</td></tr>
+    <tr><td>Coût matériel GPU (volatilité)</td><td><span class="chip" style="background:var(--amber)">Moyen</span></td><td>Achat d'occasion certifié ; mutualisation avec la machine de dev existante.</td></tr>
+    <tr><td>Dépendance au fondateur (scénario A)</td><td><span class="chip" style="background:var(--risk)">Élevé</span></td><td>Documentation continue (QWEN.md/CLAUDE.md) ; bascule en B conditionnée aux KPIs.</td></tr>
+  </table>
+  <h3 class="sub">Conclusion</h3>
+  <p class="txt">Le projet est finançable en mode <b>lean (≈ 12–27 k€)</b> grâce à l'effet de levier des IA d'assistance et à la doctrine « fait maison » qui supprime les coûts de licences et de dépendances externes. Le scénario <b>startup (≈ 153 k€)</b> se justifie uniquement après validation de M2, pour accélérer le portage multiplateforme et sécuriser la v1.0 (pentest, audits). Dans les deux cas, le modèle freemium à 12 €/mois offre un seuil de rentabilité atteignable en &lt; 18 mois, cohérent avec l'objectif de 5–10 % de part de marché à 5 ans.</p>
+  <p class="txt muted">Prochaine étape : validation du scénario par le porteur de projet, puis ouverture du chantier A1 (barre de titre) avec enveloppe temps bornée à 3 semaines.</p>
+  <div class="footline">Budget prévisionnel & plan de projet · Fin du document</div><div class="pageno">8 / 8</div>
+</div>
+
+</body>
+</html>
