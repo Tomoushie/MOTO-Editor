@@ -27,7 +27,7 @@
 
     <Grid RowDefinitions="Auto,*">
 
-        <VerticalStackLayout Grid.Row="0" Spacing="10" Margin="0,40,0,0"
+        <VerticalStackLayout Grid.Row="0" Spacing="{StaticResource SpaceSm}" Margin="0,40,0,0"
                               HorizontalOptions="Center" VerticalOptions="Start">
             <!-- ★ RETRAIT (31/08, point 7) : le halo ajouté au tour précédent était
                  perçu par Tom comme le même "fond gris/noir derrière le logo" qu'il
@@ -35,10 +35,10 @@
                  plus tôt) — retiré pour de bon, fond transparent, sans exception. -->
             <controls:MotoLogoView Size="112" HorizontalOptions="Center" />
             <Label Text="MOTO Editor"
-                   FontSize="30" FontAttributes="Bold"
+                   Style="{StaticResource TextDisplay}"
                    HorizontalOptions="Center" />
             <Label Text="Léger. Rapide. Sans dépendance. Tout fait maison."
-                   FontSize="13" Opacity="0.7"
+                   Style="{StaticResource TextBody}" Opacity="0.7"
                    HorizontalOptions="Center" />
         </VerticalStackLayout>
 
@@ -47,11 +47,11 @@
              bouger le logo (Row 0, inchangé). -->
         <ScrollView Grid.Row="1">
             <VerticalStackLayout HorizontalOptions="Center" VerticalOptions="Center"
-                                 Spacing="22" Padding="40,15,40,40" MaximumWidthRequest="760">
+                                 Spacing="{StaticResource SpaceLg}" Padding="40,15,40,40" MaximumWidthRequest="760">
 
                 <!-- Greeting style Claude Code -->
                 <Label x:Name="GreetingLabel" Text="Quoi de prévu, Tom ?"
-                       FontSize="26" HorizontalOptions="Center" />
+                       FontSize="{StaticResource FontSizeDisplay}" HorizontalOptions="Center" />
 
                 <!-- Stats (sessions, messages, tokens…) -->
                 <!-- ★ CORRECTION (30/08) : WidthRequest fixe ajouté — sans largeur
@@ -60,7 +60,7 @@
                      l'élargissait visiblement) au lieu de rester stable, repéré par Tom.
                      ★ CORRECTION (31/08, point 1) : légèrement plus compacte
                      (Padding 16→13,12, ColumnSpacing/RowSpacing 10→8). -->
-                <Border Stroke="{StaticResource BorderCol}" StrokeShape="RoundRectangle 12"
+                <Border Stroke="{StaticResource BorderCol}" StrokeShape="{StaticResource RadiusLg}"
                         BackgroundColor="{StaticResource BgPanel}" Padding="13,12" WidthRequest="555">
                     <Grid x:Name="StatsGrid" ColumnDefinitions="*,*,*,*" RowDefinitions="Auto,Auto"
                           ColumnSpacing="8" RowSpacing="8" />
@@ -71,8 +71,8 @@
                      cumulés) n'était jusqu'ici accessible QUE via la palette de
                      commandes cachée (Ctrl+Maj+P) — jamais suggéré ici. Voir
                      DashboardTapped/OnDashboardTapped dans le code-behind. -->
-                <Label Text="Voir le tableau de bord complet →" FontSize="12"
-                       TextColor="{StaticResource Txt2}" HorizontalOptions="Center" Margin="0,-12,0,0">
+                <Label Text="Voir le tableau de bord complet →"
+                       Style="{StaticResource TextSmall}" HorizontalOptions="Center" Margin="0,-12,0,0">
                     <Label.GestureRecognizers>
                         <TapGestureRecognizer Tapped="OnDashboardTapped" />
                     </Label.GestureRecognizers>
@@ -98,7 +98,7 @@
                      déjà fiable pour ce même genre de superposition ailleurs dans
                      l'appli), au lieu d'être nichée dedans. -->
                 <Grid>
-                <VerticalStackLayout Spacing="10">
+                <VerticalStackLayout Spacing="{StaticResource SpaceSm}">
 
                     <!-- Chips contexte (Local / Rechercher projet / dossier) -->
                     <!-- ★ CORRECTION (31/08, point 3 précédent) : chips agrandies,
@@ -129,9 +129,9 @@
                                  Fluent Icons, codepoints vérifiés visuellement) —
                                  FormattedText/Span nécessaire pour mélanger la police
                                  d'icône et le texte normal dans un même Label. -->
-                            <Border Stroke="{StaticResource BorderCol}" StrokeShape="RoundRectangle 8"
-                                    Padding="16,10" BackgroundColor="{StaticResource BgPanel}">
-                                <Label FontSize="13">
+                            <Border Stroke="{StaticResource BorderCol}" StrokeShape="{StaticResource RadiusMd}"
+                                    Padding="{StaticResource PadChip}" BackgroundColor="{StaticResource BgPanel}">
+                                <Label FontSize="{StaticResource FontSizeBody}">
                                     <Label.FormattedText>
                                         <FormattedString>
                                             <Span Text="{x:Static controls:MotoIcons.Devices}" FontFamily="{x:Static controls:MotoIcons.FontFamily}" />
@@ -143,9 +143,9 @@
                                     <TapGestureRecognizer Tapped="OnLocalChipTapped" />
                                 </Border.GestureRecognizers>
                             </Border>
-                            <Border Stroke="{StaticResource BorderCol}" StrokeShape="RoundRectangle 8"
-                                    Padding="16,10" BackgroundColor="{StaticResource BgPanel}">
-                                <Label FontSize="13">
+                            <Border Stroke="{StaticResource BorderCol}" StrokeShape="{StaticResource RadiusMd}"
+                                    Padding="{StaticResource PadChip}" BackgroundColor="{StaticResource BgPanel}">
+                                <Label FontSize="{StaticResource FontSizeBody}">
                                     <Label.FormattedText>
                                         <FormattedString>
                                             <Span Text="{x:Static controls:MotoIcons.Search}" FontFamily="{x:Static controls:MotoIcons.FontFamily}" />
@@ -159,13 +159,16 @@
                             </Border>
                             <!-- ★ AJOUT (31/08, point 11) : petit "+" superposé sur le
                                  dossier (glyphes Folder+Add, tous deux déjà vérifiés). -->
-                            <Border Stroke="{StaticResource BorderCol}" StrokeShape="RoundRectangle 8"
+                            <Border Stroke="{StaticResource BorderCol}" StrokeShape="{StaticResource RadiusMd}"
                                     Padding="12,10" BackgroundColor="{StaticResource BgPanel}">
                                 <Grid>
                                     <Label Text="{x:Static controls:MotoIcons.Folder}" FontFamily="{x:Static controls:MotoIcons.FontFamily}"
-                                           FontSize="13" TextColor="{StaticResource Txt1}" />
-                                    <!-- ★ CORRECTION (31/08, point 3) : repositionné en haut à
-                                         droite, marge minimale (1px) comme demandé. -->
+                                           FontSize="{StaticResource FontSizeBody}" TextColor="{StaticResource Txt1}" />
+                                    <!-- ★ 7 px conservé volontairement : ce n'est PAS une dérive mais
+                                         un micro-glyphe superposé (le "+" sur le dossier). La table de
+                                         conversion du langage visuel range 7 px vers Small (12) — c'est
+                                         exactement le cas « à trancher à l'œil » qu'elle signale : à
+                                         12 px, le "+" déborderait du glyphe de dossier. -->
                                     <Label Text="{x:Static controls:MotoIcons.Add}" FontFamily="{x:Static controls:MotoIcons.FontFamily}"
                                            FontSize="7" TextColor="{StaticResource Txt1}"
                                            HorizontalOptions="End" VerticalOptions="Start" Margin="0,1,1,0" />
@@ -181,7 +184,7 @@
                     <!-- ★ RETRAIT (31/08, point 5) : "+" à l'intérieur de la saisie
                          supprimé — doublon avec le "+" de la barre de contrôles
                          juste en dessous (ComposerBar). -->
-                    <Border Stroke="{StaticResource BorderCol}" StrokeShape="RoundRectangle 24"
+                    <Border Stroke="{StaticResource BorderCol}" StrokeShape="{StaticResource RadiusLg}"
                             BackgroundColor="{StaticResource BgPanel}" Padding="14,2,6,2" WidthRequest="560">
                         <Grid ColumnDefinitions="*,Auto">
                             <Entry Grid.Column="0" x:Name="PromptEntry"
@@ -193,8 +196,8 @@
                             <Border x:Name="SendArrowHost" Grid.Column="1"
                                     WidthRequest="34" HeightRequest="34"
                                     BackgroundColor="Transparent" StrokeThickness="0"
-                                    StrokeShape="RoundRectangle 17">
-                                <Label x:Name="SendArrowLabel" Text="➤" FontSize="14" TextColor="{StaticResource Txt1}"
+                                    StrokeShape="{StaticResource RadiusPill}">
+                                <Label x:Name="SendArrowLabel" Text="➤" FontSize="{StaticResource FontSizeSubheading}" TextColor="{StaticResource Txt1}"
                                        HorizontalOptions="Center" VerticalOptions="Center" />
                                 <Border.GestureRecognizers>
                                     <TapGestureRecognizer Tapped="OnSendArrowTapped" />
