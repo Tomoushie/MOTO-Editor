@@ -1382,9 +1382,12 @@ juste la carte pour en reparler au bon moment.
   SkiaSharp direct) approuvée pour démarrer**, sans attendre le palier
   "élevé/bêta" — motivation de Tom : battre Zed en légèreté/rapidité.
   Chantier de taille "coût moyen" (semaines à quelques mois) : passera par
-  l'Orchestrator (codegen substantiel), pas en retouche directe. Reste à
-  faire avant de lancer : un cadrage écrit (périmètre exact, ce qui reste
-  inchangé, plan de bascule/rollback) — pas encore commencé à ce jour.
+  l'Orchestrator (codegen substantiel), pas en retouche directe. Cadrage
+  écrit fait le 22/09 : `Docs/design/Cadrage-CodeEditor-SkiaSharp.md`
+  (périmètre = 2 fichiers seulement, contrat public à 7 membres, vrai coût
+  = réimplémenter saisie/sélection/undo — pas le rendu Skia lui-même —
+  découpage en 5 incréments proposé). Choix du découpage à trancher par
+  Tom avant le premier envoi à l'Orchestrator.
 - Lié : le chantier "rendu 100% custom" de la barre de titre (voir section
   dédiée plus haut) suit la même logique — même motivation de légèreté,
   même passage prévu par l'Orchestrator.
