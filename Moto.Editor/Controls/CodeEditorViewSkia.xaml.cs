@@ -37,6 +37,11 @@ namespace Moto.Editor.Controls
 
         public event EventHandler<string> EditorChanged;
 
+        // Garde anti-boucle pour la synchro Text <-> HiddenInput.Text (incrément
+        // 2a) : sans elle, écrire dans l'un déclenche l'autre qui réécrit dans le
+        // premier, indéfiniment.
+        private bool _syncInProgress;
+
         // Même regex que l'ancien CodeEditorView (JS) : les groupes NON reconnus
         // (espaces, ponctuation, identifiants) ne sont volontairement PAS
         // capturés ici -- ils sont dessinés tels quels entre deux correspondances,
@@ -51,17 +56,45 @@ namespace Moto.Editor.Controls
         {
             InitializeComponent();
             Canvas.PaintSurface += OnPaintSurface;
+            HiddenInput.TextChanged += OnHiddenInputTextChanged;
         }
 
         private static void OnTextChanged(BindableObject bindable, object oldValue, object newValue)
         {
             var view = (CodeEditorViewSkia)bindable;
+            if (!view._syncInProgress)
+            {
+                view._syncInProgress = true;
+                string text = (string)newValue ?? string.Empty;
+                if (view.HiddenInput.Text != text)
+                    view.HiddenInput.Text = text;
+                view._syncInProgress = false;
+            }
             view.Canvas.InvalidateSurface();
+        }
+
+        // Incrément 2a : HiddenInput (Editor MAUI caché, voir CodeEditorViewSkia.xaml)
+        // reçoit la vraie saisie clavier/IME. Ce gestionnaire répercute chaque frappe
+        // vers la propriété publique Text -- via le même chemin (BindableProperty)
+        // que tout appelant externe, donc EditorPaneView/le binding two-way voient
+        // la frappe sans code spécifique de leur côté.
+        private void OnHiddenInputTextChanged(object sender, TextChangedEventArgs e)
+        {
+            if (_syncInProgress)
+                return;
+            _syncInProgress = true;
+            Text = e.NewTextValue ?? string.Empty;
+            _syncInProgress = false;
+            // Contrat public (voir Cadrage-CodeEditor-SkiaSharp.md §2) : "Levé à
+            // chaque frappe" -- jamais câblé jusqu'ici (aucune saisie n'existait
+            // avant 2a), d'où l'avertissement CS0067 vu depuis l'incrément 1.
+            EditorChanged?.Invoke(this, Text);
         }
 
         private static void OnFontSizeChanged(BindableObject bindable, object oldValue, object newValue)
         {
             var view = (CodeEditorViewSkia)bindable;
+            view.HiddenInput.FontSize = (double)newValue;
             view.Canvas.InvalidateSurface();
         }
 
@@ -200,7 +233,15 @@ namespace Moto.Editor.Controls
 
         public string GetSelectedText()
         {
-            return string.Empty;
+            // Incrément 2a : HiddenInput porte maintenant une vraie sélection
+            // (CursorPosition/SelectionLength, vérifiés existants sur MAUI 8.0.100
+            // -- voir Cadrage-CodeEditor-SkiaSharp.md §10). Bornes défensives : ces
+            // valeurs viennent d'un contrôle natif par plateforme, pas garanties
+            // alignées au caractère près dans tous les cas.
+            string text = HiddenInput.Text ?? string.Empty;
+            int start = Math.Clamp(HiddenInput.CursorPosition, 0, text.Length);
+            int length = Math.Clamp(HiddenInput.SelectionLength, 0, text.Length - start);
+            return length > 0 ? text.Substring(start, length) : string.Empty;
         }
     }
 }
