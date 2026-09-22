@@ -226,6 +226,18 @@ posés en `FontSize` libre, ce qui explique une partie des 21 tailles).
 
 ## 10. Protocole de vérification (imposé par ce dépôt)
 
+### Ligne de base mesurée (22/09, avant toute modification)
+
+| Configuration | Résultat |
+|---|---|
+| `Debug` · `net8.0-windows10.0.19041.0` | **0 erreur · 479 avertissements** |
+| `Release` · idem | **0 erreur · 479 avertissements** |
+
+⚠️ **479 avertissements**, et non les « ~300 » annoncés par la présentation
+projet (`Docs/Documents/Présentation_détaillée_du_projet.html`, §5) — la
+dette de warnings est près de deux fois celle documentée. À retenir comme
+référence : un lot visuel ne doit **pas** faire monter ce nombre.
+
 Aucun test visuel automatisé n'existe. Donc, pour **chaque lot** :
 
 1. Build `Debug` **et** `Release` à **0 erreur** (le raccourci Bureau pointe

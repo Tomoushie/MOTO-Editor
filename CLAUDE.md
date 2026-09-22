@@ -15,6 +15,16 @@ Dernier état des lieux complet : 02/09 (sonde à 4 agents, ~512k tokens,
 
 ## ⚠️ Piège de test : raccourci de bureau = build Release, pas Debug
 
+**Ligne de base de compilation, mesurée le 22/09 (à utiliser comme
+référence anti-régression)** : `Debug` **et** `Release` sur
+`net8.0-windows10.0.19041.0` construisent à **0 erreur · 479
+avertissements**. ⚠️ Les « ~300 warnings » annoncés par la présentation
+projet (`Docs/Documents/…`) sont faux : la dette réelle est de **479**.
+Un lot visuel ne doit jamais faire monter ce nombre. Build de contrôle :
+`dotnet build Moto.Editor/Moto.Editor.csproj -f net8.0-windows10.0.19041.0`
+(~20-30 s une fois la restauration faite ; la toute première restauration
+peut prendre plusieurs minutes).
+
 Confirmé le 02/09 : le raccourci "MOTO Editor" du bureau de Tom
 (`Desktop\MOTO Editor.lnk`) pointe vers
 `Moto.Editor\bin\Release\net8.0-windows10.0.19041.0\win10-x64\Moto.Editor.exe`
