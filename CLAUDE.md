@@ -342,21 +342,40 @@ plutôt que par CHEMIN (ex. `open_application` en test, ou une recherche
 Windows/tuile différente côté Tom) peut silencieusement ouvrir cette
 version figée à la place — aucun rapport avec le code de ce dépôt.
 
-## Paliers de qualité de Tom
+## Paliers de qualité de Tom — 2 catégories, 6 niveaux (échelle du 22/09)
 
-Échelle perso : cheap → faible → moyen → élevé → Commercial.
-- **cheap → faible** : l'IA doit fonctionner (✅ acquis, panneau de chat réel
-  avec Ollama) + la barre de titre bleue Windows doit disparaître (🔧 chantier
-  "rendu 100% custom" EN COURS depuis le 08/09, plus en pause — voir section
-  dédiée plus bas ; la bande elle-même n'est toujours pas éliminée).
-- **faible → moyen** : stabilité totale — tout ce qui existe doit fonctionner
-  PARFAITEMENT (pas de fonctionnalité à moitié branchée). L'état des lieux du
-  02/09 a trouvé plusieurs cas concrets qui violent ce palier dès aujourd'hui
-  — voir "Bugs confirmés non corrigés" ci-dessous.
-- **moyen → élevé** : polish visuel pour ressembler à un projet moderne type
-  Zed/VS Code/Claude Code/ChatGPT (un cran en dessous).
-- **élevé → Commercial** : les 420 réglages du catalogue implémentés ET
-  fonctionnels (pas juste affichés/persistés).
+L'ancienne échelle à 5 niveaux (cheap → faible → moyen → élevé → Commercial)
+est remplacée : Tom évalue désormais **deux axes séparés**, chacun sur
+6 niveaux — `cheap → faible → moyen → élevé → vendable → triple A`.
+
+| Axe | Position au 22/09 | Références visées |
+|---|---|---|
+| **Visuel** | **cheap** | Zen Code, VS Code, JetBrains |
+| **Backend / Structure** | **élevé** | — |
+
+**Écart à combler en priorité : le VISUEL** (2 crans sous le backend). Tom
+juge le rendu actuel « cheap » alors que l'architecture est déjà « élevé ».
+
+- **Visuel** : hiérarchie, densité, typographie, espacements, états
+  (survol/actif/désactivé), animations, cohérence des rayons/ombres, qualité
+  des icônes, lisibilité des listes et des formulaires. Objectif final :
+  indiscernable d'un IDE moderne payant.
+  ⚠️ **Recalibrage important** : la présentation projet
+  (`Docs/Documents/Présentation_détaillée_du_projet.html`, §3) affirme que le
+  visuel est à « **Moyen en cours** » et que « cheap » et « faible » sont
+  « dépassés ». C'est **plus optimiste que l'évaluation de Tom lui-même** —
+  ne pas se fier à l'auto-évaluation de ce document.
+- **Backend / Structure** : architecture, moteurs réels, 0 erreur de build,
+  fonctionnalités réellement branchées. Le passage à « vendable » exige que
+  **tout ce qui est annoncé fonctionne** (aujourd'hui : 297 réglages dont 4
+  appliqués, LSP/DAP/CRDT absents, cluster ONNX mort).
+- **triple A** (les deux axes) : niveau VS Code / Zed / JetBrains en
+  visuel **et** en profondeur fonctionnelle.
+
+Objectif énoncé par Tom (22/09) : atteindre un produit **en production**,
+« triple A moderne », équivalent à Zen Code / VS Code / JetBrains sur les
+deux axes. C'est un objectif long, à découper — ne pas traiter comme un
+chantier unique.
 
 ## Architecture des panneaux (dock IA / Explorateur)
 
