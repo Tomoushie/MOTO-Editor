@@ -232,12 +232,30 @@
 
 ## 12. Docs de référence intégrés
 
-`FEATURES.md`, `Architecture.txt`, `Agent-Integrated.md`,
-`AI-Internal-Engine.txt`, `Arborescence.txt`, `Idées à implémenter.txt`,
-captures Claude Code/Zed/VS Code dans `Docs/inspirations/`.
-Les anciens documents de référence Zed/Claude rangés sous
-`Docs/Pour Claude/` sont désormais dans **`Docs/Zen/`** (renommage du
-22/09). Les documents de présentation/vente (business plan, analyses,
-manuel utilisateur, documentation API…) sont dans `Docs/Documents/`.
+⚠️ **`Docs/` a été réorganisé le 22/09** : la racine ne contient plus que
+`README.md` (vitrine — c'est ce que voit GitHub, il n'existe aucun README à
+la racine du dépôt) et `index.md` (sommaire). Le reste est rangé en
+`architecture/`, `specs/`, `process/`, `product/`.
+
+- `Docs/architecture/` : `Architecture.md`, `Arborescence.md`,
+  `Modules-overview.md`, `Moteurs-IA-internes.md` (ex-`AI-Internal-Engine.txt`).
+- `Docs/specs/` : les specs `Moto.Editor.*` (code-style, crypto, sécurité,
+  logging, performance, tests, update…).
+- `Docs/process/` : `CONTRIBUTING.md`, `RELEASE-CHECKLIST.md`, build,
+  release, installation.
+- `Docs/product/` : `FEATURES.md`, `Roadmap.md`, `Idées-à-implémenter.txt`,
+  `AI-OPTIMIZATIONS.md`, `Résumé-compressé.md`.
+- `Docs/Documents/` : présentation et vente (business plan, analyses, manuel
+  utilisateur, documentation API).
+- `Docs/Zen/` : documents de référence Zed/Claude/JetBrains (ex-`Pour
+  Claude/`). `Docs/inspirations/` : captures + maquette « Claude shell ».
+  `Docs/probes/` : rapports bruts de sondes.
+
+⚠️ Beaucoup de ces documents sont **générés** et se sont révélés
+**optimistes** : `FEATURES.md` et `Roadmap.md` cochent des fonctionnalités
+non branchées (réglages, split-pane, LSP Roslyn, Collab/CRDT, IA embarquée
+ONNX), et `AI-OPTIMIZATIONS.md` présente encore le provider « Embarqué ONNX »
+comme disponible alors qu'aucun paquet ONNX n'est référencé. **Ne jamais s'y
+fier sans vérifier dans le code** — même règle que pour `FeatureCatalog.cs`.
 
 **Note d'usage** : ce fichier est volontairement auto-suffisant — en début de session, colle-le tel quel avec ta question, et je repars à 100 % sans re-expliquer. Quand un fait change (nouveau commit, problème clos), dis-le-moi et je te fournis la version mise à jour du bloc concerné.

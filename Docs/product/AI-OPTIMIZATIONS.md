@@ -1,5 +1,21 @@
 # 🧠 MOTO AI — Optimisations & Guide Utilisateur
 
+> ⚠️ **AVERTISSEMENT DE VÉRACITÉ (vérifié le 22/09)** — ce guide mélange deux
+> choses d'état très différent :
+>
+> - ✅ **La partie Ollama est RÉELLE et fonctionnelle** (provider local,
+>   modèles, dépannage) — c'est le seul chemin IA actif de MOTO Editor.
+> - ❌ **La partie « Embarqué / ONNX » N'EST PAS FONCTIONNELLE.** Aucun paquet
+>   `Microsoft.ML.OnnxRuntime` n'est référencé dans `Moto.Core.csproj` ; le
+>   cluster `Moto.Core/Moto.AI/Embedded/*` est exclu de la compilation et
+>   désactivé dans l'injection de dépendances, et les 18 réglages
+>   `ai.embedded.*` du catalogue ne pilotent rien. Tout ce qui est décrit
+>   ci-dessous sous « Embarqué » (memory-mapped inference, parallel decoding,
+>   KV-cache compression, tiers lite/standard/full, circuit breaker…) est un
+>   **objectif non atteint**, pas une fonctionnalité livrée.
+>
+> Ne pas s'appuyer sur ce document pour annoncer une fonctionnalité.
+
 ## 📋 Table des matières
 
 1. [Vue d'ensemble](#vue-densemble)
@@ -177,7 +193,7 @@ Pour toute question ou problème :
 | `Moto.Tests/E2E/CircuitBreakerTests.cs` | ✨ Nouveau | ~90 |
 | `Moto.Core/AI/Internal/AiOptimizationsBenchmark.cs` | ✏️ Extension | +180 |
 | `Moto.Editor/MainPage.xaml.cs` | ✏️ Extension | +70 |
-| `Docs/AI-OPTIMIZATIONS.md` | ✨ Nouveau | ~250 |
+| `Docs/product/AI-OPTIMIZATIONS.md` | ✨ Nouveau | ~250 |
 
 ---
 

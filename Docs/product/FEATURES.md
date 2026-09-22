@@ -1,4 +1,8 @@
-<!-- Docs/FEATURES.md -->
+<!-- Docs/product/FEATURES.md -->
+<!-- ⚠️ Document OPTIMISTE, vérifié comme tel le 22/09 : plusieurs lignes
+     cochées [x] ici ne sont PAS branchées dans le code (split ⧉, LSP Roslyn,
+     Collab CRDT, IA embarquée ONNX). Voir Docs/README.md, section « État réel
+     du projet », pour la liste des écarts vérifiés. -->
 # ⭐ Catalogue des fonctionnalités
 
 ## Éditeur

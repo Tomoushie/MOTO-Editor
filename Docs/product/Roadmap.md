@@ -1,4 +1,4 @@
-<!-- Docs/ROADMAP.md -->
+<!-- Docs/product/Roadmap.md -->
 # 🗺️ Roadmap
 
 ## ✅ v0.1 — Fondation (livrée)

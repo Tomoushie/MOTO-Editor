@@ -68,7 +68,7 @@
     <!-- Refactor Roslyn : v1.0 sur la Roadmap, pas encore -->
     <Compile Remove="Refactor\RefactorAnalyzer.cs" />
     <Compile Remove="Refactor\RefactorEngine.cs" />
-    <!-- LSP Roslyn (OmniSharp) : explicitement "à venir (v1.0)" dans Docs/Roadmap.txt -->
+    <!-- LSP Roslyn (OmniSharp) : explicitement "à venir (v1.0)" dans Docs/product/Roadmap.md -->
     <Compile Remove="LSP\LspSessionManager.cs" />
     <Compile Remove="LSP\RoslynLanguageServerClient.cs" />
     <Compile Remove="LSP\RoslynLspClient.cs" />

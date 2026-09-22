@@ -160,15 +160,15 @@
 ### Utilisateur
 
 - [ ] `Docs/README.md` à jour
-- [ ] `Docs/AI-OPTIMIZATIONS.md` à jour
-- [ ] `Docs/RELEASE-CHECKLIST.md` (ce fichier) à jour
+- [ ] `Docs/product/AI-OPTIMIZATIONS.md` à jour
+- [ ] `Docs/process/RELEASE-CHECKLIST.md` (ce fichier) à jour
 - [ ] Guide d'installation multiplateforme
 - [ ] FAQ dépannage
 
 ### Développeur
 
-- [ ] `Docs/ARCHITECTURE.md` à jour
-- [ ] `Docs/CONTRIBUTING.md` à jour
+- [ ] `Docs/architecture/Architecture.md` à jour
+- [ ] `Docs/process/CONTRIBUTING.md` à jour
 - [ ] Comments XML sur les APIs publiques
 - [ ] Diagramme de flux de données
 
@@ -242,7 +242,7 @@ Si un problème critique est détecté après publication :
 | Template dashboard | `config/dashboard-template.json` | ~200 | ✅ |
 | Loader dashboard | `Moto.Editor/Services/DashboardConfigLoader.cs` | ~150 | ✅ |
 | Extension AiMonitoringView | `Moto.Editor/Views/AiMonitoringView.xaml.cs` | +50 | ✅ |
-| Checklist release | `Docs/RELEASE-CHECKLIST.md` | ~300 | ✅ |
+| Checklist release | `Docs/process/RELEASE-CHECKLIST.md` | ~300 | ✅ |
 
 ---
 

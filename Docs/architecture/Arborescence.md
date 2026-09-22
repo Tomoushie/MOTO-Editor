@@ -1,4 +1,10 @@
-<!-- Docs/ARBORESCENCE.md -->
+<!-- Docs/architecture/Arborescence.md -->
+<!-- ⚠️ Partiellement daté (vérifié le 22/09) : cet arbre ne liste pas les 14
+     projets actuels du dépôt (manquent Moto.Installer, Moto.SignTool,
+     Moto.InferenceHost, Moto.Marketplace.Server, les 4 Moto.Plugin.*, les
+     projets de tests) et cite des vues exclues de la compilation
+     (SettingsMenuView, CollabView). Utile pour les noms de modules, pas pour
+     un inventaire à jour — voir MotoEditor.sln pour la liste réelle. -->
 # 🌳 Arborescence complète
 
 MOTO-Editor/

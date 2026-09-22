@@ -1,6 +1,6 @@
 // Moto.Core/Settings/SettingItemGeneric.cs
 // SettingItem<T> : déclaration compacte d'un paramètre (1 ligne = 1 paramètre, voir
-// Docs/CONTRIBUTING.md et Docs/Résumé compressé.md). Ce type générique n'existait nulle
+// Docs/process/CONTRIBUTING.md et Docs/product/Résumé-compressé.md). Ce type générique n'existait nulle
 // part alors qu'il est utilisé par toutes les classes SettingsCatalog.*.cs : reconstruit ici.
 // À ne pas confondre avec SettingItem.cs (wrapper UI non générique de Moto.Editor).
 using System;

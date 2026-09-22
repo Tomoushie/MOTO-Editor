@@ -103,7 +103,7 @@ namespace Moto.Editor.DependencyInjection
 #if MACOS || MACCATALYST
             services.AddSingleton<Moto.Editor.Platforms.Mac.MacShellAdapter>();
 #endif
-            // Linux : MAUI n'est pas supporté sur Linux (voir Docs/Moto.Editor.build-pipeline.md,
+            // Linux : MAUI n'est pas supporté sur Linux (voir Docs/process/Moto.Editor.build-pipeline.md,
             // "Linux → Core uniquement"), donc Moto.Editor.Platforms.Linux n'est jamais compilé
             // dans cette TFM — pas de branche Linux ici.
 

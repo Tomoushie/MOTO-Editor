@@ -1,4 +1,4 @@
-<!-- Docs/CONTRIBUTING.md -->
+<!-- Docs/process/CONTRIBUTING.md -->
 # 🤝 Contribuer
 
 ## Conventions

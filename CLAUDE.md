@@ -529,9 +529,9 @@ l'investigation : c'était le SEUL panneau du dock IA sans bouton ✕
 au "impossible de refermer le menu" du rapport initial. Bouton ✕ ajouté,
 même patron, confirmé par Tom.
 
-## Réglages → IA Locale (02/09, depuis "Docs/Idées à implémenter.txt")
+## Réglages → IA Locale (02/09, depuis "Docs/product/Idées-à-implémenter.txt")
 
-`Docs/Idées à implémenter.txt` (fichier de Tom) mélange une vision très
+`Docs/product/Idées-à-implémenter.txt` (fichier de Tom) mélange une vision très
 ambitieuse (fusion MOTO AI/Xeno-SSS∞, auto-modification de code en direct —
 **non retenue, trop risquée pour être un vrai prochain pas**) et de vraies
 petites idées faisables. Une a été construite le 02/09 : catégorie
@@ -764,7 +764,7 @@ totalité de la liste (~90 fichiers). Grandes familles :
   `EmbeddedLlmEngine.cs` existe en 2 exemplaires non réconciliés).
 - **Cluster LSP/Roslyn** (`Moto.Core/LSP/*`, `EditorPaneView.Lsp.cs`,
   `RefactorEngine`/`RefactorAnalyzer`) — mort, item de roadmap v1.0 explicite
-  (`Docs/Roadmap.txt`), pas encore construit. `RoslynLanguageServerClient.cs`
+  (`Docs/product/Roadmap.md`), pas encore construit. `RoslynLanguageServerClient.cs`
   (694 lignes) est le plus gros morceau de travail déjà investi ici — à
   garder en tête pour quand ce chantier reprendra.
 - **`CommandPaletteService`** : 4 fragments (`*.cs`, `.AdaptiveRanking.cs`,
@@ -1587,17 +1587,48 @@ révéler de nouvelles variantes de format non encore vues.
   `net8.0`** (vérifié dans les `.csproj`), et « 97 réglages » alors que le
   catalogue en compte **297**. Quand l'un des deux fichiers change un fait
   durable, mettre à jour l'autre.
-- **Organisation de `Docs/` (scellée le 22/09, à connaître avant de chercher
-  un document)** : `Docs/Zen/` (ex-`Docs/Pour Claude/`, renommage pur de 11
-  fichiers — cet ancien chemin est encore cité dans des notes anciennes),
-  `Docs/Documents/` (34 fichiers de présentation/vente : business plan,
-  analyses, manuel utilisateur, documentation API…), `Docs/inspirations/`
-  (captures d'écran + sources de la maquette « Claude shell »),
-  `Docs/probes/` (rapports bruts des sondes multi-agents). 5 notes
-  techniques ont été supprimées le 22/09 (Chaîne de confiance complète,
+- **Organisation de `Docs/` (réorganisée le 22/09 — à connaître avant de
+  chercher un document)**. La racine de `Docs/` ne contient plus que
+  `README.md` (vitrine, c'est ce que voit GitHub car il n'existe AUCUN
+  README à la racine du dépôt) et `index.md` (sommaire). Tout le reste est
+  rangé en 4 sous-dossiers thématiques :
+  - `Docs/architecture/` — `Architecture.md` (ex-`Architecture.txt`),
+    `Arborescence.md` (ex-`.txt`), `Modules-overview.md` (ex-`Licence.md` :
+    ce fichier n'a **jamais** contenu de licence, seulement un schéma ASCII ;
+    il portait un nom trompeur), `Moteurs-IA-internes.md`
+    (ex-`AI-Internal-Engine.txt`), + les 4 `Moto.Editor.*` d'architecture
+    (architecture, module-dependencies, memory-model, threading-model).
+  - `Docs/specs/` — les 11 specs `Moto.Editor.*` (code-style,
+    dev-guidelines, naming-conventions, crypto-spec, security-model,
+    logging-spec, error-codes, performance-guide, testing-strategy,
+    update-manifest-spec, update-failure-handling).
+  - `Docs/process/` — `CONTRIBUTING.md`, `RELEASE-CHECKLIST.md`,
+    `Flux-bout-en-bout.md`, + les 4 `Moto.Editor.*` de process
+    (directory-structure, build-pipeline, release-process,
+    installation-flow).
+  - `Docs/product/` — `FEATURES.md`, `Roadmap.md` (ex-`Roadmap.txt`),
+    `Idées-à-implémenter.txt`, `AI-OPTIMIZATIONS.md`,
+    `Résumé-compressé.md`.
+  - Sous-dossiers de contenu inchangés : `Docs/Zen/` (ex-`Docs/Pour
+    Claude/`), `Docs/Documents/` (présentation/vente), `Docs/inspirations/`
+    (captures + maquette « Claude shell »), `Docs/probes/` (sondes).
+  ⚠️ **Le dépôt public n'a toujours AUCUN fichier `LICENSE`** — un fichier
+  nommé « Licence.md » existait mais ne contenait pas de licence. Question
+  juridique ouverte, à trancher par Tom.
+- **7 fichiers supprimés de `Docs/` le 22/09 (validé par Tom, récupérables
+  dans l'historique git)** : `Moto.Editor.contribution-guide.md` (contenu
+  **répété 3 fois**, bug de génération, et doublon de `CONTRIBUTING.md`),
+  `Moto.Editor.slnf` (**cassé** : référençait `Moto.Editor.sln` alors que la
+  solution s'appelle `MotoEditor.sln`), `Moto.Editor.workspace.json`,
+  `Moto.Editor.projectmap.json`, `Moto.Editor.modules.json` (les 3 à **0
+  référence** nulle part — artefacts de session orchestrateur),
+  `RELEASE-CHECKLIST-AUTOMATED.md` (doublon partiel + documentait une
+  release « v40 » autour du cluster ONNX **mort**), `Agent-Integrated.md`
+  (décrivait une architecture **WinForms** — faux, l'app est MAUI — et 4 des
+  8 fichiers qu'il citait avaient disparu).
+- **5 notes techniques supprimées le 22/09** (Chaîne de confiance complète,
   Configuration des secrets, Créer une release corrective,
-  Installateur-Structure, Tests) — suppression validée par Tom, contenu
-  récupérable dans l'historique git si besoin.
+  Installateur-Structure, Tests) — suppression validée par Tom.
 - État des lieux brut du 02/09 (4 agents, panel-architecture-audit /
   visual-debt-audit / dead-feature-inventory / zed-inspired-explorer-entry-
   point) : sortie complète encore disponible dans le dossier de tâches de la

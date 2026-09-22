@@ -1,0 +1,308 @@
+MOTO Editor — Idées & vision
+============================
+
+⚠️ COMMENT LIRE CE FICHIER
+--------------------------
+Ce fichier mélangeait trois choses très différentes. Elles sont désormais
+séparées, parce que les confondre fait perdre du temps : on croit planifier
+un chantier qu'on a déjà fait, ou on croit qu'une idée est proche alors
+qu'elle demande des mois.
+
+  PARTIE A — DÉJÀ FAIT (ou en partie) : vérifié dans le code le 22/09.
+  PARTIE B — FAISABLE, avec un vrai prochain pas identifié.
+  PARTIE C — VISION (Xeno-SSS∞ Tier 30→32, auto-modification). Rien n'est
+             commencé, et rien ne doit être commencé sans une décision
+             explicite : voir les mises en garde dans chaque section.
+
+Rien n'a été supprimé : les textes d'origine sont conservés dans les parties
+correspondantes, simplement triés et annotés avec l'état réel.
+
+
+================================================================
+PARTIE A — DÉJÀ FAIT (ou en partie) — vérifié dans le code
+================================================================
+
+A1. LocalModelService — ✅ EXISTE, COMPILE, EST BRANCHÉ
+-------------------------------------------------------
+Le texte d'origine (plus bas) le présentait comme "à implémenter". C'est
+FAUX depuis un chantier tiers du 05/09, vérifié le 22/09 :
+
+  - Moto.Core/Moto.AI/Internal/LocalModelService.cs existe, est SUIVI par
+    git, et compilé (il n'est PAS exclu du .csproj).
+  - Il est réellement utilisé : MotoAiKernel le reçoit et l'appelle
+    (champ _localAi, MotoAiKernel.cs).
+  - MotoAiKernel.TryOllamaAsync a été rebranché sur un appel Ollama direct
+    (_ollamaDirect) après qu'un test réel a montré que le chemin
+    LocalModelService → AiProviderManager était un squelette inopérant.
+
+⚠️ RESTE À FAIRE (petit, mais réel) :
+  - Moto.Core/Settings/SettingsEngineCore.cs:75 contient encore un
+    commentaire "chantier en cours" à propos de LocalModelService — vestige
+    à nettoyer.
+  - Vérifier que l'interface "Paramètres → IA Locale" pilote bien CE
+    service et pas une autre instance (c'est exactement le bug déjà vécu
+    avec AiSettingsPage/_fallbackEngine.ProviderManager, corrigé le 02/09).
+
+Texte d'origine conservé :
+  "Classe LocalModelService pour gérer les appels au modèle. Gestion des
+   tokens, contextes, buffers, erreurs. Timeout configurable. Fallback
+   automatique. Journalisation des temps d'exécution et des tokens.
+   Interface de configuration dans Paramètres → IA Locale."
+
+
+A2. Agents autonomes en arrière-plan — ✅ LIVRÉ (jalons 1 à 3)
+--------------------------------------------------------------
+Rien dans ce fichier ne le demandait explicitement, mais la "vision Tier 31"
+(communication inter-agents, interface de suivi) recoupe ce qui existe
+désormais réellement :
+  - /agent <objectif> : boucle bornée perçoit→décide→agit→observe, avec
+    confirmation humaine obligatoire avant toute écriture.
+  - AgentMessageBus : deux agents peuvent réellement s'échanger des
+    messages pendant qu'ils tournent.
+  - Panneau "Agents en cours" : suivi en direct, bouton Arrêter par run,
+    journaux d'audit NDJSON exploitables après un crash.
+  - /diagnose, et les préréglages /refactor, /test, /doc.
+
+Ce qui N'EXISTE PAS malgré les apparences :
+  - Les "rôles" (superviseur, correcteur, générateur, validateur) : il n'y a
+    pas de système de rôles, seulement des objectifs libres donnés par
+    l'utilisateur.
+  - L'onglet "Cowork" visible dans la maquette ClaudeShellView est une
+    DÉMO VISUELLE : données 100% factices, non branchée sur les vrais
+    services. Ne pas le prendre pour une base de travail existante.
+
+
+================================================================
+PARTIE B — FAISABLE — avec un prochain pas concret
+================================================================
+
+B1. Vue fractionnée : deux conversations dans la même fenêtre  ⭐ le plus mûr
+------------------------------------------------------------------------------
+Idée ajoutée le 05/09. Techniquement la plus proche d'aboutir, et elle
+comble un écart RÉEL et déjà documenté :
+
+  État actuel (vérifié) : les réglages "Split vertical/horizontal" existent
+  dans SettingsCatalog mais sont purement DÉCORATIFS — aucun code de
+  split-pane derrière. La maquette ClaudeShellView affiche un onglet Cowork,
+  mais c'est du visuel factice.
+
+  Pourquoi c'est crédible : le système de panneaux réel (AddFloatingPanel,
+  MainPage.Panels.cs) sait déjà redimensionner, réordonner, déplacer entre
+  docks, et détacher un panneau dans sa propre fenêtre OS. Une vue
+  fractionnée = deux instances de la surface de chat côte à côte, pas un
+  moteur de layout à inventer.
+
+  Prochain pas proposé (à valider avant de coder) : commencer par UNE
+  colonne scindée en deux, sur la surface de chat uniquement, chaque moitié
+  ayant son propre ChatService/thread — en réutilisant le mécanisme de
+  séparation déjà éprouvé plutôt qu'un nouveau.
+
+  Point d'attention : ChatService.Contexts est aujourd'hui UN SEUL sac
+  partagé par toutes les surfaces d'envoi. Deux conversations simultanées
+  rendraient ce défaut très visible (pièces jointes qui partent dans la
+  mauvaise conversation). À traiter DANS ce chantier, pas après.
+
+
+B2. Équivalent "Claude Academy" : cours, leçons, tests de prompt
+-----------------------------------------------------------------
+Idée ajoutée le 05/09. Faisable, mais c'est un produit dans le produit :
+contenu pédagogique (écrit + vidéo), progression, exercices.
+
+  Prochain pas honnête : avant toute interface, décider du CONTENU. Sans
+  une vraie bibliothèque de leçons, l'écran sera une coquille — exactement
+  le motif "UI sans backend" que la doctrine du projet interdit.
+
+  Piste moins lourde, si l'ambition doit rester modeste : commencer par une
+  bibliothèque de prompts d'exemple réutilisables (il existe déjà un
+  prompt_library.html dans Docs/Documents/), branchée sur le chat réel.
+  Les "cours" viendraient ensuite.
+
+
+================================================================
+PARTIE C — VISION (rien n'est commencé, décision requise avant d'agir)
+================================================================
+
+C1. Xeno-SSS∞ — Évolution Tier 30 → 32
+----------------------------------------
+⚠️ VÉRIFIÉ LE 22/09 : AUCUN des composants nommés dans cette vision
+n'existe dans le dépôt. Recherche complète effectuée sur les 7 noms :
+  AgentManager, TaskRouter, ModelBridge, ErrorSupervisor, LearningCore,
+  ProjectMonitor, AutoEvolution → 0 occurrence dans tout le code.
+
+Ce n'est donc pas "à finir", c'est "à commencer", et c'est un chantier de
+plusieurs mois. À noter : le dépôt Xeno-SSS∞ existe séparément (dépôt
+GitHub privé "xeno-sss-complete"), ce qui suggère que cette évolution est
+peut-être destinée à vivre LÀ plutôt qu'ici.
+
+--- Texte d'origine, conservé tel quel ---
+
+Tier 30 — Consolidation cognitive
+Objectif : stabiliser la cohérence interne entre les agents et l'environnement MOTO Editor.
+
+  Principes
+  - Unification des logs et des états internes (sessions, tokens, patterns).
+  - Synchronisation complète entre Claude Code, Qwen et Xeno-SSS∞.
+  - Gestion des erreurs centralisée : aucun crash ne doit interrompre le flux.
+  - Auto-reconstruction des fichiers corrompus ou manquants.
+  - Détection proactive des incohérences de projet (fichiers fantômes, dépendances inutiles).
+
+  Résultat attendu
+  Le système devient auto-cohérent : il se répare, se synchronise et se
+  stabilise sans intervention humaine.
+
+Tier 31 — Intelligence collaborative
+Objectif : faire de MOTO Editor un espace de travail partagé entre agents et humains.
+
+  Principes
+  - Intégration du Cowork Mode : plusieurs IA peuvent travailler sur le même projet.
+  - Gestion des rôles : superviseur, correcteur, générateur, validateur.
+  - Communication inter-agents via Xeno-SSS∞ (protocole interne).
+  - Historique des décisions et des corrections.
+  - Interface visuelle pour suivre les actions des agents en temps réel.
+
+  Résultat attendu
+  Le système devient multi-agent et collaboratif, capable de distribuer les
+  tâches et de les fusionner.
+
+  ⚠️ Note : la communication inter-agents et l'interface de suivi existent
+  DÉJÀ pour le système /agent (voir A2). Ce qui manque réellement ici, ce
+  sont les RÔLES et l'intégration à Xeno plutôt qu'au chat.
+
+Tier 32 — Émergence adaptative
+Objectif : rendre le système capable d'évoluer seul selon les besoins du projet.
+
+  Principes
+  - Apprentissage des patterns de développement : reconnaissance des habitudes.
+  - Génération de modules autonomes : le système propose et implémente des
+    fonctionnalités nouvelles.
+  - Adaptation du style de code et de l'architecture selon le contexte.
+  - Création de sous-agents spécialisés (UI, gameplay, optimisation, documentation).
+  - Évaluation continue de la qualité du projet et suggestions d'évolution.
+
+  Résultat attendu
+  Le système devient auto-évolutif : il apprend, s'adapte et améliore le
+  projet sans supervision directe.
+
+Vision globale
+MOTO Editor doit permettre à quelqu'un qui ne sait pas coder de lancer un
+projet, le maintenir, le modifier, le faire évoluer, sans jamais apprendre
+à coder. C'est la philosophie du Tier 32 : autonomie totale assistée.
+
+
+C2. MOTO AI — Extension IA locale (Tier 31 → 32)
+-------------------------------------------------
+⚠️ Une grande partie de ceci est DÉJÀ FAIT — voir A1 et A2. Le squelette
+"architecte logique qui délègue à un vrai modèle local" fonctionne
+aujourd'hui via Ollama. Ce qui reste relève de la vision.
+
+--- Texte d'origine, conservé tel quel ---
+
+Objectif
+Faire évoluer MOTO AI d'un moteur logique vers un orchestrateur IA local,
+capable de piloter un modèle embarqué (Qwen, Phi, DeepSeek, Llama, etc.)
+pour générer du code, analyser, corriger et expliquer directement dans
+MOTO Editor.
+
+Principe général
+MOTO AI ne devient pas un modèle IA : elle reste légère, logique,
+déterministe, mais pilote un vrai modèle IA local.
+
+  Architecture
+  - MOTO AI : moteur logique, zéro dépendance, zéro RAM lourde.
+  - Modèle local : moteur génératif (Qwen, Phi, Llama, etc.).
+  - Claude Code : superviseur cognitif, vérifie, corrige, stabilise.
+  - MOTO Xeno-SSS∞ : orchestrateur multi-agent, distribue les tâches.
+  - MOTO Editor : interface visuelle, gestion des sessions et des fichiers.
+
+  Pipeline d'exécution
+  - MOTO AI reçoit la requête (ex. "crée une classe PlayerController").
+  - Elle analyse la demande et formule un prompt interne.
+  - Elle appelle le modèle local via un runtime (Ollama, LM Studio, etc.).
+  - Le modèle génère le code.
+  - Claude Code vérifie la syntaxe, les dépendances et les erreurs.
+  - Xeno-SSS∞ valide la cohérence du projet.
+  - MOTO Editor affiche le résultat et met à jour les fichiers.
+
+  Avantages
+  Zéro cloud / zéro dépendance lourde / modularité totale (changer de
+  modèle à volonté) / performance (logique déléguée) / autonomie.
+
+  Vision finale
+  MOTO AI devient le chef d'orchestre d'un environnement IA local complet.
+  Elle ne génère pas elle-même, mais sait quand, comment et pourquoi
+  déléguer.
+
+
+C3. Intégration complète de l'orchestrateur dans MOTO AI
+--------------------------------------------------------
+⚠️ CONFLIT D'ARCHITECTURE À TRANCHER. Cette section propose que MOTO AI
+ABSORBE Xeno-SSS∞ ("Xeno n'est plus un module séparé, mais une extension
+interne"). C'est l'inverse de la doctrine actuelle du projet, verrouillée :
+séparation stricte Editor / MOTO AI / XENO-SSS∞, où XENO reste un système
+à part. Ne pas commencer ceci sans que Tom tranche explicitement lequel des
+deux principes gagne.
+
+--- Texte d'origine, conservé tel quel ---
+
+Objectif
+Fusionner MOTO AI et Xeno-SSS∞ afin que l'IA interne devienne le noyau
+d'orchestration du système : capable de gérer les agents, les modèles, les
+flux de données et les tâches sans dépendre d'un orchestrateur externe.
+
+Répartition proposée
+  - MOTO AI : devient le moteur d'orchestration principal.
+  - Xeno-SSS∞ : devient un sous-système interne de MOTO AI (supervision).
+  - Claude Code / Qwen : agents de génération et de validation, pilotés par MOTO AI.
+  - MOTO Editor : interface visuelle et gestion des sessions.
+  - SnakeEngine / Snake2000 : modules applicatifs orchestrés par MOTO AI.
+
+Fonctionnalités à implémenter
+  AgentManager, TaskRouter, ModelBridge, ErrorSupervisor, LearningCore,
+  ProjectMonitor, AutoEvolution.   [aucune n'existe — voir C1]
+
+
+C4. ULTIME — Auto-modification en temps réel  ⛔ DÉJÀ ÉCARTÉE
+-------------------------------------------------------------
+⚠️ DÉCISION DÉJÀ PRISE (02/09) : cette idée a été examinée et NON RETENUE
+— "trop risquée pour être un vrai prochain pas". Elle est conservée ici
+pour mémoire, pas comme un chantier à lancer.
+
+Deux points factuels, vérifiés :
+  1. Le texte dit "MAUI et .NET 8 permettent déjà le Hot Reload". VRAI pour
+     le développement (Visual Studio / dotnet watch), FAUX pour ce qui est
+     demandé ici : une application LIVRÉE qui recompile et recharge son
+     propre code pendant qu'elle tourne. Ce sont deux mécanismes sans
+     rapport.
+  2. Le texte reconnaît lui-même que "AppDomain isolé" n'est plus la bonne
+     voie en .NET moderne — c'est exact et honnête. La seule option réelle
+     serait un processus secondaire, donc une architecture très lourde.
+
+--- Texte d'origine, conservé tel quel ---
+
+"Permettre à MOTO AI de s'améliorer en temps réel, de modifier son code en
+temps réel pendant qu'on l'exécute : analyser son propre comportement
+pendant qu'elle tourne ; modifier ses classes, méthodes ou agents internes ;
+recompiler ou recharger ces modules sans redémarrer l'application."
+
+1. Hot-Reload dynamique
+   Isoler chaque module IA dans une assembly dynamique (AssemblyLoadContext),
+   autoriser MOTO AI à recompiler une partie de son code via Roslyn, puis
+   recharger le module sans fermer l'application.
+   Exemple : MOTOAI.Core.dll rechargé à la volée après modification du
+   comportement d'un agent.
+
+2. Self-Reflection + Self-Repair
+   Un agent de supervision inspecte ses propres classes via
+   System.Reflection, détecte les incohérences, génère un patch temporaire
+   (Roslyn ou modèle IA local), applique le patch et recharge le module.
+   Principe du SelfRepairService, appliqué à son propre code.
+
+3. Sandbox de sécurité
+   Chaque modification testée dans un sandbox avant application
+   (processus secondaire), et restauration de la version précédente si le
+   test échoue.
+
+Note : la brique de sécurité qui existerait déjà pour ça est partielle. Le
+système /agent actuel impose une confirmation HUMAINE avant toute écriture
+— c'est ce qui rend l'autonomie actuelle acceptable. Une auto-modification
+sans confirmation supprimerait précisément cette garantie.
