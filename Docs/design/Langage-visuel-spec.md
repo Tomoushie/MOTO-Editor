@@ -1,5 +1,12 @@
 # Langage visuel MOTO Editor — spécification à valider
-**Date : 22/09 · Statut : PROPOSITION — aucun XAML modifié tant que ce document n'est pas validé**
+**Date : 22/09 · Statut : APPLIQUÉ (Phase 0 livrée, commit `71f6c21`)**
+
+> ⚠️ Tom a donné le 22/09 son feu vert pour avancer en autonomie sur le visuel
+> et le backend. Les 4 décisions ci-dessous ont donc été **tranchées et
+> appliquées** (D1 corps 13 px, D2 accent `#007ACC`, D3 police appliquée
+> partout via un style implicite, D4 interligne activé), chacune documentée et
+> réversible en une ligne. Elles restent listées en questions pour Tom dans le
+> rapport de fin de session.
 
 > Compagnon de `Audit-visuel-2026-09-22.md`. L'audit établit le diagnostic ;
 > ce document propose les valeurs exactes. Objectif : rendre « cheap → élevé »

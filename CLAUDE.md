@@ -388,6 +388,35 @@ Objectif énoncé par Tom (22/09) : atteindre un produit **en production**,
 deux axes. C'est un objectif long, à découper — ne pas traiter comme un
 chantier unique.
 
+### Chantier visuel — état d'avancement (22/09)
+
+Tom a donné son feu vert pour avancer EN AUTONOMIE sur le visuel **et** le
+backend (« je te laisse continuer… je te répondrai une fois que tu as
+terminé »). Les décisions ci-dessous ont donc été tranchées seul, chacune
+documentée et réversible ; elles sont listées en questions dans le rapport
+de fin de session.
+
+| # | Décision | Choix retenu | Réversible en |
+|---|---|---|---|
+| D1 | Corps de texte | **13 px** (VS Code et JetBrains sont à 13 ; l'app était à 12) | 1 ligne de jeton |
+| D2 | Accent | **#007ACC** (annoncé par la présentation ET QWEN.md ; les 3 références sont bleues). L'ancien orange est gardé sous `AccentWarm` | 1 ligne de jeton |
+| D3 | Police | `Segoe UI Variable, Segoe UI` — **appliquée partout** via un style implicite de `Label` (seuls 9 fichiers sur 71 en déclaraient une, donc deux typographies cohabitaient). Inter embarquée non retenue pour l'instant | enlève 1 style |
+| D4 | Interligne | **activé** (`LineHeight` sur les rôles ≥ 13 px) | par rôle |
+
+- ✅ **Phase 0 — socle livré** (commit `71f6c21`, lot validé par
+  `scripts/visual-lot-verify.ps1`) : 10 rôles typographiques (contrainte
+  vérifiée : **MAUI 8 n'a pas `FontWeight`**, seule `FontAttributes` existe),
+  5 jetons de rayon, espacements `Thickness` utilisables, 4 tailles d'icône,
+  anneau de focus, et **`Disabled`/`Focused` ajoutés** (ils étaient absents de
+  tous les styles de bouton).
+- ✅ **Écran pilote — Accueil (`HomeView.xaml`) converti** aux jetons.
+- ⏭️ **Reste** : Phase 1 (convertir les 994 valeurs en dur des 70 autres
+  fichiers, par lots vérifiés — table de conversion et outil de rapport déjà
+  écrits), Phase 2 (composants), Phase 3 (écrans), Phase 4 (mouvement).
+- ⚠️ **Aucun test visuel automatique** : le garde-fou garantit qu'un lot ne
+  casse rien (0 erreur, avertissements ≤ 479, périmètre, aucun comportement
+  touché) mais **pas** que le résultat soit joli — seul l'œil de Tom juge.
+
 ## Architecture des panneaux (dock IA / Explorateur)
 
 - **Système modulaire réel** (`AddFloatingPanel`, `MainPage.Panels.cs`) :
