@@ -16,9 +16,9 @@
                  "Documentation" pour rebasculer IsVisible. Même patron que
                  CommandPaletteView/ProactiveActionsView. -->
             <Grid Grid.Row="0" ColumnDefinitions="*,Auto">
-                <Label Grid.Column="0" Text="📚 MOTO Doc Engine" FontAttributes="Bold" FontSize="14" />
-                <Button Grid.Column="1" Text="✕" FontSize="12" Padding="0"
-                        WidthRequest="24" HeightRequest="24" CornerRadius="12"
+                <Label Grid.Column="0" Text="📚 MOTO Doc Engine" FontAttributes="Bold" FontSize="{StaticResource FontSizeSubheading}" />
+                <Button Grid.Column="1" Text="✕" FontSize="{StaticResource FontSizeBody}" Padding="0"
+                        WidthRequest="24" HeightRequest="24" CornerRadius="{StaticResource RadiusLg}"
                         BackgroundColor="Transparent" TextColor="{StaticResource Txt2}"
                         Clicked="OnCloseClicked" />
             </Grid>
@@ -32,14 +32,14 @@
                         <Border StrokeShape="RoundRectangle 8" BackgroundColor="{StaticResource BgPanel}"
                                 Padding="10" Margin="0,4">
                             <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
-                                <Label Grid.Column="0" Text="📄" FontSize="16" VerticalOptions="Center" />
+                                <Label Grid.Column="0" Text="📄" FontSize="{StaticResource FontSizeHeading}" VerticalOptions="Center" />
                                 <VerticalStackLayout Grid.Column="1">
-                                    <Label Text="{Binding FileName}" FontSize="12" FontAttributes="Bold" />
+                                    <Label Text="{Binding FileName}" FontSize="{StaticResource FontSizeBody}" FontAttributes="Bold" />
                                     <Label Text="{Binding LineCount, StringFormat='{0} lignes'}"
-                                           FontSize="10" Opacity="0.6" />
+                                           FontSize="{StaticResource FontSizeSmall}" Opacity="0.6" />
                                 </VerticalStackLayout>
                                 <Button Grid.Column="2" Text="Ouvrir"
-                                        FontSize="10" Padding="8,2"
+                                        FontSize="{StaticResource FontSizeSmall}" Padding="8,2"
                                         Clicked="OnOpenClicked" />
                             </Grid>
                         </Border>

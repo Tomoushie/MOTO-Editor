@@ -12,7 +12,7 @@
         <VerticalStackLayout Spacing="12">
 
             <Grid ColumnDefinitions="*,Auto">
-                <Label Text="MOTO Editor" FontSize="20" FontAttributes="Bold"
+                <Label Text="MOTO Editor" FontSize="{StaticResource FontSizeTitle}" FontAttributes="Bold"
                        TextColor="{StaticResource Txt1}"/>
                 <Button Grid.Column="1" Text="✕" WidthRequest="30" HeightRequest="30"
                         BackgroundColor="Transparent" TextColor="{StaticResource Txt2}"
@@ -25,7 +25,7 @@
                     Padding="12">
                 <VerticalStackLayout Spacing="4">
                     <Label x:Name="VersionLabel" Text="Version 1.0.0"
-                           FontSize="14" FontAttributes="Bold"
+                           FontSize="{StaticResource FontSizeSubheading}" FontAttributes="Bold"
                            TextColor="{StaticResource Txt1}"/>
                     <Label x:Name="BuildLabel" Text="Build —" FontSize="11"
                            TextColor="{StaticResource Txt2}"/>
@@ -45,16 +45,16 @@
 
             <VerticalStackLayout Spacing="4">
                 <Label Text="Produit par" FontSize="11" TextColor="{StaticResource Txt2}"/>
-                <Label Text="MOTO Software" FontSize="13" FontAttributes="Bold"
+                <Label Text="MOTO Software" FontSize="{StaticResource FontSizeBody}" FontAttributes="Bold"
                        TextColor="{StaticResource Txt1}"/>
             </VerticalStackLayout>
 
             <VerticalStackLayout Spacing="4">
                 <Label Text="Créateur" FontSize="11" TextColor="{StaticResource Txt2}"/>
-                <Label Text="Tom NOWAK" FontSize="14" FontAttributes="Bold"
+                <Label Text="Tom NOWAK" FontSize="{StaticResource FontSizeSubheading}" FontAttributes="Bold"
                        TextColor="{StaticResource Txt1}"/>
                 <Label x:Name="EmailLabel" Text="nowaktombe@protonmail.com"
-                       FontSize="12" TextColor="{StaticResource Accent}">
+                       FontSize="{StaticResource FontSizeBody}" TextColor="{StaticResource Accent}">
                     <Label.GestureRecognizers>
                         <TapGestureRecognizer Tapped="OnEmailClicked"/>
                     </Label.GestureRecognizers>
@@ -62,7 +62,7 @@
             </VerticalStackLayout>
 
             <Label Text="© 2026 MOTO Software. Tous droits réservés."
-                   FontSize="10" TextColor="{StaticResource Txt2}"
+                   FontSize="{StaticResource FontSizeSmall}" TextColor="{StaticResource Txt2}"
                    HorizontalOptions="Center" Margin="0,8,0,0"/>
         </VerticalStackLayout>
     </Border>

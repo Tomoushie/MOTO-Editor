@@ -54,13 +54,13 @@
           <DataTemplate>
             <Border Background="{AppThemeBinding Light=#E6E2DA, Dark=#3B3833}" StrokeShape="RoundRectangle 12"
                     Padding="14,10" HorizontalOptions="End" MaximumWidthRequest="620">
-              <Label Text="{Binding Text}" TextColor="{AppThemeBinding Light=#181A1E, Dark=#E8EAED}" FontSize="13"/>
+              <Label Text="{Binding Text}" TextColor="{AppThemeBinding Light=#181A1E, Dark=#E8EAED}" FontSize="{StaticResource FontSizeBody}"/>
             </Border>
           </DataTemplate>
         </claude:ClaudeMsgSelector.UserTemplate>
         <claude:ClaudeMsgSelector.CmdTemplate>
           <DataTemplate>
-            <Border Background="{DynamicResource BgSide}" StrokeShape="RoundRectangle 10" Padding="16,8" HorizontalOptions="End">
+            <Border Background="{DynamicResource BgSide}" StrokeShape="RoundRectangle 8" Padding="16,8" HorizontalOptions="End">
               <Label Text="{Binding Text}" TextColor="{AppThemeBinding Light=#0066CC, Dark=#007ACC}" FontAttributes="Bold"/>
             </Border>
           </DataTemplate>
@@ -68,7 +68,7 @@
         <claude:ClaudeMsgSelector.AiTemplate>
           <DataTemplate>
             <StackLayout Spacing="4">
-              <Label Text="{Binding Text}" TextColor="{AppThemeBinding Light=#181A1E, Dark=#E8EAED}" FontSize="13"/>
+              <Label Text="{Binding Text}" TextColor="{AppThemeBinding Light=#181A1E, Dark=#E8EAED}" FontSize="{StaticResource FontSizeBody}"/>
               <Label Text="⧉ ⚲ 🔊  il y a 4 minutes" TextColor="{DynamicResource MotoSubtleText}" FontSize="11"/>
             </StackLayout>
           </DataTemplate>
@@ -90,7 +90,7 @@
               <StackLayout Orientation="Horizontal" Spacing="8">
                 <Button Text="›" Style="{StaticResource CcIconBtn}" WidthRequest="18" HeightRequest="18"
                         Clicked="OnActChevronClicked" BindingContext="{Binding .}"/>
-                <Label Text="{Binding Text}" TextColor="{AppThemeBinding Light=#5A6069, Dark=#9AA0A6}" FontSize="12.5"/>
+                <Label Text="{Binding Text}" TextColor="{AppThemeBinding Light=#5A6069, Dark=#9AA0A6}" FontSize="{StaticResource FontSizeBody}"/>
                 <Label Text="{Binding Add, StringFormat='+{0}'}" Style="{StaticResource CcMono}" TextColor="#7EC699"/>
                 <Label Text="{Binding Del, StringFormat='-{0}'}" Style="{StaticResource CcMono}" TextColor="#F28B82"/>
               </StackLayout>
@@ -159,7 +159,7 @@
               <DataTemplate>
                 <StackLayout Spacing="0">
                   <Label Text="{Binding Title}" TextColor="{AppThemeBinding Light=#5A6069, Dark=#9AA0A6}"
-                         FontSize="12.5" Padding="14,6"/>
+                         FontSize="{StaticResource FontSizeBody}" Padding="14,6"/>
                 </StackLayout>
               </DataTemplate>
             </BindableLayout.ItemTemplate>
@@ -190,7 +190,7 @@
           <Label Text="MOTO Editor - Part1" FontAttributes="Bold"
                  TextColor="{AppThemeBinding Light=#181A1E, Dark=#E8EAED}"/>
           <Border Stroke="{DynamicResource BorderCol}" Background="{DynamicResource BgPanel}"
-                  StrokeShape="RoundRectangle 7" Padding="9,3">
+                  StrokeShape="RoundRectangle 6" Padding="9,3">
             <Label Text="Projet logiciel" FontSize="11" TextColor="{AppThemeBinding Light=#5A6069, Dark=#9AA0A6}"/>
           </Border>
           <StackLayout HorizontalOptions="End" Orientation="Horizontal">
@@ -208,7 +208,7 @@
           <!-- ACCUEIL -->
           <ScrollView x:Name="HomePanel" IsVisible="False">
             <StackLayout Padding="30,26" Spacing="14">
-              <Label Text="✳ Quoi de prévu, Tom ?" FontSize="21" FontAttributes="Bold"
+              <Label Text="✳ Quoi de prévu, Tom ?" FontSize="{StaticResource FontSizeTitle}" FontAttributes="Bold"
                      TextColor="{AppThemeBinding Light=#181A1E, Dark=#E8EAED}"/>
               <Border Style="{StaticResource CcCard}" Padding="16" MaximumWidthRequest="640">
                 <StackLayout Spacing="10">
@@ -216,10 +216,10 @@
                     <BindableLayout.ItemTemplate>
                       <DataTemplate>
                         <Border Background="{DynamicResource BgSide}" Stroke="{DynamicResource BorderCol}"
-                                StrokeShape="RoundRectangle 9" Padding="10,8" Margin="3">
+                                StrokeShape="RoundRectangle 8" Padding="10,8" Margin="3">
                           <StackLayout>
                             <Label Text="{Binding Label}" FontSize="11" TextColor="{AppThemeBinding Light=#5A6069, Dark=#9AA0A6}"/>
-                            <Label Text="{Binding Value}" FontSize="14" FontAttributes="Bold"
+                            <Label Text="{Binding Value}" FontSize="{StaticResource FontSizeSubheading}" FontAttributes="Bold"
                                    TextColor="{AppThemeBinding Light=#181A1E, Dark=#E8EAED}"/>
                           </StackLayout>
                         </Border>
@@ -236,7 +236,7 @@
           <!-- COWORK -->
           <ScrollView x:Name="CoworkPanel" IsVisible="False">
             <StackLayout Padding="40,26" Spacing="12">
-              <Label Text="Projets / WebSite" FontSize="13" TextColor="{AppThemeBinding Light=#5A6069, Dark=#9AA0A6}"/>
+              <Label Text="Projets / WebSite" FontSize="{StaticResource FontSizeBody}" TextColor="{AppThemeBinding Light=#5A6069, Dark=#9AA0A6}"/>
               <Label Text="{Binding CurrentProject}" Style="{StaticResource CcSerifTitle}"/>
               <Border Style="{StaticResource CcCard}" Padding="0" MaximumWidthRequest="880">
                 <StackLayout>
@@ -273,7 +273,7 @@
                 <Button Text="Les vôtres" Style="{StaticResource CcSegBtn}" Background="{DynamicResource BgPanel}"/>
                 <Button Text="Parcourir" Style="{StaticResource CcSegBtn}"/>
                 <Label HorizontalOptions="End"/>
-                <Button Text="Ajouter ⌄" Background="#F2F0EC" TextColor="#171512" CornerRadius="9" HeightRequest="34"/>
+                <Button Text="Ajouter ⌄" Background="#F2F0EC" TextColor="#171512" CornerRadius="{StaticResource RadiusMd}" HeightRequest="34"/>
               </StackLayout>
               <Border Style="{StaticResource CcCard}" Padding="22">
                 <StackLayout Spacing="8">
@@ -282,8 +282,8 @@
                   <Label Text="Les compétences apprennent à Claude comment vous travaillez. Ajoutez-les depuis Discover ou créez les vôtres."
                          TextColor="{AppThemeBinding Light=#5A6069, Dark=#9AA0A6}"/>
                   <StackLayout Orientation="Horizontal" Spacing="10">
-                    <Button Text="Parcourir Discover" Background="#F2F0EC" TextColor="#171512" CornerRadius="9"/>
-                    <Button Text="En savoir plus" Background="{DynamicResource BgPanel}" CornerRadius="9"/>
+                    <Button Text="Parcourir Discover" Background="#F2F0EC" TextColor="#171512" CornerRadius="{StaticResource RadiusMd}"/>
+                    <Button Text="En savoir plus" Background="{DynamicResource BgPanel}" CornerRadius="{StaticResource RadiusMd}"/>
                   </StackLayout>
                 </StackLayout>
               </Border>
@@ -291,14 +291,14 @@
                 <BindableLayout.ItemTemplate>
                   <DataTemplate>
                     <StackLayout Orientation="Horizontal" Padding="4,14" Spacing="12">
-                      <Border WidthRequest="36" HeightRequest="36" StrokeShape="RoundRectangle 10"
+                      <Border WidthRequest="36" HeightRequest="36" StrokeShape="RoundRectangle 8"
                               Background="{DynamicResource BgSide}" Stroke="{DynamicResource BorderCol}">
                         <Label Text="📄" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
                       </Border>
                       <StackLayout HorizontalOptions="FillAndExpand">
                         <Label Text="{Binding Name}" FontAttributes="Bold"
                                TextColor="{AppThemeBinding Light=#181A1E, Dark=#E8EAED}"/>
-                        <Label Text="{Binding Desc}" FontSize="12.5" LineBreakMode="TailTruncation"
+                        <Label Text="{Binding Desc}" FontSize="{StaticResource FontSizeBody}" LineBreakMode="TailTruncation"
                                TextColor="{AppThemeBinding Light=#5A6069, Dark=#9AA0A6}"/>
                       </StackLayout>
                       <Label Text="{Binding When}" TextColor="{DynamicResource MotoSubtleText}"/>
@@ -316,7 +316,7 @@
                 <Label Text="Artéfacts" Style="{StaticResource CcSerifTitle}"/>
                 <Label HorizontalOptions="End"/>
                 <Button Text="🔍" Style="{StaticResource CcIconBtn}"/>
-                <Button Text="Nouvel artéfact" Background="#F2F0EC" TextColor="#171512" CornerRadius="9"/>
+                <Button Text="Nouvel artéfact" Background="#F2F0EC" TextColor="#171512" CornerRadius="{StaticResource RadiusMd}"/>
               </StackLayout>
               <StackLayout Orientation="Horizontal" Spacing="6">
                 <Button Text="Tous" Style="{StaticResource CcSegBtn}" Background="{DynamicResource BgPanel}"/>
@@ -337,7 +337,7 @@
                         <StackLayout Padding="16,14">
                           <Label Text="{Binding Title}" FontAttributes="Bold"
                                  TextColor="{AppThemeBinding Light=#181A1E, Dark=#E8EAED}"/>
-                          <Label Text="{Binding When}" FontSize="12" TextColor="{DynamicResource MotoSubtleText}"/>
+                          <Label Text="{Binding When}" FontSize="{StaticResource FontSizeBody}" TextColor="{DynamicResource MotoSubtleText}"/>
                         </StackLayout>
                       </StackLayout>
                     </Border>
@@ -366,7 +366,7 @@
             <Button Grid.Column="4" Text="Sonnet 5" Style="{StaticResource CcSegBtn}"/>
             <Button Grid.Column="5" Text="Ultracode" Style="{StaticResource CcSegBtn}"/>
             <Border Grid.Column="6" WidthRequest="15" HeightRequest="15" Stroke="{AppThemeBinding Light=#0066CC, Dark=#007ACC}"
-                    StrokeThickness="2" StrokeShape="RoundRectangle 7">
+                    StrokeThickness="2" StrokeShape="RoundRectangle 6">
               <Border.GestureRecognizers>
                 <TapGestureRecognizer Tapped="OnContextTapped"/>
               </Border.GestureRecognizers>
@@ -413,10 +413,10 @@
                 <StackLayout Spacing="8">
                   <Label Text="moto-modularity-scoping" FontAttributes="Bold"
                          TextColor="{AppThemeBinding Light=#181A1E, Dark=#E8EAED}"/>
-                  <Label Text="Workflow 4min 29s · 5 agents · 646.4k tokens" FontSize="12.5"
+                  <Label Text="Workflow 4min 29s · 5 agents · 646.4k tokens" FontSize="{StaticResource FontSizeBody}"
                          TextColor="{AppThemeBinding Light=#5A6069, Dark=#9AA0A6}"/>
                   <Label Text="Cartographier la modularité actuelle de MOTO Editor vs Zed/VS Code (panneaux, commandes, réglages, plugins, persistance) pour proposer les prochaines briques homemade"
-                         FontSize="12.5" TextColor="{AppThemeBinding Light=#5A6069, Dark=#9AA0A6}"/>
+                         FontSize="{StaticResource FontSizeBody}" TextColor="{AppThemeBinding Light=#5A6069, Dark=#9AA0A6}"/>
                   <Label Text="Phases — Cartographier 4/5" FontAttributes="Bold" Margin="0,6,0,0"
                          TextColor="{AppThemeBinding Light=#181A1E, Dark=#E8EAED}"/>
                   <CollectionView ItemsSource="{Binding Agents}" SelectionMode="None">
@@ -446,11 +446,11 @@
         <!-- Transcription -->
         <ScrollView x:Name="TransPanel" IsVisible="False">
           <StackLayout Padding="20,14" Spacing="10">
-            <Label Text="C'était bien moi — corrigé" FontSize="17" FontAttributes="Bold"
+            <Label Text="C'était bien moi — corrigé" FontSize="{StaticResource FontSizeHeading}" FontAttributes="Bold"
                    TextColor="{AppThemeBinding Light=#181A1E, Dark=#E8EAED}"/>
             <Label Text="J'ai trouvé et réparé le problème : c'est l'ajout du support MSIX de tout à l'heure qui a cassé le lancement normal (WindowsAppSDKSelfContained en conflit avec le nouveau fichier MSIX)."
                    TextColor="{AppThemeBinding Light=#181A1E, Dark=#E8EAED}"/>
-            <Border Background="#171614" StrokeShape="RoundRectangle 10" Padding="14">
+            <Border Background="#171614" StrokeShape="RoundRectangle 8" Padding="14">
               <Label Style="{StaticResource CcMono}" TextColor="#7EC699"
                      Text="dotnet run --project &quot;E:\Corpus\MOTO-Editor\Moto.Editor\Moto.Editor.csproj&quot;"/>
             </Border>
@@ -461,7 +461,7 @@
                        Background="#0078D7" TextColor="White" FontSize="11.5" Padding="9,5"/>
                 <StackLayout Background="#F0F0F0" Padding="16" Spacing="6">
                   <Label Text="❌ This application requires the Windows App Runtime Version 1.5 (MSIX package version >= 5001.214.1843.0). Do you want to install a compatible Windows App Runtime now?"
-                         TextColor="#1A1A1A" FontSize="12"/>
+                         TextColor="#1A1A1A" FontSize="{StaticResource FontSizeBody}"/>
                   <StackLayout Orientation="Horizontal" HorizontalOptions="End" Spacing="8">
                     <Button Text="Oui" Background="#E1E1E1" TextColor="#1A1A1A" WidthRequest="64"/>
                     <Button Text="Non" Background="#E1E1E1" TextColor="#1A1A1A" WidthRequest="64"/>
@@ -486,7 +486,7 @@
           <Editor x:Name="FeedbackText" Placeholder="Décrivez le problème" MinimumHeightRequest="120"
                   Background="{DynamicResource BgSide}"/>
           <Label Text="Ce rapport inclura votre description et la transcription de la session en cours. Nous pouvons les utiliser pour déboguer les problèmes associés et améliorer Claude Code."
-                 FontSize="12.5" TextColor="{AppThemeBinding Light=#5A6069, Dark=#9AA0A6}"/>
+                 FontSize="{StaticResource FontSizeBody}" TextColor="{AppThemeBinding Light=#5A6069, Dark=#9AA0A6}"/>
           <StackLayout Orientation="Horizontal" HorizontalOptions="End" Spacing="9">
             <Button Text="Annuler" Clicked="OnFeedbackCancel" Background="{DynamicResource BgPanel}"/>
             <Button Text="Envoyer" Clicked="OnFeedbackSend" Background="{DynamicResource BgPanel}"/>
@@ -504,10 +504,10 @@
         <Label Text="Fenêtre de contexte — 583.4k / 1M (58%)"
                TextColor="{AppThemeBinding Light=#181A1E, Dark=#E8EAED}"/>
         <ProgressBar Progress="0.58" ProgressColor="{AppThemeBinding Light=#0066CC, Dark=#007ACC}"/>
-        <Label Text="Limite de 5 heures — Réinitialisation dans 1 h 26 min — 63%" FontSize="12.5"
+        <Label Text="Limite de 5 heures — Réinitialisation dans 1 h 26 min — 63%" FontSize="{StaticResource FontSizeBody}"
                TextColor="{AppThemeBinding Light=#5A6069, Dark=#9AA0A6}"/>
         <ProgressBar Progress="0.63" ProgressColor="{AppThemeBinding Light=#0066CC, Dark=#007ACC}"/>
-        <Label Text="Hebdomadaire — Réinitialisation sam. 19:00 — 60%" FontSize="12.5"
+        <Label Text="Hebdomadaire — Réinitialisation sam. 19:00 — 60%" FontSize="{StaticResource FontSizeBody}"
                TextColor="{AppThemeBinding Light=#5A6069, Dark=#9AA0A6}"/>
         <ProgressBar Progress="0.60" ProgressColor="{AppThemeBinding Light=#0066CC, Dark=#007ACC}"/>
         <Button Text="Voir la répartition détaillée" Style="{StaticResource CcSegBtn}" HorizontalOptions="Start"/>

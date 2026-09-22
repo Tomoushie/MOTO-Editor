@@ -11,7 +11,7 @@
 
             <Label Text="EXPLORATEUR"
                    FontAttributes="Bold"
-                   FontSize="12"
+                   FontSize="{StaticResource FontSizeBody}"
                    VerticalOptions="Center" />
 
             <!-- ★ CORRECTION (31/08) : emojis → glyphes vectoriels Segoe Fluent Icons
@@ -56,7 +56,7 @@
             <Button x:Name="BtnToggleSide" Text="🡺"
                     ToolTipProperties.Text="Changer de côté"
                     Clicked="OnToggleSideClicked"
-                    Style="{StaticResource MotoHoverIconButton}" FontSize="12" VerticalOptions="Center" />
+                    Style="{StaticResource MotoHoverIconButton}" FontSize="{StaticResource FontSizeBody}" VerticalOptions="Center" />
 
         </HorizontalStackLayout>
 
@@ -66,7 +66,7 @@
              (dossier sans dépôt Git). -->
         <HorizontalStackLayout Grid.Row="1" x:Name="ProjectInfoBar"
                                 Padding="8,0,8,8" Spacing="6" IsVisible="False">
-            <Label x:Name="ProjectNameLabel" FontSize="12" FontAttributes="Bold"
+            <Label x:Name="ProjectNameLabel" FontSize="{StaticResource FontSizeBody}" FontAttributes="Bold"
                    TextColor="{StaticResource Txt1}" />
             <Border BackgroundColor="{StaticResource BgSide}" Padding="6,1"
                     StrokeThickness="0" StrokeShape="RoundRectangle 8">
@@ -92,8 +92,8 @@
         <Grid x:Name="EmptyStatePanel" Grid.Row="2" HorizontalOptions="Fill" VerticalOptions="Fill" InputTransparent="True">
             <VerticalStackLayout Padding="20" Spacing="8"
                                  HorizontalOptions="Center" VerticalOptions="Center">
-                <Label Text="📂" FontSize="28" HorizontalOptions="Center" Opacity="0.6" />
-                <Label Text="Aucun dossier ouvert" FontSize="13" HorizontalOptions="Center" Opacity="0.8" />
+                <Label Text="📂" FontSize="{StaticResource FontSizeDisplay}" HorizontalOptions="Center" Opacity="0.6" />
+                <Label Text="Aucun dossier ouvert" FontSize="{StaticResource FontSizeBody}" HorizontalOptions="Center" Opacity="0.8" />
                 <Label Text="Clique sur 📁 ci-dessus, ou sur &quot;Projet logiciel&quot; à l'accueil."
                        FontSize="11" HorizontalOptions="Center" Opacity="0.5" HorizontalTextAlignment="Center" />
             </VerticalStackLayout>
@@ -125,12 +125,12 @@
 
                             <Label Grid.Column="1"
                                    Text="{Binding Icon}"
-                                   FontSize="13"
+                                   FontSize="{StaticResource FontSizeBody}"
                                    WidthRequest="44" />
 
                             <Label Grid.Column="2"
                                    Text="{Binding Name}"
-                                   FontSize="13"
+                                   FontSize="{StaticResource FontSizeBody}"
                                    VerticalOptions="Center" />
 
                         </Grid>

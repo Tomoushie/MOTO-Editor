@@ -14,26 +14,26 @@
       <Label Text="Tâches en arrière-plan" FontAttributes="Bold"
              TextColor="{StaticResource Txt1}"/>
       <Label Grid.Column="1" x:Name="RunningCountLabel" Text="0 en cours"
-             TextColor="{DynamicResource MotoSubtleText}" FontSize="12"/>
+             TextColor="{DynamicResource MotoSubtleText}" FontSize="{StaticResource FontSizeBody}"/>
     </Grid>
 
     <CollectionView Grid.Row="1" x:Name="TaskList" SelectionMode="None" Margin="10,0">
       <CollectionView.EmptyView>
         <Label Text="Aucun appel IA pour l'instant. Pose une question dans le panneau de chat pour voir apparaître une tâche ici."
-               TextColor="{DynamicResource MotoSubtleText}" FontSize="12.5"
+               TextColor="{DynamicResource MotoSubtleText}" FontSize="{StaticResource FontSizeBody}"
                Padding="10,20" HorizontalTextAlignment="Center"/>
       </CollectionView.EmptyView>
       <CollectionView.ItemTemplate>
         <DataTemplate>
           <Border Background="{DynamicResource BgPanel}" Stroke="{DynamicResource BorderCol}"
-                  StrokeShape="RoundRectangle 10" Padding="12,10" Margin="0,0,0,8">
+                  StrokeShape="RoundRectangle 8" Padding="12,10" Margin="0,0,0,8">
             <Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto" ColumnSpacing="8">
               <Label Grid.Row="0" Grid.Column="0" Text="{Binding StatusIcon}"
-                     TextColor="{StaticResource Accent}" FontSize="13"/>
+                     TextColor="{StaticResource Accent}" FontSize="{StaticResource FontSizeBody}"/>
               <Label Grid.Row="0" Grid.Column="1" Text="{Binding Label}" FontAttributes="Bold"
-                     TextColor="{StaticResource Txt1}" FontSize="13" LineBreakMode="TailTruncation"/>
+                     TextColor="{StaticResource Txt1}" FontSize="{StaticResource FontSizeBody}" LineBreakMode="TailTruncation"/>
               <Label Grid.Row="0" Grid.Column="2" Text="{Binding DurationLabel}"
-                     TextColor="{DynamicResource MotoSubtleText}" FontSize="12"/>
+                     TextColor="{DynamicResource MotoSubtleText}" FontSize="{StaticResource FontSizeBody}"/>
               <Label Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Text="{Binding Model}"
                      TextColor="{DynamicResource MotoSubtleText}" FontSize="11.5" Margin="0,3,0,0"/>
             </Grid>
@@ -44,8 +44,8 @@
 
     <Grid Grid.Row="2" ColumnDefinitions="*,Auto" Padding="14,8">
       <Label x:Name="TotalCountLabel" Text="0 terminée(s)"
-             TextColor="{DynamicResource MotoSubtleText}" FontSize="12" VerticalOptions="Center"/>
-      <Button Grid.Column="1" Text="Effacer l'historique" FontSize="12" Padding="8,4"
+             TextColor="{DynamicResource MotoSubtleText}" FontSize="{StaticResource FontSizeBody}" VerticalOptions="Center"/>
+      <Button Grid.Column="1" Text="Effacer l'historique" FontSize="{StaticResource FontSizeBody}" Padding="8,4"
               BackgroundColor="Transparent" TextColor="{DynamicResource MotoSubtleText}"
               Clicked="OnClearClicked"/>
     </Grid>

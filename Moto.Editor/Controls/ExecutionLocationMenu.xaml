@@ -28,7 +28,7 @@
         <VerticalStackLayout Spacing="2">
 
             <Grid ColumnDefinitions="*,Auto" Margin="6,2,2,6">
-                <Label Text="Emplacement d'exécution" FontSize="12" FontAttributes="Bold"
+                <Label Text="Emplacement d'exécution" FontSize="{StaticResource FontSizeBody}" FontAttributes="Bold"
                        TextColor="{StaticResource Txt2}" VerticalOptions="Center" />
                 <Button Grid.Column="1" Text="✕" WidthRequest="26" HeightRequest="22" FontSize="11"
                         Padding="0" BackgroundColor="Transparent" Clicked="OnCloseClicked" />
@@ -39,8 +39,8 @@
                     <TapGestureRecognizer Tapped="OnRowTapped" />
                 </Border.GestureRecognizers>
                 <Grid ColumnDefinitions="Auto,*,Auto">
-                    <Label Text="💻" FontSize="14" />
-                    <Label Grid.Column="1" Text="Local" FontSize="13" Margin="8,0" />
+                    <Label Text="💻" FontSize="{StaticResource FontSizeSubheading}" />
+                    <Label Grid.Column="1" Text="Local" FontSize="{StaticResource FontSizeBody}" Margin="8,0" />
                     <Label Grid.Column="2" Text="✓" TextColor="{StaticResource Accent}" />
                 </Grid>
             </Border>
@@ -50,8 +50,8 @@
                     <TapGestureRecognizer Tapped="OnRowTapped" />
                 </Border.GestureRecognizers>
                 <Grid ColumnDefinitions="Auto,*,Auto">
-                    <Label Text="☁️" FontSize="14" />
-                    <Label Grid.Column="1" Text="Cloud" FontSize="13" Margin="8,0" />
+                    <Label Text="☁️" FontSize="{StaticResource FontSizeSubheading}" />
+                    <Label Grid.Column="1" Text="Cloud" FontSize="{StaticResource FontSizeBody}" Margin="8,0" />
                 </Grid>
             </Border>
 
@@ -60,8 +60,8 @@
                     <TapGestureRecognizer Tapped="OnRowTapped" />
                 </Border.GestureRecognizers>
                 <Grid ColumnDefinitions="Auto,*,Auto">
-                    <Label Text="🖱️" FontSize="14" />
-                    <Label Grid.Column="1" Text="Contrôle à distance" FontSize="13" Margin="8,0" />
+                    <Label Text="🖱️" FontSize="{StaticResource FontSizeSubheading}" />
+                    <Label Grid.Column="1" Text="Contrôle à distance" FontSize="{StaticResource FontSizeBody}" Margin="8,0" />
                 </Grid>
             </Border>
 
@@ -70,8 +70,8 @@
                     <TapGestureRecognizer Tapped="OnRowTapped" />
                 </Border.GestureRecognizers>
                 <Grid ColumnDefinitions="Auto,*,Auto">
-                    <Label Text="🐧" FontSize="14" />
-                    <Label Grid.Column="1" Text="WSL" FontSize="13" Margin="8,0" />
+                    <Label Text="🐧" FontSize="{StaticResource FontSizeSubheading}" />
+                    <Label Grid.Column="1" Text="WSL" FontSize="{StaticResource FontSizeBody}" Margin="8,0" />
                 </Grid>
             </Border>
 
@@ -80,8 +80,8 @@
                     <TapGestureRecognizer Tapped="OnRowTapped" />
                 </Border.GestureRecognizers>
                 <Grid ColumnDefinitions="Auto,*,Auto">
-                    <Label Text="🔐" FontSize="14" />
-                    <Label Grid.Column="1" Text="SSH" FontSize="13" Margin="8,0" />
+                    <Label Text="🔐" FontSize="{StaticResource FontSizeSubheading}" />
+                    <Label Grid.Column="1" Text="SSH" FontSize="{StaticResource FontSizeBody}" Margin="8,0" />
                 </Grid>
             </Border>
 

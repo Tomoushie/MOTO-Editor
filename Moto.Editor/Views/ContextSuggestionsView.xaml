@@ -9,7 +9,7 @@
 
         <Grid RowDefinitions="Auto,Auto,*" Padding="0">
 
-            <Label Grid.Row="0" Text="💡 MOTO Context Engine" FontAttributes="Bold" FontSize="14" />
+            <Label Grid.Row="0" Text="💡 MOTO Context Engine" FontAttributes="Bold" FontSize="{StaticResource FontSizeSubheading}" />
 
             <Label Grid.Row="1" x:Name="SummaryLabel"
                    Text="Aucune suggestion pour l'instant."
@@ -23,20 +23,20 @@
                             <Grid ColumnDefinitions="Auto,*,Auto,Auto" RowDefinitions="Auto,Auto" ColumnSpacing="8">
 
                                 <Label Grid.Row="0" Grid.Column="0" Grid.RowSpan="2"
-                                       Text="{Binding Icon}" FontSize="20" VerticalOptions="Center" />
+                                       Text="{Binding Icon}" FontSize="{StaticResource FontSizeTitle}" VerticalOptions="Center" />
 
                                 <Label Grid.Row="0" Grid.Column="1" Text="{Binding Title}"
-                                       FontSize="12" FontAttributes="Bold" />
+                                       FontSize="{StaticResource FontSizeBody}" FontAttributes="Bold" />
 
                                 <Label Grid.Row="1" Grid.Column="1" Text="{Binding Description}"
-                                       FontSize="10" Opacity="0.7" />
+                                       FontSize="{StaticResource FontSizeSmall}" Opacity="0.7" />
 
                                 <Button Grid.Row="0" Grid.Column="2" Text="Apply"
-                                        FontSize="10" Padding="8,2"
+                                        FontSize="{StaticResource FontSizeSmall}" Padding="8,2"
                                         Clicked="OnApplyClicked" />
 
                                 <Button Grid.Row="0" Grid.Column="3" Text="Dismiss"
-                                        FontSize="10" Padding="8,2"
+                                        FontSize="{StaticResource FontSizeSmall}" Padding="8,2"
                                         Clicked="OnDismissClicked" />
 
                             </Grid>

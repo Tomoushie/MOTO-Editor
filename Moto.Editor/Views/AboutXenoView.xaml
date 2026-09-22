@@ -5,22 +5,22 @@
 
     <Border Background="{DynamicResource MotoCardBackground}"
             Stroke="{DynamicResource MotoCardBorder}" StrokeThickness="1" Padding="24">
-        <Border.StrokeShape><RoundRectangle CornerRadius="16" /></Border.StrokeShape>
+        <Border.StrokeShape><RoundRectangle CornerRadius="{StaticResource RadiusLg}" /></Border.StrokeShape>
 
         <ScrollView>
             <VerticalStackLayout Spacing="12" HorizontalOptions="Center">
-                <Label Text="🧠 XENO-SSS∞" FontSize="26" FontAttributes="Bold" HorizontalOptions="Center" />
+                <Label Text="🧠 XENO-SSS∞" FontSize="{StaticResource FontSizeDisplay}" FontAttributes="Bold" HorizontalOptions="Center" />
                 <Label Text="Orchestrateur IA structuré — opérations sur projet complet"
-                       FontSize="12" Opacity="0.7" HorizontalOptions="Center" />
+                       FontSize="{StaticResource FontSizeBody}" Opacity="0.7" HorizontalOptions="Center" />
 
                 <!-- Pipeline -->
                 <Border Padding="14" WidthRequest="460"
                         Background="{DynamicResource MotoSubtleBackground}"
                         Stroke="{DynamicResource MotoCardBorder}" StrokeThickness="1">
-                    <Border.StrokeShape><RoundRectangle CornerRadius="10" /></Border.StrokeShape>
+                    <Border.StrokeShape><RoundRectangle CornerRadius="{StaticResource RadiusMd}" /></Border.StrokeShape>
                     <VerticalStackLayout Spacing="4">
-                        <Label Text="️ Pipeline" FontSize="14" FontAttributes="Bold" />
-                        <Label FontSize="12" Text="Scanner → Analyzer → Synthesizer → Connector → Validator" />
+                        <Label Text="️ Pipeline" FontSize="{StaticResource FontSizeSubheading}" FontAttributes="Bold" />
+                        <Label FontSize="{StaticResource FontSizeBody}" Text="Scanner → Analyzer → Synthesizer → Connector → Validator" />
                         <Label FontSize="11" Opacity="0.7"
                                Text="Scan complet · analyse architecturale · génération · connexion des briques · validation de cohérence" />
                     </VerticalStackLayout>
@@ -30,10 +30,10 @@
                 <Border Padding="14" WidthRequest="460"
                         Background="{DynamicResource MotoSubtleBackground}"
                         Stroke="{DynamicResource MotoCardBorder}" StrokeThickness="1">
-                    <Border.StrokeShape><RoundRectangle CornerRadius="10" /></Border.StrokeShape>
+                    <Border.StrokeShape><RoundRectangle CornerRadius="{StaticResource RadiusMd}" /></Border.StrokeShape>
                     <VerticalStackLayout Spacing="4">
-                        <Label Text="🤖 Agents" FontSize="14" FontAttributes="Bold" />
-                        <Label FontSize="12" Text="AgentScanner · AgentAnalyzer · AgentSynthesizer · AgentConnector · AgentValidator" />
+                        <Label Text="🤖 Agents" FontSize="{StaticResource FontSizeSubheading}" FontAttributes="Bold" />
+                        <Label FontSize="{StaticResource FontSizeBody}" Text="AgentScanner · AgentAnalyzer · AgentSynthesizer · AgentConnector · AgentValidator" />
                     </VerticalStackLayout>
                 </Border>
 
@@ -41,10 +41,10 @@
                 <Border Padding="14" WidthRequest="460"
                         Background="{DynamicResource MotoSubtleBackground}"
                         Stroke="{DynamicResource MotoCardBorder}" StrokeThickness="1">
-                    <Border.StrokeShape><RoundRectangle CornerRadius="10" /></Border.StrokeShape>
+                    <Border.StrokeShape><RoundRectangle CornerRadius="{StaticResource RadiusMd}" /></Border.StrokeShape>
                     <VerticalStackLayout Spacing="4">
-                        <Label Text="📐 Règles d'architecture" FontSize="14" FontAttributes="Bold" />
-                        <Label FontSize="12"
+                        <Label Text="📐 Règles d'architecture" FontSize="{StaticResource FontSizeSubheading}" FontAttributes="Bold" />
+                        <Label FontSize="{StaticResource FontSizeBody}"
                                Text="MOTO Editor édite/affiche · MOTO AI assiste/route · XENO-SSS∞ structure.&#10;MOTO appelle XENO comme VS Code appelle Copilot — en local, sans cloud." />
                     </VerticalStackLayout>
                 </Border>
