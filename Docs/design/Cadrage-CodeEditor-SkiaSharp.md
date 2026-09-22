@@ -104,8 +104,13 @@ les variantes IA, voir `MainPage.Extensions.cs`) disparaît naturellement.
 1. Le contrôle actuel n'est pas touché tant que le nouveau n'est pas prêt.
 2. Nouveau contrôle développé en parallèle (ex. `CodeEditorViewSkia`), même
    contrat public que la section 2.
-3. Bascule = **un seul point** : le nom de classe utilisé dans
-   `EditorPaneView.xaml`. Rollback = revenir à l'ancien nom, un seul fichier.
+3. Bascule = **2 points, pas un seul** (corrigé le 22/09 après l'avoir fait
+   pour de vrai — l'affirmation "un seul point" ci-dessus était fausse) :
+   le nom de classe utilisé dans `EditorPaneView.xaml`, ET le type du
+   paramètre `editor` dans `SettingsApplier.ApplyAll`/`Subscribe`
+   (`Settings/SettingsApplier.cs`), qui prend le type concret
+   `CodeEditorView` en paramètre, pas une interface. Rollback = revenir aux
+   2 anciens types, 2 fichiers.
 4. Ancien `CodeEditorView` (WebView) supprimé seulement après confirmation
    manuelle de Tom sur la parité (frappe, undo, mini-map, ghost text,
    Navigation Assistant, `/selection`).
@@ -137,3 +142,25 @@ séparé — pas un seul gros commit final.
 - **C. Ne lancer que l'incrément 1** (preuve visuelle) avant de décider si
   on va au bout — le plus prudent, permet de voir le rendu réel avant de
   s'engager sur les incréments 2-4 (les plus coûteux).
+
+## 8. État au 22/09 — incrément 1 fait, en test visuel
+
+Tom a choisi l'option C. `CodeEditorViewSkia` (`Moto.Editor/Controls/`)
+existe, compile seul (commit `f973741`). 2 défauts réels trouvés en
+relisant le brouillon de l'Orchestrator AVANT de l'intégrer (voir le
+message de ce commit) — confirme qu'une relecture + un vrai build restent
+indispensables, la validation isolée de `/generate-batch` (Roslyn hors
+contexte projet) n'aurait vu ni l'un ni l'autre.
+
+**Câblage de test EN COURS, PAS COMMITÉ** (2 fichiers modifiés dans l'arbre
+de travail, à garder ou annuler selon le verdict de Tom) :
+`EditorPaneView.xaml` (type de l'élément `Editor`) et
+`Settings/SettingsApplier.cs` (type du paramètre `editor`, voir correction
+§5 ci-dessus). App relancée avec ce câblage, aucune exception au démarrage
+(journal Breadcrumb propre). Vérification visuelle par outil impossible
+(limite connue de computer-use avec l'exe Debug lancé manuellement — voir
+mémoire Claude) : Tom doit regarder son propre écran.
+
+Écart cosmétique connu, pas bloquant pour ce test : un commentaire `// texte`
+ne colore que le `//` lui-même, pas le reste de la ligne (la tokenisation
+découpe par espaces avant de détecter le commentaire).
