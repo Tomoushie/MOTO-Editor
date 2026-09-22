@@ -12,26 +12,35 @@
                 <ResourceDictionary Source="Themes/MotoTheme.xaml" />
             </ResourceDictionary.MergedDictionaries>
 
-            <!-- Couleur de fond globale selon le thème -->
+            <!-- ★ NETTOYÉ (22/09, Phase 1) : la branche Light= est MORTE —
+                 l'application force le thème sombre (SettingsApplier n'appelle
+                 jamais que SetDark, et theme_mode n'offre plus que « Dark »).
+                 ⚠️ INCOHÉRENCE SIGNALÉE À TOM, NON TRANCHÉE : ce fond de page
+                 vaut #111214 alors que le jeton BgApp vaut #1E2025 — deux
+                 « fonds d'application » différents coexistent. Non unifié ici
+                 car ça changerait l'apparence de toutes les ContentPage sans
+                 que Tom ait pu le voir. -->
             <Style TargetType="ContentPage">
-                <Setter Property="BackgroundColor"
-                        Value="{AppThemeBinding Dark=#111214, Light=#F7F8FA}" />
+                <Setter Property="BackgroundColor" Value="#111214" />
             </Style>
 
-            <!-- Boutons MOTO -->
+            <!-- Boutons MOTO — passés aux jetons (les valeurs étaient des
+                 doublons EXACTS de BgPanel/Txt1/RadiusMd/PadRow). -->
             <Style TargetType="Button">
-                <Setter Property="BackgroundColor" Value="#202126" />
-                <Setter Property="TextColor" Value="#E6E8EC" />
-                <Setter Property="CornerRadius" Value="8" />
-                <Setter Property="Padding" Value="10,6" />
+                <Setter Property="BackgroundColor" Value="{StaticResource BgPanel}" />
+                <Setter Property="TextColor" Value="{StaticResource Txt1}" />
+                <Setter Property="CornerRadius" Value="{StaticResource RadiusMd}" />
+                <Setter Property="Padding" Value="{StaticResource PadRow}" />
                 <Setter Property="Margin" Value="0,0,6,0" />
             </Style>
 
-            <!-- Labels -->
-            <Style TargetType="Label">
-                <Setter Property="TextColor"
-                        Value="{AppThemeBinding Dark=#E6E8EC, Light=#1A1C20}" />
-            </Style>
+            <!-- ★ RETIRÉ (22/09) : un style implicite de Label vivait ICI
+                 (TextColor) et un second a été ajouté dans MotoTheme.xaml
+                 (FontFamily). Deux styles implicites du MÊME type ne
+                 FUSIONNENT PAS : l'un écrase l'autre, donc la police posée
+                 dans MotoTheme.xaml ne s'appliquait probablement jamais.
+                 Un seul style implicite de Label subsiste, dans
+                 Themes/MotoTheme.xaml, qui porte désormais police ET couleur. -->
 
         </ResourceDictionary>
     </Application.Resources>

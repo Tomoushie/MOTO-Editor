@@ -448,6 +448,11 @@
          et 138 couleurs déjà écrites restent intactes). -->
     <Style TargetType="Label">
         <Setter Property="FontFamily" Value="Segoe UI Variable, Segoe UI" />
+        <!-- ★ La couleur vient d'ici désormais : un style implicite de Label
+             existait AUSSI dans App.xaml, et deux styles implicites du même
+             type ne fusionnent pas (l'un écrase l'autre) — la police ne
+             s'appliquait donc pas. Style unique, ici. -->
+        <Setter Property="TextColor" Value="{StaticResource Txt1}" />
     </Style>
 
 </ResourceDictionary>
