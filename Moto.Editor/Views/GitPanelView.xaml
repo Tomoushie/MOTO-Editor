@@ -4,10 +4,10 @@
              x:Class="Moto.Editor.Views.GitPanelView">
 
     <Border Background="{DynamicResource MotoCardBackground}"
-            Stroke="{DynamicResource MotoCardBorder}" StrokeThickness="1" Padding="14">
+            Stroke="{DynamicResource MotoCardBorder}" StrokeThickness="1" Padding="{StaticResource SpaceMd}">
         <Border.StrokeShape><RoundRectangle CornerRadius="{StaticResource RadiusLg}" /></Border.StrokeShape>
 
-        <Grid RowDefinitions="Auto,Auto,*,Auto" RowSpacing="10">
+        <Grid RowDefinitions="Auto,Auto,*,Auto" RowSpacing="{StaticResource SpaceSm}">
 
             <!-- En-tête : branche + actions rapides -->
             <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto,Auto">
@@ -19,7 +19,7 @@
             </Grid>
 
             <!-- Message de commit + bouton -->
-            <Grid Grid.Row="1" ColumnDefinitions="*,Auto" ColumnSpacing="8">
+            <Grid Grid.Row="1" ColumnDefinitions="*,Auto" ColumnSpacing="{StaticResource SpaceSm}">
                 <Entry Grid.Column="0" x:Name="CommitMessageEntry"
                        Placeholder="Message de commit…" />
                 <Button Grid.Column="1" Text="✔ Commit" Clicked="OnCommitClicked" />
@@ -27,13 +27,13 @@
 
             <!-- Listes staged / unstaged / untracked -->
             <ScrollView Grid.Row="2">
-                <VerticalStackLayout Spacing="8">
+                <VerticalStackLayout Spacing="{StaticResource SpaceSm}">
 
                     <Label Text="📌 Staged" FontSize="{StaticResource FontSizeBody}" FontAttributes="Bold" Opacity="0.7" />
                     <CollectionView x:Name="StagedList" HeightRequest="80">
                         <CollectionView.ItemTemplate>
                             <DataTemplate>
-                                <Grid ColumnDefinitions="*,Auto" Padding="4">
+                                <Grid ColumnDefinitions="*,Auto" Padding="{StaticResource SpaceXs}">
                                     <Label Text="{Binding}" FontSize="{StaticResource FontSizeBody}" />
                                     <Button Grid.Column="1" Text="−" FontSize="11" Padding="6,0"
                                             Clicked="OnUnstageClicked" CommandParameter="{Binding}" />
@@ -46,7 +46,7 @@
                     <CollectionView x:Name="UnstagedList" HeightRequest="80">
                         <CollectionView.ItemTemplate>
                             <DataTemplate>
-                                <Grid ColumnDefinitions="*,Auto" Padding="4">
+                                <Grid ColumnDefinitions="*,Auto" Padding="{StaticResource SpaceXs}">
                                     <Label Text="{Binding}" FontSize="{StaticResource FontSizeBody}" />
                                     <Button Grid.Column="1" Text="+" FontSize="11" Padding="6,0"
                                             Clicked="OnStageClicked" CommandParameter="{Binding}" />
@@ -59,7 +59,7 @@
                     <CollectionView x:Name="UntrackedList" HeightRequest="60">
                         <CollectionView.ItemTemplate>
                             <DataTemplate>
-                                <Grid ColumnDefinitions="*,Auto" Padding="4">
+                                <Grid ColumnDefinitions="*,Auto" Padding="{StaticResource SpaceXs}">
                                     <Label Text="{Binding}" FontSize="{StaticResource FontSizeBody}" />
                                     <Button Grid.Column="1" Text="+" FontSize="11" Padding="6,0"
                                             Clicked="OnStageClicked" CommandParameter="{Binding}" />
@@ -71,7 +71,7 @@
             </ScrollView>
 
             <!-- Barre d'actions secondaires + statut -->
-            <Grid Grid.Row="3" ColumnDefinitions="Auto,Auto,Auto,*" ColumnSpacing="6">
+            <Grid Grid.Row="3" ColumnDefinitions="Auto,Auto,Auto,*" ColumnSpacing="{StaticResource SpaceXs}">
                 <Button Text="⬆ Push" Clicked="OnPushClicked" FontSize="{StaticResource FontSizeBody}" Padding="8,4" />
                 <Button Grid.Column="1" Text="🌿 Branches" Clicked="OnBranchesClicked" FontSize="{StaticResource FontSizeBody}" Padding="8,4" />
                 <Button Grid.Column="2" Text="📜 Log" Clicked="OnLogClicked" FontSize="{StaticResource FontSizeBody}" Padding="8,4" />

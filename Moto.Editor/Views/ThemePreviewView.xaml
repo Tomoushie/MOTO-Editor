@@ -7,9 +7,9 @@
     <Border BackgroundColor="{StaticResource BgPanel}"
             Stroke="{StaticResource BgHover}" StrokeThickness="1"
             StrokeShape="RoundRectangle 12"
-            Padding="20" WidthRequest="600" HeightRequest="500"
+            Padding="{StaticResource SpaceMd}" WidthRequest="600" HeightRequest="500"
             HorizontalOptions="Center" VerticalOptions="Center">
-        <Grid RowDefinitions="Auto,*,Auto" RowSpacing="12">
+        <Grid RowDefinitions="Auto,*,Auto" RowSpacing="{StaticResource SpaceSm}">
 
             <!-- Header -->
             <Grid ColumnDefinitions="*,Auto">
@@ -25,8 +25,8 @@
                     BackgroundColor="{StaticResource BgSide}"
                     Stroke="{StaticResource BgHover}" StrokeThickness="1"
                     StrokeShape="RoundRectangle 8"
-                    Padding="16">
-                <VerticalStackLayout Spacing="8">
+                    Padding="{StaticResource SpaceMd}">
+                <VerticalStackLayout Spacing="{StaticResource SpaceSm}">
                     <Label Text="Aperçu du thème" FontSize="{StaticResource FontSizeSubheading}" FontAttributes="Bold"
                            x:Name="PreviewTitle"/>
                     <Label Text="Ceci est un texte normal avec la couleur Txt1"
@@ -34,14 +34,14 @@
                     <Label Text="Texte secondaire avec la couleur Txt2"
                            FontSize="11" x:Name="PreviewText2"/>
 
-                    <HorizontalStackLayout Spacing="8" Margin="0,8,0,0">
+                    <HorizontalStackLayout Spacing="{StaticResource SpaceSm}" Margin="0,8,0,0">
                         <Button Text="Bouton Accent" x:Name="PreviewBtnAccent"
                                 BackgroundColor="{StaticResource Accent}" TextColor="White"/>
                         <Button Text="Bouton Side" x:Name="PreviewBtnSide"
                                 BackgroundColor="{StaticResource BgSide}" TextColor="{StaticResource Txt1}"/>
                     </HorizontalStackLayout>
 
-                    <Border Margin="0,8,0,0" Padding="8"
+                    <Border Margin="0,8,0,0" Padding="{StaticResource SpaceSm}"
                             x:Name="PreviewCodeBlock">
                         <Label Text="// Exemple de code&#10;var x = 42;&#10;Console.WriteLine(x);"
                                FontFamily="Monospace" FontSize="11"
@@ -51,7 +51,7 @@
             </Border>
 
             <!-- Actions -->
-            <HorizontalStackLayout Grid.Row="2" Spacing="8" HorizontalOptions="End">
+            <HorizontalStackLayout Grid.Row="2" Spacing="{StaticResource SpaceSm}" HorizontalOptions="End">
                 <Button Text="Annuler" BackgroundColor="{StaticResource BgSide}"
                         TextColor="{StaticResource Txt1}" Clicked="OnCancelClicked"/>
                 <Button Text="✅ Appliquer ce thème" BackgroundColor="{StaticResource Accent}"

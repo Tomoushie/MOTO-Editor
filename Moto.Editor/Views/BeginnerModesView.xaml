@@ -4,10 +4,10 @@
              x:Class="Moto.Editor.Views.BeginnerModesView"
              BackgroundColor="{StaticResource BgSide}">
 
-    <Grid RowDefinitions="Auto,*" Padding="6">
+    <Grid RowDefinitions="Auto,*" Padding="{StaticResource SpaceXs}">
 
         <!-- Sélecteur de mode -->
-        <HorizontalStackLayout Grid.Row="0" Spacing="4">
+        <HorizontalStackLayout Grid.Row="0" Spacing="{StaticResource SpaceXs}">
             <Button Text="Normal"  x:Name="BtnNormal"  Clicked="OnModeClicked" FontSize="{StaticResource FontSizeSmall}" Padding="8,3" />
             <Button Text="📖 Explain" x:Name="BtnExplain" Clicked="OnModeClicked" FontSize="{StaticResource FontSizeSmall}" Padding="8,3" />
             <Button Text="🎓 Tutor" x:Name="BtnTutor" Clicked="OnModeClicked" FontSize="{StaticResource FontSizeSmall}" Padding="8,3" />
@@ -17,10 +17,10 @@
 
         <ScrollView Grid.Row="1">
 
-            <VerticalStackLayout Spacing="8" Padding="0,6">
+            <VerticalStackLayout Spacing="{StaticResource SpaceSm}" Padding="0,6">
 
                 <!-- Explain Everything -->
-                <VerticalStackLayout x:Name="ExplainPanel" IsVisible="False" Spacing="6">
+                <VerticalStackLayout x:Name="ExplainPanel" IsVisible="False" Spacing="{StaticResource SpaceXs}">
                     <Label x:Name="ExplainFileLabel" FontAttributes="Bold" FontSize="{StaticResource FontSizeBody}" />
                     <Label x:Name="ExplainSummaryLabel" FontSize="{StaticResource FontSizeBody}" Opacity="0.8" />
                     <Label Text="— Lignes —" FontSize="11" Opacity="0.5" />
@@ -30,7 +30,7 @@
                 </VerticalStackLayout>
 
                 <!-- AI Tutor -->
-                <VerticalStackLayout x:Name="TutorPanel" IsVisible="False" Spacing="6">
+                <VerticalStackLayout x:Name="TutorPanel" IsVisible="False" Spacing="{StaticResource SpaceXs}">
                     <Label x:Name="TutorScoreLabel" FontSize="11" Opacity="0.7" />
                     <Label x:Name="TutorMessageLabel" FontSize="{StaticResource FontSizeBody}" FontAttributes="Bold" />
                     <Entry x:Name="TutorAnswerEntry" Placeholder="Ta réponse…" FontSize="{StaticResource FontSizeBody}"
@@ -40,7 +40,7 @@
                 </VerticalStackLayout>
 
                 <!-- No Code -->
-                <VerticalStackLayout x:Name="NoCodePanel" IsVisible="False" Spacing="6">
+                <VerticalStackLayout x:Name="NoCodePanel" IsVisible="False" Spacing="{StaticResource SpaceXs}">
                     <Label Text="Décris ton projet, je fais tout :" FontSize="{StaticResource FontSizeBody}" />
                     <Editor x:Name="NoCodeInput" HeightRequest="70" FontSize="{StaticResource FontSizeBody}"
                             Placeholder="Ex : un jeu de serpent comme sur Nokia 3310" />
@@ -50,7 +50,7 @@
                 </VerticalStackLayout>
 
                 <!-- Pair Programming -->
-                <VerticalStackLayout x:Name="PairPanel" IsVisible="False" Spacing="6">
+                <VerticalStackLayout x:Name="PairPanel" IsVisible="False" Spacing="{StaticResource SpaceXs}">
                     <Label Text="🤝 Copilot local actif." FontSize="{StaticResource FontSizeBody}" FontAttributes="Bold" />
                     <Label Text="Écris ton code : je propose la suite en gris. Appuie sur Tab pour accepter." FontSize="11" Opacity="0.7" />
                 </VerticalStackLayout>

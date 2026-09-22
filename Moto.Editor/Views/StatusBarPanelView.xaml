@@ -73,7 +73,7 @@
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Tapped="OnAiMonitorTapped" />
                 </Border.GestureRecognizers>
-                <HorizontalStackLayout Spacing="4"
+                <HorizontalStackLayout Spacing="{StaticResource SpaceXs}"
                                        ToolTipProperties.Text="Monitoring IA — Cliquez pour ouvrir">
                     <Label x:Name="AiStatusLabel" Text="Monitoring : Idle"
                            FontSize="{DynamicResource FontSizeUiSmall}"

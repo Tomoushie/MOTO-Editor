@@ -12,9 +12,9 @@
             Stroke="{StaticResource BgHover}"
             StrokeThickness="1"
             StrokeShape="RoundRectangle 12"
-            Padding="20">
+            Padding="{StaticResource SpaceMd}">
 
-        <Grid RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="12">
+        <Grid RowDefinitions="Auto,Auto,Auto,Auto" RowSpacing="{StaticResource SpaceSm}">
 
             <!-- Titre -->
             <Label Grid.Row="0"
@@ -35,7 +35,7 @@
                     Stroke="{StaticResource BgHover}"
                     StrokeThickness="1"
                     StrokeShape="RoundRectangle 8"
-                    Padding="12">
+                    Padding="{StaticResource SpaceSm}">
                 <Label x:Name="DetailsLabel"
                        FontSize="{StaticResource FontSizeBody}"
                        TextColor="{StaticResource Txt2}" />
@@ -43,7 +43,7 @@
 
             <!-- Boutons -->
             <HorizontalStackLayout Grid.Row="3"
-                                   Spacing="8"
+                                   Spacing="{StaticResource SpaceSm}"
                                    HorizontalOptions="End">
                 <Button x:Name="CancelBtn"
                         Text="Annuler"

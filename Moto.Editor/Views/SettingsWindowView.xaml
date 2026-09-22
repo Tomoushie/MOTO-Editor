@@ -95,7 +95,7 @@
                         <Grid Grid.Column="0" RowDefinitions="Auto,*" BackgroundColor="{StaticResource BgSide}">
                             <Entry Grid.Row="0" x:Name="SearchEntry"
                                    Placeholder="Rechercher un réglage…"
-                                   Margin="8" FontSize="{DynamicResource FontSizeUiSmall}"
+                                   Margin="{StaticResource SpaceSm}" FontSize="{DynamicResource FontSizeUiSmall}"
                                    BackgroundColor="Transparent" TextColor="{StaticResource Txt1}"
                                    PlaceholderColor="{StaticResource Txt2}"
                                    TextChanged="OnSearchChanged" />
@@ -116,7 +116,7 @@
                         </Grid>
 
                         <ScrollView Grid.Column="1">
-                            <VerticalStackLayout x:Name="DetailHost" Padding="24,18" Spacing="18" />
+                            <VerticalStackLayout x:Name="DetailHost" Padding="24,18" Spacing="{StaticResource SpaceMd}" />
                         </ScrollView>
 
                     </Grid>

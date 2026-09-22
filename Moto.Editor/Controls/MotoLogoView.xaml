@@ -12,7 +12,7 @@
 
     <Border x:Name="LogoBorder"
             Background="Transparent"
-            Padding="4">
+            Padding="{StaticResource SpaceXs}">
         <Border.StrokeShape><RoundRectangle CornerRadius="10" /></Border.StrokeShape>
         <Image x:Name="LogoImage"
                Source="moto_logo.png"

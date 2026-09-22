@@ -4,7 +4,7 @@
              x:Class="Moto.Editor.Views.StoryModeView"
              BackgroundColor="{StaticResource BgSide}">
 
-    <Grid RowDefinitions="Auto,*,Auto,Auto" Padding="8" ColumnSpacing="6">
+    <Grid RowDefinitions="Auto,*,Auto,Auto" Padding="{StaticResource SpaceSm}" ColumnSpacing="{StaticResource SpaceXs}">
 
         <Label Grid.Row="0" Text="📚 Story Mode — raconte, je code" FontAttributes="Bold" />
 

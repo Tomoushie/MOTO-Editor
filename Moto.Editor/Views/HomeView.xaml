@@ -63,7 +63,7 @@
                 <Border Stroke="{StaticResource BorderCol}" StrokeShape="RoundRectangle 12"
                         BackgroundColor="{StaticResource BgPanel}" Padding="13,12" WidthRequest="555">
                     <Grid x:Name="StatsGrid" ColumnDefinitions="*,*,*,*" RowDefinitions="Auto,Auto"
-                          ColumnSpacing="8" RowSpacing="8" />
+                          ColumnSpacing="{StaticResource SpaceSm}" RowSpacing="{StaticResource SpaceSm}" />
                 </Border>
 
                 <!-- ★ AJOUT (03/09, vitrine "vraies stats visibles sur l'Accueil") :
@@ -124,7 +124,7 @@
                          ligne de chips (sans ça, l'alignement par défaut du Grid pouvait
                          laisser un espace résiduel en bas plutôt que centrer). -->
                     <Grid HeightRequest="44">
-                        <HorizontalStackLayout HorizontalOptions="Center" VerticalOptions="Center" Spacing="10">
+                        <HorizontalStackLayout HorizontalOptions="Center" VerticalOptions="Center" Spacing="{StaticResource SpaceSm}">
                             <!-- ★ CORRECTION (31/08) : emojis → glyphes vectoriels (Segoe
                                  Fluent Icons, codepoints vérifiés visuellement) —
                                  FormattedText/Span nécessaire pour mélanger la police

@@ -4,20 +4,20 @@
              x:Class="Moto.Editor.Views.DevOpsDashboardView">
 
     <Border Background="{DynamicResource MotoCardBackground}"
-            Stroke="{DynamicResource MotoCardBorder}" StrokeThickness="1" Padding="16">
+            Stroke="{DynamicResource MotoCardBorder}" StrokeThickness="1" Padding="{StaticResource SpaceMd}">
         <Border.StrokeShape><RoundRectangle CornerRadius="{StaticResource RadiusLg}" /></Border.StrokeShape>
 
-        <Grid RowDefinitions="Auto,*" RowSpacing="12">
+        <Grid RowDefinitions="Auto,*" RowSpacing="{StaticResource SpaceSm}">
             <Label Grid.Row="0" Text="📊 DevOps Dashboard" FontSize="18" FontAttributes="Bold" />
 
             <ScrollView Grid.Row="1">
-                <VerticalStackLayout Spacing="12">
+                <VerticalStackLayout Spacing="{StaticResource SpaceSm}">
 
                     <!-- PerfGate -->
-                    <Border Padding="12" Background="{DynamicResource MotoSubtleBackground}"
+                    <Border Padding="{StaticResource SpaceSm}" Background="{DynamicResource MotoSubtleBackground}"
                             Stroke="{DynamicResource MotoCardBorder}" StrokeThickness="1">
                         <Border.StrokeShape><RoundRectangle CornerRadius="{StaticResource RadiusMd}" /></Border.StrokeShape>
-                        <VerticalStackLayout Spacing="4">
+                        <VerticalStackLayout Spacing="{StaticResource SpaceXs}">
                             <Label Text="⚡ Perf Gate" FontSize="{StaticResource FontSizeSubheading}" FontAttributes="Bold" />
                             <Label x:Name="StartupLabel" Text="Startup : —" FontSize="{StaticResource FontSizeBody}" />
                             <Label x:Name="MemoryLabel" Text="Mémoire : —" FontSize="{StaticResource FontSizeBody}" />
@@ -27,10 +27,10 @@
                     </Border>
 
                     <!-- Crash Triage -->
-                    <Border Padding="12" Background="{DynamicResource MotoSubtleBackground}"
+                    <Border Padding="{StaticResource SpaceSm}" Background="{DynamicResource MotoSubtleBackground}"
                             Stroke="{DynamicResource MotoCardBorder}" StrokeThickness="1">
                         <Border.StrokeShape><RoundRectangle CornerRadius="{StaticResource RadiusMd}" /></Border.StrokeShape>
-                        <VerticalStackLayout Spacing="4">
+                        <VerticalStackLayout Spacing="{StaticResource SpaceXs}">
                             <Label Text="💥 Crash Triage" FontSize="{StaticResource FontSizeSubheading}" FontAttributes="Bold" />
                             <Label x:Name="CrashCountLabel" Text="Groupes de crash : —" FontSize="{StaticResource FontSizeBody}" />
                             <Label x:Name="CrashHintLabel" Text="" FontSize="11" Opacity="0.7" />
@@ -38,15 +38,15 @@
                     </Border>
 
                     <!-- Feature Flags -->
-                    <Border Padding="12" Background="{DynamicResource MotoSubtleBackground}"
+                    <Border Padding="{StaticResource SpaceSm}" Background="{DynamicResource MotoSubtleBackground}"
                             Stroke="{DynamicResource MotoCardBorder}" StrokeThickness="1">
                         <Border.StrokeShape><RoundRectangle CornerRadius="{StaticResource RadiusMd}" /></Border.StrokeShape>
-                        <VerticalStackLayout Spacing="6">
+                        <VerticalStackLayout Spacing="{StaticResource SpaceXs}">
                             <Label Text="🚩 Feature Flags" FontSize="{StaticResource FontSizeSubheading}" FontAttributes="Bold" />
                             <CollectionView x:Name="FlagsList">
                                 <CollectionView.ItemTemplate>
                                     <DataTemplate>
-                                        <Grid ColumnDefinitions="*,Auto" Padding="2">
+                                        <Grid ColumnDefinitions="*,Auto" Padding="{StaticResource SpaceXs}">
                                             <Label Text="{Binding Name}" FontSize="{StaticResource FontSizeBody}" VerticalOptions="Center" />
                                             <Switch Grid.Column="1" IsToggled="{Binding IsEnabled}"
                                                     Toggled="OnFlagToggled" />

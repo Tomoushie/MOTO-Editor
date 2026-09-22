@@ -51,7 +51,7 @@
         </CollectionView>
 
         <!-- ═══ Entrée (TerminalInput → SendTerminalCommand → TerminalService.SendInput) ═══ -->
-        <Grid Grid.Row="2" ColumnDefinitions="*,Auto" Padding="8" ColumnSpacing="6">
+        <Grid Grid.Row="2" ColumnDefinitions="*,Auto" Padding="{StaticResource SpaceSm}" ColumnSpacing="{StaticResource SpaceXs}">
             <Entry Grid.Column="0" x:Name="InputEntry" Text="{Binding TerminalInput}"
                    Placeholder="Tapez une commande…" FontFamily="Consolas" FontSize="{StaticResource FontSizeBody}"
                    BackgroundColor="{StaticResource BgPanel}" TextColor="{StaticResource Txt1}"

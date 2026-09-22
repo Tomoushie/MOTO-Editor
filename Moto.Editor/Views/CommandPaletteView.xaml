@@ -14,21 +14,21 @@
             Stroke="{StaticResource BgHover}"
             StrokeThickness="1"
             StrokeShape="RoundRectangle 12"
-            Padding="12">
+            Padding="{StaticResource SpaceSm}">
 
-        <Grid RowDefinitions="Auto,*" RowSpacing="10">
+        <Grid RowDefinitions="Auto,*" RowSpacing="{StaticResource SpaceSm}">
 
             <!-- Barre de recherche + fermer -->
             <!-- ★ AJOUT (02/09) : bouton ✕ demandé par Tom — jusqu'ici, le seul moyen
                  de refermer cette palette était de refaire Ctrl+Maj+P. Échap ajouté
                  en plus, voir MainPage.Extensions.cs/OnWindowsPreviewKeyDown. -->
-            <Grid Grid.Row="0" ColumnDefinitions="*,Auto" ColumnSpacing="8">
+            <Grid Grid.Row="0" ColumnDefinitions="*,Auto" ColumnSpacing="{StaticResource SpaceSm}">
                 <Border Grid.Column="0"
                         BackgroundColor="{StaticResource BgSide}"
                         Stroke="{StaticResource BgHover}"
                         StrokeThickness="1"
                         StrokeShape="RoundRectangle 8"
-                        Padding="8">
+                        Padding="{StaticResource SpaceSm}">
                     <Entry x:Name="SearchEntry"
                            Placeholder="Rechercher une commande…"
                            BackgroundColor="Transparent"
@@ -45,7 +45,7 @@
 
             <!-- Résultats -->
             <ScrollView Grid.Row="1" HeightRequest="380">
-                <VerticalStackLayout x:Name="ResultsList" Spacing="4" />
+                <VerticalStackLayout x:Name="ResultsList" Spacing="{StaticResource SpaceXs}" />
             </ScrollView>
         </Grid>
     </Border>

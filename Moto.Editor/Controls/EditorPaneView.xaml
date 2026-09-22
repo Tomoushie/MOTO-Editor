@@ -52,7 +52,7 @@
                                     </VisualStateGroup>
                                 </VisualStateGroupList>
                             </VisualStateManager.VisualStateGroups>
-                            <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
+                            <HorizontalStackLayout Spacing="{StaticResource SpaceSm}" VerticalOptions="Center">
                                 <Label Text="{Binding Title}"
                                        FontSize="{DynamicResource FontSizeUiText}"
                                        VerticalOptions="Center"
@@ -83,7 +83,7 @@
               ColumnDefinitions="Auto,Auto,Auto,*,Auto,Auto,Auto,Auto"
               BackgroundColor="{StaticResource BgEditor}"
               Padding="6,2"
-              ColumnSpacing="2">
+              ColumnSpacing="{StaticResource SpaceXs}">
 
             <Button Grid.Column="0" Text="←" Padding="8,2" FontSize="{StaticResource FontSizeHeading}"
                     BackgroundColor="Transparent" TextColor="{StaticResource Txt1}"
@@ -161,9 +161,9 @@
                 BackgroundColor="{StaticResource BgPanel}"
                 Stroke="{StaticResource BorderMuted}"
                 StrokeThickness="1"
-                Padding="8"
+                Padding="{StaticResource SpaceSm}"
                 Margin="0">
-            <Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto" ColumnSpacing="6">
+            <Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto" ColumnSpacing="{StaticResource SpaceXs}">
                 <Picker Grid.Row="0" Grid.Column="0" x:Name="ModelPicker"
                         WidthRequest="190" FontSize="11">
                     <Picker.ItemsSource>

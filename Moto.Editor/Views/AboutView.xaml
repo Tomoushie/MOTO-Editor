@@ -5,11 +5,11 @@
              x:Class="Moto.Editor.Views.AboutView">
 
     <Border Background="{DynamicResource MotoCardBackground}"
-            Stroke="{DynamicResource MotoCardBorder}" StrokeThickness="1" Padding="24">
+            Stroke="{DynamicResource MotoCardBorder}" StrokeThickness="1" Padding="{StaticResource SpaceLg}">
         <Border.StrokeShape><RoundRectangle CornerRadius="{StaticResource RadiusLg}" /></Border.StrokeShape>
 
         <ScrollView>
-            <VerticalStackLayout x:Name="RootContent" Spacing="14" HorizontalOptions="Center">
+            <VerticalStackLayout x:Name="RootContent" Spacing="{StaticResource SpaceMd}" HorizontalOptions="Center">
 
                 <!-- ★ Halo neon derrière le logo (pulsé en code-behind) -->
                 <Grid HorizontalOptions="Center">
@@ -25,13 +25,13 @@
                 <Label Text="Léger. Rapide. Sans dépendance. Tout fait maison."
                        FontSize="{StaticResource FontSizeBody}" Opacity="0.85" HorizontalOptions="Center" />
 
-                <Border Padding="14" WidthRequest="420"
+                <Border Padding="{StaticResource SpaceMd}" WidthRequest="420"
                         Background="{DynamicResource MotoSubtleBackground}"
                         Stroke="{DynamicResource MotoCardBorder}" StrokeThickness="1">
                     <Border.StrokeShape><RoundRectangle CornerRadius="{StaticResource RadiusMd}" /></Border.StrokeShape>
-                    <VerticalStackLayout Spacing="6">
+                    <VerticalStackLayout Spacing="{StaticResource SpaceXs}">
                         <Label Text="ℹ️ Système" FontSize="{StaticResource FontSizeSubheading}" FontAttributes="Bold" />
-                        <Grid ColumnDefinitions="Auto,*" RowSpacing="3" ColumnSpacing="10">
+                        <Grid ColumnDefinitions="Auto,*" RowSpacing="{StaticResource SpaceXs}" ColumnSpacing="{StaticResource SpaceSm}">
                             <Label Grid.Row="0" Text="OS :" FontSize="{StaticResource FontSizeBody}" Opacity="0.7" />
                             <Label Grid.Row="0" Grid.Column="1" x:Name="OsLabel" FontSize="{StaticResource FontSizeBody}" />
                             <Label Grid.Row="1" Text="Architecture :" FontSize="{StaticResource FontSizeBody}" Opacity="0.7" />
@@ -42,7 +42,7 @@
                     </VerticalStackLayout>
                 </Border>
 
-                <HorizontalStackLayout Spacing="10" HorizontalOptions="Center">
+                <HorizontalStackLayout Spacing="{StaticResource SpaceSm}" HorizontalOptions="Center">
                     <Button Text="📋 Copier les infos" Clicked="OnCopyInfoClicked" />
                 </HorizontalStackLayout>
 

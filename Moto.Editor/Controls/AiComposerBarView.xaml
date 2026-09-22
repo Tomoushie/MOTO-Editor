@@ -39,33 +39,33 @@
              xmlns:controls="clr-namespace:Moto.Editor.Controls"
              x:Class="Moto.Editor.Controls.AiComposerBarView">
 
-    <Grid RowDefinitions="Auto,Auto" RowSpacing="6">
+    <Grid RowDefinitions="Auto,Auto" RowSpacing="{StaticResource SpaceXs}">
 
         <!-- ══ Ligne 0 : popups (mêmes colonnes que la ligne 1, un seul visible à la fois) ══ -->
         <Grid Grid.Row="0" ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,*,Auto,Auto,Auto">
 
             <Border x:Name="MicPopup" Grid.Column="1" IsVisible="False" HorizontalOptions="Start"
                     Stroke="{StaticResource BorderSoft}" StrokeShape="RoundRectangle 12"
-                    BackgroundColor="{StaticResource BgPanel}" Padding="6" WidthRequest="260">
-                <VerticalStackLayout x:Name="MicList" Spacing="1" />
+                    BackgroundColor="{StaticResource BgPanel}" Padding="{StaticResource SpaceXs}" WidthRequest="260">
+                <VerticalStackLayout x:Name="MicList" Spacing="{StaticResource SpaceXs}" />
             </Border>
 
             <Border x:Name="ModelPopup" Grid.Column="6" IsVisible="False" HorizontalOptions="End"
                     Stroke="{StaticResource BorderSoft}" StrokeShape="RoundRectangle 12"
-                    BackgroundColor="{StaticResource BgPanel}" Padding="6" WidthRequest="240">
-                <VerticalStackLayout x:Name="ModelList" Spacing="1" />
+                    BackgroundColor="{StaticResource BgPanel}" Padding="{StaticResource SpaceXs}" WidthRequest="240">
+                <VerticalStackLayout x:Name="ModelList" Spacing="{StaticResource SpaceXs}" />
             </Border>
 
             <Border x:Name="EffortPopup" Grid.Column="7" IsVisible="False" HorizontalOptions="End"
                     Stroke="{StaticResource BorderSoft}" StrokeShape="RoundRectangle 12"
-                    BackgroundColor="{StaticResource BgPanel}" Padding="6" WidthRequest="180">
-                <VerticalStackLayout x:Name="EffortList" Spacing="1" />
+                    BackgroundColor="{StaticResource BgPanel}" Padding="{StaticResource SpaceXs}" WidthRequest="180">
+                <VerticalStackLayout x:Name="EffortList" Spacing="{StaticResource SpaceXs}" />
             </Border>
 
             <Border x:Name="BudgetPopup" Grid.Column="8" IsVisible="False" HorizontalOptions="End"
                     Stroke="{StaticResource BorderSoft}" StrokeShape="RoundRectangle 12"
-                    BackgroundColor="{StaticResource BgPanel}" Padding="14" WidthRequest="240">
-                <VerticalStackLayout Spacing="6">
+                    BackgroundColor="{StaticResource BgPanel}" Padding="{StaticResource SpaceMd}" WidthRequest="240">
+                <VerticalStackLayout Spacing="{StaticResource SpaceXs}">
                     <Label Text="Token : infini · 100% local" FontSize="{StaticResource FontSizeBody}" FontAttributes="Bold" TextColor="{StaticResource Txt1}" />
                     <Label x:Name="BudgetStatsLabel" Text="Sessions 0 · Messages 0 · Patterns 0" FontSize="11" TextColor="{StaticResource Txt2}" />
                 </VerticalStackLayout>
@@ -74,7 +74,7 @@
         </Grid>
 
         <!-- ══ Ligne 1 : la barre elle-même ══ -->
-        <Grid Grid.Row="1" ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,*,Auto,Auto,Auto" ColumnSpacing="4">
+        <Grid Grid.Row="1" ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,*,Auto,Auto,Auto" ColumnSpacing="{StaticResource SpaceXs}">
 
             <Border x:Name="BtnAttach" Grid.Column="0" WidthRequest="30" HeightRequest="30" StrokeThickness="0"
                     BackgroundColor="Transparent" StrokeShape="RoundRectangle 8">

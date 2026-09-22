@@ -34,7 +34,7 @@
         </ResourceDictionary>
     </ContentView.Resources>
 
-    <Grid RowDefinitions="Auto,*,Auto,Auto,Auto" Padding="6">
+    <Grid RowDefinitions="Auto,*,Auto,Auto,Auto" Padding="{StaticResource SpaceXs}">
 
         <!-- ★ CORRECTION (02/09, réveil de ce panneau) : ancien en-tête (glisser +
              titre "MOTO AI" + ⇄ changer de côté + ✕ fermer) retiré — ce panneau
@@ -45,7 +45,7 @@
              ici aurait doublé titre/fermeture/glisser. Seules les 2 actions
              propres à CE panneau (nouvelle conversation / vider) restent, en
              petite barre d'actions. -->
-        <HorizontalStackLayout Grid.Row="0" Spacing="4" Padding="0,0,0,4">
+        <HorizontalStackLayout Grid.Row="0" Spacing="{StaticResource SpaceXs}" Padding="0,0,0,4">
 
             <Button Text="＋" FontSize="11"
                     Style="{StaticResource MotoHoverIconButton}"
@@ -78,12 +78,12 @@
                             Padding="10,6" Margin="4,3"
                             MaximumWidthRequest="420"
                             HorizontalOptions="{Binding Alignment}">
-                        <VerticalStackLayout Spacing="4">
+                        <VerticalStackLayout Spacing="{StaticResource SpaceXs}">
                             <!-- ★ CORRIGÉ (03/09) : Label plat unique remplacé par un rendu
                                  par segments (Segments, voir ChatMessage.cs) — permet de
                                  distinguer un bloc de code (police mono + bouton copier) du
                                  reste, ce qu'un seul Label ne pouvait pas faire. -->
-                            <VerticalStackLayout Spacing="4"
+                            <VerticalStackLayout Spacing="{StaticResource SpaceXs}"
                                                  BindableLayout.ItemsSource="{Binding Segments}"
                                                  BindableLayout.ItemTemplateSelector="{StaticResource SegmentSelector}" />
                             <Label Text="{Binding TimeLabel}" FontSize="{StaticResource FontSizeSmall}"
@@ -98,7 +98,7 @@
         <CollectionView Grid.Row="2" x:Name="ContextList"
                         HeightRequest="28" SelectionMode="None">
             <CollectionView.ItemsLayout>
-                <LinearItemsLayout Orientation="Horizontal" ItemSpacing="6" />
+                <LinearItemsLayout Orientation="Horizontal" ItemSpacing="{StaticResource SpaceXs}" />
             </CollectionView.ItemsLayout>
             <CollectionView.ItemTemplate>
                 <DataTemplate>
@@ -117,7 +117,7 @@
 
         <!-- Zone de saisie + barre mode/modèle (structure type agent) -->
         <Border Grid.Row="4" StrokeShape="RoundRectangle 8"
-                Stroke="{StaticResource BorderCol}" BackgroundColor="{StaticResource BgApp}" Padding="6">
+                Stroke="{StaticResource BorderCol}" BackgroundColor="{StaticResource BgApp}" Padding="{StaticResource SpaceXs}">
 
             <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="Auto,*,Auto">
 
@@ -132,7 +132,7 @@
                         ToolTipProperties.Text="Attacher fichier / sélection"
                         Clicked="OnAttachClicked" />
 
-                <HorizontalStackLayout Grid.Row="1" Grid.Column="1" Spacing="4">
+                <HorizontalStackLayout Grid.Row="1" Grid.Column="1" Spacing="{StaticResource SpaceXs}">
 
                     <Picker x:Name="ModePicker" FontSize="{StaticResource FontSizeSmall}" WidthRequest="120">
                         <Picker.ItemsSource>

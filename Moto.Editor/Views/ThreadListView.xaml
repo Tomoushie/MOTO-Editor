@@ -4,7 +4,7 @@
              x:Class="Moto.Editor.Views.ThreadListView"
              BackgroundColor="#141519">
 
-    <Grid RowDefinitions="Auto,Auto,*" Padding="6">
+    <Grid RowDefinitions="Auto,Auto,*" Padding="{StaticResource SpaceXs}">
 
         <!-- Recherche dans les threads -->
         <Entry Grid.Row="0" x:Name="SearchEntry"
@@ -20,7 +20,7 @@
         <CollectionView Grid.Row="2" x:Name="ThreadList" SelectionMode="Single">
             <CollectionView.ItemTemplate>
                 <DataTemplate>
-                    <VerticalStackLayout Padding="8,6" Spacing="2">
+                    <VerticalStackLayout Padding="8,6" Spacing="{StaticResource SpaceXs}">
                         <Label Text="{Binding Title}" FontSize="{StaticResource FontSizeBody}" FontAttributes="Bold" />
                         <Label Text="{Binding TimeLabel}" FontSize="{StaticResource FontSizeSmall}" Opacity="0.5" />
                     </VerticalStackLayout>

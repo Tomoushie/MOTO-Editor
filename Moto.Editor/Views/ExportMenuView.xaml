@@ -5,9 +5,9 @@
              BackgroundColor="{StaticResource BgSide}">
 
     <Border StrokeShape="RoundRectangle 12" Stroke="{StaticResource BorderCol}"
-            BackgroundColor="{StaticResource BgPanelInner}" WidthRequest="340" Padding="14">
+            BackgroundColor="{StaticResource BgPanelInner}" WidthRequest="340" Padding="{StaticResource SpaceMd}">
 
-        <VerticalStackLayout Spacing="8">
+        <VerticalStackLayout Spacing="{StaticResource SpaceSm}">
 
             <!-- ★ CORRECTION (30/08) : bouton fermer ✕ ajouté — le seul moyen de
                  fermer ce panneau était de recliquer sur le bouton Exporter de la

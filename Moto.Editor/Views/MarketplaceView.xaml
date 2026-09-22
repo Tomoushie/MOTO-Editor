@@ -7,7 +7,7 @@
              BackgroundColor="{StaticResource BgPanel}"
              IsVisible="False">
 
-    <Grid RowDefinitions="Auto,Auto,*,Auto" Padding="16" RowSpacing="12">
+    <Grid RowDefinitions="Auto,Auto,*,Auto" Padding="{StaticResource SpaceMd}" RowSpacing="{StaticResource SpaceSm}">
 
         <!-- En-tête -->
         <Grid Grid.Row="0" ColumnDefinitions="*,Auto">
@@ -36,7 +36,7 @@
 
         <!-- Liste des plugins -->
         <ScrollView Grid.Row="2">
-            <VerticalStackLayout x:Name="PluginsList" Spacing="8" />
+            <VerticalStackLayout x:Name="PluginsList" Spacing="{StaticResource SpaceSm}" />
         </ScrollView>
 
         <!-- Status -->

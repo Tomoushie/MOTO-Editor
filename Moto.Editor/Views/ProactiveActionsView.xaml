@@ -8,14 +8,14 @@
              VerticalOptions="End">
 
     <Border WidthRequest="320"
-            Margin="20"
+            Margin="{StaticResource SpaceMd}"
             BackgroundColor="{StaticResource BgPanel}"
             Stroke="{StaticResource BgHover}"
             StrokeThickness="1"
             StrokeShape="RoundRectangle 12"
-            Padding="12">
+            Padding="{StaticResource SpaceSm}">
 
-        <Grid RowDefinitions="Auto,*" RowSpacing="8">
+        <Grid RowDefinitions="Auto,*" RowSpacing="{StaticResource SpaceSm}">
 
             <!-- ★ AJOUT (03/09, demandé par Tom) : en-tête devenu une poignée de
                  déplacement (PanGestureRecognizer, voir le code-behind) — clic-glissé
@@ -51,7 +51,7 @@
             <ScrollView Grid.Row="1"
                         HeightRequest="180">
                 <VerticalStackLayout x:Name="ActionsList"
-                                     Spacing="6" />
+                                     Spacing="{StaticResource SpaceXs}" />
             </ScrollView>
         </Grid>
     </Border>

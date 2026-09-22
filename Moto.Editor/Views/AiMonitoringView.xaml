@@ -7,15 +7,15 @@
          pour tolérer l'absence d'une clé sans casser le rendu). -->
     <Border Background="{DynamicResource MotoCardBackground}"
             Stroke="{DynamicResource MotoCardBorder}"
-            StrokeThickness="1" Padding="16" Margin="0,12,0,0">
+            StrokeThickness="1" Padding="{StaticResource SpaceMd}" Margin="0,12,0,0">
         <Border.StrokeShape><RoundRectangle CornerRadius="{StaticResource RadiusLg}" /></Border.StrokeShape>
 
-        <VerticalStackLayout Spacing="12">
+        <VerticalStackLayout Spacing="{StaticResource SpaceSm}">
 
             <Label Text="🧠 Monitoring IA — Circuit Breaker"
                    FontSize="{StaticResource FontSizeHeading}" FontAttributes="Bold" />
 
-            <Grid ColumnDefinitions="*, Auto" RowDefinitions="Auto, Auto" ColumnSpacing="12">
+            <Grid ColumnDefinitions="*, Auto" RowDefinitions="Auto, Auto" ColumnSpacing="{StaticResource SpaceSm}">
 
                 <!-- Badge CircuitOpen 24h -->
                 <Label Grid.Column="0" Grid.Row="0"

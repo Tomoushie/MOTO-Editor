@@ -4,7 +4,7 @@
              x:Class="Moto.Editor.Views.EvolutionPanelView"
              BackgroundColor="{StaticResource BgSide}">
 
-    <Grid RowDefinitions="Auto,*" Padding="6">
+    <Grid RowDefinitions="Auto,*" Padding="{StaticResource SpaceXs}">
 
         <Label Grid.Row="0" Text="🧬 ÉVOLUTION PROACTIVE" FontAttributes="Bold" FontSize="{StaticResource FontSizeBody}" />
 
@@ -12,7 +12,7 @@
             <CollectionView.ItemTemplate>
                 <DataTemplate>
                     <Border StrokeShape="RoundRectangle 8" BackgroundColor="{StaticResource BgPanel}"
-                            Padding="8" Margin="0,3">
+                            Padding="{StaticResource SpaceSm}" Margin="0,3">
                         <Grid ColumnDefinitions="*,Auto,Auto">
                             <VerticalStackLayout Grid.Column="0">
                                 <Label Text="{Binding Title}" FontSize="{StaticResource FontSizeBody}" FontAttributes="Bold" />

@@ -13,8 +13,8 @@
     <Border BackgroundColor="{StaticResource BgPanel}"
             Stroke="{StaticResource BgHover}" StrokeThickness="1"
             StrokeShape="RoundRectangle 12"
-            Padding="12">
-        <Grid RowDefinitions="Auto,Auto,*,Auto" RowSpacing="8">
+            Padding="{StaticResource SpaceSm}">
+        <Grid RowDefinitions="Auto,Auto,*,Auto" RowSpacing="{StaticResource SpaceSm}">
 
             <Label Grid.Row="0" Text="👥 Collaboration" FontAttributes="Bold" FontSize="{StaticResource FontSizeSubheading}"
                    TextColor="{StaticResource Txt1}" />
@@ -23,14 +23,14 @@
                    FontSize="11" TextColor="{StaticResource Txt2}" />
 
             <ScrollView Grid.Row="2" x:Name="ChatScroll">
-                <VerticalStackLayout x:Name="ChatLog" Spacing="4" />
+                <VerticalStackLayout x:Name="ChatLog" Spacing="{StaticResource SpaceXs}" />
             </ScrollView>
 
             <!-- ★ CORRECTION (31/08, point 15) : le texte était collé au bord gauche
                  (Entry nu, sans marge intérieure ni contour) — enveloppé dans une
                  Border avec un léger contour clair et du padding, comme la saisie
                  de l'Accueil. -->
-            <Grid Grid.Row="3" ColumnDefinitions="*,Auto" ColumnSpacing="6">
+            <Grid Grid.Row="3" ColumnDefinitions="*,Auto" ColumnSpacing="{StaticResource SpaceXs}">
                 <Border Grid.Column="0" Stroke="{StaticResource BorderCol}" StrokeThickness="1"
                         StrokeShape="RoundRectangle 8" Padding="10,4" BackgroundColor="{StaticResource BgPanel}">
                     <Entry x:Name="ChatEntry"

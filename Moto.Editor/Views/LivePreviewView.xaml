@@ -5,10 +5,10 @@
              IsVisible="False"
              BackgroundColor="{StaticResource BgPanel}"
              WidthRequest="600">
-    <Grid RowDefinitions="Auto,*" Padding="8" RowSpacing="6">
+    <Grid RowDefinitions="Auto,*" Padding="{StaticResource SpaceSm}" RowSpacing="{StaticResource SpaceXs}">
 
         <!-- Header -->
-        <Grid ColumnDefinitions="Auto,*,Auto,Auto,Auto" ColumnSpacing="6">
+        <Grid ColumnDefinitions="Auto,*,Auto,Auto,Auto" ColumnSpacing="{StaticResource SpaceXs}">
             <Label Text="🌐 Live Preview" FontSize="{StaticResource FontSizeSubheading}" FontAttributes="Bold"
                    TextColor="{StaticResource Txt1}" VerticalOptions="Center"/>
             <Label Grid.Column="1" x:Name="FileLabel" Text="—" FontSize="11"

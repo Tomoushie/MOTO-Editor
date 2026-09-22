@@ -8,7 +8,7 @@
     <Grid RowDefinitions="Auto, *">
 
         <!-- Barre d'outils : mêmes boutons que l'éditeur de code -->
-        <HorizontalStackLayout Grid.Row="0" Spacing="6" Padding="8,4">
+        <HorizontalStackLayout Grid.Row="0" Spacing="{StaticResource SpaceXs}" Padding="8,4">
             <Label x:Name="FileNameLabel" FontSize="{StaticResource FontSizeBody}" VerticalOptions="Center"
                    TextColor="{StaticResource MotoTextColor}" />
             <Label x:Name="ImageInfoLabel" FontSize="11" VerticalOptions="Center"

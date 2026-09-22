@@ -27,7 +27,7 @@
         <DataTemplate>
           <Border Background="{DynamicResource BgPanel}" Stroke="{DynamicResource BorderCol}"
                   StrokeShape="RoundRectangle 8" Padding="12,10" Margin="0,0,0,8">
-            <Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="8" RowSpacing="4">
+            <Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="{StaticResource SpaceSm}" RowSpacing="{StaticResource SpaceXs}">
               <Label Grid.Row="0" Grid.Column="0" Text="{Binding StatusIcon}"
                      TextColor="{StaticResource Accent}" FontSize="{StaticResource FontSizeBody}"/>
               <Label Grid.Row="0" Grid.Column="1" Text="{Binding AgentId}" FontAttributes="Bold"
@@ -63,7 +63,7 @@
       </CollectionView.EmptyView>
       <CollectionView.ItemTemplate>
         <DataTemplate>
-          <Grid ColumnDefinitions="Auto,*,Auto" Padding="4,3" ColumnSpacing="6">
+          <Grid ColumnDefinitions="Auto,*,Auto" Padding="4,3" ColumnSpacing="{StaticResource SpaceXs}">
             <Label Grid.Column="0" Text="{Binding Icon}" FontSize="11.5"/>
             <Label Grid.Column="1" Text="{Binding Label}" FontSize="11.5"
                    TextColor="{DynamicResource MotoSubtleText}" LineBreakMode="TailTruncation"/>

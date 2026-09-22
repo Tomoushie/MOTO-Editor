@@ -21,7 +21,7 @@
              x:Class="Moto.Editor.Controls.ActivityBarView"
              HeightRequest="38" BackgroundColor="{StaticResource BgSide}">
 
-    <HorizontalStackLayout Spacing="4" Padding="20,0" VerticalOptions="Center">
+    <HorizontalStackLayout Spacing="{StaticResource SpaceXs}" Padding="20,0" VerticalOptions="Center">
 
         <Border Padding="12,6" StrokeThickness="0" BackgroundColor="Transparent">
             <Border.GestureRecognizers>

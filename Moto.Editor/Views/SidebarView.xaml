@@ -7,7 +7,7 @@
     <Grid RowDefinitions="Auto,Auto,*,Auto" Padding="10,8">
 
         <!-- Header : titre + recherche + notif -->
-        <HorizontalStackLayout Grid.Row="0" Spacing="8">
+        <HorizontalStackLayout Grid.Row="0" Spacing="{StaticResource SpaceSm}">
             <Label Text="MOTO AI" FontAttributes="Bold" FontSize="{StaticResource FontSizeSubheading}" VerticalOptions="Center" />
             <Label Text="🔍" VerticalOptions="Center" Style="{StaticResource TxtSecondary}" />
             <Label Text="🔔" VerticalOptions="Center" Style="{StaticResource TxtSecondary}" />
@@ -24,20 +24,20 @@
 
         <!-- Sections : Épinglés / Projets / Récents -->
         <ScrollView Grid.Row="2">
-            <VerticalStackLayout Spacing="4">
+            <VerticalStackLayout Spacing="{StaticResource SpaceXs}">
                 <Label Text="ÉPINGLÉS" Style="{StaticResource TxtSecondary}" Margin="0,6,0,2" />
-                <VerticalStackLayout x:Name="PinnedList" Spacing="2" />
+                <VerticalStackLayout x:Name="PinnedList" Spacing="{StaticResource SpaceXs}" />
 
                 <Label Text="PROJETS" Style="{StaticResource TxtSecondary}" Margin="0,10,0,2" />
-                <VerticalStackLayout x:Name="ProjectsList" Spacing="2" />
+                <VerticalStackLayout x:Name="ProjectsList" Spacing="{StaticResource SpaceXs}" />
 
                 <Label Text="RÉCENTS" Style="{StaticResource TxtSecondary}" Margin="0,10,0,2" />
-                <VerticalStackLayout x:Name="RecentsList" Spacing="2" />
+                <VerticalStackLayout x:Name="RecentsList" Spacing="{StaticResource SpaceXs}" />
             </VerticalStackLayout>
         </ScrollView>
 
         <!-- Footer utilisateur -->
-        <HorizontalStackLayout Grid.Row="3" Spacing="8" Padding="0,8,0,0">
+        <HorizontalStackLayout Grid.Row="3" Spacing="{StaticResource SpaceSm}" Padding="0,8,0,0">
             <Label Text="👤" />
             <Label Text="Tom Nowak" FontSize="{StaticResource FontSizeBody}" VerticalOptions="Center" />
         </HorizontalStackLayout>

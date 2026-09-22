@@ -5,15 +5,15 @@
              BackgroundColor="{StaticResource BgSide}">
 
     <Border StrokeShape="RoundRectangle 12" Stroke="{StaticResource BorderCol}"
-            BackgroundColor="{StaticResource BgPanelInner}" WidthRequest="460" Padding="14">
+            BackgroundColor="{StaticResource BgPanelInner}" WidthRequest="460" Padding="{StaticResource SpaceMd}">
 
-        <Grid RowDefinitions="Auto,Auto,Auto,*" Padding="0" RowSpacing="10">
+        <Grid RowDefinitions="Auto,Auto,Auto,*" Padding="0" RowSpacing="{StaticResource SpaceSm}">
 
             <Label Grid.Row="0" Text="⚡ MOTO Performance Engine"
                    FontAttributes="Bold" FontSize="{StaticResource FontSizeSubheading}" />
 
             <!-- 4 modes -->
-            <Grid Grid.Row="1" ColumnDefinitions="*,*,*,*" ColumnSpacing="6">
+            <Grid Grid.Row="1" ColumnDefinitions="*,*,*,*" ColumnSpacing="{StaticResource SpaceXs}">
                 <Button Grid.Column="0" x:Name="BtnEco" Text="🌱 Eco"
                         FontSize="11" Padding="6,6" Clicked="OnModeClicked" />
                 <Button Grid.Column="1" x:Name="BtnBalanced" Text="⚖️ Balanced"
@@ -26,7 +26,7 @@
 
             <!-- Preset débutant -->
             <Border Grid.Row="2" StrokeShape="RoundRectangle 8"
-                    BackgroundColor="{StaticResource BgPanel}" Padding="10">
+                    BackgroundColor="{StaticResource BgPanel}" Padding="{StaticResource SpaceSm}">
                 <Grid ColumnDefinitions="*,Auto">
                     <Label Grid.Column="0"
                            Text="🤖 « MOTO fait tout pour moi » (Ultra : analyse continue, auto-linking, doc auto, refactor auto)"

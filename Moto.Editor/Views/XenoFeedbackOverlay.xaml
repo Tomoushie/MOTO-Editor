@@ -7,9 +7,9 @@
     <Border BackgroundColor="{StaticResource BgPanel}"
             Stroke="{StaticResource BgHover}" StrokeThickness="1"
             StrokeShape="RoundRectangle 12"
-            Padding="16" WidthRequest="520"
+            Padding="{StaticResource SpaceMd}" WidthRequest="520"
             HorizontalOptions="Center" VerticalOptions="Center">
-        <VerticalStackLayout Spacing="12">
+        <VerticalStackLayout Spacing="{StaticResource SpaceSm}">
 
             <Grid ColumnDefinitions="*,Auto">
                 <Label Text="🧠 XENO-SSS∞ — Suggestions" FontSize="{StaticResource FontSizeHeading}" FontAttributes="Bold"
@@ -23,7 +23,7 @@
                    TextColor="{StaticResource Txt2}"/>
 
             <ScrollView HeightRequest="320">
-                <VerticalStackLayout x:Name="FindingsContainer" Spacing="8"/>
+                <VerticalStackLayout x:Name="FindingsContainer" Spacing="{StaticResource SpaceSm}"/>
             </ScrollView>
 
             <Label x:Name="FeedbackLabel" Text="Vos feedbacks améliorent XENO au fil du temps."

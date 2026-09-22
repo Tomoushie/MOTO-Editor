@@ -7,9 +7,9 @@
     <Border BackgroundColor="{StaticResource BgPanel}"
             Stroke="{StaticResource BgHover}" StrokeThickness="1"
             StrokeShape="RoundRectangle 12"
-            Padding="20" WidthRequest="420"
+            Padding="{StaticResource SpaceMd}" WidthRequest="420"
             HorizontalOptions="Center" VerticalOptions="Center">
-        <VerticalStackLayout Spacing="12">
+        <VerticalStackLayout Spacing="{StaticResource SpaceSm}">
 
             <Grid ColumnDefinitions="*,Auto">
                 <Label Text="MOTO Editor" FontSize="{StaticResource FontSizeTitle}" FontAttributes="Bold"
@@ -22,8 +22,8 @@
             <Border BackgroundColor="{StaticResource BgSide}"
                     Stroke="Transparent" StrokeThickness="0"
                     StrokeShape="RoundRectangle 8"
-                    Padding="12">
-                <VerticalStackLayout Spacing="4">
+                    Padding="{StaticResource SpaceSm}">
+                <VerticalStackLayout Spacing="{StaticResource SpaceXs}">
                     <Label x:Name="VersionLabel" Text="Version 1.0.0"
                            FontSize="{StaticResource FontSizeSubheading}" FontAttributes="Bold"
                            TextColor="{StaticResource Txt1}"/>
@@ -32,7 +32,7 @@
                 </VerticalStackLayout>
             </Border>
 
-            <HorizontalStackLayout Spacing="8">
+            <HorizontalStackLayout Spacing="{StaticResource SpaceSm}">
                 <Button x:Name="CheckUpdateBtn" Text="🔄 Rechercher MAJ"
                         BackgroundColor="{StaticResource Accent}" TextColor="White"
                         Clicked="OnCheckUpdateClicked"/>
@@ -43,13 +43,13 @@
 
             <BoxView HeightRequest="1" BackgroundColor="{StaticResource BgHover}"/>
 
-            <VerticalStackLayout Spacing="4">
+            <VerticalStackLayout Spacing="{StaticResource SpaceXs}">
                 <Label Text="Produit par" FontSize="11" TextColor="{StaticResource Txt2}"/>
                 <Label Text="MOTO Software" FontSize="{StaticResource FontSizeBody}" FontAttributes="Bold"
                        TextColor="{StaticResource Txt1}"/>
             </VerticalStackLayout>
 
-            <VerticalStackLayout Spacing="4">
+            <VerticalStackLayout Spacing="{StaticResource SpaceXs}">
                 <Label Text="Créateur" FontSize="11" TextColor="{StaticResource Txt2}"/>
                 <Label Text="Tom NOWAK" FontSize="{StaticResource FontSizeSubheading}" FontAttributes="Bold"
                        TextColor="{StaticResource Txt1}"/>

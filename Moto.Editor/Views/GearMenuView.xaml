@@ -28,10 +28,10 @@
          pour l'autre moitié du problème : le survol des lignes ne réagissait pas
          du tout). -->
     <Border Stroke="{StaticResource BorderSoft}" StrokeShape="RoundRectangle 12"
-            BackgroundColor="{StaticResource BgPanel}" Padding="6" WidthRequest="230"
+            BackgroundColor="{StaticResource BgPanel}" Padding="{StaticResource SpaceXs}" WidthRequest="230"
             Shadow="{StaticResource ShadowMd}">
 
-        <VerticalStackLayout Spacing="1">
+        <VerticalStackLayout Spacing="{StaticResource SpaceXs}">
 
             <Border x:Name="RowUser" BackgroundColor="Transparent" Padding="10,8">
                 <Border.GestureRecognizers>

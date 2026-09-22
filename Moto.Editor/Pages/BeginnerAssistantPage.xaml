@@ -27,9 +27,9 @@
         </Style>
     </ContentPage.Resources>
 
-    <ScrollView Padding="16">
+    <ScrollView Padding="{StaticResource SpaceMd}">
 
-        <VerticalStackLayout Spacing="12">
+        <VerticalStackLayout Spacing="{StaticResource SpaceSm}">
 
             <Label Text="Beginner Assistant — via l'orchestrateur XENO-SSS∞"
                    FontSize="{StaticResource FontSizeUiTitle}"
@@ -90,7 +90,7 @@
                    Opacity="0.8"
                    LineBreakMode="WordWrap" />
 
-            <VerticalStackLayout x:Name="DiffSection" IsVisible="False" Spacing="8">
+            <VerticalStackLayout x:Name="DiffSection" IsVisible="False" Spacing="{StaticResource SpaceSm}">
 
                 <Label Text="Diff proposé"
                        FontSize="{StaticResource FontSizeUiHeading}"

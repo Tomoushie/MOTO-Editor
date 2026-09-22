@@ -12,7 +12,7 @@
              x:Class="Moto.Editor.Views.SearchView"
              WidthRequest="460">
 
-    <VerticalStackLayout Spacing="8">
+    <VerticalStackLayout Spacing="{StaticResource SpaceSm}">
 
         <Entry x:Name="QueryEntry"
                Placeholder="Rechercher un fichier par nom…"
@@ -31,7 +31,7 @@
                 <DataTemplate>
                     <Border StrokeShape="RoundRectangle 8" BackgroundColor="{StaticResource BgHover}"
                             Padding="8,6" Margin="0,2">
-                        <VerticalStackLayout Spacing="1">
+                        <VerticalStackLayout Spacing="{StaticResource SpaceXs}">
                             <Label Text="{Binding Name}" FontSize="{StaticResource FontSizeBody}" TextColor="{StaticResource Txt1}" />
                             <Label Text="{Binding RelativePath}" FontSize="{StaticResource FontSizeSmall}" TextColor="{StaticResource Txt2}"
                                    LineBreakMode="MiddleTruncation" />

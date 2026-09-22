@@ -67,7 +67,7 @@
         </claude:ClaudeMsgSelector.CmdTemplate>
         <claude:ClaudeMsgSelector.AiTemplate>
           <DataTemplate>
-            <StackLayout Spacing="4">
+            <StackLayout Spacing="{StaticResource SpaceXs}">
               <Label Text="{Binding Text}" TextColor="{StaticResource Txt1}" FontSize="{StaticResource FontSizeBody}"/>
               <Label Text="⧉ ⚲ 🔊  il y a 4 minutes" TextColor="{DynamicResource MotoSubtleText}" FontSize="11"/>
             </StackLayout>
@@ -76,7 +76,7 @@
         <claude:ClaudeMsgSelector.BoxTemplate>
           <DataTemplate>
             <Border Stroke="{DynamicResource BorderCol}" StrokeShape="RoundRectangle 12" Padding="16,12">
-              <StackLayout BindableLayout.ItemsSource="{Binding Lines}" Spacing="4">
+              <StackLayout BindableLayout.ItemsSource="{Binding Lines}" Spacing="{StaticResource SpaceXs}">
                 <BindableLayout.ItemTemplate>
                   <DataTemplate><Label Text="{Binding .}" TextColor="{StaticResource Txt1}"/></DataTemplate>
                 </BindableLayout.ItemTemplate>
@@ -86,8 +86,8 @@
         </claude:ClaudeMsgSelector.BoxTemplate>
         <claude:ClaudeMsgSelector.ActTemplate>
           <DataTemplate>
-            <StackLayout Spacing="2">
-              <StackLayout Orientation="Horizontal" Spacing="8">
+            <StackLayout Spacing="{StaticResource SpaceXs}">
+              <StackLayout Orientation="Horizontal" Spacing="{StaticResource SpaceSm}">
                 <Button Text="›" Style="{StaticResource CcIconBtn}" WidthRequest="18" HeightRequest="18"
                         Clicked="OnActChevronClicked" BindingContext="{Binding .}"/>
                 <Label Text="{Binding Text}" TextColor="{StaticResource Txt2}" FontSize="{StaticResource FontSizeBody}"/>
@@ -140,13 +140,13 @@
           <Button Grid.Column="1" Text="&lt;/&gt; Code" Style="{StaticResource CcSegBtn}" Clicked="OnTabCode"/>
         </Grid>
         <!-- Haut onglet Code -->
-        <StackLayout Grid.Row="1" x:Name="CodeTop" Spacing="2" Padding="12,0">
+        <StackLayout Grid.Row="1" x:Name="CodeTop" Spacing="{StaticResource SpaceXs}" Padding="12,0">
           <Button Text="＋ Nouveau" Style="{StaticResource CcSegBtn}" HorizontalOptions="Fill" Clicked="OnMenuNewSession"/>
           <Button Text="🗀 Artéfacts" Style="{StaticResource CcSegBtn}" HorizontalOptions="Fill" Clicked="OnNavArtifacts"/>
           <Button Text="🗃 Personnaliser" Style="{StaticResource CcSegBtn}" HorizontalOptions="Fill" Clicked="OnNavCustomize"/>
         </StackLayout>
         <!-- Haut onglet Cowork -->
-        <StackLayout Grid.Row="1" x:Name="CoworkTop" IsVisible="False" Spacing="2" Padding="12,0">
+        <StackLayout Grid.Row="1" x:Name="CoworkTop" IsVisible="False" Spacing="{StaticResource SpaceXs}" Padding="12,0">
           <Button Text="＋ Nouveau" Style="{StaticResource CcSegBtn}" HorizontalOptions="Fill"/>
           <Button Text="🗀 Projets" Style="{StaticResource CcSegBtn}" HorizontalOptions="Fill" Clicked="OnNavProjects"/>
           <Button Text="🗃 Artéfacts" Style="{StaticResource CcSegBtn}" HorizontalOptions="Fill" Clicked="OnNavArtifacts"/>
@@ -184,7 +184,7 @@
       <Grid Grid.Column="2" RowDefinitions="Auto,*,Auto">
 
         <!-- En-tête chat -->
-        <StackLayout Grid.Row="0" Orientation="Horizontal" Spacing="9" Padding="16,10"
+        <StackLayout Grid.Row="0" Orientation="Horizontal" Spacing="{StaticResource SpaceSm}" Padding="16,10"
                      x:Name="ChatHeader">
           <Label Text="💻" />
           <Label Text="MOTO Editor - Part1" FontAttributes="Bold"
@@ -207,16 +207,16 @@
                           ItemTemplate="{StaticResource MsgSelector}" SelectionMode="None"/>
           <!-- ACCUEIL -->
           <ScrollView x:Name="HomePanel" IsVisible="False">
-            <StackLayout Padding="30,26" Spacing="14">
+            <StackLayout Padding="30,26" Spacing="{StaticResource SpaceMd}">
               <Label Text="✳ Quoi de prévu, Tom ?" FontSize="{StaticResource FontSizeTitle}" FontAttributes="Bold"
                      TextColor="{StaticResource Txt1}"/>
-              <Border Style="{StaticResource CcCard}" Padding="16" MaximumWidthRequest="640">
-                <StackLayout Spacing="10">
+              <Border Style="{StaticResource CcCard}" Padding="{StaticResource SpaceMd}" MaximumWidthRequest="640">
+                <StackLayout Spacing="{StaticResource SpaceSm}">
                   <StackLayout BindableLayout.ItemsSource="{Binding HomeStats}">
                     <BindableLayout.ItemTemplate>
                       <DataTemplate>
                         <Border Background="{DynamicResource BgSide}" Stroke="{DynamicResource BorderCol}"
-                                StrokeShape="RoundRectangle 8" Padding="10,8" Margin="3">
+                                StrokeShape="RoundRectangle 8" Padding="10,8" Margin="{StaticResource SpaceXs}">
                           <StackLayout>
                             <Label Text="{Binding Label}" FontSize="11" TextColor="{StaticResource Txt2}"/>
                             <Label Text="{Binding Value}" FontSize="{StaticResource FontSizeSubheading}" FontAttributes="Bold"
@@ -235,7 +235,7 @@
           </ScrollView>
           <!-- COWORK -->
           <ScrollView x:Name="CoworkPanel" IsVisible="False">
-            <StackLayout Padding="40,26" Spacing="12">
+            <StackLayout Padding="40,26" Spacing="{StaticResource SpaceSm}">
               <Label Text="Projets / WebSite" FontSize="{StaticResource FontSizeBody}" TextColor="{StaticResource Txt2}"/>
               <Label Text="{Binding CurrentProject}" Style="{StaticResource CcSerifTitle}"/>
               <Border Style="{StaticResource CcCard}" Padding="0" MaximumWidthRequest="880">
@@ -243,9 +243,9 @@
                   <Editor x:Name="CoworkInput" Placeholder="Comment puis-je vous aider ?"
                           AutoSize="TextChanges" MinimumHeightRequest="60" Margin="14,10"
                           BackgroundColor="Transparent"/>
-                  <StackLayout Orientation="Horizontal" Padding="12,0,12,10" Spacing="6">
+                  <StackLayout Orientation="Horizontal" Padding="12,0,12,10" Spacing="{StaticResource SpaceXs}">
                     <Button Text="＋" Style="{StaticResource CcIconBtn}"/>
-                    <Border Background="{DynamicResource BgSide}" StrokeShape="RoundRectangle 8" Padding="2">
+                    <Border Background="{DynamicResource BgSide}" StrokeShape="RoundRectangle 8" Padding="{StaticResource SpaceXs}">
                       <StackLayout Orientation="Horizontal">
                         <Button Text="Chat" Style="{StaticResource CcSegBtn}"/>
                         <Button Text="Cowork" Style="{StaticResource CcSegBtn}" Background="{DynamicResource BgPanel}"/>
@@ -263,9 +263,9 @@
           </ScrollView>
           <!-- PERSONNALISER -->
           <ScrollView x:Name="CustomizePanel" IsVisible="False">
-            <StackLayout Padding="60,30" Spacing="14">
+            <StackLayout Padding="60,30" Spacing="{StaticResource SpaceMd}">
               <Label Text="Personnaliser" Style="{StaticResource CcSerifTitle}"/>
-              <StackLayout Orientation="Horizontal" Spacing="8">
+              <StackLayout Orientation="Horizontal" Spacing="{StaticResource SpaceSm}">
                 <Button Text="Compétences" Style="{StaticResource CcSegBtn}" Background="{DynamicResource BgPanel}"/>
                 <Button Text="Connecteurs" Style="{StaticResource CcSegBtn}"/>
                 <Button Text="Plugins" Style="{StaticResource CcSegBtn}"/>
@@ -275,13 +275,13 @@
                 <Label HorizontalOptions="End"/>
                 <Button Text="Ajouter ⌄" Background="#F2F0EC" TextColor="#171512" CornerRadius="{StaticResource RadiusMdInt}" HeightRequest="34"/>
               </StackLayout>
-              <Border Style="{StaticResource CcCard}" Padding="22">
-                <StackLayout Spacing="8">
+              <Border Style="{StaticResource CcCard}" Padding="{StaticResource SpaceLg}">
+                <StackLayout Spacing="{StaticResource SpaceSm}">
                   <Label Text="Ajoutez vos premières compétences." FontAttributes="Bold"
                          TextColor="{StaticResource Txt1}"/>
                   <Label Text="Les compétences apprennent à Claude comment vous travaillez. Ajoutez-les depuis Discover ou créez les vôtres."
                          TextColor="{StaticResource Txt2}"/>
-                  <StackLayout Orientation="Horizontal" Spacing="10">
+                  <StackLayout Orientation="Horizontal" Spacing="{StaticResource SpaceSm}">
                     <Button Text="Parcourir Discover" Background="#F2F0EC" TextColor="#171512" CornerRadius="{StaticResource RadiusMdInt}"/>
                     <Button Text="En savoir plus" Background="{DynamicResource BgPanel}" CornerRadius="{StaticResource RadiusMdInt}"/>
                   </StackLayout>
@@ -290,7 +290,7 @@
               <StackLayout BindableLayout.ItemsSource="{Binding Skills}" Spacing="0">
                 <BindableLayout.ItemTemplate>
                   <DataTemplate>
-                    <StackLayout Orientation="Horizontal" Padding="4,14" Spacing="12">
+                    <StackLayout Orientation="Horizontal" Padding="4,14" Spacing="{StaticResource SpaceSm}">
                       <Border WidthRequest="36" HeightRequest="36" StrokeShape="RoundRectangle 8"
                               Background="{DynamicResource BgSide}" Stroke="{DynamicResource BorderCol}">
                         <Label Text="📄" HorizontalTextAlignment="Center" VerticalTextAlignment="Center"/>
@@ -311,14 +311,14 @@
           </ScrollView>
           <!-- ARTÉFACTS -->
           <ScrollView x:Name="ArtifactsPanel" IsVisible="False">
-            <StackLayout Padding="60,30" Spacing="14">
+            <StackLayout Padding="60,30" Spacing="{StaticResource SpaceMd}">
               <StackLayout Orientation="Horizontal">
                 <Label Text="Artéfacts" Style="{StaticResource CcSerifTitle}"/>
                 <Label HorizontalOptions="End"/>
                 <Button Text="🔍" Style="{StaticResource CcIconBtn}"/>
                 <Button Text="Nouvel artéfact" Background="#F2F0EC" TextColor="#171512" CornerRadius="{StaticResource RadiusMdInt}"/>
               </StackLayout>
-              <StackLayout Orientation="Horizontal" Spacing="6">
+              <StackLayout Orientation="Horizontal" Spacing="{StaticResource SpaceXs}">
                 <Button Text="Tous" Style="{StaticResource CcSegBtn}" Background="{DynamicResource BgPanel}"/>
                 <Button Text="Épinglé" Style="{StaticResource CcSegBtn}"/>
                 <Button Text="Les vôtres" Style="{StaticResource CcSegBtn}"/>
@@ -408,9 +408,9 @@
           <Label Grid.Row="0" Text="Tâches en arrière-plan" Padding="14,10" FontAttributes="Bold"
                  TextColor="{StaticResource Txt1}"/>
           <ScrollView Grid.Row="1">
-            <StackLayout Padding="14,0" Spacing="10">
-              <Border Style="{StaticResource CcCard}" Padding="14">
-                <StackLayout Spacing="8">
+            <StackLayout Padding="14,0" Spacing="{StaticResource SpaceSm}">
+              <Border Style="{StaticResource CcCard}" Padding="{StaticResource SpaceMd}">
+                <StackLayout Spacing="{StaticResource SpaceSm}">
                   <Label Text="moto-modularity-scoping" FontAttributes="Bold"
                          TextColor="{StaticResource Txt1}"/>
                   <Label Text="Workflow 4min 29s · 5 agents · 646.4k tokens" FontSize="{StaticResource FontSizeBody}"
@@ -445,12 +445,12 @@
         </Grid>
         <!-- Transcription -->
         <ScrollView x:Name="TransPanel" IsVisible="False">
-          <StackLayout Padding="20,14" Spacing="10">
+          <StackLayout Padding="20,14" Spacing="{StaticResource SpaceSm}">
             <Label Text="C'était bien moi — corrigé" FontSize="{StaticResource FontSizeHeading}" FontAttributes="Bold"
                    TextColor="{StaticResource Txt1}"/>
             <Label Text="J'ai trouvé et réparé le problème : c'est l'ajout du support MSIX de tout à l'heure qui a cassé le lancement normal (WindowsAppSDKSelfContained en conflit avec le nouveau fichier MSIX)."
                    TextColor="{StaticResource Txt1}"/>
-            <Border Background="#171614" StrokeShape="RoundRectangle 8" Padding="14">
+            <Border Background="#171614" StrokeShape="RoundRectangle 8" Padding="{StaticResource SpaceMd}">
               <Label Style="{StaticResource CcMono}" TextColor="#7EC699"
                      Text="dotnet run --project &quot;E:\Corpus\MOTO-Editor\Moto.Editor\Moto.Editor.csproj&quot;"/>
             </Border>
@@ -459,10 +459,10 @@
               <StackLayout>
                 <Label Text="Moto.Editor.exe - This application could not be started   ✕"
                        Background="#0078D7" TextColor="White" FontSize="11.5" Padding="9,5"/>
-                <StackLayout Background="#F0F0F0" Padding="16" Spacing="6">
+                <StackLayout Background="#F0F0F0" Padding="{StaticResource SpaceMd}" Spacing="{StaticResource SpaceXs}">
                   <Label Text="❌ This application requires the Windows App Runtime Version 1.5 (MSIX package version >= 5001.214.1843.0). Do you want to install a compatible Windows App Runtime now?"
                          TextColor="#1A1A1A" FontSize="{StaticResource FontSizeBody}"/>
-                  <StackLayout Orientation="Horizontal" HorizontalOptions="End" Spacing="8">
+                  <StackLayout Orientation="Horizontal" HorizontalOptions="End" Spacing="{StaticResource SpaceSm}">
                     <Button Text="Oui" Background="#E1E1E1" TextColor="#1A1A1A" WidthRequest="64"/>
                     <Button Text="Non" Background="#E1E1E1" TextColor="#1A1A1A" WidthRequest="64"/>
                   </StackLayout>
@@ -478,16 +478,16 @@
     <!-- Feedback -->
     <Grid x:Name="FeedbackOverlay" IsVisible="False" Background="#80000000">
       <Border Background="{DynamicResource BgPanel}" Stroke="{DynamicResource BorderCol}"
-              StrokeShape="RoundRectangle 12" WidthRequest="560" Padding="22"
+              StrokeShape="RoundRectangle 12" WidthRequest="560" Padding="{StaticResource SpaceLg}"
               VerticalOptions="Center">
-        <StackLayout Spacing="12">
+        <StackLayout Spacing="{StaticResource SpaceSm}">
           <Label Text="Envoyer des commentaires" FontAttributes="Bold"
                  TextColor="{StaticResource Txt1}"/>
           <Editor x:Name="FeedbackText" Placeholder="Décrivez le problème" MinimumHeightRequest="120"
                   Background="{DynamicResource BgSide}"/>
           <Label Text="Ce rapport inclura votre description et la transcription de la session en cours. Nous pouvons les utiliser pour déboguer les problèmes associés et améliorer Claude Code."
                  FontSize="{StaticResource FontSizeBody}" TextColor="{StaticResource Txt2}"/>
-          <StackLayout Orientation="Horizontal" HorizontalOptions="End" Spacing="9">
+          <StackLayout Orientation="Horizontal" HorizontalOptions="End" Spacing="{StaticResource SpaceSm}">
             <Button Text="Annuler" Clicked="OnFeedbackCancel" Background="{DynamicResource BgPanel}"/>
             <Button Text="Envoyer" Clicked="OnFeedbackSend" Background="{DynamicResource BgPanel}"/>
           </StackLayout>
@@ -498,9 +498,9 @@
     <!-- Popover contexte -->
     <Border x:Name="ContextPop" IsVisible="False" Background="{DynamicResource BgPanel}"
             Stroke="{DynamicResource BorderCol}" StrokeShape="RoundRectangle 12"
-            WidthRequest="360" Padding="16" HorizontalOptions="End" VerticalOptions="End"
+            WidthRequest="360" Padding="{StaticResource SpaceMd}" HorizontalOptions="End" VerticalOptions="End"
             Margin="0,0,24,86">
-      <StackLayout Spacing="8">
+      <StackLayout Spacing="{StaticResource SpaceSm}">
         <Label Text="Fenêtre de contexte — 583.4k / 1M (58%)"
                TextColor="{StaticResource Txt1}"/>
         <ProgressBar Progress="0.58" ProgressColor="{StaticResource Accent}"/>

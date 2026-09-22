@@ -5,9 +5,9 @@
              BackgroundColor="{StaticResource BgSide}">
 
     <Border StrokeShape="RoundRectangle 12" Stroke="{StaticResource BorderCol}"
-            BackgroundColor="{StaticResource BgPanelInner}" WidthRequest="380" Padding="14">
+            BackgroundColor="{StaticResource BgPanelInner}" WidthRequest="380" Padding="{StaticResource SpaceMd}">
 
-        <VerticalStackLayout Spacing="8">
+        <VerticalStackLayout Spacing="{StaticResource SpaceSm}">
 
             <Label Text="🌐 Connexion distante (VS Code-style)" FontAttributes="Bold" />
 

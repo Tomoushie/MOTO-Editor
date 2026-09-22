@@ -8,14 +8,14 @@
              VerticalOptions="End">
 
     <Border WidthRequest="300"
-            Margin="20"
+            Margin="{StaticResource SpaceMd}"
             BackgroundColor="{StaticResource BgPanel}"
             Stroke="{StaticResource BgHover}"
             StrokeThickness="1"
             StrokeShape="RoundRectangle 12"
-            Padding="12">
+            Padding="{StaticResource SpaceSm}">
 
-        <Grid RowDefinitions="Auto,*,Auto" RowSpacing="8">
+        <Grid RowDefinitions="Auto,*,Auto" RowSpacing="{StaticResource SpaceSm}">
 
             <!-- Header -->
             <Grid ColumnDefinitions="*,Auto">
@@ -36,7 +36,7 @@
 
             <!-- Liste des suggestions -->
             <ScrollView Grid.Row="1" HeightRequest="200">
-                <VerticalStackLayout x:Name="SuggestionsList" Spacing="6" />
+                <VerticalStackLayout x:Name="SuggestionsList" Spacing="{StaticResource SpaceXs}" />
             </ScrollView>
 
             <!-- Footer -->

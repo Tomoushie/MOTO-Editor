@@ -79,7 +79,7 @@
         <Grid x:Name="AiDockPanel" Grid.Row="2" Grid.Column="0"
               WidthRequest="500" IsVisible="False" BackgroundColor="#17181C">
             <ScrollView>
-                <VerticalStackLayout x:Name="PanelHost" Spacing="8" Padding="8" />
+                <VerticalStackLayout x:Name="PanelHost" Spacing="{StaticResource SpaceSm}" Padding="{StaticResource SpaceSm}" />
             </ScrollView>
         </Grid>
 
@@ -134,7 +134,7 @@
                  obtenir en tirant la poignée à fond. -->
             <ScrollView x:Name="ExplorerPanelHostWrapper" Grid.Row="1"
                         MaximumHeightRequest="320" MaximumWidthRequest="640" IsVisible="False">
-                <VerticalStackLayout x:Name="PanelHostRight" Spacing="8" Padding="8" />
+                <VerticalStackLayout x:Name="PanelHostRight" Spacing="{StaticResource SpaceSm}" Padding="{StaticResource SpaceSm}" />
             </ScrollView>
         </Grid>
 

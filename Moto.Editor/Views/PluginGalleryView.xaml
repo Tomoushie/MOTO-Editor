@@ -14,8 +14,8 @@
          coin, avant migration) retirés aussi : AddFloatingPanel gère la
          visibilité et le placement lui-même (même traitement qu'AiChatView). -->
     <Grid RowDefinitions="Auto,*,Auto"
-          Padding="14"
-          RowSpacing="10">
+          Padding="{StaticResource SpaceMd}"
+          RowSpacing="{StaticResource SpaceSm}">
 
         <Entry Grid.Row="0"
                x:Name="SearchEntry"
@@ -28,7 +28,7 @@
         <ScrollView Grid.Row="1"
                     HeightRequest="420">
             <VerticalStackLayout x:Name="PluginsList"
-                                 Spacing="8" />
+                                 Spacing="{StaticResource SpaceSm}" />
         </ScrollView>
 
         <Label Grid.Row="2"

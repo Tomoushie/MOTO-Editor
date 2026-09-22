@@ -5,7 +5,7 @@
              IsVisible="False"
              BackgroundColor="{StaticResource BgPanel}"
              WidthRequest="400">
-    <Grid RowDefinitions="Auto,Auto,*,Auto" Padding="16" RowSpacing="12">
+    <Grid RowDefinitions="Auto,Auto,*,Auto" Padding="{StaticResource SpaceMd}" RowSpacing="{StaticResource SpaceSm}">
 
         <!-- Header -->
         <Grid ColumnDefinitions="*,Auto">
@@ -17,7 +17,7 @@
         </Grid>
 
         <!-- Onglets -->
-        <HorizontalStackLayout Grid.Row="1" Spacing="8">
+        <HorizontalStackLayout Grid.Row="1" Spacing="{StaticResource SpaceSm}">
             <Button x:Name="TabInstalledBtn" Text="✅ Installées"
                     BackgroundColor="{StaticResource Accent}" TextColor="White"
                     Clicked="OnTabInstalledClicked"/>
@@ -31,7 +31,7 @@
 
         <!-- Contenu -->
         <ScrollView Grid.Row="2">
-            <VerticalStackLayout x:Name="ContentArea" Spacing="8"/>
+            <VerticalStackLayout x:Name="ContentArea" Spacing="{StaticResource SpaceSm}"/>
         </ScrollView>
 
         <!-- Footer -->

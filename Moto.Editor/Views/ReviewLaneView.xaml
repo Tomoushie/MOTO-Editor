@@ -5,10 +5,10 @@
 
     <Border Background="{DynamicResource MotoCardBackground}"
             Stroke="{DynamicResource MotoCardBorder}"
-            StrokeThickness="1" Padding="14" Margin="0,10,0,0">
+            StrokeThickness="1" Padding="{StaticResource SpaceMd}" Margin="0,10,0,0">
         <Border.StrokeShape><RoundRectangle CornerRadius="{StaticResource RadiusLg}" /></Border.StrokeShape>
 
-        <Grid RowDefinitions="Auto,*,Auto" RowSpacing="10">
+        <Grid RowDefinitions="Auto,*,Auto" RowSpacing="{StaticResource SpaceSm}">
 
             <!-- En-tête -->
             <Grid Grid.Row="0" ColumnDefinitions="*,Auto">
@@ -21,11 +21,11 @@
             <CollectionView Grid.Row="1" x:Name="CommentsList" EmptyView="Aucun commentaire pour ce fichier.">
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
-                        <Border Padding="10" Margin="0,4"
+                        <Border Padding="{StaticResource SpaceSm}" Margin="0,4"
                                 Background="{DynamicResource MotoSubtleBackground}"
                                 Stroke="{DynamicResource MotoCardBorder}" StrokeThickness="1">
                             <Border.StrokeShape><RoundRectangle CornerRadius="{StaticResource RadiusMd}" /></Border.StrokeShape>
-                            <VerticalStackLayout Spacing="4">
+                            <VerticalStackLayout Spacing="{StaticResource SpaceXs}">
                                 <Grid ColumnDefinitions="Auto,*,Auto">
                                     <Label Text="{Binding LineLabel}" FontSize="11" Opacity="0.6" />
                                     <Label Grid.Column="1" Text="{Binding Author}" FontSize="11"
@@ -41,7 +41,7 @@
             </CollectionView>
 
             <!-- Ajout d'un commentaire -->
-            <Grid Grid.Row="2" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
+            <Grid Grid.Row="2" ColumnDefinitions="Auto,*,Auto" ColumnSpacing="{StaticResource SpaceSm}">
                 <Entry Grid.Column="0" x:Name="LineEntry" Placeholder="Ligne" WidthRequest="70" Keyboard="Numeric" />
                 <Entry Grid.Column="1" x:Name="CommentEntry" Placeholder="Votre commentaire…" />
                 <Button Grid.Column="2" Text="Ajouter" Clicked="OnAddClicked" />

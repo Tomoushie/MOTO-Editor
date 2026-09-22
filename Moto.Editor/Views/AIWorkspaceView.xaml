@@ -5,14 +5,14 @@
              BackgroundColor="{StaticResource BgSide}">
 
     <Border StrokeShape="RoundRectangle 12" Stroke="{StaticResource BorderCol}"
-            BackgroundColor="{StaticResource BgPanelInner}" WidthRequest="480" Padding="14">
+            BackgroundColor="{StaticResource BgPanelInner}" WidthRequest="480" Padding="{StaticResource SpaceMd}">
 
-        <Grid RowDefinitions="Auto,Auto,*,Auto" RowSpacing="8">
+        <Grid RowDefinitions="Auto,Auto,*,Auto" RowSpacing="{StaticResource SpaceSm}">
 
             <Label Grid.Row="0" Text="🏗 MOTO AI Workspace"
                    FontAttributes="Bold" FontSize="{StaticResource FontSizeSubheading}" />
 
-            <Grid Grid.Row="1" ColumnDefinitions="*,Auto" ColumnSpacing="6">
+            <Grid Grid.Row="1" ColumnDefinitions="*,Auto" ColumnSpacing="{StaticResource SpaceXs}">
                 <Label Grid.Column="0" x:Name="SummaryLabel"
                        Text="Workspace IA — analyse en cours…"
                        FontSize="11" Opacity="0.7" VerticalOptions="Center" />
@@ -25,8 +25,8 @@
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
                         <Border StrokeShape="RoundRectangle 8" BackgroundColor="{StaticResource BgPanel}"
-                                Padding="10" Margin="0,4">
-                            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
+                                Padding="{StaticResource SpaceSm}" Margin="0,4">
+                            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="{StaticResource SpaceSm}">
                                 <Label Grid.Column="0" Text="{Binding Kind}"
                                        FontSize="{StaticResource FontSizeHeading}" VerticalOptions="Center" />
                                 <VerticalStackLayout Grid.Column="1">

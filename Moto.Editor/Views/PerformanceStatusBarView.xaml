@@ -9,7 +9,7 @@
          moteur de jeu, pas de boucle de rendu à mesurer) — inventer un chiffre
          aurait été malhonnête. Remplacés par Threads/GC, deux vraies mesures
          déjà échantillonnées par PerformanceProfiler (SampleMetrics). -->
-    <HorizontalStackLayout Spacing="14" VerticalOptions="Center" Padding="8,2">
+    <HorizontalStackLayout Spacing="{StaticResource SpaceMd}" VerticalOptions="Center" Padding="8,2">
         <Label x:Name="MemLabel" Text="💾 — Mo" FontSize="11" Opacity="0.8" ToolTipProperties.Text="Mémoire utilisée par MOTO Editor" />
         <Label x:Name="CpuLabel" Text="⚙ — %" FontSize="11" Opacity="0.8" ToolTipProperties.Text="Utilisation CPU (moyenne sur le dernier intervalle)" />
         <Label x:Name="ThreadsLabel" Text="🧵 —" FontSize="11" Opacity="0.8" ToolTipProperties.Text="Nombre de threads actifs" />

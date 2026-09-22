@@ -6,10 +6,10 @@
              BackgroundColor="{StaticResource BgPanel}"
              WidthRequest="400">
 
-    <Grid RowDefinitions="Auto,Auto,*,Auto,Auto" Padding="12" RowSpacing="10">
+    <Grid RowDefinitions="Auto,Auto,*,Auto,Auto" Padding="{StaticResource SpaceSm}" RowSpacing="{StaticResource SpaceSm}">
 
         <!-- Header + contrôles -->
-        <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto,Auto,Auto,Auto" ColumnSpacing="6">
+        <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto,Auto,Auto,Auto" ColumnSpacing="{StaticResource SpaceXs}">
             <Label Text="🐞 Debug"
                    FontSize="{StaticResource FontSizeSubheading}" FontAttributes="Bold"
                    TextColor="{StaticResource Txt1}"
@@ -40,17 +40,17 @@
 
         <!-- Stack trace -->
         <ScrollView Grid.Row="2">
-            <VerticalStackLayout Spacing="8">
+            <VerticalStackLayout Spacing="{StaticResource SpaceSm}">
                 <Label Text="📚 Call Stack"
                        FontSize="{StaticResource FontSizeBody}" FontAttributes="Bold"
                        TextColor="{StaticResource Accent}" />
-                <VerticalStackLayout x:Name="CallStackList" Spacing="4" />
+                <VerticalStackLayout x:Name="CallStackList" Spacing="{StaticResource SpaceXs}" />
 
                 <Label Text="🔍 Variables"
                        FontSize="{StaticResource FontSizeBody}" FontAttributes="Bold"
                        TextColor="{StaticResource Accent}"
                        Margin="0,8,0,0" />
-                <VerticalStackLayout x:Name="VariablesList" Spacing="4" />
+                <VerticalStackLayout x:Name="VariablesList" Spacing="{StaticResource SpaceXs}" />
 
                 <Label Text="📋 Output"
                        FontSize="{StaticResource FontSizeBody}" FontAttributes="Bold"
@@ -64,7 +64,7 @@
         </ScrollView>
 
         <!-- Watch -->
-        <Grid Grid.Row="3" ColumnDefinitions="*,Auto" ColumnSpacing="6">
+        <Grid Grid.Row="3" ColumnDefinitions="*,Auto" ColumnSpacing="{StaticResource SpaceXs}">
             <Entry x:Name="WatchEntry"
                    Placeholder="Ajouter une watch expression…"
                    BackgroundColor="{StaticResource BgSide}"

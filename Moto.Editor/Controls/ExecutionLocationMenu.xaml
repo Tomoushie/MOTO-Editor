@@ -23,9 +23,9 @@
          ailleurs (IsVisible, voir le .xaml.cs) : pas besoin d'y revenir
          maintenant que ce n'est plus nécessaire pour diagnostiquer. -->
     <Border Stroke="{StaticResource BorderSoft}" StrokeShape="RoundRectangle 12"
-            BackgroundColor="{StaticResource BgPanel}" Padding="8" WidthRequest="260">
+            BackgroundColor="{StaticResource BgPanel}" Padding="{StaticResource SpaceSm}" WidthRequest="260">
 
-        <VerticalStackLayout Spacing="2">
+        <VerticalStackLayout Spacing="{StaticResource SpaceXs}">
 
             <Grid ColumnDefinitions="*,Auto" Margin="6,2,2,6">
                 <Label Text="Emplacement d'exécution" FontSize="{StaticResource FontSizeBody}" FontAttributes="Bold"

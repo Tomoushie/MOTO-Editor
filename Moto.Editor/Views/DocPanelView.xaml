@@ -5,9 +5,9 @@
              BackgroundColor="{StaticResource BgSide}">
 
     <Border StrokeShape="RoundRectangle 12" Stroke="{StaticResource BorderCol}"
-            BackgroundColor="{StaticResource BgPanelInner}" WidthRequest="440" Padding="14">
+            BackgroundColor="{StaticResource BgPanelInner}" WidthRequest="440" Padding="{StaticResource SpaceMd}">
 
-        <Grid RowDefinitions="Auto,Auto,*,Auto" Padding="0" RowSpacing="8">
+        <Grid RowDefinitions="Auto,Auto,*,Auto" Padding="0" RowSpacing="{StaticResource SpaceSm}">
 
             <!-- ★ AJOUT (03/09, signalé par Tom : "impossible de refermer le menu"
                  après avoir ouvert "Documentation" depuis la palette) : ce panneau
@@ -30,8 +30,8 @@
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
                         <Border StrokeShape="RoundRectangle 8" BackgroundColor="{StaticResource BgPanel}"
-                                Padding="10" Margin="0,4">
-                            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="8">
+                                Padding="{StaticResource SpaceSm}" Margin="0,4">
+                            <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="{StaticResource SpaceSm}">
                                 <Label Grid.Column="0" Text="📄" FontSize="{StaticResource FontSizeHeading}" VerticalOptions="Center" />
                                 <VerticalStackLayout Grid.Column="1">
                                     <Label Text="{Binding FileName}" FontSize="{StaticResource FontSizeBody}" FontAttributes="Bold" />
@@ -47,7 +47,7 @@
                 </CollectionView.ItemTemplate>
             </CollectionView>
 
-            <Grid Grid.Row="3" ColumnDefinitions="*,*" ColumnSpacing="8">
+            <Grid Grid.Row="3" ColumnDefinitions="*,*" ColumnSpacing="{StaticResource SpaceSm}">
                 <Button Grid.Column="0" Text="🔄 Régénérer tout"
                         FontSize="11" Padding="8,4"
                         Clicked="OnRegenerateClicked" />

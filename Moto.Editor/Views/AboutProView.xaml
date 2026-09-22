@@ -5,37 +5,37 @@
              x:Class="Moto.Editor.Views.AboutProView">
 
     <Border Background="{DynamicResource MotoCardBackground}"
-            Stroke="{DynamicResource MotoCardBorder}" StrokeThickness="1" Padding="24">
+            Stroke="{DynamicResource MotoCardBorder}" StrokeThickness="1" Padding="{StaticResource SpaceLg}">
         <Border.StrokeShape><RoundRectangle CornerRadius="{StaticResource RadiusLg}" /></Border.StrokeShape>
 
         <ScrollView>
-            <VerticalStackLayout Spacing="12" HorizontalOptions="Center">
+            <VerticalStackLayout Spacing="{StaticResource SpaceSm}" HorizontalOptions="Center">
                 <controls:MotoLogoView Size="96" HorizontalOptions="Center" />
                 <Label Text="MOTO Editor Pro" FontSize="{StaticResource FontSizeDisplay}" FontAttributes="Bold" HorizontalOptions="Center" />
                 <Label x:Name="VersionLabel" Text="Version —" FontSize="{StaticResource FontSizeBody}" Opacity="0.7" HorizontalOptions="Center" />
 
                 <!-- Badges Pro -->
                 <FlexLayout Direction="Row" Wrap="Wrap" JustifyContent="Center">
-                    <Border Padding="10,5" Margin="4" Background="{DynamicResource MotoSubtleBackground}">
+                    <Border Padding="10,5" Margin="{StaticResource SpaceXs}" Background="{DynamicResource MotoSubtleBackground}">
                         <Border.StrokeShape><RoundRectangle CornerRadius="{StaticResource RadiusLg}" /></Border.StrokeShape>
                         <Label Text="⭐ Pro" FontSize="{StaticResource FontSizeBody}" />
                     </Border>
-                    <Border Padding="10,5" Margin="4" Background="{DynamicResource MotoSubtleBackground}">
+                    <Border Padding="10,5" Margin="{StaticResource SpaceXs}" Background="{DynamicResource MotoSubtleBackground}">
                         <Border.StrokeShape><RoundRectangle CornerRadius="{StaticResource RadiusLg}" /></Border.StrokeShape>
                         <Label Text="🤖 IA locale" FontSize="{StaticResource FontSizeBody}" />
                     </Border>
-                    <Border Padding="10,5" Margin="4" Background="{DynamicResource MotoSubtleBackground}">
+                    <Border Padding="10,5" Margin="{StaticResource SpaceXs}" Background="{DynamicResource MotoSubtleBackground}">
                         <Border.StrokeShape><RoundRectangle CornerRadius="{StaticResource RadiusLg}" /></Border.StrokeShape>
                         <Label Text="🧠 XENO-SSS∞" FontSize="{StaticResource FontSizeBody}" />
                     </Border>
                 </FlexLayout>
 
                 <!-- Modules IA -->
-                <Border Padding="14" WidthRequest="440"
+                <Border Padding="{StaticResource SpaceMd}" WidthRequest="440"
                         Background="{DynamicResource MotoSubtleBackground}"
                         Stroke="{DynamicResource MotoCardBorder}" StrokeThickness="1">
                     <Border.StrokeShape><RoundRectangle CornerRadius="{StaticResource RadiusLg}" /></Border.StrokeShape>
-                    <VerticalStackLayout Spacing="6">
+                    <VerticalStackLayout Spacing="{StaticResource SpaceXs}">
                         <Label Text="🧩 Modules IA actifs" FontSize="{StaticResource FontSizeSubheading}" FontAttributes="Bold" />
                         <CollectionView x:Name="ModulesList" HeightRequest="180">
                             <CollectionView.ItemTemplate>
@@ -48,11 +48,11 @@
                 </Border>
 
                 <!-- Stats -->
-                <Border Padding="14" WidthRequest="440"
+                <Border Padding="{StaticResource SpaceMd}" WidthRequest="440"
                         Background="{DynamicResource MotoSubtleBackground}"
                         Stroke="{DynamicResource MotoCardBorder}" StrokeThickness="1">
                     <Border.StrokeShape><RoundRectangle CornerRadius="{StaticResource RadiusLg}" /></Border.StrokeShape>
-                    <VerticalStackLayout Spacing="4">
+                    <VerticalStackLayout Spacing="{StaticResource SpaceXs}">
                         <Label Text="📊 Statistiques" FontSize="{StaticResource FontSizeSubheading}" FontAttributes="Bold" />
                         <Label x:Name="StatsLabel" FontSize="{StaticResource FontSizeBody}" />
                     </VerticalStackLayout>

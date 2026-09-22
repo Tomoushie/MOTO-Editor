@@ -104,7 +104,7 @@
             <Border.GestureRecognizers>
                 <TapGestureRecognizer Tapped="OnUpdateClicked"/>
             </Border.GestureRecognizers>
-            <HorizontalStackLayout Spacing="4">
+            <HorizontalStackLayout Spacing="{StaticResource SpaceXs}">
                 <Label Text="🔄" FontSize="11"/>
                 <Label x:Name="UpdateLabel" Text="MAJ" FontSize="11"
                        TextColor="White" FontAttributes="Bold"/>

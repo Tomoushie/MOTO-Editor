@@ -5,7 +5,7 @@
              BackgroundColor="{StaticResource BgSide}">
 
     <Border StrokeShape="RoundRectangle 12" Stroke="{StaticResource BorderCol}"
-            BackgroundColor="{StaticResource BgPanelInner}" WidthRequest="420" Padding="14">
+            BackgroundColor="{StaticResource BgPanelInner}" WidthRequest="420" Padding="{StaticResource SpaceMd}">
 
         <Grid RowDefinitions="Auto,*" Padding="0">
 
@@ -15,7 +15,7 @@
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
                         <Border StrokeShape="RoundRectangle 8" BackgroundColor="{StaticResource BgPanel}"
-                                Padding="10" Margin="0,4">
+                                Padding="{StaticResource SpaceSm}" Margin="0,4">
                             <Grid ColumnDefinitions="*,Auto,Auto" RowDefinitions="Auto,Auto">
 
                                 <Label Grid.Row="0" Grid.Column="0" Text="{Binding Title}"

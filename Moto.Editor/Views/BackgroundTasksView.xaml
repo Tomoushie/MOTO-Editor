@@ -27,7 +27,7 @@
         <DataTemplate>
           <Border Background="{DynamicResource BgPanel}" Stroke="{DynamicResource BorderCol}"
                   StrokeShape="RoundRectangle 8" Padding="12,10" Margin="0,0,0,8">
-            <Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto" ColumnSpacing="8">
+            <Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto" ColumnSpacing="{StaticResource SpaceSm}">
               <Label Grid.Row="0" Grid.Column="0" Text="{Binding StatusIcon}"
                      TextColor="{StaticResource Accent}" FontSize="{StaticResource FontSizeBody}"/>
               <Label Grid.Row="0" Grid.Column="1" Text="{Binding Label}" FontAttributes="Bold"

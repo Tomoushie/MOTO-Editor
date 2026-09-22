@@ -12,10 +12,10 @@
          titre et deux boutons ✕ fonctionnels l'un sous l'autre (même
          correctif qu'AiChatView et PluginGalleryView). IsVisible retiré aussi
          : AddFloatingPanel gère la visibilité lui-même. -->
-    <Grid RowDefinitions="Auto,*,Auto" Padding="16" RowSpacing="12">
+    <Grid RowDefinitions="Auto,*,Auto" Padding="{StaticResource SpaceMd}" RowSpacing="{StaticResource SpaceSm}">
 
         <!-- Onglets -->
-        <HorizontalStackLayout Grid.Row="0" Spacing="8">
+        <HorizontalStackLayout Grid.Row="0" Spacing="{StaticResource SpaceSm}">
             <Button x:Name="TabTopBtn" Text="🏆 Top commandes"
                     BackgroundColor="{StaticResource Accent}"
                     TextColor="White" Clicked="OnTabTopClicked" />
@@ -32,7 +32,7 @@
 
         <!-- Contenu -->
         <ScrollView Grid.Row="1">
-            <VerticalStackLayout x:Name="ContentArea" Spacing="12" />
+            <VerticalStackLayout x:Name="ContentArea" Spacing="{StaticResource SpaceSm}" />
         </ScrollView>
 
         <!-- Footer -->

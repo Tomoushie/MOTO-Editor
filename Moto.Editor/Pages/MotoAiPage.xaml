@@ -22,9 +22,9 @@
         </Style>
     </ContentPage.Resources>
 
-    <ScrollView Padding="16">
+    <ScrollView Padding="{StaticResource SpaceMd}">
 
-        <VerticalStackLayout Spacing="12">
+        <VerticalStackLayout Spacing="{StaticResource SpaceSm}">
 
             <Label Text="MOTO AI interne"
                    FontSize="{StaticResource FontSizeUiTitle}"
@@ -64,7 +64,7 @@
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
                         <Label Text="{Binding Name}"
-                               Padding="4" />
+                               Padding="{StaticResource SpaceXs}" />
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
@@ -77,7 +77,7 @@
                             HeightRequest="180">
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
-                        <VerticalStackLayout Padding="4">
+                        <VerticalStackLayout Padding="{StaticResource SpaceXs}">
                             <Label Text="{Binding Path}"
                                    FontAttributes="Bold" />
                             <Label Text="{Binding Reason}"
@@ -96,7 +96,7 @@
                             HeightRequest="180">
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
-                        <VerticalStackLayout Padding="4">
+                        <VerticalStackLayout Padding="{StaticResource SpaceXs}">
                             <Label Text="{Binding Title}"
                                    FontAttributes="Bold" />
                             <Label Text="{Binding Detail}"

@@ -5,17 +5,17 @@
 
     <Border Background="{DynamicResource MotoCardBackground}"
             Stroke="{DynamicResource MotoCardBorder}"
-            StrokeThickness="1" Padding="16">
+            StrokeThickness="1" Padding="{StaticResource SpaceMd}">
         <Border.StrokeShape><RoundRectangle CornerRadius="{StaticResource RadiusLg}" /></Border.StrokeShape>
 
-        <Grid RowDefinitions="Auto,*,Auto" RowSpacing="12">
+        <Grid RowDefinitions="Auto,*,Auto" RowSpacing="{StaticResource SpaceSm}">
             <Label Grid.Row="0" Text="🛒 Marketplace d'agents spécialisés"
                    FontSize="18" FontAttributes="Bold" />
 
             <CollectionView Grid.Row="1" x:Name="AgentsList">
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
-                        <Border Padding="12" Margin="0,6"
+                        <Border Padding="{StaticResource SpaceSm}" Margin="0,6"
                                 Background="{DynamicResource MotoSubtleBackground}"
                                 Stroke="{DynamicResource MotoCardBorder}" StrokeThickness="1">
                             <Border.StrokeShape><RoundRectangle CornerRadius="{StaticResource RadiusMd}" /></Border.StrokeShape>

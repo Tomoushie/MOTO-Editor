@@ -7,7 +7,7 @@
     <Grid RowDefinitions="Auto,Auto,*" BackgroundColor="{StaticResource BgSide}">
 
         <!-- Barre d'outils de l'explorateur -->
-        <HorizontalStackLayout Grid.Row="0" Padding="8,6" Spacing="6">
+        <HorizontalStackLayout Grid.Row="0" Padding="8,6" Spacing="{StaticResource SpaceXs}">
 
             <Label Text="EXPLORATEUR"
                    FontAttributes="Bold"
@@ -65,7 +65,7 @@
              dépendance Git installée nécessaire) — masqué si .git n'existe pas
              (dossier sans dépôt Git). -->
         <HorizontalStackLayout Grid.Row="1" x:Name="ProjectInfoBar"
-                                Padding="8,0,8,8" Spacing="6" IsVisible="False">
+                                Padding="8,0,8,8" Spacing="{StaticResource SpaceXs}" IsVisible="False">
             <Label x:Name="ProjectNameLabel" FontSize="{StaticResource FontSizeBody}" FontAttributes="Bold"
                    TextColor="{StaticResource Txt1}" />
             <Border BackgroundColor="{StaticResource BgSide}" Padding="6,1"
@@ -90,7 +90,7 @@
              le code-behind (RefreshEmptyState, appelée partout où _visibleNodes
              change). -->
         <Grid x:Name="EmptyStatePanel" Grid.Row="2" HorizontalOptions="Fill" VerticalOptions="Fill" InputTransparent="True">
-            <VerticalStackLayout Padding="20" Spacing="8"
+            <VerticalStackLayout Padding="{StaticResource SpaceMd}" Spacing="{StaticResource SpaceSm}"
                                  HorizontalOptions="Center" VerticalOptions="Center">
                 <Label Text="📂" FontSize="{StaticResource FontSizeDisplay}" HorizontalOptions="Center" Opacity="0.6" />
                 <Label Text="Aucun dossier ouvert" FontSize="{StaticResource FontSizeBody}" HorizontalOptions="Center" Opacity="0.8" />
