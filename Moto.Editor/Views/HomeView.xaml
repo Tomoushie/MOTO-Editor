@@ -60,7 +60,7 @@
                      l'élargissait visiblement) au lieu de rester stable, repéré par Tom.
                      ★ CORRECTION (31/08, point 1) : légèrement plus compacte
                      (Padding 16→13,12, ColumnSpacing/RowSpacing 10→8). -->
-                <Border Stroke="{StaticResource BorderCol}" StrokeShape="{StaticResource RadiusLg}"
+                <Border Stroke="{StaticResource BorderCol}" StrokeShape="RoundRectangle 12"
                         BackgroundColor="{StaticResource BgPanel}" Padding="13,12" WidthRequest="555">
                     <Grid x:Name="StatsGrid" ColumnDefinitions="*,*,*,*" RowDefinitions="Auto,Auto"
                           ColumnSpacing="8" RowSpacing="8" />
@@ -129,7 +129,7 @@
                                  Fluent Icons, codepoints vérifiés visuellement) —
                                  FormattedText/Span nécessaire pour mélanger la police
                                  d'icône et le texte normal dans un même Label. -->
-                            <Border Stroke="{StaticResource BorderCol}" StrokeShape="{StaticResource RadiusMd}"
+                            <Border Stroke="{StaticResource BorderCol}" StrokeShape="RoundRectangle 8"
                                     Padding="{StaticResource PadChip}" BackgroundColor="{StaticResource BgPanel}">
                                 <Label FontSize="{StaticResource FontSizeBody}">
                                     <Label.FormattedText>
@@ -143,7 +143,7 @@
                                     <TapGestureRecognizer Tapped="OnLocalChipTapped" />
                                 </Border.GestureRecognizers>
                             </Border>
-                            <Border Stroke="{StaticResource BorderCol}" StrokeShape="{StaticResource RadiusMd}"
+                            <Border Stroke="{StaticResource BorderCol}" StrokeShape="RoundRectangle 8"
                                     Padding="{StaticResource PadChip}" BackgroundColor="{StaticResource BgPanel}">
                                 <Label FontSize="{StaticResource FontSizeBody}">
                                     <Label.FormattedText>
@@ -159,7 +159,7 @@
                             </Border>
                             <!-- ★ AJOUT (31/08, point 11) : petit "+" superposé sur le
                                  dossier (glyphes Folder+Add, tous deux déjà vérifiés). -->
-                            <Border Stroke="{StaticResource BorderCol}" StrokeShape="{StaticResource RadiusMd}"
+                            <Border Stroke="{StaticResource BorderCol}" StrokeShape="RoundRectangle 8"
                                     Padding="12,10" BackgroundColor="{StaticResource BgPanel}">
                                 <Grid>
                                     <Label Text="{x:Static controls:MotoIcons.Folder}" FontFamily="{x:Static controls:MotoIcons.FontFamily}"
@@ -184,7 +184,7 @@
                     <!-- ★ RETRAIT (31/08, point 5) : "+" à l'intérieur de la saisie
                          supprimé — doublon avec le "+" de la barre de contrôles
                          juste en dessous (ComposerBar). -->
-                    <Border Stroke="{StaticResource BorderCol}" StrokeShape="{StaticResource RadiusLg}"
+                    <Border Stroke="{StaticResource BorderCol}" StrokeShape="RoundRectangle 12"
                             BackgroundColor="{StaticResource BgPanel}" Padding="14,2,6,2" WidthRequest="560">
                         <Grid ColumnDefinitions="*,Auto">
                             <Entry Grid.Column="0" x:Name="PromptEntry"
@@ -196,7 +196,7 @@
                             <Border x:Name="SendArrowHost" Grid.Column="1"
                                     WidthRequest="34" HeightRequest="34"
                                     BackgroundColor="Transparent" StrokeThickness="0"
-                                    StrokeShape="{StaticResource RadiusPill}">
+                                    StrokeShape="RoundRectangle 999">
                                 <Label x:Name="SendArrowLabel" Text="➤" FontSize="{StaticResource FontSizeSubheading}" TextColor="{StaticResource Txt1}"
                                        HorizontalOptions="Center" VerticalOptions="Center" />
                                 <Border.GestureRecognizers>

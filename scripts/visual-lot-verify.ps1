@@ -48,6 +48,7 @@
 param(
     [int]$BaselineWarnings = 479,
     [switch]$SkipBuild,
+    [switch]$SkipLaunch,
     [switch]$SelfTest
 )
 
@@ -247,6 +248,66 @@ if ($modifies.Count -eq 0) {
     } else {
         Write-Host '  (diff vide)' -ForegroundColor DarkGray
     }
+}
+
+# ── 4. Demarrage reel ───────────────────────────────────────────────────────
+# ★ AJOUT (22/09) — LE CONTROLE QUI MANQUAIT, et qui a coute un plantage livré.
+# Les trois controles precedents ne compilent que : ils ont laisse passer DEUX
+# erreurs XAML qui ne se manifestent QU'AU DEMARRAGE (une reference
+# StaticResource avant sa declaration, et un jeton CornerRadius passé à un
+# Button qui attend un int). Ni le compilateur ni le diff ne peuvent les voir.
+# On lance donc reellement l'executable et on verifie qu'il survit.
+if (-not $SkipLaunch) {
+    Write-Host '=== 4. Demarrage reel de l''application ===' -ForegroundColor Cyan
+    $exe = Join-Path $root 'Moto.Editor\bin\Debug\net8.0-windows10.0.19041.0\win10-x64\Moto.Editor.exe'
+    $log = Join-Path $env:TEMP 'moto-editor-crash.log'
+    if (-not (Test-Path $exe)) {
+        $alertes += "Demarrage : executable introuvable ($exe) — controle ignore."
+        Write-Host '  IGNORE : executable Debug introuvable' -ForegroundColor Yellow
+    } else {
+        # ★ On compare le NOMBRE DE LIGNES, pas l'horodatage : le journal recoit
+        # aussi des traces normales (SnapLayouts, breadcrumbs), donc son
+        # horodatage avance meme quand tout va bien — et chercher « la derniere
+        # exception du fichier » remontait une exception ANCIENNE. On ne lit que
+        # les lignes reellement ajoutees par ce lancement.
+        $lignesAvant = @(Get-Content $log -ErrorAction SilentlyContinue).Count
+        if (-not (Test-Path $log)) { $lignesAvant = 0 }
+        # Une instance deja ouverte fausserait le test (elle resterait vivante).
+        Get-Process Moto.Editor -ErrorAction SilentlyContinue | Stop-Process -Force
+        Start-Sleep -Milliseconds 500
+        $proc = Start-Process -FilePath $exe -PassThru
+        Start-Sleep -Seconds 9
+        $mort = $proc.HasExited
+        $code = $proc.ExitCode
+        if (-not $mort) { try { $proc | Stop-Process -Force } catch { } }
+
+        $nouvelles = @()
+        if (Test-Path $log) {
+            $tout = @(Get-Content $log -ErrorAction SilentlyContinue)
+            if ($tout.Count -gt $lignesAvant) {
+                $nouvelles = @($tout[$lignesAvant..($tout.Count - 1)])
+            }
+        }
+        $excNouvelles = @($nouvelles | Select-String -Pattern 'Exception')
+
+        if ($mort) {
+            $echecs += "Demarrage : l'application s'est arretee (code $code)."
+            Write-Host "  ECHEC : processus arrete (code $code)" -ForegroundColor Red
+        } else {
+            Write-Host '  OK : l''application tourne encore apres 9 s' -ForegroundColor Green
+        }
+        if ($excNouvelles.Count -gt 0) {
+            $echecs += "Demarrage : $($excNouvelles.Count) exception(s) au lancement."
+            Write-Host "  ECHEC : exception(s) dans le journal de crash" -ForegroundColor Red
+            $excNouvelles | Select-Object -First 2 | ForEach-Object {
+                Write-Host "    $($_.Line.Trim())" -ForegroundColor Red
+            }
+        } else {
+            Write-Host '  OK : aucune exception au lancement' -ForegroundColor Green
+        }
+    }
+} else {
+    Write-Host '=== 4. Demarrage : ignore (-SkipLaunch) ===' -ForegroundColor DarkGray
 }
 
 # ── Verdict ─────────────────────────────────────────────────────────────────
