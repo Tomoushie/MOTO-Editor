@@ -33,6 +33,15 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Moto.Core\Moto.Core.csproj" />
+    <!--
+      ★ AJOUT (22/09) : référence vers le projet MAUI Moto.Editor, pour pouvoir
+      enfin TESTER ChatService (il y vit, et il n'était jusqu'ici vérifiable
+      qu'à la main). Le TFM est identique des deux côtés
+      (net8.0-windows10.0.19041.0), donc le NU1201 documenté ci-dessus — qui
+      venait d'une incompatibilité de TFM, pas du caractère MAUI — ne
+      s'applique pas ici. À retirer si la référence s'avère ingérable.
+    -->
+    <ProjectReference Include="..\Moto.Editor\Moto.Editor.csproj" />
   </ItemGroup>
 
   <!--

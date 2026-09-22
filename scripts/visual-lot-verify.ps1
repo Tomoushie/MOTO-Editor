@@ -62,8 +62,13 @@ $framework = 'net8.0-windows10.0.19041.0'
 # S'il touche à l'un de ces motifs, il change le COMPORTEMENT : c'est un autre
 # chantier, qui doit être testé autrement.
 $motifsInterdits = @(
-    @{ Nom = 'x:Name';              Motif = 'x:Name\s*=' }
-    @{ Nom = 'Binding';             Motif = '\{Binding' }
+    # ★ `Exclure` (22/09) : `x:Name` sert à DEUX choses très différentes — nommer
+    # un élément pour que le code-behind y accède (à ne jamais changer dans un
+    # lot visuel), et nommer un VisualState dans un style (`<VisualState
+    # x:Name="Disabled">`), ce qui est du pur habillage. Sans cette exclusion,
+    # ajouter les états Disabled/Focused était signalé comme une régression.
+    @{ Nom = 'x:Name';              Motif = 'x:Name\s*=\s*"([^"]+)"'; Exclure = 'VisualState' }
+    @{ Nom = 'Binding';             Motif = '\{Binding[^}]*\}' }
     @{ Nom = 'x:DataType';          Motif = 'x:DataType' }
     @{ Nom = 'x:Reference';         Motif = 'x:Reference' }
     @{ Nom = 'gestionnaire Clicked';Motif = '\bClicked\s*=' }
@@ -80,12 +85,42 @@ $motifsInterdits = @(
 function Test-MotifsInterdits {
     param([string[]]$Lignes)
     $trouves = @()
-    foreach ($l in $Lignes) {
-        if ($l -notmatch '^[+-]' -or $l -match '^(\+\+\+|---)') { continue }
-        foreach ($m in $motifsInterdits) {
-            if ($l -match $m.Motif) {
-                $trouves += [pscustomobject]@{ Motif = $m.Nom; Ligne = $l.Trim() }
-            }
+    $retirees = @($Lignes | Where-Object { $_ -match '^-' -and $_ -notmatch '^---' })
+    $ajoutees = @($Lignes | Where-Object { $_ -match '^\+' -and $_ -notmatch '^\+\+\+' })
+
+    # ★ CORRECTION (22/09) : la première version comptait les OCCURRENCES du
+    # motif. Elle criait donc au loup dès qu'une ligne PORTANT un x:Name était
+    # réécrite — mesuré sur HomeView : « FontSize change sur une ligne qui
+    # contient x:Name », 4 faux positifs, alors que les 7 valeurs x:Name du
+    # fichier étaient identiques avant/après. Un garde-fou qui crie au loup
+    # finit ignoré.
+    # La bonne propriété n'est pas « le motif apparaît-il dans le diff ? » mais
+    # « la VALEUR du motif a-t-elle changé ? » : on compare donc l'ensemble des
+    # valeurs trouvées sur les lignes retirées et sur les lignes ajoutées. Une
+    # valeur présente d'un seul côté = ajout ou suppression réelle.
+    foreach ($m in $motifsInterdits) {
+        $avant = New-Object System.Collections.ArrayList
+        $apres = New-Object System.Collections.ArrayList
+        foreach ($l in $retirees) {
+            if ($m.Exclure -and $l -match $m.Exclure) { continue }
+            foreach ($x in [regex]::Matches($l, $m.Motif)) { [void]$avant.Add($x.Value) }
+        }
+        foreach ($l in $ajoutees) {
+            if ($m.Exclure -and $l -match $m.Exclure) { continue }
+            foreach ($x in [regex]::Matches($l, $m.Motif)) { [void]$apres.Add($x.Value) }
+        }
+
+        $orphelins = @()
+        # Valeur disparue (retirée sans être réintroduite à l'identique)...
+        foreach ($v in @($avant)) {
+            $i = $apres.IndexOf($v)
+            if ($i -ge 0) { $apres.RemoveAt($i) } else { $orphelins += $v }
+        }
+        # ...ou valeur introduite (nouveau gestionnaire, nouvelle liaison).
+        foreach ($v in @($apres)) { $orphelins += $v }
+
+        foreach ($v in ($orphelins | Sort-Object -Unique)) {
+            $trouves += [pscustomobject]@{ Motif = $m.Nom; Ligne = $v }
         }
     }
     return $trouves
@@ -134,8 +169,13 @@ $alertes = @()
 
 # ── 1. Compilation ──────────────────────────────────────────────────────────
 if (-not $SkipBuild) {
-    Write-Host '=== 1. Compilation (Debug) ===' -ForegroundColor Cyan
-    $sortie = & dotnet build 'Moto.Editor/Moto.Editor.csproj' -f $framework -c Debug 2>&1
+    Write-Host '=== 1. Compilation (Debug, no-incremental) ===' -ForegroundColor Cyan
+    # ★ --no-incremental OBLIGATOIRE (constaté le 22/09) : un build incrémental
+    # ne recompile pas tout et ne réémet donc PAS tous les avertissements des
+    # projets inchangés. Mesuré : 173 en incrémental contre 479 en complet sur
+    # le même arbre. Sans ce drapeau, ce contrôle laisserait passer une
+    # régression silencieuse en comparant à une base surévaluée.
+    $sortie = & dotnet build 'Moto.Editor/Moto.Editor.csproj' -f $framework -c Debug --no-incremental 2>&1
     $texte = $sortie -join "`n"
 
     $mErr = [regex]::Match($texte, '(\d+)\s+Erreur\(s\)')
