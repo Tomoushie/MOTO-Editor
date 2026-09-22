@@ -410,9 +410,24 @@ de fin de session.
   anneau de focus, et **`Disabled`/`Focused` ajoutés** (ils étaient absents de
   tous les styles de bouton).
 - ✅ **Écran pilote — Accueil (`HomeView.xaml`) converti** aux jetons.
-- ⏭️ **Reste** : Phase 1 (convertir les 994 valeurs en dur des 70 autres
-  fichiers, par lots vérifiés — table de conversion et outil de rapport déjà
-  écrits), Phase 2 (composants), Phase 3 (écrans), Phase 4 (mouvement).
+- ✅ **Phase 1 mécanique TERMINÉE** (commits `065a1c0`, `4c91651`, + passe complète) :
+  **293 tailles de police et 177 rayons** convertis sur **47 fichiers**, via
+  `scripts/visual-tokens-apply.ps1` (dry-run par défaut, `-Apply` pour écrire).
+  État final mesuré sur le périmètre compilé : il ne reste QUE
+  - les **5 valeurs de police ambiguës** (7, 11, 11.5, 18, 24 — 117 occurrences) que
+    l'outil laisse volontairement : trancher « 11 px de badge » vs « 11 px de texte
+    courant » par table produirait un contraste faux quelque part ;
+  - des `RoundRectangle N` **déjà normalisés aux valeurs canoniques** (6/8/12),
+    exprimés en nombre et non en jeton — volontaire, voir ci-dessous ;
+  - les couleurs (138) et les espacements composés, qui demandent un jugement au cas par cas.
+  ⚠️ **Piège réel rencontré et évité** : `StrokeShape="RoundRectangle {StaticResource …}"`
+  est à NE PAS FAIRE — la valeur est passée telle quelle à un `TypeConverter` qui
+  attend du texte, et un mélange texte + extension de balisage compile peut-être mais
+  rend faux EN SILENCE, sans qu'aucun contrôle automatique ne le voie. L'outil
+  normalise donc vers la valeur numérique canonique du jeton.
+- ⏭️ **Reste** : les 5 valeurs de police ambiguës (jugement à l'œil), les 138
+  couleurs, les espacements composés, puis Phase 2 (composants), Phase 3 (écrans),
+  Phase 4 (mouvement et animations — aucun jeton de mouvement créé pour l'instant).
 - ⚠️ **Aucun test visuel automatique** : le garde-fou garantit qu'un lot ne
   casse rien (0 erreur, avertissements ≤ 479, périmètre, aucun comportement
   touché) mais **pas** que le résultat soit joli — seul l'œil de Tom juge.
