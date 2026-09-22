@@ -42,6 +42,13 @@ namespace Moto.Editor.Controls
         // premier, indéfiniment.
         private bool _syncInProgress;
 
+        // Curseur clignotant (incrément 2b). Démarré/arrêté sur Loaded/Unloaded
+        // (vérifiés existants sur MAUI 8.0.100 par test de compilation isolé,
+        // même démarche que CursorPosition/SelectionLength -- voir cadrage §10)
+        // pour ne pas laisser un minuteur tourner après la destruction de la vue.
+        private IDispatcherTimer _caretTimer;
+        private bool _caretVisible = true;
+
         // Même regex que l'ancien CodeEditorView (JS) : les groupes NON reconnus
         // (espaces, ponctuation, identifiants) ne sont volontairement PAS
         // capturés ici -- ils sont dessinés tels quels entre deux correspondances,
@@ -57,6 +64,29 @@ namespace Moto.Editor.Controls
             InitializeComponent();
             Canvas.PaintSurface += OnPaintSurface;
             HiddenInput.TextChanged += OnHiddenInputTextChanged;
+            Loaded += (_, _) => StartCaretBlink();
+            Unloaded += (_, _) => StopCaretBlink();
+        }
+
+        private void StartCaretBlink()
+        {
+            if (_caretTimer != null)
+                return;
+            _caretTimer = Dispatcher.CreateTimer();
+            _caretTimer.Interval = TimeSpan.FromMilliseconds(530);
+            _caretTimer.Tick += (_, _) =>
+            {
+                _caretVisible = !_caretVisible;
+                if (HiddenInput.IsFocused)
+                    Canvas.InvalidateSurface();
+            };
+            _caretTimer.Start();
+        }
+
+        private void StopCaretBlink()
+        {
+            _caretTimer?.Stop();
+            _caretTimer = null;
         }
 
         private static void OnTextChanged(BindableObject bindable, object oldValue, object newValue)
@@ -104,10 +134,12 @@ namespace Moto.Editor.Controls
             var canvas = surface.Canvas;
             canvas.Clear(SKColor.Parse("#1e2025"));
 
-            if (string.IsNullOrEmpty(Text))
-                return;
-
-            var lines = Text.Split('\n');
+            // Incrément 2b : un document vide doit quand même montrer sa
+            // gouttière (ligne 1) et le curseur -- l'ancien retour anticipé
+            // laissait un canevas totalement blanc tant qu'aucun caractère
+            // n'avait été tapé, invisible même pour savoir où cliquer/taper.
+            string fullText = Text ?? string.Empty;
+            var lines = fullText.Split('\n');
 
             var lineNumberPaint = new SKPaint
             {
@@ -147,38 +179,63 @@ namespace Moto.Editor.Controls
             // Le +40 plancher évite une boucle si le panneau est réduit à rien.
             float maxX = Math.Max(TextStartX + 40f, e.Info.Width - RightMargin);
 
+            // Incrément 2b : position du curseur (HiddenInput.CursorPosition est
+            // un index de caractère global dans tout le texte, comme .NET indexe
+            // les chaînes -- Text.Split('\n') consomme un '\n' entre 2 lignes,
+            // jamais après la dernière, d'où le "+1" conditionnel ci-dessous).
+            // -1 = pas de curseur à dessiner (non focus).
+            int cursorLine = -1, cursorCol = -1;
+            if (HiddenInput.IsFocused)
+            {
+                int remaining = Math.Clamp(HiddenInput.CursorPosition, 0, fullText.Length);
+                for (int li = 0; li < lines.Length; li++)
+                {
+                    if (remaining <= lines[li].Length)
+                    {
+                        cursorLine = li;
+                        cursorCol = remaining;
+                        break;
+                    }
+                    remaining -= lines[li].Length + 1;
+                }
+            }
+            (float X, int VisualRow)? caretPixel = null;
+
             int visualRow = 0;
 
             for (int i = 0; i < lines.Length; i++)
             {
                 string line = lines[i];
+                bool isCursorLine = i == cursorLine;
 
                 // Mêmes segments qu'avant (voir TokenRegex) : un token reconnu,
                 // ou un morceau brut entre deux tokens (espaces, ponctuation,
                 // identifiants) -- jamais de caractère perdu. Construits en
                 // liste ici (plutôt que dessinés au fil de l'eau comme avant)
-                // pour pouvoir couper au bon endroit si la ligne déborde.
-                var segments = new List<(string Text, SKColor Color)>();
+                // pour pouvoir couper au bon endroit si la ligne déborde. Le 3e
+                // élément (colonne de départ dans la ligne source) sert au
+                // curseur (2b) à localiser dans quel segment il tombe.
+                var segments = new List<(string Text, SKColor Color, int StartCol)>();
                 int pos = 0;
                 foreach (Match m in TokenRegex.Matches(line))
                 {
                     if (m.Index > pos)
-                        segments.Add((line.Substring(pos, m.Index - pos), SKColor.Parse("#dcdfe4")));
+                        segments.Add((line.Substring(pos, m.Index - pos), SKColor.Parse("#dcdfe4"), pos));
 
                     string color = m.Groups[1].Success ? "#6a9955"   // commentaire //...
                                  : m.Groups[2].Success ? "#ce9178"   // chaîne "..."
                                  : m.Groups[3].Success ? "#b5cea8"   // nombre
                                  : "#569cd6";                        // mot-clé
-                    segments.Add((m.Value, SKColor.Parse(color)));
+                    segments.Add((m.Value, SKColor.Parse(color), m.Index));
                     pos = m.Index + m.Length;
                 }
                 if (pos < line.Length)
-                    segments.Add((line.Substring(pos), SKColor.Parse("#dcdfe4")));
+                    segments.Add((line.Substring(pos), SKColor.Parse("#dcdfe4"), pos));
 
                 float x = TextStartX;
                 DrawGutterRow(canvas, lineNumberPaint, gutterTextPaint, visualRow, lineHeight, GutterWidth, i + 1);
 
-                foreach (var (text, color) in segments)
+                foreach (var (text, color, startCol) in segments)
                 {
                     if (text.Length == 0)
                         continue;
@@ -197,12 +254,33 @@ namespace Moto.Editor.Controls
                         DrawGutterRow(canvas, lineNumberPaint, gutterTextPaint, visualRow, lineHeight, GutterWidth, lineNumber: null);
                     }
 
+                    if (isCursorLine && caretPixel == null && cursorCol >= startCol && cursorCol <= startCol + text.Length)
+                    {
+                        float caretX = x + codePaint.MeasureText(text.Substring(0, cursorCol - startCol));
+                        caretPixel = (caretX, visualRow);
+                    }
+
                     float y = visualRow * lineHeight + 40;
                     canvas.DrawText(text, x, y, codePaint);
                     x += width;
                 }
 
+                // Filet de sécurité : ligne source vide (aucun segment, la boucle
+                // ci-dessus ne s'exécute jamais) ou curseur non détecté pour une
+                // autre raison -- placer au début de la ligne plutôt que de ne
+                // rien dessiner du tout.
+                if (isCursorLine && caretPixel == null)
+                    caretPixel = (x, visualRow);
+
                 visualRow++;
+            }
+
+            if (caretPixel.HasValue && _caretVisible)
+            {
+                var (caretX, caretRow) = caretPixel.Value;
+                float y = caretRow * lineHeight + 40;
+                using var caretPaint = new SKPaint { Color = SKColor.Parse("#007acc"), StrokeWidth = 2 };
+                canvas.DrawLine(caretX, y + codePaint.FontMetrics.Ascent, caretX, y + codePaint.FontMetrics.Descent, caretPaint);
             }
         }
 
