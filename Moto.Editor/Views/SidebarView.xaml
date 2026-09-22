@@ -8,7 +8,7 @@
 
         <!-- Header : titre + recherche + notif -->
         <HorizontalStackLayout Grid.Row="0" Spacing="8">
-            <Label Text="MOTO AI" FontAttributes="Bold" FontSize="15" VerticalOptions="Center" />
+            <Label Text="MOTO AI" FontAttributes="Bold" FontSize="{StaticResource FontSizeSubheading}" VerticalOptions="Center" />
             <Label Text="🔍" VerticalOptions="Center" Style="{StaticResource TxtSecondary}" />
             <Label Text="🔔" VerticalOptions="Center" Style="{StaticResource TxtSecondary}" />
         </HorizontalStackLayout>
@@ -19,7 +19,7 @@
             <Border.GestureRecognizers>
                 <TapGestureRecognizer Tapped="OnNewChat" />
             </Border.GestureRecognizers>
-            <Label Text="＋ Nouveau chat" FontSize="12" />
+            <Label Text="＋ Nouveau chat" FontSize="{StaticResource FontSizeBody}" />
         </Border>
 
         <!-- Sections : Épinglés / Projets / Récents -->
@@ -39,7 +39,7 @@
         <!-- Footer utilisateur -->
         <HorizontalStackLayout Grid.Row="3" Spacing="8" Padding="0,8,0,0">
             <Label Text="👤" />
-            <Label Text="Tom Nowak" FontSize="12" VerticalOptions="Center" />
+            <Label Text="Tom Nowak" FontSize="{StaticResource FontSizeBody}" VerticalOptions="Center" />
         </HorizontalStackLayout>
 
     </Grid>

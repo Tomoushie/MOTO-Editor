@@ -81,7 +81,7 @@
                             <Label Text="{Binding Path}"
                                    FontAttributes="Bold" />
                             <Label Text="{Binding Reason}"
-                                   FontSize="12"
+                                   FontSize="{StaticResource FontSizeBody}"
                                    Opacity="0.8" />
                         </VerticalStackLayout>
                     </DataTemplate>
@@ -100,7 +100,7 @@
                             <Label Text="{Binding Title}"
                                    FontAttributes="Bold" />
                             <Label Text="{Binding Detail}"
-                                   FontSize="12"
+                                   FontSize="{StaticResource FontSizeBody}"
                                    Opacity="0.8" />
                         </VerticalStackLayout>
                     </DataTemplate>

@@ -20,7 +20,7 @@
             <!-- Header -->
             <Grid ColumnDefinitions="*,Auto">
                 <Label Text="💡 Suggestions"
-                       FontSize="13"
+                       FontSize="{StaticResource FontSizeBody}"
                        FontAttributes="Bold"
                        TextColor="{StaticResource Accent}"
                        VerticalOptions="Center" />
@@ -30,7 +30,7 @@
                         HeightRequest="24"
                         BackgroundColor="Transparent"
                         TextColor="{StaticResource Txt2}"
-                        FontSize="10"
+                        FontSize="{StaticResource FontSizeSmall}"
                         Clicked="OnCloseClicked" />
             </Grid>
 
@@ -43,7 +43,7 @@
             <Label Grid.Row="2"
                    x:Name="FooterLabel"
                    Text="Mises à jour toutes les 30s"
-                   FontSize="10"
+                   FontSize="{StaticResource FontSizeSmall}"
                    TextColor="{StaticResource Txt2}"
                    HorizontalOptions="Center" />
         </Grid>

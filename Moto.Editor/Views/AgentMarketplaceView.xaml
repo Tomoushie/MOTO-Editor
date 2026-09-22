@@ -6,7 +6,7 @@
     <Border Background="{DynamicResource MotoCardBackground}"
             Stroke="{DynamicResource MotoCardBorder}"
             StrokeThickness="1" Padding="16">
-        <Border.StrokeShape><RoundRectangle CornerRadius="12" /></Border.StrokeShape>
+        <Border.StrokeShape><RoundRectangle CornerRadius="{StaticResource RadiusLg}" /></Border.StrokeShape>
 
         <Grid RowDefinitions="Auto,*,Auto" RowSpacing="12">
             <Label Grid.Row="0" Text="🛒 Marketplace d'agents spécialisés"
@@ -18,14 +18,14 @@
                         <Border Padding="12" Margin="0,6"
                                 Background="{DynamicResource MotoSubtleBackground}"
                                 Stroke="{DynamicResource MotoCardBorder}" StrokeThickness="1">
-                            <Border.StrokeShape><RoundRectangle CornerRadius="8" /></Border.StrokeShape>
+                            <Border.StrokeShape><RoundRectangle CornerRadius="{StaticResource RadiusMd}" /></Border.StrokeShape>
                             <Grid ColumnDefinitions="*,Auto" RowDefinitions="Auto,Auto,Auto">
                                 <Label Grid.Row="0" Grid.Column="0" Text="{Binding Name}"
-                                       FontSize="15" FontAttributes="Bold" />
+                                       FontSize="{StaticResource FontSizeSubheading}" FontAttributes="Bold" />
                                 <Label Grid.Row="0" Grid.Column="1" Text="{Binding Priority}"
                                        FontSize="11" Opacity="0.6" VerticalOptions="Center" />
                                 <Label Grid.Row="1" Grid.ColumnSpan="2" Text="{Binding Description}"
-                                       FontSize="12" Opacity="0.8" Margin="0,4" />
+                                       FontSize="{StaticResource FontSizeBody}" Opacity="0.8" Margin="0,4" />
                                 <Button Grid.Row="2" Grid.Column="1" Text="Installer"
                                         Clicked="OnInstallClicked" CommandParameter="{Binding Id}" />
                             </Grid>
@@ -35,7 +35,7 @@
             </CollectionView>
 
             <Label Grid.Row="2" x:Name="StatusLabel" Text="Prêt"
-                   FontSize="12" Opacity="0.6" />
+                   FontSize="{StaticResource FontSizeBody}" Opacity="0.6" />
         </Grid>
     </Border>
 </ContentView>

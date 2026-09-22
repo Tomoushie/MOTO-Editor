@@ -43,7 +43,7 @@
         <Label Grid.Row="3"
                x:Name="StatusLabel"
                Text="Prêt."
-               FontSize="12"
+               FontSize="{StaticResource FontSizeBody}"
                TextColor="{StaticResource Txt2}" />
     </Grid>
 </ContentView>

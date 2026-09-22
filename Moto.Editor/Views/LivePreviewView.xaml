@@ -9,7 +9,7 @@
 
         <!-- Header -->
         <Grid ColumnDefinitions="Auto,*,Auto,Auto,Auto" ColumnSpacing="6">
-            <Label Text="🌐 Live Preview" FontSize="14" FontAttributes="Bold"
+            <Label Text="🌐 Live Preview" FontSize="{StaticResource FontSizeSubheading}" FontAttributes="Bold"
                    TextColor="{StaticResource Txt1}" VerticalOptions="Center"/>
             <Label Grid.Column="1" x:Name="FileLabel" Text="—" FontSize="11"
                    TextColor="{StaticResource Txt2}" VerticalOptions="Center"/>

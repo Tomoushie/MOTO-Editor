@@ -16,7 +16,7 @@
             Padding="12">
         <Grid RowDefinitions="Auto,Auto,*,Auto" RowSpacing="8">
 
-            <Label Grid.Row="0" Text="👥 Collaboration" FontAttributes="Bold" FontSize="14"
+            <Label Grid.Row="0" Text="👥 Collaboration" FontAttributes="Bold" FontSize="{StaticResource FontSizeSubheading}"
                    TextColor="{StaticResource Txt1}" />
 
             <Label Grid.Row="1" x:Name="PeersLabel" Text="👥 0 en ligne"
@@ -34,7 +34,7 @@
                 <Border Grid.Column="0" Stroke="{StaticResource BorderCol}" StrokeThickness="1"
                         StrokeShape="RoundRectangle 8" Padding="10,4" BackgroundColor="{StaticResource BgPanel}">
                     <Entry x:Name="ChatEntry"
-                           Placeholder="Message…" FontSize="12" BackgroundColor="Transparent"
+                           Placeholder="Message…" FontSize="{StaticResource FontSizeBody}" BackgroundColor="Transparent"
                            Completed="OnSendClicked" />
                 </Border>
                 <Button Grid.Column="1" Text="➤" Padding="10,4" Clicked="OnSendClicked" />

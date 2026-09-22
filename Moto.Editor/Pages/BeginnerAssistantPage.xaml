@@ -36,7 +36,7 @@
                    FontAttributes="Bold" />
 
             <Label Text="Le patch proposé n'est jamais écrit automatiquement : relis-le, puis clique 'Appliquer'."
-                   FontSize="12"
+                   FontSize="{StaticResource FontSizeBody}"
                    Opacity="0.8" />
 
             <Entry x:Name="FilePathEntry"
@@ -76,7 +76,7 @@
                    FontSize="{StaticResource FontSizeUiHeading}"
                    FontAttributes="Bold" />
             <Label x:Name="RequestSummaryLabel"
-                   FontSize="12"
+                   FontSize="{StaticResource FontSizeBody}"
                    LineBreakMode="WordWrap" />
 
             <Label Text="Réponse"
@@ -86,7 +86,7 @@
                    LineBreakMode="WordWrap" />
 
             <Label x:Name="SuggestionsLabel"
-                   FontSize="12"
+                   FontSize="{StaticResource FontSizeBody}"
                    Opacity="0.8"
                    LineBreakMode="WordWrap" />
 
@@ -97,7 +97,7 @@
                        FontAttributes="Bold" />
 
                 <Label Text="Avant (sur disque)"
-                       FontSize="12" />
+                       FontSize="{StaticResource FontSizeBody}" />
                 <Editor x:Name="OriginalEditor"
                         IsReadOnly="True"
                         HeightRequest="160"
@@ -106,7 +106,7 @@
                         FontFamily="{StaticResource FontFamilyMono}" />
 
                 <Label Text="Proposé par l'orchestrateur"
-                       FontSize="12" />
+                       FontSize="{StaticResource FontSizeBody}" />
                 <Editor x:Name="ProposedEditor"
                         IsReadOnly="True"
                         HeightRequest="160"

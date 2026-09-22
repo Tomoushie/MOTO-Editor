@@ -11,7 +11,7 @@
 
             <Label Text="🎤 Créer une présentation" FontAttributes="Bold" />
 
-            <Picker x:Name="KindPicker" FontSize="12">
+            <Picker x:Name="KindPicker" FontSize="{StaticResource FontSizeBody}">
                 <Picker.ItemsSource>
                     <x:Array Type="{x:Type x:String}">
                         <x:String>Présentation projet</x:String>
@@ -23,8 +23,8 @@
                 </Picker.ItemsSource>
             </Picker>
 
-            <Entry x:Name="ProjectEntry" Placeholder="Nom du projet" FontSize="12" />
-            <Entry x:Name="AuthorEntry" Placeholder="Auteur" FontSize="12" />
+            <Entry x:Name="ProjectEntry" Placeholder="Nom du projet" FontSize="{StaticResource FontSizeBody}" />
+            <Entry x:Name="AuthorEntry" Placeholder="Auteur" FontSize="{StaticResource FontSizeBody}" />
             <Editor x:Name="ContextEditor" Placeholder="Contexte, notes..."
                     HeightRequest="80" FontSize="11" />
 

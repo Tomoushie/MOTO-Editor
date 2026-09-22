@@ -9,7 +9,7 @@
 
         <Grid RowDefinitions="Auto,*" Padding="0">
 
-            <Label Grid.Row="0" Text="🔗 MOTO AutoLink" FontAttributes="Bold" FontSize="14" />
+            <Label Grid.Row="0" Text="🔗 MOTO AutoLink" FontAttributes="Bold" FontSize="{StaticResource FontSizeSubheading}" />
 
             <CollectionView Grid.Row="1" x:Name="ActionsList" Margin="0,8,0,0">
                 <CollectionView.ItemTemplate>
@@ -19,17 +19,17 @@
                             <Grid ColumnDefinitions="*,Auto,Auto" RowDefinitions="Auto,Auto">
 
                                 <Label Grid.Row="0" Grid.Column="0" Text="{Binding Title}"
-                                       FontSize="12" FontAttributes="Bold" />
+                                       FontSize="{StaticResource FontSizeBody}" FontAttributes="Bold" />
 
                                 <Label Grid.Row="1" Grid.Column="0" Text="{Binding Description}"
-                                       FontSize="10" Opacity="0.7" />
+                                       FontSize="{StaticResource FontSizeSmall}" Opacity="0.7" />
 
                                 <Button Grid.Row="0" Grid.Column="1" Text="Apply"
-                                        FontSize="10" Padding="8,2"
+                                        FontSize="{StaticResource FontSizeSmall}" Padding="8,2"
                                         Clicked="OnApplyClicked" />
 
                                 <Button Grid.Row="0" Grid.Column="2" Text="Dismiss"
-                                        FontSize="10" Padding="8,2"
+                                        FontSize="{StaticResource FontSizeSmall}" Padding="8,2"
                                         Clicked="OnDismissClicked" />
 
                             </Grid>

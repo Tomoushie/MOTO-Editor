@@ -31,18 +31,18 @@
                 </Grid.GestureRecognizers>
 
                 <Label Text="💡 Actions suggérées"
-                       FontSize="13"
+                       FontSize="{StaticResource FontSizeBody}"
                        FontAttributes="Bold"
                        TextColor="{StaticResource Accent}"
                        InputTransparent="True" />
 
                 <Button Grid.Column="1"
                         Text="✕"
-                        FontSize="12"
+                        FontSize="{StaticResource FontSizeBody}"
                         Padding="0"
                         WidthRequest="24"
                         HeightRequest="24"
-                        CornerRadius="12"
+                        CornerRadius="{StaticResource RadiusLg}"
                         BackgroundColor="Transparent"
                         TextColor="{StaticResource Txt2}"
                         Clicked="OnCloseClicked" />

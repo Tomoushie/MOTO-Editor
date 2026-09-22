@@ -12,7 +12,7 @@
             StrokeThickness="1"
             Padding="14"
             Margin="20"
-            StrokeShape="RoundRectangle 10">
+            StrokeShape="RoundRectangle 8">
 
         <Grid ColumnDefinitions="Auto,*"
               RowDefinitions="Auto,Auto"
@@ -21,14 +21,14 @@
             <Label Grid.Row="0"
                    Grid.Column="0"
                    Text="🔄"
-                   FontSize="22"
+                   FontSize="{StaticResource FontSizeTitle}"
                    Margin="0,0,10,0"
                    VerticalOptions="Center" />
 
             <Label Grid.Row="0"
                    Grid.Column="1"
                    Text="Paramètres migrés"
-                   FontSize="14"
+                   FontSize="{StaticResource FontSizeSubheading}"
                    FontAttributes="Bold"
                    TextColor="{StaticResource Txt1}" />
 
@@ -36,7 +36,7 @@
                    Grid.Column="1"
                    x:Name="MessageLabel"
                    Text="Migration effectuée."
-                   FontSize="12"
+                   FontSize="{StaticResource FontSizeBody}"
                    TextColor="{StaticResource Txt2}" />
         </Grid>
     </Border>

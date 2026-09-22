@@ -52,7 +52,7 @@
                 HorizontalOptions="Center" VerticalOptions="Center"
                 BackgroundColor="{StaticResource BgApp}"
                 Stroke="{StaticResource BorderSoft}" StrokeThickness="1"
-                StrokeShape="RoundRectangle 14"
+                StrokeShape="RoundRectangle 12"
                 Shadow="{StaticResource ShadowLg}">
 
             <Grid>
@@ -73,7 +73,7 @@
                                  AiSettingsPage (Pages/AiSettingsPage.xaml.cs) existait déjà, mais
                                  n'avait plus aucun moyen de s'ouvrir depuis le 31/08 (ancien menu
                                  Réglages supprimé, voir CLAUDE.md). -->
-                            <Button Grid.Column="1" Text="🔑 Clés API" FontSize="12"
+                            <Button Grid.Column="1" Text="🔑 Clés API" FontSize="{StaticResource FontSizeBody}"
                                     Style="{StaticResource MotoHoverIconButton}"
                                     ToolTipProperties.Text="Configurer les providers IA externes (OpenAI/Anthropic/Mistral)"
                                     Clicked="OnApiKeysClicked" />
@@ -127,7 +127,7 @@
                         WidthRequest="18" HeightRequest="18"
                         HorizontalOptions="End" VerticalOptions="End"
                         BackgroundColor="Transparent" StrokeThickness="0">
-                    <Label Text="◢" FontSize="14" TextColor="{StaticResource Txt2}"
+                    <Label Text="◢" FontSize="{StaticResource FontSizeSubheading}" TextColor="{StaticResource Txt2}"
                            HorizontalOptions="End" VerticalOptions="End" />
                     <Border.GestureRecognizers>
                         <PanGestureRecognizer PanUpdated="OnResizePanUpdated" />

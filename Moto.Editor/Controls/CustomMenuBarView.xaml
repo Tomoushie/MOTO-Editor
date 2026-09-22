@@ -28,7 +28,7 @@
             <Label Text="─"
                    HorizontalOptions="Center"
                    VerticalOptions="Center"
-                   FontSize="14"
+                   FontSize="{StaticResource FontSizeSubheading}"
                    TextColor="{StaticResource Txt1}" />
         </Border>
 
@@ -41,7 +41,7 @@
             <Label Text="□"
                    HorizontalOptions="Center"
                    VerticalOptions="Center"
-                   FontSize="14"
+                   FontSize="{StaticResource FontSizeSubheading}"
                    TextColor="{StaticResource Txt1}" />
         </Border>
 
@@ -54,7 +54,7 @@
             <Label Text="×"
                    HorizontalOptions="Center"
                    VerticalOptions="Center"
-                   FontSize="16"
+                   FontSize="{StaticResource FontSizeHeading}"
                    TextColor="{StaticResource Txt1}" />
         </Border>
     </Grid>

@@ -19,14 +19,14 @@
             <!-- Titre -->
             <Label Grid.Row="0"
                    x:Name="TitleLabel"
-                   FontSize="16"
+                   FontSize="{StaticResource FontSizeHeading}"
                    FontAttributes="Bold"
                    TextColor="{StaticResource Txt1}" />
 
             <!-- Message -->
             <Label Grid.Row="1"
                    x:Name="MessageLabel"
-                   FontSize="13"
+                   FontSize="{StaticResource FontSizeBody}"
                    TextColor="{StaticResource Txt1}" />
 
             <!-- Détails -->
@@ -37,7 +37,7 @@
                     StrokeShape="RoundRectangle 8"
                     Padding="12">
                 <Label x:Name="DetailsLabel"
-                       FontSize="12"
+                       FontSize="{StaticResource FontSizeBody}"
                        TextColor="{StaticResource Txt2}" />
             </Border>
 

@@ -11,7 +11,7 @@
         <!-- Header + contrôles -->
         <Grid Grid.Row="0" ColumnDefinitions="Auto,*,Auto,Auto,Auto,Auto" ColumnSpacing="6">
             <Label Text="🐞 Debug"
-                   FontSize="14" FontAttributes="Bold"
+                   FontSize="{StaticResource FontSizeSubheading}" FontAttributes="Bold"
                    TextColor="{StaticResource Txt1}"
                    VerticalOptions="Center" />
 
@@ -35,25 +35,25 @@
 
         <!-- Breakpoints -->
         <Label Grid.Row="1" Text="📍 Breakpoints"
-               FontSize="12" FontAttributes="Bold"
+               FontSize="{StaticResource FontSizeBody}" FontAttributes="Bold"
                TextColor="{StaticResource Accent}" />
 
         <!-- Stack trace -->
         <ScrollView Grid.Row="2">
             <VerticalStackLayout Spacing="8">
                 <Label Text="📚 Call Stack"
-                       FontSize="12" FontAttributes="Bold"
+                       FontSize="{StaticResource FontSizeBody}" FontAttributes="Bold"
                        TextColor="{StaticResource Accent}" />
                 <VerticalStackLayout x:Name="CallStackList" Spacing="4" />
 
                 <Label Text="🔍 Variables"
-                       FontSize="12" FontAttributes="Bold"
+                       FontSize="{StaticResource FontSizeBody}" FontAttributes="Bold"
                        TextColor="{StaticResource Accent}"
                        Margin="0,8,0,0" />
                 <VerticalStackLayout x:Name="VariablesList" Spacing="4" />
 
                 <Label Text="📋 Output"
-                       FontSize="12" FontAttributes="Bold"
+                       FontSize="{StaticResource FontSizeBody}" FontAttributes="Bold"
                        TextColor="{StaticResource Accent}"
                        Margin="0,8,0,0" />
                 <Label x:Name="OutputLabel"

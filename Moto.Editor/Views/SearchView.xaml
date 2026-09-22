@@ -16,7 +16,7 @@
 
         <Entry x:Name="QueryEntry"
                Placeholder="Rechercher un fichier par nom…"
-               FontSize="13"
+               FontSize="{StaticResource FontSizeBody}"
                TextChanged="OnQueryChanged" />
 
         <Label x:Name="StatusLabel"
@@ -32,8 +32,8 @@
                     <Border StrokeShape="RoundRectangle 8" BackgroundColor="{StaticResource BgHover}"
                             Padding="8,6" Margin="0,2">
                         <VerticalStackLayout Spacing="1">
-                            <Label Text="{Binding Name}" FontSize="12" TextColor="{StaticResource Txt1}" />
-                            <Label Text="{Binding RelativePath}" FontSize="10" TextColor="{StaticResource Txt2}"
+                            <Label Text="{Binding Name}" FontSize="{StaticResource FontSizeBody}" TextColor="{StaticResource Txt1}" />
+                            <Label Text="{Binding RelativePath}" FontSize="{StaticResource FontSizeSmall}" TextColor="{StaticResource Txt2}"
                                    LineBreakMode="MiddleTruncation" />
                         </VerticalStackLayout>
                     </Border>

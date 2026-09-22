@@ -12,14 +12,14 @@
         <VerticalStackLayout Spacing="12">
 
             <Grid ColumnDefinitions="*,Auto">
-                <Label Text="🧠 XENO-SSS∞ — Suggestions" FontSize="16" FontAttributes="Bold"
+                <Label Text="🧠 XENO-SSS∞ — Suggestions" FontSize="{StaticResource FontSizeHeading}" FontAttributes="Bold"
                        TextColor="{StaticResource Txt1}"/>
                 <Button Grid.Column="1" Text="✕" WidthRequest="30" HeightRequest="30"
                         BackgroundColor="Transparent" TextColor="{StaticResource Txt2}"
                         Clicked="OnCloseClicked"/>
             </Grid>
 
-            <Label x:Name="SummaryLabel" Text="—" FontSize="12"
+            <Label x:Name="SummaryLabel" Text="—" FontSize="{StaticResource FontSizeBody}"
                    TextColor="{StaticResource Txt2}"/>
 
             <ScrollView HeightRequest="320">
@@ -27,7 +27,7 @@
             </ScrollView>
 
             <Label x:Name="FeedbackLabel" Text="Vos feedbacks améliorent XENO au fil du temps."
-                   FontSize="10" TextColor="{StaticResource Txt2}"
+                   FontSize="{StaticResource FontSizeSmall}" TextColor="{StaticResource Txt2}"
                    HorizontalOptions="Center"/>
         </VerticalStackLayout>
     </Border>

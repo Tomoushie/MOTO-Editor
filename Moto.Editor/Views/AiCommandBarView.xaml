@@ -4,7 +4,7 @@
              x:Class="Moto.Editor.Views.AiCommandBarView">
 
     <!-- Barre IA flottante, style Claude / Zen -->
-    <Border StrokeShape="RoundRectangle 24"
+    <Border StrokeShape="RoundRectangle 12"
             Stroke="{StaticResource BorderCol}"
             BackgroundColor="{StaticResource BgPanel}"
             Padding="14,8"
@@ -22,7 +22,7 @@
                    x:Name="InputEntry"
                    Placeholder="Comment puis-je vous aider aujourd'hui ?"
                    BackgroundColor="Transparent"
-                   FontSize="14"
+                   FontSize="{StaticResource FontSizeSubheading}"
                    Completed="OnSubmitted" />
 
             <Button Grid.Column="2"

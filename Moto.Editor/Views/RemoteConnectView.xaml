@@ -11,7 +11,7 @@
 
             <Label Text="🌐 Connexion distante (VS Code-style)" FontAttributes="Bold" />
 
-            <Picker x:Name="KindPicker" FontSize="12">
+            <Picker x:Name="KindPicker" FontSize="{StaticResource FontSizeBody}">
                 <Picker.ItemsSource>
                     <x:Array Type="{x:Type x:String}">
                         <x:String>WebSocket (PC/serveur distant)</x:String>
@@ -22,12 +22,12 @@
                 </Picker.ItemsSource>
             </Picker>
 
-            <Entry x:Name="HostEntry" Placeholder="Hôte (ex: 192.168.1.10)" FontSize="12" />
+            <Entry x:Name="HostEntry" Placeholder="Hôte (ex: 192.168.1.10)" FontSize="{StaticResource FontSizeBody}" />
             <Entry x:Name="PortEntry" Placeholder="Port" Keyboard="Numeric"
-                   Text="8080" FontSize="12" />
-            <Entry x:Name="UserEntry" Placeholder="Utilisateur (optionnel)" FontSize="12" />
+                   Text="8080" FontSize="{StaticResource FontSizeBody}" />
+            <Entry x:Name="UserEntry" Placeholder="Utilisateur (optionnel)" FontSize="{StaticResource FontSizeBody}" />
             <Entry x:Name="TokenEntry" Placeholder="Token / mot de passe"
-                   IsPassword="True" FontSize="12" />
+                   IsPassword="True" FontSize="{StaticResource FontSizeBody}" />
 
             <Button Text="Connecter" Clicked="OnConnectClicked" />
 

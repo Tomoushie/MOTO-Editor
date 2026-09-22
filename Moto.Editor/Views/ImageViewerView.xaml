@@ -9,7 +9,7 @@
 
         <!-- Barre d'outils : mêmes boutons que l'éditeur de code -->
         <HorizontalStackLayout Grid.Row="0" Spacing="6" Padding="8,4">
-            <Label x:Name="FileNameLabel" FontSize="13" VerticalOptions="Center"
+            <Label x:Name="FileNameLabel" FontSize="{StaticResource FontSizeBody}" VerticalOptions="Center"
                    TextColor="{StaticResource MotoTextColor}" />
             <Label x:Name="ImageInfoLabel" FontSize="11" VerticalOptions="Center"
                    TextColor="{StaticResource MotoSecondaryTextColor}" />
@@ -17,7 +17,7 @@
             <!-- ★ Le même bouton ⛶ que le plein écran de l'éditeur de code -->
             <Button x:Name="OpenExternalButton"
                     Text="⛶"
-                    FontSize="13"
+                    FontSize="{StaticResource FontSizeBody}"
                     WidthRequest="30" HeightRequest="28"
                     BackgroundColor="Transparent"
                     BorderColor="{StaticResource MotoBorderColor}"

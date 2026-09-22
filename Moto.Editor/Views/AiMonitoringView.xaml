@@ -8,26 +8,26 @@
     <Border Background="{DynamicResource MotoCardBackground}"
             Stroke="{DynamicResource MotoCardBorder}"
             StrokeThickness="1" Padding="16" Margin="0,12,0,0">
-        <Border.StrokeShape><RoundRectangle CornerRadius="12" /></Border.StrokeShape>
+        <Border.StrokeShape><RoundRectangle CornerRadius="{StaticResource RadiusLg}" /></Border.StrokeShape>
 
         <VerticalStackLayout Spacing="12">
 
             <Label Text="🧠 Monitoring IA — Circuit Breaker"
-                   FontSize="16" FontAttributes="Bold" />
+                   FontSize="{StaticResource FontSizeHeading}" FontAttributes="Bold" />
 
             <Grid ColumnDefinitions="*, Auto" RowDefinitions="Auto, Auto" ColumnSpacing="12">
 
                 <!-- Badge CircuitOpen 24h -->
                 <Label Grid.Column="0" Grid.Row="0"
                        Text="Circuit Open (24h) :"
-                       FontSize="13" Opacity="0.7" />
+                       FontSize="{StaticResource FontSizeBody}" Opacity="0.7" />
 
                 <Border Grid.Column="0" Grid.Row="1"
                         x:Name="CircuitBadge"
                         Padding="14,6" HorizontalOptions="Start">
-                    <Border.StrokeShape><RoundRectangle CornerRadius="16" /></Border.StrokeShape>
+                    <Border.StrokeShape><RoundRectangle CornerRadius="{StaticResource RadiusLg}" /></Border.StrokeShape>
                     <Label x:Name="CircuitCountLabel" Text="0"
-                           FontAttributes="Bold" FontSize="14" />
+                           FontAttributes="Bold" FontSize="{StaticResource FontSizeSubheading}" />
                 </Border>
 
                 <!-- Bouton Collect logs -->
@@ -40,7 +40,7 @@
 
             <Label x:Name="StatusLabel"
                    Text="Circuit : Closed"
-                   FontSize="12" Opacity="0.6" />
+                   FontSize="{StaticResource FontSizeBody}" Opacity="0.6" />
         </VerticalStackLayout>
     </Border>
 </ContentView>

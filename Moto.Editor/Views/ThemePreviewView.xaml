@@ -27,10 +27,10 @@
                     StrokeShape="RoundRectangle 8"
                     Padding="16">
                 <VerticalStackLayout Spacing="8">
-                    <Label Text="Aperçu du thème" FontSize="14" FontAttributes="Bold"
+                    <Label Text="Aperçu du thème" FontSize="{StaticResource FontSizeSubheading}" FontAttributes="Bold"
                            x:Name="PreviewTitle"/>
                     <Label Text="Ceci est un texte normal avec la couleur Txt1"
-                           FontSize="12" x:Name="PreviewText1"/>
+                           FontSize="{StaticResource FontSizeBody}" x:Name="PreviewText1"/>
                     <Label Text="Texte secondaire avec la couleur Txt2"
                            FontSize="11" x:Name="PreviewText2"/>
 

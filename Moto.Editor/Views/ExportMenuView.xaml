@@ -14,11 +14,11 @@
                  barre d'outils (repéré par Tom). -->
             <Grid ColumnDefinitions="*,Auto">
                 <Label Text="⬇ Exporter le fichier" FontAttributes="Bold" VerticalOptions="Center" />
-                <Button Grid.Column="1" Text="✕" WidthRequest="28" HeightRequest="24" FontSize="12"
+                <Button Grid.Column="1" Text="✕" WidthRequest="28" HeightRequest="24" FontSize="{StaticResource FontSizeBody}"
                         Padding="0" BackgroundColor="Transparent" Clicked="OnCloseClicked" />
             </Grid>
 
-            <Picker x:Name="FormatPicker" FontSize="12">
+            <Picker x:Name="FormatPicker" FontSize="{StaticResource FontSizeBody}">
                 <Picker.ItemsSource>
                     <x:Array Type="{x:Type x:String}">
                         <x:String>TXT (.txt)</x:String>

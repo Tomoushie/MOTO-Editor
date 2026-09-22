@@ -24,7 +24,7 @@
             <Label Text="TERMINAL" FontAttributes="Bold" FontSize="11"
                    TextColor="{StaticResource Txt2}" VerticalOptions="Center" />
             <Button Grid.Column="1" Text="✕" WidthRequest="28" HeightRequest="24"
-                    FontSize="12" Padding="0" BackgroundColor="Transparent"
+                    FontSize="{StaticResource FontSizeBody}" Padding="0" BackgroundColor="Transparent"
                     TextColor="{StaticResource Txt2}"
                     ToolTipProperties.Text="Fermer le terminal"
                     Clicked="OnCloseClicked" />
@@ -38,7 +38,7 @@
                         BackgroundColor="Transparent" Margin="10,4">
             <CollectionView.ItemTemplate>
                 <DataTemplate>
-                    <Label Text="{Binding Text}" FontFamily="Consolas" FontSize="12"
+                    <Label Text="{Binding Text}" FontFamily="Consolas" FontSize="{StaticResource FontSizeBody}"
                            TextColor="{StaticResource Txt1}" LineBreakMode="CharacterWrap">
                         <Label.Triggers>
                             <DataTrigger TargetType="Label" Binding="{Binding IsError}" Value="True">
@@ -53,7 +53,7 @@
         <!-- ═══ Entrée (TerminalInput → SendTerminalCommand → TerminalService.SendInput) ═══ -->
         <Grid Grid.Row="2" ColumnDefinitions="*,Auto" Padding="8" ColumnSpacing="6">
             <Entry Grid.Column="0" x:Name="InputEntry" Text="{Binding TerminalInput}"
-                   Placeholder="Tapez une commande…" FontFamily="Consolas" FontSize="12"
+                   Placeholder="Tapez une commande…" FontFamily="Consolas" FontSize="{StaticResource FontSizeBody}"
                    BackgroundColor="{StaticResource BgPanel}" TextColor="{StaticResource Txt1}"
                    Completed="OnSendClicked" />
             <Button Grid.Column="1" Text="➤" Padding="10,2"

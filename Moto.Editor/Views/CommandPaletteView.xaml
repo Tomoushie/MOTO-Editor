@@ -34,7 +34,7 @@
                            BackgroundColor="Transparent"
                            TextColor="{StaticResource Txt1}"
                            PlaceholderColor="{StaticResource Txt2}"
-                           FontSize="14"
+                           FontSize="{StaticResource FontSizeSubheading}"
                            TextChanged="OnSearchTextChanged"
                            Completed="OnSearchCompleted" />
                 </Border>

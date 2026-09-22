@@ -121,9 +121,9 @@
              (upload/persistance d'image), signalé à Tom plutôt que bâclé. -->
         <Border Grid.Column="7" WidthRequest="30" HeightRequest="30" Margin="0,0,4,0" StrokeThickness="0"
                 BackgroundColor="{StaticResource BgSide}"
-                StrokeShape="RoundRectangle 15" VerticalOptions="Center">
+                StrokeShape="RoundRectangle 12" VerticalOptions="Center">
             <Label Text="{x:Static controls:MotoIcons.Person}" FontFamily="{x:Static controls:MotoIcons.FontFamily}"
-                   FontSize="14" TextColor="{StaticResource Txt1}"
+                   FontSize="{StaticResource FontSizeSubheading}" TextColor="{StaticResource Txt1}"
                    HorizontalOptions="Center" VerticalOptions="Center" />
             <Border.GestureRecognizers>
                 <TapGestureRecognizer Tapped="OnGearOrAvatarTapped" />
@@ -138,7 +138,7 @@
         <Border x:Name="BtnMin" x:FieldModifier="Public" Grid.Column="8" WidthRequest="52"
                 BackgroundColor="Transparent" StrokeThickness="0">
             <Label Text="─" HorizontalOptions="Center" VerticalOptions="Center"
-                   FontSize="14" TextColor="{StaticResource Txt1}" />
+                   FontSize="{StaticResource FontSizeSubheading}" TextColor="{StaticResource Txt1}" />
             <Border.GestureRecognizers>
                 <TapGestureRecognizer Tapped="OnMinClicked" />
             </Border.GestureRecognizers>
@@ -147,7 +147,7 @@
         <Border x:Name="BtnMax" x:FieldModifier="Public" Grid.Column="9" WidthRequest="52"
                 BackgroundColor="Transparent" StrokeThickness="0">
             <Label Text="□" HorizontalOptions="Center" VerticalOptions="Center"
-                   FontSize="14" TextColor="{StaticResource Txt1}" />
+                   FontSize="{StaticResource FontSizeSubheading}" TextColor="{StaticResource Txt1}" />
             <Border.GestureRecognizers>
                 <TapGestureRecognizer Tapped="OnMaxClicked" />
             </Border.GestureRecognizers>
@@ -156,7 +156,7 @@
         <Border x:Name="BtnClose" x:FieldModifier="Public" Grid.Column="10" WidthRequest="52"
                 BackgroundColor="Transparent" StrokeThickness="0">
             <Label Text="×" HorizontalOptions="Center" VerticalOptions="Center"
-                   FontSize="16" TextColor="{StaticResource Txt1}" />
+                   FontSize="{StaticResource FontSizeHeading}" TextColor="{StaticResource Txt1}" />
             <Border.GestureRecognizers>
                 <TapGestureRecognizer Tapped="OnCloseClicked" />
             </Border.GestureRecognizers>
