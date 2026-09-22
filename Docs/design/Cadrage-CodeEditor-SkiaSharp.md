@@ -186,3 +186,46 @@ saisie, aucun curseur, aucune sélection (`GoToLine`/`SetMinimapVisible`/
 le morceau le plus gros et le plus risqué du chantier (§3 ci-dessus) --
 `CodeEditorView` (WebView) reste dans le dépôt, non supprimé, tant que la
 parité n'est pas confirmée (§5 point 4).
+
+## 10. Incrément 2 — architecture retenue et découpage
+
+**Principe** (repris de l'ancien éditeur, §1 : un `<textarea>` invisible
+recevait vraiment le clavier, le `<div>` visible n'était qu'un rendu) :
+un contrôle MAUI `Editor` (multi-ligne) caché derrière le `SKCanvasView`
+reçoit réellement la saisie clavier/IME/presse-papiers -- gratuit, déjà
+fourni par MAUI, pas à réinventer. `CodeEditorViewSkia` lit son état
+(`Text`, `CursorPosition`, `SelectionLength`) pour piloter le rendu
+(texte, curseur clignotant, surbrillance de sélection).
+
+**Vérifié empiriquement (build réel, pas une supposition)** contre le
+MAUI 8.0.100 réellement résolu par ce projet : `Entry`/`Editor` exposent
+bien `CursorPosition` (int, get/set) et `SelectionLength` (int, get/set).
+0 erreur de compilation sur un test isolé le 22/09.
+
+**Piège découvert pendant cette vérification** : le namespace racine du
+projet s'appelle `Moto.Editor` -- à l'intérieur de `Moto.Editor.Controls`,
+écrire `Editor` tout court résout vers le NAMESPACE `Moto.Editor`, pas
+vers le contrôle MAUI (`CS0118`). Toute référence au contrôle doit être
+qualifiée : `Microsoft.Maui.Controls.Editor`.
+
+**Découpage en sous-étapes testables** (mécanique identique au reste du
+chantier : petits lots, un build vert par lot) :
+- **2a** (prochaine étape) : `Editor` MAUI caché ajouté au XAML, `Text`
+  synchronisé dans les deux sens avec la propriété publique existante,
+  le focus du canevas route vers ce contrôle cache -- **objectif : pouvoir
+  taper du texte et le voir apparaître**, sans curseur ni sélection dessinés
+  encore.
+- 2b : curseur clignotant (position dessinée à partir de `CursorPosition`
+  converti ligne/colonne, puis pixel -- doit tenir compte du retour à la
+  ligne visuel ajouté au rendu, une ligne source pouvant occuper plusieurs
+  lignes visuelles).
+- 2c : surbrillance de sélection (`SelectionLength` + `CursorPosition`),
+  même conversion, potentiellement sur plusieurs lignes visuelles.
+- 2d : clic souris → position de curseur (conversion inverse pixel → index
+  de caractère).
+- 2e : glisser-déposer → sélection à la souris ; double-clic mot,
+  triple-clic ligne (si simple, sinon reporté).
+
+Chaque sous-étape : un envoi à l'Orchestrateur, relecture avant intégration
+(même discipline qu'incrément 1), build vert, test réel par Tom, commit
+séparé.
