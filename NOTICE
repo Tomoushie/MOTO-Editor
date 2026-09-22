@@ -1,0 +1,31 @@
+MOTO Editor
+Copyright 2026 Tom Nowak (MOTO Software)
+
+Ce produit est distribué sous licence Apache License 2.0 — voir le fichier
+LICENSE pour le texte complet.
+
+--------------------------------------------------------------------------
+NOTE D'INTENTION (à l'attention de Tom, 22/09)
+--------------------------------------------------------------------------
+Tu as écrit : « aucune licence car le projet n'est pas sous copyright ».
+C'est la seule chose que je corrige ici, parce qu'elle a des conséquences :
+
+en droit (Convention de Berne, et le droit belge qui en découle), le code
+est protégé par le droit d'auteur DÈS SA CRÉATION, automatiquement, sans
+dépôt ni mention. « Pas de licence » ne signifie donc pas « pas de
+copyright » — cela signifie « tous droits réservés » : personne n'a le
+droit de l'utiliser, de le modifier ni de le redistribuer, pas même pour
+te proposer un correctif.
+
+Une licence ne renonce pas au copyright : elle accorde des droits
+précis sous ce copyright. Apache 2.0 accorde l'usage, la modification et
+la redistribution (y compris commerciale) en échange de la conservation
+des mentions et de la fourniture du texte de licence. C'est exactement
+l'effet recherché ici : permettre l'adoption et les contributions.
+
+Le brevêt logiciel (BOIP) est un sujet DIFFÉRENT et complémentaire : le
+droit d'auteur protège le code tel qu'écrit, un brevêt protégerait une
+invention technique. À voir le moment venu, comme tu l'as prévu.
+
+Rien à faire de ton côté : LICENSE est en place, ce fichier tient lieu
+d'avis de copyright.
