@@ -128,6 +128,17 @@
          nouvelle couleur), pour un fond subtil derrière un badge/pastille
          teinté Accent sans l'aplatir. -->
     <Color x:Key="AccentMuted">#26007ACC</Color>
+    <!-- ★ AJOUT (22/09, Phase 2 du langage visuel — composants) : Success/
+         Warning/Danger/Info avaient une teinte pleine mais pas de variante
+         "lavis" comme AccentMuted — nécessaire pour les badges/pastilles
+         d'état (voir MotoBadge plus bas) : un fond plein saturé écrase le
+         texte, un fond à 15% d'opacité (même alpha qu'AccentMuted, même
+         principe que BorderSoft/BorderMuted) le laisse lisible. Dérivées
+         mécaniquement de leur couleur pleine, aucune teinte inventée. -->
+    <Color x:Key="SuccessMuted">#2660BF60</Color>
+    <Color x:Key="WarningMuted">#26D9A227</Color>
+    <Color x:Key="DangerMuted">#26DC2626</Color>
+    <Color x:Key="InfoMuted">#267986CB</Color>
 
     <!-- ══════════════════ Espacement ══════════════════ -->
     <!-- ★ AJOUT (01/09, direction "Hybride Claude") : échelle officielle, à
@@ -463,6 +474,86 @@
                 </VisualStateGroup>
             </VisualStateGroupList>
         </Setter>
+    </Style>
+
+    <!-- ══════════════════════════════════════════════════════════════════
+         ★ PHASE 2 DU LANGAGE VISUEL (22/09) — composants de base.
+         Voir Docs/design/Langage-visuel-spec.md §"Ordre proposé" (Phase 0
+         socle → Phase 1 conversion → Phase 2 composants → ...). Inspirés de
+         captures fournies par Tom (Docs/inspirations/plugins-view.webp,
+         chat-view.webp, multi-chat.webp, second-brain.webp — un outil tiers,
+         "PKOS") : fond très sombre, badges/pastilles colorés, cartes à
+         bordure fine, libellés de section en majuscules espacées.
+
+         Le libellé de section en majuscules existe déjà : c'est le rôle
+         `TextMicro` (ligne ~320 ci-dessus). Rien à ajouter pour ce point.
+
+         Uniquement des STYLES (pas de nouveau contrôle C#), même principe
+         que le reste de ce fichier : ils posent la STRUCTURE (forme,
+         épaisseur, padding) ; la couleur sémantique (Success/Warning/
+         Danger/Info/Accent) se pose localement sur l'instance quand la
+         valeur par défaut (Accent) ne convient pas — une valeur locale
+         l'emporte toujours sur le style, comme documenté plus haut pour
+         TextDisplay/TextTitle/etc.
+         ══════════════════════════════════════════════════════════════════ -->
+
+    <!-- Carte : conteneur de base pour tout regroupement d'informations
+         (voir les panneaux "GREPAI"/"DOCKER"/"MISSION" des captures). Réutilise
+         MotoCardBackground/MotoCardBorder (déjà définis, ajout du 01/09) —
+         aucune nouvelle teinte. -->
+    <Style x:Key="MotoCard" TargetType="Border">
+        <Setter Property="BackgroundColor" Value="{StaticResource MotoCardBackground}" />
+        <Setter Property="Stroke" Value="{StaticResource MotoCardBorder}" />
+        <Setter Property="StrokeThickness" Value="1" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 8" />
+        <Setter Property="Padding" Value="{StaticResource PadMd}" />
+    </Style>
+
+    <!-- Pastille de statut : petit disque coloré (ex. point vert = actif),
+         voir les indicateurs de statut des captures. Border+StrokeShape=
+         "Ellipse" plutôt que BoxView.CornerRadius : ce dépôt documente déjà
+         un piège de type CornerRadius (int vs struct, voir RadiusSmInt/
+         RadiusMdInt/RadiusLgInt ci-dessus pour Button) et aucun BoxView du
+         dépôt n'est utilisé en cercle à ce jour (0 précédent à reprendre) —
+         Border est l'idiome déjà largement éprouvé ici pour ce genre de
+         forme, pas un pari sur un type non vérifié. -->
+    <Style x:Key="MotoStatusDot" TargetType="Border">
+        <Setter Property="WidthRequest" Value="8" />
+        <Setter Property="HeightRequest" Value="8" />
+        <Setter Property="StrokeShape" Value="Ellipse" />
+        <Setter Property="StrokeThickness" Value="0" />
+        <Setter Property="BackgroundColor" Value="{StaticResource Success}" />
+        <Setter Property="HorizontalOptions" Value="Center" />
+        <Setter Property="VerticalOptions" Value="Center" />
+    </Style>
+
+    <!-- Badge/pastille de texte (ex. "Page", "Backend", "ORCH" des captures) :
+         2 styles à poser ensemble (Border contient un Label), MAUI ne permet
+         pas de composer 2 contrôles dans un seul Style. Par défaut coloré
+         Accent ; pour Success/Warning/Danger/Info, écraser localement
+         BackgroundColor/Stroke sur le Border et TextColor sur le Label avec
+         le jeton "Muted" + le jeton plein correspondants. -->
+    <Style x:Key="MotoBadge" TargetType="Border">
+        <Setter Property="BackgroundColor" Value="{StaticResource AccentMuted}" />
+        <Setter Property="Stroke" Value="{StaticResource Accent}" />
+        <Setter Property="StrokeThickness" Value="1" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 999" />
+        <Setter Property="Padding" Value="8,2" />
+        <Setter Property="HorizontalOptions" Value="Start" />
+    </Style>
+    <Style x:Key="TextBadge" TargetType="Label">
+        <Setter Property="FontFamily" Value="{StaticResource FontFamilyUi}" />
+        <Setter Property="FontSize" Value="{StaticResource FontSizeMicro}" />
+        <Setter Property="TextColor" Value="{StaticResource Accent}" />
+        <Setter Property="VerticalOptions" Value="Center" />
+    </Style>
+
+    <!-- Interrupteur (toggle) — vu dans plugins-view.webp, coloré seulement
+         à l'état actif. Switch n'a pas le piège CornerRadius (OnColor/
+         ThumbColor sont de simples Color). -->
+    <Style x:Key="MotoSwitch" TargetType="Switch">
+        <Setter Property="OnColor" Value="{StaticResource Accent}" />
+        <Setter Property="ThumbColor" Value="{StaticResource Txt1}" />
     </Style>
 
 </ResourceDictionary>

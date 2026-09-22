@@ -289,6 +289,23 @@ Code de sortie 0 = lot conforme, 1 = refusé.
 lots → `Phase 2` composants → `Phase 3` écrans (Accueil en pilote) →
 `Phase 4` mouvement.
 
+### Phase 2 démarrée (22/09)
+
+Tom a fourni 4 captures d'un outil tiers ("PKOS") comme inspiration —
+`Docs/inspirations/plugins-view.webp`, `chat-view.webp`, `multi-chat.webp`,
+`second-brain.webp`. Choix confirmé (via question posée) : commencer par
+les briques de base (styles réutilisables) plutôt qu'un écran pilote.
+
+5 styles ajoutés à `MotoTheme.xaml` : `MotoCard` (carte à bordure fine),
+`MotoStatusDot` (pastille de statut), `MotoBadge` + `TextBadge` (badge de
+texte coloré, 2 styles à poser ensemble), `MotoSwitch` (interrupteur).
+Plus 4 jetons de couleur `SuccessMuted`/`WarningMuted`/`DangerMuted`/
+`InfoMuted` (même principe que `AccentMuted` déjà existant — lavis 15%
+d'opacité). Le libellé de section en majuscules existait déjà (`TextMicro`).
+
+Pas encore appliqués à un écran réel — prochaine étape si Tom valide le
+rendu : Phase 3 (écran pilote).
+
 ---
 
 ## Références
