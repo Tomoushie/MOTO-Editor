@@ -85,19 +85,19 @@
               Padding="6,2"
               ColumnSpacing="2">
 
-            <Button Grid.Column="0" Text="←" Padding="8,2" FontSize="16"
+            <Button Grid.Column="0" Text="←" Padding="8,2" FontSize="{StaticResource FontSizeHeading}"
                     BackgroundColor="Transparent" TextColor="{StaticResource Txt1}"
                     BorderWidth="0"
                     ToolTipProperties.Text="Fichier précédent"
                     Clicked="OnBackClicked" />
 
-            <Button Grid.Column="1" Text="→" Padding="8,2" FontSize="16"
+            <Button Grid.Column="1" Text="→" Padding="8,2" FontSize="{StaticResource FontSizeHeading}"
                     BackgroundColor="Transparent" TextColor="{StaticResource Txt1}"
                     BorderWidth="0"
                     ToolTipProperties.Text="Fichier suivant"
                     Clicked="OnForwardClicked" />
 
-            <Button Grid.Column="2" Text="⬇ Exporter" Padding="10,2" FontSize="12"
+            <Button Grid.Column="2" Text="⬇ Exporter" Padding="10,2" FontSize="{StaticResource FontSizeBody}"
                     BackgroundColor="Transparent" TextColor="{StaticResource Txt2}"
                     BorderWidth="0"
                     ToolTipProperties.Text="Exporter (txt, md, html, pdf, docx, odt, rtf...)"
@@ -105,25 +105,25 @@
 
             <BoxView Grid.Column="3" Color="Transparent" />
 
-            <Button Grid.Column="4" Text="⧉" Padding="8,2" FontSize="14"
+            <Button Grid.Column="4" Text="⧉" Padding="8,2" FontSize="{StaticResource FontSizeSubheading}"
                     BackgroundColor="Transparent" TextColor="{StaticResource Txt2}"
                     BorderWidth="0"
                     ToolTipProperties.Text="Partager l'écran"
                     Clicked="OnSplitClicked" />
 
-            <Button x:Name="BtnMaximize" Grid.Column="5" Text="⛶" Padding="8,2" FontSize="14"
+            <Button x:Name="BtnMaximize" Grid.Column="5" Text="⛶" Padding="8,2" FontSize="{StaticResource FontSizeSubheading}"
                     BackgroundColor="Transparent" TextColor="{StaticResource Txt2}"
                     BorderWidth="0"
                     ToolTipProperties.Text="Agrandir la zone (plein écran)"
                     Clicked="OnMaximizeClicked" />
 
-            <Button Grid.Column="6" Text="🤖" Padding="8,2" FontSize="14"
+            <Button Grid.Column="6" Text="🤖" Padding="8,2" FontSize="{StaticResource FontSizeSubheading}"
                     BackgroundColor="Transparent" TextColor="{StaticResource Txt2}"
                     BorderWidth="0"
                     ToolTipProperties.Text="Bandeau IA (modèle + prompts)"
                     Clicked="OnAiClicked" />
 
-            <Button Grid.Column="7" Text="🌐" Padding="8,2" FontSize="14"
+            <Button Grid.Column="7" Text="🌐" Padding="8,2" FontSize="{StaticResource FontSizeSubheading}"
                     BackgroundColor="Transparent" TextColor="{StaticResource Txt2}"
                     BorderWidth="0"
                     ToolTipProperties.Text="Prévisualiser le fichier"
@@ -179,7 +179,7 @@
 
                 <Entry Grid.Row="0" Grid.Column="1" x:Name="PromptEntry"
                        Placeholder="Demande à l'IA de modifier le code… (Entrée pour envoyer)"
-                       FontSize="12" BackgroundColor="Transparent"
+                       FontSize="{StaticResource FontSizeBody}" BackgroundColor="Transparent"
                        Completed="OnAiSendClicked" />
 
                 <Button Grid.Row="0" Grid.Column="2" Text="➤" Padding="10,2"
@@ -189,7 +189,7 @@
                         Clicked="OnAiSendClicked" />
 
                 <Label Grid.Row="1" Grid.ColumnSpan="3" x:Name="AiStatus"
-                       FontSize="10" TextColor="{StaticResource Txt2}" Opacity="0.8" />
+                       FontSize="{StaticResource FontSizeSmall}" TextColor="{StaticResource Txt2}" Opacity="0.8" />
             </Grid>
         </Border>
 

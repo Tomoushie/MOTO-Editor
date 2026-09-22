@@ -39,8 +39,8 @@
                 </Border.GestureRecognizers>
                 <Grid ColumnDefinitions="Auto,*">
                     <Label Text="{x:Static controls:MotoIcons.Person}" FontFamily="{x:Static controls:MotoIcons.FontFamily}"
-                           FontSize="15" TextColor="{StaticResource Txt1}" />
-                    <Label Grid.Column="1" Text="Utilisateur" FontSize="13" Margin="8,0"
+                           FontSize="{StaticResource FontSizeSubheading}" TextColor="{StaticResource Txt1}" />
+                    <Label Grid.Column="1" Text="Utilisateur" FontSize="{StaticResource FontSizeBody}" Margin="8,0"
                            TextColor="{StaticResource Txt1}" />
                 </Grid>
             </Border>
@@ -54,8 +54,8 @@
                 </Border.GestureRecognizers>
                 <Grid ColumnDefinitions="Auto,*">
                     <Label Text="{x:Static controls:MotoIcons.People}" FontFamily="{x:Static controls:MotoIcons.FontFamily}"
-                           FontSize="13" TextColor="{StaticResource Txt1}" />
-                    <Label Grid.Column="1" Text="Organisation" FontSize="13" Margin="8,0"
+                           FontSize="{StaticResource FontSizeBody}" TextColor="{StaticResource Txt1}" />
+                    <Label Grid.Column="1" Text="Organisation" FontSize="{StaticResource FontSizeBody}" Margin="8,0"
                            TextColor="{StaticResource Txt1}" />
                 </Grid>
             </Border>
@@ -68,8 +68,8 @@
                 </Border.GestureRecognizers>
                 <Grid ColumnDefinitions="Auto,*">
                     <Label Text="{x:Static controls:MotoIcons.Settings}" FontFamily="{x:Static controls:MotoIcons.FontFamily}"
-                           FontSize="15" TextColor="{StaticResource Txt1}" />
-                    <Label Grid.Column="1" Text="Réglages" FontSize="13" Margin="8,0"
+                           FontSize="{StaticResource FontSizeSubheading}" TextColor="{StaticResource Txt1}" />
+                    <Label Grid.Column="1" Text="Réglages" FontSize="{StaticResource FontSizeBody}" Margin="8,0"
                            TextColor="{StaticResource Txt1}" />
                 </Grid>
             </Border>
@@ -80,8 +80,8 @@
                 </Border.GestureRecognizers>
                 <Grid ColumnDefinitions="Auto,*">
                     <Label Text="{x:Static controls:MotoIcons.Keyboard}" FontFamily="{x:Static controls:MotoIcons.FontFamily}"
-                           FontSize="15" TextColor="{StaticResource Txt1}" />
-                    <Label Grid.Column="1" Text="Raccourcis" FontSize="13" Margin="8,0"
+                           FontSize="{StaticResource FontSizeSubheading}" TextColor="{StaticResource Txt1}" />
+                    <Label Grid.Column="1" Text="Raccourcis" FontSize="{StaticResource FontSizeBody}" Margin="8,0"
                            TextColor="{StaticResource Txt1}" />
                 </Grid>
             </Border>
@@ -92,8 +92,8 @@
                 </Border.GestureRecognizers>
                 <Grid ColumnDefinitions="Auto,*">
                     <Label Text="{x:Static controls:MotoIcons.Palette}" FontFamily="{x:Static controls:MotoIcons.FontFamily}"
-                           FontSize="15" TextColor="{StaticResource Txt1}" />
-                    <Label Grid.Column="1" Text="Thèmes" FontSize="13" Margin="8,0"
+                           FontSize="{StaticResource FontSizeSubheading}" TextColor="{StaticResource Txt1}" />
+                    <Label Grid.Column="1" Text="Thèmes" FontSize="{StaticResource FontSizeBody}" Margin="8,0"
                            TextColor="{StaticResource Txt1}" />
                 </Grid>
             </Border>
@@ -108,8 +108,8 @@
                 </Border.GestureRecognizers>
                 <Grid ColumnDefinitions="Auto,*">
                     <Label Text="{x:Static controls:MotoIcons.Puzzle}" FontFamily="{x:Static controls:MotoIcons.FontFamily}"
-                           FontSize="15" TextColor="{StaticResource Txt1}" />
-                    <Label Grid.Column="1" Text="Extensions" FontSize="13" Margin="8,0"
+                           FontSize="{StaticResource FontSizeSubheading}" TextColor="{StaticResource Txt1}" />
+                    <Label Grid.Column="1" Text="Extensions" FontSize="{StaticResource FontSizeBody}" Margin="8,0"
                            TextColor="{StaticResource Txt1}" />
                 </Grid>
             </Border>
@@ -120,8 +120,8 @@
                 </Border.GestureRecognizers>
                 <Grid ColumnDefinitions="Auto,*">
                     <Label Text="{x:Static controls:MotoIcons.Tiles}" FontFamily="{x:Static controls:MotoIcons.FontFamily}"
-                           FontSize="15" TextColor="{StaticResource Txt1}" />
-                    <Label Grid.Column="1" Text="Disposition des panneaux" FontSize="13" Margin="8,0"
+                           FontSize="{StaticResource FontSizeSubheading}" TextColor="{StaticResource Txt1}" />
+                    <Label Grid.Column="1" Text="Disposition des panneaux" FontSize="{StaticResource FontSizeBody}" Margin="8,0"
                            TextColor="{StaticResource Txt1}" />
                 </Grid>
             </Border>
@@ -134,8 +134,8 @@
                 </Border.GestureRecognizers>
                 <Grid ColumnDefinitions="Auto,*">
                     <Label Text="{x:Static controls:MotoIcons.SignOut}" FontFamily="{x:Static controls:MotoIcons.FontFamily}"
-                           FontSize="15" TextColor="{StaticResource Txt1}" />
-                    <Label Grid.Column="1" Text="Se déconnecter" FontSize="13" Margin="8,0"
+                           FontSize="{StaticResource FontSizeSubheading}" TextColor="{StaticResource Txt1}" />
+                    <Label Grid.Column="1" Text="Se déconnecter" FontSize="{StaticResource FontSizeBody}" Margin="8,0"
                            TextColor="{StaticResource Txt1}" />
                 </Grid>
             </Border>

@@ -12,7 +12,7 @@
             <local:ChatSegmentSelector x:Key="SegmentSelector">
                 <local:ChatSegmentSelector.TextTemplate>
                     <DataTemplate>
-                        <Label Text="{Binding Text}" FontSize="12" TextColor="White" />
+                        <Label Text="{Binding Text}" FontSize="{StaticResource FontSizeBody}" TextColor="White" />
                     </DataTemplate>
                 </local:ChatSegmentSelector.TextTemplate>
                 <local:ChatSegmentSelector.CodeTemplate>
@@ -22,7 +22,7 @@
                             <Grid ColumnDefinitions="*,Auto">
                                 <Label Grid.Column="0" Text="{Binding Text}" FontFamily="Consolas"
                                        FontSize="11.5" TextColor="#C9C4BC" LineBreakMode="CharacterWrap" />
-                                <Button Grid.Column="1" Text="Copier" FontSize="10" Padding="6,2"
+                                <Button Grid.Column="1" Text="Copier" FontSize="{StaticResource FontSizeSmall}" Padding="6,2"
                                         VerticalOptions="Start" BackgroundColor="Transparent"
                                         TextColor="{StaticResource Txt2}"
                                         Clicked="OnCopyCodeClicked" BindingContext="{Binding .}" />
@@ -86,7 +86,7 @@
                             <VerticalStackLayout Spacing="4"
                                                  BindableLayout.ItemsSource="{Binding Segments}"
                                                  BindableLayout.ItemTemplateSelector="{StaticResource SegmentSelector}" />
-                            <Label Text="{Binding TimeLabel}" FontSize="9"
+                            <Label Text="{Binding TimeLabel}" FontSize="{StaticResource FontSizeSmall}"
                                    TextColor="{StaticResource Txt2}" HorizontalOptions="End" />
                         </VerticalStackLayout>
                     </Border>
@@ -104,7 +104,7 @@
                 <DataTemplate>
                     <Border StrokeShape="RoundRectangle 12"
                             BackgroundColor="{StaticResource BgPanel}" Stroke="{StaticResource BorderCol}" Padding="8,2">
-                        <Label Text="{Binding Label}" FontSize="10" />
+                        <Label Text="{Binding Label}" FontSize="{StaticResource FontSizeSmall}" />
                     </Border>
                 </DataTemplate>
             </CollectionView.ItemTemplate>
@@ -116,14 +116,14 @@
                   ItemSelected="OnSlashSelected" />
 
         <!-- Zone de saisie + barre mode/modèle (structure type agent) -->
-        <Border Grid.Row="4" StrokeShape="RoundRectangle 10"
+        <Border Grid.Row="4" StrokeShape="RoundRectangle 8"
                 Stroke="{StaticResource BorderCol}" BackgroundColor="{StaticResource BgApp}" Padding="6">
 
             <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="Auto,*,Auto">
 
                 <Entry Grid.Row="0" Grid.ColumnSpan="3" x:Name="InputEntry"
                        Placeholder="Message MOTO AI, @ pour le contexte, / pour les commandes"
-                       BackgroundColor="Transparent" FontSize="12"
+                       BackgroundColor="Transparent" FontSize="{StaticResource FontSizeBody}"
                        TextChanged="OnInputTextChanged"
                        Completed="OnSendClicked" />
 
@@ -134,7 +134,7 @@
 
                 <HorizontalStackLayout Grid.Row="1" Grid.Column="1" Spacing="4">
 
-                    <Picker x:Name="ModePicker" FontSize="10" WidthRequest="120">
+                    <Picker x:Name="ModePicker" FontSize="{StaticResource FontSizeSmall}" WidthRequest="120">
                         <Picker.ItemsSource>
                             <x:Array Type="{x:Type x:String}">
                                 <x:String>Chat</x:String>
@@ -144,7 +144,7 @@
                         </Picker.ItemsSource>
                     </Picker>
 
-                    <Picker x:Name="ModelPicker" FontSize="10" WidthRequest="150"
+                    <Picker x:Name="ModelPicker" FontSize="{StaticResource FontSizeSmall}" WidthRequest="150"
                             SelectedIndexChanged="OnModelChanged">
                         <Picker.ItemsSource>
                             <x:Array Type="{x:Type x:String}">
