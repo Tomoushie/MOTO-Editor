@@ -833,6 +833,21 @@ fermeture propre par Alt+F4. **Constat en passant** : la bande bleue est
 - Détail historique du chantier : mémoire Claude
   `moto-editor-titlebar-msix-investigation`.
 
+### Décision de Tom (22/09) — le réglage Windows n'est pas une solution produit
+
+Tom a désactivé lui-même, sur sa machine, le réglage Windows 11 « Afficher
+la couleur d'accentuation sur les barres de titre et les bordures de
+fenêtre » — le réglage identifié comme cause racine depuis le 08/09. Ce
+test confirme le diagnostic, mais **ne règle rien pour un client** : MOTO
+Editor ne peut pas demander à chaque utilisateur de modifier un réglage
+Windows global à l'installation. Décision explicite : poursuivre le
+chantier "rendu 100% custom" jusqu'à élimination réelle de la bande, côté
+logiciel uniquement, plutôt que de considérer le sujet clos.
+Vu la taille du travail restant (probablement gestion native de
+`WM_NCCALCSIZE`/`WM_NCHITTEST`, plus risqué que les incréments 1-2), passera
+par l'Orchestrator plutôt qu'en retouche directe — voir section Rust/vitesse
+ci-dessous, décision liée.
+
 ## Point d'entrée pour ouvrir l'Explorateur
 
 ✅ **Ctrl+B câblé et confirmé (02/09).** La palette de commandes annonçait
@@ -1356,6 +1371,23 @@ chantier borné à un seul contrôle) → Option 3 seulement au palier
 apprenant/recrutant du Rust qu'en comptant sur l'IA seule (terrain où
 l'assistance IA est la moins fiable). Aucune décision prise à ce stade —
 juste la carte pour en reparler au bon moment.
+
+### Décision de Tom (22/09)
+
+- **Option 3 (réécriture Rust complète) confirmée pour plus tard** : Tom
+  aimerait le faire "de toute façon", mais explicitement **à la fin,
+  quand le logiciel sera opérationnel** — pas maintenant. Aucun changement
+  à la séquence recommandée ci-dessus, juste une confirmation actée.
+- **Option 2 (remplacer le WebView de `CodeEditorView` par un rendu
+  SkiaSharp direct) approuvée pour démarrer**, sans attendre le palier
+  "élevé/bêta" — motivation de Tom : battre Zed en légèreté/rapidité.
+  Chantier de taille "coût moyen" (semaines à quelques mois) : passera par
+  l'Orchestrator (codegen substantiel), pas en retouche directe. Reste à
+  faire avant de lancer : un cadrage écrit (périmètre exact, ce qui reste
+  inchangé, plan de bascule/rollback) — pas encore commencé à ce jour.
+- Lié : le chantier "rendu 100% custom" de la barre de titre (voir section
+  dédiée plus haut) suit la même logique — même motivation de légèreté,
+  même passage prévu par l'Orchestrator.
 
 ## Agents autonomes en tâche de fond — jalons 1, 2 et 3 livrés (03-04/09)
 

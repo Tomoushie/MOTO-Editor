@@ -91,6 +91,12 @@ Voir `product/Roadmap.md` (jalons) et `product/Idées-à-implémenter.txt`
 faisables / déjà faites / vision). Mise en garde identique : ces deux
 fichiers sont des **intentions**, pas un état des lieux.
 
+**Direction technique à moyen terme (décidée le 22/09, pas encore commencée)** :
+remplacer le moteur d'édition (`WebView2`) par un rendu direct (SkiaSharp)
+pour la vitesse. Une réécriture complète en Rust est envisagée par la
+suite, mais explicitement repoussée à **après** que le logiciel soit
+pleinement opérationnel — pas un chantier en cours.
+
 ---
 <!--
   NOTE D'ENTRETIEN (pour les contributeurs et les agents IA)
