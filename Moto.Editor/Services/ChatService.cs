@@ -84,9 +84,54 @@ namespace Moto.Editor.Services
         public ObservableCollection<ChatTaskRecord> Tasks { get; } = new();
 
         /// <summary>Éléments de contexte attachés à la PROCHAINE question envoyée
-        /// (fichiers/sélections) — consommés (vidés) par SendAsync, pas persistés
-        /// par thread : reflète l'usage "j'attache un truc, je pose ma question".</summary>
+        /// (fichiers/sélections) — consommés (vidés) par SendAsync.
+        ///
+        /// ★ CORRIGÉ (22/09, prérequis de la vue fractionnée) : ce sac était GLOBAL
+        /// à toutes les conversations. Joindre un fichier dans une conversation,
+        /// changer de conversation (SwitchThread déplace le thread choisi en tête,
+        /// donc change le thread actif), puis envoyer faisait voyager la pièce
+        /// jointe vers le mauvais message — limite documentée dans CLAUDE.md.
+        /// C'était surtout ce qui rendait la vue fractionnée IMPOSSIBLE : deux
+        /// conversations affichées en même temps ne peuvent pas partager un seul
+        /// sac de pièces jointes.
+        ///
+        /// Les pièces jointes vivent désormais PAR CONVERSATION (_pendingByThread).
+        /// `Contexts` reste LA MÊME instance observable — celle que lie
+        /// AiChatView.ContextList : elle n'est plus la source de vérité, elle
+        /// AFFICHE les pièces jointes de la conversation active. Aucune signature
+        /// publique ne change, aucune liaison XAML n'est touchée : un seul thread
+        /// (cas courant) se comporte exactement comme avant.</summary>
         public ObservableCollection<ChatContextItem> Contexts { get; } = new();
+
+        /// <summary>Pièces jointes en attente, par conversation. Clé = référence du
+        /// ChatThread : ce modèle ne redéfinit ni Equals ni GetHashCode (vérifié),
+        /// donc l'identité d'instance est bien le critère voulu.</summary>
+        private readonly Dictionary<ChatThread, List<ChatContextItem>> _pendingByThread = new();
+
+        /// <summary>File d'attente de la conversation donnée, créée à la demande.</summary>
+        private List<ChatContextItem> PendingFor(ChatThread thread)
+        {
+            if (!_pendingByThread.TryGetValue(thread, out var list))
+            {
+                list = new List<ChatContextItem>();
+                _pendingByThread[thread] = list;
+            }
+            return list;
+        }
+
+        /// <summary>Recalcule le contenu affiché de `Contexts` depuis la conversation
+        /// ACTIVE. Même instance de collection (les liaisons existantes suivent),
+        /// seul son contenu change.</summary>
+        private void SyncContextsFromActiveThread()
+        {
+            Contexts.Clear();
+            var thread = CurrentThread;
+            if (thread is null) return;
+            foreach (var item in PendingFor(thread))
+            {
+                Contexts.Add(item);
+            }
+        }
 
         /// <summary>Vrai = tente Ollama/MotoAiKernel avant tout repli externe (déjà le
         /// comportement historique de RouteAsync) ; faux = l'utilisateur a
@@ -136,6 +181,11 @@ namespace Moto.Editor.Services
             Threads.CollectionChanged += (_, _) =>
             {
                 var current = CurrentThread;
+                // ★ ORDRE IMPORTANT (22/09) : resynchroniser les pièces jointes
+                // AVANT de prévenir les vues — un abonné à ActiveThreadChanged
+                // (AiChatView) doit voir le contexte de la NOUVELLE conversation
+                // au moment où il réagit au changement.
+                SyncContextsFromActiveThread();
                 if (current != null) ActiveThreadChanged?.Invoke(current);
             };
         }
@@ -180,20 +230,30 @@ namespace Moto.Editor.Services
             ).ToList();
         }
 
-        /// <summary>Attache un fichier au contexte de la prochaine question.</summary>
+        /// <summary>Attache un fichier au contexte de la prochaine question, DANS la
+        /// conversation active (voir _pendingByThread).</summary>
         public void AddFile(string path)
         {
             if (string.IsNullOrWhiteSpace(path)) return;
-            Contexts.Add(new ChatContextItem { Kind = "file", Path = path });
+            var thread = EnsureThread();
+            var item = new ChatContextItem { Kind = "file", Path = path };
+            PendingFor(thread).Add(item);
+            // EnsureThread place le thread en tête s'il vient d'être créé : il est
+            // donc toujours le thread actif ici, et `Contexts` le reflète.
+            Contexts.Add(item);
         }
 
         /// <summary>Attache la sélection courante de l'éditeur au contexte de la
-        /// prochaine question (via SelectionProvider, déjà utilisé par SendAsync).</summary>
+        /// prochaine question (via SelectionProvider, déjà utilisé par SendAsync),
+        /// DANS la conversation active (voir _pendingByThread).</summary>
         public void AddSelection()
         {
             var selection = SelectionProvider?.Invoke();
             if (string.IsNullOrWhiteSpace(selection)) return;
-            Contexts.Add(new ChatContextItem { Kind = "selection", Content = selection });
+            var thread = EnsureThread();
+            var item = new ChatContextItem { Kind = "selection", Content = selection };
+            PendingFor(thread).Add(item);
+            Contexts.Add(item);
         }
 
         private ChatThread EnsureThread()
@@ -237,11 +297,19 @@ namespace Moto.Editor.Services
             // pas lu par SendAsync. Lues au moment de l'envoi (pas de l'attache, pour
             // capter le contenu le plus à jour du fichier) puis vidées : sémantique
             // "j'attache pour CETTE question", pas persistantes dans l'historique.
-            if (Contexts.Count > 0)
+            //
+            // ★ CORRIGÉ (22/09) : on consomme les pièces jointes de la conversation
+            // QUI REÇOIT LE MESSAGE (`thread`, celui que EnsureThread vient de
+            // résoudre), et non plus le sac global affiché. C'est ce qui garantit
+            // qu'une pièce jointe attachée dans une conversation ne parte jamais
+            // dans une autre — et ce qui rend la vue fractionnée possible.
+            var pending = PendingFor(thread);
+            if (pending.Count > 0)
             {
-                var contextBlock = string.Join("\n\n", Contexts.Select(BuildContextBlock));
+                var contextBlock = string.Join("\n\n", pending.Select(BuildContextBlock));
                 prompt = $"{prompt}\n\nContexte attaché :\n{contextBlock}";
-                Contexts.Clear();
+                pending.Clear();
+                SyncContextsFromActiveThread();
             }
 
             var response = await RunTrackedAsync(

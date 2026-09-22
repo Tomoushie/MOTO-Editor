@@ -612,9 +612,10 @@ IA flottant, `OnAiCommandSubmitted`).
 Membres réels : `Threads` (ObservableCollection\<ChatThread\>, le plus récent
 en tête), `CurrentThread`/`ActiveThread` (alias, `Threads.FirstOrDefault()`),
 `ActiveThreadChanged` (event, déclenché via `Threads.CollectionChanged`),
-`Contexts` (ObservableCollection\<ChatContextItem\>, pièces jointes — **UN
-SEUL sac partagé par TOUTES les surfaces d'envoi**, voir limite connue
-ci-dessous), `PreferInternal` (bool), `CreateThread()`, `AddFile(path)`,
+`Contexts` (ObservableCollection\<ChatContextItem\>, pièces jointes — **vitre
+d'affichage de la conversation ACTIVE depuis le 22/09** : la source de vérité
+est `_pendingByThread`, une file PAR conversation ; voir la limite corrigée
+plus bas), `PreferInternal` (bool), `CreateThread()`, `AddFile(path)`,
 `AddSelection()`, `SendAsync(text)`, `AskWithCodeAsync(model, prompt, code)`.
 
 `IsExternalProviderName(model)` (statique) : seul point de vérité pour
@@ -639,10 +640,25 @@ vraie pour partie). Confirmé par Tom : la liste affiche titre+heure, la
 recherche filtre sans planter, "Nouvelle conversation" fonctionne.
 
 **⚠️ Limites connues, pas corrigées (signalées à Tom)** :
-- `Contexts` étant un sac global, joindre un fichier dans une surface (ex.
-  panneau IA) puis envoyer depuis une AUTRE (accueil, bandeau flottant) sans
-  avoir envoyé depuis la première fait voyager silencieusement la pièce
-  jointe vers le mauvais message.
+- ✅ **CORRIGÉ (22/09) — sac de pièces jointes global.** `Contexts` était une
+  collection UNIQUE partagée par toutes les conversations : joindre un fichier
+  dans une conversation, en changer (`SwitchThread` place le thread choisi en
+  tête, donc change le thread actif), puis envoyer faisait voyager la pièce
+  jointe vers le mauvais message. Les pièces jointes vivent maintenant **par
+  conversation** (`ChatService._pendingByThread`, clé = instance de
+  `ChatThread` — ce modèle ne redéfinit ni `Equals` ni `GetHashCode`, vérifié),
+  et `SendAsync` consomme la file du thread **qui reçoit le message**, plus le
+  sac affiché. `Contexts` reste **la même instance observable** (celle que lie
+  `AiChatView.ContextList`) : elle n'est plus la source de vérité, elle affiche
+  la conversation active. Aucune signature publique modifiée, aucune liaison
+  XAML touchée, **cas mono-conversation strictement inchangé**.
+  C'était le **prérequis bloquant de la vue fractionnée** (deux conversations
+  affichées en même temps ne peuvent pas partager un seul sac). Compile à
+  0 erreur / 479 avertissements (ligne de base inchangée), mais **non testé
+  comportementalement** : `ChatService` vit dans le projet MAUI `Moto.Editor`
+  (Exe), non référençable depuis `Moto.Tests` qui ne référence que `Moto.Core`
+  — à valider par Tom (joindre un fichier, changer de conversation, vérifier
+  que la pièce jointe reste dans la bonne).
 - Cliquer "nouvelle conversation" pendant qu'une réponse est en attente fait
   atterrir cette réponse dans un thread devenu invisible : un peu mieux
   depuis le 03/09 (la fenêtre "Conversations" ci-dessus permet de le
