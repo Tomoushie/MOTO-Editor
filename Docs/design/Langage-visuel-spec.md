@@ -240,10 +240,37 @@ référence : un lot visuel ne doit **pas** faire monter ce nombre.
 
 Aucun test visuel automatisé n'existe. Donc, pour **chaque lot** :
 
+### Le garde-fou : `scripts/visual-lot-verify.ps1`
+
+Écrit et **prouvé** le 22/09 (auto-test + refus réel d'un lot volontairement
+non conforme). Il contrôle trois choses et refuse le lot si l'une échoue :
+
+1. **Compilation** — 0 erreur, et **pas plus de 479 avertissements** (ligne de
+   base mesurée). Une valeur de style mal écrite produit typiquement un
+   avertissement XAML, pas une erreur : sans ce contrôle, une régression
+   silencieuse passerait.
+2. **Périmètre** — seuls des fichiers `.xaml` ont changé. Un `.cs` qui bouge
+   dans un lot visuel signale qu'on a touché à autre chose.
+3. **Non-régression fonctionnelle** — le diff ne touche **aucune** liaison
+   (`Binding`, `x:DataType`, `x:Reference`), **aucun** gestionnaire
+   (`Clicked`, `Tapped`, `TextChanged`, `CheckedChanged`,
+   `SelectionChanged`), **aucun** `Command`, **aucun** `x:Name`.
+   Un lot visuel ne change que des **valeurs** d'apparence.
+
+```bash
+pwsh scripts/visual-lot-verify.ps1          # avant chaque commit de lot
+pwsh scripts/visual-lot-verify.ps1 -SelfTest # vérifie le détecteur lui-même
+```
+
+Code de sortie 0 = lot conforme, 1 = refusé.
+
+### Règles complémentaires
+
 1. Build `Debug` **et** `Release` à **0 erreur** (le raccourci Bureau pointe
-   vers Release — piège documenté).
+   vers Release — piège documenté) — le garde-fou ci-dessus couvre Debug ;
+   Release se vérifie à la main sur les lots qui touchent `MainPage.xaml`.
 2. Aucun handler, aucune liaison, aucun `x:Name` modifié : un lot visuel ne
-   change **que** des valeurs de style.
+   change **que** des valeurs de style (contrôlé automatiquement, point 3).
 3. Un lot = un écran ou un composant = **un commit**, avec capture avant/
    après fournie par Tom.
 4. Garde-fou spécifique : `MainPage.xaml` a un **historique de plantage sur
