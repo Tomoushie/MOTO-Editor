@@ -575,7 +575,19 @@ namespace Moto.Editor
                 }
 
                 App.Breadcrumb("OnAiCommandSubmitted — route : chat (avant SendAsync)");
-                await _chatService.SendAsync(text);
+                // ★ AJOUT (22/09, retour de test de Tom) : l'appel dure ~79 s avec
+                // le modèle local 7B, et RIEN ne le montrait à l'écran (AiBar, seul
+                // porteur d'un SetBusy, est masquée sur l'Accueil) — d'où le verdict
+                // « ça ne semble pas connecté ». L'attente devient visible.
+                Home.SetThinking(true);
+                try
+                {
+                    await _chatService.SendAsync(text);
+                }
+                finally
+                {
+                    Home.SetThinking(false);
+                }
                 App.Breadcrumb("OnAiCommandSubmitted — chat.SendAsync OK");
 
                 // ★ CORRECTION (30/08) : la réponse était calculée et comptée dans les

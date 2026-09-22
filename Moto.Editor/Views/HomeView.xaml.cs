@@ -151,6 +151,21 @@ namespace Moto.Editor.Views
             HomePromptSubmitted?.Invoke(text);
         }
 
+        /// <summary>
+        /// ★ AJOUT (22/09, retour de test de Tom) : rend VISIBLE l'attente d'une
+        /// réponse IA sur l'écran d'Accueil. L'appel fonctionnait — le journal le
+        /// prouve (entrée → SendAsync → onglet ouvert) — mais durait ~79 s avec le
+        /// modèle local 7B, sans le moindre retour à l'écran, d'où le verdict
+        /// « ça ne semble pas connecté ». Appelé par MainPage autour de l'appel.
+        /// </summary>
+        public void SetThinking(bool actif, string? message = null)
+        {
+            ThinkingLabel.Text = actif
+                ? (message ?? "⏳ MOTO AI réfléchit… (modèle local : la première réponse peut prendre une minute)")
+                : string.Empty;
+            ThinkingLabel.IsVisible = actif;
+        }
+
         private void OnAttachClicked(object sender, EventArgs e)
         {
             // Placeholder : joindre un fichier au prompt

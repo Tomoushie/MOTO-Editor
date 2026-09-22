@@ -206,6 +206,18 @@
                         </Grid>
                     </Border>
 
+                    <!-- ★ AJOUT (22/09, retour de test de Tom : « ça ne semble pas
+                         connecté ») : l'appel IA FONCTIONNAIT mais mettait ~79 s
+                         (modèle local 7B sur CPU) sans que RIEN ne le montre —
+                         AiBar.SetBusy était pourtant appelé, mais AiBar est
+                         MASQUÉE sur l'Accueil, et le seul retour était un message
+                         dans la barre de statut tout en bas. Tom a donc conclu, à
+                         raison, que rien ne marchait. Ce libellé rend l'attente
+                         visible là où il tape. -->
+                    <Label x:Name="ThinkingLabel" Text=""
+                           Style="{StaticResource TextSmall}"
+                           HorizontalOptions="Center" IsVisible="False" />
+
                     <!-- ★ AJOUT (31/08, points 2/3/4/5 de Tom) : barre façon Claude Code
                          collée sous la zone de saisie — voir Controls/AiComposerBarView. -->
                     <controls:AiComposerBarView x:Name="ComposerBar" WidthRequest="560" />
