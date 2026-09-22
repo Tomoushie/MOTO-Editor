@@ -939,6 +939,36 @@ Connus déjà avant le 02/09 :
   `GenerateCodeAsync`/`CompleteCodeAsync` (OllamaClient) — ces 2 méthodes
   sont donc du code mort tant que ce fichier reste exclu.
 
+## Contraintes d'API visuelles — MAUI 8 (vérifié le 22/09, à ne pas supposer)
+
+Vérifié dans la source officielle MAUI **8.0.100** (version réellement
+résolue : `Microsoft.Maui.Controls.Core/8.0.100`, lue dans
+`Moto.Editor/obj/project.assets.json` — pas la 10.0.20 qui traîne aussi dans
+le cache NuGet et induit en erreur) :
+
+- `Label` expose `FontSize`, **`FontAttributes` (`None`/`Bold`/`Italic`) —
+  c'est la SEULE graisse disponible**, `LineHeight`, `CharacterSpacing`,
+  `TextTransform`, `FontFamily`, `FontAutoScalingEnabled`, `Opacity`.
+- **`FontWeight` N'EXISTE PAS** en MAUI 8 (ajouté plus tard, en MAUI 10).
+  Toute hiérarchie typographique doit donc reposer sur **taille + Gras ou
+  non + couleur/opacité + espacement des lettres**, jamais sur des graisses
+  numériques type 400/500/600. Concevoir « comme sur le web » est une
+  impasse ici.
+
+**Ceci explique enfin une exclusion qui n'était pas comprise** : les 7 vues
+qui utilisent `FontWeight="SemiBold"`/`"Bold"` sur des `TextBlock`
+(`AdminDashboardView`, `AdvancedAiSettingsView`, `ModelConsentDialog`,
+`PerformanceDashboardView`, `RefactorPanel`, `SubscriptionOverlay`,
+`StatusBarView`) sont **toutes** dans la liste `MauiXaml Remove` du
+`.csproj`. Vérifié : `FontWeight` n'apparaît **que** dans des fichiers
+exclus du build — corrélation parfaite. Elles ont été écrites en XAML
+**WinUI** dans un projet MAUI (comme `TextBlock`, qui n'existe pas non plus
+en MAUI) : elles ne compileraient pas. Ce n'est donc pas un oubli de
+câblage, c'est du code non portable.
+
+Voir `Docs/design/Langage-visuel-spec.md` pour l'échelle typographique
+construite sur cette contrainte.
+
 ## Dette visuelle connue
 
 ✅ **CORRIGÉ (02/09), passe 2 — les couleurs "dérivées" au cas par cas.**

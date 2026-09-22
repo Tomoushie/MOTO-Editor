@@ -13,33 +13,50 @@ MOTO Editor possède **déjà** un système de jetons (couleurs, espacements,
 ombres, typographie) — construit par passes successives entre le 01/09 et le
 08/09. Le problème n'est pas son absence : **c'est qu'il n'est pas utilisé.**
 
-93 fichiers XAML (hors thème) ont été comptés :
+**Périmètre mesuré (important)** : le dépôt contient 92 fichiers XAML hors
+`Docs/`, dont **21 sont exclus du build** (`MauiXaml Remove` dans
+`Moto.Editor.csproj`). Le comptage ci-dessous porte donc sur les **71 fichiers
+réellement compilés** — la maquette `Docs/inspirations/ClaudeShellView.xaml`
+et les vues mortes ne sont pas comptées comme dette visuelle, puisque
+personne ne les voit.
 
 | Valeur | Occurrences codées en dur |
 |---|---|
-| `FontSize="<nombre>"` | **561** |
-| `Padding="<nombre>"` | **409** |
-| `CornerRadius` / `RoundRectangle` | **169** |
-| Couleurs hexadécimales | **254** |
-| **Total** | **~1 393 valeurs visuelles en dur** |
+| `FontSize="<nombre>"` | **418** |
+| `Padding="<nombre>"` | **292** |
+| `CornerRadius` / `RoundRectangle` | **146** |
+| Couleurs hexadécimales | **138** |
+| **Total** | **994 valeurs visuelles en dur** |
 
 En regard, l'usage réel des jetons censés les gouverner :
 
-| Jeton | Usage réel |
+| Jeton | Usage réel (71 fichiers compilés) |
 |---|---|
 | `SpaceXs` / `SpaceSm` / `SpaceMd` / `SpaceLg` / `SpaceXl` | **0 · 0 · 0 · 0 · 0** |
 | `ShadowSm` / `ShadowMd` / `ShadowLg` | **0 · 1 · 1** |
 | `AccentHover` / `AccentMuted` (ajoutés le 08/09) | **0 · 0** |
 | `MotoHoverRow` (style de ligne de liste) | **2** |
-| `FontFamilyUi` | 13 fichiers sur 93 |
+| `FontFamilyUi` | **9 fichiers sur 71** |
 
 **Conséquence directe, et c'est tout le problème :** l'application est
-peinte par ≈1 400 décisions prises une par une, écran par écran, sans
-échelle commune. Les **rayons d'arrondi prennent 8 valeurs distinctes**
-(0, 1, 2, 4, 6, 7, 8, 9) — personne ne choisit « 7 » volontairement, c'est
-le symptôme d'ajustements à l'œil. Les **espacements** sont tous des nombres
-choisis à la main. Les **ombres** (l'élévation, ce qui distingue une surface
-flottante d'un fond) ne servent quasi jamais.
+peinte par ≈1 000 décisions prises une par une, écran par écran, sans échelle
+commune. Les **espacements** sont tous des nombres choisis à la main. Les
+**ombres** (l'élévation, ce qui distingue une surface flottante d'un fond) ne
+servent quasi jamais.
+
+**Et les deux mesures les plus parlantes :**
+
+- **21 tailles de police distinctes.** Pas sept ou huit : **vingt-et-une**.
+  Dont des **demi-pixels** (10,5 · 11,5 · 12,5) et des valeurs isolées
+  (7, 9, 15, 17, 21, 22, 24, 26, 28, 30). Le cœur de la distribution tient
+  dans une bande de 4 px — 10 (×39), 11 (×94), 11,5 (×8), 12 (×122),
+  12,5 (×11), 13 (×43), 14 (×48) — c'est-à-dire **sept tailles qui se
+  disputent le même rôle**. Une échelle réelle en compte une par rôle.
+- **13 rayons d'arrondi distincts** : 0, 6, 7, 8, 9, 10, 12, 14, 15, 16, 17,
+  24, et un **75** (l'avatar rond de `AboutView`). Personne ne choisit « 7 »
+  ni « 15 » volontairement : c'est la signature d'ajustements à l'œil,
+  répétés jusqu'à ce que ça « ait l'air bien » à un endroit précis, sans
+  jamais valoir ailleurs.
 
 Le rendu qui en résulte est exactement ce qu'on appelle « cheap » : chaque
 élément est *individuellement acceptable* mais **rien ne se répète**, donc
@@ -52,10 +69,10 @@ l'œil ne perçoit aucune grille, aucune hiérarchie, aucune intention.
 | 1 | **Aucun jeton de graisse** (`FontWeight`/`FontAttributes`) : la typographie n'a que des tailles | La hiérarchie repose uniquement sur la taille. Les références utilisent **taille + graisse** — c'est ce qui fait « dessiné » plutôt que « brut ». |
 | 2 | **Aucun jeton de hauteur de ligne** | Les paragraphes sont serrés ; les références aèrent le texte long. |
 | 3 | **Échelle typographique réduite à 4 valeurs** (11 / 13 / 18 / 22) et **11 px pour le texte secondaire** | 11 px est trop petit pour du texte d'interface courant ; VS Code est à 13 px de base. |
-| 4 | **Aucun jeton de rayon** | D'où les 8 valeurs distinctes ci-dessus. |
+| 4 | **Aucun jeton de rayon** | D'où les 13 valeurs distinctes ci-dessus (dont un 75). |
 | 5 | **Aucun jeton de mouvement** (durée, courbe) | Aucune transition nulle part → l'UI ne « répond » pas au survol d'un panneau, à l'ouverture d'un menu. |
 | 6 | **État `Disabled` absent** de tous les styles | Un bouton inactif ne se distingue pas d'un bouton actif. Idem **`Focused`** sur les boutons (seul `Entry` l'a) — grave pour un IDE piloté au clavier. |
-| 7 | **Deux familles de bordures concurrentes** : `BorderCol` (#3A3B40 opaque, 254 usages de couleurs en dur) et `BorderSoft`/`BorderMuted` (blanc 10 %) | Les séparateurs ne se ressemblent pas d'un écran à l'autre. |
+| 7 | **Deux familles de bordures concurrentes** : `BorderCol` (#3A3B40 opaque) et `BorderSoft`/`BorderMuted` (blanc 10 %), sans règle d'usage | Les séparateurs ne se ressemblent pas d'un écran à l'autre. |
 | 8 | **`Segoe UI Variable` utilisé dans 13 fichiers sur 93** | Les 80 autres héritent de la police par défaut de la plateforme → **deux typographies cohabitent**. De plus, cette police n'existe pas sur Windows 10 (cible supportée : 10.0.17763) → repli silencieux. |
 
 ---
@@ -132,7 +149,8 @@ Constaté en comparant les captures de référence du dépôt
   actifs — jamais décoratif.
 
 ### Synthèse : les 5 écarts qui coûtent le plus cher
-1. **Pas de grille** — espacements/rayons improvisés (≈1 400 valeurs en dur).
+1. **Pas de grille** — espacements/rayons improvisés (994 valeurs en dur,
+   13 rayons, 21 tailles de police).
 2. **Pas de hiérarchie typographique** — taille seule, ni graisse ni hauteur
    de ligne, 11 px partout.
 3. **Pas d'états** — survol rare, `Disabled`/`Focused` absents, aucune
@@ -159,7 +177,7 @@ les compléter, puis les faire consommer par le code.
 - Taille d'icône normalisée.
 
 ### Phase 1 — Rendre le socle opérant
-- Conversion des ≈1 400 valeurs en dur vers les jetons, **par lots vérifiés**
+- Conversion des 994 valeurs en dur vers les jetons, **par lots vérifiés**
   (un lot = un écran ou un composant, build à 0 erreur, contrôle visuel).
 - Styles **implicites** pour les contrôles de base, afin que le défaut soit
   correct sans rien écrire.
