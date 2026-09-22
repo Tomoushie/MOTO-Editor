@@ -1565,7 +1565,10 @@ sur `TEST-REFACTOR-A-SUPPRIMER.cs` aboutit à une vraie proposition
 d'écriture bien formée, popup de confirmation, autorisation, et un
 fichier réellement réécrit — vérifié directement sur disque (pas
 seulement via le popup). Le mécanisme confirmation → écriture réelle
-fonctionne de bout en bout. Non résolu, à garder en tête : pas testé
+fonctionne de bout en bout. Ce fichier de test (et le `confirmation-test.txt`
+du test `/agent`) a été **retiré du dépôt le 22/09** (artefacts non
+versionnés) — les recréer au besoin pour un prochain test. Non résolu, à
+garder en tête : pas testé
 sur un modèle local plus costaud (qwen2.5-coder:14b, Qwen3.8-27B,
 gpt-oss:20.9B, tous disponibles) — qwen2.5-coder:7b reste petit et peut
 révéler de nouvelles variantes de format non encore vues.
@@ -1577,6 +1580,24 @@ révéler de nouvelles variantes de format non encore vues.
   (panneaux modulaires, réglages, revue du panneau IA, barre de titre...).
 - `QWEN.md` (racine du dépôt) : équivalent pour Qwen, utilisé par Tom pour
   lui donner du contexte manuellement (pas de lecture automatique).
+  **Versionné dans git depuis le 22/09** — il ne l'était pas avant et
+  n'existait qu'en copie locale, donc à risque. Corrigé le même jour après
+  vérification dans le vrai code : il annonçait « .NET 10 /
+  `net10.0-windows10.0.19041.0` » alors que **tout le dépôt cible
+  `net8.0`** (vérifié dans les `.csproj`), et « 97 réglages » alors que le
+  catalogue en compte **297**. Quand l'un des deux fichiers change un fait
+  durable, mettre à jour l'autre.
+- **Organisation de `Docs/` (scellée le 22/09, à connaître avant de chercher
+  un document)** : `Docs/Zen/` (ex-`Docs/Pour Claude/`, renommage pur de 11
+  fichiers — cet ancien chemin est encore cité dans des notes anciennes),
+  `Docs/Documents/` (34 fichiers de présentation/vente : business plan,
+  analyses, manuel utilisateur, documentation API…), `Docs/inspirations/`
+  (captures d'écran + sources de la maquette « Claude shell »),
+  `Docs/probes/` (rapports bruts des sondes multi-agents). 5 notes
+  techniques ont été supprimées le 22/09 (Chaîne de confiance complète,
+  Configuration des secrets, Créer une release corrective,
+  Installateur-Structure, Tests) — suppression validée par Tom, contenu
+  récupérable dans l'historique git si besoin.
 - État des lieux brut du 02/09 (4 agents, panel-architecture-audit /
   visual-debt-audit / dead-feature-inventory / zed-inspired-explorer-entry-
   point) : sortie complète encore disponible dans le dossier de tâches de la
