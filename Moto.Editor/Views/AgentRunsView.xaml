@@ -14,26 +14,26 @@
     <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Padding="14,10">
       <Label Text="Agents en cours" FontAttributes="Bold" TextColor="{StaticResource Txt1}"/>
       <Label Grid.Column="1" x:Name="ActiveCountLabel" Text="0 actif(s)"
-             TextColor="{DynamicResource MotoSubtleText}" FontSize="12"/>
+             TextColor="{DynamicResource MotoSubtleText}" FontSize="{StaticResource FontSizeBody}"/>
     </Grid>
 
     <CollectionView Grid.Row="1" x:Name="RunList" SelectionMode="None" Margin="10,0">
       <CollectionView.EmptyView>
         <Label Text="Aucun agent pour l'instant. Tape /agent &lt;objectif&gt; dans le chat pour en démarrer un."
-               TextColor="{DynamicResource MotoSubtleText}" FontSize="12.5"
+               TextColor="{DynamicResource MotoSubtleText}" FontSize="{StaticResource FontSizeBody}"
                Padding="10,20" HorizontalTextAlignment="Center"/>
       </CollectionView.EmptyView>
       <CollectionView.ItemTemplate>
         <DataTemplate>
           <Border Background="{DynamicResource BgPanel}" Stroke="{DynamicResource BorderCol}"
-                  StrokeShape="RoundRectangle 10" Padding="12,10" Margin="0,0,0,8">
+                  StrokeShape="RoundRectangle 8" Padding="12,10" Margin="0,0,0,8">
             <Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="8" RowSpacing="4">
               <Label Grid.Row="0" Grid.Column="0" Text="{Binding StatusIcon}"
-                     TextColor="{StaticResource Accent}" FontSize="13"/>
+                     TextColor="{StaticResource Accent}" FontSize="{StaticResource FontSizeBody}"/>
               <Label Grid.Row="0" Grid.Column="1" Text="{Binding AgentId}" FontAttributes="Bold"
-                     TextColor="{StaticResource Txt1}" FontSize="13" LineBreakMode="TailTruncation"/>
+                     TextColor="{StaticResource Txt1}" FontSize="{StaticResource FontSizeBody}" LineBreakMode="TailTruncation"/>
               <Label Grid.Row="0" Grid.Column="2" Text="{Binding DurationLabel}"
-                     TextColor="{DynamicResource MotoSubtleText}" FontSize="12"/>
+                     TextColor="{DynamicResource MotoSubtleText}" FontSize="{StaticResource FontSizeBody}"/>
 
               <Label Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" Text="{Binding Goal}"
                      TextColor="{DynamicResource MotoSubtleText}" FontSize="11.5" LineBreakMode="TailTruncation"/>
@@ -52,13 +52,13 @@
 
     <BoxView Grid.Row="2" HeightRequest="1" Color="{DynamicResource BorderCol}" Margin="14,4"/>
 
-    <Label Grid.Row="3" Text="Messages entre agents" FontAttributes="Bold" FontSize="12.5"
+    <Label Grid.Row="3" Text="Messages entre agents" FontAttributes="Bold" FontSize="{StaticResource FontSizeBody}"
            TextColor="{StaticResource Txt1}" Padding="14,8,14,4"/>
 
     <CollectionView Grid.Row="4" x:Name="MessageList" SelectionMode="None" Margin="10,0">
       <CollectionView.EmptyView>
         <Label Text="Aucun échange pour l'instant."
-               TextColor="{DynamicResource MotoSubtleText}" FontSize="12" Padding="10,10"
+               TextColor="{DynamicResource MotoSubtleText}" FontSize="{StaticResource FontSizeBody}" Padding="10,10"
                HorizontalTextAlignment="Center"/>
       </CollectionView.EmptyView>
       <CollectionView.ItemTemplate>
@@ -67,7 +67,7 @@
             <Label Grid.Column="0" Text="{Binding Icon}" FontSize="11.5"/>
             <Label Grid.Column="1" Text="{Binding Label}" FontSize="11.5"
                    TextColor="{DynamicResource MotoSubtleText}" LineBreakMode="TailTruncation"/>
-            <Label Grid.Column="2" Text="{Binding TimeLabel}" FontSize="10.5"
+            <Label Grid.Column="2" Text="{Binding TimeLabel}" FontSize="{StaticResource FontSizeSmall}"
                    TextColor="{DynamicResource MotoSubtleText}"/>
           </Grid>
         </DataTemplate>
@@ -76,8 +76,8 @@
 
     <Grid Grid.Row="5" ColumnDefinitions="*,Auto" Padding="14,8">
       <Label x:Name="BudgetLabel" Text="Budget IA : 0/200" TextColor="{DynamicResource MotoSubtleText}"
-             FontSize="12" VerticalOptions="Center"/>
-      <Button Grid.Column="1" Text="Ouvrir le dossier des journaux" FontSize="12" Padding="8,4"
+             FontSize="{StaticResource FontSizeBody}" VerticalOptions="Center"/>
+      <Button Grid.Column="1" Text="Ouvrir le dossier des journaux" FontSize="{StaticResource FontSizeBody}" Padding="8,4"
               BackgroundColor="Transparent" TextColor="{DynamicResource MotoSubtleText}"
               Clicked="OnOpenAuditFolderClicked"/>
     </Grid>

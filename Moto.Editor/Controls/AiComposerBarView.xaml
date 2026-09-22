@@ -66,7 +66,7 @@
                     Stroke="{StaticResource BorderSoft}" StrokeShape="RoundRectangle 12"
                     BackgroundColor="{StaticResource BgPanel}" Padding="14" WidthRequest="240">
                 <VerticalStackLayout Spacing="6">
-                    <Label Text="Token : infini · 100% local" FontSize="12" FontAttributes="Bold" TextColor="{StaticResource Txt1}" />
+                    <Label Text="Token : infini · 100% local" FontSize="{StaticResource FontSizeBody}" FontAttributes="Bold" TextColor="{StaticResource Txt1}" />
                     <Label x:Name="BudgetStatsLabel" Text="Sessions 0 · Messages 0 · Patterns 0" FontSize="11" TextColor="{StaticResource Txt2}" />
                 </VerticalStackLayout>
             </Border>
@@ -78,7 +78,7 @@
 
             <Border x:Name="BtnAttach" Grid.Column="0" WidthRequest="30" HeightRequest="30" StrokeThickness="0"
                     BackgroundColor="Transparent" StrokeShape="RoundRectangle 8">
-                <Label Text="＋" FontSize="16" TextColor="{StaticResource Txt1}"
+                <Label Text="＋" FontSize="{StaticResource FontSizeHeading}" TextColor="{StaticResource Txt1}"
                        HorizontalOptions="Center" VerticalOptions="Center" />
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Tapped="OnAttachTapped" />
@@ -88,7 +88,7 @@
             <Border x:Name="BtnMic" Grid.Column="1" WidthRequest="30" HeightRequest="30" StrokeThickness="0"
                     BackgroundColor="Transparent" StrokeShape="RoundRectangle 8">
                 <Label Text="{x:Static controls:MotoIcons.Mic}" FontFamily="{x:Static controls:MotoIcons.FontFamily}"
-                       FontSize="14" TextColor="{StaticResource Txt1}"
+                       FontSize="{StaticResource FontSizeSubheading}" TextColor="{StaticResource Txt1}"
                        HorizontalOptions="Center" VerticalOptions="Center" />
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Tapped="OnMicButtonTapped" />
@@ -97,7 +97,7 @@
 
             <Border x:Name="BtnMicChevron" Grid.Column="2" WidthRequest="20" HeightRequest="30" StrokeThickness="0"
                     BackgroundColor="Transparent" StrokeShape="RoundRectangle 8">
-                <Label Text="⌄" FontSize="12" TextColor="{StaticResource Txt2}"
+                <Label Text="⌄" FontSize="{StaticResource FontSizeBody}" TextColor="{StaticResource Txt2}"
                        HorizontalOptions="Center" VerticalOptions="Center" />
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Tapped="OnMicChevronTapped" />

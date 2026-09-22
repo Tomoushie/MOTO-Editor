@@ -21,8 +21,8 @@
             <Grid ColumnDefinitions="Auto,*">
                 <Button Grid.Column="0" Text="← Retour" Clicked="OnBackClicked"
                         BackgroundColor="Transparent" TextColor="{StaticResource Txt1}"
-                        Padding="8,4" FontSize="13" />
-                <Label Grid.Column="1" Text="Paramètres IA" FontSize="16" FontAttributes="Bold"
+                        Padding="8,4" FontSize="{StaticResource FontSizeBody}" />
+                <Label Grid.Column="1" Text="Paramètres IA" FontSize="{StaticResource FontSizeHeading}" FontAttributes="Bold"
                        TextColor="{StaticResource Txt1}" VerticalOptions="Center"
                        HorizontalOptions="Center" />
             </Grid>
@@ -38,7 +38,7 @@
                    FontAttributes="Bold" />
 
             <Label Text="MOTO AI utilise d'abord le moteur local. Si besoin, elle bascule sur les providers configurés ci-dessous."
-                   FontSize="14"
+                   FontSize="{StaticResource FontSizeSubheading}"
                    Opacity="0.7" />
 
             <!-- Status des providers -->
@@ -50,7 +50,7 @@
 
                     <Label Text="État des providers"
                            FontAttributes="Bold"
-                           FontSize="16" />
+                           FontSize="{StaticResource FontSizeHeading}" />
 
                     <CollectionView x:Name="ProviderStatusList"
                                     HeightRequest="120">
@@ -87,7 +87,7 @@
                            FontAttributes="Bold" />
 
                     <Label Text="Modèles locaux gratuits. Priorité maximale."
-                           FontSize="12"
+                           FontSize="{StaticResource FontSizeBody}"
                            Opacity="0.7" />
 
                     <Entry x:Name="OllamaUrlEntry"
@@ -118,7 +118,7 @@
                            FontAttributes="Bold" />
 
                     <Label Text="GPT-4o, GPT-4 Turbo. Fallback secondaire."
-                           FontSize="12"
+                           FontSize="{StaticResource FontSizeBody}"
                            Opacity="0.7" />
 
                     <Entry x:Name="OpenAiKeyEntry"
@@ -149,7 +149,7 @@
                            FontAttributes="Bold" />
 
                     <Label Text="Claude Sonnet, Claude Opus. Fallback secondaire."
-                           FontSize="12"
+                           FontSize="{StaticResource FontSizeBody}"
                            Opacity="0.7" />
 
                     <Entry x:Name="AnthropicKeyEntry"
@@ -180,7 +180,7 @@
                            FontAttributes="Bold" />
 
                     <Label Text="Mistral Large, Mistral Medium. Fallback tertiaire."
-                           FontSize="12"
+                           FontSize="{StaticResource FontSizeBody}"
                            Opacity="0.7" />
 
                     <Entry x:Name="MistralKeyEntry"
@@ -220,7 +220,7 @@
 
             <!-- Note de sécurité -->
             <Label Text="🔒 Vos clés API sont chiffrées localement avec DPAPI (Windows) ou AES. Elles ne quittent jamais votre machine."
-                   FontSize="12"
+                   FontSize="{StaticResource FontSizeBody}"
                    Opacity="0.6"
                    HorizontalOptions="Center" />
 
