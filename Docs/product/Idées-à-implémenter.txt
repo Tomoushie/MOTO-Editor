@@ -97,10 +97,27 @@ comble un écart RÉEL et déjà documenté :
   ayant son propre ChatService/thread — en réutilisant le mécanisme de
   séparation déjà éprouvé plutôt qu'un nouveau.
 
-  Point d'attention : ChatService.Contexts est aujourd'hui UN SEUL sac
-  partagé par toutes les surfaces d'envoi. Deux conversations simultanées
-  rendraient ce défaut très visible (pièces jointes qui partent dans la
-  mauvaise conversation). À traiter DANS ce chantier, pas après.
+  Point d'attention (RÉSOLU le 22/09, voir plus bas) : ChatService.Contexts
+  était UN SEUL sac partagé par toutes les surfaces d'envoi. Deux
+  conversations simultanées rendaient ce défaut très visible (pièces jointes
+  qui partent dans la mauvaise conversation).
+
+  ✅ PRÉREQUIS FAIT le 22/09 (commit 01b7788) : les pièces jointes vivent
+  désormais PAR conversation (ChatService._pendingByThread), et SendAsync
+  consomme la file du thread qui reçoit le message — plus le sac affiché.
+  Cela corrige au passage un bug réel déjà documenté (une pièce jointe
+  attachée dans une conversation partait dans une autre après un changement
+  de conversation). Compile à 0 erreur / 479 avertissements (ligne de base
+  inchangée), MAIS le comportement reste à confirmer par Tom : ChatService
+  vit dans le projet MAUI Moto.Editor (Exe), non référençable depuis
+  Moto.Tests qui ne référence que Moto.Core — donc aucun test unitaire
+  possible sans déplacer le service (chantier à part).
+
+  RESTE À FAIRE pour B1 : l'interface elle-même — deux surfaces de chat
+  côte à côte, chacune liée à sa propre conversation. Aujourd'hui une seule
+  surface affiche les pièces jointes (AiChatView.ContextList, liée à
+  ChatService.Contexts). Non commencé : touche le XAML, donc en attente du
+  feu vert de Tom.
 
 
 B2. Équivalent "Claude Academy" : cours, leçons, tests de prompt
