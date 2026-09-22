@@ -164,3 +164,25 @@ mémoire Claude) : Tom doit regarder son propre écran.
 Écart cosmétique connu, pas bloquant pour ce test : un commentaire `// texte`
 ne colore que le `//` lui-même, pas le reste de la ligne (la tokenisation
 découpe par espaces avant de détecter le commentaire).
+
+## 9. Décision de Tom (22/09) — incrément 1 validé, suite lancée
+
+3 bugs réels trouvés (espaces/ponctuation collés, gouttière vide, panneaux
+IA empilés) et corrigés, plus le retour à la ligne ajouté en fonctionnalité
+(demandé par Tom, hors périmètre "portage fidèle" initial). Vérifié sur
+l'exe Debug ET sur le raccourci Bureau (Release) — les deux pointent vers
+des dossiers de build différents, voir la règle §10 de
+`Docs/design/Langage-visuel-spec.md`.
+
+Tom confirme : « tout fonctionne ». Câblage de test (`EditorPaneView.xaml`,
+`SettingsApplier.cs`) **rendu définitif** (plus de mention "temporaire").
+Choisi parmi 3 options proposées : lancer l'incrément 2 (saisie clavier,
+curseur, sélection souris) plutôt que de s'arrêter là ou revenir au WebView.
+
+**Rappel important, à ne pas laisser croire le contraire à Tom** : le
+rendu validé est **statique** -- `CodeEditorViewSkia` n'a encore aucune
+saisie, aucun curseur, aucune sélection (`GoToLine`/`SetMinimapVisible`/
+`SetGhost`/`GetSelectedText` sont des méthodes vides). L'incrément 2 est
+le morceau le plus gros et le plus risqué du chantier (§3 ci-dessus) --
+`CodeEditorView` (WebView) reste dans le dépôt, non supprimé, tant que la
+parité n'est pas confirmée (§5 point 4).

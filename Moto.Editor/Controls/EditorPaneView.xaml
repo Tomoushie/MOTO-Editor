@@ -194,20 +194,22 @@
         </Border>
 
         <!-- ═══ Ligne 4 : éditeur ═══ -->
-        <!-- ★ CORRECTIF (04/09, trouvé par Tom : la barre IA flottante — AiBar,
-             MainPage.xaml — n'apparaissait qu'en scrollant jusqu'au bout d'un
-             long fichier, cachée derrière le code le reste du temps).
-             CodeEditorView héberge un WebView (voir CodeEditorView.xaml) — sous
-             Windows, un WebView a sa PROPRE fenêtre native ("airspace") qui
-             s'affiche TOUJOURS par-dessus le reste de l'interface XAML, quel
-             que soit l'ordre de déclaration dans le Grid (limitation connue de
-             la plateforme, pas un bug d'ordre de calque classique). Impossible
-             de faire passer AiBar AU-DESSUS du WebView par un simple z-index ;
-             la solution qui marche réellement est d'empêcher les deux de se
-             chevaucher : cette marge réserve ~110px en bas (hauteur d'AiBar +
-             sa propre marge de 40, MainPage.xaml) où le WebView ne s'étend
-             JAMAIS, quel que soit le défilement du code à l'intérieur. -->
-        <controls:CodeEditorView Grid.Row="4" x:Name="Editor" x:FieldModifier="Public" Margin="0,0,0,110" />
+        <!-- ★ HISTORIQUE (04/09) : la marge de 110px ci-dessous existait pour
+             contourner l'"airspace" du WebView de l'ancien CodeEditorView (un
+             WebView Windows s'affiche TOUJOURS par-dessus le reste du XAML,
+             quel que soit l'ordre de déclaration dans le Grid). CodeEditorViewSkia
+             (adopté le 22/09, voir note ci-dessous) ne contient plus de WebView
+             — ce problème d'"airspace" ne s'applique donc plus. La marge est
+             VOLONTAIREMENT conservée telle quelle (juste un espace visuel sous le
+             code, pas un contournement de bug) : la retirer est un choix de
+             layout séparé, pas traité ici. -->
+        <!-- ★ ADOPTÉ (22/09, chantier rendu direct SkiaSharp, incrément 1 validé
+             par Tom sur écran réel — Debug puis Release/raccourci Bureau) :
+             CodeEditorView (WebView) remplacé par CodeEditorViewSkia. Voir
+             Docs/design/Cadrage-CodeEditor-SkiaSharp.md. Incrément 2 (saisie/
+             curseur/sélection) en cours — CodeEditorView reste dans le dépôt,
+             non supprimé, tant que la parité n'est pas confirmée (§5 du cadrage). -->
+        <controls:CodeEditorViewSkia Grid.Row="4" x:Name="Editor" x:FieldModifier="Public" Margin="0,0,0,110" />
 
     </Grid>
 

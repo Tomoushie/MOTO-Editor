@@ -16,7 +16,10 @@ namespace Moto.Editor.Settings
     /// </summary>
     public static class SettingsApplier
     {
-        public static void ApplyAll(MainViewModel vm, CodeEditorView editor, SettingsEngine s)
+        // ★ ADOPTÉ (22/09) : CodeEditorView -> CodeEditorViewSkia, même contrat
+        // public (Text/FontSizeMode utilisés ici). Voir EditorPaneView.xaml et
+        // Docs/design/Cadrage-CodeEditor-SkiaSharp.md.
+        public static void ApplyAll(MainViewModel vm, CodeEditorViewSkia editor, SettingsEngine s)
         {
             // Thème
             // ★ CORRECTION (31/08) : "Light"/"System" appelaient réellement
@@ -55,7 +58,7 @@ namespace Moto.Editor.Settings
             // Les vues lisent SettingsEngine.Shared au rendu.
         }
 
-        public static void Subscribe(MainViewModel vm, CodeEditorView editor, SettingsEngine s)
+        public static void Subscribe(MainViewModel vm, CodeEditorViewSkia editor, SettingsEngine s)
         {
             s.SettingChanged += (id, _) => ApplyAll(vm, editor, s);
         }
