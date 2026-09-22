@@ -273,7 +273,7 @@
                 <Button Text="Les vôtres" Style="{StaticResource CcSegBtn}" Background="{DynamicResource BgPanel}"/>
                 <Button Text="Parcourir" Style="{StaticResource CcSegBtn}"/>
                 <Label HorizontalOptions="End"/>
-                <Button Text="Ajouter ⌄" Background="#F2F0EC" TextColor="#171512" CornerRadius="{StaticResource RadiusMd}" HeightRequest="34"/>
+                <Button Text="Ajouter ⌄" Background="#F2F0EC" TextColor="#171512" CornerRadius="{StaticResource RadiusMdInt}" HeightRequest="34"/>
               </StackLayout>
               <Border Style="{StaticResource CcCard}" Padding="22">
                 <StackLayout Spacing="8">
@@ -282,8 +282,8 @@
                   <Label Text="Les compétences apprennent à Claude comment vous travaillez. Ajoutez-les depuis Discover ou créez les vôtres."
                          TextColor="{StaticResource Txt2}"/>
                   <StackLayout Orientation="Horizontal" Spacing="10">
-                    <Button Text="Parcourir Discover" Background="#F2F0EC" TextColor="#171512" CornerRadius="{StaticResource RadiusMd}"/>
-                    <Button Text="En savoir plus" Background="{DynamicResource BgPanel}" CornerRadius="{StaticResource RadiusMd}"/>
+                    <Button Text="Parcourir Discover" Background="#F2F0EC" TextColor="#171512" CornerRadius="{StaticResource RadiusMdInt}"/>
+                    <Button Text="En savoir plus" Background="{DynamicResource BgPanel}" CornerRadius="{StaticResource RadiusMdInt}"/>
                   </StackLayout>
                 </StackLayout>
               </Border>
@@ -316,7 +316,7 @@
                 <Label Text="Artéfacts" Style="{StaticResource CcSerifTitle}"/>
                 <Label HorizontalOptions="End"/>
                 <Button Text="🔍" Style="{StaticResource CcIconBtn}"/>
-                <Button Text="Nouvel artéfact" Background="#F2F0EC" TextColor="#171512" CornerRadius="{StaticResource RadiusMd}"/>
+                <Button Text="Nouvel artéfact" Background="#F2F0EC" TextColor="#171512" CornerRadius="{StaticResource RadiusMdInt}"/>
               </StackLayout>
               <StackLayout Orientation="Horizontal" Spacing="6">
                 <Button Text="Tous" Style="{StaticResource CcSegBtn}" Background="{DynamicResource BgPanel}"/>

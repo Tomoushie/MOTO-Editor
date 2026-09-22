@@ -189,117 +189,6 @@
     <x:Double x:Key="FontSizeUiHeading">18</x:Double>
     <x:Double x:Key="FontSizeUiTitle">22</x:Double>
 
-    <!-- ══════════════════ Styles ══════════════════ -->
-    <Style x:Key="TxtSecondary" TargetType="Label">
-        <Setter Property="TextColor" Value="{StaticResource Txt2}" />
-        <Setter Property="FontSize" Value="11" />
-    </Style>
-
-    <!-- Styles opt-in (x:Key, pas implicites) pour ne pas entrer en conflit
-         avec les styles Button/Entry par défaut déjà posés dans App.xaml. -->
-    <Style x:Key="MotoHoverButton" TargetType="Button">
-        <Setter Property="BackgroundColor" Value="Transparent" />
-        <Setter Property="TextColor" Value="{StaticResource Txt1}" />
-        <Setter Property="BorderWidth" Value="0" />
-        <Setter Property="CornerRadius" Value="{StaticResource RadiusMd}" />
-        <Setter Property="FontSize" Value="{StaticResource FontSizeSmall}" />
-        <Setter Property="Padding" Value="{StaticResource PadRow}" />
-        <Setter Property="VisualStateManager.VisualStateGroups">
-            <VisualStateGroupList>
-                <VisualStateGroup x:Name="CommonStates">
-                    <VisualState x:Name="Normal" />
-                    <VisualState x:Name="PointerOver">
-                        <VisualState.Setters>
-                            <Setter Property="BackgroundColor" Value="{StaticResource BgHover}" />
-                        </VisualState.Setters>
-                    </VisualState>
-                    <VisualState x:Name="Pressed">
-                        <VisualState.Setters>
-                            <Setter Property="BackgroundColor" Value="{StaticResource BgPanel}" />
-                        </VisualState.Setters>
-                    </VisualState>
-                    <!-- ★ AJOUT (22/09, Phase 0) : Focused et Disabled étaient
-                         ABSENTS de tous les styles de bouton — un bouton
-                         inactif était indiscernable d'un bouton actif, et un
-                         IDE piloté au clavier n'avait aucun anneau de focus.
-                         Focused pose une bordure d'accent de 1 px ; Disabled
-                         baisse l'opacité et neutralise le survol. -->
-                    <VisualState x:Name="Focused">
-                        <VisualState.Setters>
-                            <Setter Property="BorderWidth" Value="1" />
-                            <Setter Property="BorderColor" Value="{StaticResource FocusRing}" />
-                        </VisualState.Setters>
-                    </VisualState>
-                    <VisualState x:Name="Disabled">
-                        <VisualState.Setters>
-                            <Setter Property="Opacity" Value="0.4" />
-                            <Setter Property="BackgroundColor" Value="Transparent" />
-                            <Setter Property="TextColor" Value="{StaticResource Txt2}" />
-                        </VisualState.Setters>
-                    </VisualState>
-                </VisualStateGroup>
-            </VisualStateGroupList>
-        </Setter>
-    </Style>
-
-    <Style x:Key="MotoHoverEntry" TargetType="Entry">
-        <Setter Property="BackgroundColor" Value="{StaticResource BgPanel}" />
-        <Setter Property="TextColor" Value="{StaticResource Txt1}" />
-        <Setter Property="PlaceholderColor" Value="{StaticResource Txt2}" />
-        <Setter Property="VisualStateManager.VisualStateGroups">
-            <VisualStateGroupList>
-                <VisualStateGroup x:Name="CommonStates">
-                    <VisualState x:Name="Normal" />
-                    <VisualState x:Name="PointerOver">
-                        <VisualState.Setters>
-                            <Setter Property="BackgroundColor" Value="{StaticResource BgHover}" />
-                        </VisualState.Setters>
-                    </VisualState>
-                    <VisualState x:Name="Focused">
-                        <VisualState.Setters>
-                            <Setter Property="BackgroundColor" Value="{StaticResource BgHover}" />
-                        </VisualState.Setters>
-                    </VisualState>
-                </VisualStateGroup>
-            </VisualStateGroupList>
-        </Setter>
-    </Style>
-
-    <!-- ★ AJOUT (02/09, retouche visuelle "vrai Zed") : d'après le vrai code source
-         public de Zed (crates/project_panel/src/project_panel.rs, lu directement
-         sur github.com/zed-industries/zed — pas une supposition), les boutons
-         d'outils icône-seule et les lignes de liste (fichiers, entrées de menu...)
-         y suivent tous les deux le même principe simple : AUCUN chrome natif, et
-         un unique changement de fond par état (default/hover/selected), sans
-         cadre ni relief. MotoHoverButton existait déjà pour les boutons texte
-         normaux ; les 2 styles ci-dessous étendent exactement le même mécanisme
-         (déjà éprouvé dans ce projet) à ces deux cas qui ne l'avaient pas :
-         boutons compacts d'une barre d'outils (BasedOn, ne change que taille/
-         padding) et lignes de liste (nouveau, TargetType Border, à poser en
-         wrapper autour du contenu d'un DataTemplate). -->
-    <Style x:Key="MotoHoverIconButton" TargetType="Button" BasedOn="{StaticResource MotoHoverButton}">
-        <Setter Property="FontSize" Value="13" />
-        <Setter Property="Padding" Value="6,2" />
-    </Style>
-
-    <Style x:Key="MotoHoverRow" TargetType="Border">
-        <Setter Property="BackgroundColor" Value="Transparent" />
-        <Setter Property="StrokeThickness" Value="0" />
-        <Setter Property="StrokeShape" Value="RoundRectangle 6" />
-        <Setter Property="VisualStateManager.VisualStateGroups">
-            <VisualStateGroupList>
-                <VisualStateGroup x:Name="CommonStates">
-                    <VisualState x:Name="Normal" />
-                    <VisualState x:Name="PointerOver">
-                        <VisualState.Setters>
-                            <Setter Property="BackgroundColor" Value="{StaticResource BgHover}" />
-                        </VisualState.Setters>
-                    </VisualState>
-                </VisualStateGroup>
-            </VisualStateGroupList>
-        </Setter>
-    </Style>
-
     <!-- ══════════════════════════════════════════════════════════════════
          ★ PHASE 0 DU LANGAGE VISUEL (22/09) — voir
          Docs/design/Langage-visuel-spec.md pour le raisonnement complet.
@@ -335,6 +224,16 @@
     <CornerRadius x:Key="RadiusSm">6</CornerRadius>
     <CornerRadius x:Key="RadiusMd">8</CornerRadius>
     <CornerRadius x:Key="RadiusLg">12</CornerRadius>
+    <!-- ★ AJOUT (22/09) : `Button.CornerRadius` est un **int**, alors que
+         `RoundRectangle.CornerRadius` attend un `CornerRadius` (struct). Un
+         jeton `CornerRadius` ne peut donc PAS servir aux deux : le passer à un
+         Button lève `InvalidCastException: Unable to cast 'Microsoft.Maui.
+         CornerRadius' to 'System.Int32'` AU DEMARRAGE — le build ne le voit
+         pas, c'est le plantage qui l'a révélé. D'où ces variantes entières,
+         réservées aux Button (et contrôles à CornerRadius entier). -->
+    <x:Int32 x:Key="RadiusSmInt">6</x:Int32>
+    <x:Int32 x:Key="RadiusMdInt">8</x:Int32>
+    <x:Int32 x:Key="RadiusLgInt">12</x:Int32>
     <CornerRadius x:Key="RadiusPill">999</CornerRadius>
 
     <!-- ── Espacements : Padding/Margin (Thickness) ──────────────────── -->
@@ -453,6 +352,117 @@
              type ne fusionnent pas (l'un écrase l'autre) — la police ne
              s'appliquait donc pas. Style unique, ici. -->
         <Setter Property="TextColor" Value="{StaticResource Txt1}" />
+    </Style>
+
+    <!-- ══════════════════ Styles ══════════════════ -->
+    <Style x:Key="TxtSecondary" TargetType="Label">
+        <Setter Property="TextColor" Value="{StaticResource Txt2}" />
+        <Setter Property="FontSize" Value="11" />
+    </Style>
+
+    <!-- Styles opt-in (x:Key, pas implicites) pour ne pas entrer en conflit
+         avec les styles Button/Entry par défaut déjà posés dans App.xaml. -->
+    <Style x:Key="MotoHoverButton" TargetType="Button">
+        <Setter Property="BackgroundColor" Value="Transparent" />
+        <Setter Property="TextColor" Value="{StaticResource Txt1}" />
+        <Setter Property="BorderWidth" Value="0" />
+        <Setter Property="CornerRadius" Value="{StaticResource RadiusMdInt}" />
+        <Setter Property="FontSize" Value="{StaticResource FontSizeSmall}" />
+        <Setter Property="Padding" Value="{StaticResource PadRow}" />
+        <Setter Property="VisualStateManager.VisualStateGroups">
+            <VisualStateGroupList>
+                <VisualStateGroup x:Name="CommonStates">
+                    <VisualState x:Name="Normal" />
+                    <VisualState x:Name="PointerOver">
+                        <VisualState.Setters>
+                            <Setter Property="BackgroundColor" Value="{StaticResource BgHover}" />
+                        </VisualState.Setters>
+                    </VisualState>
+                    <VisualState x:Name="Pressed">
+                        <VisualState.Setters>
+                            <Setter Property="BackgroundColor" Value="{StaticResource BgPanel}" />
+                        </VisualState.Setters>
+                    </VisualState>
+                    <!-- ★ AJOUT (22/09, Phase 0) : Focused et Disabled étaient
+                         ABSENTS de tous les styles de bouton — un bouton
+                         inactif était indiscernable d'un bouton actif, et un
+                         IDE piloté au clavier n'avait aucun anneau de focus.
+                         Focused pose une bordure d'accent de 1 px ; Disabled
+                         baisse l'opacité et neutralise le survol. -->
+                    <VisualState x:Name="Focused">
+                        <VisualState.Setters>
+                            <Setter Property="BorderWidth" Value="1" />
+                            <Setter Property="BorderColor" Value="{StaticResource FocusRing}" />
+                        </VisualState.Setters>
+                    </VisualState>
+                    <VisualState x:Name="Disabled">
+                        <VisualState.Setters>
+                            <Setter Property="Opacity" Value="0.4" />
+                            <Setter Property="BackgroundColor" Value="Transparent" />
+                            <Setter Property="TextColor" Value="{StaticResource Txt2}" />
+                        </VisualState.Setters>
+                    </VisualState>
+                </VisualStateGroup>
+            </VisualStateGroupList>
+        </Setter>
+    </Style>
+
+    <Style x:Key="MotoHoverEntry" TargetType="Entry">
+        <Setter Property="BackgroundColor" Value="{StaticResource BgPanel}" />
+        <Setter Property="TextColor" Value="{StaticResource Txt1}" />
+        <Setter Property="PlaceholderColor" Value="{StaticResource Txt2}" />
+        <Setter Property="VisualStateManager.VisualStateGroups">
+            <VisualStateGroupList>
+                <VisualStateGroup x:Name="CommonStates">
+                    <VisualState x:Name="Normal" />
+                    <VisualState x:Name="PointerOver">
+                        <VisualState.Setters>
+                            <Setter Property="BackgroundColor" Value="{StaticResource BgHover}" />
+                        </VisualState.Setters>
+                    </VisualState>
+                    <VisualState x:Name="Focused">
+                        <VisualState.Setters>
+                            <Setter Property="BackgroundColor" Value="{StaticResource BgHover}" />
+                        </VisualState.Setters>
+                    </VisualState>
+                </VisualStateGroup>
+            </VisualStateGroupList>
+        </Setter>
+    </Style>
+
+    <!-- ★ AJOUT (02/09, retouche visuelle "vrai Zed") : d'après le vrai code source
+         public de Zed (crates/project_panel/src/project_panel.rs, lu directement
+         sur github.com/zed-industries/zed — pas une supposition), les boutons
+         d'outils icône-seule et les lignes de liste (fichiers, entrées de menu...)
+         y suivent tous les deux le même principe simple : AUCUN chrome natif, et
+         un unique changement de fond par état (default/hover/selected), sans
+         cadre ni relief. MotoHoverButton existait déjà pour les boutons texte
+         normaux ; les 2 styles ci-dessous étendent exactement le même mécanisme
+         (déjà éprouvé dans ce projet) à ces deux cas qui ne l'avaient pas :
+         boutons compacts d'une barre d'outils (BasedOn, ne change que taille/
+         padding) et lignes de liste (nouveau, TargetType Border, à poser en
+         wrapper autour du contenu d'un DataTemplate). -->
+    <Style x:Key="MotoHoverIconButton" TargetType="Button" BasedOn="{StaticResource MotoHoverButton}">
+        <Setter Property="FontSize" Value="13" />
+        <Setter Property="Padding" Value="6,2" />
+    </Style>
+
+    <Style x:Key="MotoHoverRow" TargetType="Border">
+        <Setter Property="BackgroundColor" Value="Transparent" />
+        <Setter Property="StrokeThickness" Value="0" />
+        <Setter Property="StrokeShape" Value="RoundRectangle 6" />
+        <Setter Property="VisualStateManager.VisualStateGroups">
+            <VisualStateGroupList>
+                <VisualStateGroup x:Name="CommonStates">
+                    <VisualState x:Name="Normal" />
+                    <VisualState x:Name="PointerOver">
+                        <VisualState.Setters>
+                            <Setter Property="BackgroundColor" Value="{StaticResource BgHover}" />
+                        </VisualState.Setters>
+                    </VisualState>
+                </VisualStateGroup>
+            </VisualStateGroupList>
+        </Setter>
     </Style>
 
 </ResourceDictionary>

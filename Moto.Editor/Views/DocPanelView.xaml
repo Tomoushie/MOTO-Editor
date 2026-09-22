@@ -18,7 +18,7 @@
             <Grid Grid.Row="0" ColumnDefinitions="*,Auto">
                 <Label Grid.Column="0" Text="📚 MOTO Doc Engine" FontAttributes="Bold" FontSize="{StaticResource FontSizeSubheading}" />
                 <Button Grid.Column="1" Text="✕" FontSize="{StaticResource FontSizeBody}" Padding="0"
-                        WidthRequest="24" HeightRequest="24" CornerRadius="{StaticResource RadiusLg}"
+                        WidthRequest="24" HeightRequest="24" CornerRadius="{StaticResource RadiusLgInt}"
                         BackgroundColor="Transparent" TextColor="{StaticResource Txt2}"
                         Clicked="OnCloseClicked" />
             </Grid>

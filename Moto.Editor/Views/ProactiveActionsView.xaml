@@ -42,7 +42,7 @@
                         Padding="0"
                         WidthRequest="24"
                         HeightRequest="24"
-                        CornerRadius="{StaticResource RadiusLg}"
+                        CornerRadius="{StaticResource RadiusLgInt}"
                         BackgroundColor="Transparent"
                         TextColor="{StaticResource Txt2}"
                         Clicked="OnCloseClicked" />
