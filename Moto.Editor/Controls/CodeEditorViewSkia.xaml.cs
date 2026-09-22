@@ -8,6 +8,7 @@
 // aurait cassé le contrat public existant (SettingsApplier.cs appelle
 // editor.FontSizeMode).
 using System;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using Microsoft.Maui.Controls;
 using SkiaSharp;
@@ -101,46 +102,85 @@ namespace Moto.Editor.Controls
                 TextAlign = SKTextAlign.Right
             };
 
+            const float GutterWidth = 52f;
+            const float TextStartX = GutterWidth + 8f;
+            const float RightMargin = 8f;
+            float lineHeight = lineNumberPaint.TextSize * 1.5f;
+
+            // Retour à la ligne visuel (22/09, demandé par Tom : le texte ne
+            // remplissait pas la largeur du panneau). Une ligne source peut
+            // maintenant occuper plusieurs "lignes visuelles" successives ;
+            // le numéro de ligne (gouttière) n'apparaît que sur la première.
+            // Le +40 plancher évite une boucle si le panneau est réduit à rien.
+            float maxX = Math.Max(TextStartX + 40f, e.Info.Width - RightMargin);
+
+            int visualRow = 0;
+
             for (int i = 0; i < lines.Length; i++)
             {
-                float rowTop = i * (lineNumberPaint.TextSize * 1.5f) + 20;
-                canvas.DrawRect(0, rowTop, 52, lineNumberPaint.TextSize * 1.5f, lineNumberPaint);
-                canvas.DrawText((i + 1).ToString(), 44, rowTop + lineNumberPaint.TextSize * 1.15f, gutterTextPaint);
-
-                float x = 60;
-                float y = i * (lineNumberPaint.TextSize * 1.5f) + 40;
                 string line = lines[i];
+
+                // Mêmes segments qu'avant (voir TokenRegex) : un token reconnu,
+                // ou un morceau brut entre deux tokens (espaces, ponctuation,
+                // identifiants) -- jamais de caractère perdu. Construits en
+                // liste ici (plutôt que dessinés au fil de l'eau comme avant)
+                // pour pouvoir couper au bon endroit si la ligne déborde.
+                var segments = new List<(string Text, SKColor Color)>();
                 int pos = 0;
                 foreach (Match m in TokenRegex.Matches(line))
                 {
                     if (m.Index > pos)
-                    {
-                        // Segment NON coloré entre 2 correspondances : espaces,
-                        // ponctuation, identifiants -- dessiné tel quel, jamais
-                        // supprimé (voir commentaire sur TokenRegex plus haut).
-                        string plain = line.Substring(pos, m.Index - pos);
-                        codePaint.Color = SKColor.Parse("#dcdfe4");
-                        canvas.DrawText(plain, x, y, codePaint);
-                        x += codePaint.MeasureText(plain);
-                    }
+                        segments.Add((line.Substring(pos, m.Index - pos), SKColor.Parse("#dcdfe4")));
 
                     string color = m.Groups[1].Success ? "#6a9955"   // commentaire //...
                                  : m.Groups[2].Success ? "#ce9178"   // chaîne "..."
                                  : m.Groups[3].Success ? "#b5cea8"   // nombre
                                  : "#569cd6";                        // mot-clé
-                    codePaint.Color = SKColor.Parse(color);
-                    canvas.DrawText(m.Value, x, y, codePaint);
-                    x += codePaint.MeasureText(m.Value);
+                    segments.Add((m.Value, SKColor.Parse(color)));
                     pos = m.Index + m.Length;
                 }
-
                 if (pos < line.Length)
+                    segments.Add((line.Substring(pos), SKColor.Parse("#dcdfe4")));
+
+                float x = TextStartX;
+                DrawGutterRow(canvas, lineNumberPaint, gutterTextPaint, visualRow, lineHeight, GutterWidth, i + 1);
+
+                foreach (var (text, color) in segments)
                 {
-                    string tail = line.Substring(pos);
-                    codePaint.Color = SKColor.Parse("#dcdfe4");
-                    canvas.DrawText(tail, x, y, codePaint);
+                    if (text.Length == 0)
+                        continue;
+
+                    codePaint.Color = color;
+                    float width = codePaint.MeasureText(text);
+
+                    // Le segment ne tient pas dans la largeur restante :
+                    // nouvelle ligne visuelle -- sauf en tout début de ligne
+                    // (sinon un seul token plus large que le panneau boucle
+                    // sans fin sans jamais avancer).
+                    if (x + width > maxX && x > TextStartX)
+                    {
+                        visualRow++;
+                        x = TextStartX;
+                        DrawGutterRow(canvas, lineNumberPaint, gutterTextPaint, visualRow, lineHeight, GutterWidth, lineNumber: null);
+                    }
+
+                    float y = visualRow * lineHeight + 40;
+                    canvas.DrawText(text, x, y, codePaint);
+                    x += width;
                 }
+
+                visualRow++;
             }
+        }
+
+        // lineNumber == null : ligne de continuation d'un retour à la ligne
+        // visuel -- gouttière dessinée (fond continu) mais sans numéro.
+        private static void DrawGutterRow(SKCanvas canvas, SKPaint gutterBgPaint, SKPaint gutterTextPaint, int visualRow, float lineHeight, float gutterWidth, int? lineNumber)
+        {
+            float top = visualRow * lineHeight + 20;
+            canvas.DrawRect(0, top, gutterWidth, lineHeight, gutterBgPaint);
+            if (lineNumber.HasValue)
+                canvas.DrawText(lineNumber.Value.ToString(), gutterWidth - 8, top + gutterBgPaint.TextSize * 1.15f, gutterTextPaint);
         }
 
         public void GoToLine(int line)
