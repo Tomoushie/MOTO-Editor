@@ -377,8 +377,9 @@ juge le rendu actuel « cheap » alors que l'architecture est déjà « élevé 
   ne pas se fier à l'auto-évaluation de ce document.
 - **Backend / Structure** : architecture, moteurs réels, 0 erreur de build,
   fonctionnalités réellement branchées. Le passage à « vendable » exige que
-  **tout ce qui est annoncé fonctionne** (aujourd'hui : 297 réglages dont 4
-  appliqués, LSP/DAP/CRDT absents, cluster ONNX mort).
+  **tout ce qui est annoncé fonctionne** (aujourd'hui, mesuré : 12 réglages
+  opérants sur 324 déclarés, LSP/DAP/CRDT absents, cluster ONNX mort — voir
+  bug #4 ci-dessous).
 - **triple A** (les deux axes) : niveau VS Code / Zed / JetBrains en
   visuel **et** en profondeur fonctionnelle.
 
@@ -443,11 +444,31 @@ lecture directe du code.
    (`SettingsCatalog.cs`) changé pour n'offrir plus qu'un seul choix
    ("Dark"). Construire une vraie palette claire reste une option pour plus
    tard (gros chantier), pas retenue aujourd'hui. Confirmé par Tom.
-4. **La fenêtre Réglages affiche 297 réglages, seuls 4 agissent vraiment.**
-   `SettingsApplier.ApplyAll()` ne lit que 4 clés au total (thème, taille de
-   police, minimap, diagnostics LSP) sur les 297 affichées dans la fenêtre —
-   confirmé par le propre commentaire du code. C'est de loin le plus grand
-   écart "affiché mais inactif" de l'app par rapport à la barre "moyen".
+4. **Réglages : 12 opérants sur 324 déclarés — soit 3,7 %.** Mesuré le 22/09
+   par `scripts/settings-coverage.ps1` (rapport :
+   `Docs/design/Couverture-reglages.md`), sur le **périmètre réellement
+   compilé** (562 fichiers .cs ; les 98 fichiers exclus du build sont
+   écartés, sinon on compterait comme « opérant » un réglage lu par du code
+   mort — c'est le cas des `ai.embedded.*`, lus par le cluster ONNX non
+   compilé).
+   Le chiffre « 4 » qui figurait ici venait de la seule lecture de
+   `SettingsApplier.ApplyAll()` : il n'applique effectivement que 4 clés
+   (`theme_mode`, `buffer_font_size`, `minimap_show`, `lsp_diagnostics`),
+   mais 8 autres sont lues ailleurs dans du code compilé
+   (`context_engine_enabled`, `doc_auto_update`, `doc_on_project_open`,
+   `ollama_endpoint`, `ollama_model`, `ollama_timeout_seconds`,
+   `platform_auto_detect`, `power_mode`).
+   **Les 312 inertes se répartissent par catégorie** — et le plus gros
+   cluster correspond à des **interfaces qui EXISTENT déjà mais ignorent leur
+   configuration** : `Fenêtre & Layout` 50 (onglets `tabs_*`, barre de titre
+   `tb_*`, barre de statut `sb_*`, aperçus `preview_*`), `Panneaux` 44
+   (explorateur `pp_*`, panneau Git `gp_*`, panneaux agent/chat/debug/outline
+   `ap_*`/`cp_*`/`dp_*`/`op_*`), puis AI 31, Agent 28, Éditeur 25,
+   Terminal 22, Apparence 17, Version Control 17, Recherche & Fichiers 17.
+   C'est **le plus grand écart « affiché mais inactif » de l'app**, et le
+   verrou direct du palier « élevé → vendable » (la règle étant « tout ce qui
+   est annoncé fonctionne »). Effort : non pas 312 chantiers isolés, mais
+   quelques familles cohérentes à câbler sur de l'UI existante.
 5. ✅ **CORRIGÉ (02/09).** Menu Réglages fantôme (`SettingsMenuView`, l'ancien
    menu avant la fenêtre flottante façon Zed — plus aucun bouton nulle part
    pour l'ouvrir depuis le 31/08, mais construit et abonné à
