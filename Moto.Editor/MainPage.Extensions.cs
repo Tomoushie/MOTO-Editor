@@ -588,9 +588,12 @@ namespace Moto.Editor
                     _proactivePanel.UpdateSuggestions(suggestions);
                 });
             }
-
-            // v26 legacy : ProactiveActionsView (conservé pour compatibilité)
-            if (_proactiveActions != null)
+            // v26 legacy : ProactiveActionsView (conservé pour compatibilité, mais
+            // seulement en repli si v27 est indisponible -- les deux étaient mis à
+            // jour indépendamment ici (2 "if" séparés), donc affichés en même temps,
+            // empilés au même endroit (Grid.Row=2, même coin bas-droit) : signalé par
+            // Tom le 22/09, capture à l'appui. "else if" pour n'en montrer qu'un.
+            else if (_proactiveActions != null)
             {
                 var actions = _actionsEngine.GetActions(BuildActionContext());
                 MainThread.BeginInvokeOnMainThread(() =>
