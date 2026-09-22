@@ -8,6 +8,7 @@ using Microsoft.Maui.Hosting;
 using Moto.Core.DevOps;
 using Moto.Core.Settings;
 using Moto.Editor.DependencyInjection;
+using SkiaSharp.Views.Maui.Controls.Hosting;
 
 namespace Moto.Editor
 {
@@ -43,6 +44,7 @@ namespace Moto.Editor
             builder
                 .UseMauiApp<App>()
                 .UseMauiCommunityToolkit() // FolderPicker.Default (FileExplorerView/MainPage.UI)
+                .UseSkiaSharp() // CodeEditorViewSkia (chantier rendu direct, incrément 1 — 22/09)
                 .ConfigureFonts(fonts =>
                 {
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
