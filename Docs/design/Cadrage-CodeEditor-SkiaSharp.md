@@ -229,3 +229,37 @@ chantier : petits lots, un build vert par lot) :
 Chaque sous-étape : un envoi à l'Orchestrateur, relecture avant intégration
 (même discipline qu'incrément 1), build vert, test réel par Tom, commit
 séparé.
+
+## 11. Constats mesurés sur l'architecture 2a — le champ natif ne tient pas (22-23/09)
+
+Tout ce qui suit est MESURÉ (journal Breadcrumb + géométrie de mise en page
+relevée par un diagnostic temporaire, non commité), sur `CLAUDE.md` : 112 Ko,
+1811 lignes, ligne la plus longue 353 caractères. Le 23/09, l'ouverture du
+fichier et le redimensionnement de la fenêtre (1790 → 1500 → 1300 → 1100 → 1790)
+ont été rejoués automatiquement, sans intervention manuelle.
+
+| Constat | Mesure | Cause | État |
+|---|---|---|---|
+| Ouverture lente | fil UI bloqué ~5-6 s (6,2 s puis 5,1 s sur deux essais) | `HiddenInput` reçoit tout le document ; le TextBox WinUI le met en page en entier | **NON corrigé** |
+| Texte écrasé sur une seule ligne | écho tardif : `len=112379 lf=0 cr=1811` | le TextBox WinUI range/renvoie ses sauts de ligne en `\r` ; l'écho arrive après la retombée de `_syncInProgress` | corrigé (76eec22 : garde `IsFocused` + `NormalizeNewlines`) |
+| Avertissements jaunes fantômes | emojis en couleur du champ natif, placés selon SA mise en page | WinUI les dessine malgré `TextColor` transparent | corrigé (76eec22 : `Opacity="0"`) |
+| Explorateur poussé hors de la fenêtre | fenêtre 1500 : explorateur à x=1484 (hors du visible), panneau éditeur = toute la largeur ; `DesiredSize.Width` de `HiddenInput` = largeur offerte (1484, puis 1284, puis 1084) | un TextBox dont le texte remplit la ligne réclame toute la largeur qu'on lui offre ; la colonne `*` du Grid MAUI ne descend pas sous cette demande, donc la colonne `Auto` de l'explorateur est repoussée. Absent avec l'écran d'accueil seul (`HomeView` dw=640). Signalé par Tom | **NON corrigé** |
+| Rendu coûteux | 15-33 ms par repeinte (126 ms la première), pour 1812 lignes sources | toutes les lignes sont tokenisées et dessinées à chaque clignotement du curseur (530 ms), même hors écran ; pas de découpage par zone visible | **NON corrigé** |
+| Pas de défilement | le canevas ne montre que la première page | jamais prévu au découpage du §6 (oubli) ; le WebView défilait nativement | **NON traité** |
+
+**Conclusion** : les trois premiers défauts sont des symptômes du même choix —
+faire porter le DOCUMENT ENTIER par un contrôle natif dont on ne maîtrise ni la
+mise en page ni la vitesse. Piste recommandée (à valider par Tom) : le contrôle
+possède le document (texte, curseur, sélection, défilement) ; le champ caché
+ne reste qu'un capteur clavier, quasi vide, donc sans coût ni influence sur la
+mise en page. Il faudra alors écrire les touches de navigation/édition
+(flèches, début/fin, page, suppression, entrée, tabulation, Ctrl+A/C/X/V),
+prévoir les touches mortes/IME (test AZERTY par Tom), et découper le rendu par
+zone visible avec défilement — ce qui prépare aussi 2c-2e.
+
+Piège technique retenu : pour reproduire un problème de mise en page sans
+intervenir à la main, ouvrir un fichier au démarrage via une variable
+d'environnement (crochet temporaire dans `MainPage.OnPageLoaded`) et
+redimensionner la fenêtre par `SetWindowPos` depuis `powershell.exe` — la
+fenêtre lancée depuis un shell démarre réduite, `ShowWindow(h, 9)` la
+restaure d'abord.
