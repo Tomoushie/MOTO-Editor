@@ -848,6 +848,41 @@ Vu la taille du travail restant (probablement gestion native de
 par l'Orchestrator plutôt qu'en retouche directe — voir section Rust/vitesse
 ci-dessous, décision liée.
 
+### Fermeture de la fenêtre — plantage `0xC000027B` corrigé (24/09, `2b16cc3`)
+
+**Symptôme** : plantage à la fermeture normale (sortie `0xC000027B`, module
+`CoreMessagingXP.dll`, WER `80000013` = RO_E_CLOSED), **aucune ligne** dans
+`moto-editor-crash.log`. **Cause (pile relevée, pas supposée)** : quand la
+fenêtre est AU PREMIER PLAN à la fermeture, Windows envoie un dernier
+`Window.Activated(Deactivated)` ~20-50 ms APRÈS `Window.HandlerChanged`
+(Handler nul). `MainPage` y relançait `ConfigureSnapLayouts`, qui mettait en
+file 4 rappels `DispatcherQueue` (`SetRegion`, priorité basse) ; ils
+s'exécutaient quand l'`InputNonClientPointerSource` était déjà fermé →
+`SetRegionRects` levait `ObjectDisposedException` (0x80000013) DANS un rappel
+natif sans try/catch → arrêt immédiat du processus. Ni
+`AppDomain.UnhandledException` ni `Application.UnhandledException` ne voient
+un rappel de `DispatcherQueue` — d'où le journal muet.
+
+**Règle à retenir** : une fois le `Handler` de la fenêtre nul, plus aucun appel
+natif de fenêtre (`InputNonClientPointerSource`, `AppWindow`,
+`DispatcherQueue.TryEnqueue`…) ; tout rappel/événement natif porte son propre
+try/catch. Garde-fous : `SnapLayoutsHelper.NotifyWindowClosing()` /
+`IsWindowClosing` (posé par `App.CreateWindow`) + `OnRegionFailure` (filet
+try/catch, suffisant seul : testé 8/8 avec le drapeau coupé). Les
+abonnements de `ConfigureSnapLayouts` ne sont plus posés qu'une fois (ils
+s'empilaient à chaque changement d'activation).
+
+**Tester une fermeture** : le plantage n'existe QUE si la fenêtre est au
+premier plan à la fermeture (toute fermeture faite par l'utilisateur l'est).
+Un lancement par script n'obtient le premier plan que si l'utilisateur est
+inactif depuis plusieurs minutes (verrou de premier plan Windows) — sinon
+environ 1 cycle sur 8, et « 0 plantage sur N » ne prouve rien. Compter les
+cycles **armés** (ligne `Window.Activated …` après le dernier
+`Window.HandlerChanged` du journal) et rapporter les plantages *par cycle
+armé*. Pour voir la pile d'une exception qui tue le processus : abonner
+temporairement `AppDomain.FirstChanceException` (type + `new
+StackTrace(true)`) dès que le Handler est nul.
+
 ## Point d'entrée pour ouvrir l'Explorateur
 
 ✅ **Ctrl+B câblé et confirmé (02/09).** La palette de commandes annonçait
