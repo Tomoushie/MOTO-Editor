@@ -133,6 +133,14 @@ namespace Moto.Editor
             window.HandlerChanged += (s, e) =>
             {
                 Breadcrumb("Window.HandlerChanged");
+                // ★ CORRECTIF (24/09) — plantage à la fermeture (0xC000027B, RO_E_CLOSED) :
+                // Handler nul = la fenêtre est détachée, elle disparaît. Windows envoie
+                // encore un Window.Activated(Deactivated) juste après (~20-50 ms plus tard,
+                // à chaque fermeture observée où la fenêtre était au premier plan) : à
+                // partir d'ici plus aucun appel natif de zones de fenêtre ne doit être
+                // tenté (voir SnapLayoutsHelper).
+                if (window.Handler == null)
+                    Platforms.Windows.SnapLayoutsHelper.NotifyWindowClosing();
                 // ★ CHANTIER "RENDU 100% CUSTOM" (08/09, accord explicite de Tom
                 // après 6 tentatives "coopératives" toutes infructueuses contre la
                 // bande bleue — voir moto-editor-titlebar-msix-investigation).

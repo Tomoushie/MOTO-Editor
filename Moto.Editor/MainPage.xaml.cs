@@ -546,6 +546,16 @@ namespace Moto.Editor
                 var lastActivated = DateTime.MinValue;
                 nativeWindow.Activated += (s, e) =>
                 {
+                    // ★ CORRECTIF (24/09) — plantage à la fermeture (0xC000027B) : à la
+                    // fermeture, Windows envoie un dernier Activated(Deactivated) APRÈS le
+                    // détachement de la fenêtre ; réappliquer les zones à ce moment-là
+                    // touchait des objets natifs déjà fermés (voir SnapLayoutsHelper).
+                    if (Platforms.Windows.SnapLayoutsHelper.IsWindowClosing)
+                    {
+                        App.Breadcrumb($"Window.Activated ({e.WindowActivationState}) — ignoré : fenêtre en cours de fermeture");
+                        return;
+                    }
+
                     var now = DateTime.UtcNow;
                     if ((now - lastActivated).TotalMilliseconds < 250) return;
                     lastActivated = now;

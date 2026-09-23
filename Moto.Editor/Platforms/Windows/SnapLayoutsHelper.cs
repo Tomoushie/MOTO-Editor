@@ -21,6 +21,55 @@ namespace Moto.Editor.Platforms.Windows;
 /// </summary>
 public static class SnapLayoutsHelper
 {
+    // ★ CORRECTIF (24/09) — plantage à la FERMETURE de la fenêtre (code 0xC000027B,
+    // RO_E_CLOSED), mesuré puis reproduit (pile d'appels relevée avec un journal des
+    // exceptions de fermeture) : quand on ferme la fenêtre alors qu'elle est au premier
+    // plan, Windows envoie un dernier Window.Activated(Deactivated) APRÈS que MAUI a
+    // détaché la fenêtre (Window.HandlerChanged, Handler nul). MainPage y relançait
+    // ConfigureSnapLayouts, qui met en file des rappels DispatcherQueue (SetRegion,
+    // priorité basse) : ils s'exécutaient quand l'InputNonClientPointerSource était déjà
+    // fermé, SetRegionRects levait ObjectDisposedException (0x80000013) DANS un rappel
+    // natif, sans try/catch → arrêt immédiat du processus. Le journal ne voyait rien :
+    // ni AppDomain.UnhandledException ni Application.UnhandledException ne sont
+    // appelées pour un rappel de DispatcherQueue.
+    // Deux garde-fous : (1) _windowClosing, posé dès que la fenêtre est détachée
+    // (App.CreateWindow, NotifyWindowClosing), neutralise toute réapplication ;
+    // (2) chaque appel natif est dans un try/catch (OnRegionFailure) — une exception
+    // dans un rappel ou un événement natif ne doit jamais remonter.
+    private static volatile bool _windowClosing;
+
+    /// <summary>À appeler dès que la fenêtre commence à disparaître (Handler détaché).</summary>
+    public static void NotifyWindowClosing() => _windowClosing = true;
+
+    /// <summary>Vrai une fois la fenêtre en cours de fermeture : plus aucun appel natif ne doit être tenté.</summary>
+    public static bool IsWindowClosing => _windowClosing;
+
+    // ★ AJOUT (24/09) : ConfigureSnapLayouts est rappelée à CHAQUE changement d'activation
+    // de la fenêtre (MainPage, Window.Activated) et ajoutait à chaque appel de nouveaux
+    // abonnements (Loaded/SizeChanged sur 4 éléments + AppWindow.Changed) : plus de 20
+    // exemplaires empilés en fin de session, tous relancés à chaque redimensionnement.
+    // Les abonnements ne sont maintenant posés qu'UNE fois par élément / par fenêtre ;
+    // rappeler ConfigureSnapLayouts se contente de réappliquer les zones.
+    private static readonly System.Collections.Generic.HashSet<FrameworkElement> _wiredElements = new();
+    private static readonly System.Collections.Generic.HashSet<ulong> _resizeBordersWired = new();
+
+    /// <summary>
+    /// Toute exception d'un appel natif (zones de fenêtre) est rattrapée ici : dans un
+    /// rappel ou un événement natif elle emporterait tout le processus. RO_E_CLOSED
+    /// (0x80000013, projeté en ObjectDisposedException) = l'objet est fermé, la fenêtre
+    /// disparaît : on coupe court à toute réapplication ultérieure.
+    /// </summary>
+    private static void OnRegionFailure(string where, Exception ex)
+    {
+        if (ex is ObjectDisposedException || ex.HResult == unchecked((int)0x80000013))
+        {
+            _windowClosing = true;
+            Moto.Editor.App.Breadcrumb($"{where} — objet natif fermé (fenêtre en cours de fermeture), réapplication abandonnée");
+            return;
+        }
+        Moto.Editor.App.Breadcrumb($"{where} — EXCEPTION rattrapée : {ex}");
+    }
+
     /// <summary>
     /// ★ AJOUT (30/08, 2e passe) : extrait de ConfigureSnapLayouts pour pouvoir être
     /// appelé TRÈS TÔT (App.xaml.cs, OnWindowsWindowCreated — dès window.Created),
@@ -228,34 +277,44 @@ public static class SnapLayoutsHelper
         FrameworkElement btnMin, FrameworkElement btnMax, FrameworkElement btnClose,
         FrameworkElement dragZone)
     {
-        var hwnd = WindowNative.GetWindowHandle(window);
-        var windowId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(hwnd);
-        var appWindow = AppWindow.GetFromWindowId(windowId);
-        var nonClientSource = InputNonClientPointerSource.GetForWindowId(windowId);
+        // ★ CORRECTIF (24/09) : fenêtre en cours de fermeture → rien à (ré)appliquer ;
+        // et aucune exception ne doit sortir d'ici (voir _windowClosing plus haut).
+        if (_windowClosing) return;
+        try
+        {
+            var hwnd = WindowNative.GetWindowHandle(window);
+            var windowId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(hwnd);
+            var appWindow = AppWindow.GetFromWindowId(windowId);
+            var nonClientSource = InputNonClientPointerSource.GetForWindowId(windowId);
 
-        // ★ CHANGÉ (08/09, chantier "rendu 100% custom", accord de Tom) : la
-        // fenêtre est désormais sans bordure PERMANENTE (voir App.xaml.cs) — appeler
-        // ApplyTitleBarColors ici reposerait ExtendsContentIntoTitleBar=true et
-        // annulerait ce mode. ApplyDwmAttributeColors seule (couleurs DWM + backdrop),
-        // sans toucher à l'état sans-bordure.
-        ApplyDwmAttributeColors(appWindow);
+            // ★ CHANGÉ (08/09, chantier "rendu 100% custom", accord de Tom) : la
+            // fenêtre est désormais sans bordure PERMANENTE (voir App.xaml.cs) — appeler
+            // ApplyTitleBarColors ici reposerait ExtendsContentIntoTitleBar=true et
+            // annulerait ce mode. ApplyDwmAttributeColors seule (couleurs DWM + backdrop),
+            // sans toucher à l'état sans-bordure.
+            ApplyDwmAttributeColors(appWindow);
 
-        // Zone de drag : UNIQUEMENT la zone centrale
-        SetRegion(nonClientSource, NonClientRegionKind.Caption, dragZone);
+            // Zone de drag : UNIQUEMENT la zone centrale
+            SetRegion(nonClientSource, NonClientRegionKind.Caption, dragZone);
 
-        // Zones des boutons : interactives ET reconnues par Windows (survol
-        // Maximiser -> flyout Snap Layouts) grâce au bon NonClientRegionKind.
-        SetRegion(nonClientSource, NonClientRegionKind.Minimize, btnMin);
-        SetRegion(nonClientSource, NonClientRegionKind.Maximize, btnMax);
-        SetRegion(nonClientSource, NonClientRegionKind.Close, btnClose);
+            // Zones des boutons : interactives ET reconnues par Windows (survol
+            // Maximiser -> flyout Snap Layouts) grâce au bon NonClientRegionKind.
+            SetRegion(nonClientSource, NonClientRegionKind.Minimize, btnMin);
+            SetRegion(nonClientSource, NonClientRegionKind.Maximize, btnMax);
+            SetRegion(nonClientSource, NonClientRegionKind.Close, btnClose);
 
-        // ★ AJOUT (08/09, "zones de sécurité" au sens de Tom) : sans bordure native,
-        // Windows n'a plus AUCUNE zone de redimensionnement — à recréer nous-mêmes.
-        // NonClientRegionKind ne définit que 4 valeurs de bordure (Top/Left/Bottom/
-        // RightBorder), pas de coin séparé (vérifié sur learn.microsoft.com,
-        // WindowsAppSDK 1.8 — pas une supposition) : les coins se comportent
-        // correctement à l'intersection de deux bordures adjacentes.
-        ConfigureResizeBorders(appWindow, nonClientSource);
+            // ★ AJOUT (08/09, "zones de sécurité" au sens de Tom) : sans bordure native,
+            // Windows n'a plus AUCUNE zone de redimensionnement — à recréer nous-mêmes.
+            // NonClientRegionKind ne définit que 4 valeurs de bordure (Top/Left/Bottom/
+            // RightBorder), pas de coin séparé (vérifié sur learn.microsoft.com,
+            // WindowsAppSDK 1.8 — pas une supposition) : les coins se comportent
+            // correctement à l'intersection de deux bordures adjacentes.
+            ConfigureResizeBorders(appWindow, nonClientSource);
+        }
+        catch (Exception ex)
+        {
+            OnRegionFailure("ConfigureSnapLayouts", ex);
+        }
     }
 
     /// <summary>
@@ -273,28 +332,40 @@ public static class SnapLayoutsHelper
     {
         void Appliquer()
         {
-            var thickness = DragZoneHelper.DipToPhysical(ResizeBorderThicknessDip);
-            var size = appWindow.Size; // déjà en pixels physiques (API AppWindow)
-            var innerHeight = Math.Max(0, size.Height - (2 * thickness));
+            if (_windowClosing) return;
+            try
+            {
+                var thickness = DragZoneHelper.DipToPhysical(ResizeBorderThicknessDip);
+                var size = appWindow.Size; // déjà en pixels physiques (API AppWindow)
+                var innerHeight = Math.Max(0, size.Height - (2 * thickness));
 
-            nonClientSource.SetRegionRects(NonClientRegionKind.TopBorder,
-                new[] { new global::Windows.Graphics.RectInt32(0, 0, size.Width, thickness) });
-            nonClientSource.SetRegionRects(NonClientRegionKind.BottomBorder,
-                new[] { new global::Windows.Graphics.RectInt32(0, size.Height - thickness, size.Width, thickness) });
-            nonClientSource.SetRegionRects(NonClientRegionKind.LeftBorder,
-                new[] { new global::Windows.Graphics.RectInt32(0, thickness, thickness, innerHeight) });
-            nonClientSource.SetRegionRects(NonClientRegionKind.RightBorder,
-                new[] { new global::Windows.Graphics.RectInt32(size.Width - thickness, thickness, thickness, innerHeight) });
+                nonClientSource.SetRegionRects(NonClientRegionKind.TopBorder,
+                    new[] { new global::Windows.Graphics.RectInt32(0, 0, size.Width, thickness) });
+                nonClientSource.SetRegionRects(NonClientRegionKind.BottomBorder,
+                    new[] { new global::Windows.Graphics.RectInt32(0, size.Height - thickness, size.Width, thickness) });
+                nonClientSource.SetRegionRects(NonClientRegionKind.LeftBorder,
+                    new[] { new global::Windows.Graphics.RectInt32(0, thickness, thickness, innerHeight) });
+                nonClientSource.SetRegionRects(NonClientRegionKind.RightBorder,
+                    new[] { new global::Windows.Graphics.RectInt32(size.Width - thickness, thickness, thickness, innerHeight) });
 
-            Moto.Editor.App.Breadcrumb(
-                $"ConfigureResizeBorders — taille={size.Width}x{size.Height} épaisseur={thickness}px");
+                Moto.Editor.App.Breadcrumb(
+                    $"ConfigureResizeBorders — taille={size.Width}x{size.Height} épaisseur={thickness}px");
+            }
+            catch (Exception ex)
+            {
+                OnRegionFailure("ConfigureResizeBorders", ex);
+            }
         }
 
         Appliquer();
-        appWindow.Changed += (s, args) =>
+        // ★ CORRECTIF (24/09) : abonnement posé UNE seule fois par fenêtre (voir _wiredElements).
+        if (_resizeBordersWired.Add(appWindow.Id.Value))
         {
-            if (args.DidSizeChange) Appliquer();
-        };
+            appWindow.Changed += (s, args) =>
+            {
+                if (args.DidSizeChange) Appliquer();
+            };
+        }
     }
 
     private static void SetRegion(InputNonClientPointerSource source, NonClientRegionKind kind, FrameworkElement element)
@@ -304,16 +375,26 @@ public static class SnapLayoutsHelper
 
         void Appliquer()
         {
-            var rect = GetScaledRect(element, scale);
-            source.SetRegionRects(kind, new[] { RectInt32From(rect) });
-            // ★ AJOUT (31/08, 3e passe) : journalise le rectangle réellement enregistré
-            // — après 2 correctifs sans effet confirmé par Tom, plus la peine de deviner
-            // à l'aveugle : ce breadcrumb permet de lire directement dans le journal
-            // (%TEMP%\moto-editor-crash.log, même machine) ce qui a été appliqué et
-            // quand, sans dépendre d'un nouveau tour d'aller-retour.
-            Moto.Editor.App.Breadcrumb(
-                $"SnapLayouts.Appliquer — {kind} : X={rect.X} Y={rect.Y} W={rect.W} H={rect.H} " +
-                $"(élément chargé={element.IsLoaded}, ActualSize={element.ActualSize.X}x{element.ActualSize.Y})");
+            // ★ CORRECTIF (24/09) : c'est ICI que le plantage à la fermeture se produisait
+            // (rappel DispatcherQueue ci-dessous, exécuté quand la fenêtre est déjà fermée).
+            if (_windowClosing) return;
+            try
+            {
+                var rect = GetScaledRect(element, scale);
+                source.SetRegionRects(kind, new[] { RectInt32From(rect) });
+                // ★ AJOUT (31/08, 3e passe) : journalise le rectangle réellement enregistré
+                // — après 2 correctifs sans effet confirmé par Tom, plus la peine de deviner
+                // à l'aveugle : ce breadcrumb permet de lire directement dans le journal
+                // (%TEMP%\moto-editor-crash.log, même machine) ce qui a été appliqué et
+                // quand, sans dépendre d'un nouveau tour d'aller-retour.
+                Moto.Editor.App.Breadcrumb(
+                    $"SnapLayouts.Appliquer — {kind} : X={rect.X} Y={rect.Y} W={rect.W} H={rect.H} " +
+                    $"(élément chargé={element.IsLoaded}, ActualSize={element.ActualSize.X}x{element.ActualSize.Y})");
+            }
+            catch (Exception ex)
+            {
+                OnRegionFailure($"SnapLayouts.Appliquer — {kind}", ex);
+            }
         }
 
         // ★ CORRECTION (31/08) : ConfigureSnapLayouts n'est appelée qu'après
@@ -341,8 +422,12 @@ public static class SnapLayoutsHelper
         Appliquer();
         element.DispatcherQueue?.TryEnqueue(
             Microsoft.UI.Dispatching.DispatcherQueuePriority.Low, () => Appliquer());
-        element.Loaded += (_, _) => Appliquer();
-        element.SizeChanged += (_, _) => Appliquer();
+        // ★ CORRECTIF (24/09) : abonnements posés UNE seule fois par élément (voir _wiredElements).
+        if (_wiredElements.Add(element))
+        {
+            element.Loaded += (_, _) => Appliquer();
+            element.SizeChanged += (_, _) => Appliquer();
+        }
     }
 
     private static (int X, int Y, int W, int H) GetScaledRect(FrameworkElement el, double scale)
