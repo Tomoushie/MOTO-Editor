@@ -3,20 +3,19 @@
   Incrément 2a (saisie) du chantier "rendu direct SkiaSharp" — voir
   Docs/design/Cadrage-CodeEditor-SkiaSharp.md §10. HiddenInput est un
   Editor MAUI standard qui reçoit réellement le clavier/IME/presse-papiers
-  (gratuit via MAUI) ; texte et taille de police transparents pour ne pas
-  se voir, le SKCanvasView en dessous fait le rendu visible. Même principe
-  que l'ancien CodeEditorView (WebView) : un textarea invisible recevait le
-  clavier, un div visible affichait le rendu coloré.
-  ★ Connu, accepté pour 2a (pas encore corrigé) : le curseur natif de
-  HiddenInput reste visible et clignote à sa propre police — 2b dessinera
-  un curseur SkiaSharp sur mesure et masquera celui-ci à ce moment-là, pas
-  avant (MAUI n'expose aucune propriété cross-plateforme pour le masquer
-  seul ; nécessite un Handler spécifique par plateforme, périmètre de 2b).
+  (gratuit via MAUI) ; le SKCanvasView en dessous fait le rendu visible.
+  Même principe que l'ancien CodeEditorView (WebView) : un textarea
+  invisible recevait le clavier, un div visible affichait le rendu coloré.
+  Opacity="0" (22/09) : rend invisible TOUT ce que dessine le contrôle natif,
+  y compris son curseur, sa sélection et les emojis en couleur — WinUI les
+  dessine malgré TextColor transparent (Tom a vu des avertissements jaunes
+  fantômes, placés selon la mise en page NATIVE, différente de celle du
+  canevas). Un élément WinUI à Opacity 0 reste focalisable et reçoit la saisie.
 -->
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui" xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" xmlns:skia="clr-namespace:SkiaSharp.Views.Maui.Controls;assembly=SkiaSharp.Views.Maui.Controls" x:Class="Moto.Editor.Controls.CodeEditorViewSkia">
   <Grid>
     <skia:SKCanvasView x:Name="Canvas" HorizontalOptions="Fill" VerticalOptions="Fill" />
     <Editor x:Name="HiddenInput" HorizontalOptions="Fill" VerticalOptions="Fill"
-            BackgroundColor="Transparent" TextColor="Transparent" FontFamily="Consolas" />
+            BackgroundColor="Transparent" TextColor="Transparent" FontFamily="Consolas" Opacity="0" />
   </Grid>
 </ContentView>

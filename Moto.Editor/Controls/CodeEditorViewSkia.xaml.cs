@@ -92,16 +92,23 @@ namespace Moto.Editor.Controls
         private static void OnTextChanged(BindableObject bindable, object oldValue, object newValue)
         {
             var view = (CodeEditorViewSkia)bindable;
+            string text = (string)newValue ?? string.Empty;
             if (!view._syncInProgress)
             {
                 view._syncInProgress = true;
-                string text = (string)newValue ?? string.Empty;
-                if (view.HiddenInput.Text != text)
+                if (NormalizeNewlines(view.HiddenInput.Text ?? string.Empty) != text)
                     view.HiddenInput.Text = text;
                 view._syncInProgress = false;
             }
             view.Canvas.InvalidateSurface();
         }
+
+        // Le TextBox WinUI qui se cache derrière HiddenInput range et renvoie
+        // ses sauts de ligne en '\r' (trouvé le 22/09 : écho tardif de même
+        // longueur que le texte poussé, mais 0 '\n' au lieu de 1811). Ramener à
+        // '\n' partout où du texte natif rentre dans Text, sinon la moindre
+        // frappe écrase tous les sauts de ligne du document.
+        private static string NormalizeNewlines(string s) => s.Replace("\r\n", "\n").Replace('\r', '\n');
 
         // Incrément 2a : HiddenInput (Editor MAUI caché, voir CodeEditorViewSkia.xaml)
         // reçoit la vraie saisie clavier/IME. Ce gestionnaire répercute chaque frappe
@@ -110,10 +117,19 @@ namespace Moto.Editor.Controls
         // la frappe sans code spécifique de leur côté.
         private void OnHiddenInputTextChanged(object sender, TextChangedEventArgs e)
         {
-            if (_syncInProgress)
+            // Trouvé le 22/09 (Tom, CLAUDE.md ~112 Ko/1811 lignes) : le contrôle
+            // natif met ~5 s à digérer un gros texte poussé par programme
+            // (OnTextChanged ci-dessus), PUIS renvoie un second TextChanged tardif
+            // -- après que _syncInProgress soit retombé à false -- avec les sauts
+            // de ligne convertis en '\r' (voir NormalizeNewlines). Un simple bool
+            // ne tient pas contre un écho aussi tardif : on exige en plus IsFocused,
+            // qu'aucun écho programmatique n'a (le champ n'a le focus que sur un
+            // vrai clic) et qu'une vraie frappe/collage exige forcément. Ça évite
+            // aussi de lever EditorChanged (fichier "modifié") sur un simple écho.
+            if (_syncInProgress || !HiddenInput.IsFocused)
                 return;
             _syncInProgress = true;
-            Text = e.NewTextValue ?? string.Empty;
+            Text = NormalizeNewlines(e.NewTextValue ?? string.Empty);
             _syncInProgress = false;
             // Contrat public (voir Cadrage-CodeEditor-SkiaSharp.md §2) : "Levé à
             // chaque frappe" -- jamais câblé jusqu'ici (aucune saisie n'existait
@@ -279,7 +295,8 @@ namespace Moto.Editor.Controls
             {
                 var (caretX, caretRow) = caretPixel.Value;
                 float y = caretRow * lineHeight + 40;
-                using var caretPaint = new SKPaint { Color = SKColor.Parse("#007acc"), StrokeWidth = 2 };
+                // Largeur réduite (22/09, retour de Tom : "un petit poil trop large" à 2px).
+                using var caretPaint = new SKPaint { Color = SKColor.Parse("#007acc"), StrokeWidth = 1.4f };
                 canvas.DrawLine(caretX, y + codePaint.FontMetrics.Ascent, caretX, y + codePaint.FontMetrics.Descent, caretPaint);
             }
         }
@@ -319,7 +336,7 @@ namespace Moto.Editor.Controls
             string text = HiddenInput.Text ?? string.Empty;
             int start = Math.Clamp(HiddenInput.CursorPosition, 0, text.Length);
             int length = Math.Clamp(HiddenInput.SelectionLength, 0, text.Length - start);
-            return length > 0 ? text.Substring(start, length) : string.Empty;
+            return length > 0 ? NormalizeNewlines(text.Substring(start, length)) : string.Empty;
         }
     }
 }
