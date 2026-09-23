@@ -35,7 +35,7 @@ namespace Moto.Editor.Controls
             set => SetValue(FontSizeProperty, value);
         }
 
-        public event EventHandler<string> EditorChanged;
+        public event EventHandler<string>? EditorChanged;
 
         // Garde anti-boucle pour la synchro Text <-> HiddenInput.Text (incrément
         // 2a) : sans elle, écrire dans l'un déclenche l'autre qui réécrit dans le
@@ -46,7 +46,7 @@ namespace Moto.Editor.Controls
         // (vérifiés existants sur MAUI 8.0.100 par test de compilation isolé,
         // même démarche que CursorPosition/SelectionLength -- voir cadrage §10)
         // pour ne pas laisser un minuteur tourner après la destruction de la vue.
-        private IDispatcherTimer _caretTimer;
+        private IDispatcherTimer? _caretTimer;
         private bool _caretVisible = true;
 
         // Même regex que l'ancien CodeEditorView (JS) : les groupes NON reconnus
@@ -128,7 +128,7 @@ namespace Moto.Editor.Controls
         // vers la propriété publique Text -- via le même chemin (BindableProperty)
         // que tout appelant externe, donc EditorPaneView/le binding two-way voient
         // la frappe sans code spécifique de leur côté.
-        private void OnHiddenInputTextChanged(object sender, TextChangedEventArgs e)
+        private void OnHiddenInputTextChanged(object? sender, TextChangedEventArgs e)
         {
             // Trouvé le 22/09 (Tom, CLAUDE.md ~112 Ko/1811 lignes) : le contrôle
             // natif met ~5 s à digérer un gros texte poussé par programme
@@ -163,7 +163,7 @@ namespace Moto.Editor.Controls
             view.Canvas.InvalidateSurface();
         }
 
-        private void OnPaintSurface(object sender, SKPaintSurfaceEventArgs e)
+        private void OnPaintSurface(object? sender, SKPaintSurfaceEventArgs e)
         {
             var surface = e.Surface;
             var canvas = surface.Canvas;
