@@ -234,22 +234,35 @@ séparé.
 
 Tout ce qui suit est MESURÉ (journal Breadcrumb + géométrie de mise en page
 relevée par un diagnostic temporaire, non commité), sur `CLAUDE.md` : 112 Ko,
-1811 lignes, ligne la plus longue 353 caractères. Le 23/09, l'ouverture du
-fichier et le redimensionnement de la fenêtre (1790 → 1500 → 1300 → 1100 → 1790)
-ont été rejoués automatiquement, sans intervention manuelle.
+1811 lignes, ligne la plus longue 353 caractères. Le 23/09, le problème de mise
+en page a été reproduit puis corrigé sans intervention manuelle (ouverture du
+fichier au démarrage + redimensionnement de la fenêtre 1790 → 1500 → 1300 →
+1100 → 1790). L'ouverture lente, elle, n'a été observée que dans la session
+réelle de Tom : le même banc automatique ouvre le même fichier en 0,15-0,19 s
+(champ caché à opacité 0 ou 1) sans reproduire le gel — l'écart n'est pas
+expliqué.
 
 | Constat | Mesure | Cause | État |
 |---|---|---|---|
-| Ouverture lente | fil UI bloqué ~5-6 s (6,2 s puis 5,1 s sur deux essais) | `HiddenInput` reçoit tout le document ; le TextBox WinUI le met en page en entier | **NON corrigé** |
+| Ouverture lente | fil UI bloqué ~5-6 s (6,2 s puis 5,1 s sur deux essais), session réelle de Tom seulement ; 0,15-0,19 s sur le banc automatique | supposée : le TextBox WinUI met en page tout le document poussé dans `HiddenInput` ; NON établie (le banc ne reproduit pas le gel) | **NON confirmé corrigé** — essai spéculatif le 23/09 : `IsSpellCheckEnabled` et `IsTextPredictionEnabled` à False, effet non mesuré |
 | Texte écrasé sur une seule ligne | écho tardif : `len=112379 lf=0 cr=1811` | le TextBox WinUI range/renvoie ses sauts de ligne en `\r` ; l'écho arrive après la retombée de `_syncInProgress` | corrigé (76eec22 : garde `IsFocused` + `NormalizeNewlines`) |
 | Avertissements jaunes fantômes | emojis en couleur du champ natif, placés selon SA mise en page | WinUI les dessine malgré `TextColor` transparent | corrigé (76eec22 : `Opacity="0"`) |
-| Explorateur poussé hors de la fenêtre | fenêtre 1500 : explorateur à x=1484 (hors du visible), panneau éditeur = toute la largeur ; `DesiredSize.Width` de `HiddenInput` = largeur offerte (1484, puis 1284, puis 1084) | un TextBox dont le texte remplit la ligne réclame toute la largeur qu'on lui offre ; la colonne `*` du Grid MAUI ne descend pas sous cette demande, donc la colonne `Auto` de l'explorateur est repoussée. Absent avec l'écran d'accueil seul (`HomeView` dw=640). Signalé par Tom | **NON corrigé** |
+| Explorateur poussé hors de la fenêtre | fenêtre 1500 : explorateur à x=1484 (hors du visible), panneau éditeur = toute la largeur ; `DesiredSize.Width` de `HiddenInput` = largeur offerte (1484, puis 1284, puis 1084) | un TextBox dont le texte remplit la ligne réclame toute la largeur qu'on lui offre ; la colonne `*` du Grid MAUI ne descend pas sous cette demande, donc la colonne `Auto` de l'explorateur est repoussée. Absent avec l'écran d'accueil seul (`HomeView` dw=640). Signalé par Tom | corrigé le 23/09 : `MeasureOverride` du contrôle (largeur désirée = 0). Rejoué : explorateur à `largeur racine − 260` à 1790, 1500 et 1300 px |
 | Rendu coûteux | 15-33 ms par repeinte (126 ms la première), pour 1812 lignes sources | toutes les lignes sont tokenisées et dessinées à chaque clignotement du curseur (530 ms), même hors écran ; pas de découpage par zone visible | **NON corrigé** |
 | Pas de défilement | le canevas ne montre que la première page | jamais prévu au découpage du §6 (oubli) ; le WebView défilait nativement | **NON traité** |
 
-**Conclusion** : les trois premiers défauts sont des symptômes du même choix —
-faire porter le DOCUMENT ENTIER par un contrôle natif dont on ne maîtrise ni la
-mise en page ni la vitesse. Piste recommandée (à valider par Tom) : le contrôle
+**Constat annexe** : à 1100 px l'explorateur reste poussé (x=1007), mais par une
+autre cause, indépendante du contrôle Skia (dw=0) : le fil d'Ariane de
+`EditorPaneView` (ligne 2, `CrumbLabel`, sans troncature) réclame la largeur de
+son texte — ici le chemin du fichier de test, très long (1007 px). Un chemin
+profond peut donc pousser l'explorateur hors d'une fenêtre étroite (le minimum
+de la fenêtre est 1000 px). Non traité : il reste à choisir la troncature
+(début, milieu ou fin).
+
+**Conclusion** : ces défauts viennent du même choix — faire porter le DOCUMENT
+ENTIER par un contrôle natif dont on ne maîtrise ni la mise en page ni la
+vitesse (l'explorateur a reçu un correctif ciblé le 23/09, pas les autres).
+Piste recommandée (à valider par Tom) : le contrôle
 possède le document (texte, curseur, sélection, défilement) ; le champ caché
 ne reste qu'un capteur clavier, quasi vide, donc sans coût ni influence sur la
 mise en page. Il faudra alors écrire les touches de navigation/édition

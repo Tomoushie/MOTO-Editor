@@ -11,11 +11,15 @@
   dessine malgré TextColor transparent (Tom a vu des avertissements jaunes
   fantômes, placés selon la mise en page NATIVE, différente de celle du
   canevas). Un élément WinUI à Opacity 0 reste focalisable et reçoit la saisie.
+  IsSpellCheckEnabled/IsTextPredictionEnabled à False (23/09) : le champ ne sert
+  qu'à capter le clavier, la correction orthographique de WinUI n'a rien à y
+  faire (soupçonnée d'alourdir l'ouverture d'un gros fichier, NON confirmée).
 -->
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui" xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml" xmlns:skia="clr-namespace:SkiaSharp.Views.Maui.Controls;assembly=SkiaSharp.Views.Maui.Controls" x:Class="Moto.Editor.Controls.CodeEditorViewSkia">
   <Grid>
     <skia:SKCanvasView x:Name="Canvas" HorizontalOptions="Fill" VerticalOptions="Fill" />
     <Editor x:Name="HiddenInput" HorizontalOptions="Fill" VerticalOptions="Fill"
-            BackgroundColor="Transparent" TextColor="Transparent" FontFamily="Consolas" Opacity="0" />
+            BackgroundColor="Transparent" TextColor="Transparent" FontFamily="Consolas" Opacity="0"
+            IsSpellCheckEnabled="False" IsTextPredictionEnabled="False" />
   </Grid>
 </ContentView>

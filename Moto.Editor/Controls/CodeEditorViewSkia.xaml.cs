@@ -1,12 +1,12 @@
 // Moto.Editor/Controls/CodeEditorViewSkia.xaml.cs
-// Incrément 1 (rendu statique) du chantier "rendu direct SkiaSharp" —
-// voir Docs/design/Cadrage-CodeEditor-SkiaSharp.md. Pas encore éditable :
-// aucune saisie clavier/souris, pas de mini-map, pas de ghost text — ces
-// parties viennent dans les incréments suivants. Généré par l'Orchestrator
-// (qwen2.5-coder:latest), une correction manuelle après relecture :
-// la propriété s'appelait "FontSize" au lieu de "FontSizeMode", ce qui
-// aurait cassé le contrat public existant (SettingsApplier.cs appelle
-// editor.FontSizeMode).
+// Chantier "rendu direct SkiaSharp" — voir Docs/design/Cadrage-CodeEditor-SkiaSharp.md.
+// Fait : incrément 1 (rendu), 2a (saisie clavier via un Editor MAUI caché),
+// 2b (curseur clignotant). Pas encore : défilement, sélection/clic souris,
+// annuler/rétablir, mini-map, ghost text (limites mesurées : cadrage §11).
+// Rendu initial généré par l'Orchestrator (qwen2.5-coder:latest), une
+// correction manuelle après relecture : la propriété s'appelait "FontSize"
+// au lieu de "FontSizeMode", ce qui aurait cassé le contrat public existant
+// (SettingsApplier.cs appelle editor.FontSizeMode).
 using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
@@ -66,6 +66,19 @@ namespace Moto.Editor.Controls
             HiddenInput.TextChanged += OnHiddenInputTextChanged;
             Loaded += (_, _) => StartCaretBlink();
             Unloaded += (_, _) => StopCaretBlink();
+        }
+
+        // Le champ natif caché (HiddenInput) réclame TOUTE la largeur qu'on lui
+        // offre dès que son texte remplit une ligne (DesiredSize.Width = largeur
+        // offerte) ; la colonne "*" du Grid MAUI ne descend alors plus sous cette
+        // demande et repousse l'explorateur (colonne Auto) hors de la fenêtre.
+        // Mesuré le 23/09 (voir Cadrage-CodeEditor-SkiaSharp.md §11). Ce contrôle
+        // remplit toujours l'espace qu'on lui donne (HorizontalOptions=Fill, le
+        // défaut) : il n'a aucune largeur "naturelle" à réclamer.
+        protected override Size MeasureOverride(double widthConstraint, double heightConstraint)
+        {
+            var size = base.MeasureOverride(widthConstraint, heightConstraint);
+            return new Size(0, size.Height);
         }
 
         private void StartCaretBlink()
@@ -128,8 +141,14 @@ namespace Moto.Editor.Controls
             // aussi de lever EditorChanged (fichier "modifié") sur un simple écho.
             if (_syncInProgress || !HiddenInput.IsFocused)
                 return;
+            // Écho du texte que le contrôle possède déjà (le champ a pu prendre le
+            // focus juste avant l'écho tardif) : rien à répercuter, et surtout pas
+            // d'EditorChanged, sinon le fichier passerait "modifié" sans frappe.
+            string incoming = NormalizeNewlines(e.NewTextValue ?? string.Empty);
+            if (incoming == Text)
+                return;
             _syncInProgress = true;
-            Text = NormalizeNewlines(e.NewTextValue ?? string.Empty);
+            Text = incoming;
             _syncInProgress = false;
             // Contrat public (voir Cadrage-CodeEditor-SkiaSharp.md §2) : "Levé à
             // chaque frappe" -- jamais câblé jusqu'ici (aucune saisie n'existait
