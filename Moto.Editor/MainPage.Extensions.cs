@@ -833,8 +833,13 @@ namespace Moto.Editor
 
                 case "aichat":
                     _windowManager.OpenOrFocus(Moto.Editor.Windows.WindowKind.AiChat, () =>
-                        new Microsoft.Maui.Controls.Window(
-                            new Moto.Editor.Windows.SpecializedWindowPage("MOTO AI", new Views.AiChatView(_chatService))));
+                    {
+                        // ★ CHANGÉ (25/09) : à la fermeture de la fenêtre, sa vue cesse de suivre le chat partagé (voir AiChatView.Detach).
+                        var view = new Views.AiChatView(_chatService);
+                        var window = new Microsoft.Maui.Controls.Window(new Moto.Editor.Windows.SpecializedWindowPage("MOTO AI", view));
+                        window.Destroying += (_, _) => view.Detach();
+                        return window;
+                    });
                     break;
 
                 case "platform":

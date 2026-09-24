@@ -152,6 +152,19 @@ namespace Moto.Editor.Views
             _stickToBottom = e.ScrollY >= MessagesStack.Height - MessageScroller.Height - 24;
         }
 
+        /// <summary>
+        /// ★ AJOUT (25/09) : la fenêtre détachée (⧉) qui affichait cette vue est fermée. Sans ceci, la vue restait abonnée au
+        /// service de chat partagé et reconstruisait chaque bulle d'une fenêtre fermée — dix fois par seconde pendant qu'une
+        /// réponse s'écrit.
+        /// </summary>
+        public void Detach()
+        {
+            Chat.ActiveThreadChanged -= ShowThread;
+            Chat.ReplyingChanged -= OnReplyingChanged;
+            ShowThread(null); // quitte la conversation et vide la pile
+            ContextList.ItemsSource = null;
+        }
+
         private void OnReplyingChanged(bool replying)
         {
             SendButton.Text = replying ? "■" : "➤";
