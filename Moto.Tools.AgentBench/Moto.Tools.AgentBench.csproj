@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    ★ AJOUT (24/09, "écriture agentique fonctionnelle") : banc d'essai de l'agent. Lance de VRAIS modèles Ollama sur
+    des tâches fixes (mini-projet C# généré dans un dossier jetable), vérifie le résultat par des contrôles objectifs
+    (compilation, contenu, taille du diff, sortie du programme inchangée) et imprime un taux de réussite par modèle et
+    par moteur (v1 = ancien agent, v2 = nouveau). C'est la mesure qui décide des modèles par défaut : pas d'impression,
+    des chiffres. Hors de MotoEditor.sln, comme Moto.Tools.LanguageGen.
+    Utilisation : dotnet run avec le projet Moto.Tools.AgentBench, options « models », « engine », « tasks », « repeat »
+    (voir Program.cs). Attention : jamais deux tirets d'affilée dans un commentaire XML.
+  -->
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
+    <SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <RootNamespace>Moto.Tools.AgentBench</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Moto.Core\Moto.Core.csproj" />
+  </ItemGroup>
+
+</Project>
