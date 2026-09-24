@@ -142,4 +142,55 @@ public class CodeBlocksTests
     [InlineData("", "texte")]
     public void Language_label_follows_the_extension(string path, string label)
         => Assert.Equal(label, CodeBlocks.LanguageLabel(path));
+
+    // ── Découpage pour l'affichage du chat ──────────────────────────────────
+
+    [Fact]
+    public void A_reply_is_split_into_text_and_code_in_order()
+    {
+        var parts = CodeBlocks.Split("Voici :\n```csharp Program.cs\nint x = 1;\n```\nEt ensuite :\n```\nls\n```\nFin.");
+
+        Assert.Equal(5, parts.Count);
+        Assert.Equal("Voici :", parts[0].Text);
+        Assert.False(parts[0].IsCode);
+        Assert.True(parts[1].IsCode);
+        Assert.Equal("int x = 1;", parts[1].Text); // la ligne d'ouverture entière est retirée, nom de fichier compris
+        Assert.Equal("csharp", parts[1].Code!.Language);
+        Assert.Equal("Program.cs", parts[1].Code!.PathHint);
+        Assert.Equal("Et ensuite :", parts[2].Text);
+        Assert.Equal("ls", parts[3].Text);
+        Assert.Equal("Fin.", parts[4].Text);
+    }
+
+    [Fact]
+    public void A_block_still_being_written_is_code_marked_incomplete()
+    {
+        var parts = CodeBlocks.Split("Voilà :\n```python\nprint(1)\nprint(2");
+
+        Assert.Equal(2, parts.Count);
+        Assert.True(parts[1].IsCode);
+        Assert.False(parts[1].Code!.IsComplete);
+        Assert.Equal("print(1)\nprint(2", parts[1].Text);
+    }
+
+    [Fact]
+    public void Plain_text_is_a_single_part_and_nothing_gives_nothing()
+    {
+        var parts = CodeBlocks.Split("Bonjour,\n\nje suis MOTO AI.");
+
+        Assert.Equal("Bonjour,\n\nje suis MOTO AI.", Assert.Single(parts).Text);
+        Assert.Empty(CodeBlocks.Split(""));
+        Assert.Empty(CodeBlocks.Split(null));
+    }
+
+    [Fact]
+    public void Split_and_Extract_agree_on_the_blocks()
+    {
+        const string reply = "**Foo.cs**\n```\nclass Foo {}\n```\ntexte\n```js\nlet a;\n```";
+
+        var fromSplit = CodeBlocks.Split(reply).Where(p => p.IsCode).Select(p => p.Code).ToList();
+
+        Assert.Equal(CodeBlocks.Extract(reply), fromSplit);
+        Assert.Equal("Foo.cs", fromSplit[0]!.PathHint);
+    }
 }

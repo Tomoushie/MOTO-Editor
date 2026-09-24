@@ -15,6 +15,12 @@ namespace Moto.Core.AI.Generation;
 /// <param name="IsComplete">Faux si la réponse s'arrête avant la fermeture du bloc : le modèle a été coupé, le code est probablement INCOMPLET.</param>
 public sealed record CodeBlock(string Language, string Code, string? PathHint, bool IsComplete);
 
+/// <summary>Un morceau de réponse, dans l'ordre : du texte (<see cref="Code"/> null) ou un bloc de code.</summary>
+public sealed record ReplyPart(string Text, CodeBlock? Code)
+{
+    public bool IsCode => Code is not null;
+}
+
 public static class CodeBlocks
 {
     /// <summary>« **Program.cs** », « ### src/Foo.cs », « Fichier : Foo.cs », « `Foo.cs`: » — seule sur sa ligne, juste avant un bloc.</summary>
@@ -31,21 +37,39 @@ public static class CodeBlocks
 
     /// <summary>Tous les blocs de code de la réponse, dans l'ordre. Un bloc jamais refermé est renvoyé avec <see cref="CodeBlock.IsComplete"/> = faux.</summary>
     public static IReadOnlyList<CodeBlock> Extract(string? reply)
+        => Split(reply).Where(p => p.Code is not null).Select(p => p.Code!).ToList();
+
+    /// <summary>
+    /// ★ AJOUT (24/09, chat en flux) : la réponse découpée en texte et blocs de code, dans l'ordre — pour l'affichage du chat. Même lecture des
+    /// balises ``` qu'<see cref="Extract"/> : la ligne d'ouverture entière (« ```csharp Program.cs ») est retirée du code, et le nom de fichier
+    /// annoncé est gardé. Les morceaux de texte vides (entre deux blocs) sont omis.
+    /// </summary>
+    public static IReadOnlyList<ReplyPart> Split(string? reply)
     {
-        var blocks = new List<CodeBlock>();
-        if (string.IsNullOrEmpty(reply)) return blocks;
+        var parts = new List<ReplyPart>();
+        if (string.IsNullOrEmpty(reply)) return parts;
 
         var lines = reply.Replace("\r\n", "\n").Replace('\r', '\n').Split('\n');
+        var text = new List<string>();
         string? previous = null; // dernière ligne non vide hors bloc : peut annoncer le nom du fichier
+
+        void FlushText()
+        {
+            var joined = string.Join("\n", text).Trim('\n');
+            if (!string.IsNullOrWhiteSpace(joined)) parts.Add(new ReplyPart(joined, null));
+            text.Clear();
+        }
 
         for (var i = 0; i < lines.Length; i++)
         {
             if (!TryOpenFence(lines[i], out var fenceLength, out var info))
             {
+                text.Add(lines[i]);
                 if (!string.IsNullOrWhiteSpace(lines[i])) previous = lines[i];
                 continue;
             }
 
+            FlushText();
             var body = new List<string>();
             var closed = false;
             for (i++; i < lines.Length; i++)
@@ -55,10 +79,13 @@ public static class CodeBlocks
             }
 
             var (language, pathFromInfo) = ParseInfo(info);
-            blocks.Add(new CodeBlock(language, Clean(body), pathFromInfo ?? PathFromLine(previous), closed));
+            var block = new CodeBlock(language, Clean(body), pathFromInfo ?? PathFromLine(previous), closed);
+            parts.Add(new ReplyPart(block.Code, block));
             previous = null;
         }
-        return blocks;
+
+        FlushText();
+        return parts;
     }
 
     /// <summary>Le premier bloc de la réponse, ou null s'il n'y en a aucun.</summary>

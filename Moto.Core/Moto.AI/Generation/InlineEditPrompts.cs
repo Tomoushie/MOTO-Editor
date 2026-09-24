@@ -104,7 +104,7 @@ public static class InlineEditPrompts
          + "Sélectionne le passage à modifier, ou confie le travail à l'agent (« /agent … »), qui modifie le fichier par petites touches.";
 
     /// <summary>Le texte dans un bloc de code — plus long qu'à l'ordinaire si le texte contient lui-même des « ``` » (fichier Markdown).</summary>
-    private static string Fenced(string text)
+    internal static string Fenced(string text)
     {
         var fence = "```";
         while (text.Contains(fence, StringComparison.Ordinal)) fence += "`";
