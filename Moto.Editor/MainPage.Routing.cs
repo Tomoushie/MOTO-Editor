@@ -290,14 +290,7 @@ namespace Moto.Editor
             // (voir SearchView.xaml.cs), sur le même patron que les autres panneaux.
             bool showSearch = id == "search" && !_searchPanel.IsVisible;
 
-            _aiChatPanel.IsVisible = false;
-            _cortexPanel.IsVisible = false;
-            _neuralPanel.IsVisible = false;
-            _workspacePanel.IsVisible = false;
-            _pluginGallery.IsVisible = false;
-            _analyticsDashboard.IsVisible = false;
-            _searchPanel.IsVisible = false;
-            CollabPanel.IsVisible = false;
+            HideDockPanels();
 
             switch (id)
             {
@@ -321,6 +314,33 @@ namespace Moto.Editor
             // ★ AJOUT (30/08, refonte Zen) : la colonne 0 (dock IA) est repliée à 0
             // par défaut (l'ancienne "zone noire" toujours visible même vide, repérée
             // par Tom) — on la rouvre/referme selon qu'un panneau y est visible.
+            RefreshAiDockColumnWidth();
+        }
+
+        /// <summary>Ferme tous les panneaux du dock (ils se superposeraient) — extrait d'OnActivitySelected le 24/09 pour ShowAiChatPanel.</summary>
+        private void HideDockPanels()
+        {
+            _aiChatPanel.IsVisible = false;
+            _cortexPanel.IsVisible = false;
+            _neuralPanel.IsVisible = false;
+            _workspacePanel.IsVisible = false;
+            _pluginGallery.IsVisible = false;
+            _analyticsDashboard.IsVisible = false;
+            _searchPanel.IsVisible = false;
+            CollabPanel.IsVisible = false;
+        }
+
+        /// <summary>
+        /// ★ AJOUT (24/09, chat en flux) : affiche le panneau de chat — sans basculer : OnActivitySelected("ai") le REFERMERAIT s'il était déjà
+        /// ouvert. Pour les actions qui écrivent leur réponse dans le chat (« Expliquer »).
+        /// </summary>
+        private void ShowAiChatPanel()
+        {
+            if (!_aiChatPanel.IsVisible)
+            {
+                HideDockPanels();
+                _aiChatPanel.IsVisible = true;
+            }
             RefreshAiDockColumnWidth();
         }
 
@@ -582,15 +602,29 @@ namespace Moto.Editor
                 // porteur d'un SetBusy, est masquée sur l'Accueil) — d'où le verdict
                 // « ça ne semble pas connecté ». L'attente devient visible.
                 Home.SetThinking(true);
+                ChatMessage? answer;
                 try
                 {
-                    await _chatService.SendAsync(text);
+                    answer = await _chatService.SendAsync(text);
                 }
                 finally
                 {
                     Home.SetThinking(false);
                 }
                 App.Breadcrumb("OnAiCommandSubmitted — chat.SendAsync OK");
+
+                // ★ CORRIGÉ (24/09, chat en flux) : on relisait « le dernier message IA de la conversation » — si rien n'était parti (une
+                // réponse s'écrivait déjà dans le chat) ou si l'IA avait échoué, c'était la réponse PRÉCÉDENTE qui se rouvrait en onglet.
+                if (answer is null)
+                {
+                    StatusBar.SetStatus("⏳ Une réponse est déjà en train de s'écrire dans le chat : attends-la, ou arrête-la avec ■.");
+                    return;
+                }
+                if (answer.Role == "system")
+                {
+                    StatusBar.SetStatus(answer.Content);
+                    return;
+                }
 
                 // ★ CORRECTION (30/08) : la réponse était calculée et comptée dans les
                 // stats (Threads/Messages) mais jamais affichée nulle part — repéré par
@@ -605,7 +639,7 @@ namespace Moto.Editor
                 // d'ouvrir sa réponse en onglet fichier plutôt que dans AiChatView ; les
                 // deux surfaces restent indépendantes pour l'instant (pas retouché ici,
                 // hors périmètre de ce correctif).
-                var reply = _chatService.CurrentThread?.Messages?.LastOrDefault(m => m.Role == "ai")?.Content;
+                var reply = answer.Content;
                 App.Breadcrumb($"OnAiCommandSubmitted — reply longueur={reply?.Length ?? -1}");
                 if (!string.IsNullOrWhiteSpace(reply))
                 {

@@ -17,15 +17,20 @@
                 </local:ChatSegmentSelector.TextTemplate>
                 <local:ChatSegmentSelector.CodeTemplate>
                     <DataTemplate>
+                        <!-- ★ CHANGÉ (24/09, chat en flux) : en-tête « langage · fichier » au-dessus du code (le nom de fichier annoncé par le
+                             modèle n'est plus mélangé à la première ligne du code), bouton Copier à droite de cet en-tête. -->
                         <Border StrokeShape="RoundRectangle 6" Stroke="{StaticResource BorderCol}"
-                                BackgroundColor="#171614" Padding="8,6">
-                            <Grid ColumnDefinitions="*,Auto">
-                                <Label Grid.Column="0" Text="{Binding Text}" FontFamily="Consolas"
-                                       FontSize="11.5" TextColor="#C9C4BC" LineBreakMode="CharacterWrap" />
-                                <Button Grid.Column="1" Text="Copier" FontSize="{StaticResource FontSizeSmall}" Padding="6,2"
+                                BackgroundColor="#171614" Padding="8,4,8,6">
+                            <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="*,Auto">
+                                <Label Grid.Row="0" Grid.Column="0" Text="{Binding Header}" FontFamily="Consolas"
+                                       FontSize="10.5" TextColor="{StaticResource Txt2}" VerticalOptions="Center"
+                                       LineBreakMode="TailTruncation" />
+                                <Button Grid.Row="0" Grid.Column="1" Text="Copier" FontSize="{StaticResource FontSizeSmall}" Padding="6,2"
                                         VerticalOptions="Start" BackgroundColor="Transparent"
                                         TextColor="{StaticResource Txt2}"
                                         Clicked="OnCopyCodeClicked" BindingContext="{Binding .}" />
+                                <Label Grid.Row="1" Grid.ColumnSpan="2" Text="{Binding Text}" FontFamily="Consolas"
+                                       FontSize="11.5" TextColor="#C9C4BC" LineBreakMode="CharacterWrap" />
                             </Grid>
                         </Border>
                     </DataTemplate>
@@ -60,39 +65,55 @@
         </HorizontalStackLayout>
 
         <!-- Messages -->
-        <CollectionView Grid.Row="1" x:Name="MessageList" SelectionMode="None">
-            <CollectionView.ItemTemplate>
-                <DataTemplate>
-                    <!-- ★ CORRECTION (02/09, retouche "vrai Zed") : cette bulle n'avait
-                         aucune bordure (Stroke absent malgré StrokeShape défini) — un pur
-                         aplat de couleur sans définition. Le vrai code de Zed (agent_ui/
-                         message_editor.rs, message list / thread view) ne mise jamais sur
-                         un simple bloc de couleur : les surfaces s'appuient sur des jetons
-                         de thème + une bordure fine, jamais un aplat isolé. Stroke ajouté
-                         (BorderSoft, déjà utilisé pour les séparateurs discrets du thème),
-                         rayon réduit 10→8 pour rester cohérent avec le reste de l'appli
-                         (MotoHoverButton/boutons d'icône utilisent déjà 8). -->
-                    <Border StrokeShape="RoundRectangle 8"
-                            Stroke="{StaticResource BorderSoft}" StrokeThickness="1"
-                            BackgroundColor="{Binding BubbleColor}"
-                            Padding="10,6" Margin="4,3"
-                            MaximumWidthRequest="420"
-                            HorizontalOptions="{Binding Alignment}">
-                        <VerticalStackLayout Spacing="{StaticResource SpaceXs}">
-                            <!-- ★ CORRIGÉ (03/09) : Label plat unique remplacé par un rendu
-                                 par segments (Segments, voir ChatMessage.cs) — permet de
-                                 distinguer un bloc de code (police mono + bouton copier) du
-                                 reste, ce qu'un seul Label ne pouvait pas faire. -->
-                            <VerticalStackLayout Spacing="{StaticResource SpaceXs}"
-                                                 BindableLayout.ItemsSource="{Binding Segments}"
-                                                 BindableLayout.ItemTemplateSelector="{StaticResource SegmentSelector}" />
-                            <Label Text="{Binding TimeLabel}" FontSize="{StaticResource FontSizeSmall}"
-                                   TextColor="{StaticResource Txt2}" HorizontalOptions="End" />
-                        </VerticalStackLayout>
-                    </Border>
-                </DataTemplate>
-            </CollectionView.ItemTemplate>
-        </CollectionView>
+        <!-- ★ CHANGÉ (25/09, chat en flux) : CollectionView → zone qui défile + pile de bulles. Sous Windows, « faire défiler la
+             CollectionView jusqu'au bout » se calculait sur l'ANCIENNE hauteur de la bulle en train de s'écrire : les 2-3
+             dernières lignes restaient sous le bord (vu en capture, même avec un 2e essai retardé). Ici, la pile signale
+             elle-même sa nouvelle hauteur et la zone défile exactement jusqu'en bas. Pas de virtualisation : sans importance
+             pour une conversation (quelques dizaines de bulles). -->
+        <ScrollView Grid.Row="1" x:Name="MessageScroller"
+                    Scrolled="OnMessagesScrolled" SizeChanged="OnMessagesSizeChanged">
+            <VerticalStackLayout x:Name="MessagesStack" SizeChanged="OnMessagesSizeChanged">
+                <BindableLayout.ItemTemplate>
+                    <DataTemplate>
+                        <!-- ★ CORRECTION (02/09, retouche "vrai Zed") : cette bulle n'avait
+                             aucune bordure (Stroke absent malgré StrokeShape défini) — un pur
+                             aplat de couleur sans définition. Le vrai code de Zed (agent_ui/
+                             message_editor.rs, message list / thread view) ne mise jamais sur
+                             un simple bloc de couleur : les surfaces s'appuient sur des jetons
+                             de thème + une bordure fine, jamais un aplat isolé. Stroke ajouté
+                             (BorderSoft, déjà utilisé pour les séparateurs discrets du thème),
+                             rayon réduit 10→8 pour rester cohérent avec le reste de l'appli
+                             (MotoHoverButton/boutons d'icône utilisent déjà 8). -->
+                        <Border StrokeShape="RoundRectangle 8"
+                                Stroke="{StaticResource BorderSoft}" StrokeThickness="1"
+                                BackgroundColor="{Binding BubbleColor}"
+                                Padding="10,6" Margin="4,3"
+                                MaximumWidthRequest="420"
+                                HorizontalOptions="{Binding Alignment}">
+                            <VerticalStackLayout Spacing="{StaticResource SpaceXs}">
+                                <!-- ★ AJOUT (24/09, chat en flux) : pendant que le modèle écrit, un simple texte qui grandit (avec un curseur ▍) ;
+                                     le découpage texte / blocs de code ci-dessous n'est fait qu'une fois, à la fin — le refaire dix fois par
+                                     seconde reconstruirait chaque cadre et chaque bouton. -->
+                                <Label Text="{Binding StreamingText}" IsVisible="{Binding IsStreaming}"
+                                       FontSize="{StaticResource FontSizeBody}" TextColor="White" />
+                                <!-- ★ CORRIGÉ (03/09) : Label plat unique remplacé par un rendu
+                                     par segments (Segments, voir ChatMessage.cs) — permet de
+                                     distinguer un bloc de code (police mono + bouton copier) du
+                                     reste, ce qu'un seul Label ne pouvait pas faire. -->
+                                <VerticalStackLayout Spacing="{StaticResource SpaceXs}" IsVisible="{Binding IsDone}"
+                                                     BindableLayout.ItemsSource="{Binding Segments}"
+                                                     BindableLayout.ItemTemplateSelector="{StaticResource SegmentSelector}" />
+                                <!-- ★ AJOUT (24/09) : modèle, durée, ce que le modèle a lu, ce qui n'a pas été envoyé. -->
+                                <Label Text="{Binding Footnote}" IsVisible="{Binding HasFootnote}"
+                                       FontSize="{StaticResource FontSizeSmall}" TextColor="{StaticResource Txt2}" />
+                                <Label Text="{Binding TimeLabel}" FontSize="{StaticResource FontSizeSmall}"
+                                       TextColor="{StaticResource Txt2}" HorizontalOptions="End" />
+                            </VerticalStackLayout>
+                        </Border>
+                    </DataTemplate>
+                </BindableLayout.ItemTemplate>
+            </VerticalStackLayout>
+        </ScrollView>
 
         <!-- Contexte attaché -->
         <CollectionView Grid.Row="2" x:Name="ContextList"
@@ -125,7 +146,7 @@
                        Placeholder="Message MOTO AI, @ pour le contexte, / pour les commandes"
                        BackgroundColor="Transparent" FontSize="{StaticResource FontSizeBody}"
                        TextChanged="OnInputTextChanged"
-                       Completed="OnSendClicked" />
+                       Completed="OnInputCompleted" />
 
                 <Button Grid.Row="1" Grid.Column="0" Text="📎" FontSize="11"
                         Style="{StaticResource MotoHoverIconButton}"
@@ -134,7 +155,10 @@
 
                 <HorizontalStackLayout Grid.Row="1" Grid.Column="1" Spacing="{StaticResource SpaceXs}">
 
-                    <Picker x:Name="ModePicker" FontSize="{StaticResource FontSizeSmall}" WidthRequest="120">
+                    <!-- ★ BRANCHÉ (24/09) : « Chat » = seulement ce qui est joint (📎) ; « Chat & Write » = le fichier affiché et la
+                         sélection partent aussi (vers le modèle local uniquement). « Agent » : pour l'instant comme « Chat & Write ». -->
+                    <Picker x:Name="ModePicker" FontSize="{StaticResource FontSizeSmall}" WidthRequest="120"
+                            SelectedIndexChanged="OnModeChanged">
                         <Picker.ItemsSource>
                             <x:Array Type="{x:Type x:String}">
                                 <x:String>Chat</x:String>
@@ -159,9 +183,11 @@
 
                 </HorizontalStackLayout>
 
-                <Button Grid.Row="1" Grid.Column="2" Text="➤"
-                        Style="{StaticResource MotoHoverIconButton}" Padding="8,2"
-                        Clicked="OnSendClicked" />
+                <!-- ★ CHANGÉ (24/09) : devient ■ pendant que la réponse s'écrit — un clic l'arrête. -->
+                <Button Grid.Row="1" Grid.Column="2" x:Name="SendButton" Text="➤"
+                        Style="{StaticResource MotoHoverIconButton}" Padding="8,2" WidthRequest="40"
+                        ToolTipProperties.Text="Envoyer"
+                        Clicked="OnSendButtonClicked" />
 
             </Grid>
 

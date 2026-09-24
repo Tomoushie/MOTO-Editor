@@ -3,8 +3,12 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using Microsoft.Maui.ApplicationModel;
+using Moto.Core.AI.Generation;
 using Moto.Core.AI.Internal;
 using Moto.Core.AI.Internal.Models;
 using Moto.Core.AI;
@@ -14,8 +18,9 @@ namespace Moto.Editor.Services
 {
     /// <summary>
     /// Service de chat IA côté éditeur : gère les threads de conversation affichés
-    /// dans le panneau chat, et route les questions vers Ollama (via MotoAiKernel)
-    /// ou le FallbackEngine (providers externes configurés).
+    /// dans le panneau chat, et fait écrire les réponses en direct par Ollama
+    /// (Moto.Core ChatStreamService, depuis le 24/09) ou, à défaut, par le
+    /// FallbackEngine (services en ligne configurés).
     /// </summary>
     public class ChatService
     {
@@ -267,13 +272,63 @@ namespace Moto.Editor.Services
             return thread;
         }
 
-        /// <summary>Envoie un message texte simple dans le thread courant (sans code attaché).</summary>
-        public async Task SendAsync(string text)
+        // ------------------------------------------------------------------
+        // ★ CHAT EN FLUX (24/09, "écriture générative fonctionnelle")
+        // Avant : chaque question partait SEULE vers le modèle (aucun historique, le
+        // fichier ouvert jamais envoyé), par /api/generate sans fenêtre de contexte
+        // (~4 000 jetons, début du prompt coupé en silence), et la réponse
+        // n'apparaissait qu'à la toute fin, après parfois plus d'une minute.
+        // Maintenant : la réponse s'écrit en direct (Moto.Core ChatStreamService),
+        // avec l'historique de la conversation et le fichier affiché, et ■ l'arrête.
+        // ------------------------------------------------------------------
+
+        private readonly ChatStreamService _stream = new();
+        private CancellationTokenSource? _replyCts;
+
+        /// <summary>★ AJOUT (24/09) : le fichier affiché dans l'éditeur (chemin ou titre, texte actuel), ou null s'il n'y en a pas.</summary>
+        public Func<(string Path, string Text)?>? ActiveFileProvider { get; set; }
+
+        /// <summary>
+        /// ★ AJOUT (24/09) : vrai (mode « Chat &amp; Write », par défaut) — le fichier affiché et la sélection partent avec la question, vers le
+        /// modèle LOCAL seulement (jamais vers un service en ligne). Faux (mode « Chat ») : seulement ce que l'utilisateur joint avec 📎.
+        /// </summary>
+        public bool IncludeActiveFile { get; set; } = true;
+
+        /// <summary>Vrai tant qu'une réponse s'écrit (une seule à la fois).</summary>
+        public bool IsReplying => _replyCts is not null;
+
+        /// <summary>Levé sur le fil de l'interface quand une réponse commence (vrai) ou se termine (faux) : le bouton d'envoi devient ■.</summary>
+        public event Action<bool>? ReplyingChanged;
+
+        /// <summary>■ : arrête la réponse en cours. Ce qui est déjà écrit reste affiché.</summary>
+        public void StopReply()
         {
-            if (string.IsNullOrWhiteSpace(text)) return;
+            try { _replyCts?.Cancel(); }
+            catch (ObjectDisposedException) { /* la réponse venait de se terminer */ }
+        }
+
+        /// <summary>
+        /// Envoie une question dans la conversation active et y fait écrire la réponse EN DIRECT. Renvoie le message ajouté en réponse — réponse du
+        /// modèle (<see cref="ChatMessage.IsModelTurn"/>), réponse d'un plugin, ou message d'erreur (rôle « system ») — ou null si rien n'est
+        /// parti (texte vide, ou une réponse s'écrit déjà).
+        /// <paramref name="includeActiveFile"/> : force l'envoi (ou non) du fichier affiché et de la sélection pour CETTE question, quel que soit le
+        /// mode choisi (« Expliquer » en a besoin même en mode « Chat »).
+        /// </summary>
+        public async Task<ChatMessage?> SendAsync(string text, bool? includeActiveFile = null, CancellationToken ct = default)
+        {
+            if (string.IsNullOrWhiteSpace(text) || IsReplying) return null;
 
             var thread = EnsureThread();
-            thread.Messages.Add(new ChatMessage { Role = "user", Content = text });
+
+            // L'historique AVANT d'ajouter la question : seulement les vrais échanges avec le modèle, et tels qu'ils ont été envoyés — c'est ce
+            // qui permet à Ollama de reprendre ce qu'il a déjà lu au lieu de tout relire (voir Moto.Core ChatPrompts).
+            var history = thread.Messages
+                .Where(m => m.IsModelTurn && !m.IsStreaming)
+                .Select(m => new ChatTurn(m.Role, m.SentContent ?? m.Content, m.IsUser ? m.Content : null))
+                .ToList();
+
+            var question = new ChatMessage { Role = "user", Content = text };
+            thread.Messages.Add(question);
             thread.LastActivityUtc = DateTime.UtcNow;
 
             // ★ AJOUT (02/09, "vrai système de plugins") : voir PluginCommandHandler
@@ -283,51 +338,224 @@ namespace Moto.Editor.Services
                 var pluginReply = await PluginCommandHandler(text);
                 if (pluginReply != null)
                 {
-                    thread.Messages.Add(new ChatMessage { Role = "ai", Content = pluginReply });
+                    var message = new ChatMessage { Role = "ai", Content = pluginReply };
+                    thread.Messages.Add(message);
                     thread.LastActivityUtc = DateTime.UtcNow;
-                    return;
+                    return message;
                 }
             }
 
-            var selection = SelectionProvider?.Invoke() ?? string.Empty;
-            var prompt = string.IsNullOrWhiteSpace(selection) ? text : $"{text}\n\nSélection :\n{selection}";
+            var request = BuildRequest(thread, text, history, includeActiveFile ?? IncludeActiveFile);
+            var reply = new ChatMessage { Role = "ai", IsStreaming = true, Footnote = "Réflexion…" };
+            thread.Messages.Add(reply);
+            var pump = new ReplyPump(reply);
 
-            // ★ AJOUT (02/09) : les pièces jointes (📎 fichier / sélection figée dans
-            // AiChatView) n'étaient jusqu'ici QUE visuelles — Contexts n'était même
-            // pas lu par SendAsync. Lues au moment de l'envoi (pas de l'attache, pour
-            // capter le contenu le plus à jour du fichier) puis vidées : sémantique
-            // "j'attache pour CETTE question", pas persistantes dans l'historique.
-            //
-            // ★ CORRIGÉ (22/09) : on consomme les pièces jointes de la conversation
-            // QUI REÇOIT LE MESSAGE (`thread`, celui que EnsureThread vient de
-            // résoudre), et non plus le sac global affiché. C'est ce qui garantit
-            // qu'une pièce jointe attachée dans une conversation ne parte jamais
-            // dans une autre — et ce qui rend la vue fractionnée possible.
+            using var cts = CancellationTokenSource.CreateLinkedTokenSource(ct);
+            _replyCts = cts;
+            ReplyingChanged?.Invoke(true);
+            try
+            {
+                var outcome = await TrackAsync(thread.Title, PreferInternal ? "Ollama (local)" : "Service en ligne",
+                    () => AnswerAsync(request, pump, cts.Token), o => o.Content.Length);
+                return Finish(thread, question, reply, outcome);
+            }
+            catch (OperationCanceledException)
+            {
+                var written = pump.Text;
+                if (written.Length == 0) return ReplaceWithProblem(thread, reply, "Réponse arrêtée avant le premier mot.");
+
+                // Gardée à l'écran mais pas rejouée ensuite : la question telle qu'envoyée n'est pas connue ici, et la réponse est incomplète.
+                reply.Content = written;
+                reply.Footnote = "■ Réponse arrêtée : elle est incomplète.";
+                reply.IsStreaming = false;
+                return reply;
+            }
+            catch (Exception ex)
+            {
+                return ReplaceWithProblem(thread, reply, "Erreur IA : " + ex.Message);
+            }
+            finally
+            {
+                _replyCts = null;
+                thread.LastActivityUtc = DateTime.UtcNow;
+                ReplyingChanged?.Invoke(false);
+            }
+        }
+
+        /// <summary>Local d'abord (en flux) ; si Ollama est éteint ou n'a aucun modèle, les services en ligne configurés répondent à la place.</summary>
+        private async Task<ChatOutcome> AnswerAsync(ChatRequest request, ReplyPump pump, CancellationToken ct)
+        {
+            if (!PreferInternal) return await AskOnlineAsync(request, ct);
+
+            var local = await _stream.StreamAsync(request, pump.Append, pump.Status, ct);
+            if (local.Succeeded || !local.LocalUnavailable) return local;
+
+            pump.Status("Ollama ne répond pas : question envoyée aux services en ligne configurés (Réglages → IA)…");
+            var online = await AskOnlineAsync(request, ct);
+            if (!online.Succeeded)
+                return online with { Problem = $"{local.Problem} Aucun service en ligne n'a pu répondre à la place : lance Ollama, ou ajoute une clé dans Réglages → IA." };
+
+            var notes = new List<string> { $"Ollama ne répond pas : réponse de {online.Model}, un service en ligne." };
+            notes.AddRange(online.Notes);
+            return online with { Notes = notes };
+        }
+
+        private Task<ChatOutcome> AskOnlineAsync(ChatRequest request, CancellationToken ct)
+            => _stream.RunOnlineAsync(request, async (prompt, token) =>
+            {
+                // Pas de « contexte » : les fournisseurs le collent tel quel dans le message envoyé (voir RouteAsync plus bas).
+                var result = await _fallback.GenerateAsync(prompt, cancellationToken: token);
+                if (!result.Success)
+                    throw new InvalidOperationException(string.IsNullOrWhiteSpace(result.Error) ? "aucun service configuré" : result.Error);
+                return (result.Content ?? string.Empty, string.IsNullOrWhiteSpace(result.ProviderName) ? "Service en ligne" : result.ProviderName);
+            }, ct);
+
+        /// <summary>
+        /// La question et son contexte. ★ CORRIGÉ (22/09, conservé) : les pièces jointes consommées sont celles de la conversation QUI REÇOIT le
+        /// message — une pièce jointe attachée dans une conversation ne part jamais dans une autre (vue fractionnée). Lues au moment de l'envoi
+        /// (contenu le plus à jour), puis vidées : « j'attache pour CETTE question ».
+        /// </summary>
+        private ChatRequest BuildRequest(ChatThread thread, string text, List<ChatTurn> history, bool includeEditorContext)
+        {
             var pending = PendingFor(thread);
+            var attachments = pending.Select(ToAttachment).Where(a => a is not null).Select(a => a!).ToList();
             if (pending.Count > 0)
             {
-                var contextBlock = string.Join("\n\n", pending.Select(BuildContextBlock));
-                prompt = $"{prompt}\n\nContexte attaché :\n{contextBlock}";
                 pending.Clear();
                 SyncContextsFromActiveThread();
             }
 
-            var response = await RunTrackedAsync(
-                thread.Title,
-                PreferInternal ? "Ollama / MOTO interne" : "Fournisseur externe",
-                () => RouteAsync(prompt, PreferInternal));
-            thread.Messages.Add(new ChatMessage { Role = "ai", Content = response });
-            thread.LastActivityUtc = DateTime.UtcNow;
+            var file = includeEditorContext ? ActiveFileProvider?.Invoke() : null;
+            return new ChatRequest
+            {
+                Message = text,
+                History = history,
+                FilePath = file?.Path,
+                FileText = file?.Text,
+                Selection = includeEditorContext ? SelectionProvider?.Invoke() : null,
+                Attachments = attachments,
+            };
+        }
+
+        private static ChatAttachment? ToAttachment(ChatContextItem item)
+        {
+            if (item.Kind == "selection") return new ChatAttachment("sélection jointe", item.Content ?? string.Empty);
+            if (item.Kind != "file") return null;
+
+            var name = System.IO.Path.GetFileName(item.Path);
+            try
+            {
+                if (!System.IO.File.Exists(item.Path))
+                    return new ChatAttachment(name, "(fichier introuvable : déplacé ou supprimé depuis qu'il a été joint)");
+                if (new System.IO.FileInfo(item.Path).Length > 2_000_000)
+                    return new ChatAttachment(name, "(fichier trop gros pour être joint : plus de 2 Mo)");
+                return new ChatAttachment(name, System.IO.File.ReadAllText(item.Path));
+            }
+            catch (Exception ex)
+            {
+                return new ChatAttachment(name, $"(fichier illisible : {ex.Message})");
+            }
+        }
+
+        private static ChatMessage Finish(ChatThread thread, ChatMessage question, ChatMessage reply, ChatOutcome outcome)
+        {
+            if (outcome.Succeeded)
+            {
+                question.SentContent = outcome.SentUserMessage;
+                question.IsModelTurn = true;
+                reply.Content = outcome.Content;
+                reply.IsModelTurn = true;
+                reply.Footnote = Footnote(outcome);
+                reply.IsStreaming = false;
+                return reply;
+            }
+
+            if (outcome.PartialContent.Length > 0)
+            {
+                // Le modèle a commencé puis s'est interrompu (délai dépassé…) : on garde ce qu'il a écrit, sans le rejouer ensuite.
+                reply.Content = outcome.PartialContent;
+                reply.Footnote = "⚠ " + outcome.Problem;
+                reply.IsStreaming = false;
+                return reply;
+            }
+
+            return ReplaceWithProblem(thread, reply, outcome.Problem ?? "L'IA n'a pas répondu.", outcome.Notes);
+        }
+
+        /// <summary>Remplace la bulle en attente par un message de l'éditeur (rôle « system », jamais rejoué au modèle).</summary>
+        private static ChatMessage ReplaceWithProblem(ChatThread thread, ChatMessage placeholder, string problem, IReadOnlyList<string>? notes = null)
+        {
+            placeholder.IsStreaming = false;
+            var message = new ChatMessage
+            {
+                Role = "system",
+                Content = "⚠ " + problem,
+                Footnote = notes is { Count: > 0 } ? string.Join("\n", notes.Select(n => "ℹ " + n)) : string.Empty,
+            };
+
+            var index = thread.Messages.IndexOf(placeholder);
+            if (index >= 0) thread.Messages[index] = message;
+            else thread.Messages.Add(message);
+            return message;
+        }
+
+        /// <summary>« qwen2.5-coder:7b · 6,2 s · a lu : fichier ouvert (A.cs), sélection », puis les remarques utiles, une par ligne.</summary>
+        private static string Footnote(ChatOutcome outcome)
+        {
+            var head = new List<string> { outcome.Model ?? "modèle" };
+            if (outcome.TotalSeconds > 0) head.Add($"{outcome.TotalSeconds:0.#} s");
+            if (outcome.SentContext.Count > 0) head.Add("a lu : " + string.Join(", ", outcome.SentContext));
+
+            var lines = new List<string> { string.Join(" · ", head) };
+            if (outcome.Truncated) lines.Add("⚠ Réponse coupée : elle a atteint la longueur maximale (demande « continue »).");
+            if (!string.IsNullOrWhiteSpace(outcome.Note)) lines.Add("ℹ " + outcome.Note);
+            lines.AddRange(outcome.Notes.Select(n => "ℹ " + n));
+            return string.Join("\n", lines);
         }
 
         /// <summary>
-        /// ★ AJOUT (03/09, panneau "Tâches en arrière-plan" réel) : enveloppe un
-        /// appel IA (SendAsync ou le bandeau IA) avec un ChatTaskRecord visible
-        /// dans Tasks — point unique pour ne pas dupliquer la logique de suivi aux
-        /// 2 endroits. `work` reste responsable du VRAI appel réseau/local.
+        /// Relaie le texte qui arrive (sur un fil d'arrière-plan) vers la bulle affichée, au plus dix fois par seconde : au-delà, l'interface
+        /// passerait son temps à se redessiner. Le texte complet est posé à la fin par Finish.
         /// </summary>
-        private Task<string> RunTrackedAsync(string label, string model, Func<Task<string>> work)
-            => TrackAsync(label, model, work, response => response?.Length ?? 0);
+        private sealed class ReplyPump
+        {
+            private readonly ChatMessage _message;
+            private readonly StringBuilder _text = new();
+            private readonly object _gate = new();
+            private long _lastPost;
+
+            public ReplyPump(ChatMessage message) => _message = message;
+
+            public string Text
+            {
+                get { lock (_gate) return _text.ToString(); }
+            }
+
+            public void Append(string chunk)
+            {
+                string snapshot;
+                lock (_gate)
+                {
+                    _text.Append(chunk);
+                    var now = Environment.TickCount64;
+                    if (now - _lastPost < 100) return;
+                    _lastPost = now;
+                    snapshot = _text.ToString();
+                }
+
+                MainThread.BeginInvokeOnMainThread(() =>
+                {
+                    if (!_message.IsStreaming) return; // arrivé après la fin : le texte final est déjà posé
+                    _message.Content = snapshot;
+                    _message.Footnote = string.Empty;
+                });
+            }
+
+            public void Status(string status) => MainThread.BeginInvokeOnMainThread(() =>
+            {
+                if (_message.IsStreaming && _message.Content.Length == 0) _message.Footnote = status;
+            });
+        }
 
         /// <summary>
         /// ★ AJOUT (24/09, écriture générative) : même suivi que RunTrackedAsync (ligne dans « Tâches en arrière-plan », compteur d'appels IA)
@@ -369,31 +597,6 @@ namespace Moto.Editor.Services
             }
         }
 
-        private static string BuildContextBlock(ChatContextItem item)
-        {
-            if (item.Kind == "file")
-            {
-                try
-                {
-                    if (!System.IO.File.Exists(item.Path))
-                        return $"Fichier {item.Path} : introuvable (déplacé/supprimé depuis l'attache ?).";
-
-                    var content = System.IO.File.ReadAllText(item.Path);
-                    // Plafond pour éviter qu'un gros fichier ne noie le prompt.
-                    if (content.Length > 8000)
-                        content = content.Substring(0, 8000) + "\n… (tronqué)";
-
-                    return $"Fichier {System.IO.Path.GetFileName(item.Path)} :\n{content}";
-                }
-                catch (Exception ex)
-                {
-                    return $"Fichier {item.Path} : impossible à lire ({ex.Message}).";
-                }
-            }
-
-            return $"Sélection attachée :\n{item.Content}";
-        }
-
         /// <summary>
         /// ★ REMPLACE (24/09, écriture générative) AskWithCodeAsync — dont la consigne « réponds avec le code COMPLET modifié » servait à REMPLACER
         /// tout le fichier de l'éditeur par la réponse, sans contrôle. Envoie une consigne COMPLÈTE telle quelle au fournisseur choisi dans le
@@ -426,7 +629,9 @@ namespace Moto.Editor.Services
                     return kernelResponse.Content;
             }
 
-            var fallbackResult = await _fallback.GenerateAsync(prompt, WorkspaceRoot);
+            // ★ CORRIGÉ (24/09) : le 2e argument (« contexte ») était WorkspaceRoot — les fournisseurs en ligne le collent tel quel dans le
+            // message (« Contexte : … ») : le chemin local du projet, qui contient le nom d'utilisateur Windows, partait chez OpenAI/Anthropic/Mistral.
+            var fallbackResult = await _fallback.GenerateAsync(prompt);
             return fallbackResult.Success
                 ? fallbackResult.Content
                 : "Aucun moteur IA disponible (Ollama et fallback injoignables). Vérifie tes paramètres IA.";

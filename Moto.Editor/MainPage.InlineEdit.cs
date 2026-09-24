@@ -220,38 +220,32 @@ namespace Moto.Editor
             RefreshAiUndoButton();
         }
 
-        /// <summary>Texte envoyé au modèle pour une explication : au-delà, le modèle local (contexte de ~4 000 jetons sur ce chemin) tronquerait sans le dire.</summary>
-        private const int MaxExplainChars = 6000;
-
         /// <summary>
         /// « Expliquer » (menu Cortex). Une explication n'est pas une modification : avant, cette action passait par l'édition du bandeau IA
-        /// (« réponds avec le code COMPLET modifié ») puis REMPLAÇAIT le fichier par le premier bloc de code de la réponse. Maintenant la réponse
-        /// s'affiche sous le bandeau IA et le fichier n'est jamais touché.
+        /// (« réponds avec le code COMPLET modifié ») puis REMPLAÇAIT le fichier par le premier bloc de code de la réponse.
+        /// ★ CHANGÉ (24/09, chat en flux) : la question part dans le panneau de chat, qui s'ouvre, et la réponse s'y écrit en direct — avec le
+        /// fichier affiché et la sélection, même en mode « Chat ». Le fichier n'est jamais touché.
         /// </summary>
         private async void ExplainCurrentCode()
         {
             var doc = _viewModel.SelectedDocument;
-            if (doc == null) { EditorPane.SetAiStatus("Ouvre un fichier à expliquer."); return; }
+            if (doc == null) { StatusBar.SetStatus("Ouvre un fichier à expliquer."); return; }
 
-            var selection = EditorPane.GetSelectedText();
-            var whole = string.IsNullOrWhiteSpace(selection);
-            var code = whole ? EditorPane.EditorText ?? string.Empty : selection!;
-            var truncated = code.Length > MaxExplainChars;
-            if (truncated) code = code[..MaxExplainChars];
+            var whole = string.IsNullOrWhiteSpace(EditorPane.GetSelectedText());
+            ShowAiChatPanel();
 
-            EditorPane.ShowAiBand();
-            EditorPane.SetAiStatus($"Réflexion… (explication de {(whole ? "tout le fichier" : "la sélection")})");
-
-            var prompt = $"Explique en français, simplement et en quelques phrases, ce que fait ce code ({doc.Title}). N'écris pas de code et ne réécris rien.\n\n```\n{code}\n```";
             try
             {
-                var answer = await _chatService.TrackAsync("Explication (Cortex)", "MOTO interne",
-                    () => _chatService.AskRawAsync("MOTO interne", prompt), a => a?.Length ?? 0);
-                EditorPane.SetAiStatus(Shorten(answer, 1200) + (truncated ? $" (seuls les {MaxExplainChars} premiers caractères ont été envoyés)" : string.Empty));
+                var answer = await _chatService.SendAsync(whole
+                        ? $"Explique simplement, en quelques phrases, ce que fait le fichier {doc.Title}. Ne réécris pas le code."
+                        : "Explique simplement, en quelques phrases, ce que fait le code sélectionné. Ne réécris pas le code.",
+                    includeActiveFile: true);
+                if (answer is null)
+                    StatusBar.SetStatus("⏳ Une réponse est déjà en train de s'écrire dans le chat : attends-la, ou arrête-la avec ■.");
             }
             catch (Exception ex)
             {
-                EditorPane.SetAiStatus("Erreur IA : " + ex.Message);
+                StatusBar.SetStatus("Erreur IA : " + ex.Message);
             }
         }
 

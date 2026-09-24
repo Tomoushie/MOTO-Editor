@@ -117,6 +117,11 @@ namespace Moto.Editor
 
             _chatService = new ChatService(_currentRoot, _aiService.Fallback, _aiService.Kernel);
             _chatService.SelectionProvider = () => EditorPane.GetSelectedText();
+            // ★ AJOUT (24/09, chat en flux) : le fichier affiché part avec la question (mode « Chat & Write ») — texte ACTUEL de l'éditeur,
+            // modifications non enregistrées comprises.
+            _chatService.ActiveFileProvider = () => _viewModel.SelectedDocument is { } doc
+                ? (string.IsNullOrWhiteSpace(doc.Path) ? doc.Title : doc.Path, EditorPane.EditorText ?? doc.Text ?? string.Empty)
+                : null;
 
             CreateHome();
 
