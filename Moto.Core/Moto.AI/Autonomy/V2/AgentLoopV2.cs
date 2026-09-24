@@ -270,7 +270,8 @@ public sealed class AgentLoopV2
         {
             st.AnnounceNudges++;
             Emit(st, AgentEventKind.Nudge, "Action annoncée mais pas exécutée : relance.");
-            return new TextVerdict("Tu annonces une action au lieu de la faire. N'écris pas ce que tu vas faire : appelle l'outil correspondant MAINTENANT " +
+            return new TextVerdict("Tu annonces une action (ou tu demandes la permission) au lieu de la faire. N'écris pas ce que tu vas faire et ne demande pas " +
+                                   "l'autorisation : l'utilisateur validera chaque modification lui-même. Appelle l'outil correspondant MAINTENANT " +
                                    "(une seule action à la fois). Si tout est terminé, appelle finish.");
         }
 
@@ -279,7 +280,8 @@ public sealed class AgentLoopV2
 
     private static readonly Regex Announcement = new(
         @"\b(?:je vais|nous allons|je dois|il faut que je|appelons|utilisons|voici la (?:commande|suite|methode|marche)|maintenant,? je|ensuite,? je|d'abord,? je|" +
-        @"let me|i will|i'll|i am going to|next,? i|now,? i(?:'ll| will)?)\b",
+        @"voulez-vous|veux-tu|est-ce que (?:tu|vous) (?:veux|voulez)|souhaitez-vous|souhaites-tu|" +
+        @"let me|i will|i'll|i am going to|next,? i|now,? i(?:'ll| will)?|do you want|would you like|shall i)\b",
         RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
     /// <summary>Vrai si la réponse annonce ce que le modèle « va faire » (texte normalisé : minuscules, sans accents).</summary>
@@ -610,6 +612,7 @@ public sealed class AgentLoopV2
         sb.AppendLine("- Lire, lister et chercher (read_file, list_dir, search_text) ne demandent AUCUNE autorisation : appelle-les directement, sans rien demander à l'utilisateur.");
         sb.AppendLine("- L'utilisateur voit chaque modification sous forme de diff et l'accepte ou la refuse ; si elle est refusée, propose autre chose au lieu de recommencer à l'identique.");
         sb.AppendLine("- Un seul appel à la fois pour modifier : attends le résultat d'une modification avant d'en faire une autre ou de compiler.");
+        sb.AppendLine("- Ne pose JAMAIS de question du genre « voulez-vous que je… ? » : agis. L'utilisateur validera chaque modification lui-même.");
         sb.AppendLine("- Si un outil répond par une erreur, lis le message et corrige ton appel ; ne répète jamais l'appel qui vient d'échouer.");
         sb.AppendLine("- Ne dis JAMAIS qu'un fichier est modifié tant que l'outil n'a pas répondu « Fichier modifié » ou « Fichier créé ».");
         sb.AppendLine("- N'écris jamais de plan ni le contenu d'un fichier dans ta réponse : appelle les outils. Ne recopie pas les résultats des outils.");

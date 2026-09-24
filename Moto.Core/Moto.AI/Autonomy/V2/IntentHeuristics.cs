@@ -34,7 +34,7 @@ internal static class IntentHeuristics
     private static readonly Regex ActionWords = new(
         @"\b(?:ajout(?:e|er|ez)|rajout(?:e|er|ez)|cree|creer|creez|modifie|modifier|modifiez|renomme|renommer|renommez|" +
         @"corrige|corriger|corrigez|repare|reparer|reparez|supprime|supprimer|supprimez|efface|effacer|extrais|extraire|" +
-        @"remplace|remplacer|remplacez|deplace|deplacer|refactorise|refactoriser|implemente|implementer|" +
+        @"remplace|remplacer|remplacez|deplace|deplacer|refactorise|refactoriser|refactore|refactorer|refactorez|implemente|implementer|" +
         @"ecris|ecrire|ecrivez|reecris|reecrire|genere|generer|generez|documente|documenter|commente|commenter|" +
         @"insere|inserer|inserez|transforme|transformer|convertis|convertir|change|changer|changez|retire|retirer|" +
         @"enleve|enlever|integre|integrer|applique|appliquer|mets|mettre|passe(?!\s+en\s+revue)|" +

@@ -75,7 +75,7 @@ internal sealed class Workspace
 
         var (exit, output) = Dotnet.Run("run --no-build", Root, TimeSpan.FromMinutes(1));
         if (exit != 0) return (false, "le programme plante : " + output.Trim());
-        return output.Replace("\r\n", "\n").Trim() == BaselineOutput.Trim()
+        return output.Replace("\r\n", "\n").Trim() == BaselineOutput.Replace("\r\n", "\n").Trim()
             ? (true, "compile, sortie identique")
             : (false, "la sortie du programme a changé");
     }

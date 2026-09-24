@@ -22,6 +22,7 @@ public class IntentHeuristicsTests
     [InlineData("Refactor the parser and add a unit test.")]
     [InlineData("Documente les méthodes publiques sans changer le code.")]
     [InlineData("Explique ce fichier puis corrige la faute de frappe.")]
+    [InlineData("Refactore Services/PricingService.cs : découpe les méthodes trop longues.")]
     public void Goals_that_ask_for_a_change_are_recognised(string goal)
         => Assert.True(IntentHeuristics.ExpectsFileChanges(goal));
 
