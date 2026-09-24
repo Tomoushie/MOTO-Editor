@@ -198,6 +198,8 @@ namespace Moto.Core.AI.Commands
                 // ★ AJOUT (jalon 3, agents autonomes en tâche de fond) : première
                 // vraie interface de ce chantier (voir /agent <objectif> dans le chat).
                 new() { Id = "ai.agentruns", Title = "Agents en cours", Description = "Liste les agents autonomes actifs/récents, permet d'en arrêter un, montre leurs messages.", Category = CommandCategory.Menu, CommandText = "menu:ai.agentruns" },
+                // ★ AJOUT (24/09, écriture générative) : le bandeau IA de l'éditeur remplace du texte ; ceci le remet comme avant.
+                new() { Id = "ai.undoedit", Title = "Annuler la dernière modification de l'IA", Description = "Remet le fichier affiché comme avant la dernière modification faite depuis le bandeau IA de l'éditeur.", Category = CommandCategory.Menu, CommandText = "menu:ai.undoedit" },
                 // ★ AJOUT (03/09, réveil de GitPanelView, trouvé par la sonde
                 // disponibilité premium) : commit/push/pull/branches/diff/log réels,
                 // jusqu'ici sans aucun point d'entrée.

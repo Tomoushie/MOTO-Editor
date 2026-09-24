@@ -53,6 +53,14 @@ namespace Moto.Editor.Controls
         /// </summary>
         public event Action<string, string> AiPromptSubmitted;
 
+        /// <summary>
+        /// ★ AJOUT (24/09, écriture générative) : le bouton ■ (qui remplace ➤ pendant qu'un modèle écrit) a été cliqué : arrêter la génération.
+        /// </summary>
+        public event Action? AiCancelRequested;
+
+        /// <summary>★ AJOUT (24/09) : « ↩ Annuler » — remettre le fichier comme avant la dernière modification faite depuis le bandeau IA.</summary>
+        public event Action? AiUndoRequested;
+
         /// <summary>Sélection d'un onglet → transmise à MainPage.</summary>
         public event Action<EditorDocument> TabSelected;
 
@@ -144,6 +152,26 @@ namespace Moto.Editor.Controls
             AiStatus.Text = message;
         }
 
+        private bool _aiBusy;
+
+        /// <summary>
+        /// ★ AJOUT (24/09, écriture générative) : pendant qu'un modèle écrit, ➤ devient ■ (arrêter) et le champ de saisie est grisé —
+        /// jusqu'ici rien n'indiquait qu'une demande était en cours ni ne permettait de l'arrêter.
+        /// </summary>
+        public void SetAiBusy(bool busy)
+        {
+            _aiBusy = busy;
+            AiSendButton.Text = busy ? "■" : "➤";
+            ToolTipProperties.SetText(AiSendButton, busy ? "Arrêter la génération" : "Envoyer");
+            PromptEntry.IsEnabled = !busy;
+        }
+
+        /// <summary>★ AJOUT (24/09) : montre ou cache « ↩ Annuler » (visible seulement si le fichier affiché a une modification IA à défaire).</summary>
+        public void SetAiUndoAvailable(bool available) => AiUndoButton.IsVisible = available;
+
+        /// <summary>★ AJOUT (24/09) : ouvre le bandeau IA (s'il était fermé) pour qu'une réponse affichée dans sa ligne d'état soit visible.</summary>
+        public void ShowAiBand() => AiBand.IsVisible = true;
+
         /// <summary>
         /// ★ AJOUT (30/08) : reflète l'état plein écran sur le bouton lui-même —
         /// Tom ne retrouvait pas comment revenir en arrière (rien n'indiquait que
@@ -195,6 +223,12 @@ namespace Moto.Editor.Controls
         /// </summary>
         private void OnAiSendClicked(object s, EventArgs e)
         {
+            if (_aiBusy)
+            {
+                AiCancelRequested?.Invoke();
+                return;
+            }
+
             var prompt = PromptEntry.Text?.Trim();
 
             if (string.IsNullOrWhiteSpace(prompt)) return;
@@ -204,6 +238,8 @@ namespace Moto.Editor.Controls
             PromptEntry.Text = string.Empty;
             AiPromptSubmitted?.Invoke(model, prompt);
         }
+
+        private void OnAiUndoClicked(object s, EventArgs e) => AiUndoRequested?.Invoke();
 
         /// <summary>
         /// Sélection d'un onglet → transmise à MainPage pour charger le document.

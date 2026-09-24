@@ -6,7 +6,7 @@ namespace Moto.Editor.Models
 {
     /// <summary>
     /// Suivi d'un vrai appel IA en cours ou terminé (ChatService.SendAsync /
-    /// AskWithCodeAsync) — pour le panneau "Tâches en arrière-plan" RÉEL, pas
+    /// TrackAsync, dont le bandeau IA de l'éditeur) — pour le panneau "Tâches en arrière-plan" RÉEL, pas
     /// une simulation. Volontairement plus simple que le multi-agent de
     /// Claude Code (phases/agents) : MOTO n'a aujourd'hui aucun sous-agent
     /// réellement invoqué depuis l'UI (AgentOrchestratorV3/

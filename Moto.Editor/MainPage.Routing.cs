@@ -120,6 +120,8 @@ namespace Moto.Editor
             _commandRegistry.Register("ai.claudeshell", () => OpenSpecializedWindow("claudeshell"));
             _commandRegistry.Register("ai.backgroundtasks", () => OpenSpecializedWindow("backgroundtasks"));
             _commandRegistry.Register("ai.agentruns", () => OpenSpecializedWindow("agentruns"));
+            // ★ AJOUT (24/09, écriture générative) : même chose que « ↩ Annuler » du bandeau IA, sans avoir à l'ouvrir.
+            _commandRegistry.Register("ai.undoedit", () => UndoLastAiEdit());
             _commandRegistry.Register("git.panel", () => OpenSpecializedWindow("git"));
 
             _commandRegistry.Register("term.open", () => _viewModel.IsTerminalVisible = true);

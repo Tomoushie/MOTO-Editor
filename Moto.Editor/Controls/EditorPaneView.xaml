@@ -182,14 +182,28 @@
                        FontSize="{StaticResource FontSizeBody}" BackgroundColor="Transparent"
                        Completed="OnAiSendClicked" />
 
-                <Button Grid.Row="0" Grid.Column="2" Text="➤" Padding="10,2"
+                <!-- ★ MODIFIÉ (24/09, écriture générative) : ➤ devient ■ (arrêter) pendant qu'un modèle écrit — largeur fixe, sinon le
+                     bouton se réduisait à une fine lame où ■ ne se lisait plus ; « ↩ Annuler » (sur la ligne d'état) remet le fichier
+                     comme avant la dernière modification faite d'ici. -->
+                <Button Grid.Row="0" Grid.Column="2" x:Name="AiSendButton" Text="➤" Padding="10,2"
+                        WidthRequest="44"
                         BackgroundColor="{StaticResource Accent}"
                         TextColor="{StaticResource BgEditor}"
                         BorderWidth="0"
                         Clicked="OnAiSendClicked" />
 
-                <Label Grid.Row="1" Grid.ColumnSpan="3" x:Name="AiStatus"
-                       FontSize="{StaticResource FontSizeSmall}" TextColor="{StaticResource Txt2}" Opacity="0.8" />
+                <Grid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" ColumnDefinitions="*,Auto" ColumnSpacing="{StaticResource SpaceXs}">
+                    <Label Grid.Column="0" x:Name="AiStatus"
+                           FontSize="{StaticResource FontSizeSmall}" TextColor="{StaticResource Txt2}" Opacity="0.8"
+                           VerticalOptions="Center" />
+
+                    <Button Grid.Column="1" x:Name="AiUndoButton" Text="↩ Annuler" IsVisible="False"
+                            FontSize="{StaticResource FontSizeSmall}" Padding="8,0"
+                            BackgroundColor="Transparent"
+                            TextColor="{StaticResource Accent}"
+                            BorderWidth="0"
+                            Clicked="OnAiUndoClicked" />
+                </Grid>
             </Grid>
         </Border>
 

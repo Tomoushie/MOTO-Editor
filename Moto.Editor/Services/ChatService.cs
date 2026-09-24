@@ -41,8 +41,8 @@ namespace Moto.Editor.Services
         /// <summary>
         /// ★ AJOUT (03/09, vraies stats IA du Tableau de bord global) : point
         /// d'extension optionnel — même patron que PluginCommandHandler ci-dessus.
-        /// Appelé après CHAQUE appel IA réussi (via RunTrackedAsync, donc SendAsync
-        /// ET AskWithCodeAsync) avec (modèle, tokens estimés). ChatService ne
+        /// Appelé après CHAQUE appel IA réussi (via TrackAsync, donc SendAsync
+        /// ET le bandeau IA de l'éditeur) avec (modèle, tokens estimés). ChatService ne
         /// connaît rien de GlobalUsageEngine — câblé une fois par MainPage
         /// (ResolveExtensionServices). Avant cet ajout, GlobalUsageEngine.RecordAiCall
         /// n'était appelée par AUCUN code de production : les stats IA du Tableau de
@@ -75,8 +75,8 @@ namespace Moto.Editor.Services
 
         /// <summary>
         /// ★ AJOUT (03/09, panneau "Tâches en arrière-plan" réel) : un enregistrement
-        /// par appel IA en cours OU terminé récemment (SendAsync ET AskWithCodeAsync,
-        /// via RunTrackedAsync plus bas — un seul point de suivi pour les deux).
+        /// par appel IA en cours OU terminé récemment (SendAsync ET le bandeau IA de
+        /// l'éditeur, via TrackAsync plus bas — un seul point de suivi pour les deux).
         /// Le plus récent en tête, même convention que Threads. Volontairement
         /// plafonné (voir TrimTasks) pour ne pas grossir indéfiniment sur une longue
         /// session.
@@ -145,7 +145,7 @@ namespace Moto.Editor.Services
         // seuls OpenAI/Anthropic/Mistral sont de VRAIS providers externes. Avant ce
         // correctif, choisir "Ollama" par son nom dans le sélecteur de modèle
         // désactivait PreferInternal — donc sautait justement l'appel à... Ollama.
-        // Utilisé à la fois ici (AskWithCodeAsync, routage indépendant du panneau de
+        // Utilisé à la fois ici (AskRawAsync, routage indépendant du panneau de
         // chat) et par AiChatView.xaml.cs (sélecteur de modèle) pour ne pas dupliquer
         // la liste des vrais providers externes à deux endroits.
         private static readonly string[] ExternalProviderNames = { "OpenAI", "Anthropic", "Mistral" };
@@ -322,11 +322,19 @@ namespace Moto.Editor.Services
 
         /// <summary>
         /// ★ AJOUT (03/09, panneau "Tâches en arrière-plan" réel) : enveloppe un
-        /// appel IA (SendAsync ou AskWithCodeAsync) avec un ChatTaskRecord visible
+        /// appel IA (SendAsync ou le bandeau IA) avec un ChatTaskRecord visible
         /// dans Tasks — point unique pour ne pas dupliquer la logique de suivi aux
         /// 2 endroits. `work` reste responsable du VRAI appel réseau/local.
         /// </summary>
-        private async Task<string> RunTrackedAsync(string label, string model, Func<Task<string>> work)
+        private Task<string> RunTrackedAsync(string label, string model, Func<Task<string>> work)
+            => TrackAsync(label, model, work, response => response?.Length ?? 0);
+
+        /// <summary>
+        /// ★ AJOUT (24/09, écriture générative) : même suivi que RunTrackedAsync (ligne dans « Tâches en arrière-plan », compteur d'appels IA)
+        /// pour un travail qui ne rend pas simplement du texte — l'édition en ligne (InlineEditOutcome). <paramref name="sizeInChars"/> :
+        /// taille de ce que le modèle a produit, pour l'estimation de jetons (chars/4).
+        /// </summary>
+        public async Task<T> TrackAsync<T>(string label, string model, Func<Task<T>> work, Func<T, int> sizeInChars)
         {
             var record = new ChatTaskRecord { Label = label, Model = model };
             Tasks.Insert(0, record);
@@ -336,7 +344,7 @@ namespace Moto.Editor.Services
                 // Même heuristique déjà utilisée par MainPage.Panels.cs/RefreshHomeStats
                 // (chars/4) — pas un vrai tokenizer, mais cohérente avec le chiffre déjà
                 // affiché ailleurs plutôt que d'inventer une 2e estimation différente.
-                AiCallRecorder?.Invoke(model, string.IsNullOrEmpty(response) ? 0 : response.Length / 4);
+                AiCallRecorder?.Invoke(model, sizeInChars(response) / 4);
                 return response;
             }
             catch
@@ -387,27 +395,17 @@ namespace Moto.Editor.Services
         }
 
         /// <summary>
-        /// Envoie un prompt avec le code courant au modèle choisi,
-        /// pour modification en direct depuis le bandeau IA.
+        /// ★ REMPLACE (24/09, écriture générative) AskWithCodeAsync — dont la consigne « réponds avec le code COMPLET modifié » servait à REMPLACER
+        /// tout le fichier de l'éditeur par la réponse, sans contrôle. Envoie une consigne COMPLÈTE telle quelle au fournisseur choisi dans le
+        /// sélecteur du bandeau IA (la consigne vient de InlineEditPrompts pour une édition, ou d'un texte d'explication).
         /// </summary>
-        public async Task<string> AskWithCodeAsync(string model, string prompt, string code)
-        {
-            var fullPrompt =
-                "Tu es MOTO AI, un assistant de développement.\n" +
-                $"Demande : {prompt}\n\n" +
-                "Code actuel :\n" + code + "\n\n" +
-                "Réponds avec le code COMPLET modifié dans un bloc ``` , sans explication.";
-
-            // ★ CORRECTION (02/09, revue croisée) : le paramètre `model` de cette
-            // méthode (bandeau IA inline de l'éditeur, indépendant du panneau de
-            // chat) n'était jusqu'ici jamais utilisé — le routage retombait sur le
-            // PreferInternal PARTAGÉ du panneau de chat, donc changer de modèle dans
-            // un des deux endroits affectait silencieusement l'autre. Chacun calcule
-            // maintenant sa propre préférence interne/externe à partir de SON propre
-            // modèle sélectionné.
-            return await RunTrackedAsync("Bandeau IA (code)", model,
-                () => RouteAsync(fullPrompt, !IsExternalProviderName(model)));
-        }
+        /// <remarks>
+        /// ★ CORRECTION (02/09, revue croisée, conservée) : le routage interne/externe se calcule à partir du modèle choisi ICI (bandeau IA de
+        /// l'éditeur), pas du PreferInternal PARTAGÉ du panneau de chat — sinon changer de modèle dans un des deux endroits affectait
+        /// silencieusement l'autre.
+        /// </remarks>
+        public Task<string> AskRawAsync(string model, string fullPrompt)
+            => RouteAsync(fullPrompt, !IsExternalProviderName(model));
 
         /// <summary>Route un prompt vers Ollama (MotoAiKernel) puis, en repli, vers le FallbackEngine.</summary>
         private async Task<string> RouteAsync(string prompt, bool preferInternal)

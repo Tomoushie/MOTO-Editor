@@ -555,7 +555,7 @@ namespace Moto.Editor
                     OnAiCommandSubmitted("/sample-format format");
                     break;
                 case "explain":
-                    OnAiBandPrompt("cortex", "Explique ce code");
+                    ExplainCurrentCode();
                     break;
                 case "build":
                     OnBuildClicked(null, EventArgs.Empty);

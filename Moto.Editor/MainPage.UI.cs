@@ -335,6 +335,7 @@ namespace Moto.Editor
             EditorPane.SetBreadcrumb(doc.Path);
             EditorPane.EditorText = doc.Text;
             _currentPath = doc.Path;
+            RefreshAiUndoButton();
             if (_cortex != null && doc.Path != null)
                 _cortexPanel.LoadSuggestions(doc.Path, doc.Text);
         }

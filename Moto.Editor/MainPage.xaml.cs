@@ -247,13 +247,15 @@ namespace Moto.Editor
             };
             // ★ AJOUT (31/08) : "impossible de revenir au menu principal une fois qu'un
             // fichier est ouvert" (Tom) — aucun moyen de fermer un onglet n'existait.
-            EditorPane.TabClosed += doc => _viewModel.RemoveDocument(doc);
+            EditorPane.TabClosed += doc => { _viewModel.RemoveDocument(doc); ForgetAiEdits(doc); };
             EditorPane.BackRequested += OnNavBack;
             EditorPane.ForwardRequested += OnNavForward;
             EditorPane.MaximizeRequested += OnMaximizeToggled;
             EditorPane.SplitRequested += () => StatusBar.SetStatus("Split : à venir.");
             EditorPane.OpenFileRequested += () => _viewModel.OpenFileCommand.Execute(null);
             EditorPane.AiPromptSubmitted += OnAiBandPrompt;
+            EditorPane.AiCancelRequested += OnAiBandCancel;
+            EditorPane.AiUndoRequested += UndoLastAiEdit;
             EditorPane.ExportRequested += () => ExportMenu.IsVisible = !ExportMenu.IsVisible;
             EditorPane.PreviewRequested += OnPreviewRequested;
             LivePreview.SetPreviewEngine(_previewEngine);
@@ -585,33 +587,9 @@ namespace Moto.Editor
 
         // ══════════════ IA ══════════════
 
-        private async void OnAiBandPrompt(string model, string prompt)
-        {
-            var doc = _viewModel.SelectedDocument;
-            if (doc == null) { EditorPane.SetAiStatus("Ouvre un fichier à modifier."); return; }
-
-            EditorPane.SetAiStatus($"[{model}] Réflexion…");
-            try
-            {
-                var answer = await _chatService.AskWithCodeAsync(model, prompt, doc.Text);
-                var code = ExtractCodeBlock(answer);
-                if (code != null)
-                {
-                    EditorPane.EditorText = code;
-                    doc.Text = code;
-                    EditorPane.SetAiStatus($"[{model}] Code modifié en direct.");
-                    _cortex?.LearnFromCode(doc.Path, code);
-                }
-                else
-                {
-                    EditorPane.SetAiStatus($"[{model}] " + (answer.Length > 120 ? answer[..120] + "…" : answer));
-                }
-            }
-            catch (Exception ex)
-            {
-                EditorPane.SetAiStatus("Erreur IA : " + ex.Message);
-            }
-        }
+        // ★ RETRAIT (24/09, écriture générative) : OnAiBandPrompt (le bandeau IA de l'éditeur) est passé dans MainPage.InlineEdit.cs.
+        // L'ancienne version REMPLAÇAIT tout le texte de l'éditeur par le premier bloc ``` de la réponse — sans diff, sans confirmation,
+        // même si ce bloc n'était qu'un extrait ou avait été coupé — et rien ne permettait de revenir en arrière.
 
         /// <summary>
         /// ★ AJOUT (30/08, 3e passe) : bouton 🌐 de EditorPaneView — ouvre LivePreviewView
@@ -635,15 +613,8 @@ namespace Moto.Editor
             LivePreview.IsVisible = true;
         }
 
-        private static string? ExtractCodeBlock(string answer)
-        {
-            if (string.IsNullOrWhiteSpace(answer)) return null;
-            var match = System.Text.RegularExpressions.Regex.Match(answer, "```[\\w]*\\r?\\n([\\s\\S]*?)```");
-            return match.Success ? match.Groups[1].Value.TrimEnd() : null;
-        }
-
         /// <summary>
-        /// ★ AJOUT (31/08) : comme ExtractCodeBlock, mais garde aussi l'étiquette de
+        /// ★ AJOUT (31/08) : extrait le premier bloc de code d'une réponse en gardant aussi l'étiquette de
         /// langage (```csharp, ```python...) pour choisir une extension de fichier
         /// sensée. Utilisé par OnAiCommandSubmitted (MainPage.Routing.cs) — "demander
         /// du code ne fonctionne pas" (Tom) : le fichier s'ouvrait bien, mais avec le
