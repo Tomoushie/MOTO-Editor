@@ -273,6 +273,26 @@ namespace Moto.Core.Settings
             S("ollama_model", "IA Locale", "Ollama", "Modèle", "Nom du modèle Ollama à utiliser (ex. qwen2.5-coder:7b).", "qwen2.5-coder:7b");
             I("ollama_timeout_seconds", "IA Locale", "Ollama", "Délai d'attente (s)", "Temps max avant d'abandonner une réponse Ollama.", 300, 5, 1800, 5);
 
+            // ★ AJOUT (24/09, "écriture agentique fonctionnelle") : l'agent qui lit, modifie et compile du code.
+            // Lus par Moto.Core.AI.Autonomy.V2.AgentV2Settings.Load ; les valeurs par défaut viennent du banc d'essai du 24/09
+            // (Moto.Tools.AgentBench : 8 tâches sur un mini-projet), pas d'une impression.
+            E("agent_engine", "IA Locale", "Agent (écriture de code)", "Moteur de l'agent",
+                "« v2 » : l'agent lit, cherche, modifie et compile avec des outils ; chaque modification est montrée en diff avant d'être écrite, et l'exécution entière est annulable. « v1 » : ancienne version, gardée en secours.",
+                "v2", "v2", "v1");
+            S("agent_model", "IA Locale", "Agent (écriture de code)", "Modèle de l'agent",
+                "Vide = choix automatique (qwen3:8b s'il est installé, sinon qwen2.5-coder:7b). Ou le nom exact d'un modèle Ollama.", "");
+            I("agent_num_ctx", "IA Locale", "Agent (écriture de code)", "Mémoire de travail (jetons)",
+                "Taille de la fenêtre de contexte demandée à Ollama. Plus grand = l'agent lit de plus gros fichiers, mais utilise plus de mémoire vidéo.", 16384, 2048, 131072, 2048);
+            I("agent_max_steps", "IA Locale", "Agent (écriture de code)", "Nombre maximal d'étapes", "L'agent s'arrête après ce nombre d'étapes.", 30, 3, 100, 1);
+            I("agent_max_minutes", "IA Locale", "Agent (écriture de code)", "Durée maximale (minutes)", "L'agent s'arrête après cette durée.", 15, 1, 180, 1);
+            E("agent_tool_mode", "IA Locale", "Agent (écriture de code)", "Façon d'appeler les outils",
+                "« structured » (recommandé) : le modèle ne peut répondre que par un appel d'outil valide. « native » : appels d'outils propres à Ollama. « auto » : natif, puis structuré si le modèle n'y arrive pas.",
+                "structured", "structured", "native", "auto");
+            T("agent_thought", "IA Locale", "Agent (écriture de code)", "Montrer le raisonnement",
+                "L'agent écrit une phrase avant chaque action (plus lent ; pas plus fiable d'après nos mesures).", false);
+            S("agent_verify_command", "IA Locale", "Agent (écriture de code)", "Commande de vérification",
+                "Vide = l'agent choisit (dotnet build du projet). Sinon la commande imposée, par exemple : dotnet build MonProjet.csproj", "");
+
             // ← AJOUT : enregistre les catégories étendues
             // (Version Control, Collaboration, AI étendu, Network, Developer)
             // définies dans SettingsCatalog.Extensions.cs

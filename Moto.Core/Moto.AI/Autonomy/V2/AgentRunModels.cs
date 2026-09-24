@@ -105,11 +105,15 @@ public enum AgentEventKind
     ToolApproved,
     ToolDeclined,
     ToolResult,
+    /// <summary>Des fichiers viennent d'être écrits sur le disque (voir <see cref="AgentEvent.Files"/>) : l'éditeur doit recharger ses onglets.</summary>
+    FilesChanged,
     Nudge,
     Finished,
 }
 
-public sealed record AgentEvent(AgentEventKind Kind, int Step, string Text, string? Tool = null, string? Path = null, bool IsError = false);
+/// <param name="Files">Renseigné pour <see cref="AgentEventKind.FilesChanged"/> : les fichiers modifiés (chemins relatifs au projet).</param>
+public sealed record AgentEvent(AgentEventKind Kind, int Step, string Text, string? Tool = null, string? Path = null, bool IsError = false,
+    IReadOnlyList<ChangedFile>? Files = null);
 
 // ── Confirmation humaine ────────────────────────────────────────────────────
 

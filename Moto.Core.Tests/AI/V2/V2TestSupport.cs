@@ -39,6 +39,12 @@ public sealed class FakeOllamaHandler : HttpMessageHandler
     public bool SupportsTools { get; set; } = true;
     public List<JsonObject> ChatRequests { get; } = new();
 
+    /// <summary>Modèles « installés » (réponse de /api/tags).</summary>
+    public List<string> Models { get; } = new() { "qwen3:8b", "qwen2.5-coder:7b" };
+
+    /// <summary>Vrai : toute requête échoue comme si Ollama n'était pas lancé.</summary>
+    public bool Unreachable { get; set; }
+
     public FakeOllamaHandler Enqueue(string ndjson) { _chatReplies.Enqueue(ndjson); return this; }
 
     public FakeOllamaHandler Calls(params (string Name, JsonObject Args)[] calls)
@@ -82,10 +88,18 @@ public sealed class FakeOllamaHandler : HttpMessageHandler
 
     protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
     {
+        if (Unreachable) throw new HttpRequestException("connexion refusée (test)");
+
         var path = request.RequestUri!.AbsolutePath;
 
         if (path == "/api/version")
             return Json("{\"version\":\"0.0.0-test\"}");
+
+        if (path == "/api/tags")
+            return Json(new JsonObject
+            {
+                ["models"] = new JsonArray(Models.Select(m => (JsonNode)new JsonObject { ["name"] = m }).ToArray()),
+            }.ToJsonString());
 
         if (path == "/api/show")
         {

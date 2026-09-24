@@ -8,6 +8,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Threading;
+using Moto.Core.AI.Autonomy.V2;
 
 namespace Moto.Core.AI.Autonomy
 {
@@ -37,7 +38,15 @@ namespace Moto.Core.AI.Autonomy
 
         public int Index { get; init; }
         public AgentActionKind ActionKind { get; init; }
-        public string Summary { get; init; } = string.Empty;
+        // ★ MODIFIÉ (24/09, agent v2) : « init » → « set » notifié. Un pas d'écriture v2 est créé au moment de l'appel d'outil
+        // (« edit_file Foo.cs »), puis précisé quand la modification est proposée (« modifier Foo.cs (+3 −1) »).
+        private string _summary = string.Empty;
+        public string Summary
+        {
+            get => _summary;
+            set { _summary = value; Notify(); }
+        }
+
         public DateTime TimestampUtc { get; init; } = DateTime.UtcNow;
 
         private ConfirmationState _confirmation = ConfirmationState.NotRequired;
@@ -90,6 +99,8 @@ namespace Moto.Core.AI.Autonomy
                 Notify(nameof(StatusIcon));
                 Notify(nameof(StatusLabel));
                 Notify(nameof(IsActive));
+                Notify(nameof(CanUndo));
+                Notify(nameof(ResultLine));
             }
         }
 
@@ -126,6 +137,110 @@ namespace Moto.Core.AI.Autonomy
         /// <summary>Vrai tant que le run peut encore faire quelque chose — pilote
         /// la visibilité du bouton "Arrêter" dans AgentRunsView.</summary>
         public bool IsActive => Status is AgentRunStatus.Running or AgentRunStatus.AwaitingConfirmation;
+
+        // ── AJOUT (24/09, agent v2) : ce que le run a produit, pour le panneau « Agents en cours ».
+        // Toutes ces propriétés sont écrites sur le thread UI (voir AgentV2Runner), comme Status/Steps. ──
+
+        /// <summary>« v1 » (ancienne boucle texte) ou « v2 » (appels d'outils, diff, annulation).</summary>
+        public string Engine { get; internal set; } = "v1";
+
+        /// <summary>Le modèle qui exécute (ou a exécuté) le run — connu dès que le run a choisi le sien.</summary>
+        public string Model { get; private set; } = string.Empty;
+
+        internal void SetModel(string model)
+        {
+            Model = model;
+            Notify(nameof(Model));
+        }
+
+        /// <summary>Résumé du modèle à la fin du run (le texte de « finish »), ou la raison de l'arrêt.</summary>
+        public string Summary { get; private set; } = string.Empty;
+
+        /// <summary>Avertissement à montrer (ex. « le run se dit terminé mais rien n'a changé »).</summary>
+        public string? Warning { get; private set; }
+
+        /// <summary>Fichiers réellement modifiés par ce run (chemins relatifs au projet).</summary>
+        public IReadOnlyList<ChangedFile> ChangedFiles { get; private set; } = Array.Empty<ChangedFile>();
+
+        /// <summary>Copies des originaux avant modification : permet « Annuler les modifications de cette exécution ».</summary>
+        internal RunBackup? Backup { get; private set; }
+
+        public bool IsUndone { get; private set; }
+
+        public bool CanUndo => Backup is not null && ChangedFiles.Count > 0 && !IsUndone && !IsActive;
+
+        /// <summary>Une ligne pour le panneau : combien de fichiers ont changé, avec quel modèle.</summary>
+        public string ResultLine
+        {
+            get
+            {
+                if (Engine != "v2" || IsActive) return string.Empty;
+
+                var parts = new List<string>();
+                if (IsUndone)
+                {
+                    parts.Add("modifications annulées");
+                }
+                else if (ChangedFiles.Count > 0)
+                {
+                    var added = 0;
+                    var removed = 0;
+                    foreach (var f in ChangedFiles) { added += f.Added; removed += f.Removed; }
+                    parts.Add($"{ChangedFiles.Count} fichier(s) modifié(s) (+{added} −{removed})");
+                }
+                else
+                {
+                    parts.Add("aucun fichier modifié");
+                }
+                if (Model.Length > 0) parts.Add(Model);
+                return string.Join(" · ", parts);
+            }
+        }
+
+        /// <summary>Renseigne le résultat d'un run v2 (thread UI). À appeler AVANT de fixer le statut final.</summary>
+        internal void SetResult(AgentRunResult result, string model)
+        {
+            Model = model;
+            Summary = result.Summary;
+            Warning = result.Warning;
+            ChangedFiles = result.Changes;
+            Backup = result.Backup;
+            NotifyResult();
+        }
+
+        internal void SetFailure(string message, string model)
+        {
+            Model = model;
+            Summary = message;
+            NotifyResult();
+        }
+
+        /// <summary>
+        /// Remet chaque fichier touché dans son état d'avant le run. Retourne les chemins complets concernés
+        /// (pour que l'éditeur recharge ses onglets) ; <paramref name="restored"/> = nombre de fichiers restaurés ou supprimés.
+        /// </summary>
+        internal IReadOnlyList<string> UndoChanges(out int restored)
+        {
+            restored = 0;
+            if (!CanUndo || Backup is null) return Array.Empty<string>();
+
+            var touched = Backup.TouchedFiles.ToList();
+            restored = Backup.Restore();
+            IsUndone = true;
+            NotifyResult();
+            return touched;
+        }
+
+        private void NotifyResult()
+        {
+            Notify(nameof(Model));
+            Notify(nameof(Summary));
+            Notify(nameof(Warning));
+            Notify(nameof(ChangedFiles));
+            Notify(nameof(IsUndone));
+            Notify(nameof(CanUndo));
+            Notify(nameof(ResultLine));
+        }
 
         /// <summary>Recalculée à la demande — appeler Tick() depuis un minuteur UI
         /// pendant que IsActive est vrai pour un affichage qui avance en direct.</summary>

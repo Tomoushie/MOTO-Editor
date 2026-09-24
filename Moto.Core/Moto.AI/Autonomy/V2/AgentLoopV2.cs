@@ -513,6 +513,8 @@ public sealed class AgentLoopV2
                     : changed;
             st.Verify = VerifyStatus.Unverified;
             st.RecentSignatures.Clear(); // le fichier a changé : relire ou refaire un appel n'est plus une « répétition »
+            Emit(st, AgentEventKind.FilesChanged, string.Join(", ", changedFiles.Select(f => f.RelativePath)), call.Name,
+                changedFiles.Count == 1 ? changedFiles[0].RelativePath : null, files: changedFiles.ToList());
         }
         else if (!applied.IsError && call.Name == "run_command" && LooksLikeVerification(ToolArgs.Str(call.Arguments, "command")))
         {
@@ -776,9 +778,10 @@ public sealed class AgentLoopV2
             : null;
     }
 
-    private static void Emit(RunState st, AgentEventKind kind, string text, string? tool = null, string? path = null, bool isError = false)
+    private static void Emit(RunState st, AgentEventKind kind, string text, string? tool = null, string? path = null, bool isError = false,
+        IReadOnlyList<ChangedFile>? files = null)
     {
-        try { st.Emit?.Invoke(new AgentEvent(kind, st.Step, text, tool, path, isError)); }
+        try { st.Emit?.Invoke(new AgentEvent(kind, st.Step, text, tool, path, isError, files)); }
         catch (Exception) { /* un observateur défaillant (interface fermée…) ne doit pas arrêter l'agent */ }
     }
 

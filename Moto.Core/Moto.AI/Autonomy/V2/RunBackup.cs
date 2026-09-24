@@ -21,6 +21,36 @@ public sealed class RunBackup
         Folder = Path.Combine(baseFolder ?? BaseFolder, runId);
     }
 
+    /// <summary>
+    /// Supprime les sauvegardes des runs plus vieux que <paramref name="maxAge"/> (14 jours par défaut) : sans ça, le dossier
+    /// grossirait à chaque exécution de l'agent. Ne lève jamais d'exception. Retourne le nombre de dossiers supprimés.
+    /// </summary>
+    public static int Prune(string? baseFolder = null, TimeSpan? maxAge = null)
+    {
+        var limit = DateTime.UtcNow - (maxAge ?? TimeSpan.FromDays(14));
+        var removed = 0;
+        try
+        {
+            var folder = baseFolder ?? BaseFolder;
+            if (!Directory.Exists(folder)) return 0;
+
+            foreach (var dir in Directory.EnumerateDirectories(folder))
+            {
+                try
+                {
+                    if (Directory.GetLastWriteTimeUtc(dir) >= limit) continue;
+                    Directory.Delete(dir, recursive: true);
+                    removed++;
+                }
+                catch (IOException) { /* dossier ouvert ailleurs : sera repris au prochain passage */ }
+                catch (UnauthorizedAccessException) { }
+            }
+        }
+        catch (IOException) { }
+        catch (UnauthorizedAccessException) { }
+        return removed;
+    }
+
     /// <summary>Fichiers touchés pendant le run (chemins complets).</summary>
     public IReadOnlyCollection<string> TouchedFiles => _saved.Keys;
 
