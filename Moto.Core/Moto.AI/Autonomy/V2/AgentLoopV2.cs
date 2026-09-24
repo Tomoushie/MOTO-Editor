@@ -60,7 +60,9 @@ public sealed class AgentLoopV2
         public int Step, ModelCalls, ToolCalls, ToolErrors, PromptTokens, CompletionTokens;
         public double ModelSeconds;
         public int ConsecutiveErrors, ConsecutiveDeclines, Nudges;
-        public bool VerifyNudged;
+        public int FileWriteAttempts;
+        public string? LastWriteError;
+        public bool VerifyNudged, HonestyNudged;
         public bool VerifiedSinceLastChange = true;
         public readonly Dictionary<string, ChangedFile> Changes = new(StringComparer.OrdinalIgnoreCase);
         public readonly List<string> RecentSignatures = new();
@@ -207,9 +209,19 @@ public sealed class AgentLoopV2
             ? $"\n⚠ Tu as déjà fait exactement cet appel {repeats - 1} fois : change d'approche (autre passage, autre outil) ou appelle finish."
             : string.Empty;
 
-        // finish : avant de laisser terminer, s'assurer une fois que le code modifié a été compilé.
+        // finish : avant de laisser terminer, (1) ne pas laisser croire à une modification qui a échoué,
+        // (2) s'assurer une fois que le code modifié a été compilé.
         if (call.Name == AgentToolSetV2.FinishName)
         {
+            if (st.Changes.Count == 0 && st.FileWriteAttempts > 0 && !st.HonestyNudged)
+            {
+                st.HonestyNudged = true;
+                Emit(st, AgentEventKind.Nudge, "Aucun fichier modifié : rappel avant de terminer.");
+                return new CallOutcome(ToolResult.Ok(
+                    $"Attention : AUCUN fichier n'a été modifié (tes tentatives ont échoué ou ont été refusées ; dernière erreur : « {Cut(st.LastWriteError ?? "?", 200)} »). " +
+                    "Corrige ton appel et réessaie. Si tu ne peux vraiment pas, appelle finish en disant HONNÊTEMENT que rien n'a été modifié."));
+            }
+
             if (NeedsVerification(st))
             {
                 st.VerifyNudged = true;
@@ -243,6 +255,8 @@ public sealed class AgentLoopV2
             catch (ToolPathException ex) { preparation = ToolPreparation.Reject(ex.Message); }
             catch (Exception ex) { preparation = ToolPreparation.Reject($"Erreur de l'outil : {ex.Message}"); }
 
+            if (tool.WritesFiles) st.FileWriteAttempts++;
+
             if (preparation.Change is null)
             {
                 result = preparation.Rejected ?? ToolResult.Error("Rien à appliquer.");
@@ -256,6 +270,7 @@ public sealed class AgentLoopV2
             }
         }
 
+        if (result.IsError && tool.WritesFiles) st.LastWriteError = result.Text;
         return Complete(st, call, result, loopWarning);
     }
 
@@ -383,7 +398,7 @@ public sealed class AgentLoopV2
         sb.AppendLine();
         sb.AppendLine("MÉTHODE");
         sb.AppendLine("1. Explore : list_dir pour voir l'arborescence, search_text pour retrouver un nom, read_file pour lire. Lis TOUJOURS un fichier avant de le modifier.");
-        sb.AppendLine("2. Modifie avec edit_file : old_text = le passage recopié EXACTEMENT depuis read_file (sans les numéros de ligne ni le « | »), new_text = son remplacement. Change le MINIMUM de lignes ; ne réécris jamais un fichier entier pour en changer quelques lignes.");
+        sb.AppendLine("2. Pour REMPLACER du code : edit_file (old_text = le passage recopié EXACTEMENT depuis read_file, sans les numéros de ligne ni le « | » ; new_text = son remplacement). Pour AJOUTER du code sans rien remplacer : insert_lines (le texte est inséré AVANT le numéro de ligne donné). Change le MINIMUM de lignes ; ne réécris jamais un fichier entier pour en changer quelques lignes.");
         sb.AppendLine("3. write_file sert uniquement à créer un fichier NEUF.");
         sb.AppendLine("4. Après avoir modifié du code, vérifie avec run_command (par exemple dotnet build) et corrige les erreurs signalées.");
         sb.AppendLine("5. Quand c'est terminé, appelle finish avec un résumé court en français.");
@@ -392,6 +407,7 @@ public sealed class AgentLoopV2
         sb.AppendLine("- Chemins toujours RELATIFS au projet (Dossier/Fichier.cs), jamais absolus.");
         sb.AppendLine("- L'utilisateur voit chaque modification sous forme de diff et l'accepte ou la refuse ; si elle est refusée, propose autre chose au lieu de recommencer à l'identique.");
         sb.AppendLine("- Si un outil répond par une erreur, lis le message et corrige ton appel ; ne répète jamais l'appel qui vient d'échouer.");
+        sb.AppendLine("- Ne dis JAMAIS qu'un fichier est modifié tant que l'outil n'a pas répondu « Fichier modifié » ou « Fichier créé ».");
         sb.AppendLine("- Réponds en français. Pas de longs discours : agis avec les outils.");
         return sb.ToString().TrimEnd();
     }
@@ -425,6 +441,9 @@ public sealed class AgentLoopV2
             Outcome = outcome,
             Summary = summary,
             Error = error,
+            Warning = outcome == AgentOutcome.Completed && st.Changes.Count == 0 && st.FileWriteAttempts > 0
+                ? $"Aucune modification n'a été appliquée (dernière erreur : {Cut(st.LastWriteError ?? "refus", 160)})."
+                : null,
             RunId = st.RunId,
             Steps = Math.Min(st.Step, st.Request.MaxSteps),
             ModelCalls = st.ModelCalls,

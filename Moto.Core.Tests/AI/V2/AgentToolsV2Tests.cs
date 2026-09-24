@@ -199,6 +199,55 @@ public class AgentToolsV2Tests : IDisposable
     }
 
     [Fact]
+    public async Task Insert_lines_adds_code_before_the_given_line_and_shows_the_new_numbers()
+    {
+        var path = _ws.Write("C.cs", "class C\n{\n    int a;\n}\n");
+        var ctx = Ctx();
+
+        var prep = await new InsertLinesToolV2().PrepareAsync(
+            A(("path", "C.cs"), ("line", 4), ("text", "\n    int b;\n")), ctx, default);
+
+        Assert.NotNull(prep.Change);
+        Assert.Equal("+2 −0", prep.Change!.Diff!.Summary);
+        Assert.Equal("class C\n{\n    int a;\n}\n", File.ReadAllText(path)); // rien d'écrit avant l'accord
+
+        var applied = await prep.Change.ApplyAsync(default);
+
+        Assert.False(applied.IsError, applied.Text);
+        Assert.Equal("class C\n{\n    int a;\n\n    int b;\n}\n", File.ReadAllText(path));
+        Assert.Contains("insertion avant la ligne 4", applied.Text);
+        Assert.Contains("6 | }", applied.Text);   // l'accolade finale a maintenant le numéro 6
+    }
+
+    [Fact]
+    public async Task Insert_lines_can_append_at_the_end_and_refuses_bad_line_numbers()
+    {
+        var path = _ws.Write("D.txt", "un\ndeux\n");
+        var tool = new InsertLinesToolV2();
+
+        var prep = await tool.PrepareAsync(A(("path", "D.txt"), ("line", "3"), ("text", "trois")), Ctx(), default); // « 3 » en texte
+        await prep.Change!.ApplyAsync(default);
+        Assert.Equal("un\ndeux\ntrois\n", File.ReadAllText(path));
+
+        var tooFar = await tool.PrepareAsync(A(("path", "D.txt"), ("line", 9), ("text", "x")), Ctx(), default);
+        Assert.Contains("entre 1 et 4", tooFar.Rejected!.Text);
+
+        var noText = await tool.PrepareAsync(A(("path", "D.txt"), ("line", 1), ("text", "  ")), Ctx(), default);
+        Assert.Contains("text", noText.Rejected!.Text);
+
+        var missing = await tool.PrepareAsync(A(("path", "nope.txt"), ("line", 1), ("text", "x")), Ctx(), default);
+        Assert.Contains("write_file", missing.Rejected!.Text);
+    }
+
+    [Fact]
+    public async Task Edit_file_with_an_empty_old_text_points_to_insert_lines()
+    {
+        _ws.Write("a.cs", "x\n");
+        var prep = await new EditFileToolV2().PrepareAsync(A(("path", "a.cs"), ("old_text", ""), ("new_text", "y")), Ctx(), default);
+        Assert.Contains("insert_lines", prep.Rejected!.Text);
+    }
+
+    [Fact]
     public async Task Write_file_refuses_a_truncated_rewrite_of_a_long_file()
     {
         _ws.Write("big.cs", string.Join("\n", Enumerable.Range(1, 60).Select(i => $"// ligne {i}")) + "\n");

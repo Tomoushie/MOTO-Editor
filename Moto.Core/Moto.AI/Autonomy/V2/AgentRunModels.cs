@@ -53,6 +53,9 @@ public sealed class AgentRunResult
     public string Summary { get; init; } = string.Empty;
     public string? Error { get; init; }
 
+    /// <summary>Renseigné quand le run se dit terminé alors qu'AUCUN fichier n'a changé malgré des tentatives (à montrer à l'utilisateur).</summary>
+    public string? Warning { get; init; }
+
     public string RunId { get; init; } = string.Empty;
     public int Steps { get; init; }
     public int ModelCalls { get; init; }

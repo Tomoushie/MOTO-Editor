@@ -1,7 +1,7 @@
 // Moto.Core/Moto.AI/Autonomy/V2/AgentToolsV2.cs
-// ★ AJOUT (24/09, agent v2) : les 7 outils. Trois lisent (list_dir, read_file, search_text — jamais de
-// confirmation), trois modifient (edit_file, write_file, run_command — chacun PASSE par la confirmation
-// humaine de la boucle, avec un diff pour les fichiers), un termine (finish).
+// ★ AJOUT (24/09, agent v2) : les 8 outils. Trois lisent (list_dir, read_file, search_text — jamais de
+// confirmation), quatre modifient (edit_file, insert_lines, write_file, run_command — chacun PASSE par la
+// confirmation humaine de la boucle, avec un diff pour les fichiers), un termine (finish).
 // Les limites de taille ne sont pas cosmétiques : le contexte du modèle est petit (16 k jetons par
 // défaut), un fichier lu en entier le sature — read_file lit donc par tranches numérotées.
 using System.Text;
@@ -290,9 +290,9 @@ public sealed class EditFileToolV2 : AgentToolV2
 {
     public override string Name => "edit_file";
     public override string Description =>
-        "Modifie un fichier existant en remplaçant UN passage par un autre. C'est l'outil normal pour changer du code : " +
+        "Modifie un fichier existant en REMPLAÇANT un passage par un autre (l'outil normal pour changer du code) : " +
         "old_text doit être recopié EXACTEMENT depuis read_file (sans les numéros de ligne) et assez long pour être unique ; " +
-        "new_text est le texte de remplacement. Change le minimum de lignes.";
+        "new_text est le texte de remplacement. Change le minimum de lignes. Pour AJOUTER du code sans rien remplacer, utilise insert_lines.";
     public override JsonObject Parameters => Schema(new JsonObject
     {
         ["path"] = Prop("string", "Fichier relatif au projet."),
@@ -302,6 +302,7 @@ public sealed class EditFileToolV2 : AgentToolV2
     }, "path", "old_text", "new_text");
 
     public override bool IsMutating => true;
+    public override bool WritesFiles => true;
 
     public override Task<ToolPreparation> PrepareAsync(JsonObject args, AgentToolContext ctx, CancellationToken ct)
     {
@@ -350,6 +351,17 @@ public sealed class EditFileToolV2 : AgentToolV2
 
     private static ToolResult Apply(AgentToolContext ctx, string full, string display, TextFile before, EditOutcome outcome, DiffResult diff)
     {
+        var how = outcome.Strategy == "exact" ? string.Empty : $" (old_text retrouvé {outcome.Strategy})";
+        return FileEdits.ApplyToExisting(ctx, full, display, before, outcome.NewContent!, diff, outcome.FirstLine, outcome.InsertedLines, "modifié", how);
+    }
+}
+
+/// <summary>Application d'une modification à un fichier EXISTANT (edit_file, insert_lines) : même garde-fous pour les deux.</summary>
+internal static class FileEdits
+{
+    public static ToolResult ApplyToExisting(AgentToolContext ctx, string full, string display, TextFile before, string newContent,
+        DiffResult diff, int firstLine, int insertedLines, string verb, string how)
+    {
         try
         {
             // Le fichier peut avoir changé PENDANT l'attente de la confirmation (un autre agent, l'éditeur…).
@@ -358,23 +370,85 @@ public sealed class EditFileToolV2 : AgentToolV2
                 return ToolResult.Error($"{display} a changé pendant que tu attendais la confirmation : relis-le avec read_file puis refais ta modification.");
 
             ctx.Backup.Save(full);
-            before.Save(outcome.NewContent!);
+            before.Save(newContent);
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException or InvalidDataException)
         {
             return ToolResult.Error($"Écriture impossible pour {display} : {ex.Message}");
         }
 
-        var newLines = LineDiff.SplitLines(outcome.NewContent!);
-        var from = Math.Max(1, outcome.FirstLine - 2);
-        var to = Math.Min(newLines.Length, outcome.FirstLine + Math.Max(1, outcome.InsertedLines) + 1);
+        // Le passage modifié, avec ses NOUVEAUX numéros de ligne : le modèle n'a pas à relire le fichier
+        // (et ne se base pas sur des numéros périmés pour sa modification suivante).
+        var newLines = LineDiff.SplitLines(newContent);
+        var from = Math.Max(1, firstLine - 2);
+        var to = Math.Min(newLines.Length, firstLine + Math.Max(1, insertedLines) + 1);
         to = Math.Min(to, from + 39);
         var snippet = ToolFs.Numbered(newLines[(from - 1)..to], from);
 
-        var how = outcome.Strategy == "exact" ? string.Empty : $" (old_text retrouvé {outcome.Strategy})";
         return ToolResult.Ok(
-            $"Fichier modifié : {display} ({diff.Summary}){how}. Passage modifié, lignes {from}–{to} :\n{snippet}",
+            $"Fichier {verb} : {display} ({diff.Summary}){how}. Passage modifié, lignes {from}–{to} :\n{snippet}",
             new ChangedFile(display, diff.Added, diff.Removed, Created: false));
+    }
+}
+
+public sealed class InsertLinesToolV2 : AgentToolV2
+{
+    public override string Name => "insert_lines";
+    public override string Description =>
+        "AJOUTE du code dans un fichier existant sans rien remplacer : « text » est inséré AVANT la ligne numéro « line » " +
+        "(numéros affichés par read_file). Pour ajouter une méthode à la fin d'une classe, donne le numéro de la dernière accolade « } » de la classe ; " +
+        "pour ajouter à la toute fin du fichier, donne le nombre de lignes + 1. Mets l'indentation voulue dans text.";
+    public override JsonObject Parameters => Schema(new JsonObject
+    {
+        ["path"] = Prop("string", "Fichier relatif au projet."),
+        ["line"] = Prop("integer", "Numéro de la ligne AVANT laquelle insérer (1 = tout début du fichier)."),
+        ["text"] = Prop("string", "Lignes à insérer (avec leur indentation)."),
+    }, "path", "line", "text");
+
+    public override bool IsMutating => true;
+    public override bool WritesFiles => true;
+
+    public override Task<ToolPreparation> PrepareAsync(JsonObject args, AgentToolContext ctx, CancellationToken ct)
+    {
+        string full;
+        try { full = ctx.Resolve(ToolArgs.Str(args, "path")); }
+        catch (ToolPathException ex) { return Task.FromResult(ToolPreparation.Reject(ex.Message)); }
+
+        var display = ctx.Display(full);
+        var text = ToolArgs.Str(args, "text");
+        var at = ToolArgs.Int(args, "line");
+
+        if (at is null) return Task.FromResult(ToolPreparation.Reject("Le paramètre « line » est obligatoire (numéro de la ligne AVANT laquelle insérer)."));
+        if (string.IsNullOrWhiteSpace(text)) return Task.FromResult(ToolPreparation.Reject("Le paramètre « text » est obligatoire (les lignes à insérer)."));
+        if (Directory.Exists(full)) return Task.FromResult(ToolPreparation.Reject($"« {display} » est un dossier."));
+        if (!File.Exists(full))
+            return Task.FromResult(ToolPreparation.Reject($"« {display} » n'existe pas : insert_lines ne modifie que des fichiers existants. Pour en créer un, utilise write_file."));
+
+        TextFile file;
+        try { file = TextFile.Load(full); }
+        catch (InvalidDataException ex) { return Task.FromResult(ToolPreparation.Reject(ex.Message)); }
+        catch (IOException ex) { return Task.FromResult(ToolPreparation.Reject($"Lecture impossible : {ex.Message}")); }
+
+        var lines = LineDiff.SplitLines(file.Text).ToList();
+        if (at < 1 || at > lines.Count + 1)
+            return Task.FromResult(ToolPreparation.Reject($"« line » doit être entre 1 et {lines.Count + 1} ({display} a {lines.Count} lignes ; {lines.Count + 1} = ajouter à la fin)."));
+
+        var inserted = text.Replace("\r\n", "\n").TrimEnd('\n').Split('\n');
+        lines.InsertRange(at.Value - 1, inserted);
+        var newContent = string.Join('\n', lines) + (file.Text.EndsWith('\n') || file.Text.Length == 0 ? "\n" : string.Empty);
+
+        var diff = LineDiff.Compute(file.Text, newContent);
+        var atLine = at.Value;
+        return Task.FromResult(ToolPreparation.Propose(new PendingChange
+        {
+            Title = $"Ajouter du code dans {display}",
+            Summary = $"insérer {inserted.Length} ligne(s) dans {display} avant la ligne {atLine} ({diff.Summary})",
+            Details = diff.Unified,
+            Kind = ApprovalKind.FileChange,
+            Path = display,
+            Diff = diff,
+            ApplyAsync = _ => Task.FromResult(FileEdits.ApplyToExisting(ctx, full, display, file, newContent, diff, atLine, inserted.Length, "modifié", $" (insertion avant la ligne {atLine})")),
+        }));
     }
 }
 
@@ -393,6 +467,7 @@ public sealed class WriteFileToolV2 : AgentToolV2
     }, "path", "content");
 
     public override bool IsMutating => true;
+    public override bool WritesFiles => true;
 
     public override Task<ToolPreparation> PrepareAsync(JsonObject args, AgentToolContext ctx, CancellationToken ct)
     {
@@ -585,6 +660,7 @@ public static class AgentToolSetV2
         new ReadFileToolV2(),
         new SearchTextToolV2(),
         new EditFileToolV2(),
+        new InsertLinesToolV2(),
         new WriteFileToolV2(),
         new RunCommandToolV2(),
         new FinishToolV2(),

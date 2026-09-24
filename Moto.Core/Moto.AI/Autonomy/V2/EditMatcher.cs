@@ -37,7 +37,8 @@ internal static class EditMatcher
         newText = Normalize(newText);
 
         if (oldText.Trim().Length == 0)
-            return Fail("old_text est vide. Donne le passage EXACT à remplacer (recopié depuis read_file). Pour créer un fichier neuf, utilise write_file.");
+            return Fail("old_text est vide. edit_file REMPLACE un passage : donne le passage EXACT à remplacer (recopié depuis read_file). " +
+                        "Pour AJOUTER du code sans rien remplacer, utilise insert_lines (path, line, text) ; pour créer un fichier neuf, write_file.");
 
         // 1) Correspondance exacte.
         var strategy = "exact";

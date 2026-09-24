@@ -59,6 +59,9 @@ public abstract class AgentToolV2
     /// <summary>Vrai : passe par PrepareAsync + confirmation humaine. Faux : ExecuteAsync direct (lecture seule).</summary>
     public virtual bool IsMutating => false;
 
+    /// <summary>Vrai pour les outils qui écrivent dans un fichier du projet (sert à détecter un run qui « termine » sans avoir rien modifié).</summary>
+    public virtual bool WritesFiles => false;
+
     public LlmToolSpec Spec => new(Name, Description, Parameters);
 
     public virtual Task<ToolResult> ExecuteAsync(JsonObject args, AgentToolContext ctx, CancellationToken ct)

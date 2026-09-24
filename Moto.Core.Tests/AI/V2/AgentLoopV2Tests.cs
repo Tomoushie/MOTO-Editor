@@ -57,7 +57,7 @@ public class AgentLoopV2Tests : IDisposable
         // La requête envoyée à Ollama : contexte demandé, 7 outils, flux, conservation du modèle en mémoire.
         var first = _fake.ChatRequests[0];
         Assert.Equal(16384, first["options"]!["num_ctx"]!.GetValue<int>());
-        Assert.Equal(7, first["tools"]!.AsArray().Count);
+        Assert.Equal(8, first["tools"]!.AsArray().Count);
         Assert.True(first["stream"]!.GetValue<bool>());
         Assert.Equal("30m", first["keep_alive"]!.GetValue<string>());
         Assert.Equal("system", first["messages"]![0]!["role"]!.GetValue<string>());
@@ -175,6 +175,36 @@ public class AgentLoopV2Tests : IDisposable
         Assert.Equal(new[] { "dotnet build A.csproj" }, commands);
         var nudge = _fake.ChatRequests[3]["messages"]!.AsArray().Last()!["content"]!.GetValue<string>();
         Assert.Contains("sans vérifier qu'il compile", nudge);
+    }
+
+    [Fact]
+    public async Task Finishing_after_only_failed_writes_is_questioned_once_and_the_result_carries_a_warning()
+    {
+        _ws.Write("a.txt", "un\n");
+        _fake.Calls(("edit_file", A(("path", "a.txt"), ("old_text", "absent"), ("new_text", "x"))))   // échoue : passage introuvable
+             .Calls(("finish", A(("summary", "c'est fait"))))                                       // mensonge : rappelé à l'ordre
+             .Calls(("finish", A(("summary", "rien n'a pu être modifié"))));
+
+        var result = await Loop(new AutoApprover()).RunAsync(Req());
+
+        Assert.Equal(AgentOutcome.Completed, result.Outcome);
+        Assert.Equal("rien n'a pu être modifié", result.Summary);
+        Assert.Empty(result.Changes);
+        Assert.Contains("Aucune modification", result.Warning);
+        var reminder = _fake.ChatRequests[2]["messages"]!.AsArray().Last()!["content"]!.GetValue<string>();
+        Assert.Contains("AUCUN fichier n'a été modifié", reminder);
+    }
+
+    [Fact]
+    public async Task A_real_change_leaves_no_warning()
+    {
+        _ws.Write("a.txt", "un\n");
+        _fake.Calls(("edit_file", A(("path", "a.txt"), ("old_text", "un"), ("new_text", "deux"))))
+             .Calls(("finish", A(("summary", "fait"))));
+
+        var result = await Loop(new AutoApprover()).RunAsync(Req());
+
+        Assert.Null(result.Warning);
     }
 
     [Fact]
