@@ -126,7 +126,8 @@ public static class InlineEditPlanner
                 + "Rien n'a été modifié. Demande-lui le code complet, ou sélectionne un passage plus court.", model);
 
         if (newDoc == doc)
-            return InlineEditOutcome.Failure("Le modèle n'a rien changé : le code qu'il propose est identique à l'actuel. Rien n'a été modifié.", model);
+            return InlineEditOutcome.Failure("Le modèle n'a rien changé : le code qu'il propose est identique à l'actuel. Rien n'a été modifié. "
+                + "(Si ta demande était une question, pose-la dans le chat ou utilise « Expliquer ».)", model);
 
         if (FileSanity.Check(request.DisplayPath, doc, newDoc) is { } broken)
             return InlineEditOutcome.Failure(HumanSanityMessage(request.DisplayPath, broken), model);
@@ -140,6 +141,12 @@ public static class InlineEditPlanner
 
         if (request.Scope == InlineEditScope.Selection && EchoesContext(doc, index, original.Length, replacement))
             warnings.Add("Le modèle semble avoir recopié des lignes situées AUTOUR de la sélection : elles risquent d'apparaître en double (regarde le diff).");
+
+        // Mesuré (24/09) : posée dans le bandeau d'édition, une QUESTION (« quelle est la capitale de la France ? ») ressort d'un modèle 7B
+        // sous forme du fichier + un commentaire qui répond. Le diff montre ce commentaire ; cet avertissement dit pourquoi il est là.
+        if (diff.Removed == 0 && OnlyCommentLinesAdded(diff.Unified) && !MentionsComments(request.Instruction))
+            warnings.Add("Le modèle n'a fait qu'AJOUTER des commentaires alors que ta demande n'en parlait pas : c'était peut-être une question "
+                       + "(pour interroger le code, utilise « Expliquer » ou le chat).");
 
         return new InlineEditOutcome(new InlineEditPlan
         {
@@ -171,6 +178,30 @@ public static class InlineEditPlanner
     public static string Normalize(string text) => text.Replace("\r\n", "\n").Replace('\r', '\n');
 
     // ── Aides ───────────────────────────────────────────────────────────────
+
+    private static readonly string[] CommentMarkers = { "//", "/*", "*", "#", "--", "<!--" };
+
+    private static readonly string[] CommentWords =
+        { "comment", "document", "annot", "explique", "todo", "en-tête", "entete", "header", "licence", "license", "docstring", "summary" };
+
+    /// <summary>Toutes les lignes AJOUTÉES du diff sont des commentaires ou des lignes vides (et il y en a au moins une non vide).</summary>
+    private static bool OnlyCommentLinesAdded(string unifiedDiff)
+    {
+        var any = false;
+        foreach (var line in unifiedDiff.Split('\n'))
+        {
+            if (line.Length == 0 || line[0] != '+' || line.StartsWith("+++", StringComparison.Ordinal)) continue;
+
+            var text = line[1..].Trim();
+            if (text.Length == 0) continue;
+            if (!CommentMarkers.Any(m => text.StartsWith(m, StringComparison.Ordinal))) return false;
+            any = true;
+        }
+        return any;
+    }
+
+    private static bool MentionsComments(string instruction)
+        => CommentWords.Any(w => instruction.Contains(w, StringComparison.OrdinalIgnoreCase));
 
     /// <summary>Le bloc du modèle n'a pas de saut de ligne final (nettoyé à l'extraction) : on remet autant de sauts que le texte remplacé en avait.</summary>
     private static string WithTrailingNewlinesOf(string text, string reference)

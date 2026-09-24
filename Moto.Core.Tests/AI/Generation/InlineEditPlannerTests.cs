@@ -169,6 +169,7 @@ public class InlineEditPlannerTests
 
         Assert.False(outcome.Succeeded);
         Assert.Contains("rien changé", outcome.Problem);
+        Assert.Contains("chat", outcome.Problem); // une question posée dans le bandeau ressort souvent en « code identique » : on dit où la poser
     }
 
     [Fact]
@@ -254,6 +255,58 @@ public class InlineEditPlannerTests
         Assert.True(outcome.Succeeded, outcome.Problem);
         Assert.Equal("class A\n{\n    int x = 1;\n}\n", outcome.Plan!.NewText);
         Assert.Contains(outcome.Plan.Warnings, w => w.Contains("SUPPRIMÉ"));
+    }
+
+    // ── Une question posée dans le bandeau d'édition (mesuré le 24/09 sur qwen2.5-coder:7b) ──
+
+    private static InlineEditRequest WholeFile(string instruction)
+        => new() { DisplayPath = "A.cs", DocumentText = Doc, Instruction = instruction };
+
+    [Fact]
+    public void A_question_answered_by_an_added_comment_is_flagged_as_a_probable_question()
+    {
+        var reply = Reply(Doc.TrimEnd('\n') + "\n\n// La capitale de la France est Paris.");
+
+        var outcome = InlineEditPlanner.Plan(WholeFile("Quelle est la capitale de la France ?"), reply);
+
+        Assert.True(outcome.Succeeded, outcome.Problem);
+        Assert.Contains(outcome.Plan!.Warnings, w => w.Contains("AJOUTER des commentaires"));
+    }
+
+    [Theory]
+    [InlineData("Ajoute un commentaire au-dessus de la classe")]
+    [InlineData("Documente cette classe")]
+    [InlineData("Explique le code en notes dans le fichier")]
+    public void Adding_only_comments_is_not_flagged_when_comments_were_asked_for(string instruction)
+    {
+        var reply = Reply("// Une classe de test.\n" + Doc.TrimEnd('\n'));
+
+        var outcome = InlineEditPlanner.Plan(WholeFile(instruction), reply);
+
+        Assert.True(outcome.Succeeded, outcome.Problem);
+        Assert.DoesNotContain(outcome.Plan!.Warnings, w => w.Contains("AJOUTER des commentaires"));
+    }
+
+    [Fact]
+    public void Adding_real_code_is_not_flagged()
+    {
+        var reply = Reply("class A\n{\n    int x = 1;\n    int y = 2;\n    int z = 3;\n}");
+
+        var outcome = InlineEditPlanner.Plan(WholeFile("ajoute z"), reply);
+
+        Assert.True(outcome.Succeeded, outcome.Problem);
+        Assert.DoesNotContain(outcome.Plan!.Warnings, w => w.Contains("AJOUTER des commentaires"));
+    }
+
+    [Fact]
+    public void Changing_code_while_adding_a_comment_is_not_flagged()
+    {
+        var reply = Reply("class A\n{\n    // valeur de départ\n    int x = 5;\n    int y = 2;\n}");
+
+        var outcome = InlineEditPlanner.Plan(WholeFile("mets x à 5"), reply);
+
+        Assert.True(outcome.Succeeded, outcome.Problem);
+        Assert.DoesNotContain(outcome.Plan!.Warnings, w => w.Contains("AJOUTER des commentaires"));
     }
 
     // ── Localisation de la sélection ────────────────────────────────────────
