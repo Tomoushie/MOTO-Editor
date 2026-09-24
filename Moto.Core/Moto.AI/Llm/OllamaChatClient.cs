@@ -146,12 +146,18 @@ public sealed class OllamaChatClient : IDisposable
         LlmOptions? options = null,
         Action<string>? onContent = null,
         Action<string>? onThinking = null,
-        CancellationToken ct = default)
+        CancellationToken ct = default,
+        LlmToolMode toolMode = LlmToolMode.Native)
     {
         options ??= new LlmOptions();
 
+        // Mode structuré : pas de « tools » natifs ; les outils sont décrits dans la consigne et la réponse est contrainte
+        // par un schéma JSON (voir StructuredTools). Marche aussi avec un modèle SANS la capacité « tools ».
+        var structured = toolMode == LlmToolMode.Structured && tools is { Count: > 0 };
+        if (structured) onContent = null; // le flux ne serait que du JSON brut
+
         var info = await ShowAsync(model, ct).ConfigureAwait(false);
-        if (tools is { Count: > 0 } && info is not null && !info.SupportsTools)
+        if (!structured && tools is { Count: > 0 } && info is not null && !info.SupportsTools)
         {
             throw new LlmException(
                 $"Le modèle « {model} » ne sait pas appeler d'outils : il ne peut pas piloter un agent. " +
@@ -163,7 +169,10 @@ public sealed class OllamaChatClient : IDisposable
         var think = options.Think;
         if (think is not null && (info is null || !info.SupportsThinking)) think = null;
 
-        var body = BuildBody(model, messages, tools, options, think);
+        var body = structured
+            ? BuildBody(model, StructuredTools.ToPlainMessages(messages, tools!, options.StructuredThought), null, options, think,
+                StructuredTools.BuildSchema(tools!, options.StructuredThought))
+            : BuildBody(model, messages, tools, options, think, null);
         var clock = Stopwatch.StartNew();
 
         using var linked = CancellationTokenSource.CreateLinkedTokenSource(ct);
@@ -231,9 +240,16 @@ public sealed class OllamaChatClient : IDisposable
                 if (node["done"] is JsonValue d && d.TryGetValue<bool>(out var done) && done) last = node;
             }
 
+            var replyText = content.ToString();
+            if (structured && StructuredTools.TryParse(replyText, tools!, out var thought) is { } parsed)
+            {
+                calls.Add(parsed);
+                replyText = thought; // vide sans « pensee » ; sinon la phrase de raisonnement, gardée dans l'historique
+            }
+
             return new LlmReply
             {
-                Content = content.ToString(),
+                Content = replyText,
                 Thinking = thinking.ToString(),
                 ToolCalls = calls,
                 DoneReason = AsString(last?["done_reason"]) ?? string.Empty,
@@ -261,8 +277,12 @@ public sealed class OllamaChatClient : IDisposable
 
     // ── Construction / lecture JSON ─────────────────────────────────────────
 
+    /// <summary>Plafond de jetons d'une réponse contrainte quand l'appelant n'en fixe pas : un modèle qui s'emballe
+    /// dans une chaîne JSON ne doit pas générer sans fin (~24 Ko de code, largement assez pour un fichier neuf).</summary>
+    private const int StructuredMaxTokens = 6000;
+
     private static JsonObject BuildBody(string model, IReadOnlyList<LlmMessage> messages,
-        IReadOnlyList<LlmToolSpec>? tools, LlmOptions o, string? think)
+        IReadOnlyList<LlmToolSpec>? tools, LlmOptions o, string? think, JsonNode? format)
     {
         var msgs = new JsonArray();
         foreach (var m in messages)
@@ -284,6 +304,7 @@ public sealed class OllamaChatClient : IDisposable
 
         var opts = new JsonObject { ["num_ctx"] = o.NumCtx, ["temperature"] = o.Temperature };
         if (o.NumPredict is int np) opts["num_predict"] = np;
+        else if (format is not null) opts["num_predict"] = StructuredMaxTokens;
 
         var body = new JsonObject
         {
@@ -310,6 +331,8 @@ public sealed class OllamaChatClient : IDisposable
                 });
             body["tools"] = arr;
         }
+
+        if (format is not null) body["format"] = format;
 
         if (think is not null)
             body["think"] = think switch
@@ -365,6 +388,8 @@ public sealed class OllamaChatClient : IDisposable
         if (status == 404 || message.Contains("not found", StringComparison.OrdinalIgnoreCase))
             return new LlmException($"Modèle « {model} » introuvable dans Ollama (ollama pull {model}).");
 
-        return new LlmException($"Ollama a refusé la requête ({(status == 0 ? "erreur" : status.ToString())}) : {message}");
+        var glitch = message.Contains("repeat limit", StringComparison.OrdinalIgnoreCase)
+                     || message.Contains("prediction aborted", StringComparison.OrdinalIgnoreCase);
+        return new LlmException($"Ollama a refusé la requête ({(status == 0 ? "erreur" : status.ToString())}) : {message}") { GenerationGlitch = glitch };
     }
 }

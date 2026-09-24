@@ -6,12 +6,27 @@ using Moto.Core.Settings;
 
 namespace Moto.Core.AI.Autonomy.V2;
 
+/// <summary>Comment l'agent obtient les appels d'outils du modèle.</summary>
+public enum AgentToolMode
+{
+    /// <summary>Appels d'outils natifs d'Ollama. Un modèle qui « raconte » au lieu d'appeler l'outil échoue.</summary>
+    Native,
+
+    /// <summary>Sortie contrainte par un schéma JSON (voir StructuredTools) : le modèle ne peut répondre que par un appel d'outil valide.</summary>
+    Structured,
+
+    /// <summary>Natif d'abord ; bascule en structuré si le modèle n'a pas la capacité « tools » ou n'appelle pas les outils après relance.</summary>
+    Auto,
+}
+
 public sealed class AgentRunRequest
 {
     public required string Model { get; init; }
     public required string Goal { get; init; }
     public string WorkspaceRoot { get; init; } = string.Empty;
     public string AgentId { get; init; } = "agent-1";
+
+    public AgentToolMode ToolMode { get; init; } = AgentToolMode.Auto;
 
     public int MaxSteps { get; init; } = 30;
     public TimeSpan MaxDuration { get; init; } = TimeSpan.FromMinutes(15);
@@ -57,6 +72,10 @@ public sealed class AgentRunResult
     public string? Warning { get; init; }
 
     public string RunId { get; init; } = string.Empty;
+
+    /// <summary>Mode d'appel d'outils à la fin du run : « native », « structured » ou « native→structured » (bascule en cours de route).</summary>
+    public string ToolMode { get; init; } = "native";
+
     public int Steps { get; init; }
     public int ModelCalls { get; init; }
     public int ToolCalls { get; init; }

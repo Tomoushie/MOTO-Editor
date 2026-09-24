@@ -199,17 +199,19 @@ internal static class BenchTasks
             }),
 
         new("answer-question", "Répondre à une question sans rien modifier",
-            "Sans rien modifier, dis-moi combien de méthodes publiques contient la classe InventoryService (le constructeur ne compte pas). Donne le nombre dans ton résumé final.",
+            "Sans rien modifier, dis-moi dans quel fichier est définie la méthode `Consume` et à quelle ligne. Donne le chemin du fichier et le numéro de ligne dans ton résumé final.",
             null,
             (ws, summary) =>
             {
                 var diff = ws.DiffFromOriginal();
                 if (diff.Files > 0) return new(false, "des fichiers ont été modifiés");
-                var expected = Fixture.InventoryPublicMethods;
+                var expected = Array.FindIndex(ws.Read("Services/InventoryService.cs").Split('\n'), l => l.Contains("public void Consume(", StringComparison.Ordinal)) + 1;
+                if (!summary.Contains("InventoryService", StringComparison.OrdinalIgnoreCase))
+                    return new(false, $"le fichier n'est pas cité : « {Truncate(summary, 100)} »");
                 var numbers = Regex.Matches(summary, @"\b\d+\b").Select(m => int.Parse(m.Value)).ToList();
-                return numbers.Contains(expected) && !numbers.Any(n => n != expected && n is > 1 and < 30)
-                    ? new(true, $"réponse {expected}")
-                    : new(false, $"réponse attendue {expected}, reçu « {Truncate(summary, 100)} »");
+                return numbers.Contains(expected)
+                    ? new(true, $"InventoryService.cs, ligne {expected}")
+                    : new(false, $"ligne attendue {expected}, reçu « {Truncate(summary, 100)} »");
             }),
     };
 

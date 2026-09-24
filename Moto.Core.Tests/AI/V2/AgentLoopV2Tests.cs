@@ -21,8 +21,9 @@ public class AgentLoopV2Tests : IDisposable
     private AgentLoopV2 Loop(IAgentApprover approver, Func<string, string, CancellationToken, Task<TerminalCommandResult>>? run = null)
         => new(new OllamaChatClient("http://127.0.0.1:11434", _fake), approver, runCommand: run);
 
-    private AgentRunRequest Req(string goal = "faire la tâche", bool verify = false) => new()
+    private AgentRunRequest Req(string goal = "faire la tâche", bool verify = false, AgentToolMode mode = AgentToolMode.Auto) => new()
     {
+        ToolMode = mode,
         Model = "fake",
         Goal = goal,
         WorkspaceRoot = _ws.Root,
@@ -54,10 +55,10 @@ public class AgentLoopV2Tests : IDisposable
         Assert.Contains(events, e => e.Kind == AgentEventKind.ToolProposed && e.Path == "Program.cs");
         Assert.Equal(AgentEventKind.Finished, events[^1].Kind);
 
-        // La requête envoyée à Ollama : contexte demandé, 7 outils, flux, conservation du modèle en mémoire.
+        // La requête envoyée à Ollama : contexte demandé, 9 outils, flux, conservation du modèle en mémoire.
         var first = _fake.ChatRequests[0];
         Assert.Equal(16384, first["options"]!["num_ctx"]!.GetValue<int>());
-        Assert.Equal(8, first["tools"]!.AsArray().Count);
+        Assert.Equal(9, first["tools"]!.AsArray().Count);
         Assert.True(first["stream"]!.GetValue<bool>());
         Assert.Equal("30m", first["keep_alive"]!.GetValue<string>());
         Assert.Equal("system", first["messages"]![0]!["role"]!.GetValue<string>());
@@ -240,7 +241,7 @@ public class AgentLoopV2Tests : IDisposable
     {
         _fake.SupportsTools = false;
 
-        var result = await Loop(new AutoApprover()).RunAsync(Req());
+        var result = await Loop(new AutoApprover()).RunAsync(Req(mode: AgentToolMode.Native));
 
         Assert.Equal(AgentOutcome.Failed, result.Outcome);
         Assert.Contains("ne sait pas appeler d'outils", result.Error);

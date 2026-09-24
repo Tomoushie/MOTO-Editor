@@ -31,6 +31,8 @@ public sealed class AgentLoopV2
     private const int MaxAnnounceNudges = 2;
     private const int MaxErrorNudges = 2;
     private const int MaxVerifyNudges = 4;
+    private const int MaxGlitchRetries = 2;
+    private const int ExploreWarnAt = 6;
 
     private static readonly string[] CodeExtensions = { ".cs", ".xaml", ".csproj", ".razor" };
 
@@ -67,6 +69,14 @@ public sealed class AgentLoopV2
         public double ModelSeconds;
         public int ConsecutiveErrors, ConsecutiveDeclines, Nudges, NoChangeNudges, EchoNudges, AnnounceNudges, ErrorNudges, VerifyNudges;
         public int FileWriteAttempts;
+
+        /// <summary>Comment les appels d'outils sont obtenus à cet instant (peut passer de natif à structuré en cours de run).</summary>
+        public LlmToolMode Mode;
+        public bool SwitchedMode;
+        public int TextOnlyStreak;
+
+        /// <summary>Appels consécutifs d'outils de lecture (list_dir, read_file, search_text) sans aucune écriture entre eux.</summary>
+        public int ExploreStreak;
         public string? VerifyCommand;
         public string? LastWriteError;
         public bool HonestyNudged;
@@ -109,6 +119,8 @@ public sealed class AgentLoopV2
             },
         };
 
+        state.Mode = request.ToolMode == AgentToolMode.Structured ? LlmToolMode.Structured : LlmToolMode.Native;
+
         try
         {
             return await LoopAsync(state, ct);
@@ -147,8 +159,11 @@ public sealed class AgentLoopV2
                 return Finish(st, AgentOutcome.Failed, "Le contexte du modèle est saturé.",
                     "La conversation ne tient plus dans la fenêtre du modèle, même après avoir retiré les anciens résultats.");
 
-            var reply = await _client.ChatAsync(req.Model, st.Messages, specs, req.Options,
-                onContent: chunk => Emit(st, AgentEventKind.Text, chunk), ct: ct);
+            var reply = await CallModelAsync(st, specs, ct);
+
+            // Mode structuré : pas de flux de texte, mais la phrase de raisonnement (« pensee »), si elle est demandée, est montrée.
+            if (st.Mode == LlmToolMode.Structured && reply.ToolCalls.Count > 0 && !string.IsNullOrWhiteSpace(reply.Content))
+                Emit(st, AgentEventKind.Text, reply.Content);
 
             st.ModelCalls++;
             st.PromptTokens += reply.PromptTokens;
@@ -175,10 +190,17 @@ public sealed class AgentLoopV2
                 if (verdict.Nudge is not null)
                 {
                     st.Messages.Add(LlmMessage.User(verdict.Nudge));
+
+                    // Relancé deux fois d'affilée sans appeler d'outil : ce modèle « raconte » au lieu d'agir. La sortie
+                    // contrainte l'empêche d'écrire autre chose qu'un appel d'outil valide.
+                    if (++st.TextOnlyStreak >= 2 && req.ToolMode == AgentToolMode.Auto && st.Mode == LlmToolMode.Native)
+                        SwitchToStructured(st, "Le modèle n'appelle pas les outils malgré les relances");
                     continue;
                 }
                 return Finish(st, AgentOutcome.Completed, content.Trim().Length > 0 ? content.Trim() : "Terminé.");
             }
+
+            st.TextOnlyStreak = 0;
 
             // Les appels d'un même message sont exécutés dans l'ordre, mais un petit modèle enchaîne parfois
             // « modifie puis compile » ou deux insertions dans le même fichier SANS avoir vu le résultat de la première.
@@ -211,6 +233,8 @@ public sealed class AgentLoopV2
                 {
                     wroteInThisMessage = true;
                     if (pathKey.Length > 0) touchedInThisMessage.Add(pathKey);
+                    if (outcome.Result.Changes is { } touchedMany)
+                        foreach (var c in touchedMany) touchedInThisMessage.Add(NormalizePath(c.RelativePath));
                 }
 
                 if (outcome.Finished) return Finish(st, AgentOutcome.Completed, outcome.Summary ?? "Terminé.");
@@ -220,6 +244,43 @@ public sealed class AgentLoopV2
         }
 
         return Finish(st, AgentOutcome.StepLimit, "Nombre maximal d'étapes atteint.");
+    }
+
+    /// <summary>
+    /// Un appel au modèle, avec deux reprises : (1) modèle SANS la capacité « tools » → sortie contrainte (mode Auto) ;
+    /// (2) génération interrompue parce que le modèle s'est emballé (« token repeat limit ») → même appel à température plus haute.
+    /// </summary>
+    private async Task<LlmReply> CallModelAsync(RunState st, IReadOnlyList<LlmToolSpec> specs, CancellationToken ct)
+    {
+        var req = st.Request;
+        var glitches = 0;
+        while (true)
+        {
+            var options = glitches == 0 ? req.Options : req.Options.WithTemperature(Math.Min(1.0, req.Options.Temperature + 0.35 * glitches));
+            try
+            {
+                return await _client.ChatAsync(req.Model, st.Messages, specs, options,
+                    onContent: chunk => Emit(st, AgentEventKind.Text, chunk), ct: ct, toolMode: st.Mode);
+            }
+            catch (LlmException ex) when (ex.ToolsNotSupported && req.ToolMode == AgentToolMode.Auto && st.Mode == LlmToolMode.Native)
+            {
+                SwitchToStructured(st, "Ce modèle n'a pas d'appels d'outils natifs");
+            }
+            catch (LlmException ex) when (ex.GenerationGlitch && glitches < MaxGlitchRetries)
+            {
+                glitches++;
+                Emit(st, AgentEventKind.Nudge, $"Le modèle s'est emballé (« {Cut(ex.Message, 90)} ») : nouvel essai ({glitches}/{MaxGlitchRetries}).");
+            }
+        }
+    }
+
+    private void SwitchToStructured(RunState st, string reason)
+    {
+        st.Mode = LlmToolMode.Structured;
+        st.SwitchedMode = true;
+        st.TextOnlyStreak = 0;
+        Emit(st, AgentEventKind.Nudge, $"{reason} : passage en sortie contrainte (le modèle ne peut plus répondre que par un appel d'outil).");
+        Audit(st, new { kind = "tool_mode", step = st.Step, mode = "structured", reason });
     }
 
     // ── Réponse en texte seul : fin légitime ou à relancer ? ────────────────
@@ -332,6 +393,18 @@ public sealed class AgentLoopV2
             ? $"\n⚠ Tu as déjà fait exactement cet appel {repeats - 1} fois : change d'approche (autre passage, autre outil) ou appelle finish."
             : string.Empty;
 
+        // Exploration sans fin : le modèle cherche et relit sans jamais écrire (qwen3:8b, 25 appels de search_text d'affilée
+        // sur une simple extraction de méthode). Les appels varient un peu, la garde anti-répétition ne les voit pas.
+        if (tool.IsMutating) st.ExploreStreak = 0;
+        else if (call.Name != AgentToolSetV2.FinishName)
+        {
+            st.ExploreStreak++;
+            if (st.ExploreStreak >= ExploreWarnAt && st.ExploreStreak % 3 == 0 && st.Changes.Count == 0 && st.FileWriteAttempts == 0
+                && IntentHeuristics.ExpectsFileChanges(st.Request.Goal))
+                loopWarning += $"\n⚠ Tu explores depuis {st.ExploreStreak} pas sans rien modifier. Tu as assez d'informations : " +
+                               "fais MAINTENANT la modification demandée (edit_file, insert_lines, replace_in_files ou write_file), en changeant le minimum de lignes.";
+        }
+
         // finish : avant de laisser terminer, (1) relancer une tâche d'écriture restée sans aucune modification,
         // (2) ne pas laisser croire à une modification qui a échoué, (3) s'assurer une fois que le code modifié a été compilé.
         if (call.Name == AgentToolSetV2.FinishName)
@@ -429,11 +502,15 @@ public sealed class AgentLoopV2
 
         Audit(st, new { kind = "execution", step = st.Step, error = applied.IsError, observation = Cut(applied.Text, 400) });
 
-        if (applied.Change is { } changed)
+        var changedFiles = applied.Changes is { Count: > 0 } many ? many
+            : applied.Change is { } one ? new[] { one }
+            : null;
+        if (changedFiles is not null)
         {
-            st.Changes[changed.RelativePath] = st.Changes.TryGetValue(changed.RelativePath, out var before)
-                ? new ChangedFile(changed.RelativePath, before.Added + changed.Added, before.Removed + changed.Removed, before.Created || changed.Created)
-                : changed;
+            foreach (var changed in changedFiles)
+                st.Changes[changed.RelativePath] = st.Changes.TryGetValue(changed.RelativePath, out var before)
+                    ? new ChangedFile(changed.RelativePath, before.Added + changed.Added, before.Removed + changed.Removed, before.Created || changed.Created)
+                    : changed;
             st.Verify = VerifyStatus.Unverified;
             st.RecentSignatures.Clear(); // le fichier a changé : relire ou refaire un appel n'est plus une « répétition »
         }
@@ -443,6 +520,10 @@ public sealed class AgentLoopV2
             if (applied.ExitCode is null or 0)
             {
                 st.Verify = VerifyStatus.Passed;
+                // Constat du banc d'essai : le travail est fini et vérifié, mais le modèle continue d'appeler des outils
+                // jusqu'à la limite d'étapes. On lui dit que c'est le moment de conclure.
+                if (st.Changes.Count > 0)
+                    applied = applied with { Text = applied.Text + "\n✔ La compilation a réussi. Si la tâche demandée est faite, appelle finish maintenant avec un résumé court." };
             }
             else
             {
@@ -477,7 +558,7 @@ public sealed class AgentLoopV2
         }
 
         Emit(st, AgentEventKind.ToolResult, Cut(result.Text, 400), call.Name, ToolArgs.Str(call.Arguments, "path"), result.IsError);
-        return new CallOutcome(new ToolResult(result.IsError, text, result.Change, result.ExitCode));
+        return new CallOutcome(new ToolResult(result.IsError, text, result.Change, result.ExitCode, result.Changes));
     }
 
     private CallOutcome Failed(RunState st, LlmToolCall call, string message)
@@ -507,8 +588,8 @@ public sealed class AgentLoopV2
             st.NoChangeNudges++;
             Emit(st, AgentEventKind.Nudge, "Aucun fichier modifié alors que la tâche le demande : relance.");
             return "Tu n'as encore modifié AUCUN fichier, or la tâche demande de le faire. " +
-                   "Appelle MAINTENANT l'outil d'écriture qui convient : edit_file pour remplacer un passage, insert_lines pour ajouter des lignes, " +
-                   "write_file pour créer un fichier neuf. Relis d'abord le fichier avec read_file si tu n'en as pas le texte exact. " +
+                   "Appelle MAINTENANT l'outil d'écriture qui convient : edit_file pour remplacer un passage, replace_in_files pour renommer un nom partout, " +
+                   "insert_lines pour ajouter des lignes, write_file pour créer un fichier neuf. Relis d'abord le fichier avec read_file si tu n'en as pas le texte exact. " +
                    "N'écris pas de plan : agis.";
         }
 
@@ -603,9 +684,10 @@ public sealed class AgentLoopV2
         sb.AppendLine("1. Explore : list_dir pour voir l'arborescence, search_text pour retrouver un nom, read_file pour lire. Lis TOUJOURS un fichier avant de le modifier.");
         sb.AppendLine("   Sur un long fichier, ne le lis pas en entier : repère la ligne avec search_text, puis read_file avec start_line et end_line autour.");
         sb.AppendLine("2. Pour REMPLACER du code : edit_file (old_text = le passage recopié EXACTEMENT depuis read_file, sans les numéros de ligne ni le « | » ; new_text = son remplacement). Pour AJOUTER du code sans rien remplacer : insert_lines (le texte est inséré AVANT le numéro de ligne donné). Change le MINIMUM de lignes ; ne réécris jamais un fichier entier pour en changer quelques lignes.");
-        sb.AppendLine("3. write_file sert uniquement à créer un fichier NEUF.");
-        sb.AppendLine("4. Après avoir modifié du code, vérifie avec run_command et corrige les erreurs signalées.");
-        sb.AppendLine("5. Quand c'est terminé, appelle finish avec un résumé court en français.");
+        sb.AppendLine("3. Pour RENOMMER ou remplacer un nom partout (plusieurs fichiers) : replace_in_files, en UNE seule opération (old_text = ancien nom, new_text = nouveau nom), jamais plusieurs edit_file.");
+        sb.AppendLine("4. write_file sert uniquement à créer un fichier NEUF.");
+        sb.AppendLine("5. Après avoir modifié du code, vérifie avec run_command et corrige les erreurs signalées.");
+        sb.AppendLine("6. Quand c'est terminé, appelle finish avec un résumé court en français.");
         sb.AppendLine();
         sb.AppendLine("RÈGLES");
         sb.AppendLine("- Chemins toujours RELATIFS au projet (Dossier/Fichier.cs), jamais absolus.");
@@ -666,6 +748,7 @@ public sealed class AgentLoopV2
             Error = error,
             Warning = NoChangeWarning(st, outcome),
             RunId = st.RunId,
+            ToolMode = st.SwitchedMode ? "native→structured" : st.Mode == LlmToolMode.Structured ? "structured" : "native",
             Steps = Math.Min(st.Step, st.Request.MaxSteps),
             ModelCalls = st.ModelCalls,
             ToolCalls = st.ToolCalls,
@@ -712,6 +795,10 @@ public sealed class AgentLoopV2
 
     private static string Describe(LlmToolCall call)
     {
+        if (call.Name == ReplaceInFilesToolV2.ToolName
+            && ToolArgs.Str(call.Arguments, "old_text") is { Length: > 0 } from)
+            return $"{call.Name} {Cut(from, 40)} → {Cut(ToolArgs.Str(call.Arguments, "new_text") ?? string.Empty, 40)}";
+
         var key = ToolArgs.Str(call.Arguments, "path") ?? ToolArgs.Str(call.Arguments, "query") ?? ToolArgs.Str(call.Arguments, "command");
         return key is null ? call.Name : $"{call.Name} {Cut(key, 80)}";
     }

@@ -2,6 +2,7 @@
 // dotnet run --project Moto.Tools.AgentBench -- --models qwen2.5-coder:7b,qwen3:8b --engine both --repeat 1 -v
 using System.Text;
 using System.Text.Json;
+using Moto.Core.AI.Autonomy.V2;
 using Moto.Core.AI.Llm;
 
 namespace Moto.Tools.AgentBench;
@@ -39,6 +40,13 @@ internal static class Program
             NumCtx = int.Parse(opt.GetValueOrDefault("num-ctx") ?? "16384"),
             Think = (opt.GetValueOrDefault("think") ?? "false") is "none" ? null : opt.GetValueOrDefault("think") ?? "false",
             MaxSteps = int.Parse(opt.GetValueOrDefault("max-steps") ?? "25"),
+            Thought = opt.ContainsKey("thought"),
+            ToolMode = (opt.GetValueOrDefault("tool-mode") ?? "native").ToLowerInvariant() switch
+            {
+                "structured" => AgentToolMode.Structured,
+                "auto" => AgentToolMode.Auto,
+                _ => AgentToolMode.Native,
+            },
             MaxDuration = TimeSpan.FromMinutes(double.Parse(opt.GetValueOrDefault("timeout-min") ?? "8", System.Globalization.CultureInfo.InvariantCulture)),
             Verbose = opt.ContainsKey("v"),
         };
@@ -56,7 +64,7 @@ internal static class Program
         var transcriptDir = Path.Combine(Path.GetDirectoryName(reportPath)!, Path.GetFileNameWithoutExtension(reportPath) + "-transcripts");
 
         Console.WriteLine($"Banc d'essai de l'agent — {tasks.Count} tâche(s), modèles : {string.Join(", ", models)}, moteurs : {string.Join("+", engines)}, x{repeat}");
-        Console.WriteLine($"Contexte {options.NumCtx}, think={options.Think ?? "(non envoyé)"}, {options.MaxSteps} pas max, {options.MaxDuration.TotalMinutes:0.#} min max");
+        Console.WriteLine($"Contexte {options.NumCtx}, think={options.Think ?? "(non envoyé)"}, outils={options.ToolMode}{(options.Thought ? "+raisonnement" : string.Empty)}, {options.MaxSteps} pas max, {options.MaxDuration.TotalMinutes:0.#} min max");
 
         // Projet de référence : construit une fois ; sa sortie sert de référence pour les refactorisations.
         var templateDir = Path.Combine(tempRoot, "template");
@@ -101,7 +109,7 @@ internal static class Program
                         new JsonSerializerOptions { WriteIndented = true, Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping }));
                 }
 
-                Console.WriteLine($"  {(attempt.Passed ? "✓ RÉUSSI" : "✗ ÉCHEC")}  {attempt.Seconds:0.#}s  {attempt.Outcome}  pas={attempt.Steps} outils={attempt.ToolCalls} erreurs={attempt.ToolErrors} " +
+                Console.WriteLine($"  {(attempt.Passed ? "✓ RÉUSSI" : "✗ ÉCHEC")}  {attempt.Seconds:0.#}s  {attempt.Outcome}{(attempt.ToolMode is { Length: > 0 } and not "native" ? " [" + attempt.ToolMode + "]" : string.Empty)}  pas={attempt.Steps} outils={attempt.ToolCalls} erreurs={attempt.ToolErrors} " +
                                   $"jetons={attempt.PromptTokens}/{attempt.CompletionTokens}  diff=+{attempt.Added} −{attempt.Removed} ({attempt.FilesChanged} fichier(s))");
                 Console.WriteLine($"  contrôle : {attempt.Check}");
                 if (!string.IsNullOrEmpty(attempt.Error)) Console.WriteLine($"  erreur : {attempt.Error}");

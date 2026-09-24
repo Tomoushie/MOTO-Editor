@@ -294,7 +294,8 @@ public class AgentRecoveryTests : IDisposable
         var result = await Loop().RunAsync(Req("Que contient A.cs ?"), events.Add);
 
         Assert.Equal(AgentOutcome.Completed, result.Outcome);
-        Assert.Equal(2, events.Count(e => e.Kind == AgentEventKind.Nudge));
+        // Les deux relances (la bascule en sortie contrainte, elle, est comptée à part).
+        Assert.Equal(2, events.Count(e => e.Kind == AgentEventKind.Nudge && !e.Text.Contains("sortie contrainte")));
     }
 
     [Fact]

@@ -1,7 +1,7 @@
 // Moto.Core/Moto.AI/Autonomy/V2/AgentToolsV2.cs
-// ★ AJOUT (24/09, agent v2) : les 8 outils. Trois lisent (list_dir, read_file, search_text — jamais de
-// confirmation), quatre modifient (edit_file, insert_lines, write_file, run_command — chacun PASSE par la
-// confirmation humaine de la boucle, avec un diff pour les fichiers), un termine (finish).
+// ★ AJOUT (24/09, agent v2) : les 9 outils. Trois lisent (list_dir, read_file, search_text — jamais de
+// confirmation), cinq modifient (edit_file, replace_in_files, insert_lines, write_file, run_command — chacun
+// PASSE par la confirmation humaine de la boucle, avec un diff pour les fichiers), un termine (finish).
 // Les limites de taille ne sont pas cosmétiques : le contexte du modèle est petit (16 k jetons par
 // défaut), un fichier lu en entier le sature — read_file lit donc par tranches numérotées.
 using System.Text;
@@ -40,6 +40,32 @@ internal static class ToolFs
         for (var i = 0; i < lines.Count; i++)
             sb.Append((firstLineNumber + i).ToString().PadLeft(width)).Append(" | ").Append(lines[i]).Append('\n');
         return sb.ToString().TrimEnd('\n');
+    }
+
+    /// <summary>Tous les fichiers sous <paramref name="dir"/> (ordre alphabétique, dossiers ignorés exclus : bin, obj, .git…).</summary>
+    public static IEnumerable<string> EnumerateFiles(string dir)
+    {
+        var pending = new Stack<string>();
+        pending.Push(dir);
+        while (pending.Count > 0)
+        {
+            var current = pending.Pop();
+            string[] files, subdirs;
+            try
+            {
+                files = Directory.GetFiles(current);
+                subdirs = Directory.GetDirectories(current);
+            }
+            catch (UnauthorizedAccessException) { continue; }
+            catch (IOException) { continue; }
+
+            Array.Sort(files, StringComparer.OrdinalIgnoreCase);
+            foreach (var f in files) yield return f;
+
+            Array.Sort(subdirs, StringComparer.OrdinalIgnoreCase);
+            for (var i = subdirs.Length - 1; i >= 0; i--)
+                if (!IgnoredFolders.Contains(Path.GetFileName(subdirs[i]))) pending.Push(subdirs[i]);
+        }
     }
 }
 
@@ -220,7 +246,7 @@ public sealed class SearchTextToolV2 : AgentToolV2
         var filesSeen = 0;
         var truncated = false;
 
-        foreach (var file in singleFile ? new[] { dir } : EnumerateFiles(dir))
+        foreach (var file in singleFile ? new[] { dir } : ToolFs.EnumerateFiles(dir))
         {
             ct.ThrowIfCancellationRequested();
             if (!singleFile && glob is { Length: > 0 } && !System.IO.Enumeration.FileSystemName.MatchesSimpleExpression(glob, Path.GetFileName(file), ignoreCase: true))
@@ -260,31 +286,6 @@ public sealed class SearchTextToolV2 : AgentToolV2
         foreach (var m in matches) sb.AppendLine(m);
         if (truncated) sb.AppendLine($"… (résultats limités à {MaxMatches} : précise path ou file_glob)");
         return ToolResult.Ok(sb.ToString().TrimEnd());
-    }
-
-    private static IEnumerable<string> EnumerateFiles(string dir)
-    {
-        var pending = new Stack<string>();
-        pending.Push(dir);
-        while (pending.Count > 0)
-        {
-            var current = pending.Pop();
-            string[] files, subdirs;
-            try
-            {
-                files = Directory.GetFiles(current);
-                subdirs = Directory.GetDirectories(current);
-            }
-            catch (UnauthorizedAccessException) { continue; }
-            catch (IOException) { continue; }
-
-            Array.Sort(files, StringComparer.OrdinalIgnoreCase);
-            foreach (var f in files) yield return f;
-
-            Array.Sort(subdirs, StringComparer.OrdinalIgnoreCase);
-            for (var i = subdirs.Length - 1; i >= 0; i--)
-                if (!ToolFs.IgnoredFolders.Contains(Path.GetFileName(subdirs[i]))) pending.Push(subdirs[i]);
-        }
     }
 }
 
@@ -335,6 +336,8 @@ public sealed class EditFileToolV2 : AgentToolV2
 
         var outcome = EditMatcher.Apply(file.Text, oldText, newText, ToolArgs.Bool(args, "replace_all"));
         if (!outcome.Success) return Task.FromResult(ToolPreparation.Reject(outcome.Error!));
+        if (FileSanity.Check(display, file.Text, outcome.NewContent!) is { } broken)
+            return Task.FromResult(ToolPreparation.Reject(broken));
 
         var diff = LineDiff.Compute(file.Text, outcome.NewContent!);
         if (!diff.HasChanges)
@@ -445,6 +448,9 @@ public sealed class InsertLinesToolV2 : AgentToolV2
         lines.InsertRange(at.Value - 1, inserted);
         var newContent = string.Join('\n', lines) + (file.Text.EndsWith('\n') || file.Text.Length == 0 ? "\n" : string.Empty);
 
+        if (FileSanity.Check(display, file.Text, newContent) is { } broken)
+            return Task.FromResult(ToolPreparation.Reject(broken));
+
         var diff = LineDiff.Compute(file.Text, newContent);
         var atLine = at.Value;
         return Task.FromResult(ToolPreparation.Propose(new PendingChange
@@ -515,6 +521,9 @@ public sealed class WriteFileToolV2 : AgentToolV2
                     $"Refusé : {display} a {oldCount} lignes et ta version n'en a que {newCount} — ça ressemble à un fichier tronqué. " +
                     "Pour changer une partie, utilise edit_file (old_text = le passage, new_text = son remplacement)."));
         }
+
+        if (FileSanity.Check(display, created ? null : oldText, content) is { } broken)
+            return Task.FromResult(ToolPreparation.Reject(broken));
 
         var diff = LineDiff.Compute(oldText, content);
         if (!created && !diff.HasChanges)
@@ -661,13 +670,14 @@ public static class AgentToolSetV2
 {
     public const string FinishName = "finish";
 
-    /// <summary>Les 7 outils, dans l'ordre présenté au modèle.</summary>
+    /// <summary>Les 9 outils, dans l'ordre présenté au modèle.</summary>
     public static IReadOnlyList<AgentToolV2> Default() => new AgentToolV2[]
     {
         new ListDirToolV2(),
         new ReadFileToolV2(),
         new SearchTextToolV2(),
         new EditFileToolV2(),
+        new ReplaceInFilesToolV2(),
         new InsertLinesToolV2(),
         new WriteFileToolV2(),
         new RunCommandToolV2(),

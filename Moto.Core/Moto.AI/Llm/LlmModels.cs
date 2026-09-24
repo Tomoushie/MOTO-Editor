@@ -53,6 +53,16 @@ public sealed class LlmOptions
     /// <summary>null = ne rien envoyer ; "false"/"true" ; ou "low"/"medium"/"high" (gpt-oss).
     /// Ignoré si le modèle n'a pas la capacité "thinking".</summary>
     public string? Think { get; init; } = "false";
+
+    /// <summary>Mode structuré seulement : le modèle écrit d'abord une phrase de raisonnement (« pensee ») avant l'appel d'outil.</summary>
+    public bool StructuredThought { get; init; }
+
+    /// <summary>Copie avec une autre température (pour retenter un appel dont le modèle s'est emballé).</summary>
+    public LlmOptions WithTemperature(double temperature) => new()
+    {
+        NumCtx = NumCtx, Temperature = temperature, NumPredict = NumPredict, KeepAlive = KeepAlive, Think = Think,
+        StructuredThought = StructuredThought,
+    };
 }
 
 /// <summary>Réponse complète d'un appel de chat, avec les mesures de vitesse.</summary>
@@ -105,4 +115,8 @@ public sealed class LlmException : Exception
 
     /// <summary>Vrai si le délai est dépassé (modèle bloqué ou machine saturée).</summary>
     public bool TimedOut { get; init; }
+
+    /// <summary>Vrai si le serveur a interrompu la génération parce que le modèle s'est emballé (« token repeat limit reached »).
+    /// Un nouvel essai, à température un peu plus haute, réussit presque toujours.</summary>
+    public bool GenerationGlitch { get; init; }
 }

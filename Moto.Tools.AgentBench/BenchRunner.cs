@@ -20,6 +20,12 @@ internal sealed class Attempt
     public bool Passed { get; set; }
     public string Check { get; set; } = string.Empty;
     public string Outcome { get; set; } = string.Empty;
+
+    /// <summary>Le contrôle objectif (fichiers, compilation…) est passé — indépendamment de la façon dont l'agent a terminé.</summary>
+    public bool CheckPassed { get; set; }
+
+    /// <summary>Mode d'appel d'outils réellement utilisé (« native », « structured », « native→structured »).</summary>
+    public string ToolMode { get; set; } = string.Empty;
     public string Summary { get; set; } = string.Empty;
     public string? Error { get; set; }
     public double Seconds { get; set; }
@@ -43,6 +49,10 @@ internal sealed class BenchOptions
     public int NumCtx { get; init; } = 16384;
     public string? Think { get; init; } = "false";
     public int MaxSteps { get; init; } = 25;
+    public AgentToolMode ToolMode { get; init; } = AgentToolMode.Native;
+
+    /// <summary>Mode structuré : le modèle écrit une phrase de raisonnement avant chaque appel d'outil.</summary>
+    public bool Thought { get; init; }
     public TimeSpan MaxDuration { get; init; } = TimeSpan.FromMinutes(8);
     public bool Verbose { get; init; }
 }
@@ -64,7 +74,8 @@ internal static class BenchRunner
             AgentId = "bench",
             MaxSteps = o.MaxSteps,
             MaxDuration = o.MaxDuration,
-            Options = new LlmOptions { NumCtx = o.NumCtx, Think = o.Think },
+            ToolMode = o.ToolMode,
+            Options = new LlmOptions { NumCtx = o.NumCtx, Think = o.Think, StructuredThought = o.Thought },
             VerifyCommand = "dotnet build",
             RequireVerification = true,
             WriteAuditLog = false,
@@ -88,6 +99,7 @@ internal static class BenchRunner
         clock.Stop();
 
         attempt.Outcome = result.Outcome.ToString();
+        attempt.ToolMode = result.ToolMode;
         attempt.Summary = result.Summary;
         attempt.Error = result.Error;
         attempt.Seconds = clock.Elapsed.TotalSeconds;
@@ -158,9 +170,14 @@ internal static class BenchRunner
 
         try
         {
+            // Réussi = le résultat est bon ET l'agent a terminé proprement : des fichiers corrects derrière un run
+            // « Failed » ou « LoopDetected » s'affichent comme un échec à l'utilisateur.
             var check = task.Check(ws, summary);
-            attempt.Passed = check.Passed;
-            attempt.Check = check.Detail;
+            attempt.CheckPassed = check.Passed;
+            attempt.Passed = check.Passed && agentSaidDone;
+            attempt.Check = check.Passed && !agentSaidDone
+                ? check.Detail + $" — mais l'agent n'a pas terminé proprement ({attempt.Outcome})"
+                : check.Detail;
         }
         catch (Exception ex)
         {
