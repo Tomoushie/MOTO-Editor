@@ -17,6 +17,11 @@
   (Controls/MotoIcons.Mic).
   ★ AJOUT (31/08, points 1/3) : zone grise arrondie au survol/clic sur tous les
   boutons (HoverEffects, voir .xaml.cs).
+  ★ CORRECTION (24/09) : IA/Cortex/Modèle/Puissance déclaraient Transparent ici
+  alors que HoverEffects les fait revenir à BgPanel en sortie de survol — le
+  fond gris n'apparaissait donc qu'après un premier survol, puis restait
+  (repéré par Tom). Fond de repos = BgPanel dès le départ, comme le veut le
+  commentaire de HoverEffects.Attach.
   - "+" : action honnête (ouvre le sélecteur de dossier, comme "Rechercher
     projet" — pas de vrai système de pièces jointes/connecteurs dans MOTO
     Editor pour l'instant).
@@ -105,7 +110,7 @@
             </Border>
 
             <Border x:Name="BtnAi" Grid.Column="3" Padding="10,5" StrokeThickness="0"
-                    BackgroundColor="Transparent" StrokeShape="RoundRectangle 8">
+                    BackgroundColor="{StaticResource BgPanel}" StrokeShape="RoundRectangle 8">
                 <Label Text="IA" FontSize="11" TextColor="{StaticResource Txt1}" />
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Tapped="OnAiTapped" />
@@ -113,7 +118,7 @@
             </Border>
 
             <Border x:Name="BtnCortex" Grid.Column="4" Padding="10,5" StrokeThickness="0"
-                    BackgroundColor="Transparent" StrokeShape="RoundRectangle 8">
+                    BackgroundColor="{StaticResource BgPanel}" StrokeShape="RoundRectangle 8">
                 <Label Text="Cortex" FontSize="11" TextColor="{StaticResource Txt1}" />
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Tapped="OnCortexTapped" />
@@ -124,7 +129,7 @@
 
             <!-- Modèle actuel — clic = changer -->
             <Border x:Name="BtnModel" Grid.Column="6" Padding="10,5" StrokeThickness="0"
-                    BackgroundColor="Transparent" StrokeShape="RoundRectangle 8">
+                    BackgroundColor="{StaticResource BgPanel}" StrokeShape="RoundRectangle 8">
                 <Label x:Name="ModelLabel" Text="MOTO AI" FontSize="11" TextColor="{StaticResource Txt1}" />
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Tapped="OnModelButtonTapped" />
@@ -133,7 +138,7 @@
 
             <!-- Puissance — bouton, pas du texte -->
             <Border x:Name="BtnEffort" Grid.Column="7" Padding="10,5" StrokeThickness="0"
-                    BackgroundColor="Transparent" StrokeShape="RoundRectangle 8">
+                    BackgroundColor="{StaticResource BgPanel}" StrokeShape="RoundRectangle 8">
                 <Label x:Name="EffortLabel" Text="Puissance · Balanced" FontSize="11" TextColor="{StaticResource Txt1}" />
                 <Border.GestureRecognizers>
                     <TapGestureRecognizer Tapped="OnEffortButtonTapped" />
