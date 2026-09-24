@@ -189,7 +189,7 @@ public sealed class SearchTextToolV2 : AgentToolV2
     public override JsonObject Parameters => Schema(new JsonObject
     {
         ["query"] = Prop("string", "Texte à chercher."),
-        ["path"] = Prop("string", "Dossier où chercher (défaut : tout le projet)."),
+        ["path"] = Prop("string", "Dossier OU fichier où chercher (défaut : tout le projet)."),
         ["file_glob"] = Prop("string", "Filtre sur le nom de fichier, par exemple *.cs"),
         ["is_regex"] = Prop("boolean", "Vrai si query est une expression régulière."),
     }, "query");
@@ -202,7 +202,11 @@ public sealed class SearchTextToolV2 : AgentToolV2
         string dir;
         try { dir = ctx.Resolve(ToolArgs.Str(args, "path"), allowRoot: true); }
         catch (ToolPathException ex) { return ToolResult.Error(ex.Message); }
-        if (!Directory.Exists(dir)) return ToolResult.Error($"Dossier introuvable : {ToolArgs.Str(args, "path")}.");
+
+        // Un chemin de FICHIER est accepté : la recherche se limite à ce fichier (constat du banc d'essai : les modèles le font).
+        var singleFile = File.Exists(dir);
+        if (!singleFile && !Directory.Exists(dir))
+            return ToolResult.Error($"Chemin introuvable : {ToolArgs.Str(args, "path")}. Utilise list_dir pour voir les dossiers et fichiers du projet.");
 
         Regex? regex = null;
         if (ToolArgs.Bool(args, "is_regex"))
@@ -216,10 +220,10 @@ public sealed class SearchTextToolV2 : AgentToolV2
         var filesSeen = 0;
         var truncated = false;
 
-        foreach (var file in EnumerateFiles(dir))
+        foreach (var file in singleFile ? new[] { dir } : EnumerateFiles(dir))
         {
             ct.ThrowIfCancellationRequested();
-            if (glob is { Length: > 0 } && !System.IO.Enumeration.FileSystemName.MatchesSimpleExpression(glob, Path.GetFileName(file), ignoreCase: true))
+            if (!singleFile && glob is { Length: > 0 } && !System.IO.Enumeration.FileSystemName.MatchesSimpleExpression(glob, Path.GetFileName(file), ignoreCase: true))
                 continue;
             if (++filesSeen > MaxFiles) { truncated = true; break; }
 
@@ -433,6 +437,10 @@ public sealed class InsertLinesToolV2 : AgentToolV2
         if (at < 1 || at > lines.Count + 1)
             return Task.FromResult(ToolPreparation.Reject($"« line » doit être entre 1 et {lines.Count + 1} ({display} a {lines.Count} lignes ; {lines.Count + 1} = ajouter à la fin)."));
 
+        // Garde-fou C#/Java : pas entre une signature et son « { », pas en dehors de la classe, accolades équilibrées.
+        if (InsertionGuard.Check(display, lines, at.Value, text) is { } refusal)
+            return Task.FromResult(ToolPreparation.Reject(refusal));
+
         var inserted = text.Replace("\r\n", "\n").TrimEnd('\n').Split('\n');
         lines.InsertRange(at.Value - 1, inserted);
         var newContent = string.Join('\n', lines) + (file.Text.EndsWith('\n') || file.Text.Length == 0 ? "\n" : string.Empty);
@@ -553,11 +561,11 @@ public sealed class RunCommandToolV2 : AgentToolV2
 {
     public override string Name => "run_command";
     public override string Description =>
-        "Exécute une commande dans le dossier du projet (par exemple dotnet build) et renvoie le résultat résumé : " +
+        "Exécute une commande dans le dossier du projet (compilation, tests) et renvoie le résultat résumé : " +
         "les lignes d'erreur d'abord. L'utilisateur doit autoriser chaque commande.";
     public override JsonObject Parameters => Schema(new JsonObject
     {
-        ["command"] = Prop("string", "Commande à lancer, par exemple : dotnet build Moto.Core/Moto.Core.csproj"),
+        ["command"] = Prop("string", "Commande à lancer, sur une seule ligne (sans &&, | ni ;). Utilise celle indiquée dans la demande."),
         ["timeout_seconds"] = Prop("integer", "Délai maximal en secondes (10 à 900, défaut 180)."),
     }, "command");
 
@@ -596,7 +604,7 @@ public sealed class RunCommandToolV2 : AgentToolV2
             result.Error.Replace(ctx.Root + Path.DirectorySeparatorChar, string.Empty, StringComparison.OrdinalIgnoreCase));
 
         // Un code de sortie non nul (build qui échoue…) est une INFORMATION pour le modèle, pas une erreur d'outil.
-        return ToolResult.Ok($"Commande : {command}\nCode de sortie : {result.ExitCode}\n{digest}");
+        return new ToolResult(false, $"Commande : {command}\nCode de sortie : {result.ExitCode}\n{digest}", null, result.ExitCode);
     }
 
     private static readonly Regex ErrorLine = new(

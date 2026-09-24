@@ -13,6 +13,7 @@
 using System.Diagnostics;
 using System.Text;
 using System.Text.Json.Nodes;
+using System.Text.RegularExpressions;
 using Moto.Core.AI.Llm;
 using Moto.Editor.Services; // TerminalCommandResult
 
@@ -25,6 +26,11 @@ public sealed class AgentLoopV2
     private const int MaxCallsPerMessage = 6;
     private const int LoopWarnAt = 3;
     private const int LoopStopAt = 5;
+    private const int MaxNoChangeNudges = 2;
+    private const int MaxEchoNudges = 2;
+    private const int MaxAnnounceNudges = 2;
+    private const int MaxErrorNudges = 2;
+    private const int MaxVerifyNudges = 4;
 
     private static readonly string[] CodeExtensions = { ".cs", ".xaml", ".csproj", ".razor" };
 
@@ -59,14 +65,21 @@ public sealed class AgentLoopV2
 
         public int Step, ModelCalls, ToolCalls, ToolErrors, PromptTokens, CompletionTokens;
         public double ModelSeconds;
-        public int ConsecutiveErrors, ConsecutiveDeclines, Nudges;
+        public int ConsecutiveErrors, ConsecutiveDeclines, Nudges, NoChangeNudges, EchoNudges, AnnounceNudges, ErrorNudges, VerifyNudges;
         public int FileWriteAttempts;
+        public string? VerifyCommand;
         public string? LastWriteError;
-        public bool VerifyNudged, HonestyNudged;
-        public bool VerifiedSinceLastChange = true;
+        public bool HonestyNudged;
+        public bool LastResultWasError;
+        public bool HadBuildFailure;
+        public string? LastBuildErrors;
+        public VerifyStatus Verify = VerifyStatus.Passed;
         public readonly Dictionary<string, ChangedFile> Changes = new(StringComparer.OrdinalIgnoreCase);
         public readonly List<string> RecentSignatures = new();
     }
+
+    /// <summary>Où en est la vérification du code modifié : rien à vérifier / modifié depuis la dernière vérification / échec / réussie.</summary>
+    private enum VerifyStatus { Passed, Unverified, Failed }
 
     private sealed record CallOutcome(ToolResult Result, bool Finished = false, string? Summary = null, AgentOutcome? Stop = null, string? StopReason = null);
 
@@ -78,6 +91,9 @@ public sealed class AgentLoopV2
         var root = Path.GetFullPath(AgentPathResolver.EffectiveRoot(request.WorkspaceRoot));
         var ctx = new AgentToolContext(root, request.AgentId, new RunBackup(root, runId, request.BackupFolder), _runCommand);
 
+        var overview = WorkspaceOverview.Scan(root);
+        var verify = string.IsNullOrWhiteSpace(request.VerifyCommand) ? overview.SuggestedBuild : request.VerifyCommand.Trim();
+
         var state = new RunState
         {
             Request = request,
@@ -85,10 +101,11 @@ public sealed class AgentLoopV2
             RunId = runId,
             Emit = onEvent,
             Audit = request.WriteAuditLog ? new AgentAuditLog(root) : null,
+            VerifyCommand = verify,
             Messages = new List<LlmMessage>
             {
                 LlmMessage.System(BuildSystemPrompt(root)),
-                LlmMessage.User(BuildUserPrompt(request)),
+                LlmMessage.User(BuildUserPrompt(request, overview, verify)),
             },
         };
 
@@ -150,21 +167,24 @@ public sealed class AgentLoopV2
 
             if (calls.Count == 0)
             {
-                // Réponse en texte seul. Un modèle qui annonce « je vais… » sans appeler d'outil n'a rien fait :
-                // on le relance UNE fois ; sinon c'est sa réponse finale.
-                if (st.ToolCalls == 0 && st.Nudges == 0)
+                // Réponse en texte seul. Ce n'est la fin que si la tâche l'est vraiment : un petit modèle annonce
+                // « je vais… », recopie le fichier lu, s'excuse d'une erreur d'outil ou déclare fini un code qui ne compile pas.
+                var verdict = JudgeTextOnly(st, content);
+                if (verdict.FailSummary is not null)
+                    return Finish(st, AgentOutcome.Failed, verdict.FailSummary, verdict.FailError);
+                if (verdict.Nudge is not null)
                 {
-                    st.Nudges++;
-                    Emit(st, AgentEventKind.Nudge, "Aucun outil appelé : relance.");
-                    st.Messages.Add(LlmMessage.User(
-                        "Tu n'as appelé aucun outil. Si la tâche demande de lire, chercher ou modifier des fichiers, appelle l'outil MAINTENANT. " +
-                        "Si tu as déjà la réponse, appelle finish avec ta réponse."));
+                    st.Messages.Add(LlmMessage.User(verdict.Nudge));
                     continue;
                 }
                 return Finish(st, AgentOutcome.Completed, content.Trim().Length > 0 ? content.Trim() : "Terminé.");
             }
 
+            // Les appels d'un même message sont exécutés dans l'ordre, mais un petit modèle enchaîne parfois
+            // « modifie puis compile » ou deux insertions dans le même fichier SANS avoir vu le résultat de la première.
             var index = 0;
+            var wroteInThisMessage = false;
+            var touchedInThisMessage = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
             foreach (var call in calls)
             {
                 ct.ThrowIfCancellationRequested();
@@ -175,8 +195,23 @@ public sealed class AgentLoopV2
                     continue;
                 }
 
+                var tool = _tools.FirstOrDefault(t => t.Name == call.Name);
+                var pathKey = NormalizePath(ToolArgs.Str(call.Arguments, "path"));
+                if (tool is not null && SkipInThisMessage(tool, pathKey, wroteInThisMessage, touchedInThisMessage) is { } skipped)
+                {
+                    Emit(st, AgentEventKind.ToolResult, skipped, call.Name, ToolArgs.Str(call.Arguments, "path"), isError: false);
+                    st.Messages.Add(LlmMessage.Tool(call.Name, skipped));
+                    continue;
+                }
+
                 var outcome = await ExecuteCallAsync(st, call, ct);
                 st.Messages.Add(LlmMessage.Tool(call.Name, outcome.Result.Text));
+
+                if (tool is { WritesFiles: true })
+                {
+                    wroteInThisMessage = true;
+                    if (pathKey.Length > 0) touchedInThisMessage.Add(pathKey);
+                }
 
                 if (outcome.Finished) return Finish(st, AgentOutcome.Completed, outcome.Summary ?? "Terminé.");
                 if (outcome.Stop is { } stop)
@@ -186,6 +221,92 @@ public sealed class AgentLoopV2
 
         return Finish(st, AgentOutcome.StepLimit, "Nombre maximal d'étapes atteint.");
     }
+
+    // ── Réponse en texte seul : fin légitime ou à relancer ? ────────────────
+
+    private sealed record TextVerdict(string? Nudge = null, string? FailSummary = null, string? FailError = null);
+
+    private TextVerdict JudgeTextOnly(RunState st, string content)
+    {
+        // 1. Copie d'un résultat d'outil (constaté sur un gros fichier lu) : ce n'est pas une réponse.
+        if (LooksLikeToolEcho(content, st.Messages))
+        {
+            if (st.EchoNudges >= MaxEchoNudges)
+                return new TextVerdict(FailSummary: "Le modèle recopie les résultats d'outils au lieu d'agir.",
+                    FailError: "Réponse inexploitable : copie d'un résultat d'outil, même après relance.");
+            st.EchoNudges++;
+            var preview = OneLine(content.Replace("<tool_response>", string.Empty, StringComparison.OrdinalIgnoreCase)
+                                         .Replace("</tool_response>", string.Empty, StringComparison.OrdinalIgnoreCase));
+            st.Messages[^1].Content = $"(réponse écartée : copie d'un résultat d'outil — début : « {Cut(preview, 120)} »)";
+            Emit(st, AgentEventKind.Nudge, "Réponse écartée (copie d'un résultat d'outil) : relance.");
+            return new TextVerdict("Ta réponse recopie le contenu d'un fichier ou d'un résultat d'outil, ce qui ne sert à rien. " +
+                                   "N'écris jamais le contenu d'un fichier : appelle un outil (edit_file, insert_lines, write_file) ou finish.");
+        }
+
+        // 2. Aucun outil appelé depuis le début.
+        if (st.ToolCalls == 0 && st.Nudges == 0)
+        {
+            st.Nudges++;
+            Emit(st, AgentEventKind.Nudge, "Aucun outil appelé : relance.");
+            return new TextVerdict("Tu n'as appelé aucun outil. Si la tâche demande de lire, chercher ou modifier des fichiers, appelle l'outil MAINTENANT. " +
+                                   "Si tu as déjà la réponse, appelle finish avec ta réponse.");
+        }
+
+        // 3. Le dernier appel d'outil a échoué et le modèle s'excuse au lieu de corriger son appel.
+        if (st.LastResultWasError && st.ErrorNudges < MaxErrorNudges)
+        {
+            st.ErrorNudges++;
+            Emit(st, AgentEventKind.Nudge, "Dernier appel en erreur : relance.");
+            return new TextVerdict("Ton dernier appel d'outil a échoué. Lis le message d'erreur, corrige ton appel (chemin, texte exact…) et RÉESSAIE avec un outil. " +
+                                   "Ne demande rien à l'utilisateur : lire, lister et chercher ne nécessitent aucune autorisation.");
+        }
+
+        // 4. Tâche d'écriture sans écriture / échec d'écriture / code non compilé ou qui ne compile pas.
+        if (PreFinishNudge(st) is { } nudge)
+            return new TextVerdict(nudge);
+
+        // 5. Il annonce une action au lieu de la faire.
+        if (st.AnnounceNudges < MaxAnnounceNudges && LooksLikeAnnouncement(content))
+        {
+            st.AnnounceNudges++;
+            Emit(st, AgentEventKind.Nudge, "Action annoncée mais pas exécutée : relance.");
+            return new TextVerdict("Tu annonces une action au lieu de la faire. N'écris pas ce que tu vas faire : appelle l'outil correspondant MAINTENANT " +
+                                   "(une seule action à la fois). Si tout est terminé, appelle finish.");
+        }
+
+        return new TextVerdict();
+    }
+
+    private static readonly Regex Announcement = new(
+        @"\b(?:je vais|nous allons|je dois|il faut que je|appelons|utilisons|voici la (?:commande|suite|methode|marche)|maintenant,? je|ensuite,? je|d'abord,? je|" +
+        @"let me|i will|i'll|i am going to|next,? i|now,? i(?:'ll| will)?)\b",
+        RegexOptions.Compiled | RegexOptions.CultureInvariant);
+
+    /// <summary>Vrai si la réponse annonce ce que le modèle « va faire » (texte normalisé : minuscules, sans accents).</summary>
+    internal static bool LooksLikeAnnouncement(string content)
+        => !string.IsNullOrWhiteSpace(content) && Announcement.IsMatch(IntentHeuristics.Normalize(content));
+
+    // ── Plusieurs appels dans un message ────────────────────────────────────
+
+    private static string NormalizePath(string? path)
+        => string.IsNullOrWhiteSpace(path) ? string.Empty : path.Trim().Replace('\\', '/').TrimStart('.', '/');
+
+    /// <summary>Motif d'abandon d'un appel du même message que des modifications dont le modèle n'a pas vu le résultat, ou null.</summary>
+    private static string? SkipInThisMessage(AgentToolV2 tool, string pathKey, bool wroteInThisMessage, HashSet<string> touched)
+    {
+        if (!tool.IsMutating) return null;
+
+        if (!tool.WritesFiles)
+            return wroteInThisMessage
+                ? "Ignoré : ne lance pas de commande dans le même message qu'une modification. Attends le résultat de la modification (elle peut être refusée), puis refais cet appel au pas suivant."
+                : null;
+
+        return pathKey.Length > 0 && touched.Contains(pathKey)
+            ? "Ignoré : ce fichier vient d'être modifié dans ce même message, donc les numéros de ligne ont changé. Relis-le avec read_file puis refais cette modification au pas suivant."
+            : null;
+    }
+
+    private static string OneLine(string text) => Regex.Replace(text.Trim(), @"\s+", " ");
 
     // ── Un appel d'outil ────────────────────────────────────────────────────
 
@@ -209,28 +330,12 @@ public sealed class AgentLoopV2
             ? $"\n⚠ Tu as déjà fait exactement cet appel {repeats - 1} fois : change d'approche (autre passage, autre outil) ou appelle finish."
             : string.Empty;
 
-        // finish : avant de laisser terminer, (1) ne pas laisser croire à une modification qui a échoué,
-        // (2) s'assurer une fois que le code modifié a été compilé.
+        // finish : avant de laisser terminer, (1) relancer une tâche d'écriture restée sans aucune modification,
+        // (2) ne pas laisser croire à une modification qui a échoué, (3) s'assurer une fois que le code modifié a été compilé.
         if (call.Name == AgentToolSetV2.FinishName)
         {
-            if (st.Changes.Count == 0 && st.FileWriteAttempts > 0 && !st.HonestyNudged)
-            {
-                st.HonestyNudged = true;
-                Emit(st, AgentEventKind.Nudge, "Aucun fichier modifié : rappel avant de terminer.");
-                return new CallOutcome(ToolResult.Ok(
-                    $"Attention : AUCUN fichier n'a été modifié (tes tentatives ont échoué ou ont été refusées ; dernière erreur : « {Cut(st.LastWriteError ?? "?", 200)} »). " +
-                    "Corrige ton appel et réessaie. Si tu ne peux vraiment pas, appelle finish en disant HONNÊTEMENT que rien n'a été modifié."));
-            }
-
-            if (NeedsVerification(st))
-            {
-                st.VerifyNudged = true;
-                var command = string.IsNullOrWhiteSpace(st.Request.VerifyCommand) ? "dotnet build" : st.Request.VerifyCommand;
-                var text = $"Pas encore : tu as modifié du code ({string.Join(", ", st.Changes.Keys.Take(4))}) sans vérifier qu'il compile. " +
-                           $"Lance run_command avec « {command} », corrige les erreurs s'il y en a, puis rappelle finish.";
-                Emit(st, AgentEventKind.Nudge, "Vérification demandée avant de terminer.");
-                return new CallOutcome(ToolResult.Ok(text));
-            }
+            if (PreFinishNudge(st) is { } nudge)
+                return new CallOutcome(ToolResult.Ok(nudge));
 
             var finish = await tool.ExecuteAsync(call.Arguments, st.Ctx, ct);
             Audit(st, new { kind = "finish", step = st.Step, summary = finish.Text });
@@ -327,12 +432,23 @@ public sealed class AgentLoopV2
             st.Changes[changed.RelativePath] = st.Changes.TryGetValue(changed.RelativePath, out var before)
                 ? new ChangedFile(changed.RelativePath, before.Added + changed.Added, before.Removed + changed.Removed, before.Created || changed.Created)
                 : changed;
-            st.VerifiedSinceLastChange = false;
+            st.Verify = VerifyStatus.Unverified;
             st.RecentSignatures.Clear(); // le fichier a changé : relire ou refaire un appel n'est plus une « répétition »
         }
         else if (!applied.IsError && call.Name == "run_command" && LooksLikeVerification(ToolArgs.Str(call.Arguments, "command")))
         {
-            st.VerifiedSinceLastChange = true;
+            // Une compilation qui répond « code de sortie 1 » n'est PAS une vérification réussie.
+            if (applied.ExitCode is null or 0)
+            {
+                st.Verify = VerifyStatus.Passed;
+            }
+            else
+            {
+                st.Verify = VerifyStatus.Failed;
+                st.HadBuildFailure = true;
+                st.LastBuildErrors = string.Join("\n", applied.Text.Split('\n')
+                    .Where(l => l.Contains("error", StringComparison.OrdinalIgnoreCase)).Take(3).Select(l => Cut(l.Trim(), 220)));
+            }
         }
 
         return applied;
@@ -341,6 +457,7 @@ public sealed class AgentLoopV2
     private CallOutcome Complete(RunState st, LlmToolCall call, ToolResult result, string loopWarning)
     {
         var text = result.Text + loopWarning;
+        st.LastResultWasError = result.IsError;
 
         if (result.IsError)
         {
@@ -358,7 +475,7 @@ public sealed class AgentLoopV2
         }
 
         Emit(st, AgentEventKind.ToolResult, Cut(result.Text, 400), call.Name, ToolArgs.Str(call.Arguments, "path"), result.IsError);
-        return new CallOutcome(new ToolResult(result.IsError, text, result.Change));
+        return new CallOutcome(new ToolResult(result.IsError, text, result.Change, result.ExitCode));
     }
 
     private CallOutcome Failed(RunState st, LlmToolCall call, string message)
@@ -373,14 +490,98 @@ public sealed class AgentLoopV2
         catch (Exception ex) { return ToolResult.Error($"Erreur de l'outil : {ex.Message}"); }
     }
 
+    // ── Avant de terminer ───────────────────────────────────────────────────
+
+    /// <summary>
+    /// Le modèle veut s'arrêter (finish ou réponse en texte). Renvoie le rappel à lui faire d'abord, ou null s'il peut terminer.
+    /// Chaque rappel est borné : la boucle ne peut pas s'éterniser.
+    /// </summary>
+    private string? PreFinishNudge(RunState st)
+    {
+        // (1) Consigne d'écriture, et le modèle n'a même pas essayé d'écrire : il a lu, ou annoncé un plan, puis s'est arrêté.
+        if (st.Changes.Count == 0 && st.FileWriteAttempts == 0 && st.NoChangeNudges < MaxNoChangeNudges
+            && IntentHeuristics.ExpectsFileChanges(st.Request.Goal))
+        {
+            st.NoChangeNudges++;
+            Emit(st, AgentEventKind.Nudge, "Aucun fichier modifié alors que la tâche le demande : relance.");
+            return "Tu n'as encore modifié AUCUN fichier, or la tâche demande de le faire. " +
+                   "Appelle MAINTENANT l'outil d'écriture qui convient : edit_file pour remplacer un passage, insert_lines pour ajouter des lignes, " +
+                   "write_file pour créer un fichier neuf. Relis d'abord le fichier avec read_file si tu n'en as pas le texte exact. " +
+                   "N'écris pas de plan : agis.";
+        }
+
+        // (2) Toutes les tentatives d'écriture ont échoué ou ont été refusées : ne pas laisser croire que c'est fait.
+        if (st.Changes.Count == 0 && st.FileWriteAttempts > 0 && !st.HonestyNudged)
+        {
+            st.HonestyNudged = true;
+            Emit(st, AgentEventKind.Nudge, "Aucun fichier modifié : rappel avant de terminer.");
+            return $"Attention : AUCUN fichier n'a été modifié (tes tentatives ont échoué ou ont été refusées ; dernière erreur : « {Cut(st.LastWriteError ?? "?", 200)} »). " +
+                   "Corrige ton appel et réessaie. Si tu ne peux vraiment pas, appelle finish en disant HONNÊTEMENT que rien n'a été modifié.";
+        }
+
+        // (3) Du code a été modifié : il doit avoir été compilé avec succès APRÈS la dernière modification.
+        if (NeedsVerification(st))
+        {
+            st.VerifyNudges++;
+            var command = SuggestVerifyCommand(st);
+            if (st.Verify == VerifyStatus.Failed)
+            {
+                Emit(st, AgentEventKind.Nudge, "La compilation a échoué : correction demandée avant de terminer.");
+                return "La dernière compilation a ÉCHOUÉ, le travail n'est pas terminé." +
+                       (string.IsNullOrWhiteSpace(st.LastBuildErrors) ? string.Empty : $"\nErreurs :\n{st.LastBuildErrors}") +
+                       "\nCorrige ces erreurs (edit_file, ou insert_lines) en changeant le minimum de lignes, " +
+                       $"puis relance run_command avec « {command} ». N'écris pas de plan : appelle l'outil.";
+            }
+
+            Emit(st, AgentEventKind.Nudge, "Vérification demandée avant de terminer.");
+            return $"Pas encore : tu as modifié du code ({string.Join(", ", st.Changes.Keys.Take(4))}) sans vérifier qu'il compile. " +
+                   $"Lance run_command avec « {command} », corrige les erreurs s'il y en a, puis termine.";
+        }
+
+        return null;
+    }
+
+    /// <summary>La commande demandée par l'appelant, sinon la compilation du projet le plus proche d'un fichier modifié.</summary>
+    private static string SuggestVerifyCommand(RunState st)
+    {
+        if (!string.IsNullOrWhiteSpace(st.VerifyCommand)) return st.VerifyCommand!;
+        foreach (var path in st.Changes.Keys.Where(p => CodeExtensions.Contains(Path.GetExtension(p), StringComparer.OrdinalIgnoreCase)))
+            if (WorkspaceOverview.NearestProject(st.Ctx.Root, path) is { } project)
+                return WorkspaceOverview.BuildCommand(project);
+        return "dotnet build";
+    }
+
+    /// <summary>Vrai si la réponse en texte recopie un résultat d'outil (balise <c>tool_response</c> ou début du dernier résultat).</summary>
+    internal static bool LooksLikeToolEcho(string content, IReadOnlyList<LlmMessage> messages)
+    {
+        if (string.IsNullOrWhiteSpace(content)) return false;
+        if (content.Contains("<tool_response>", StringComparison.OrdinalIgnoreCase)
+            || content.Contains("</tool_response>", StringComparison.OrdinalIgnoreCase))
+            return true;
+
+        // Copie du dernier résultat d'outil, sans balise : au moins 200 caractères identiques d'affilée.
+        for (var i = messages.Count - 1; i >= 0; i--)
+        {
+            if (messages[i].Role != "tool") continue;
+            var last = messages[i].Content.Trim();
+            return last.Length >= 200 && content.Contains(last[..200], StringComparison.Ordinal);
+        }
+        return false;
+    }
+
     // ── Vérification avant de terminer ──────────────────────────────────────
 
+    /// <summary>
+    /// Vrai si du code modifié n'a pas été compilé avec succès depuis. Une compilation jamais tentée n'est rappelée qu'UNE fois
+    /// (sauf si une compilation a déjà échoué dans ce run) ; une compilation échouée est rappelée jusqu'à MaxVerifyNudges fois au total.
+    /// </summary>
     private bool NeedsVerification(RunState st)
-        => st.Request.RequireVerification
-           && !st.VerifyNudged
-           && !st.VerifiedSinceLastChange
-           && st.Changes.Keys.Any(p => CodeExtensions.Contains(Path.GetExtension(p), StringComparer.OrdinalIgnoreCase))
-           && _tools.Any(t => t.Name == "run_command");
+    {
+        if (!st.Request.RequireVerification || st.Verify == VerifyStatus.Passed || st.VerifyNudges >= MaxVerifyNudges) return false;
+        if (!st.Changes.Keys.Any(p => CodeExtensions.Contains(Path.GetExtension(p), StringComparer.OrdinalIgnoreCase))) return false;
+        if (!_tools.Any(t => t.Name == "run_command")) return false;
+        return st.Verify == VerifyStatus.Failed || st.VerifyNudges == 0 || st.HadBuildFailure;
+    }
 
     private static bool LooksLikeVerification(string? command)
         => command is not null && (command.Contains("build", StringComparison.OrdinalIgnoreCase)
@@ -398,21 +599,25 @@ public sealed class AgentLoopV2
         sb.AppendLine();
         sb.AppendLine("MÉTHODE");
         sb.AppendLine("1. Explore : list_dir pour voir l'arborescence, search_text pour retrouver un nom, read_file pour lire. Lis TOUJOURS un fichier avant de le modifier.");
+        sb.AppendLine("   Sur un long fichier, ne le lis pas en entier : repère la ligne avec search_text, puis read_file avec start_line et end_line autour.");
         sb.AppendLine("2. Pour REMPLACER du code : edit_file (old_text = le passage recopié EXACTEMENT depuis read_file, sans les numéros de ligne ni le « | » ; new_text = son remplacement). Pour AJOUTER du code sans rien remplacer : insert_lines (le texte est inséré AVANT le numéro de ligne donné). Change le MINIMUM de lignes ; ne réécris jamais un fichier entier pour en changer quelques lignes.");
         sb.AppendLine("3. write_file sert uniquement à créer un fichier NEUF.");
-        sb.AppendLine("4. Après avoir modifié du code, vérifie avec run_command (par exemple dotnet build) et corrige les erreurs signalées.");
+        sb.AppendLine("4. Après avoir modifié du code, vérifie avec run_command et corrige les erreurs signalées.");
         sb.AppendLine("5. Quand c'est terminé, appelle finish avec un résumé court en français.");
         sb.AppendLine();
         sb.AppendLine("RÈGLES");
         sb.AppendLine("- Chemins toujours RELATIFS au projet (Dossier/Fichier.cs), jamais absolus.");
+        sb.AppendLine("- Lire, lister et chercher (read_file, list_dir, search_text) ne demandent AUCUNE autorisation : appelle-les directement, sans rien demander à l'utilisateur.");
         sb.AppendLine("- L'utilisateur voit chaque modification sous forme de diff et l'accepte ou la refuse ; si elle est refusée, propose autre chose au lieu de recommencer à l'identique.");
+        sb.AppendLine("- Un seul appel à la fois pour modifier : attends le résultat d'une modification avant d'en faire une autre ou de compiler.");
         sb.AppendLine("- Si un outil répond par une erreur, lis le message et corrige ton appel ; ne répète jamais l'appel qui vient d'échouer.");
         sb.AppendLine("- Ne dis JAMAIS qu'un fichier est modifié tant que l'outil n'a pas répondu « Fichier modifié » ou « Fichier créé ».");
+        sb.AppendLine("- N'écris jamais de plan ni le contenu d'un fichier dans ta réponse : appelle les outils. Ne recopie pas les résultats des outils.");
         sb.AppendLine("- Réponds en français. Pas de longs discours : agis avec les outils.");
         return sb.ToString().TrimEnd();
     }
 
-    internal static string BuildUserPrompt(AgentRunRequest req)
+    internal static string BuildUserPrompt(AgentRunRequest req, WorkspaceInfo? overview = null, string? verifyCommand = null)
     {
         var sb = new StringBuilder();
         sb.AppendLine("Objectif : " + req.Goal.Trim());
@@ -421,10 +626,25 @@ public sealed class AgentLoopV2
             sb.AppendLine();
             sb.AppendLine(req.Context.Trim());
         }
-        if (!string.IsNullOrWhiteSpace(req.VerifyCommand))
+
+        if (overview is not null && overview.Tree.Length > 0)
         {
             sb.AppendLine();
-            sb.AppendLine($"Pour vérifier que le code compile : {req.VerifyCommand.Trim()}");
+            sb.AppendLine("Contenu du projet (racine) :");
+            sb.AppendLine(overview.Tree);
+        }
+
+        var verify = string.IsNullOrWhiteSpace(verifyCommand) ? req.VerifyCommand?.Trim() : verifyCommand.Trim();
+        if (!string.IsNullOrWhiteSpace(verify))
+        {
+            sb.AppendLine();
+            sb.AppendLine($"Pour vérifier que le code compile, lance run_command avec : {verify}");
+        }
+        else if (overview is { Projects.Count: > 0 })
+        {
+            sb.AppendLine();
+            sb.AppendLine($"Projets .NET : {string.Join(", ", overview.Projects.Take(8))}.");
+            sb.AppendLine("Pour vérifier que le code compile, lance run_command avec « dotnet build » suivi du chemin du plus petit projet .csproj qui contient tes modifications.");
         }
         return sb.ToString().TrimEnd();
     }
@@ -441,9 +661,7 @@ public sealed class AgentLoopV2
             Outcome = outcome,
             Summary = summary,
             Error = error,
-            Warning = outcome == AgentOutcome.Completed && st.Changes.Count == 0 && st.FileWriteAttempts > 0
-                ? $"Aucune modification n'a été appliquée (dernière erreur : {Cut(st.LastWriteError ?? "refus", 160)})."
-                : null,
+            Warning = NoChangeWarning(st, outcome),
             RunId = st.RunId,
             Steps = Math.Min(st.Step, st.Request.MaxSteps),
             ModelCalls = st.ModelCalls,
@@ -457,6 +675,19 @@ public sealed class AgentLoopV2
             Backup = st.Ctx.Backup,
             Transcript = st.Messages,
         };
+    }
+
+    /// <summary>Le run se dit terminé mais rien n'a changé : à dire à l'utilisateur au lieu de laisser croire que c'est fait.</summary>
+    private static string? NoChangeWarning(RunState st, AgentOutcome outcome)
+    {
+        if (outcome != AgentOutcome.Completed) return null;
+        if (st.Changes.Count > 0)
+            return st.Verify == VerifyStatus.Failed ? "La dernière compilation a échoué : le code modifié ne compile peut-être pas." : null;
+        if (st.FileWriteAttempts > 0)
+            return $"Aucune modification n'a été appliquée (dernière erreur : {Cut(st.LastWriteError ?? "refus", 160)}).";
+        return IntentHeuristics.ExpectsFileChanges(st.Request.Goal)
+            ? "L'agent s'est arrêté sans proposer aucune modification alors que la tâche semblait en demander une."
+            : null;
     }
 
     private static void Emit(RunState st, AgentEventKind kind, string text, string? tool = null, string? path = null, bool isError = false)

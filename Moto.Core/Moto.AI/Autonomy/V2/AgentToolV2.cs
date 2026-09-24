@@ -13,7 +13,7 @@ public enum ApprovalKind { FileChange, Command }
 
 /// <summary>Résultat d'un outil, tel que renvoyé au modèle. Une erreur est un résultat comme un autre
 /// (le modèle la lit et corrige), jamais une exception.</summary>
-public sealed record ToolResult(bool IsError, string Text, ChangedFile? Change = null)
+public sealed record ToolResult(bool IsError, string Text, ChangedFile? Change = null, int? ExitCode = null)
 {
     public static ToolResult Ok(string text, ChangedFile? change = null) => new(false, text, change);
     public static ToolResult Error(string text) => new(true, text);
