@@ -8,18 +8,27 @@ using System.Linq;
 using Microsoft.Maui.ApplicationModel;
 using Microsoft.Maui.Controls;
 using Moto.Core.AI.Autonomy;
+using Moto.Core.Settings;
 
 namespace Moto.Editor.Views
 {
     public partial class AgentRunsView : ContentView
     {
         private readonly BackgroundAgentService _agents;
+        private readonly AiConfirmationService? _confirmation;
         private readonly System.Collections.ObjectModel.ObservableCollection<MessageRow> _messageRows = new();
 
-        public AgentRunsView(BackgroundAgentService agents)
+        /// <summary>
+        /// ★ AJOUT (24/09, agent v2) : pour des chemins relatifs au projet, une phrase sur ceux qui sont ouverts dans l'éditeur avec des
+        /// modifications non enregistrées (null si aucun) — « Annuler les modifications » les remplacerait. Fourni par la page principale.
+        /// </summary>
+        public Func<IReadOnlyList<string>, string?>? UnsavedEditsCheck { get; init; }
+
+        public AgentRunsView(BackgroundAgentService agents, AiConfirmationService? confirmation = null)
         {
             InitializeComponent();
             _agents = agents;
+            _confirmation = confirmation;
 
             RunList.ItemsSource = _agents.Runs;
             _agents.Runs.CollectionChanged += (_, _) => RefreshCounts();
@@ -84,6 +93,10 @@ namespace Moto.Editor.Views
         private void RefreshBudget()
         {
             BudgetLabel.Text = $"Budget IA : {_agents.GlobalBudget.Consumed}/{_agents.GlobalBudget.Limit}";
+
+            // Ce plafond ne compte que les appels de l'ancien moteur (v1) : avec la v2, un « 0/200 » affiché en permanence
+            // laisserait croire qu'il y a une limite qui protège — la v2 a les siennes (étapes, durée, refus, boucle).
+            BudgetLabel.IsVisible = !_agents.UsesV2 || _agents.GlobalBudget.Consumed > 0;
         }
 
         /// <summary>Arrête un run précis — CommandParameter porte son Guid (voir
@@ -92,6 +105,63 @@ namespace Moto.Editor.Views
         {
             if (sender is Button button && button.CommandParameter is Guid runId)
                 _agents.Cancel(runId);
+        }
+
+        /// <summary>
+        /// ★ AJOUT (24/09, agent v2) : remet les fichiers d'un run dans l'état d'avant lui. Toujours après une confirmation qui liste
+        /// les fichiers et prévient si l'utilisateur a travaillé dessus depuis (sur disque, ou dans un onglet non enregistré) —
+        /// l'annulation écraserait ce travail.
+        /// </summary>
+        private async void OnUndoRunClicked(object? sender, EventArgs e)
+        {
+            if (sender is not Button { CommandParameter: Guid runId }) return;
+            var run = _agents.Runs.FirstOrDefault(r => r.Id == runId);
+            if (run is null || !run.CanUndo || _confirmation is null) return;
+
+            try
+            {
+                var files = run.ChangedFiles.Select(f => f.RelativePath).ToList();
+                var confirmed = await _confirmation.RequestAsync(new ConfirmationRequest
+                {
+                    Action = ConfirmationAction.ModifyCode,
+                    Title = "↩ Annuler les modifications de l'agent",
+                    Message = $"Remettre {files.Count} fichier(s) dans l'état d'avant « {run.AgentId} » ?",
+                    Details = DescribeUndo(run, UnsavedEditsCheck?.Invoke(files)),
+                    ConfirmText = "Annuler les modifications",
+                    CancelText = "Garder",
+                    IsDestructive = true,
+                });
+                if (!confirmed.Confirmed) return;
+
+                // Le run a pu changer pendant que la boîte était ouverte (déjà annulé ailleurs…) : UndoChanges ne fait alors rien.
+                _agents.UndoChanges(runId, out _);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine($"[AgentRunsView] Annulation en échec : {ex.Message}");
+            }
+        }
+
+        private static string DescribeUndo(AgentRunRecord run, string? unsavedInEditor)
+        {
+            var lines = new List<string> { "Fichiers concernés :" };
+            foreach (var f in run.ChangedFiles.Take(12))
+                lines.Add(f.Created ? $"  • {f.RelativePath} (créé par l'agent : sera supprimé)" : $"  • {f.RelativePath} (remis comme avant l'agent)");
+            if (run.ChangedFiles.Count > 12) lines.Add($"  • … et {run.ChangedFiles.Count - 12} autre(s)");
+
+            var edited = run.FilesEditedSinceRun();
+            if (edited.Count > 0)
+            {
+                lines.Add(string.Empty);
+                lines.Add($"⚠ Modifiés depuis la fin de l'agent : {string.Join(", ", edited.Take(5))}{(edited.Count > 5 ? "…" : string.Empty)}. "
+                          + "Annuler les remettra comme avant l'agent : ton travail sur ces fichiers sera perdu.");
+            }
+            if (!string.IsNullOrWhiteSpace(unsavedInEditor))
+            {
+                lines.Add(string.Empty);
+                lines.Add(unsavedInEditor.Trim());
+            }
+            return string.Join("\n", lines);
         }
 
         /// <summary>Ouvre le dossier des journaux NDJSON dans l'explorateur — un

@@ -3,7 +3,9 @@
      agents autonomes (jalon 1/2 n'en avaient aucune, tout passait par le chat).
      Même patron que BackgroundTasksView.xaml (liste live + minuteur), plus une
      petite liste "Messages entre agents" (AgentMessageBus.History) et un accès
-     au dossier des journaux NDJSON. -->
+     au dossier des journaux NDJSON.
+     AJOUT (24/09, agent v2) : l'activité en direct, le résultat d'un run (fichiers
+     modifiés, modèle, résumé, avertissement) et le bouton "Annuler les modifications". -->
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="Moto.Editor.Views.AgentRunsView"
@@ -27,24 +29,45 @@
         <DataTemplate>
           <Border Background="{DynamicResource BgPanel}" Stroke="{DynamicResource BorderCol}"
                   StrokeShape="RoundRectangle 8" Padding="12,10" Margin="0,0,0,8">
-            <Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto,Auto" ColumnSpacing="{StaticResource SpaceSm}" RowSpacing="{StaticResource SpaceXs}">
-              <Label Grid.Row="0" Grid.Column="0" Text="{Binding StatusIcon}"
-                     TextColor="{StaticResource Accent}" FontSize="{StaticResource FontSizeBody}"/>
-              <Label Grid.Row="0" Grid.Column="1" Text="{Binding AgentId}" FontAttributes="Bold"
-                     TextColor="{StaticResource Txt1}" FontSize="{StaticResource FontSizeBody}" LineBreakMode="TailTruncation"/>
-              <Label Grid.Row="0" Grid.Column="2" Text="{Binding DurationLabel}"
-                     TextColor="{DynamicResource MotoSubtleText}" FontSize="{StaticResource FontSizeBody}"/>
+            <!-- Une pile plutôt qu'une grille : une ligne masquée (pas d'activité, pas d'avertissement…) ne laisse pas d'espace vide. -->
+            <VerticalStackLayout Spacing="{StaticResource SpaceXs}">
+              <Grid ColumnDefinitions="Auto,*,Auto" ColumnSpacing="{StaticResource SpaceSm}">
+                <Label Grid.Column="0" Text="{Binding StatusIcon}"
+                       TextColor="{StaticResource Accent}" FontSize="{StaticResource FontSizeBody}"/>
+                <Label Grid.Column="1" Text="{Binding AgentId}" FontAttributes="Bold"
+                       TextColor="{StaticResource Txt1}" FontSize="{StaticResource FontSizeBody}" LineBreakMode="TailTruncation"/>
+                <Label Grid.Column="2" Text="{Binding DurationLabel}"
+                       TextColor="{DynamicResource MotoSubtleText}" FontSize="{StaticResource FontSizeBody}"/>
+              </Grid>
 
-              <Label Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" Text="{Binding Goal}"
+              <Label Text="{Binding Goal}"
                      TextColor="{DynamicResource MotoSubtleText}" FontSize="11.5" LineBreakMode="TailTruncation"/>
 
-              <Label Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Text="{Binding StatusLabel}"
-                     TextColor="{DynamicResource MotoSubtleText}" FontSize="11"/>
-              <Button Grid.Row="2" Grid.Column="2" Text="Arrêter" FontSize="11" Padding="8,3"
-                      IsVisible="{Binding IsActive}"
-                      BackgroundColor="Transparent" TextColor="{StaticResource Warning}"
-                      Clicked="OnCancelRunClicked" CommandParameter="{Binding Id}"/>
-            </Grid>
+              <!-- En cours : ce que l'agent fait à l'instant. -->
+              <Label Text="{Binding Activity}" IsVisible="{Binding HasActivity}"
+                     TextColor="{StaticResource Accent}" FontSize="11.5" LineBreakMode="TailTruncation"/>
+
+              <!-- Fini : combien de fichiers ont changé, avec quel modèle, puis le résumé du modèle. -->
+              <Label Text="{Binding ResultLine}" IsVisible="{Binding HasResultLine}"
+                     TextColor="{StaticResource Txt1}" FontSize="11.5" LineBreakMode="TailTruncation"/>
+              <Label Text="{Binding Summary}" IsVisible="{Binding HasSummary}"
+                     TextColor="{DynamicResource MotoSubtleText}" FontSize="11.5" MaxLines="3" LineBreakMode="TailTruncation"/>
+              <Label Text="{Binding Warning, StringFormat='⚠ {0}'}" IsVisible="{Binding HasWarning}"
+                     TextColor="{StaticResource Warning}" FontSize="11.5" MaxLines="3" LineBreakMode="TailTruncation"/>
+
+              <Grid ColumnDefinitions="*,Auto,Auto" ColumnSpacing="{StaticResource SpaceSm}">
+                <Label Grid.Column="0" Text="{Binding StatusLabel}" VerticalOptions="Center"
+                       TextColor="{DynamicResource MotoSubtleText}" FontSize="11"/>
+                <Button Grid.Column="1" Text="Arrêter" FontSize="11" Padding="8,3"
+                        IsVisible="{Binding IsActive}"
+                        BackgroundColor="Transparent" TextColor="{StaticResource Warning}"
+                        Clicked="OnCancelRunClicked" CommandParameter="{Binding Id}"/>
+                <Button Grid.Column="2" Text="Annuler les modifications" FontSize="11" Padding="8,3"
+                        IsVisible="{Binding CanUndo}"
+                        BackgroundColor="Transparent" TextColor="{StaticResource Accent}"
+                        Clicked="OnUndoRunClicked" CommandParameter="{Binding Id}"/>
+              </Grid>
+            </VerticalStackLayout>
           </Border>
         </DataTemplate>
       </CollectionView.ItemTemplate>

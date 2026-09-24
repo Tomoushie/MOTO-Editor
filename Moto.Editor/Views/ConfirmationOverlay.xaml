@@ -5,7 +5,11 @@
              IsVisible="False"
              BackgroundColor="#99000000">
 
-    <Border WidthRequest="480"
+    <!-- ★ MODIFIÉ (24/09, agent v2) : la zone de détails défile et sa hauteur est bornée d'après la fenêtre (ConfirmationOverlay.xaml.cs).
+         Avant, un long texte (un diff, un fichier proposé) allongeait la carte au-delà de l'écran et poussait les boutons
+         hors de la fenêtre : impossible de répondre, et la demande suivante restait bloquée derrière celle-ci. -->
+    <Border x:Name="Card"
+            WidthRequest="480"
             HorizontalOptions="Center"
             VerticalOptions="Center"
             BackgroundColor="{StaticResource BgPanel}"
@@ -29,19 +33,20 @@
                    FontSize="{StaticResource FontSizeBody}"
                    TextColor="{StaticResource Txt1}" />
 
-            <!-- Détails -->
+            <!-- Détails (défilants) -->
             <Border Grid.Row="2"
+                    x:Name="DetailsFrame"
                     BackgroundColor="{StaticResource BgSide}"
                     Stroke="{StaticResource BgHover}"
                     StrokeThickness="1"
                     StrokeShape="RoundRectangle 8"
-                    Padding="{StaticResource SpaceSm}">
-                <Label x:Name="DetailsLabel"
-                       FontSize="{StaticResource FontSizeBody}"
-                       TextColor="{StaticResource Txt2}" />
+                    Padding="{StaticResource SpaceXs}">
+                <ScrollView x:Name="DetailsScroll" MaximumHeightRequest="360">
+                    <VerticalStackLayout x:Name="DetailsHost" Spacing="0" />
+                </ScrollView>
             </Border>
 
-            <!-- Boutons -->
+            <!-- Boutons (hors de la zone défilante : toujours visibles) -->
             <HorizontalStackLayout Grid.Row="3"
                                    Spacing="{StaticResource SpaceSm}"
                                    HorizontalOptions="End">

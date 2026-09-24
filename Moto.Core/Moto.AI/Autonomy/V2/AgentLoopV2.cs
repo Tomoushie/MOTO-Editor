@@ -740,6 +740,7 @@ public sealed class AgentLoopV2
 
     private AgentRunResult Finish(RunState st, AgentOutcome outcome, string summary, string? error = null)
     {
+        st.Ctx.Backup.Seal(); // état de fin de run : « Annuler » saura si l'utilisateur a modifié un fichier depuis
         Emit(st, AgentEventKind.Finished, summary);
         Audit(st, new { kind = "end", outcome = outcome.ToString(), summary = Cut(summary, 300), error });
 

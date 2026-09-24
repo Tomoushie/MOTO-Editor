@@ -248,6 +248,7 @@ public sealed class AgentV2Runner
         {
             _run.Engine = "v2";
             _run.SetModel(model);
+            _run.SetActivity("Chargement du modèle en mémoire…");
             _narrate($"🤖 Agent « {_run.AgentId} » démarre avec {model} ({ToolModeLabel(settings.ToolMode.ToString().ToLowerInvariant())}). "
                      + "Le premier pas peut prendre une dizaine de secondes : le modèle se charge en mémoire.");
         }
@@ -269,6 +270,7 @@ public sealed class AgentV2Runner
                 {
                     var step = _current ?? (_current = NewStep(ev.Tool, ev.Text));
                     if (!string.IsNullOrWhiteSpace(ev.Text)) step.Summary = Capitalize(ev.Text);
+                    _run.SetActivity($"Étape {step.Index} · {step.Summary}");
                     step.Confirmation = ConfirmationState.Pending;
                     _run.Status = AgentRunStatus.AwaitingConfirmation;
                     _narrate($"🤖 Étape {step.Index} : propose — {ev.Text}");
@@ -324,6 +326,7 @@ public sealed class AgentV2Runner
             // « ToolCalled » : son résultat crée son propre pas.
             var step = _current ?? NewStep(ev.Tool, ev.Tool ?? string.Empty);
             _current = null;
+            _run.SetActivity("Le modèle réfléchit…");
 
             if (step.Confirmation == ConfirmationState.Declined) return; // le texte destiné au modèle ne doit pas écraser « Refusé »
 
@@ -379,6 +382,7 @@ public sealed class AgentV2Runner
                 Summary = summary,
             };
             _run.Steps.Add(step);
+            _run.SetActivity($"Étape {step.Index} · {summary}");
             return step;
         }
 

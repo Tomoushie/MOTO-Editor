@@ -257,6 +257,13 @@ namespace Moto.Editor
 
                 // ★ AJOUT (03/09, jalon 1 — "agents autonomes en tâche de fond").
                 _backgroundAgentService = services.GetService<Moto.Core.AI.Autonomy.BackgroundAgentService>();
+                // ★ AJOUT (24/09, agent v2) : l'éditeur recharge ses onglets quand l'agent écrit (ou qu'un run est annulé), et
+                // signale, dans la demande d'autorisation, un fichier qui a des modifications non enregistrées.
+                if (_backgroundAgentService?.V2 is { } agentV2)
+                    agentV2.FilesChanged = OnAgentFilesChanged;
+                var agentApprover = services.GetService<Moto.Core.AI.Autonomy.V2.ConfirmationServiceApprover>();
+                if (agentApprover != null)
+                    agentApprover.WarningProvider = ProvideUnsavedEditsWarningAsync;
                 // ★ AJOUT (04/09, agents de diagnostic) : voir /diagnose plus bas.
                 _specializedAgents = services.GetService<Moto.Core.AI.Agents.SpecializedAgentRegistry>();
 
@@ -883,7 +890,11 @@ namespace Moto.Editor
                     if (_backgroundAgentService == null) { StatusBar.SetStatus("Agents : service indisponible."); break; }
                     _windowManager.OpenOrFocus(Moto.Editor.Windows.WindowKind.AgentRuns, () =>
                     {
-                        var view = new Views.AgentRunsView(_backgroundAgentService) { IsVisible = true };
+                        var view = new Views.AgentRunsView(_backgroundAgentService, _confirmationService)
+                        {
+                            IsVisible = true,
+                            UnsavedEditsCheck = UnsavedEditsSummary, // « Annuler les modifications » prévient si un onglet a du travail non enregistré
+                        };
                         return new Microsoft.Maui.Controls.Window(
                             new Moto.Editor.Windows.SpecializedWindowPage("Agents en cours", view));
                     });
@@ -1037,6 +1048,7 @@ namespace Moto.Editor
             // pour ce même cas (AutoProjectBuilder, AiSettingsService, plugins) :
             // Documents\MotoProjects. Réutilisée telle quelle, rien de nouveau inventé.
             var agentId = $"agent-{_backgroundAgentService.Runs.Count + 1}";
+            var usesV2 = _backgroundAgentService.UsesV2;
             _backgroundAgentService.Start(agentId, goal, GetWorkspaceRoot(), message =>
             {
                 MainThread.BeginInvokeOnMainThread(() =>
@@ -1049,10 +1061,114 @@ namespace Moto.Editor
                     // faisait pas, donc les agents en tâche de fond ne faisaient jamais
                     // progresser ces compteurs, même pendant que l'app tournait.
                     RefreshHomeStats();
-                });
-            });
 
-            return $"🤖 Agent « {agentId} » démarré — objectif : {goal}\nSuis sa progression ci-dessous, étape par étape. Chaque action qui écrit un fichier ou lance une commande te demandera confirmation avant de s'exécuter.\n(Astuce : Ctrl+Maj+P → « Agents en cours » liste tous les agents actifs et permet d'en arrêter un.)";
+                    // ★ AJOUT (24/09, agent v2) : depuis l'Accueil ou le bandeau IA, le chat n'est pas forcément ouvert — la
+                    // fin d'un run (terminé, échec, arrêt) est donc aussi dite dans la barre d'état, sur sa première ligne.
+                    if (message.StartsWith("✅ Agent", StringComparison.Ordinal) || message.StartsWith("❌ Agent", StringComparison.Ordinal)
+                        || message.StartsWith("⏹ Agent", StringComparison.Ordinal) || message.StartsWith("⏱ Agent", StringComparison.Ordinal))
+                        StatusBar.SetStatus(message.Split('\n')[0]);
+                });
+            }, DescribeOpenFileForAgent());
+
+            return usesV2
+                ? $"🤖 Agent « {agentId} » démarré — objectif : {goal}\nIl lit ton projet, modifie, puis compile. Chaque modification s'affiche en diff avant d'être écrite : tu l'autorises ou tu la refuses, et tout un run peut être annulé ensuite (Ctrl+Maj+P → « Agents en cours » → « Annuler les modifications »).\nSuis sa progression ci-dessous, étape par étape."
+                : $"🤖 Agent « {agentId} » démarré — objectif : {goal}\nSuis sa progression ci-dessous, étape par étape. Chaque action qui écrit un fichier ou lance une commande te demandera confirmation avant de s'exécuter.\n(Astuce : Ctrl+Maj+P → « Agents en cours » liste tous les agents actifs et permet d'en arrêter un.)";
+        }
+
+        /// <summary>
+        /// ★ AJOUT (24/09, agent v2) : le fichier affiché dans l'éditeur, en une ligne pour l'agent (« corrige ce fichier »
+        /// n'oblige plus le modèle à deviner de quel fichier il s'agit). Chemin relatif au projet, avec des « / ».
+        /// </summary>
+        private string? DescribeOpenFileForAgent()
+        {
+            var doc = _viewModel.SelectedDocument;
+            if (doc == null || string.IsNullOrWhiteSpace(doc.Path)) return null;
+
+            var root = GetWorkspaceRoot();
+            string shown;
+            try
+            {
+                shown = doc.Path.StartsWith(root, StringComparison.OrdinalIgnoreCase)
+                    ? Path.GetRelativePath(root, doc.Path)
+                    : doc.Path;
+            }
+            catch { shown = doc.Path; }
+
+            return $"Fichier ouvert dans l'éditeur : {shown.Replace('\\', '/')}";
+        }
+
+        /// <summary>
+        /// ★ AJOUT (24/09, agent v2) : l'agent vient d'écrire (ou l'utilisateur a annulé un run) — les onglets touchés sont remis à
+        /// jour depuis le disque, sinon un onglet garderait l'ancien texte et son enregistrement écraserait le travail de l'agent.
+        /// Thread UI (AgentV2Runner reposte avant d'appeler).
+        /// </summary>
+        private void OnAgentFilesChanged(IReadOnlyList<string> paths)
+        {
+            var changed = _viewModel.ReloadFromDisk(paths);
+            if (_viewModel.SelectedDocument is { } shown && changed.Contains(shown))
+                LoadDocumentIntoEditor(shown);
+
+            if (changed.Count > 0)
+                StatusBar.SetStatus(changed.Count == 1
+                    ? $"🤖 « {changed[0].Title} » rechargé depuis le disque."
+                    : $"🤖 {changed.Count} onglets rechargés depuis le disque.");
+        }
+
+        /// <summary>
+        /// ★ AJOUT (24/09, agent v2) : avant d'autoriser une modification, dit si le fichier est ouvert dans l'éditeur avec des
+        /// changements non enregistrés — l'écriture de l'agent les remplacerait. « Non enregistré » = le texte de l'onglet diffère
+        /// de celui du disque (fins de ligne ignorées) : le cache de l'éditeur, lui, marque TOUT fichier ouvert comme modifié.
+        /// Appelé depuis un thread d'arrière-plan (l'agent) : la lecture de l'onglet repasse par le thread UI.
+        /// </summary>
+        private Task<string?> ProvideUnsavedEditsWarningAsync(Moto.Core.AI.Autonomy.V2.ApprovalRequest request)
+        {
+            if (request.Kind != Moto.Core.AI.Autonomy.V2.ApprovalKind.FileChange || string.IsNullOrWhiteSpace(request.Path))
+                return Task.FromResult<string?>(null);
+
+            var relative = request.Path;
+            return MainThread.InvokeOnMainThreadAsync<string?>(() => UnsavedEditsWarning(relative));
+        }
+
+        private string? UnsavedEditsWarning(string relativePath)
+        {
+            var title = UnsavedDocumentTitle(relativePath);
+            return title == null
+                ? null
+                : $"⚠ « {title} » a des modifications non enregistrées dans l'éditeur. Si tu autorises, elles seront remplacées par la version de l'agent. " +
+                  "(Pour les garder : refuse, enregistre avec Ctrl+S, puis relance l'agent.)";
+        }
+
+        /// <summary>
+        /// ★ AJOUT (24/09, agent v2) : pour « Annuler les modifications » d'un run — phrase sur les onglets de ces fichiers (chemins
+        /// relatifs au projet) qui ont du travail non enregistré : l'annulation le remplacerait. Null si aucun. Thread UI.
+        /// </summary>
+        private string? UnsavedEditsSummary(IReadOnlyList<string> relativePaths)
+        {
+            var titles = relativePaths.Select(UnsavedDocumentTitle).Where(t => t != null).Distinct().ToList();
+            if (titles.Count == 0) return null;
+
+            var shown = string.Join(", ", titles.Take(5).Select(t => $"« {t} »"));
+            return $"⚠ Modifications non enregistrées dans l'éditeur : {shown}{(titles.Count > 5 ? "…" : string.Empty)}. Elles seront remplacées.";
+        }
+
+        /// <summary>Le titre de l'onglet de ce fichier s'il a des modifications non enregistrées (texte ≠ disque), sinon null.</summary>
+        private string? UnsavedDocumentTitle(string relativePath)
+        {
+            try
+            {
+                var full = Path.GetFullPath(Path.Combine(GetWorkspaceRoot(), relativePath));
+                var doc = _viewModel.Documents.FirstOrDefault(d =>
+                    !string.IsNullOrWhiteSpace(d.Path)
+                    && string.Equals(Path.GetFullPath(d.Path), full, StringComparison.OrdinalIgnoreCase));
+                if (doc == null || !File.Exists(full)) return null;
+
+                static string Normalize(string text) => text.Replace("\r\n", "\n").TrimEnd('\n');
+                return Normalize(doc.Text ?? string.Empty) == Normalize(File.ReadAllText(full)) ? null : doc.Title;
+            }
+            catch (Exception)
+            {
+                return null;
+            }
         }
 
         // ★ AJOUT (04/09, agents de diagnostic demandés par Tom) : les agents
@@ -1194,27 +1310,9 @@ namespace Moto.Editor
             }
             catch { displayPath = path; }
 
-            var goal = preset switch
-            {
-                "refactor" =>
-                    $"Refactore le fichier \"{displayPath}\" pour améliorer sa lisibilité et sa " +
-                    "maintenabilité, SANS changer son comportement (mêmes entrées, mêmes sorties). " +
-                    "Lis-le d'abord avec ReadFile, puis écris la version corrigée avec WriteFile sur " +
-                    "exactement ce même chemin. Résume en 2-3 phrases ce que tu as changé et pourquoi.",
-                "test" =>
-                    $"Écris des tests pour le fichier \"{displayPath}\". Lis-le d'abord avec ReadFile " +
-                    "pour comprendre son comportement, puis crée un NOUVEAU fichier de test à côté " +
-                    "(ne modifie JAMAIS le fichier original) avec WriteFile, en suivant les " +
-                    "conventions déjà utilisées dans ce projet si tu peux les repérer. Résume en 2-3 " +
-                    "phrases ce que tu as testé.",
-                "doc" =>
-                    $"Documente le fichier \"{displayPath}\" : lis-le d'abord avec ReadFile, puis " +
-                    "ajoute des commentaires (XML doc pour le C#, docstring/commentaires adaptés " +
-                    "sinon) sur les méthodes et classes publiques qui n'en ont pas déjà, SANS changer " +
-                    "le comportement du code. Écris la version documentée avec WriteFile sur " +
-                    "exactement ce même chemin. Résume en 2-3 phrases ce que tu as documenté.",
-                _ => throw new ArgumentOutOfRangeException(nameof(preset))
-            };
+            // ★ MODIFIÉ (24/09, agent v2) : les consignes vivent dans AgentGoals (Moto.Core, testées) — une par moteur, parce que
+            // « écris la version corrigée avec WriteFile » ne convient qu'à la v1 (la v2 modifie des passages, elle ne réécrit pas le fichier).
+            var goal = Moto.Core.AI.Autonomy.V2.AgentGoals.ForPreset(preset, displayPath, v2: _backgroundAgentService?.UsesV2 == true);
 
             return HandleAgentCommand(goal);
         }

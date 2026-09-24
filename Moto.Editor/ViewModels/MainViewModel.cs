@@ -328,6 +328,53 @@ namespace Moto.Editor.ViewModels
             }
         }
 
+        /// <summary>
+        /// ★ AJOUT (24/09, agent v2) : des fichiers ont changé sur le disque hors de l'éditeur (l'agent les a écrits, ou
+        /// l'utilisateur a annulé un run). Vide leur cache mémoire — MÊME pour un onglet fermé, sinon rouvrir le fichier
+        /// montrerait l'ancien texte et son enregistrement (ou son éviction du cache) écraserait le travail de l'agent —
+        /// puis remet à jour depuis le disque l'onglet qui l'affiche. Retourne les onglets dont le texte a changé : l'appelant
+        /// recharge l'éditeur si l'un d'eux est celui qui est affiché. À appeler sur le thread UI.
+        /// </summary>
+        public IReadOnlyList<EditorDocument> ReloadFromDisk(IEnumerable<string> fullPaths)
+        {
+            var changed = new List<EditorDocument>();
+
+            foreach (var raw in fullPaths.Where(p => !string.IsNullOrWhiteSpace(p)))
+            {
+                var path = SafeFullPath(raw);
+                _loader.Invalidate(path);
+
+                var doc = Documents.FirstOrDefault(d =>
+                    !string.IsNullOrWhiteSpace(d.Path)
+                    && string.Equals(SafeFullPath(d.Path), path, StringComparison.OrdinalIgnoreCase));
+                if (doc is null) continue;
+
+                if (!File.Exists(path))
+                {
+                    // Le fichier n'existe plus (annulation d'un run qui l'avait créé) : l'onglet n'a plus rien à montrer.
+                    RemoveDocument(doc);
+                    continue;
+                }
+
+                string text;
+                try { text = File.ReadAllText(path); }
+                catch (IOException) { continue; }                 // verrouillé : l'onglet garde son texte
+                catch (UnauthorizedAccessException) { continue; }
+
+                if (doc.Text == text) continue;
+                doc.Text = text;
+                changed.Add(doc);
+            }
+
+            return changed;
+        }
+
+        private static string SafeFullPath(string path)
+        {
+            try { return Path.GetFullPath(path); }
+            catch (Exception) { return path; }
+        }
+
         /// <summary>Sauvegarde via le loader (écrit seulement si modifié).</summary>
         private async Task SaveActiveAsync()
         {

@@ -137,8 +137,17 @@ public interface IAgentApprover
 /// <summary>Passe par la boîte de confirmation existante de l'éditeur (AiConfirmationService).</summary>
 public sealed class ConfirmationServiceApprover : IAgentApprover
 {
-    private const int MaxDetailChars = 9000;
+    // La boîte de confirmation défile et plafonne elle-même le nombre de lignes affichées ; ce plafond-ci ne protège que
+    // d'un texte démesuré (un fichier de plusieurs mégaoctets créé d'un coup).
+    private const int MaxDetailChars = 60_000;
     private readonly AiConfirmationService _confirmation;
+
+    /// <summary>
+    /// Avertissement affiché AU-DESSUS de la demande (ex. « ce fichier a des modifications non enregistrées dans l'éditeur »).
+    /// Branché par l'éditeur, qui seul connaît l'état de ses onglets. Appelé hors du thread UI : à lui de repasser dessus.
+    /// Une exception ici ne bloque pas la demande.
+    /// </summary>
+    public Func<ApprovalRequest, Task<string?>>? WarningProvider { get; set; }
 
     public ConfirmationServiceApprover(AiConfirmationService confirmation)
         => _confirmation = confirmation ?? throw new ArgumentNullException(nameof(confirmation));
@@ -149,12 +158,20 @@ public sealed class ConfirmationServiceApprover : IAgentApprover
             ? request.Details[..MaxDetailChars] + $"\n… (aperçu tronqué : {request.Details.Length - MaxDetailChars} caractères de plus)"
             : request.Details;
 
+        string? warning = null;
+        if (WarningProvider is not null)
+        {
+            try { warning = await WarningProvider(request).ConfigureAwait(false); }
+            catch (Exception) { /* pas d'avertissement plutôt que pas de demande */ }
+        }
+
         var result = await _confirmation.RequestAsync(new ConfirmationRequest
         {
             Action = request.Kind == ApprovalKind.FileChange ? ConfirmationAction.ModifyCode : ConfirmationAction.ExecuteCommand,
             Title = $"🤖 Agent « {request.AgentId} » — {request.Title}",
-            Message = request.Summary,
+            Message = string.IsNullOrWhiteSpace(warning) ? request.Summary : $"{warning.Trim()}\n\n{request.Summary}",
             Details = details,
+            DetailsAreDiff = request.Kind == ApprovalKind.FileChange,
             ConfirmText = "Autoriser",
             CancelText = "Refuser",
             IsDestructive = request.IsDestructive,

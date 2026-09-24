@@ -171,12 +171,23 @@ namespace Moto.Editor.DependencyInjection
                 new SendMessageTool(sp.GetRequiredService<AgentMessageBus>()),
                 new FinishTool()
             });
+            // ★ AJOUT (24/09, "écriture agentique fonctionnelle") : l'agent v2 (appels d'outils, diff avant écriture, annulation
+            // d'un run). Même boîte de confirmation que la v1 ; l'éditeur y branche l'avertissement « modifications non
+            // enregistrées » (MainPage.Extensions.cs). Le repostage vers le thread UI est passé EXPLICITEMENT : la boucle tourne sur
+            // un thread d'arrière-plan et ne doit jamais dépendre de ce que le SynchronizationContext de l'appelant vaut.
+            services.AddSingleton<Moto.Core.AI.Autonomy.V2.ConfirmationServiceApprover>(sp =>
+                new Moto.Core.AI.Autonomy.V2.ConfirmationServiceApprover(sp.GetRequiredService<AiConfirmationService>()));
+            services.AddSingleton<Moto.Core.AI.Autonomy.V2.AgentV2Runner>(sp =>
+                new Moto.Core.AI.Autonomy.V2.AgentV2Runner(
+                    sp.GetRequiredService<Moto.Core.AI.Autonomy.V2.ConfirmationServiceApprover>(),
+                    post: action => Microsoft.Maui.ApplicationModel.MainThread.BeginInvokeOnMainThread(action)));
             services.AddSingleton<BackgroundAgentService>(sp => new BackgroundAgentService(
                 sp.GetRequiredService<MotoAiKernel>(),
                 sp.GetRequiredService<AiConfirmationService>(),
                 sp.GetRequiredService<IReadOnlyList<IAgentTool>>(),
                 sp.GetRequiredService<AgentMessageBus>(),
-                sp.GetRequiredService<AgentGlobalBudget>()));
+                sp.GetRequiredService<AgentGlobalBudget>(),
+                sp.GetRequiredService<Moto.Core.AI.Autonomy.V2.AgentV2Runner>()));
             services.AddSingleton<ProactiveAnalyticsEngine>(_ => new ProactiveAnalyticsEngine(workspaceRoot));
             // LanguageServerManager : LSP mis de côté pour cette passe (voir Moto.Core.csproj)
             services.AddSingleton<ConfirmationPolicyEngine>(sp => new ConfirmationPolicyEngine(sp.GetRequiredService<SettingsEngine>()));

@@ -73,10 +73,59 @@ public sealed class RunBackup
         _saved[fullPath] = target;
     }
 
+    // ── État de fin de run : pour ne jamais annuler AU-DESSUS du travail que l'utilisateur a fait depuis ──
+
+    private const string Unreadable = "?";
+    private readonly Dictionary<string, string?> _sealed = new(StringComparer.OrdinalIgnoreCase);
+    private bool _isSealed;
+
+    /// <summary>
+    /// À appeler UNE fois à la fin du run : mémorise l'état de chaque fichier touché (empreinte SHA-256, ou « absent »).
+    /// Permet à <see cref="ChangedSinceSeal"/> de dire quels fichiers l'utilisateur a modifiés depuis — l'annulation les écraserait.
+    /// </summary>
+    public void Seal()
+    {
+        _sealed.Clear();
+        foreach (var path in _saved.Keys) _sealed[path] = StateOf(path);
+        _isSealed = true;
+    }
+
+    /// <summary>Fichiers touchés dont l'état a changé depuis <see cref="Seal"/> (modifiés, supprimés ou recréés à la main). Chemins complets.</summary>
+    public IReadOnlyList<string> ChangedSinceSeal()
+    {
+        if (!_isSealed) return Array.Empty<string>();
+        return _sealed
+            .Where(kv =>
+            {
+                var now = StateOf(kv.Key);
+                return now != Unreadable && kv.Value != Unreadable && !string.Equals(now, kv.Value, StringComparison.Ordinal);
+            })
+            .Select(kv => kv.Key)
+            .ToList();
+    }
+
+    /// <summary>Chemin relatif au projet (séparateur « / »), pour l'affichage.</summary>
+    public string RelativePath(string fullPath) => Path.GetRelativePath(_root, fullPath).Replace('\\', '/');
+
+    // Ne lève jamais : Seal() est appelé en fin de run, y compris depuis un « catch » — une exception ici ferait perdre le résultat du run.
+    // Un fichier illisible (verrouillé…) reçoit l'état « ? » : il est traité comme inchangé plutôt que d'alarmer à tort.
+    private static string? StateOf(string path)
+    {
+        try { return File.Exists(path) ? Convert.ToHexString(System.Security.Cryptography.SHA256.HashData(File.ReadAllBytes(path))) : null; }
+        catch (Exception) { return Unreadable; }
+    }
+
     /// <summary>Remet chaque fichier dans son état d'avant le run. Retourne le nombre de fichiers restaurés ou supprimés.</summary>
-    public int Restore()
+    public int Restore() => Restore(out _);
+
+    /// <summary>
+    /// Comme <see cref="Restore()"/>, mais dit aussi quels fichiers n'ont pas pu être remis en place (verrouillés par un autre
+    /// programme…) — chemins complets. Refaire l'appel est sans risque : restaurer deux fois donne le même résultat.
+    /// </summary>
+    public int Restore(out IReadOnlyList<string> failed)
     {
         var count = 0;
+        var notRestored = new List<string>();
         foreach (var (path, backup) in _saved)
         {
             try
@@ -90,10 +139,15 @@ public sealed class RunBackup
                     File.Copy(backup, path, overwrite: true);
                     count++;
                 }
+                else
+                {
+                    notRestored.Add(path); // la copie d'origine a disparu (dossier purgé…) : on ne peut rien remettre
+                }
             }
-            catch (IOException) { /* fichier verrouillé : on continue avec les suivants */ }
-            catch (UnauthorizedAccessException) { }
+            catch (IOException) { notRestored.Add(path); }   // fichier verrouillé : on continue avec les suivants
+            catch (UnauthorizedAccessException) { notRestored.Add(path); }
         }
+        failed = notRestored;
         return count;
     }
 }

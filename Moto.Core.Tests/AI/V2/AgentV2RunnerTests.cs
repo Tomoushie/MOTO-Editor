@@ -299,6 +299,107 @@ public class AgentV2RunnerTests : IDisposable
     }
 
     [Fact]
+    public async Task Undo_can_tell_which_files_the_user_changed_since_the_run_ended()
+    {
+        var program = _ws.Write("Program.cs", "int x = 1;\nint y = 2;\n");
+        ScriptOneEdit();
+        var run = await RunAsync(Runner(new AutoApprover()));
+
+        Assert.Empty(run.FilesEditedSinceRun()); // rien touché depuis la fin du run
+
+        File.AppendAllText(program, "// ma note\n"); // l'utilisateur retravaille le fichier
+        Assert.Equal(new[] { "Program.cs" }, run.FilesEditedSinceRun());
+
+        run.UndoChanges(out _);
+        Assert.Empty(run.FilesEditedSinceRun()); // annulé : plus rien à signaler
+    }
+
+    [Fact]
+    public async Task An_incomplete_undo_keeps_the_button_and_names_the_files_still_changed()
+    {
+        var program = _ws.Write("Program.cs", "int x = 1;\nint y = 2;\n");
+        ScriptOneEdit();
+        var run = await RunAsync(Runner(new AutoApprover()));
+
+        using (new FileStream(program, FileMode.Open, FileAccess.Read, FileShare.None)) // ouvert dans un autre programme
+        {
+            run.UndoChanges(out var restored);
+            Assert.Equal(0, restored);
+        }
+
+        Assert.False(run.IsUndone);
+        Assert.True(run.CanUndo); // on peut réessayer
+        Assert.True(run.HasWarning);
+        Assert.Contains("Annulation incomplète", run.Warning);
+        Assert.Contains("Program.cs", run.Warning);
+        Assert.Equal("int x = 1;\nint y = 3;\n", File.ReadAllText(program)); // toujours la version de l'agent
+
+        run.UndoChanges(out var again); // libéré : ça passe
+        Assert.Equal(1, again);
+        Assert.True(run.IsUndone);
+        Assert.False(run.HasWarning);
+        Assert.Null(run.Warning);
+        Assert.Equal("int x = 1;\nint y = 2;\n", File.ReadAllText(program));
+    }
+
+    [Fact]
+    public async Task The_panel_shows_the_live_activity_while_running_and_the_result_line_afterwards()
+    {
+        _ws.Write("Program.cs", "int x = 1;\nint y = 2;\n");
+        _fake.Calls(("read_file", A(("path", "Program.cs"))));
+        ScriptOneEdit();
+        var run = NewRun();
+        var seen = new List<string>();
+        run.PropertyChanged += (_, e) =>
+        {
+            if (e.PropertyName != nameof(AgentRunRecord.Activity)) return;
+            lock (seen) seen.Add(run.Activity);
+        };
+
+        await Runner(new AutoApprover()).RunAsync(run, "mets y à 3", _ws.Root, _narration.Add).WaitAsync(TimeSpan.FromSeconds(30));
+
+        lock (seen)
+        {
+            Assert.Contains("Chargement du modèle en mémoire…", seen);
+            Assert.Contains(seen, a => a.StartsWith("Étape 1 · "));
+            Assert.Contains(seen, a => a.StartsWith("Étape 2 · "));
+            Assert.Contains("Le modèle réfléchit…", seen);
+        }
+
+        // Fini : plus d'activité, mais un résultat et un résumé à montrer.
+        Assert.Equal(string.Empty, run.Activity);
+        Assert.False(run.HasActivity);
+        Assert.True(run.HasResultLine);
+        Assert.True(run.HasSummary);
+        Assert.False(run.HasWarning);
+    }
+
+    [Fact]
+    public async Task The_panel_hides_the_result_lines_of_a_run_that_is_still_going()
+    {
+        _ws.Write("Program.cs", "int x = 1;\nint y = 2;\n");
+        ScriptOneEdit();
+        var gate = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+        var asked = new TaskCompletionSource<bool>(TaskCreationOptions.RunContinuationsAsynchronously);
+        var approver = new DelegateApprover(async _ => { asked.TrySetResult(true); return await gate.Task; });
+        var run = NewRun();
+
+        var finished = Runner(approver).RunAsync(run, "mets y à 3", _ws.Root, _narration.Add);
+        await asked.Task.WaitAsync(TimeSpan.FromSeconds(30));
+
+        Assert.Equal(AgentRunStatus.AwaitingConfirmation, run.Status);
+        Assert.True(run.HasActivity);
+        Assert.False(run.HasResultLine);
+        Assert.False(run.HasSummary);
+        Assert.False(run.CanUndo);
+
+        gate.SetResult(true);
+        await finished.WaitAsync(TimeSpan.FromSeconds(30));
+        Assert.False(run.HasActivity);
+        Assert.True(run.HasResultLine);
+    }
+
+    [Fact]
     public async Task The_service_starts_v2_runs_and_undoes_them_through_the_editor_callback()
     {
         var path = _ws.Write("Program.cs", "int y = 2;\n");

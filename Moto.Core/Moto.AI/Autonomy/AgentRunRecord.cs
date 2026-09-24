@@ -99,8 +99,9 @@ namespace Moto.Core.AI.Autonomy
                 Notify(nameof(StatusIcon));
                 Notify(nameof(StatusLabel));
                 Notify(nameof(IsActive));
-                Notify(nameof(CanUndo));
-                Notify(nameof(ResultLine));
+                Notify(nameof(Activity));
+                Notify(nameof(HasActivity));
+                NotifyResult();
             }
         }
 
@@ -156,7 +157,7 @@ namespace Moto.Core.AI.Autonomy
         /// <summary>Résumé du modèle à la fin du run (le texte de « finish »), ou la raison de l'arrêt.</summary>
         public string Summary { get; private set; } = string.Empty;
 
-        /// <summary>Avertissement à montrer (ex. « le run se dit terminé mais rien n'a changé »).</summary>
+        /// <summary>Avertissement à montrer (ex. « le run se dit terminé mais rien n'a changé », ou une annulation incomplète).</summary>
         public string? Warning { get; private set; }
 
         /// <summary>Fichiers réellement modifiés par ce run (chemins relatifs au projet).</summary>
@@ -197,6 +198,38 @@ namespace Moto.Core.AI.Autonomy
             }
         }
 
+        // Les « Has… » servent de visibilité dans le panneau (MAUI n'a pas de convertisseur texte → booléen d'origine).
+        public bool HasResultLine => ResultLine.Length > 0;
+
+        /// <summary>Le résumé n'est montré qu'une fois le run fini : pendant, il serait vide ou périmé.</summary>
+        public bool HasSummary => !IsActive && !string.IsNullOrWhiteSpace(Summary);
+
+        public bool HasWarning => !IsActive && !IsUndone && !string.IsNullOrWhiteSpace(Warning);
+
+        private string _activity = string.Empty;
+
+        /// <summary>Ce que l'agent fait en ce moment (« Étape 3 · lit Foo.cs ») ; vide dès que le run est fini.</summary>
+        public string Activity => IsActive ? _activity : string.Empty;
+
+        public bool HasActivity => Activity.Length > 0;
+
+        internal void SetActivity(string text)
+        {
+            _activity = text;
+            Notify(nameof(Activity));
+            Notify(nameof(HasActivity));
+        }
+
+        /// <summary>
+        /// Fichiers de ce run (chemins relatifs au projet) modifiés — ou réenregistrés — depuis la fin du run : « Annuler » les
+        /// remettrait dans l'état d'avant le run et perdrait ce travail. Vide si rien n'a bougé.
+        /// </summary>
+        public IReadOnlyList<string> FilesEditedSinceRun()
+        {
+            if (Backup is null || IsUndone) return Array.Empty<string>();
+            return Backup.ChangedSinceSeal().Select(Backup.RelativePath).ToList();
+        }
+
         /// <summary>Renseigne le résultat d'un run v2 (thread UI). À appeler AVANT de fixer le statut final.</summary>
         internal void SetResult(AgentRunResult result, string model)
         {
@@ -225,8 +258,22 @@ namespace Moto.Core.AI.Autonomy
             if (!CanUndo || Backup is null) return Array.Empty<string>();
 
             var touched = Backup.TouchedFiles.ToList();
-            restored = Backup.Restore();
-            IsUndone = true;
+            restored = Backup.Restore(out var failed);
+
+            if (failed.Count == 0)
+            {
+                IsUndone = true;
+                Warning = null; // ni l'avertissement du run ni un échec d'annulation précédent ne concernent plus rien
+            }
+            else
+            {
+                // Un fichier verrouillé ou dont la copie d'origine a disparu : le run n'est PAS déclaré annulé, le bouton reste (réessayer
+                // est sans risque) et le panneau dit lesquels.
+                var names = string.Join(", ", failed.Take(5).Select(Backup.RelativePath)) + (failed.Count > 5 ? "…" : string.Empty);
+                Warning = $"Annulation incomplète : {failed.Count} fichier(s) n'ont pas pu être remis en place ({names}). "
+                          + "Ferme les programmes qui les utilisent, puis réessaie.";
+            }
+
             NotifyResult();
             return touched;
         }
@@ -240,6 +287,9 @@ namespace Moto.Core.AI.Autonomy
             Notify(nameof(IsUndone));
             Notify(nameof(CanUndo));
             Notify(nameof(ResultLine));
+            Notify(nameof(HasResultLine));
+            Notify(nameof(HasSummary));
+            Notify(nameof(HasWarning));
         }
 
         /// <summary>Recalculée à la demande — appeler Tick() depuis un minuteur UI

@@ -26,6 +26,13 @@ namespace Moto.Core.Settings
         public string Title { get; init; } = string.Empty;
         public string Message { get; init; } = string.Empty;
         public string Details { get; init; } = string.Empty;
+
+        /// <summary>
+        /// ★ AJOUT (24/09, agent v2) : <see cref="Details"/> est un diff « unifié » (lignes « + » / « − » / « @@ ») : la boîte
+        /// de confirmation le montre en police fixe, lignes ajoutées/retirées colorées, dans une zone défilante.
+        /// </summary>
+        public bool DetailsAreDiff { get; init; }
+
         public string ConfirmText { get; init; } = "Appliquer";
         public string CancelText { get; init; } = "Annuler";
         public bool IsDestructive { get; init; }

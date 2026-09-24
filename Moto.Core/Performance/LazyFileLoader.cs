@@ -80,6 +80,27 @@ namespace Moto.Core.Performance
             }
         }
 
+        /// <summary>
+        /// ★ AJOUT (24/09, agent v2) : oublie le contenu en mémoire d'un fichier SANS l'écrire — le fichier vient d'être modifié
+        /// hors de l'éditeur (agent, annulation d'un run). Nécessaire parce que tout fichier ouvert un jour reste en cache marqué
+        /// « modifié » (chaque chargement passe par <see cref="UpdateContent"/>), même onglet fermé : sans ça, le rouvrir montrerait
+        /// l'ancien texte, et son enregistrement ou son éviction écraserait le travail de l'agent. Retourne vrai s'il y avait
+        /// quelque chose à oublier.
+        /// </summary>
+        public bool Invalidate(string path)
+        {
+            var full = SafeFullPath(path);
+            var keys = _cache.Keys.Where(k => string.Equals(SafeFullPath(k), full, StringComparison.OrdinalIgnoreCase)).ToList();
+            foreach (var key in keys) _cache.Remove(key);
+            return keys.Count > 0;
+        }
+
+        private static string SafeFullPath(string path)
+        {
+            try { return Path.GetFullPath(path); }
+            catch (Exception) { return path; }
+        }
+
         /// <summary>Écrit sur disque uniquement si le document a été modifié.</summary>
         public async Task SaveAsync(string path)
         {
