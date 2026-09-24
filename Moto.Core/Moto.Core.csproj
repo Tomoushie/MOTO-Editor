@@ -26,6 +26,13 @@
     <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="10.0.11" />
   </ItemGroup>
 
+  <!-- ★ AJOUT (24/09, agent v2) : les tests unitaires de l'agent v2 (EditMatcher, TextFile,
+       ToolCallSalvage…) visent des types internes — volontairement non publics (ce ne sont pas
+       des API), donc visibles seulement du projet de tests. -->
+  <ItemGroup>
+    <InternalsVisibleTo Include="Moto.Core.Tests" />
+  </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\Snake2000.Engine\Snake2000.Engine.csproj" />
     <!-- ★ AJOUT (02/09, "vrai système de plugins") : Moto.Plugin.SDK cible

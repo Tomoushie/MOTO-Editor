@@ -468,7 +468,7 @@ namespace Moto.Core.AI.Autonomy
         /// ailleurs dans ce chantier). Reconnaissance simple par sous-chaîne :
         /// pas exhaustive, ne remplace pas la vigilance de la personne qui clique
         /// "Autoriser".</summary>
-        private static string? DangerousCommandHint(string? command)
+        internal static string? DangerousCommandHint(string? command)
         {
             if (string.IsNullOrWhiteSpace(command)) return null;
             var lower = command.ToLowerInvariant();
