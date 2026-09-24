@@ -890,7 +890,7 @@ namespace Moto.Editor
                     if (_backgroundAgentService == null) { StatusBar.SetStatus("Agents : service indisponible."); break; }
                     _windowManager.OpenOrFocus(Moto.Editor.Windows.WindowKind.AgentRuns, () =>
                     {
-                        var view = new Views.AgentRunsView(_backgroundAgentService, _confirmationService)
+                        var view = new Views.AgentRunsView(_backgroundAgentService)
                         {
                             IsVisible = true,
                             UnsavedEditsCheck = UnsavedEditsSummary, // « Annuler les modifications » prévient si un onglet a du travail non enregistré

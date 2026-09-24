@@ -8,14 +8,12 @@ using System.Linq;
 using Microsoft.Maui.ApplicationModel;
 using Microsoft.Maui.Controls;
 using Moto.Core.AI.Autonomy;
-using Moto.Core.Settings;
 
 namespace Moto.Editor.Views
 {
     public partial class AgentRunsView : ContentView
     {
         private readonly BackgroundAgentService _agents;
-        private readonly AiConfirmationService? _confirmation;
         private readonly System.Collections.ObjectModel.ObservableCollection<MessageRow> _messageRows = new();
 
         /// <summary>
@@ -24,11 +22,10 @@ namespace Moto.Editor.Views
         /// </summary>
         public Func<IReadOnlyList<string>, string?>? UnsavedEditsCheck { get; init; }
 
-        public AgentRunsView(BackgroundAgentService agents, AiConfirmationService? confirmation = null)
+        public AgentRunsView(BackgroundAgentService agents)
         {
             InitializeComponent();
             _agents = agents;
-            _confirmation = confirmation;
 
             RunList.ItemsSource = _agents.Runs;
             _agents.Runs.CollectionChanged += (_, _) => RefreshCounts();
@@ -116,22 +113,23 @@ namespace Moto.Editor.Views
         {
             if (sender is not Button { CommandParameter: Guid runId }) return;
             var run = _agents.Runs.FirstOrDefault(r => r.Id == runId);
-            if (run is null || !run.CanUndo || _confirmation is null) return;
+            if (run is null || !run.CanUndo) return;
 
             try
             {
+                // Ce panneau vit dans SA fenêtre : la boîte de confirmation générale de l'éditeur, elle, s'ouvre dans la fenêtre
+                // principale (parfois cachée derrière celle-ci) et fait la queue derrière les demandes d'un agent en cours. L'annulation
+                // est un geste de l'utilisateur, pas une demande de l'IA : on la confirme donc ici, dans cette fenêtre.
+                var page = Window?.Page;
+                if (page is null) return;
+
                 var files = run.ChangedFiles.Select(f => f.RelativePath).ToList();
-                var confirmed = await _confirmation.RequestAsync(new ConfirmationRequest
-                {
-                    Action = ConfirmationAction.ModifyCode,
-                    Title = "↩ Annuler les modifications de l'agent",
-                    Message = $"Remettre {files.Count} fichier(s) dans l'état d'avant « {run.AgentId} » ?",
-                    Details = DescribeUndo(run, UnsavedEditsCheck?.Invoke(files)),
-                    ConfirmText = "Annuler les modifications",
-                    CancelText = "Garder",
-                    IsDestructive = true,
-                });
-                if (!confirmed.Confirmed) return;
+                var confirmed = await page.DisplayAlert(
+                    "↩ Annuler les modifications de l'agent",
+                    $"Remettre {files.Count} fichier(s) dans l'état d'avant « {run.AgentId} » ?\n\n{DescribeUndo(run, UnsavedEditsCheck?.Invoke(files))}",
+                    "Annuler les modifications",
+                    "Garder");
+                if (!confirmed) return;
 
                 // Le run a pu changer pendant que la boîte était ouverte (déjà annulé ailleurs…) : UndoChanges ne fait alors rien.
                 _agents.UndoChanges(runId, out _);
