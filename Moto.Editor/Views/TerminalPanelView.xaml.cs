@@ -19,6 +19,15 @@ namespace Moto.Editor.Views
         {
             InitializeComponent();
 
+            // ★ AJOUT (26/09, passe « moyen → élevé » — mesuré dans la visite visuelle) : le contenu est borné à la largeur
+            // du panneau. Mesuré sans borne (le panneau couvre des colonnes « Auto » de la grille principale), il s'étalait
+            // sur 2534 px pour un panneau de 1774 : la croix de fermeture et le bouton d'envoi tombaient hors de l'écran.
+            SizeChanged += (_, _) =>
+            {
+                if (Width > 0 && System.Math.Abs(TerminalRoot.MaximumWidthRequest - Width) >= 1)
+                    TerminalRoot.MaximumWidthRequest = Width;
+            };
+
             BindingContextChanged += (s, e) =>
             {
                 if (BindingContext is MainViewModel vm)
