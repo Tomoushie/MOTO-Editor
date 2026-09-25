@@ -122,6 +122,8 @@ namespace Moto.Editor.Controls
             CrumbLabel.Text = string.IsNullOrWhiteSpace(fullPath)
                 ? "Aucun fichier ouvert"
                 : fullPath.Replace("\\", " \\ ");
+            // ★ AJOUT (25/09) : la coloration suit le type du fichier affiché (appelé à chaque changement de document).
+            Editor.SetLanguageFromPath(fullPath);
         }
 
         /// <summary>Contenu de l'éditeur (two-way).</summary>

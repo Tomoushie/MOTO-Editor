@@ -223,7 +223,12 @@
              Docs/design/Cadrage-CodeEditor-SkiaSharp.md. Incrément 2 (saisie/
              curseur/sélection) en cours — CodeEditorView reste dans le dépôt,
              non supprimé, tant que la parité n'est pas confirmée (§5 du cadrage). -->
-        <controls:CodeEditorViewSkia Grid.Row="4" x:Name="Editor" x:FieldModifier="Public" Margin="0,0,0,110" />
+        <!-- ★ REPRIS (25/09, choix C de Tom) : retour à CodeEditorView (WebView) — CodeEditorViewSkia n'a ni défilement ni
+             sélection à la souris. La marge basse de 110 est retirée : avec un éditeur qui défile, sa barre de défilement
+             s'arrêtait 110 px au-dessus du bas de la zone. La place du bandeau IA flottant (AiBar) est désormais une marge
+             de fin DANS l'éditeur (120 px sous la dernière ligne) : le code remonte au-dessus du bandeau, comme dans VS Code.
+             Vérifié le 25/09 (captures) : diff, réglages et palette s'affichent bien PAR-DESSUS ce WebView. -->
+        <controls:CodeEditorView Grid.Row="4" x:Name="Editor" x:FieldModifier="Public" />
 
     </Grid>
 
