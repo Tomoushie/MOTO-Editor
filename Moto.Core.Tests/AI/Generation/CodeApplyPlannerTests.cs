@@ -129,6 +129,16 @@ public class CodeApplyPlannerTests
     }
 
     [Fact]
+    public void Rewriting_a_text_file_does_not_mistake_its_sentences_for_code_that_disappears()
+    {
+        const string doc = "# Projet\n\nVoici la fonction (exemple)\nUne ligne\nDeux lignes\nTrois lignes\nQuatre lignes\n";
+        var plan = Ok(Plan("# Projet\n\nUne ligne\nDeux lignes\nTrois lignes\nQuatre lignes\nCinq lignes", doc, path: "README.md"));
+
+        Assert.Equal(CodeApplyKind.ReplaceFile, plan.Kind);
+        Assert.DoesNotContain(plan.Warnings, w => w.Contains("ne contient plus"));
+    }
+
+    [Fact]
     public void An_empty_file_receives_the_block()
     {
         var plan = Ok(Plan("public class B\n{\n}", doc: "\n", path: "B.cs"));

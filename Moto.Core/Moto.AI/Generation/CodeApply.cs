@@ -194,7 +194,8 @@ public static class CodeApplyPlanner
         if (docLines.Count > 1 && !codeSet.Contains(docLines[^1]))
             c.Warnings.Add($"Ce code ne reprend pas la fin du fichier (« {Shorten(docLines[^1])} ») : le remplacer en entier supprimera cette fin. Regarde le diff.");
 
-        if (DroppedDeclarations(c.Lines, c.CodeLines) is { Count: > 0 } dropped)
+        // C#/Java seulement : dans un texte ordinaire, « Voici la fonction (exemple) » ressemblerait à une méthode « fonction ».
+        if (c.IsBraceLanguage && DroppedDeclarations(c.Lines, c.CodeLines) is { Count: > 0 } dropped)
             c.Warnings.Add(DroppedWarning(dropped));
 
         var missing = docLines.Count - CommonCount(docLines, codeLines);
