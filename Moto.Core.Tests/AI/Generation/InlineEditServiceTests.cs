@@ -294,6 +294,37 @@ public class InlineEditPromptsTests
             Assert.True(InlineEditPrompts.EstimateTokens(prompt.User) + prompt.MaxOutputTokens < prompt.NumCtx, $"size={size}");
         }
     }
+
+    // ★ AJOUT (25/09, confidentialité) : la phrase montrée avant un envoi en ligne décrit ce que Build envoie vraiment.
+
+    [Fact]
+    public void The_privacy_warning_for_a_whole_file_names_the_file_and_its_size()
+    {
+        var text = InlineEditPrompts.DescribeSentContent(Req("a\r\nb\r\nc\r\n"));
+
+        Assert.Contains("tout le fichier « Foo.cs »", text);
+        Assert.Contains("3 ligne(s)", text);
+    }
+
+    [Fact]
+    public void The_privacy_warning_for_a_selection_mentions_the_neighbouring_lines_that_go_with_it()
+    {
+        var doc = string.Join("\n", Enumerable.Range(1, 100).Select(i => $"ligne {i}")) + "\n";
+
+        var text = InlineEditPrompts.DescribeSentContent(Req(doc, "ligne 50\nligne 51\n"));
+
+        Assert.Contains("passage sélectionné (2 ligne(s))", text);
+        Assert.Contains("40 lignes avant", text);
+        Assert.Contains("25 après", text);
+        Assert.Contains("« Foo.cs »", text);
+
+        // Et c'est bien ce qui part : les lignes voisines sont dans le message.
+        var prompt = InlineEditPrompts.Build(Req(doc, "ligne 50\nligne 51\n"), InlineEditPrompts.LargeContext, out _)!;
+        Assert.Contains("ligne 10\n", prompt.User);   // 40e ligne avant le passage
+        Assert.DoesNotContain("ligne 9\n", prompt.User);
+        Assert.Contains("ligne 76", prompt.User);     // 25e ligne après
+        Assert.DoesNotContain("ligne 77", prompt.User);
+    }
 }
 
 public class GenerationModelsTests

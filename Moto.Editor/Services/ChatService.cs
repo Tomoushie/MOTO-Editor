@@ -632,9 +632,17 @@ namespace Moto.Editor.Services
             // ★ CORRIGÉ (24/09) : le 2e argument (« contexte ») était WorkspaceRoot — les fournisseurs en ligne le collent tel quel dans le
             // message (« Contexte : … ») : le chemin local du projet, qui contient le nom d'utilisateur Windows, partait chez OpenAI/Anthropic/Mistral.
             var fallbackResult = await _fallback.GenerateAsync(prompt);
-            return fallbackResult.Success
-                ? fallbackResult.Content
-                : "Aucun moteur IA disponible (Ollama et fallback injoignables). Vérifie tes paramètres IA.";
+            if (fallbackResult.Success) return fallbackResult.Content;
+
+            // ★ CORRIGÉ (25/09) : ce refus était RENVOYÉ comme une réponse du modèle — le bandeau IA le lisait comme du texte et disait
+            // « le modèle n'a pas renvoyé de code ». Levé, il devient « le fournisseur n'a pas répondu (…) » (InlineEditService.RunWithAsync).
+            throw new InvalidOperationException(ServiceUnavailableMessage(fallbackResult.Error));
         }
+
+        /// <summary>Pourquoi aucun service en ligne n'a répondu, en clair. Sans service configuré, la demande échoue avant tout envoi.</summary>
+        private string ServiceUnavailableMessage(string? error)
+            => _fallback.ProviderManager.GetAllConfigs().Count == 0
+                ? "aucun service en ligne n'est configuré : rien n'a été envoyé"
+                : string.IsNullOrWhiteSpace(error) ? "aucun service en ligne n'a répondu" : error;
     }
 }

@@ -53,6 +53,8 @@ namespace Moto.Core.Settings
                 ConfirmationAction.DeleteFile => true,
                 ConfirmationAction.RollbackSettings => true,
                 ConfirmationAction.MigrateSettings => true,
+                // ★ AJOUT (25/09) : un envoi de code vers un service en ligne ne se rattrape pas — toujours demandé.
+                ConfirmationAction.SendCodeOnline => true,
                 _ => false
             };
         }

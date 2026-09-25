@@ -16,7 +16,10 @@ namespace Moto.Core.Settings
         MigrateSettings,
         DeleteFile,
         ModifyCode,
-        ExecuteCommand
+        ExecuteCommand,
+
+        /// <summary>★ AJOUT (25/09, confidentialité) : du code de l'utilisateur va partir vers un service en ligne.</summary>
+        SendCodeOnline
     }
 
     /// <summary>Détails de la demande de confirmation.</summary>

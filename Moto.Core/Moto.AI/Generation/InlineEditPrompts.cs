@@ -97,7 +97,27 @@ public static class InlineEditPrompts
         return new InlineEditPrompt(SystemText, user, Math.Min(maxOutput, numCtx - promptTokens - 64), numCtx);
     }
 
+    /// <summary>
+    /// ★ AJOUT (25/09, confidentialité) : ce que <see cref="Build"/> met dans le message, dit en clair — pour prévenir l'utilisateur AVANT
+    /// qu'une demande parte vers un service en ligne. À garder d'accord avec Build (fichier entier, ou passage + lignes voisines).
+    /// </summary>
+    public static string DescribeSentContent(InlineEditRequest request)
+    {
+        var name = string.IsNullOrWhiteSpace(request.DisplayPath) ? "sans nom" : Path.GetFileName(request.DisplayPath);
+        if (request.Scope == InlineEditScope.WholeFile)
+            return $"tout le fichier « {name} » ({CountLines(request.DocumentText)} ligne(s)) et ta demande";
+
+        return $"le passage sélectionné ({CountLines(request.Selection!)} ligne(s)), jusqu'à {LinesBefore} lignes avant lui et {LinesAfter} après, "
+             + $"le nom du fichier « {name} » et ta demande";
+    }
+
     // ── Aides ───────────────────────────────────────────────────────────────
+
+    private static int CountLines(string text)
+    {
+        var normalized = InlineEditPlanner.Normalize(text).TrimEnd('\n');
+        return normalized.Length == 0 ? 0 : normalized.Split('\n').Length;
+    }
 
     private static string TooLong(int chars)
         => $"Ce texte est long ({chars} caractères) : un modèle local ne le réécrit pas d'un bloc de façon fiable. "

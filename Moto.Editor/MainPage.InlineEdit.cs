@@ -52,12 +52,23 @@ namespace Moto.Editor
             };
 
             using var cts = new CancellationTokenSource();
-            _inlineEditCts = cts;
+            _inlineEditCts = cts; // posé AVANT la question ci-dessous : pas de 2e demande pendant qu'elle est affichée
             EditorPane.SetAiBusy(true);
-            EditorPane.SetAiStatus($"[{model}] {(request.Scope == InlineEditScope.Selection ? "Sélection envoyée" : "Fichier envoyé")}…");
 
             try
             {
+                if (ChatService.IsExternalProviderName(model))
+                {
+                    EditorPane.SetAiStatus($"[{model}] Service en ligne : dis-moi si ton code peut partir…");
+                    if (!await ConfirmOnlineSendAsync(model, request))
+                    {
+                        EditorPane.SetAiStatus($"[{model}] Rien n'a été envoyé : ton code est resté sur ta machine. (« MOTO interne » travaille sans rien envoyer.)");
+                        return;
+                    }
+                    cts.Token.ThrowIfCancellationRequested();
+                }
+
+                EditorPane.SetAiStatus($"[{model}] {(request.Scope == InlineEditScope.Selection ? "Sélection envoyée" : "Fichier envoyé")}…");
                 var outcome = await RunInlineEditAsync(model, request, cts.Token);
                 if (!outcome.Succeeded)
                 {
@@ -125,6 +136,31 @@ namespace Moto.Editor
                     ? _inlineEdit.RunWithAsync(request, model, (fullPrompt, _) => _chatService.AskRawAsync(model, fullPrompt), ct)
                     : _inlineEdit.RunAsync(request, Progress, ct),
                 outcome => outcome.Plan?.Replacement.Length ?? 0);
+        }
+
+        /// <summary>
+        /// ★ AJOUT (25/09, confidentialité — choix A de Tom) : un modèle EN LIGNE choisi dans le sélecteur du bandeau reçoit du code (le passage
+        /// sélectionné et ses lignes voisines, ou le fichier entier). Jusqu'ici il partait sans prévenir. Sans le service de confirmation, rien ne part.
+        /// Le sélecteur ne choisit pas le service : la demande passe par le FallbackEngine, qui essaie les services configurés dans Réglages → IA
+        /// par ordre de priorité — d'où la formulation « le premier qui répond ».
+        /// </summary>
+        private async Task<bool> ConfirmOnlineSendAsync(string model, InlineEditRequest request)
+        {
+            if (_confirmationService is null) return false;
+
+            var answer = await _confirmationService.RequestAsync(new ConfirmationRequest
+            {
+                Action = ConfirmationAction.SendCodeOnline,
+                Title = "🌐 Ton code va quitter ta machine",
+                Message = $"Pour cette modification, {InlineEditPrompts.DescribeSentContent(request)} vont partir vers un service en ligne : "
+                        + $"celui configuré dans Réglages → IA (le premier qui répond, pas forcément « {model} »).\n"
+                        + "Une fois envoyé, on ne peut plus le reprendre.\n"
+                        + "Pour garder ton code sur ta machine : « Ne pas envoyer », puis choisis « MOTO interne » dans le sélecteur du bandeau.",
+                ConfirmText = "Envoyer",
+                CancelText = "Ne pas envoyer",
+                IsDestructive = true, // bouton rouge : ce qui part ne revient pas
+            });
+            return answer.Confirmed;
         }
 
         /// <summary>Le modèle réellement utilisé (celui des réglages, ou son remplaçant) plutôt que l'étiquette du sélecteur (« MOTO interne »).</summary>
