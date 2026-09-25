@@ -268,6 +268,8 @@ public static class SnapLayoutsHelper
             {
                 presenter.SetBorderAndTitleBar(false, false);
             }
+            // ★ AJOUT (25/09) : MAUI peut ré-afficher sa barre de titre interne en revenant du plein écran — on la replie à nouveau.
+            MauiTitleBarBand.Collapse(window);
             _isFullScreen = false;
             Moto.Editor.App.Breadcrumb("ToggleFullScreen — sorti du plein écran, sans-bordure réappliqué");
         }

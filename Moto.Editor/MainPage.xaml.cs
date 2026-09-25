@@ -483,6 +483,11 @@ namespace Moto.Editor
 #if WINDOWS
             var nativeWindow = Application.Current.Windows[0].Handler.PlatformView
                 as Microsoft.UI.Xaml.Window;
+            // ★ AJOUT (25/09) : la bande en haut de la fenêtre (bleue chez Tom, 32 DIP) est la barre de titre interne de MAUI,
+            // pas celle de Windows — repliée ici, AVANT le calcul des zones de glisser (ConfigureSnapLayouts, plus bas) qui
+            // dépend de la position de la barre MOTO. Voir Platforms/Windows/MauiTitleBarBand.cs.
+            if (nativeWindow != null)
+                App.Breadcrumb($"OnPageLoaded — barre de titre MAUI repliée ({Platforms.Windows.MauiTitleBarBand.Collapse(nativeWindow)} élément(s))");
             // ★ CORRECTION (31/08) : CAUSE RÉELLE de la "double barre de discussion" et
             // des chips Local/Rechercher projet coupées, signalées par Tom. AiBar
             // (bandeau IA flottant, Ctrl+Shift+I, pensé pour être utilisé PENDANT
