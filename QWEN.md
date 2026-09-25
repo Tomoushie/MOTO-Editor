@@ -175,6 +175,14 @@
    elle-même n'est toujours pas éliminée** ; le détail complet et ce qui
    reste ouvert sont dans `CLAUDE.md`, section « chantier rendu 100% custom ».
 
+   ★★ **RÉSOLU LE 25/09 (`5ac1136`) — le diagnostic DWM ci-dessus était
+   FAUX.** C'était bien « l'hypothèse restante » notée plus haut : la bande de
+   32 px était peinte par **MAUI** (`AppTitleBarContainer` h=32 + marge haute
+   de 32 sur `ContentGrid`), pas par Windows. Mesuré dans l'arbre natif (barre
+   MOTO à y=32 avant, y=0 après). Correctif :
+   `Platforms/Windows/MauiTitleBarBand.cs`. Détail : `CLAUDE.md`, section
+   « Barre de titre bleue Windows ».
+
 2. **OrchestratorAgent / Tier 28 (MotoBridge)** — planifié, pas commencé.
 3. **Settings** — **297 réglages** au catalogue, mais `SettingsApplier.
    ApplyAll()` n'en lit que **4** réellement (thème, taille de police,

@@ -360,7 +360,7 @@ est remplacée : Tom évalue désormais **deux axes séparés**, chacun sur
 
 | Axe | Position au 22/09 | Références visées |
 |---|---|---|
-| **Visuel** | **cheap** | Zen Code, VS Code, JetBrains |
+| **Visuel** | **cheap** (22/09) → « faible » (24/09, Tom) → « moyen » (Tom, au début de la passe du 25-26/09) → **candidat « élevé »** (26/09, à juger par Tom, voir plus bas) | Zen Code, VS Code, JetBrains |
 | **Backend / Structure** | **élevé** | — |
 
 **Écart à combler en priorité : le VISUEL** (2 crans sous le backend). Tom
@@ -431,6 +431,57 @@ de fin de session.
 - ⚠️ **Aucun test visuel automatique** : le garde-fou garantit qu'un lot ne
   casse rien (0 erreur, avertissements ≤ 479, périmètre, aucun comportement
   touché) mais **pas** que le résultat soit joli — seul l'œil de Tom juge.
+
+### Passe « moyen → élevé » (25-26/09) — candidat « élevé », à juger par Tom
+
+Faite en une passe, sans question à Tom en cours de route. Commits `5ac1136`
+(bande de 32 px), `6951fbc` (retour à l'éditeur WebView), `4d82e45`
+(raccourcis), `587286f` (onglets, explorateur, chat, fenêtres, boutons),
+`2f8f6ee` et `936ddf0` (terminal). Vérifié par captures hors écran, surface
+par surface. **« élevé » ne vaut que pour les surfaces parcourues** : il reste
+~40 emplois d'emoji dans des vues secondaires ; les fenêtres secondaires
+gardent la barre de titre de MAUI ; survol/focus, vraie souris et F11 non
+vérifiés à l'œil.
+
+**Pièges techniques trouvés (à ne pas refaire) :**
+- **Boutons « plats » sous Windows** : le mappage `NoNative`
+  (`MauiProgram.cs`) remet à zéro marge intérieure, bordure et style natif de
+  TOUS les boutons, après les réglages MAUI. Exception ajoutée pour les 5
+  styles du thème (`MotoPrimary/Secondary/Ghost/Danger/IconButton`,
+  comparaison par référence dans `IsDesignSystemButton`). **Un nouveau bouton
+  doit porter un de ces styles**, sinon son `Padding`/`CornerRadius` est
+  ignoré en silence.
+- **État `Selected` (VisualStateManager) d'un `CollectionView` : ne
+  s'applique pas sous Windows.** L'onglet actif passe par
+  `EditorDocument.IsActive` + `DataTrigger` (`EditorPaneView.SelectTab`).
+- **Piège de la ligne `*` d'une `Grid`** : un enfant avec un grand
+  `HeightRequest` dans une ligne `*` l'empêche de rétrécir et pousse les
+  lignes `Auto` hors de la fenêtre (le terminal poussait la barre de statut à
+  y=1328). Correctif : `MaximumHeightRequest` des docks recalculé
+  (`MainPage.Panels.cs`, `UpdateDockHeightBounds`). Même famille : un
+  `ContentView` posé sur des colonnes `Auto` est mesuré en largeur infinie
+  (contenu du terminal 2534 px dans 1774) → `TerminalRoot.MaximumWidthRequest`.
+- **Ombre MAUI (`Shadow`) sur un élément toujours visible au-dessus de
+  l'éditeur WebView** (la barre IA) : les calques affichés ensuite
+  (confirmation, palette) ne se dessinaient plus. Trouvé par bissection
+  (retirer l'ombre répare), **cause profonde non établie** ; `ShadowLg` sert
+  encore au cadre des Réglages. Ne pas remettre d'ombre sur un élément
+  permanent sans capture de la palette et du diff.
+- **Icône-police (`FontImageSource`) dans un `Button`** : ne s'affiche pas
+  sous Windows (vu sur « Clés API ») → texte seul, ou glyphe en `Text` avec la
+  police `MotoIcons`. Tout nouveau glyphe se vérifie d'abord (rendu du point de
+  code avec `SegoeIcons.ttf`).
+- **Méthode de capture** : une capture ratée se refait 1,5 s plus tard ; si la
+  seconde est encore fausse, c'est un vrai défaut de rendu, pas un retard du
+  banc.
+
+**Éditeur et raccourcis (état au 26/09)** : l'éditeur de tous les jours est de
+nouveau `CodeEditorView` (WebView) depuis `6951fbc` (choix C de Tom :
+`CodeEditorViewSkia` n'avait ni défilement ni sélection à la souris). Tous les
+raccourcis passent par `RunShortcut` (`MainPage.Shortcuts.cs`) ; quand le
+curseur est dans le code, le WebView les transmet (`ShortcutPressed`).
+**Ctrl+S existe** depuis `4d82e45` (la commande `file.save` n'avait aucune
+touche).
 
 ## Architecture des panneaux (dock IA / Explorateur)
 
@@ -731,9 +782,26 @@ recherche filtre sans planter, "Nouvelle conversation" fonctionne.
   intégré directement DANS le panneau de chat principal — reste une fenêtre
   séparée à ouvrir via la palette, pas un clic sur place.
 
-## Barre de titre bleue Windows — chantier "rendu 100% custom" EN COURS (08/09)
+## Barre de titre bleue Windows — RÉSOLUE le 25/09 (`5ac1136`), diagnostic DWM ci-dessous FAUX
 
-**Mise à jour du 22/09 : ce chantier n'est PAS en pause, contrairement à ce
+**⚠️ CORRECTION (26/09) — lire avant tout le reste de cette section.** La
+bande bleue/noire de 32 px au-dessus de la barre MOTO **n'était pas peinte
+par Windows (DWM)** mais par **MAUI lui-même** : `AppTitleBarContainer`
+(hauteur 32) plus une marge haute de 32 sur `ContentGrid` dans sa vue de
+navigation. Mesuré dans l'arbre natif (barre MOTO à y=32 avant, y=0 après).
+Correctif : `Platforms/Windows/MauiTitleBarBand.cs` (commit `5ac1136`, 25/09),
+qui « épingle » les deux réglages (MAUI les rétablit à certains changements de
+présentation) et les ré-applique en sortie de plein écran. Conséquences :
+- le « diagnostic DWM » (réglage Windows d'accentuation, `#9374`) et
+  l'« enseignement dur » ci-dessous sont **faux** pour ce symptôme — gardés
+  comme historique uniquement ;
+- le chantier « `WM_NCCALCSIZE`/`WM_NCHITTEST` » plus bas n'a **plus de
+  raison d'être** pour la bande ;
+- **non vérifié** : l'état « fenêtre active » (au premier plan) de la fenêtre
+  principale après le correctif, et les fenêtres secondaires (Réglages
+  détachés, panneaux flottants), qui gardent la barre de titre de MAUI.
+
+**Mise à jour du 22/09 (PÉRIMÉE, voir ci-dessus) : ce chantier n'est PAS en pause, contrairement à ce
 que disait la version précédente de cette section.** Tom a accepté le 08/09 de
 passer au "rendu 100% custom" après épuisement des 6 tentatives
 "coopératives" — 6 commits du 08/09 (`174ebd0` → `73f7ab1`) documentent la
@@ -1413,6 +1481,10 @@ juste la carte pour en reparler au bon moment.
   aimerait le faire "de toute façon", mais explicitement **à la fin,
   quand le logiciel sera opérationnel** — pas maintenant. Aucun changement
   à la séquence recommandée ci-dessus, juste une confirmation actée.
+- ⚠️ **Mise à jour (25/09) : Option 2 en pause.** L'éditeur de tous les
+  jours est redevenu `CodeEditorView` (WebView), commit `6951fbc` (choix C de
+  Tom) : `CodeEditorViewSkia` n'avait ni défilement ni sélection à la souris.
+  Le contrôle Skia reste dans le dépôt, non branché.
 - **Option 2 (remplacer le WebView de `CodeEditorView` par un rendu
   SkiaSharp direct) approuvée pour démarrer**, sans attendre le palier
   "élevé/bêta" — motivation de Tom : battre Zed en légèreté/rapidité.
