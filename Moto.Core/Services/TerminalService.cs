@@ -1,5 +1,8 @@
 // Services/TerminalService.cs
 using System.Diagnostics;
+using System.IO;
+using System.Runtime.InteropServices;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -63,8 +66,8 @@ namespace Moto.Editor.Services
                 // réels de git (accents, ex. "Chaîne") ressortaient en charabia
                 // ("ChaÃ®ne"). N'affecte QUE cette méthode one-shot (GitService et
                 // consorts), pas Start() plus bas (terminal interactif, où cmd.exe émet
-                // ses propres bannières en page de code OEM — les changer casserait
-                // leur affichage, hors scope ici).
+                // ses propres bannières en page de code OEM — il a son propre décodage
+                // ligne par ligne, voir TerminalOutputDecoder).
                 StandardOutputEncoding = System.Text.Encoding.UTF8,
                 StandardErrorEncoding = System.Text.Encoding.UTF8
             };
@@ -123,6 +126,7 @@ namespace Moto.Editor.Services
                 var shell = OperatingSystem.IsWindows()
                     ? "cmd.exe"
                     : "/bin/bash";
+                var encoding = GetShellEncoding();
 
                 var psi = new ProcessStartInfo
                 {
@@ -134,7 +138,15 @@ namespace Moto.Editor.Services
                     RedirectStandardOutput = true,
                     RedirectStandardError = true,
                     UseShellExecute = false,
-                    CreateNoWindow = true
+                    CreateNoWindow = true,
+                    // ★ CORRECTIF (26/09, accents du Terminal) : sans encodage explicite, .NET
+                    // parlait au shell dans la page ANSI (1252) alors que cmd.exe lit et écrit
+                    // dans la page OEM de sa console (850) — « réservés » devenait « r,serv,s. »
+                    // à l'écran, et un « é » tapé arrivait à cmd en « Ú » (cd Vidéos échouait).
+                    // cmd lit son entrée octet par octet : il lui faut une page à un octet par
+                    // caractère (OEM) — « chcp 65001 » + UTF-8, essayé le 26/09, rend chaque
+                    // accent tapé illisible pour cmd (et supprime sa bannière).
+                    StandardInputEncoding = encoding
                 };
 
                 _process = new Process
@@ -143,30 +155,17 @@ namespace Moto.Editor.Services
                     EnableRaisingEvents = true
                 };
 
-                _process.OutputDataReceived += (s, e) =>
-                {
-                    if (!string.IsNullOrEmpty(e.Data))
-                    {
-                        OutputReceived?.Invoke(e.Data, false);
-                    }
-                };
-
-                _process.ErrorDataReceived += (s, e) =>
-                {
-                    if (!string.IsNullOrEmpty(e.Data))
-                    {
-                        OutputReceived?.Invoke(e.Data, true);
-                    }
-                };
-
                 _process.Exited += (s, e) =>
                 {
                     OutputReceived?.Invoke("[terminal] shell exited.", false);
                 };
 
                 _process.Start();
-                _process.BeginOutputReadLine();
-                _process.BeginErrorReadLine();
+                // ★ CORRECTIF (26/09) : lecture des octets bruts à la place de
+                // BeginOutputReadLine/BeginErrorReadLine, qui décodaient tout le flux avec
+                // UN seul encodage — voir TerminalOutputDecoder.
+                _ = PumpAsync(_process.StandardOutput.BaseStream, encoding, isError: false);
+                _ = PumpAsync(_process.StandardError.BaseStream, encoding, isError: true);
 
                 OutputReceived?.Invoke($"[terminal] started {shell}", false);
             }
@@ -175,6 +174,54 @@ namespace Moto.Editor.Services
                 OutputReceived?.Invoke($"[terminal] start error: {ex.Message}", true);
             }
         }
+
+        /// <summary>
+        /// Lit un flux du shell jusqu'à sa fin et publie chaque ligne non vide
+        /// (même contrat qu'avant : les lignes vides ne sont pas publiées).
+        /// </summary>
+        private async Task PumpAsync(Stream stream, Encoding fallback, bool isError)
+        {
+            var decoder = new TerminalOutputDecoder(fallback);
+            var buffer = new byte[4096];
+            try
+            {
+                int read;
+                while ((read = await stream.ReadAsync(buffer, 0, buffer.Length).ConfigureAwait(false)) > 0)
+                {
+                    foreach (var line in decoder.Push(buffer, read))
+                        Emit(line, isError);
+                }
+                Emit(decoder.Flush(), isError);
+            }
+            catch (Exception ex) when (ex is IOException or ObjectDisposedException or OperationCanceledException)
+            {
+                // Stop() a tué et libéré le shell pendant une lecture : fin normale du flux.
+            }
+        }
+
+        private void Emit(string? line, bool isError)
+        {
+            if (!string.IsNullOrEmpty(line))
+                OutputReceived?.Invoke(line, isError);
+        }
+
+        /// <summary>
+        /// Encodage des échanges avec le shell interactif : page OEM du système sous Windows
+        /// (celle de la console de cmd.exe — GetOEMCP plutôt que la culture de l'appli, qui
+        /// peut différer du réglage système), UTF-8 sans BOM ailleurs (bash). Le fournisseur
+        /// de pages de code est interrogé directement, sans enregistrement global : rien ne
+        /// change pour le reste de l'appli.
+        /// </summary>
+        private static Encoding GetShellEncoding()
+        {
+            var utf8 = new UTF8Encoding(encoderShouldEmitUTF8Identifier: false);
+            if (!OperatingSystem.IsWindows())
+                return utf8;
+            return CodePagesEncodingProvider.Instance.GetEncoding((int)GetOEMCP()) ?? utf8;
+        }
+
+        [DllImport("kernel32.dll")]
+        private static extern uint GetOEMCP();
 
         /// <summary>
         /// Envoie une commande au shell.
