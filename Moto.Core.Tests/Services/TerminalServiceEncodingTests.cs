@@ -74,6 +74,67 @@ public class TerminalServiceEncodingTests
         Assert.Null(decoder.Flush());
     }
 
+    [Fact]
+    public void DecodeAll_Utf8Output_IsExactlyAsBefore()
+    {
+        // Sortie typique de git (porcelain, CRLF, accents) : GitService l'analyse, elle doit rester
+        // identique à l'ancien décodage UTF-8 imposé.
+        var bytes = Encoding.UTF8.GetBytes("?? Chaîne.cs\r\n M déjà vu/été.txt\r\n");
+
+        Assert.Equal(Encoding.UTF8.GetString(bytes), TerminalOutputDecoder.DecodeAll(bytes, Oem850));
+    }
+
+    [Fact]
+    public void DecodeAll_MixedCmdAndUtf8Lines_KeepsEachLineAndItsEnding()
+    {
+        var bytes = Oem850.GetBytes("ou externe, un programme exécutable\r\n")
+            .Concat(Encoding.UTF8.GetBytes("Spécifiez déjà\n"))
+            .Concat(Encoding.ASCII.GetBytes("fin"))
+            .ToArray();
+
+        Assert.Equal("ou externe, un programme exécutable\r\nSpécifiez déjà\nfin",
+            TerminalOutputDecoder.DecodeAll(bytes, Oem850));
+    }
+
+    [Fact]
+    public void DecodeAll_OutputWithByteOrderMark_IsReadAsBefore()
+    {
+        // « wmic » écrit en UTF-16 précédé d'un BOM : l'ancien StreamReader le reconnaissait.
+        var utf16 = Encoding.Unicode.GetPreamble().Concat(Encoding.Unicode.GetBytes("Name\r\nIntel é\r\n")).ToArray();
+        var utf8 = Encoding.UTF8.GetPreamble().Concat(Encoding.UTF8.GetBytes("été")).ToArray();
+
+        Assert.Equal("Name\r\nIntel é\r\n", TerminalOutputDecoder.DecodeAll(utf16, Oem850));
+        Assert.Equal("été", TerminalOutputDecoder.DecodeAll(utf8, Oem850));
+        Assert.Equal(string.Empty, TerminalOutputDecoder.DecodeAll(Array.Empty<byte>(), Oem850));
+    }
+
+    /// <summary>
+    /// Bout en bout, commande « en coulisses » (panneau Git, agents) : le message de cmd (page OEM)
+    /// et le fichier UTF-8 doivent ressortir lisibles, fins de ligne comprises. Celui-ci échoue bien
+    /// avec l'ancien code, quel que soit l'exécuteur de tests : l'UTF-8 y était imposé.
+    /// </summary>
+    [Fact]
+    public async Task ExecuteAsync_RealCmd_OemAndUtf8LinesStayReadable()
+    {
+        if (!OperatingSystem.IsWindows()) return;
+
+        var dir = Directory.CreateTempSubdirectory("moto-oneshot-").FullName;
+        try
+        {
+            File.WriteAllText(Path.Combine(dir, "utf8.txt"), "UTF8: Spécifiez déjà\n", new UTF8Encoding(false));
+
+            var result = await new TerminalService().ExecuteAsync("echo OEM: réservés àçù&& type utf8.txt", dir);
+
+            Assert.Equal(0, result.ExitCode);
+            Assert.Equal("OEM: réservés àçù\r\nUTF8: Spécifiez déjà\n", result.Output);
+        }
+        finally
+        {
+            try { Directory.Delete(dir, recursive: true); }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException) { /* sans conséquence */ }
+        }
+    }
+
     /// <summary>
     /// Bout en bout avec le vrai cmd.exe : un accent tapé doit arriver intact à cmd et en
     /// revenir intact (page OEM), et un fichier UTF-8 affiché par « type » rester lisible.

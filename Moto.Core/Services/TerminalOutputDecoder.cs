@@ -62,11 +62,47 @@ namespace Moto.Editor.Services
         /// <summary>Fin du flux : renvoie la dernière ligne restée sans fin de ligne, ou null s'il n'y en a pas.</summary>
         public string? Flush() => _pending.Count == 0 ? null : Decode();
 
+        /// <summary>
+        /// ★ AJOUT (26/09, option C choisie par Tom — commandes « en coulisses » : panneau Git, agents) :
+        /// décode d'un bloc la sortie complète d'une commande (TerminalService.ExecuteAsync), même règle
+        /// par ligne que Push, mais fins de ligne gardées telles quelles — GitService et les agents
+        /// analysent ce texte. Une sortie entièrement UTF-8 (git) donne exactement le texte d'avant.
+        /// Sortie marquée d'un BOM (l'UTF-16 de « wmic », par ex.) : lue comme avant par StreamReader,
+        /// qui reconnaît ces marques.
+        /// </summary>
+        public static string DecodeAll(byte[] bytes, Encoding fallback)
+        {
+            if (StartsWithByteOrderMark(bytes))
+            {
+                using var reader = new StreamReader(new MemoryStream(bytes), Encoding.UTF8, detectEncodingFromByteOrderMarks: true);
+                return reader.ReadToEnd();
+            }
+
+            var text = new StringBuilder(bytes.Length);
+            var start = 0;
+            while (start < bytes.Length)
+            {
+                var end = Array.IndexOf(bytes, (byte)'\n', start);
+                end = end < 0 ? bytes.Length : end + 1; // le \n (et un \r avant lui) reste dans sa ligne
+                text.Append(DecodeLine(bytes.AsSpan(start, end - start), fallback));
+                start = end;
+            }
+            return text.ToString();
+        }
+
+        private static bool StartsWithByteOrderMark(byte[] b) =>
+            (b.Length >= 3 && b[0] == 0xEF && b[1] == 0xBB && b[2] == 0xBF)                  // UTF-8
+            || (b.Length >= 2 && ((b[0] == 0xFF && b[1] == 0xFE) || (b[0] == 0xFE && b[1] == 0xFF))) // UTF-16 (et UTF-32 LE)
+            || (b.Length >= 4 && b[0] == 0 && b[1] == 0 && b[2] == 0xFE && b[3] == 0xFF);    // UTF-32 BE
+
         private string Decode()
         {
             var bytes = _pending.ToArray();
             _pending.Clear();
-            return Utf8.IsValid(bytes) ? Encoding.UTF8.GetString(bytes) : _fallback.GetString(bytes);
+            return DecodeLine(bytes, _fallback);
         }
+
+        private static string DecodeLine(ReadOnlySpan<byte> bytes, Encoding fallback) =>
+            Utf8.IsValid(bytes) ? Encoding.UTF8.GetString(bytes) : fallback.GetString(bytes);
     }
 }

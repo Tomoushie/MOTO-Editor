@@ -59,17 +59,7 @@ namespace Moto.Editor.Services
                 RedirectStandardOutput = true,
                 RedirectStandardError = true,
                 UseShellExecute = false,
-                CreateNoWindow = true,
-                // ★ CORRECTIF (03/09, réveil de GitPanelView, trouvé par Tom) : sans
-                // encodage explicite, .NET décode la sortie redirigée avec la page de
-                // code OEM/ANSI du système (ex. CP1252 en français) — les octets UTF-8
-                // réels de git (accents, ex. "Chaîne") ressortaient en charabia
-                // ("ChaÃ®ne"). N'affecte QUE cette méthode one-shot (GitService et
-                // consorts), pas Start() plus bas (terminal interactif, où cmd.exe émet
-                // ses propres bannières en page de code OEM — il a son propre décodage
-                // ligne par ligne, voir TerminalOutputDecoder).
-                StandardOutputEncoding = System.Text.Encoding.UTF8,
-                StandardErrorEncoding = System.Text.Encoding.UTF8
+                CreateNoWindow = true
             };
 
             using var process = new Process { StartInfo = psi };
@@ -77,8 +67,14 @@ namespace Moto.Editor.Services
             try
             {
                 process.Start();
-                var stdOutTask = process.StandardOutput.ReadToEndAsync();
-                var stdErrTask = process.StandardError.ReadToEndAsync();
+                // ★ CORRECTIF (26/09, option C choisie par Tom) : remplace l'UTF-8 imposé le
+                // 03/09 (réveil de GitPanelView : « ChaÃ®ne » au lieu de « Chaîne »). Cet UTF-8
+                // réparait git, mais les propres messages de cmd.exe, écrits dans la page OEM
+                // de sa console (850), ressortaient abîmés (« ex�cutable »). Octets bruts
+                // décodés ligne par ligne (TerminalOutputDecoder.DecodeAll) : la sortie de git
+                // reste identique, celle de cmd devient lisible.
+                var stdOutTask = ReadAllBytesAsync(process.StandardOutput.BaseStream);
+                var stdErrTask = ReadAllBytesAsync(process.StandardError.BaseStream);
 
                 try
                 {
@@ -90,17 +86,25 @@ namespace Moto.Editor.Services
                     return new TerminalCommandResult { ExitCode = -1, Output = string.Empty, Error = "Commande annulée (délai dépassé ou arrêt demandé)." };
                 }
 
+                var fallback = GetShellEncoding();
                 return new TerminalCommandResult
                 {
                     ExitCode = process.ExitCode,
-                    Output = await stdOutTask,
-                    Error = await stdErrTask,
+                    Output = TerminalOutputDecoder.DecodeAll(await stdOutTask, fallback),
+                    Error = TerminalOutputDecoder.DecodeAll(await stdErrTask, fallback),
                 };
             }
             catch (Exception ex)
             {
                 return new TerminalCommandResult { ExitCode = -1, Output = string.Empty, Error = ex.Message };
             }
+        }
+
+        private static async Task<byte[]> ReadAllBytesAsync(Stream stream)
+        {
+            using var buffer = new MemoryStream();
+            await stream.CopyToAsync(buffer).ConfigureAwait(false);
+            return buffer.ToArray();
         }
 
         /// <summary>
