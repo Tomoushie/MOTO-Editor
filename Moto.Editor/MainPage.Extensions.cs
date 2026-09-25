@@ -495,7 +495,7 @@ namespace Moto.Editor
 
             if (ctrl && shift)
             {
-                ToggleCommandPalette();
+                RunShortcut("ctrl+shift+p"); // ★ (25/09) : même point d'entrée que l'éditeur WebView (anti-doublon)
                 e.Handled = true;
             }
         }

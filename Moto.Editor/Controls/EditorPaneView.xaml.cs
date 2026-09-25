@@ -80,6 +80,13 @@ namespace Moto.Editor.Controls
             remove => Editor.EditorChanged -= value;
         }
 
+        /// <summary>★ AJOUT (25/09) : raccourci de MOTO tapé pendant que le curseur est dans le code (voir CodeEditorView.ShortcutPressed).</summary>
+        public event Action<string>? ShortcutPressed
+        {
+            add => Editor.ShortcutPressed += value;
+            remove => Editor.ShortcutPressed -= value;
+        }
+
         // ------------------------------------------------------------------
         // Constructeur
         // ------------------------------------------------------------------

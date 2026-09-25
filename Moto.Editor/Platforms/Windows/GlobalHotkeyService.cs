@@ -23,7 +23,8 @@ namespace Moto.Editor.Platforms.Windows
             Action onWindowActivated,
             Action onToggleExplorer = null,
             Action onBuild = null,
-            Action onToggleFullScreen = null)
+            Action onToggleFullScreen = null,
+            Action onSave = null)
         {
             if (window == null)
             {
@@ -110,6 +111,26 @@ namespace Moto.Editor.Platforms.Windows
                     };
 
                     root.KeyboardAccelerators.Add(fullScreenAccelerator);
+                }
+
+                // ★ AJOUT (25/09, passe « moyen → élevé ») : Ctrl+S. La commande « file.save » existait et le conseil affiché
+                // disait « Ctrl+S sauvegarde », mais aucune touche ne l'appelait (0 VirtualKey.S dans le dépôt). Quand le
+                // curseur est dans le code, c'est l'éditeur WebView qui transmet Ctrl+S (voir MainPage.Shortcuts.cs).
+                if (onSave != null)
+                {
+                    var saveAccelerator = new Microsoft.UI.Xaml.Input.KeyboardAccelerator
+                    {
+                        Modifiers = VirtualKeyModifiers.Control,
+                        Key = VirtualKey.S
+                    };
+
+                    saveAccelerator.Invoked += (s, e) =>
+                    {
+                        MainThread.BeginInvokeOnMainThread(() => onSave.Invoke());
+                        e.Handled = true;
+                    };
+
+                    root.KeyboardAccelerators.Add(saveAccelerator);
                 }
             }
 

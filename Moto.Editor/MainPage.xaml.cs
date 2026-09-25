@@ -265,6 +265,7 @@ namespace Moto.Editor
             EditorPane.AiUndoRequested += UndoLastAiEdit;
             EditorPane.ExportRequested += () => ExportMenu.IsVisible = !ExportMenu.IsVisible;
             EditorPane.PreviewRequested += OnPreviewRequested;
+            EditorPane.ShortcutPressed += combo => RunShortcut(combo);
             LivePreview.SetPreviewEngine(_previewEngine);
             // Le "Live" de Live Preview : répercute chaque frappe si le panneau est ouvert.
             EditorPane.EditorChanged += (s, text) =>
@@ -276,7 +277,9 @@ namespace Moto.Editor
                 if (_viewModel.SelectedDocument is { } doc)
                 {
                     doc.Text = text;
-                    if (doc.Path != null) _cortex?.LearnFromCode(doc.Path, text);
+                    // ★ MODIFIÉ (25/09) : apprentissage du style reporté à 1,5 s sans frappe (il relisait tout le fichier à
+                    // chaque touche, sur le fil de l'interface).
+                    if (doc.Path != null) ScheduleCortexLearning(doc.Path, text);
                 }
             };
 
@@ -507,7 +510,9 @@ namespace Moto.Editor
             // la palette/le menu (un seul endroit à changer si "run.build" évolue).
             // ★ AJOUT (08/09, chantier "rendu 100% custom", point "plein écran
             // manuel") : F11 — voir Platforms.Windows.SnapLayoutsHelper.ToggleFullScreen.
-            GlobalHotkeyService.Register(nativeWindow, onHotkey: () => AiBar.Toggle(), onWindowActivated: () => { if (!Home.IsVisible) AiBar.Show(); }, onToggleExplorer: () => ToggleSide(isExplorer: true), onBuild: () => _commandRegistry.Execute("run.build"), onToggleFullScreen: () => Platforms.Windows.SnapLayoutsHelper.ToggleFullScreen(nativeWindow));
+            // ★ MODIFIÉ (25/09) : chaque raccourci passe par RunShortcut (MainPage.Shortcuts.cs), qui reçoit aussi ceux tapés dans
+            // l'éditeur — une frappe vue par les deux chemins n'agit qu'une fois. Ctrl+S ajouté (aucune touche n'enregistrait).
+            GlobalHotkeyService.Register(nativeWindow, onHotkey: () => RunShortcut("ctrl+shift+i"), onWindowActivated: () => { if (!Home.IsVisible) AiBar.Show(); }, onToggleExplorer: () => RunShortcut("ctrl+b"), onBuild: () => RunShortcut("f5"), onToggleFullScreen: () => RunShortcut("f11"), onSave: () => RunShortcut("ctrl+s"));
 
             // ★ AJOUT (02/09, état des lieux) : Ctrl+Shift+P (palette de commandes)
             // était câblé trop tôt (constructeur de MainPage, fenêtre native pas

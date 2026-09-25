@@ -53,6 +53,12 @@ namespace Moto.Editor.Controls
         /// <summary>Déclenché quand l'utilisateur tape dans l'éditeur.</summary>
         public event EventHandler<string> EditorChanged;
 
+        /// <summary>
+        /// ★ AJOUT (25/09) : raccourci de MOTO (« ctrl+s », « ctrl+shift+p », « ctrl+shift+i », « ctrl+b », « f5 », « f11 ») tapé
+        /// pendant que le curseur est dans le code — les touches vont alors au WebView, pas aux raccourcis XAML de la fenêtre.
+        /// </summary>
+        public event Action<string>? ShortcutPressed;
+
         private bool _loaded;
         private bool _suppress;
         private double _pendingFontSize = 14.0;
@@ -189,6 +195,7 @@ namespace Moto.Editor.Controls
         {
             var view = (CodeEditorView)b;
             if (view._suppress) return;
+            view._pushVersion++;              // dès maintenant, tout message du JS antérieur à cette poussée est périmé
             view._lastRange = null;           // texte posé par programme : endroit inconnu tant que l'utilisateur n'a pas recliqué
             view._lastSelection = string.Empty;
             _ = view.PushContentAsync();
@@ -215,7 +222,7 @@ namespace Moto.Editor.Controls
             {
                 var text = Text ?? string.Empty;
                 _crlf = text.Contains("\r\n", StringComparison.Ordinal);
-                var version = ++_pushVersion;
+                var version = _pushVersion;
                 var base64 = Convert.ToBase64String(System.Text.Encoding.UTF8.GetBytes(text));
                 await Web.EvaluateJavaScriptAsync($"setContentB64('{base64}',{version})");
             }
@@ -230,6 +237,7 @@ namespace Moto.Editor.Controls
         // ------------------------------------------------------------------
 
 #if WINDOWS
+        private static readonly string[] ContextMenuKept = { "undo", "redo", "cut", "copy", "paste", "selectAll" };
         private object? _hookedPlatformView;
 
         private void AttachWebMessages()
@@ -241,7 +249,23 @@ namespace Moto.Editor.Controls
             {
                 if (hooked || wv2.CoreWebView2 is null) return;
                 hooked = true;
-                wv2.CoreWebView2.WebMessageReceived += (_, args) =>
+                var core = wv2.CoreWebView2;
+                // Un éditeur, pas un navigateur : F5/Ctrl+R (recharger = perdre la page de l'éditeur), Ctrl+P (imprimer),
+                // Ctrl+F (barre de recherche du navigateur), zoom Ctrl+molette et bulle d'état désactivés. Les touches d'édition
+                // (Ctrl+C/X/V/Z/A) ne sont pas concernées ; les raccourcis de MOTO passent par le pont « K » du JS.
+                core.Settings.AreBrowserAcceleratorKeysEnabled = false;
+                core.Settings.IsZoomControlEnabled = false;
+                core.Settings.IsStatusBarEnabled = false;
+                // Clic droit : seulement Couper/Copier/Coller/Tout sélectionner/Annuler/Rétablir (le menu par défaut proposait
+                // aussi Recharger, Enregistrer sous, Imprimer, Inspecter).
+                core.ContextMenuRequested += (_, args) =>
+                {
+                    var items = args.MenuItems;
+                    for (var i = items.Count - 1; i >= 0; i--)
+                        if (Array.IndexOf(ContextMenuKept, items[i].Name) < 0) items.RemoveAt(i);
+                    while (items.Count > 0 && items[0].Kind == Microsoft.Web.WebView2.Core.CoreWebView2ContextMenuItemKind.Separator) items.RemoveAt(0);
+                };
+                core.WebMessageReceived += (_, args) =>
                 {
                     string? message = null;
                     try { message = args.TryGetWebMessageAsString(); } catch (ArgumentException) { }
@@ -254,7 +278,9 @@ namespace Moto.Editor.Controls
 #endif
 
         /// <summary>
-        /// Message du JS : « T&lt;version&gt;\n&lt;texte&gt; » (le texte a changé) ou « S&lt;début&gt;,&lt;fin&gt;,&lt;placéParL'utilisateur&gt;\n&lt;texte sélectionné&gt; ».
+        /// Message du JS : « T&lt;version&gt;\n&lt;texte&gt; » (le texte a changé), « S&lt;version&gt;,&lt;début&gt;,&lt;fin&gt;,&lt;placéParL'utilisateur&gt;\n&lt;texte
+        /// sélectionné&gt; » ou « K&lt;raccourci&gt;\n » (raccourci de MOTO tapé alors que le curseur est dans le code). Un T ou un S envoyé
+        /// avant la dernière poussée de texte par C# est ignoré : ses positions désigneraient un autre texte.
         /// </summary>
         private void OnWebMessage(string? message)
         {
@@ -268,10 +294,14 @@ namespace Moto.Editor.Controls
                 case 'T':
                     if (int.TryParse(head, out var version) && version == _pushVersion) ApplyTextFromEditor(body);
                     break;
+                case 'K':
+                    ShortcutPressed?.Invoke(head);
+                    break;
                 case 'S':
                     var parts = head.Split(',');
-                    if (parts.Length != 3 || !int.TryParse(parts[0], out var start) || !int.TryParse(parts[1], out var end)) return;
-                    if (parts[2] != "1")
+                    if (parts.Length != 4 || !int.TryParse(parts[0], out var selVersion) || selVersion != _pushVersion
+                        || !int.TryParse(parts[1], out var start) || !int.TryParse(parts[2], out var end)) return;
+                    if (parts[3] != "1")
                     {
                         _lastRange = null;
                         _lastSelection = string.Empty;
@@ -588,7 +618,9 @@ lines=nl;htmlC=nh;stC=ns;paint();}
 function paint(){
 back.innerHTML=htmlC.join('\n')+'\n';
 if(gutCount!==lines.length){var g='';for(var i=1;i<=lines.length;i++)g+=i+'\n';gut.textContent=g;gutCount=lines.length;}
-drawMini();sync();}
+schedMini();sync();}
+// Mini-carte redessinée au plus une fois par image (et plus à chaque touche).
+var miniQ=false;function schedMini(){if(miniQ)return;miniQ=true;requestAnimationFrame(function(){miniQ=false;drawMini();});}
 
 function caretLine(){var p=area.selectionStart,v=area.value,c=0;for(var i=v.indexOf('\n');i>=0&&i<p;i=v.indexOf('\n',i+1))c++;return c;}
 function updateCur(){
@@ -613,8 +645,15 @@ if(w>0)ctx.fillRect(6+ind*0.55,i*miniSc,w*0.55,Math.max(1,miniSc*0.6));}}
 // Canal WebView2 (chrome.webview.postMessage) ; repli : ping moto:// intercepté par Navigating.
 function post(m){var w=window.chrome&&window.chrome.webview;if(!w)return false;w.postMessage(m);return true;}
 function ping(){pendingT=false;clearTimeout(pingT);if(!post('T'+VER+'\n'+area.value)){var i=new Image();i.src='moto://changed';}}
-function pingSel(){if(pendingT)ping();var s=area.selectionStart,e=area.selectionEnd;
-if(!post('S'+s+','+e+','+(caretByUser?1:0)+'\n'+area.value.slice(s,e))){var i=new Image();i.src='moto://sel';}}
+function pingSel(){var s=area.selectionStart,e=area.selectionEnd;
+if(!post('S'+VER+','+s+','+e+','+(caretByUser?1:0)+'\n'+area.value.slice(s,e))){var i=new Image();i.src='moto://sel';}}
+// Raccourcis de MOTO tapés dans le code : transmis à C# (le texte en attente part d'abord, pour que Ctrl+S enregistre la
+// dernière frappe) ; le navigateur n'en fait rien de son côté.
+var MOTO_KEYS={'ctrl+s':1,'ctrl+shift+p':1,'ctrl+shift+i':1,'ctrl+b':1,'f5':1,'f11':1};
+document.addEventListener('keydown',function(e){
+var c=(e.ctrlKey?'ctrl+':'')+(e.shiftKey?'shift+':'')+(e.altKey?'alt+':'')+String(e.key||'').toLowerCase();
+if(!MOTO_KEYS[c])return;
+e.preventDefault();e.stopPropagation();if(pendingT)ping();post('K'+c+'\n');},true);
 function schedSel(){clearTimeout(selT);selT=setTimeout(function(){updateCur();pingSel();},60);}
 function markUser(){caretByUser=true;}
 function insert(t){area.focus();var ok=t===''?document.execCommand('delete'):document.execCommand('insertText',false,t);
@@ -643,7 +682,7 @@ var p=area.selectionStart,line=area.value.slice(lineStart(p),p),ind=/^[ \t]*/.ex
 if(LANG!=='plain'&&LANG!=='md'&&/[{\[(:]$/.test(t))ind+='    ';
 e.preventDefault();insert('\n'+ind);return;}
 if(e.key==='Escape'&&ghostText){setGhost('');}});
-area.addEventListener('input',function(){renderInc();pendingT=true;clearTimeout(pingT);pingT=setTimeout(ping,90);schedSel();});
+area.addEventListener('input',function(){renderInc();pendingT=true;clearTimeout(pingT);pingT=setTimeout(ping,lines.length>800?300:90);schedSel();});
 area.addEventListener('scroll',sync,{passive:true});
 area.addEventListener('mousedown',markUser);
 area.addEventListener('focus',function(){markUser();schedSel();});
