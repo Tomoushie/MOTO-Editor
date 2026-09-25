@@ -583,6 +583,42 @@ namespace Moto.Editor
             var dropOnExplorerDock = new DropGestureRecognizer();
             dropOnExplorerDock.Drop += (s, e) => OnEmptyHostDropped(PanelHostRight.Children, e);
             ExplorerDockPanel.GestureRecognizers.Add(dropOnExplorerDock);
+
+            WireDockHeightBounds(); // même moment (câblage des docks), voir juste en dessous
+        }
+
+        // ------------------------------------------------------------------
+        // ★ AJOUT (25/09, passe « moyen → élevé » — bug vu en capture puis mesuré) : les docks latéraux sont bornés à la
+        // hauteur réellement disponible dans la ligne centrale. Le chat prend la hauteur visible de sa colonne
+        // (AiChatView.FitToViewport) ; cette hauteur « tenait » ensuite la ligne centrale : à l'ouverture du terminal (ou
+        // en réduisant la fenêtre), la ligne ne rétrécissait plus et le terminal + la barre de statut partaient sous le
+        // bord de la fenêtre (mesuré : ligne centrale 1071 px avant ET après l'ouverture, barre de statut à y=1328 pour
+        // une page de 1135). Avec la borne, la colonne du chat rétrécit, le chat se recale, rien ne déborde.
+        // ------------------------------------------------------------------
+        private void WireDockHeightBounds()
+        {
+            RootGrid.SizeChanged += (_, _) => UpdateDockHeightBounds();
+            TerminalPanel.PropertyChanged += (_, e) =>
+            {
+                if (e.PropertyName is nameof(IsVisible) or nameof(HeightRequest)) UpdateDockHeightBounds();
+            };
+            UpdateDockHeightBounds();
+        }
+
+        private void UpdateDockHeightBounds()
+        {
+            if (RootGrid.Height <= 0) return;
+
+            // Lignes de hauteur fixe (menu, bande, barre de statut) + le terminal s'il est ouvert ; le reste est pour la ligne « * ».
+            double reserved = 0;
+            foreach (var row in RootGrid.RowDefinitions)
+                if (row.Height.IsAbsolute) reserved += row.Height.Value;
+            if (TerminalPanel.IsVisible) reserved += Math.Max(0, TerminalPanel.HeightRequest);
+
+            var available = Math.Max(120, Math.Floor(RootGrid.Height - reserved));
+            if (Math.Abs(AiDockPanel.MaximumHeightRequest - available) < 1) return;
+            AiDockPanel.MaximumHeightRequest = available;
+            ExplorerDockPanel.MaximumHeightRequest = available;
         }
 
         // ------------------------------------------------------------------
