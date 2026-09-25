@@ -210,6 +210,27 @@ namespace Moto.Editor.Views
                 await Clipboard.SetTextAsync(segment.Text);
         }
 
+        /// <summary>★ AJOUT (25/09, « Appliquer ») : pose le bloc dans le fichier affiché — tout le travail (où, diff, accord) est fait par MainPage.</summary>
+        private async void OnApplyCodeClicked(object sender, EventArgs e)
+        {
+            if ((sender as Button)?.BindingContext is not ChatContentSegment segment) return;
+            if (Chat.ApplyCodeHandler is not { } apply)
+            {
+                segment.ApplyStatus = "« Appliquer » n'est pas disponible dans cette fenêtre : utilise « Copier ».";
+                return;
+            }
+
+            try
+            {
+                await apply(segment);
+            }
+            catch (Exception ex)
+            {
+                App.LogCrash("AiChatView.OnApplyCodeClicked", ex);
+                segment.ApplyStatus = "⚠ Erreur : " + ex.Message;
+            }
+        }
+
         // ------------------------------------------------------------------
         // Saisie + slash
         // ------------------------------------------------------------------

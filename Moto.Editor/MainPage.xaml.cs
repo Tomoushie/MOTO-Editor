@@ -122,6 +122,8 @@ namespace Moto.Editor
             _chatService.ActiveFileProvider = () => _viewModel.SelectedDocument is { } doc
                 ? (string.IsNullOrWhiteSpace(doc.Path) ? doc.Title : doc.Path, EditorPane.EditorText ?? doc.Text ?? string.Empty)
                 : null;
+            // ★ AJOUT (25/09) : « Appliquer » sur un bloc de code du chat (MainPage.ChatApply.cs).
+            _chatService.ApplyCodeHandler = ApplyChatCodeAsync;
 
             CreateHome();
 

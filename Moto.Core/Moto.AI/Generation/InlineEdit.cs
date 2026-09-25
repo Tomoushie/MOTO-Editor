@@ -204,7 +204,7 @@ public static class InlineEditPlanner
         => CommentWords.Any(w => instruction.Contains(w, StringComparison.OrdinalIgnoreCase));
 
     /// <summary>Le bloc du modèle n'a pas de saut de ligne final (nettoyé à l'extraction) : on remet autant de sauts que le texte remplacé en avait.</summary>
-    private static string WithTrailingNewlinesOf(string text, string reference)
+    internal static string WithTrailingNewlinesOf(string text, string reference)
     {
         if (text.Trim().Length == 0) return string.Empty; // suppression du passage : sa ligne disparaît avec lui, pas de ligne vide laissée
 
@@ -223,7 +223,7 @@ public static class InlineEditPlanner
     }
 
     /// <summary>Les messages de FileSanity s'adressent au modèle (« recopie le passage… ») : on n'en garde que le constat.</summary>
-    private static string HumanSanityMessage(string displayPath, string sanity)
+    internal static string HumanSanityMessage(string displayPath, string sanity)
     {
         var text = sanity.StartsWith("Refusé : ", StringComparison.Ordinal) ? sanity["Refusé : ".Length..] : sanity;
         foreach (var marker in new[] { " Le contenu semble", " Recopie", " Ferme chaque balise", " Si tu écris" })
@@ -237,7 +237,7 @@ public static class InlineEditPlanner
     }
 
     /// <summary>Le code recopie la ligne juste avant ou juste après la sélection : elle se retrouverait en double.</summary>
-    private static bool EchoesContext(string doc, int index, int length, string replacement)
+    internal static bool EchoesContext(string doc, int index, int length, string replacement)
     {
         var lines = replacement.Split('\n').Select(l => l.Trim()).Where(l => l.Length > 0).ToList();
         if (lines.Count < 2) return false;

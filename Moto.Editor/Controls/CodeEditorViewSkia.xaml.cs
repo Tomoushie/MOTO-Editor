@@ -49,6 +49,11 @@ namespace Moto.Editor.Controls
         private IDispatcherTimer? _caretTimer;
         private bool _caretVisible = true;
 
+        // ★ AJOUT (25/09, « Appliquer » dans le chat) : vrai quand le curseur de HiddenInput a été placé par l'utilisateur (clic, flèches,
+        // sélection) depuis que le texte a été posé par programme. Avant cela, CursorPosition vaut une place arbitraire (début ou fin) :
+        // la prendre pour « là où est ton curseur » poserait du code au hasard.
+        private bool _caretPlacedByUser;
+
         // Même regex que l'ancien CodeEditorView (JS) : les groupes NON reconnus
         // (espaces, ponctuation, identifiants) ne sont volontairement PAS
         // capturés ici -- ils sont dessinés tels quels entre deux correspondances,
@@ -64,6 +69,13 @@ namespace Moto.Editor.Controls
             InitializeComponent();
             Canvas.PaintSurface += OnPaintSurface;
             HiddenInput.TextChanged += OnHiddenInputTextChanged;
+            // Le champ n'a le focus que sur un vrai clic (rien ne l'y met par programme) ; un déplacement du curseur pendant qu'il l'a vient de l'utilisateur.
+            HiddenInput.Focused += (_, _) => _caretPlacedByUser = true;
+            HiddenInput.PropertyChanged += (_, e) =>
+            {
+                if (HiddenInput.IsFocused && e.PropertyName is nameof(InputView.CursorPosition) or nameof(InputView.SelectionLength))
+                    _caretPlacedByUser = true;
+            };
             Loaded += (_, _) => StartCaretBlink();
             Unloaded += (_, _) => StopCaretBlink();
         }
@@ -108,6 +120,7 @@ namespace Moto.Editor.Controls
             string text = (string)newValue ?? string.Empty;
             if (!view._syncInProgress)
             {
+                view._caretPlacedByUser = false; // texte posé par programme (autre onglet, modification de l'IA) : l'ancien curseur ne veut plus rien dire
                 view._syncInProgress = true;
                 if (NormalizeNewlines(view.HiddenInput.Text ?? string.Empty) != text)
                     view.HiddenInput.Text = text;
@@ -356,6 +369,34 @@ namespace Moto.Editor.Controls
             int start = Math.Clamp(HiddenInput.CursorPosition, 0, text.Length);
             int length = Math.Clamp(HiddenInput.SelectionLength, 0, text.Length - start);
             return length > 0 ? NormalizeNewlines(text.Substring(start, length)) : string.Empty;
+        }
+
+        /// <summary>
+        /// ★ AJOUT (25/09, « Appliquer » dans le chat) : la sélection — ou le curseur seul (longueur 0) — en positions dans le texte aux sauts
+        /// de ligne « \n », ou null si elle n'est pas sûre : le champ n'a pas été cliqué depuis que le texte a été posé, ou son texte n'est pas
+        /// (encore) celui affiché (le contrôle natif met plusieurs secondes à digérer un gros fichier, voir OnHiddenInputTextChanged).
+        /// </summary>
+        public (int Start, int Length)? GetSelectionRange()
+        {
+            if (!_caretPlacedByUser)
+                return null;
+            string raw = HiddenInput.Text ?? string.Empty;
+            if (NormalizeNewlines(raw) != NormalizeNewlines(Text ?? string.Empty))
+                return null;
+            int start = Math.Clamp(HiddenInput.CursorPosition, 0, raw.Length);
+            int end = start + Math.Clamp(HiddenInput.SelectionLength, 0, raw.Length - start);
+            int normalizedStart = ToNormalizedIndex(raw, start);
+            return (normalizedStart, ToNormalizedIndex(raw, end) - normalizedStart);
+        }
+
+        // Position dans le texte natif → position dans le texte aux « \n » : chaque « \r\n » placé avant compte pour un seul caractère.
+        private static int ToNormalizedIndex(string raw, int index)
+        {
+            int pairs = 0;
+            for (int i = 0; i + 1 < index; i++)
+                if (raw[i] == '\r' && raw[i + 1] == '\n')
+                    pairs++;
+            return index - pairs;
         }
     }
 }

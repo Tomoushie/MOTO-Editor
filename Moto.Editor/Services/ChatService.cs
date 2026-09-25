@@ -44,6 +44,13 @@ namespace Moto.Editor.Services
         public Func<string, Task<string?>>? PluginCommandHandler { get; set; }
 
         /// <summary>
+        /// ★ AJOUT (25/09, « Appliquer » dans le chat) : le bouton « Appliquer » d'un bloc de code d'une réponse. Câblé une fois par MainPage
+        /// (qui connaît l'éditeur et la boîte de confirmation) — toutes les fenêtres du chat (panneau, fenêtre détachée ⧉) passent par ici.
+        /// Null : le bouton ne fait rien.
+        /// </summary>
+        public Func<ChatContentSegment, Task>? ApplyCodeHandler { get; set; }
+
+        /// <summary>
         /// ★ AJOUT (03/09, vraies stats IA du Tableau de bord global) : point
         /// d'extension optionnel — même patron que PluginCommandHandler ci-dessus.
         /// Appelé après CHAQUE appel IA réussi (via TrackAsync, donc SendAsync

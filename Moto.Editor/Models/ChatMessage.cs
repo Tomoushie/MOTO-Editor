@@ -21,13 +21,19 @@ namespace Moto.Editor.Models
         private string _content = string.Empty;
         private bool _isStreaming;
         private string _footnote = string.Empty;
+        private string _role = "user";
+        private IReadOnlyList<ChatContentSegment>? _segments;
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
         private void Notify([CallerMemberName] string? name = null)
             => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
 
-        public string Role { get; set; } = "user"; // user | ai | system
+        public string Role // user | ai | system
+        {
+            get => _role;
+            set { _role = value ?? "user"; _segments = null; }
+        }
 
         /// <summary>Le texte affiché. Pour une réponse du modèle : exactement ce qu'il a écrit (c'est ce texte qui est rejoué dans l'historique).</summary>
         public string Content
@@ -38,6 +44,7 @@ namespace Moto.Editor.Models
                 value ??= string.Empty;
                 if (_content == value) return;
                 _content = value;
+                _segments = null;
                 Notify();
                 Notify(nameof(StreamingText));
                 // Pendant l'écriture, les blocs ne sont pas recalculés (dix fois par seconde, tous les cadres et boutons seraient reconstruits) :
@@ -65,6 +72,7 @@ namespace Moto.Editor.Models
             {
                 if (_isStreaming == value) return;
                 _isStreaming = value;
+                _segments = null;
                 Notify();
                 Notify(nameof(IsDone));
                 Notify(nameof(StreamingText));
@@ -113,10 +121,13 @@ namespace Moto.Editor.Models
         /// ★ CHANGÉ (24/09) : découpage confié à CodeBlocks.Split (Moto.Core, testé) — l'ancien découpage sur « ``` » gardait « csharp Program.cs »
         /// comme première ligne du code (et « Copier » la copiait) dès que la ligne d'ouverture portait un nom de fichier, ce que la consigne du
         /// chat demande désormais. Vide pendant l'écriture (voir Content).
+        /// ★ CHANGÉ (25/09, « Appliquer ») : calculé une fois puis gardé (jusqu'au prochain changement du texte) — chaque bloc porte l'état de
+        /// son bouton « Appliquer » (« ✔ Appliqué »…), qu'un nouveau découpage à chaque lecture effacerait.
         /// </summary>
-        public IReadOnlyList<ChatContentSegment> Segments => _isStreaming ? Array.Empty<ChatContentSegment>() : ParseSegments(_content);
+        public IReadOnlyList<ChatContentSegment> Segments
+            => _isStreaming ? Array.Empty<ChatContentSegment>() : _segments ??= ParseSegments(_content, isModelReply: _role == "ai");
 
-        private static IReadOnlyList<ChatContentSegment> ParseSegments(string content)
+        private static IReadOnlyList<ChatContentSegment> ParseSegments(string content, bool isModelReply)
         {
             var result = new List<ChatContentSegment>();
             foreach (var part in CodeBlocks.Split(content))
@@ -127,6 +138,7 @@ namespace Moto.Editor.Models
                     result.Add(new ChatContentSegment
                     {
                         IsCode = true, Text = code.Code, Language = code.Language, PathHint = code.PathHint, IsComplete = code.IsComplete,
+                        CanApply = isModelReply && code.IsComplete, // un bloc coupé n'a pas de bouton : le poser casserait le fichier
                     });
                 }
                 else
@@ -141,8 +153,12 @@ namespace Moto.Editor.Models
     }
 
     /// <summary>Un morceau de message : texte normal, ou bloc de code entre ``` .</summary>
-    public sealed class ChatContentSegment
+    public sealed class ChatContentSegment : INotifyPropertyChanged
     {
+        private string _applyStatus = string.Empty;
+
+        public event PropertyChangedEventHandler? PropertyChanged;
+
         public bool IsCode { get; init; }
         public string Text { get; init; } = string.Empty;
 
@@ -169,6 +185,25 @@ namespace Moto.Editor.Models
         }
 
         public bool HasHeader => Header.Length > 0;
+
+        /// <summary>★ AJOUT (25/09) : bloc complet d'une réponse du modèle — il a un bouton « Appliquer » (le poser dans le fichier affiché).</summary>
+        public bool CanApply { get; init; }
+
+        /// <summary>★ AJOUT (25/09) : ce qu'a donné « Appliquer » pour ce bloc (appliqué, refusé, ou pourquoi rien n'a été fait), sous le code.</summary>
+        public string ApplyStatus
+        {
+            get => _applyStatus;
+            set
+            {
+                value ??= string.Empty;
+                if (_applyStatus == value) return;
+                _applyStatus = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(ApplyStatus)));
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(HasApplyStatus)));
+            }
+        }
+
+        public bool HasApplyStatus => _applyStatus.Length > 0;
     }
 
     /// <summary>Élément de contexte attaché à la conversation.</summary>

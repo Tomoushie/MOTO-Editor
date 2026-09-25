@@ -146,6 +146,9 @@ namespace Moto.Editor.Controls
         /// <summary>Texte sélectionné dans l'éditeur (pour /selection du chat).</summary>
         public string GetSelectedText() => Editor.GetSelectedText();
 
+        /// <summary>★ AJOUT (25/09, « Appliquer » dans le chat) : sélection ou curseur (texte aux « \n »), ou null si l'éditeur n'a pas été cliqué.</summary>
+        public (int Start, int Length)? GetSelectionRange() => Editor.GetSelectionRange();
+
         /// <summary>Met à jour la ligne de statut sous le bandeau IA.</summary>
         public void SetAiStatus(string message)
         {

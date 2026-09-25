@@ -29,7 +29,8 @@ namespace Moto.Editor
 
         private const int MaxAiEditUndo = 20;
 
-        private sealed record AiEditUndo(EditorDocument Document, string Before, string After);
+        /// <param name="Source">Le bloc du chat dont vient la modification (« Appliquer »), sinon null : son état dira « annulé » après ↩.</param>
+        private sealed record AiEditUndo(EditorDocument Document, string Before, string After, ChatContentSegment? Source = null);
 
         /// <summary>Le bandeau IA a reçu une demande (modèle choisi, texte tapé).</summary>
         private async void OnAiBandPrompt(string model, string prompt)
@@ -167,8 +168,11 @@ namespace Moto.Editor
         private static string ModelLabel(InlineEditOutcome outcome, string picked)
             => string.IsNullOrWhiteSpace(outcome.Model) ? picked : outcome.Model;
 
-        private bool StillSameText(EditorDocument doc, InlineEditRequest request)
-            => ReferenceEquals(_viewModel.SelectedDocument, doc) && string.Equals(EditorPane.EditorText, request.DocumentText, StringComparison.Ordinal);
+        private bool StillSameText(EditorDocument doc, InlineEditRequest request) => StillSameText(doc, request.DocumentText);
+
+        /// <summary>Le même onglet est toujours affiché, avec exactement ce texte (sinon un plan calculé dessus serait faux).</summary>
+        private bool StillSameText(EditorDocument doc, string text)
+            => ReferenceEquals(_viewModel.SelectedDocument, doc) && string.Equals(EditorPane.EditorText, text, StringComparison.Ordinal);
 
         /// <summary>La boîte de confirmation de l'éditeur, avec le diff. Sans elle (service absent) on refuse : jamais d'écriture sans accord.</summary>
         private async Task<bool> ConfirmInlineEditAsync(EditorDocument doc, string prompt, InlineEditOutcome outcome)
@@ -197,13 +201,13 @@ namespace Moto.Editor
             return answer.Confirmed;
         }
 
-        private void ApplyInlineEdit(EditorDocument doc, string before, string after)
+        private void ApplyInlineEdit(EditorDocument doc, string before, string after, ChatContentSegment? source = null)
         {
             EditorPane.EditorText = after;
             doc.Text = after;
             if (!string.IsNullOrEmpty(doc.Path)) _cortex?.LearnFromCode(doc.Path, after);
 
-            _aiEditUndo.Add(new AiEditUndo(doc, before, after));
+            _aiEditUndo.Add(new AiEditUndo(doc, before, after, source));
             if (_aiEditUndo.Count > MaxAiEditUndo) _aiEditUndo.RemoveAt(0);
             RefreshAiUndoButton();
         }
@@ -235,6 +239,8 @@ namespace Moto.Editor
                 _aiEditUndo.Remove(entry);
                 RefreshAiUndoButton();
                 EditorPane.SetAiStatus("Modification de l'IA annulée : le fichier est comme avant.");
+                // Sinon le bloc du chat afficherait encore « ✔ Appliqué » alors que le fichier est revenu en arrière.
+                if (entry.Source is { } block) block.ApplyStatus = $"↩ Annulé : « {doc.Title} » est revenu comme avant ce code.";
             }
             catch (Exception ex)
             {
