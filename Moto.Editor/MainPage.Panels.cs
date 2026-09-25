@@ -320,26 +320,30 @@ namespace Moto.Editor
                 _viewModel.OpenFilePath(suggestion.FilePath);
                 if (suggestion.Line > 0)
                     EditorPane.GoToLine(suggestion.Line);
-                StatusBar.SetStatus($"🏗 {suggestion.Title}");
+                StatusBar.SetStatus(suggestion.Title);
             }
             else
             {
-                StatusBar.SetStatus($"💡 {suggestion.Title}");
+                StatusBar.SetStatus(suggestion.Title);
             }
         }
 
-        /// <summary>Titre affiché dans l'en-tête de chaque panneau ancré (PanelHost).</summary>
+        /// <summary>
+        /// Titre affiché dans l'en-tête de chaque panneau ancré (PanelHost).
+        /// ★ (25/09, passe « moyen → élevé ») : texte seul, affiché en petites capitales comme « EXPLORATEUR » (plus d'emojis).
+        /// Sert aussi d'identifiant de glisser-déposer (wrapper.ClassId) : les deux usages suivent donc ensemble.
+        /// </summary>
         private static string TitleFor(ContentView panel) => panel switch
         {
-            PlatformView => "🖥️ Plateforme",
-            CortexView => "🧠 Cortex",
-            NeuralView => "🤖 Neural",
-            AiChatView => "💬 MOTO AI",
-            AIWorkspaceView => "🧩 Workspace",
-            PluginGalleryView => "🧱 Plugins",
-            AnalyticsDashboardView => "📊 Analytics",
-            DebugPanelView => "🐞 Debug",
-            Views.SearchView => "🔍 Recherche",
+            PlatformView => "Plateforme",
+            CortexView => "Cortex",
+            NeuralView => "Neural",
+            AiChatView => "MOTO AI",
+            AIWorkspaceView => "Workspace",
+            PluginGalleryView => "Plugins",
+            AnalyticsDashboardView => "Analytics",
+            DebugPanelView => "Debug",
+            Views.SearchView => "Recherche",
             _ => panel.GetType().Name
         };
 
@@ -392,20 +396,20 @@ namespace Moto.Editor
         /// </param>
         private void AddFloatingPanel(ContentView panel, bool asCenteredOverlay = false, bool preferRightHost = false)
         {
-            var close = new Button
-            {
-                Text = "✕", WidthRequest = 28, HeightRequest = 24, FontSize = 12,
-                Padding = 0, BackgroundColor = Colors.Transparent,
-                TextColor = (Color)Application.Current!.Resources["Txt2"]
-            };
+            // ★ (25/09, passe « moyen → élevé ») : boutons-glyphes du thème (MotoIconButton : survol/appui) et titre en
+            // petites capitales (TextMicro), comme l'en-tête de l'explorateur.
+            var iconButtonStyle = (Style)Application.Current!.Resources["MotoIconButton"];
+            var close = new Button { Text = Controls.MotoIcons.Close, Style = iconButtonStyle, FontSize = 10 };
+            ToolTipProperties.SetText(close, "Fermer le panneau");
             close.Clicked += (s, e) => panel.IsVisible = false;
 
             var header = new Grid { ColumnDefinitions = { new ColumnDefinition(GridLength.Star), new ColumnDefinition(GridLength.Auto), new ColumnDefinition(GridLength.Auto) } };
             header.Add(new Label
             {
-                Text = TitleFor(panel), FontSize = 13, FontAttributes = FontAttributes.Bold,
+                Text = TitleFor(panel),
+                Style = (Style)Application.Current!.Resources["TextMicro"],
                 VerticalOptions = LayoutOptions.Center,
-                TextColor = (Color)Application.Current!.Resources["Txt1"]
+                Margin = new Thickness(4, 0, 0, 0)
             });
 
             // ★ AJOUT (03/09, "détacher un panneau" — sonde de modularité, Gap B) :
@@ -422,12 +426,7 @@ namespace Moto.Editor
             var kind = KindFor(panel);
             if (kind != null)
             {
-                var detach = new Button
-                {
-                    Text = "⧉", WidthRequest = 28, HeightRequest = 24, FontSize = 12,
-                    Padding = 0, BackgroundColor = Colors.Transparent,
-                    TextColor = (Color)Application.Current!.Resources["Txt2"]
-                };
+                var detach = new Button { Text = Controls.MotoIcons.OpenInNew, Style = iconButtonStyle, FontSize = 12 };
                 ToolTipProperties.SetText(detach, "Détacher dans une nouvelle fenêtre");
                 detach.Clicked += (s, e) => OpenSpecializedWindow(kind);
                 header.Add(detach, 1);
@@ -602,6 +601,7 @@ namespace Moto.Editor
             SettingsEngine.Shared.Set("workspace.last_folder", path);
 
             _currentRoot = path;
+            EditorPane.WorkspaceRoot = path; // ★ (25/09) : fil d'Ariane relatif au projet
             _chatService.WorkspaceRoot = path;
             _aiService.SetWorkspace(path);
             ExplorerPanel.LoadFolder(path);
@@ -662,7 +662,7 @@ namespace Moto.Editor
             if (SettingsEngine.Shared.GetBool("doc_on_project_open"))
                 _ = _docEngine.GenerateAsync();
 
-            StatusBar.SetStatus($"🧠 Cortex + 🧬 Neural + 🏗 Workspace initialisés.");
+            StatusBar.SetStatus("Projet chargé : Cortex, Neural et Workspace prêts."); // ★ (25/09) : sans emojis
         }
 
         /// <summary>Retire de son hôte actuel l'en-tête (Border) qui enveloppe ce panneau.</summary>

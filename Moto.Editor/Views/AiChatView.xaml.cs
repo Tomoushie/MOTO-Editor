@@ -167,7 +167,7 @@ namespace Moto.Editor.Views
 
         private void OnReplyingChanged(bool replying)
         {
-            SendButton.Text = replying ? "■" : "➤";
+            SendButton.Text = replying ? Moto.Editor.Controls.MotoIcons.Stop : Moto.Editor.Controls.MotoIcons.Send;
             ToolTipProperties.SetText(SendButton, replying ? "Arrêter la réponse" : "Envoyer");
         }
 

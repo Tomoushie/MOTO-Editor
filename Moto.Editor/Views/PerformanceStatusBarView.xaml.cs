@@ -40,7 +40,7 @@ public partial class PerformanceStatusBarView : ContentView
             proc.Refresh();
 
             double memMb = proc.WorkingSet64 / (1024.0 * 1024.0);
-            MemLabel.Text = $"💾 {memMb:F0} Mo";
+            MemLabel.Text = $"{memMb:F0} Mo"; // ★ (25/09) : texte seul, plus d'emojis dans la barre de statut
 
             // ★ CORRECTION (02/09) : "% modulo 100 du temps CPU total écoulé
             // depuis le lancement" (ancien code) ne représente RIEN — un
@@ -55,7 +55,7 @@ public partial class PerformanceStatusBarView : ContentView
                 : 0;
             _lastCpuTime = proc.TotalProcessorTime;
             _lastSampleAt = now;
-            CpuLabel.Text = $"⚙ {cpuPercent:F0} %";
+            CpuLabel.Text = $"CPU {cpuPercent:F0} %";
 
             // ★ CORRECTION (02/09) : "Mode"/"fps" (ancien code, PerformanceProfiler.
             // GetCurrentMode()/GetEstimatedFps() n'existent pas et n'ont pas
@@ -63,11 +63,11 @@ public partial class PerformanceStatusBarView : ContentView
             // mesures déjà échantillonnées par PerformanceProfiler.SampleMetrics.
             var metrics = _profiler.GetMetrics();
             ThreadsLabel.Text = metrics.TryGetValue("thread_count", out var threads)
-                ? $"🧵 {threads.Value:F0}"
-                : $"🧵 {proc.Threads.Count}"; // repli direct si pas encore échantillonné
+                ? $"{threads.Value:F0} threads"
+                : $"{proc.Threads.Count} threads"; // repli direct si pas encore échantillonné
             GcLabel.Text = metrics.TryGetValue("gc_gen0", out var gc)
-                ? $"♻ {gc.Value:F0}"
-                : $"♻ {GC.CollectionCount(0)}";
+                ? $"GC {gc.Value:F0}"
+                : $"GC {GC.CollectionCount(0)}";
         }
         catch
         {

@@ -95,13 +95,13 @@ namespace Moto.Editor.Views
                 if (lastCategory != cmd.Category)
                 {
                     lastCategory = cmd.Category;
+                    // ★ (25/09) : petites capitales grises (style TextMicro) au lieu d'un titre bleu : le bleu reste réservé
+                    // à ce qui se clique.
                     ResultsList.Children.Add(new Label
                     {
                         Text = GetCategoryLabel(cmd.Category),
-                        FontSize = 11,
-                        FontAttributes = FontAttributes.Bold,
-                        TextColor = (Color)Application.Current.Resources["Accent"],
-                        Margin = new Thickness(8, i == 0 ? 0 : 12, 0, 4)
+                        Style = (Style)Application.Current.Resources["TextMicro"],
+                        Margin = new Thickness(10, i == 0 ? 2 : 12, 0, 4)
                     });
                 }
 
@@ -190,14 +190,15 @@ namespace Moto.Editor.Views
             CommandInvoked?.Invoke(cmd.CommandText);
         }
 
+        // ★ (25/09, passe « moyen → élevé ») : libellés de groupe en texte seul (plus d'emojis), comme les palettes de VS Code/Zed.
         private static string GetCategoryLabel(CommandCategory category) => category switch
         {
-            CommandCategory.Menu => "📋 Menu",
-            CommandCategory.Action => "💡 Actions contextuelles",
-            CommandCategory.Slash => "⚡ Commandes slash",
-            CommandCategory.Plugin => "🧩 Plugins",
-            CommandCategory.Navigation => "🧭 Navigation",
-            CommandCategory.Settings => "⚙️ Paramètres",
+            CommandCategory.Menu => "Menu",
+            CommandCategory.Action => "Actions contextuelles",
+            CommandCategory.Slash => "Commandes slash",
+            CommandCategory.Plugin => "Plugins",
+            CommandCategory.Navigation => "Navigation",
+            CommandCategory.Settings => "Paramètres",
             _ => category.ToString()
         };
     }

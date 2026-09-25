@@ -105,9 +105,13 @@ namespace Moto.Editor.Models
 
         public string TimeLabel => Timestamp.ToString("HH:mm");
 
-        /// <summary>Couleur de la bulle selon le rôle.</summary>
+        /// <summary>
+        /// Couleur de la bulle selon le rôle.
+        /// ★ (25/09, passe « moyen → élevé ») : bulle utilisateur en bleu sourd (#264F78, le bleu de sélection de VS Code)
+        /// au lieu du bleu d'accent saturé, qui attirait l'œil plus que les réponses.
+        /// </summary>
         public Color BubbleColor => IsUser
-            ? Color.FromRgb(0, 122, 204)
+            ? Color.FromRgb(38, 79, 120)
             : Role == "system"
                 ? Color.FromRgb(60, 50, 20)
                 : Color.FromRgb(32, 33, 38);

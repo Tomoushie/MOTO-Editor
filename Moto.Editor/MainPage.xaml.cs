@@ -295,8 +295,8 @@ namespace Moto.Editor
                 _panelsSwapped = !_panelsSwapped;
                 ApplySidePanelLayout();
                 StatusBar.SetStatus(_panelsSwapped
-                    ? "🔀 Panneaux inversés : IA à droite, explorateur à gauche"
-                    : "🔀 Panneaux rétablis : IA à gauche, explorateur à droite");
+                    ? "Panneaux inversés : IA à droite, explorateur à gauche"
+                    : "Panneaux rétablis : IA à gauche, explorateur à droite");
             };
             AiBar.Submitted += OnAiCommandSubmitted;
         }

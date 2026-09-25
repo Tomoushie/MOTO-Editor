@@ -6,6 +6,16 @@
   ★ Relayée par Tom via une autre IA ("Grok") — adoptée après vérification
   contre le vrai code (5 couleurs manquantes ajoutées à MotoTheme.xaml, voir
   ce fichier ; le .cs derrière n'a pas changé, confirmé identique au dépôt).
+  ★ REFAIT (25/09, passe « moyen → élevé ») : disposition VS Code.
+    - Onglets : trait d'accent de 2 px sur l'onglet actif, icône colorée par type
+      de fichier (Controls/FileTypeVisual), titre gris quand inactif, fermeture en
+      glyphe fin, séparateur de 1 px entre onglets.
+    - Les actions de l'éditeur (exporter, aperçu, bandeau IA, partage, plein écran)
+      rejoignent la ligne des onglets, à droite : une barre d'outils entière en
+      moins (la ligne 1 reste vide, pour ne pas décaler les numéros de lignes
+      utilisés ailleurs). Glyphes Segoe Fluent Icons au lieu des emojis.
+    - Fil d'Ariane relatif au projet ouvert, séparateurs « › », nom du fichier en
+      clair ; précédent/suivant à sa gauche (comme Zed/JetBrains).
 -->
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
@@ -15,143 +25,153 @@
 
     <Grid RowDefinitions="Auto,Auto,Auto,Auto,*">
 
-        <!-- ═══ Ligne 0 : barre d'onglets (surface ; actif = flush éditeur) ═══ -->
+        <!-- ═══ Ligne 0 : onglets (fond panneau ; actif = fond éditeur + trait d'accent) et actions ═══ -->
         <Grid Grid.Row="0"
+              ColumnDefinitions="*,Auto"
               BackgroundColor="{StaticResource BgPanel}"
-              HeightRequest="36"
-              Padding="0">
+              HeightRequest="36">
             <CollectionView x:Name="TabsList"
+                            Grid.Column="0"
                             BackgroundColor="Transparent"
                             SelectionMode="Single"
                             HeightRequest="36"
-                            SelectionChanged="OnTabSelected"
-                            Margin="4,0,4,0">
+                            SelectionChanged="OnTabSelected">
                 <CollectionView.ItemsLayout>
                     <LinearItemsLayout Orientation="Horizontal" ItemSpacing="0" />
                 </CollectionView.ItemsLayout>
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
-                        <Border StrokeThickness="0"
-                                Padding="14,0,10,0"
-                                HeightRequest="36"
-                                StrokeShape="RoundRectangle 0"
-                                BackgroundColor="{StaticResource BgPanel}">
+                        <!-- ★ (25/09) : l'onglet actif suit EditorDocument.IsActive (déclencheurs), l'état « Selected » du
+                             CollectionView ne s'appliquant pas sous Windows. Les deux états visuels restent vides pour que
+                             la surbrillance native de sélection ne se superpose pas. -->
+                        <Grid HeightRequest="36" BackgroundColor="{StaticResource BgPanel}">
                             <VisualStateManager.VisualStateGroups>
                                 <VisualStateGroupList>
                                     <VisualStateGroup x:Name="CommonStates">
-                                        <VisualState x:Name="Normal">
-                                            <VisualState.Setters>
-                                                <Setter Property="BackgroundColor" Value="{StaticResource BgPanel}" />
-                                            </VisualState.Setters>
-                                        </VisualState>
-                                        <VisualState x:Name="Selected">
-                                            <VisualState.Setters>
-                                                <Setter Property="BackgroundColor" Value="{StaticResource BgEditor}" />
-                                            </VisualState.Setters>
-                                        </VisualState>
+                                        <VisualState x:Name="Normal" />
+                                        <VisualState x:Name="Selected" />
                                     </VisualStateGroup>
                                 </VisualStateGroupList>
                             </VisualStateManager.VisualStateGroups>
-                            <HorizontalStackLayout Spacing="{StaticResource SpaceSm}" VerticalOptions="Center">
-                                <Label Text="{Binding Title}"
-                                       FontSize="{DynamicResource FontSizeUiText}"
-                                       VerticalOptions="Center"
-                                       TextColor="{StaticResource Txt1}" />
-                                <Label Text="{Binding ErrorBadge}"
-                                       TextColor="{StaticResource Error}"
-                                       FontSize="{DynamicResource FontSizeUiSmall}"
-                                       IsVisible="{Binding HasErrors}"
+                            <Grid.Triggers>
+                                <DataTrigger TargetType="Grid" Binding="{Binding IsActive}" Value="True">
+                                    <Setter Property="BackgroundColor" Value="{StaticResource BgEditor}" />
+                                </DataTrigger>
+                            </Grid.Triggers>
+
+                            <HorizontalStackLayout Padding="12,0,6,0" Spacing="7" VerticalOptions="Center">
+                                <Label Text="{Binding FileGlyph}"
+                                       TextColor="{Binding FileGlyphColor}"
+                                       FontFamily="{x:Static controls:MotoIcons.FontFamily}"
+                                       FontSize="13"
                                        VerticalOptions="Center" />
-                                <Label Text="✕"
-                                       FontSize="{DynamicResource FontSizeUiSmall}"
+                                <Label x:Name="TabTitle"
+                                       Text="{Binding Title}"
+                                       FontSize="{DynamicResource FontSizeUiText}"
                                        TextColor="{StaticResource Txt2}"
+                                       VerticalOptions="Center">
+                                    <Label.Triggers>
+                                        <DataTrigger TargetType="Label" Binding="{Binding IsActive}" Value="True">
+                                            <Setter Property="TextColor" Value="{StaticResource Txt1}" />
+                                        </DataTrigger>
+                                    </Label.Triggers>
+                                </Label>
+                                <Border IsVisible="{Binding HasErrors}"
+                                        BackgroundColor="{StaticResource DangerMuted}"
+                                        StrokeThickness="0"
+                                        StrokeShape="RoundRectangle 8"
+                                        Padding="5,0"
+                                        HeightRequest="16"
+                                        VerticalOptions="Center">
+                                    <Label Text="{Binding ErrorBadge}"
+                                           TextColor="{StaticResource Error}"
+                                           FontSize="10"
+                                           FontAttributes="Bold"
+                                           VerticalOptions="Center" />
+                                </Border>
+                                <Label Text="{x:Static controls:MotoIcons.Close}"
+                                       FontFamily="{x:Static controls:MotoIcons.FontFamily}"
+                                       FontSize="9"
+                                       TextColor="{StaticResource Txt3}"
+                                       Padding="5,4"
                                        VerticalOptions="Center"
-                                       Opacity="0.7">
+                                       ToolTipProperties.Text="Fermer">
                                     <Label.GestureRecognizers>
                                         <TapGestureRecognizer Tapped="OnTabCloseTapped" CommandParameter="{Binding .}" />
                                     </Label.GestureRecognizers>
                                 </Label>
                             </HorizontalStackLayout>
-                        </Border>
+
+                            <BoxView x:Name="ActiveLine"
+                                     HeightRequest="2"
+                                     VerticalOptions="Start"
+                                     Color="{StaticResource Accent}"
+                                     IsVisible="{Binding IsActive}" />
+                            <BoxView WidthRequest="1"
+                                     HorizontalOptions="End"
+                                     Color="{StaticResource BorderMuted}" />
+                        </Grid>
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
             </CollectionView>
+
+            <HorizontalStackLayout Grid.Column="1" Spacing="2" Padding="8,0,8,0" VerticalOptions="Center">
+                <Button Style="{StaticResource MotoIconButton}"
+                        Text="{x:Static controls:MotoIcons.Download}"
+                        ToolTipProperties.Text="Exporter (txt, md, html, pdf, docx, odt, rtf…)"
+                        Clicked="OnExportClicked" />
+                <Button Style="{StaticResource MotoIconButton}"
+                        Text="{x:Static controls:MotoIcons.Globe}"
+                        ToolTipProperties.Text="Prévisualiser le fichier"
+                        Clicked="OnPreviewClicked" />
+                <Button Style="{StaticResource MotoIconButton}"
+                        Text="{x:Static controls:MotoIcons.Robot}"
+                        ToolTipProperties.Text="Bandeau IA : demander une modification du fichier"
+                        Clicked="OnAiClicked" />
+                <Button Style="{StaticResource MotoIconButton}"
+                        Text="{x:Static controls:MotoIcons.DockRight}"
+                        ToolTipProperties.Text="Partager l'écran"
+                        Clicked="OnSplitClicked" />
+                <Button x:Name="BtnMaximize"
+                        Style="{StaticResource MotoIconButton}"
+                        Text="{x:Static controls:MotoIcons.FullScreen}"
+                        ToolTipProperties.Text="Agrandir la zone (plein écran)"
+                        Clicked="OnMaximizeClicked" />
+            </HorizontalStackLayout>
         </Grid>
 
-        <!-- ═══ Ligne 1 : toolbar (même fond que l'éditeur = flush) ═══ -->
-        <Grid Grid.Row="1"
-              ColumnDefinitions="Auto,Auto,Auto,*,Auto,Auto,Auto,Auto"
-              BackgroundColor="{StaticResource BgEditor}"
-              Padding="6,2"
-              ColumnSpacing="{StaticResource SpaceXs}">
+        <!-- Ligne 1 : volontairement vide (ancienne barre d'outils, fusionnée dans la ligne 0). -->
 
-            <Button Grid.Column="0" Text="←" Padding="8,2" FontSize="{StaticResource FontSizeHeading}"
-                    BackgroundColor="Transparent" TextColor="{StaticResource Txt1}"
-                    BorderWidth="0"
+        <!-- ═══ Ligne 2 : précédent/suivant + fil d'Ariane ═══ -->
+        <Grid Grid.Row="2"
+              ColumnDefinitions="Auto,Auto,*,Auto"
+              ColumnSpacing="2"
+              BackgroundColor="{StaticResource BgEditor}"
+              Padding="6,3,8,3">
+            <Button Grid.Column="0"
+                    Style="{StaticResource MotoIconButton}"
+                    Text="{x:Static controls:MotoIcons.Back}"
+                    FontSize="12" WidthRequest="24" HeightRequest="24" MinimumWidthRequest="24" MinimumHeightRequest="24"
                     ToolTipProperties.Text="Fichier précédent"
                     Clicked="OnBackClicked" />
-
-            <Button Grid.Column="1" Text="→" Padding="8,2" FontSize="{StaticResource FontSizeHeading}"
-                    BackgroundColor="Transparent" TextColor="{StaticResource Txt1}"
-                    BorderWidth="0"
+            <Button Grid.Column="1"
+                    Style="{StaticResource MotoIconButton}"
+                    Text="{x:Static controls:MotoIcons.Forward}"
+                    FontSize="12" WidthRequest="24" HeightRequest="24" MinimumWidthRequest="24" MinimumHeightRequest="24"
                     ToolTipProperties.Text="Fichier suivant"
                     Clicked="OnForwardClicked" />
-
-            <Button Grid.Column="2" Text="⬇ Exporter" Padding="10,2" FontSize="{StaticResource FontSizeBody}"
-                    BackgroundColor="Transparent" TextColor="{StaticResource Txt2}"
-                    BorderWidth="0"
-                    ToolTipProperties.Text="Exporter (txt, md, html, pdf, docx, odt, rtf...)"
-                    Clicked="OnExportClicked" />
-
-            <BoxView Grid.Column="3" Color="Transparent" />
-
-            <Button Grid.Column="4" Text="⧉" Padding="8,2" FontSize="{StaticResource FontSizeSubheading}"
-                    BackgroundColor="Transparent" TextColor="{StaticResource Txt2}"
-                    BorderWidth="0"
-                    ToolTipProperties.Text="Partager l'écran"
-                    Clicked="OnSplitClicked" />
-
-            <Button x:Name="BtnMaximize" Grid.Column="5" Text="⛶" Padding="8,2" FontSize="{StaticResource FontSizeSubheading}"
-                    BackgroundColor="Transparent" TextColor="{StaticResource Txt2}"
-                    BorderWidth="0"
-                    ToolTipProperties.Text="Agrandir la zone (plein écran)"
-                    Clicked="OnMaximizeClicked" />
-
-            <Button Grid.Column="6" Text="🤖" Padding="8,2" FontSize="{StaticResource FontSizeSubheading}"
-                    BackgroundColor="Transparent" TextColor="{StaticResource Txt2}"
-                    BorderWidth="0"
-                    ToolTipProperties.Text="Bandeau IA (modèle + prompts)"
-                    Clicked="OnAiClicked" />
-
-            <Button Grid.Column="7" Text="🌐" Padding="8,2" FontSize="{StaticResource FontSizeSubheading}"
-                    BackgroundColor="Transparent" TextColor="{StaticResource Txt2}"
-                    BorderWidth="0"
-                    ToolTipProperties.Text="Prévisualiser le fichier"
-                    Clicked="OnPreviewClicked" />
-        </Grid>
-
-        <!-- ═══ Ligne 2 : breadcrumb plat (plus de carte arrondie) ═══ -->
-        <Grid Grid.Row="2"
-              ColumnDefinitions="*,Auto"
-              BackgroundColor="{StaticResource BgEditor}"
-              Padding="12,4,8,4">
-            <BoxView Color="{StaticResource BorderMuted}"
-                     HeightRequest="1"
-                     VerticalOptions="Start"
-                     Grid.ColumnSpan="2" />
-            <Label Grid.Column="0" x:Name="CrumbLabel"
+            <Label Grid.Column="2" x:Name="CrumbLabel"
                    Text="Aucun fichier ouvert"
                    FontSize="{DynamicResource FontSizeUiSmall}"
-                   TextColor="{StaticResource Txt2}"
+                   TextColor="{StaticResource Txt3}"
+                   LineBreakMode="HeadTruncation"
                    VerticalOptions="Center"
-                   Margin="0,4,0,0" />
-            <Button Grid.Column="1" Text="Open File"
+                   Margin="8,0,0,0" />
+            <Button Grid.Column="3"
+                    Style="{StaticResource MotoGhostButton}"
+                    Text="Ouvrir un fichier…"
                     FontSize="{DynamicResource FontSizeUiSmall}"
                     Padding="8,2"
-                    Margin="0,4,0,0"
-                    BackgroundColor="Transparent"
-                    TextColor="{StaticResource Accent}"
-                    BorderWidth="0"
                     Clicked="OnOpenFileClicked" />
         </Grid>
 
@@ -161,11 +181,11 @@
                 BackgroundColor="{StaticResource BgPanel}"
                 Stroke="{StaticResource BorderMuted}"
                 StrokeThickness="1"
-                Padding="{StaticResource SpaceSm}"
+                Padding="10,8"
                 Margin="0">
-            <Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto" ColumnSpacing="{StaticResource SpaceXs}">
+            <Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto" ColumnSpacing="{StaticResource SpaceSm}">
                 <Picker Grid.Row="0" Grid.Column="0" x:Name="ModelPicker"
-                        WidthRequest="190" FontSize="11">
+                        WidthRequest="200" FontSize="12">
                     <Picker.ItemsSource>
                         <x:Array Type="{x:Type x:String}">
                             <x:String>MOTO interne</x:String>
@@ -182,52 +202,50 @@
                        FontSize="{StaticResource FontSizeBody}" BackgroundColor="Transparent"
                        Completed="OnAiSendClicked" />
 
-                <!-- ★ MODIFIÉ (24/09, écriture générative) : ➤ devient ■ (arrêter) pendant qu'un modèle écrit — largeur fixe, sinon le
-                     bouton se réduisait à une fine lame où ■ ne se lisait plus ; « ↩ Annuler » (sur la ligne d'état) remet le fichier
-                     comme avant la dernière modification faite d'ici. -->
-                <Button Grid.Row="0" Grid.Column="2" x:Name="AiSendButton" Text="➤" Padding="10,2"
-                        WidthRequest="44"
+                <!-- ★ MODIFIÉ (24/09, écriture générative) : le bouton d'envoi devient « arrêter » pendant qu'un modèle écrit — largeur
+                     fixe ; « Annuler » (sur la ligne d'état) remet le fichier comme avant la dernière modification faite d'ici.
+                     ★ (25/09) : glyphes Segoe Fluent Icons (envoyer / arrêter) au lieu de ➤ / ■. -->
+                <Button Grid.Row="0" Grid.Column="2" x:Name="AiSendButton"
+                        Text="{x:Static controls:MotoIcons.Send}"
+                        FontFamily="{x:Static controls:MotoIcons.FontFamily}"
+                        FontSize="14"
+                        Padding="0"
+                        WidthRequest="40"
+                        HeightRequest="32"
+                        CornerRadius="{StaticResource RadiusSmInt}"
                         BackgroundColor="{StaticResource Accent}"
-                        TextColor="{StaticResource BgEditor}"
+                        TextColor="White"
                         BorderWidth="0"
+                        ToolTipProperties.Text="Envoyer"
                         Clicked="OnAiSendClicked" />
 
-                <Grid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" ColumnDefinitions="*,Auto" ColumnSpacing="{StaticResource SpaceXs}">
+                <Grid Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" ColumnDefinitions="*,Auto" ColumnSpacing="{StaticResource SpaceXs}" Margin="0,4,0,0">
                     <Label Grid.Column="0" x:Name="AiStatus"
-                           FontSize="{StaticResource FontSizeSmall}" TextColor="{StaticResource Txt2}" Opacity="0.8"
+                           FontSize="{StaticResource FontSizeSmall}" TextColor="{StaticResource Txt2}"
                            VerticalOptions="Center" />
 
-                    <Button Grid.Column="1" x:Name="AiUndoButton" Text="↩ Annuler" IsVisible="False"
-                            FontSize="{StaticResource FontSizeSmall}" Padding="8,0"
-                            BackgroundColor="Transparent"
-                            TextColor="{StaticResource Accent}"
-                            BorderWidth="0"
+                    <Button Grid.Column="1" x:Name="AiUndoButton" IsVisible="False"
+                            Style="{StaticResource MotoGhostButton}"
+                            Text="↩ Annuler la modification"
+                            TextColor="{StaticResource AccentText}"
                             Clicked="OnAiUndoClicked" />
                 </Grid>
             </Grid>
         </Border>
 
         <!-- ═══ Ligne 4 : éditeur ═══ -->
-        <!-- ★ HISTORIQUE (04/09) : la marge de 110px ci-dessous existait pour
-             contourner l'"airspace" du WebView de l'ancien CodeEditorView (un
-             WebView Windows s'affiche TOUJOURS par-dessus le reste du XAML,
-             quel que soit l'ordre de déclaration dans le Grid). CodeEditorViewSkia
-             (adopté le 22/09, voir note ci-dessous) ne contient plus de WebView
-             — ce problème d'"airspace" ne s'applique donc plus. La marge est
-             VOLONTAIREMENT conservée telle quelle (juste un espace visuel sous le
-             code, pas un contournement de bug) : la retirer est un choix de
-             layout séparé, pas traité ici. -->
+        <!-- ★ HISTORIQUE (04/09) : une marge basse de 110 px contournait l'"airspace"
+             supposé du WebView de l'ancien CodeEditorView. CodeEditorViewSkia (22/09)
+             l'avait conservée comme simple espace visuel. -->
         <!-- ★ ADOPTÉ (22/09, chantier rendu direct SkiaSharp, incrément 1 validé
-             par Tom sur écran réel — Debug puis Release/raccourci Bureau) :
-             CodeEditorView (WebView) remplacé par CodeEditorViewSkia. Voir
-             Docs/design/Cadrage-CodeEditor-SkiaSharp.md. Incrément 2 (saisie/
-             curseur/sélection) en cours — CodeEditorView reste dans le dépôt,
-             non supprimé, tant que la parité n'est pas confirmée (§5 du cadrage). -->
+             par Tom sur écran réel) : CodeEditorView (WebView) remplacé par
+             CodeEditorViewSkia. Voir Docs/design/Cadrage-CodeEditor-SkiaSharp.md. -->
         <!-- ★ REPRIS (25/09, choix C de Tom) : retour à CodeEditorView (WebView) — CodeEditorViewSkia n'a ni défilement ni
              sélection à la souris. La marge basse de 110 est retirée : avec un éditeur qui défile, sa barre de défilement
              s'arrêtait 110 px au-dessus du bas de la zone. La place du bandeau IA flottant (AiBar) est désormais une marge
              de fin DANS l'éditeur (120 px sous la dernière ligne) : le code remonte au-dessus du bandeau, comme dans VS Code.
-             Vérifié le 25/09 (captures) : diff, réglages et palette s'affichent bien PAR-DESSUS ce WebView. -->
+             Vérifié le 25/09 (captures) : diff, réglages et palette s'affichent bien PAR-DESSUS ce WebView ; la fenêtre
+             native de WebView2 fait 0×0, les clics au-dessus de l'éditeur vont à l'interface XAML. -->
         <controls:CodeEditorView Grid.Row="4" x:Name="Editor" x:FieldModifier="Public" />
 
     </Grid>

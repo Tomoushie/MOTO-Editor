@@ -121,7 +121,7 @@ namespace Moto.Editor
             var answer = await _confirmationService.RequestAsync(new ConfirmationRequest
             {
                 Action = ConfirmationAction.ModifyCode,
-                Title = $"🤖 Appliquer le code du chat — {doc.Title}",
+                Title = $"Appliquer le code du chat — {doc.Title}",
                 Message = string.Join("\n", lines),
                 Details = plan.Diff.Unified,
                 DetailsAreDiff = true,

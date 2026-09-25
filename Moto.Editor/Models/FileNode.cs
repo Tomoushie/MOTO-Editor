@@ -31,17 +31,40 @@ namespace Moto.Editor.Models
                     _isExpanded = value;
                     OnPropertyChanged();
                     OnPropertyChanged(nameof(Icon));
+                    OnPropertyChanged(nameof(Chevron));
+                    OnPropertyChanged(nameof(Glyph));
                 }
+            }
+        }
+
+        private bool _isActive;
+
+        /// <summary>★ AJOUT (25/09) : fichier affiché dans l'éditeur (ligne surlignée dans l'explorateur, comme VS Code).</summary>
+        public bool IsActive
+        {
+            get => _isActive;
+            set
+            {
+                if (_isActive == value) return;
+                _isActive = value;
+                OnPropertyChanged();
             }
         }
 
         /// <summary>Indentation en pixels pour la vue aplatie.</summary>
         public double Indent => Depth * 16;
 
-        /// <summary>Icône affichée selon le type et l'état.</summary>
+        /// <summary>Icône affichée selon le type et l'état (ancienne version emoji, gardée pour les vues qui s'en servent encore).</summary>
         public string Icon => IsDirectory
             ? (IsExpanded ? "▼ 📂" : "▶ 📁")
             : "📄";
+
+        // ★ AJOUT (25/09, passe « moyen → élevé ») : chevron + glyphe Segoe Fluent Icons coloré par type (Controls/FileTypeVisual).
+        private static readonly Microsoft.Maui.Graphics.Color FolderTint = Microsoft.Maui.Graphics.Color.FromArgb("#C8A45A");
+
+        public string Chevron => IsDirectory ? (IsExpanded ? Controls.MotoIcons.ChevronDownSmall : Controls.MotoIcons.ChevronRightSmall) : string.Empty;
+        public string Glyph => IsDirectory ? (IsExpanded ? Controls.MotoIcons.FolderOpen : Controls.MotoIcons.Folder) : Controls.FileTypeVisual.Glyph(Name);
+        public Microsoft.Maui.Graphics.Color GlyphColor => IsDirectory ? FolderTint : Controls.FileTypeVisual.Tint(Name);
 
         public event PropertyChangedEventHandler PropertyChanged;
 

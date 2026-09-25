@@ -11,9 +11,27 @@ namespace Moto.Editor.Models
         private string _path = string.Empty;
         private int _errorCount;
 
-        public string Title { get => _title; set => SetField(ref _title, value); }
+        public string Title { get => _title; set { if (SetField(ref _title, value)) OnFileTypeChanged(); } }
         public string Text { get => _text; set => SetField(ref _text, value); }
-        public string Path { get => _path; set => SetField(ref _path, value); }
+        public string Path { get => _path; set { if (SetField(ref _path, value)) OnFileTypeChanged(); } }
+
+        /// <summary>★ AJOUT (25/09) : icône et couleur du type de fichier (onglet de l'éditeur), voir Controls/FileTypeVisual.</summary>
+        public string FileGlyph => Moto.Editor.Controls.FileTypeVisual.Glyph(string.IsNullOrEmpty(_path) ? _title : _path);
+        public Microsoft.Maui.Graphics.Color FileGlyphColor => Moto.Editor.Controls.FileTypeVisual.Tint(string.IsNullOrEmpty(_path) ? _title : _path);
+
+        private void OnFileTypeChanged()
+        {
+            OnPropertyChanged(nameof(FileGlyph));
+            OnPropertyChanged(nameof(FileGlyphColor));
+        }
+
+        private bool _isActive;
+
+        /// <summary>
+        /// ★ AJOUT (25/09) : onglet affiché dans l'éditeur (fond éditeur + trait d'accent). Posé par EditorPaneView.SelectTab :
+        /// l'état visuel « Selected » du CollectionView ne s'appliquait pas sous Windows (vérifié sur capture).
+        /// </summary>
+        public bool IsActive { get => _isActive; set => SetField(ref _isActive, value); }
 
         /// <summary>Nombre d'erreurs de diagnostic (badge rouge sur l'onglet).</summary>
         public int ErrorCount

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:Moto.Editor.Controls"
              x:Class="Moto.Editor.Views.ProactivePanel"
              IsVisible="False"
              BackgroundColor="Transparent"
@@ -17,20 +18,22 @@
 
         <Grid RowDefinitions="Auto,*,Auto" RowSpacing="{StaticResource SpaceSm}">
 
-            <!-- Header -->
+            <!-- Header. ★ (25/09, passe « moyen → élevé ») : glyphe ampoule + titre neutre, croix = glyphe du thème. -->
             <Grid ColumnDefinitions="*,Auto">
-                <Label Text="💡 Suggestions"
-                       FontSize="{StaticResource FontSizeBody}"
-                       FontAttributes="Bold"
-                       TextColor="{StaticResource Accent}"
-                       VerticalOptions="Center" />
+                <HorizontalStackLayout Spacing="8" VerticalOptions="Center" Padding="4,0,0,0">
+                    <Label Text="{x:Static controls:MotoIcons.Bulb}" Style="{StaticResource MotoGlyph}"
+                           TextColor="{StaticResource AccentText}" />
+                    <Label Text="Suggestions"
+                           FontSize="{StaticResource FontSizeBody}"
+                           FontAttributes="Bold"
+                           TextColor="{StaticResource Txt1}"
+                           VerticalOptions="Center" />
+                </HorizontalStackLayout>
                 <Button Grid.Column="1"
-                        Text="✕"
-                        WidthRequest="24"
-                        HeightRequest="24"
-                        BackgroundColor="Transparent"
-                        TextColor="{StaticResource Txt2}"
-                        FontSize="{StaticResource FontSizeSmall}"
+                        Text="{x:Static controls:MotoIcons.Close}"
+                        Style="{StaticResource MotoIconButton}"
+                        FontSize="10"
+                        ToolTipProperties.Text="Fermer"
                         Clicked="OnCloseClicked" />
             </Grid>
 
@@ -42,9 +45,9 @@
             <!-- Footer -->
             <Label Grid.Row="2"
                    x:Name="FooterLabel"
-                   Text="Mises à jour toutes les 30s"
+                   Text="Mises à jour toutes les 30 s"
                    FontSize="{StaticResource FontSizeSmall}"
-                   TextColor="{StaticResource Txt2}"
+                   TextColor="{StaticResource Txt3}"
                    HorizontalOptions="Center" />
         </Grid>
     </Border>

@@ -39,21 +39,25 @@
                    Margin="0,0,8,0"
                    IsVisible="False" />
 
-            <BoxView WidthRequest="1" Color="{StaticResource BorderMuted}" Margin="0,6" />
+            <!-- ★ (25/09) : sandbox + verrou regroupés avec LEUR séparateur et masqués ensemble (voir UpdateStateChips) :
+                 avant, deux traits verticaux restaient collés quand les deux étiquettes étaient cachées. -->
+            <HorizontalStackLayout x:Name="StateChips" Spacing="0" VerticalOptions="Center" IsVisible="False">
+                <BoxView WidthRequest="1" Color="{StaticResource BorderMuted}" Margin="0,6" />
 
-            <Label x:Name="SandboxLabel" Text="Sandbox"
-                   FontSize="{DynamicResource FontSizeUiSmall}"
-                   TextColor="{StaticResource Accent}"
-                   VerticalOptions="Center"
-                   Margin="8,0"
-                   IsVisible="False" />
+                <Label x:Name="SandboxLabel" Text="Sandbox"
+                       FontSize="{DynamicResource FontSizeUiSmall}"
+                       TextColor="{StaticResource Accent}"
+                       VerticalOptions="Center"
+                       Margin="8,0"
+                       IsVisible="False" />
 
-            <Label x:Name="LockedLabel" Text="Verrouillé"
-                   FontSize="{DynamicResource FontSizeUiSmall}"
-                   TextColor="{StaticResource Warning}"
-                   VerticalOptions="Center"
-                   Margin="8,0"
-                   IsVisible="False" />
+                <Label x:Name="LockedLabel" Text="Verrouillé"
+                       FontSize="{DynamicResource FontSizeUiSmall}"
+                       TextColor="{StaticResource Warning}"
+                       VerticalOptions="Center"
+                       Margin="8,0"
+                       IsVisible="False" />
+            </HorizontalStackLayout>
 
             <BoxView WidthRequest="1" Color="{StaticResource BorderMuted}" Margin="0,6" />
 

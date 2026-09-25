@@ -556,4 +556,250 @@
         <Setter Property="ThumbColor" Value="{StaticResource Txt1}" />
     </Style>
 
+    <!-- ══════════════════════════════════════════════════════════════════
+         ★ PASSE « MOYEN → ÉLEVÉ » (25/09) — boutons et surfaces du quotidien.
+         Constat sur captures : chaque bouton improvisait sa couleur, ses
+         marges et son survol (ou n'en avait aucun), les emojis tenaient lieu
+         d'icônes. Quatre rôles de bouton, comme VS Code : principal (une
+         seule action mise en avant par écran), secondaire (bordé), discret
+         (texte seul) et icône seule (police Segoe Fluent Icons, voir
+         Controls/MotoIcons.cs). Chacun a TOUS ses états : survol, appui,
+         focus clavier, désactivé. Les styles à clé remplacent le style
+         implicite de Button d'App.xaml (qui pose une marge droite de 6) :
+         d'où Margin=0 ici.
+         ══════════════════════════════════════════════════════════════════ -->
+    <!-- Surfaces flottantes (menus, boîtes de dialogue) : un cran au-dessus
+         de BgPanel ; fond « appuyé »/ligne sélectionnée ; texte tertiaire
+         (heures, numéros, indications) ; lien lisible sur fond sombre (le
+         bleu Accent #007ACC n'atteint que ~3:1 de contraste en texte —
+         VS Code utilise #3794FF pour ses liens). -->
+    <Color x:Key="BgElevated">#25272D</Color>
+    <Color x:Key="BgActive">#34363C</Color>
+    <Color x:Key="RowActive">#2F333B</Color>
+    <Color x:Key="Txt3">#6B7280</Color>
+    <Color x:Key="AccentText">#3794FF</Color>
+    <Color x:Key="AccentPressed">#005A94</Color>
+    <Color x:Key="DangerHover">#B91C1C</Color>
+    <x:String x:Key="FontFamilyIcons">Segoe Fluent Icons</x:String>
+
+    <Style x:Key="MotoPrimaryButton" TargetType="Button">
+        <Setter Property="BackgroundColor" Value="{StaticResource Accent}" />
+        <Setter Property="TextColor" Value="White" />
+        <Setter Property="BorderWidth" Value="0" />
+        <Setter Property="CornerRadius" Value="{StaticResource RadiusSmInt}" />
+        <Setter Property="FontFamily" Value="{StaticResource FontFamilyUi}" />
+        <Setter Property="FontSize" Value="{StaticResource FontSizeBody}" />
+        <Setter Property="Padding" Value="16,6" />
+        <Setter Property="MinimumHeightRequest" Value="30" />
+        <Setter Property="Margin" Value="0" />
+        <Setter Property="VisualStateManager.VisualStateGroups">
+            <VisualStateGroupList>
+                <VisualStateGroup x:Name="CommonStates">
+                    <VisualState x:Name="Normal" />
+                    <VisualState x:Name="PointerOver">
+                        <VisualState.Setters>
+                            <Setter Property="BackgroundColor" Value="{StaticResource AccentHover}" />
+                        </VisualState.Setters>
+                    </VisualState>
+                    <VisualState x:Name="Pressed">
+                        <VisualState.Setters>
+                            <Setter Property="BackgroundColor" Value="{StaticResource AccentPressed}" />
+                        </VisualState.Setters>
+                    </VisualState>
+                    <VisualState x:Name="Focused">
+                        <VisualState.Setters>
+                            <Setter Property="BorderWidth" Value="1" />
+                            <Setter Property="BorderColor" Value="{StaticResource Txt1}" />
+                        </VisualState.Setters>
+                    </VisualState>
+                    <VisualState x:Name="Disabled">
+                        <VisualState.Setters>
+                            <Setter Property="Opacity" Value="0.45" />
+                        </VisualState.Setters>
+                    </VisualState>
+                </VisualStateGroup>
+            </VisualStateGroupList>
+        </Setter>
+    </Style>
+
+    <!-- Action irréversible (supprimer, écraser) : même gabarit que le bouton principal, en rouge. -->
+    <Style x:Key="MotoDangerButton" TargetType="Button">
+        <Setter Property="BackgroundColor" Value="{StaticResource Danger}" />
+        <Setter Property="TextColor" Value="White" />
+        <Setter Property="BorderWidth" Value="0" />
+        <Setter Property="CornerRadius" Value="{StaticResource RadiusSmInt}" />
+        <Setter Property="FontFamily" Value="{StaticResource FontFamilyUi}" />
+        <Setter Property="FontSize" Value="{StaticResource FontSizeBody}" />
+        <Setter Property="Padding" Value="16,6" />
+        <Setter Property="MinimumHeightRequest" Value="30" />
+        <Setter Property="Margin" Value="0" />
+        <Setter Property="VisualStateManager.VisualStateGroups">
+            <VisualStateGroupList>
+                <VisualStateGroup x:Name="CommonStates">
+                    <VisualState x:Name="Normal" />
+                    <VisualState x:Name="PointerOver">
+                        <VisualState.Setters>
+                            <Setter Property="BackgroundColor" Value="{StaticResource DangerHover}" />
+                        </VisualState.Setters>
+                    </VisualState>
+                    <VisualState x:Name="Pressed">
+                        <VisualState.Setters>
+                            <Setter Property="BackgroundColor" Value="{StaticResource DangerHover}" />
+                            <Setter Property="Opacity" Value="0.85" />
+                        </VisualState.Setters>
+                    </VisualState>
+                    <VisualState x:Name="Focused">
+                        <VisualState.Setters>
+                            <Setter Property="BorderWidth" Value="1" />
+                            <Setter Property="BorderColor" Value="{StaticResource Txt1}" />
+                        </VisualState.Setters>
+                    </VisualState>
+                    <VisualState x:Name="Disabled">
+                        <VisualState.Setters>
+                            <Setter Property="Opacity" Value="0.45" />
+                        </VisualState.Setters>
+                    </VisualState>
+                </VisualStateGroup>
+            </VisualStateGroupList>
+        </Setter>
+    </Style>
+
+    <Style x:Key="MotoSecondaryButton" TargetType="Button">
+        <Setter Property="BackgroundColor" Value="{StaticResource BgHover}" />
+        <Setter Property="TextColor" Value="{StaticResource Txt1}" />
+        <Setter Property="BorderWidth" Value="1" />
+        <Setter Property="BorderColor" Value="{StaticResource BorderCol}" />
+        <Setter Property="CornerRadius" Value="{StaticResource RadiusSmInt}" />
+        <Setter Property="FontFamily" Value="{StaticResource FontFamilyUi}" />
+        <Setter Property="FontSize" Value="{StaticResource FontSizeBody}" />
+        <Setter Property="Padding" Value="16,6" />
+        <Setter Property="MinimumHeightRequest" Value="30" />
+        <Setter Property="Margin" Value="0" />
+        <Setter Property="VisualStateManager.VisualStateGroups">
+            <VisualStateGroupList>
+                <VisualStateGroup x:Name="CommonStates">
+                    <VisualState x:Name="Normal" />
+                    <VisualState x:Name="PointerOver">
+                        <VisualState.Setters>
+                            <Setter Property="BackgroundColor" Value="{StaticResource BgActive}" />
+                        </VisualState.Setters>
+                    </VisualState>
+                    <VisualState x:Name="Pressed">
+                        <VisualState.Setters>
+                            <Setter Property="BackgroundColor" Value="{StaticResource BgPanel}" />
+                        </VisualState.Setters>
+                    </VisualState>
+                    <VisualState x:Name="Focused">
+                        <VisualState.Setters>
+                            <Setter Property="BorderColor" Value="{StaticResource FocusRing}" />
+                        </VisualState.Setters>
+                    </VisualState>
+                    <VisualState x:Name="Disabled">
+                        <VisualState.Setters>
+                            <Setter Property="Opacity" Value="0.45" />
+                        </VisualState.Setters>
+                    </VisualState>
+                </VisualStateGroup>
+            </VisualStateGroupList>
+        </Setter>
+    </Style>
+
+    <Style x:Key="MotoGhostButton" TargetType="Button">
+        <Setter Property="BackgroundColor" Value="Transparent" />
+        <Setter Property="TextColor" Value="{StaticResource Txt2}" />
+        <Setter Property="BorderWidth" Value="0" />
+        <Setter Property="CornerRadius" Value="{StaticResource RadiusSmInt}" />
+        <Setter Property="FontFamily" Value="{StaticResource FontFamilyUi}" />
+        <Setter Property="FontSize" Value="{StaticResource FontSizeSmall}" />
+        <Setter Property="Padding" Value="8,4" />
+        <Setter Property="Margin" Value="0" />
+        <Setter Property="VisualStateManager.VisualStateGroups">
+            <VisualStateGroupList>
+                <VisualStateGroup x:Name="CommonStates">
+                    <VisualState x:Name="Normal" />
+                    <VisualState x:Name="PointerOver">
+                        <VisualState.Setters>
+                            <Setter Property="BackgroundColor" Value="{StaticResource BgHover}" />
+                            <Setter Property="TextColor" Value="{StaticResource Txt1}" />
+                        </VisualState.Setters>
+                    </VisualState>
+                    <VisualState x:Name="Pressed">
+                        <VisualState.Setters>
+                            <Setter Property="BackgroundColor" Value="{StaticResource BgActive}" />
+                        </VisualState.Setters>
+                    </VisualState>
+                    <VisualState x:Name="Focused">
+                        <VisualState.Setters>
+                            <Setter Property="BorderWidth" Value="1" />
+                            <Setter Property="BorderColor" Value="{StaticResource FocusRing}" />
+                        </VisualState.Setters>
+                    </VisualState>
+                    <VisualState x:Name="Disabled">
+                        <VisualState.Setters>
+                            <Setter Property="Opacity" Value="0.4" />
+                        </VisualState.Setters>
+                    </VisualState>
+                </VisualStateGroup>
+            </VisualStateGroupList>
+        </Setter>
+    </Style>
+
+    <!-- Icône seule : carré de 28, glyphe Segoe Fluent Icons de 14. Le
+         Text du bouton est le glyphe (ex. {x:Static controls:MotoIcons.Close}) ;
+         toujours accompagné d'une infobulle (ToolTipProperties.Text). -->
+    <Style x:Key="MotoIconButton" TargetType="Button">
+        <Setter Property="FontFamily" Value="{StaticResource FontFamilyIcons}" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="TextColor" Value="{StaticResource Txt2}" />
+        <Setter Property="BackgroundColor" Value="Transparent" />
+        <Setter Property="BorderWidth" Value="0" />
+        <Setter Property="CornerRadius" Value="{StaticResource RadiusSmInt}" />
+        <Setter Property="Padding" Value="0" />
+        <Setter Property="Margin" Value="0" />
+        <Setter Property="WidthRequest" Value="28" />
+        <Setter Property="HeightRequest" Value="28" />
+        <Setter Property="MinimumWidthRequest" Value="28" />
+        <Setter Property="MinimumHeightRequest" Value="28" />
+        <Setter Property="VerticalOptions" Value="Center" />
+        <Setter Property="VisualStateManager.VisualStateGroups">
+            <VisualStateGroupList>
+                <VisualStateGroup x:Name="CommonStates">
+                    <VisualState x:Name="Normal" />
+                    <VisualState x:Name="PointerOver">
+                        <VisualState.Setters>
+                            <Setter Property="BackgroundColor" Value="{StaticResource BgHover}" />
+                            <Setter Property="TextColor" Value="{StaticResource Txt1}" />
+                        </VisualState.Setters>
+                    </VisualState>
+                    <VisualState x:Name="Pressed">
+                        <VisualState.Setters>
+                            <Setter Property="BackgroundColor" Value="{StaticResource BgActive}" />
+                            <Setter Property="TextColor" Value="{StaticResource Txt1}" />
+                        </VisualState.Setters>
+                    </VisualState>
+                    <VisualState x:Name="Focused">
+                        <VisualState.Setters>
+                            <Setter Property="BorderWidth" Value="1" />
+                            <Setter Property="BorderColor" Value="{StaticResource FocusRing}" />
+                        </VisualState.Setters>
+                    </VisualState>
+                    <VisualState x:Name="Disabled">
+                        <VisualState.Setters>
+                            <Setter Property="Opacity" Value="0.35" />
+                        </VisualState.Setters>
+                    </VisualState>
+                </VisualStateGroup>
+            </VisualStateGroupList>
+        </Setter>
+    </Style>
+
+    <!-- Glyphe seul (Label) : même police, taille 14, couleur secondaire. -->
+    <Style x:Key="MotoGlyph" TargetType="Label">
+        <Setter Property="FontFamily" Value="{StaticResource FontFamilyIcons}" />
+        <Setter Property="FontSize" Value="14" />
+        <Setter Property="TextColor" Value="{StaticResource Txt2}" />
+        <Setter Property="VerticalOptions" Value="Center" />
+        <Setter Property="VerticalTextAlignment" Value="Center" />
+    </Style>
+
 </ResourceDictionary>

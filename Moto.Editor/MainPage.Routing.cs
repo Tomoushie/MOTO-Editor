@@ -196,8 +196,8 @@ namespace Moto.Editor
                     _panelsSwapped = !_panelsSwapped;
                     ApplySidePanelLayout();
                     StatusBar.SetStatus(_panelsSwapped
-                        ? "🔀 Panneaux inversés : IA à droite, explorateur à gauche"
-                        : "🔀 Panneaux rétablis : IA à gauche, explorateur à droite");
+                        ? "Panneaux inversés : IA à droite, explorateur à gauche"
+                        : "Panneaux rétablis : IA à gauche, explorateur à droite");
                     break;
                 case "signout": await OnGitHubSignOutAsync(); break;
             }
@@ -402,7 +402,7 @@ namespace Moto.Editor
                 // seulement dans AiChatView/l'historique — pas corrigé ici (ferait
                 // du fichier ouvert un composant "vivant", chantier séparé).
                 ShowAiReplyAsTab(ack, "Agent");
-                StatusBar.SetStatus("🤖 Agent démarré.");
+                StatusBar.SetStatus("Agent démarré.");
                 RefreshHomeStats();
                 return;
             }
@@ -446,7 +446,7 @@ namespace Moto.Editor
                 presetThread.Messages.Add(new ChatMessage { Role = "ai", Content = presetAck });
                 presetThread.LastActivityUtc = DateTime.UtcNow;
                 ShowAiReplyAsTab(presetAck, char.ToUpperInvariant(preset[0]) + preset[1..]);
-                StatusBar.SetStatus("🤖 Agent démarré.");
+                StatusBar.SetStatus("Agent démarré.");
                 RefreshHomeStats();
                 return;
             }

@@ -197,7 +197,10 @@
                                     WidthRequest="34" HeightRequest="34"
                                     BackgroundColor="Transparent" StrokeThickness="0"
                                     StrokeShape="RoundRectangle 999">
-                                <Label x:Name="SendArrowLabel" Text="➤" FontSize="{StaticResource FontSizeSubheading}" TextColor="{StaticResource Txt1}"
+                                <!-- ★ (25/09, passe « moyen → élevé ») : glyphe Envoyer du thème (comme le chat et la barre IA), au lieu du caractère ➤. -->
+                                <Label x:Name="SendArrowLabel" Text="{x:Static controls:MotoIcons.Send}"
+                                       FontFamily="{x:Static controls:MotoIcons.FontFamily}" FontSize="15"
+                                       TextColor="{StaticResource AccentText}"
                                        HorizontalOptions="Center" VerticalOptions="Center" />
                                 <Border.GestureRecognizers>
                                     <TapGestureRecognizer Tapped="OnSendArrowTapped" />

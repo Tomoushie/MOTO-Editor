@@ -34,12 +34,8 @@ namespace Moto.Editor.Views
             var profiler = Moto.Core.Performance.PerformanceProfiler.Instance
                 ?? new Moto.Core.Performance.PerformanceProfiler();
             var perf = new PerformanceStatusBarView(profiler);
-            RightChips.Children.Insert(0, new BoxView
-            {
-                WidthRequest = 1,
-                Color = (Color)Application.Current!.Resources["BorderMuted"],
-                Margin = new Thickness(0, 6, 8, 6)
-            });
+            // ★ (25/09) : plus de séparateur ajouté ici — le premier trait du XAML sépare déjà les mesures des compteurs
+            // (les deux se touchaient : double trait visible sur capture).
             RightChips.Children.Insert(0, perf);
         }
 
@@ -74,10 +70,21 @@ namespace Moto.Editor.Views
         }
 
         /// <summary>Affiche/masque l'indicateur "mode sandbox".</summary>
-        public void SetSandbox(bool active) => SandboxLabel.IsVisible = active;
+        public void SetSandbox(bool active)
+        {
+            SandboxLabel.IsVisible = active;
+            UpdateStateChips();
+        }
 
         /// <summary>Affiche/masque le cadenas (projet protégé par mot de passe).</summary>
-        public void SetLocked(bool locked) => LockedLabel.IsVisible = locked;
+        public void SetLocked(bool locked)
+        {
+            LockedLabel.IsVisible = locked;
+            UpdateStateChips();
+        }
+
+        // ★ (25/09) : le groupe (et son séparateur) n'apparaît que si au moins une des deux étiquettes est visible.
+        private void UpdateStateChips() => StateChips.IsVisible = SandboxLabel.IsVisible || LockedLabel.IsVisible;
 
         /// <summary>
         /// Applique les réglages qui concernent la barre de statut elle-même.

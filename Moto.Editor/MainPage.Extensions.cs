@@ -525,7 +525,7 @@ namespace Moto.Editor
                 StatusBar.SetStatus("Aucune action contextuelle disponible.");
                 return;
             }
-            StatusBar.SetStatus("💡 Actions : " + string.Join(" | ", actions.Select(a => a.Title)));
+            StatusBar.SetStatus("Actions : " + string.Join(" | ", actions.Select(a => a.Title)));
         }
 
         private void HandleContextualAction(string actionId)
@@ -1115,8 +1115,8 @@ namespace Moto.Editor
 
             if (changed.Count > 0)
                 StatusBar.SetStatus(changed.Count == 1
-                    ? $"🤖 « {changed[0].Title} » rechargé depuis le disque."
-                    : $"🤖 {changed.Count} onglets rechargés depuis le disque.");
+                    ? $"« {changed[0].Title} » rechargé depuis le disque."
+                    : $"{changed.Count} onglets rechargés depuis le disque.");
         }
 
         /// <summary>

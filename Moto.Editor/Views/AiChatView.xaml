@@ -2,6 +2,7 @@
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:local="clr-namespace:Moto.Editor.Views"
+             xmlns:controls="clr-namespace:Moto.Editor.Controls"
              x:Class="Moto.Editor.Views.AiChatView"
              BackgroundColor="{StaticResource BgSide}">
 
@@ -12,7 +13,7 @@
             <local:ChatSegmentSelector x:Key="SegmentSelector">
                 <local:ChatSegmentSelector.TextTemplate>
                     <DataTemplate>
-                        <Label Text="{Binding Text}" FontSize="{StaticResource FontSizeBody}" TextColor="White" />
+                        <Label Text="{Binding Text}" FontSize="{StaticResource FontSizeBody}" TextColor="{StaticResource Txt1}" LineHeight="1.15" />
                     </DataTemplate>
                 </local:ChatSegmentSelector.TextTemplate>
                 <local:ChatSegmentSelector.CodeTemplate>
@@ -22,15 +23,17 @@
                         <!-- ★ AJOUT (25/09, « Appliquer ») : bouton qui pose ce bloc dans le fichier affiché — diff et confirmation dans la
                              fenêtre principale, « ↩ Annuler » ensuite dans le bandeau IA. Absent sur un bloc coupé ou écrit par l'utilisateur.
                              Sous le code, une ligne dit ce qu'a donné le dernier clic (appliqué, refusé, ou pourquoi rien n'a été fait). -->
+                        <!-- ★ (25/09, passe « moyen → élevé ») : bloc de code aux couleurs de l'éditeur (fond BgEditor, texte clair
+                             neutre) au lieu d'un noir chaud qui jurait avec le reste ; « Appliquer » en bleu lisible (AccentText). -->
                         <Border StrokeShape="RoundRectangle 6" Stroke="{StaticResource BorderCol}"
-                                BackgroundColor="#171614" Padding="8,4,8,6">
+                                BackgroundColor="{StaticResource BgEditor}" Padding="8,4,8,6">
                             <Grid RowDefinitions="Auto,Auto,Auto" ColumnDefinitions="*,Auto,Auto" ColumnSpacing="6">
                                 <Label Grid.Row="0" Grid.Column="0" Text="{Binding Header}" FontFamily="Consolas"
                                        FontSize="10.5" TextColor="{StaticResource Txt2}" VerticalOptions="Center"
                                        LineBreakMode="TailTruncation" />
                                 <Button Grid.Row="0" Grid.Column="1" Text="Appliquer" FontSize="{StaticResource FontSizeSmall}" Padding="6,2"
                                         VerticalOptions="Start" BackgroundColor="Transparent"
-                                        TextColor="{StaticResource Accent}" IsVisible="{Binding CanApply}"
+                                        TextColor="{StaticResource AccentText}" IsVisible="{Binding CanApply}"
                                         ToolTipProperties.Text="Poser ce code dans le fichier affiché : tu vois le diff et tu décides. Pour choisir l'endroit, sélectionne dans l'éditeur le passage à remplacer (ou clique là où insérer) avant."
                                         Clicked="OnApplyCodeClicked" />
                                 <Button Grid.Row="0" Grid.Column="2" Text="Copier" FontSize="{StaticResource FontSizeSmall}" Padding="6,2"
@@ -38,7 +41,7 @@
                                         TextColor="{StaticResource Txt2}"
                                         Clicked="OnCopyCodeClicked" BindingContext="{Binding .}" />
                                 <Label Grid.Row="1" Grid.ColumnSpan="3" Text="{Binding Text}" FontFamily="Consolas"
-                                       FontSize="11.5" TextColor="#C9C4BC" LineBreakMode="CharacterWrap" />
+                                       FontSize="11.5" TextColor="#D4D4D4" LineBreakMode="CharacterWrap" />
                                 <Label Grid.Row="2" Grid.ColumnSpan="3" Text="{Binding ApplyStatus}" IsVisible="{Binding HasApplyStatus}"
                                        FontSize="{StaticResource FontSizeSmall}" TextColor="{StaticResource Txt1}" Margin="0,4,0,0" />
                             </Grid>
@@ -62,14 +65,15 @@
              petite barre d'actions. -->
         <HorizontalStackLayout Grid.Row="0" Spacing="{StaticResource SpaceXs}" Padding="0,0,0,4">
 
-            <Button Text="＋" FontSize="11"
-                    Style="{StaticResource MotoHoverIconButton}"
+            <!-- ★ (25/09) : glyphes du thème (＋ et 🗑 étaient des caractères texte/emoji). -->
+            <Button Text="{x:Static controls:MotoIcons.Add}" FontSize="12"
+                    Style="{StaticResource MotoIconButton}"
                     ToolTipProperties.Text="Nouvelle conversation"
                     Clicked="OnNewThreadClicked" />
 
-            <Button Text="🗑" FontSize="11"
-                    Style="{StaticResource MotoHoverIconButton}"
-                    ToolTipProperties.Text="/clear"
+            <Button Text="{x:Static controls:MotoIcons.Delete}" FontSize="12"
+                    Style="{StaticResource MotoIconButton}"
+                    ToolTipProperties.Text="Vider la conversation (/clear)"
                     Clicked="OnClearClicked" />
 
         </HorizontalStackLayout>
@@ -105,7 +109,7 @@
                                      le découpage texte / blocs de code ci-dessous n'est fait qu'une fois, à la fin — le refaire dix fois par
                                      seconde reconstruirait chaque cadre et chaque bouton. -->
                                 <Label Text="{Binding StreamingText}" IsVisible="{Binding IsStreaming}"
-                                       FontSize="{StaticResource FontSizeBody}" TextColor="White" />
+                                       FontSize="{StaticResource FontSizeBody}" TextColor="{StaticResource Txt1}" LineHeight="1.15" />
                                 <!-- ★ CORRIGÉ (03/09) : Label plat unique remplacé par un rendu
                                      par segments (Segments, voir ChatMessage.cs) — permet de
                                      distinguer un bloc de code (police mono + bouton copier) du
@@ -158,8 +162,9 @@
                        TextChanged="OnInputTextChanged"
                        Completed="OnInputCompleted" />
 
-                <Button Grid.Row="1" Grid.Column="0" Text="📎" FontSize="11"
-                        Style="{StaticResource MotoHoverIconButton}"
+                <Button Grid.Row="1" Grid.Column="0" Text="{x:Static controls:MotoIcons.Attach}" FontSize="13"
+                        Style="{StaticResource MotoIconButton}"
+                        VerticalOptions="Center"
                         ToolTipProperties.Text="Attacher fichier / sélection"
                         Clicked="OnAttachClicked" />
 
@@ -194,8 +199,11 @@
                 </HorizontalStackLayout>
 
                 <!-- ★ CHANGÉ (24/09) : devient ■ pendant que la réponse s'écrit — un clic l'arrête. -->
-                <Button Grid.Row="1" Grid.Column="2" x:Name="SendButton" Text="➤"
-                        Style="{StaticResource MotoHoverIconButton}" Padding="8,2" WidthRequest="40"
+                <!-- ★ (25/09) : glyphes Envoyer / Arrêter (MotoIcons.Send / Stop) au lieu des caractères ➤ / ■. -->
+                <Button Grid.Row="1" Grid.Column="2" x:Name="SendButton" Text="{x:Static controls:MotoIcons.Send}"
+                        Style="{StaticResource MotoIconButton}" FontSize="14"
+                        TextColor="{StaticResource AccentText}"
+                        VerticalOptions="Center"
                         ToolTipProperties.Text="Envoyer"
                         Clicked="OnSendButtonClicked" />
 

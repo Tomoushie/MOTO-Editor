@@ -46,19 +46,20 @@
                 </ScrollView>
             </Border>
 
-            <!-- Boutons (hors de la zone défilante : toujours visibles) -->
+            <!-- Boutons (hors de la zone défilante : toujours visibles).
+                 ★ (25/09, passe « moyen → élevé ») : styles communs du thème (bouton secondaire + bouton principal, avec
+                 survol/appui/focus) ; avant, « Appliquer » ressemblait à du texte surligné, sans marge intérieure. -->
             <HorizontalStackLayout Grid.Row="3"
                                    Spacing="{StaticResource SpaceSm}"
-                                   HorizontalOptions="End">
+                                   HorizontalOptions="End"
+                                   Margin="0,4,0,0">
                 <Button x:Name="CancelBtn"
                         Text="Annuler"
-                        BackgroundColor="{StaticResource BgHover}"
-                        TextColor="{StaticResource Txt1}"
+                        Style="{StaticResource MotoSecondaryButton}"
                         Clicked="OnCancelClicked" />
                 <Button x:Name="ConfirmBtn"
                         Text="Appliquer"
-                        BackgroundColor="{StaticResource Accent}"
-                        TextColor="White"
+                        Style="{StaticResource MotoPrimaryButton}"
                         Clicked="OnConfirmClicked" />
             </HorizontalStackLayout>
         </Grid>

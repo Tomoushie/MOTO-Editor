@@ -63,6 +63,22 @@ namespace Moto.Editor
                 h.PlatformView.Style = null;
                 h.PlatformView.BorderThickness = new Microsoft.UI.Xaml.Thickness(0);
                 h.PlatformView.Padding = new Microsoft.UI.Xaml.Thickness(0);
+
+                // ★ AJOUT (26/09, passe « moyen → élevé ») : les boutons du système de design (MotoPrimary/Secondary/
+                // Ghost/Danger/IconButton, Themes/MotoTheme.xaml) retrouvent leur marge intérieure, leur bordure et leur
+                // arrondi — la remise à zéro ci-dessus, faite APRÈS les réglages MAUI, les réduisait à du texte collé sur
+                // un aplat carré (vu sur capture : « Refuser »/« Appliquer »). Les autres boutons ne changent pas.
+                if (v is Microsoft.Maui.Controls.Button button && IsDesignSystemButton(button.Style))
+                {
+                    // Bordure : on enlève la valeur posée en dur pour que l'épaisseur/couleur fournies par MAUI (et leurs
+                    // changements d'état, ex. le contour de focus) s'appliquent. Arrondi : posé directement (aucun état ne le change).
+                    h.PlatformView.ClearValue(Microsoft.UI.Xaml.Controls.Control.BorderThicknessProperty);
+                    h.UpdateValue(nameof(Microsoft.Maui.IPadding.Padding));
+                    h.UpdateValue(nameof(Microsoft.Maui.IButtonStroke.StrokeThickness));
+                    h.UpdateValue(nameof(Microsoft.Maui.IButtonStroke.StrokeColor));
+                    h.UpdateValue(nameof(Microsoft.Maui.IButtonStroke.CornerRadius));
+                    h.PlatformView.CornerRadius = new Microsoft.UI.Xaml.CornerRadius(Math.Max(0, button.CornerRadius));
+                }
             });
 
             Microsoft.Maui.Handlers.EntryHandler.Mapper.AppendToMapping("NoNative", (h, v) =>
@@ -127,6 +143,22 @@ namespace Moto.Editor
             // ══════════════════════════════════════════════════════════════
 
             return app;
+        }
+
+        /// <summary>
+        /// ★ AJOUT (26/09) : vrai si le bouton porte un des styles du système de design (Themes/MotoTheme.xaml). Comparaison
+        /// par référence : un style posé par StaticResource EST l'objet du dictionnaire. Voir le mappage « NoNative ».
+        /// </summary>
+        private static readonly string[] DesignSystemButtonStyles =
+            { "MotoPrimaryButton", "MotoSecondaryButton", "MotoGhostButton", "MotoDangerButton", "MotoIconButton" };
+
+        private static bool IsDesignSystemButton(Microsoft.Maui.Controls.Style? style)
+        {
+            if (style is null || Microsoft.Maui.Controls.Application.Current is not { } app) return false;
+            foreach (var key in DesignSystemButtonStyles)
+                if (app.Resources.TryGetValue(key, out var candidate) && ReferenceEquals(candidate, style))
+                    return true;
+            return false;
         }
     }
 }

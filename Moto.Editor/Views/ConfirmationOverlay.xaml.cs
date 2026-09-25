@@ -49,10 +49,12 @@ namespace Moto.Editor.Views
             DetailsFrame.IsVisible = !string.IsNullOrWhiteSpace(request.Details);
             _ = DetailsScroll.ScrollToAsync(0, 0, animated: false); // un nouveau diff s'ouvre toujours en haut
 
-            // Couleur destructive (rouge) pour les actions irréversibles
-            ConfirmBtn.BackgroundColor = request.IsDestructive
-                ? Res("Danger", Color.FromArgb("#DC2626"))
-                : Res("Accent", Color.FromArgb("#007ACC"));
+            // Couleur destructive (rouge) pour les actions irréversibles.
+            // ★ (25/09) : on change de STYLE (et non la couleur de fond en direct) : une couleur posée en code écrasait
+            // les états survol/appui du thème.
+            if (Application.Current?.Resources.TryGetValue(request.IsDestructive ? "MotoDangerButton" : "MotoPrimaryButton", out var style) == true
+                && style is Style buttonStyle)
+                ConfirmBtn.Style = buttonStyle;
 
             IsVisible = true;
 

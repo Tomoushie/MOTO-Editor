@@ -64,10 +64,11 @@ namespace Moto.Editor.Views
         /// </summary>
         private void RefreshProjectInfo(string rootPath)
         {
-            ProjectNameLabel.Text = "📁 " + Path.GetFileName(rootPath.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
+            // ★ (25/09) : glyphes dans le XAML (dossier, ⎇) au lieu des emojis 📁/🌿 collés au texte.
+            ProjectNameLabel.Text = Path.GetFileName(rootPath.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar));
 
             var branch = ReadGitBranch(rootPath);
-            BranchLabel.Text = branch is null ? "" : $"🌿 {branch}";
+            BranchLabel.Text = branch is null ? "" : $"⎇ {branch}";
             ((Border)BranchLabel.Parent).IsVisible = branch is not null; // masque juste la puce si pas un dépôt Git
             ProjectInfoBar.IsVisible = true;
         }
@@ -99,11 +100,27 @@ namespace Moto.Editor.Views
 
             foreach (var node in _treeService.Flatten(_root))
             {
+                node.IsActive = IsActivePath(node);
                 _visibleNodes.Add(node);
             }
 
             UpdateEmptyState();
         }
+
+        private string? _activePath;
+
+        /// <summary>
+        /// ★ AJOUT (25/09) : surligne la ligne du fichier affiché dans l'éditeur (null = aucun). Appelée par MainPage à chaque
+        /// changement de document ; les lignes créées plus tard (dossier déplié) sont marquées dans Refresh.
+        /// </summary>
+        public void SetActiveFile(string? path)
+        {
+            _activePath = path;
+            foreach (var node in _visibleNodes) node.IsActive = IsActivePath(node);
+        }
+
+        private bool IsActivePath(FileNode node)
+            => !node.IsDirectory && _activePath is not null && string.Equals(node.Path, _activePath, StringComparison.OrdinalIgnoreCase);
 
         /// <summary>
         /// ★ CORRECTION (02/09) : remplace CollectionView.EmptyView (voir commentaire

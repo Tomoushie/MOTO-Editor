@@ -9,10 +9,11 @@
          moteur de jeu, pas de boucle de rendu à mesurer) — inventer un chiffre
          aurait été malhonnête. Remplacés par Threads/GC, deux vraies mesures
          déjà échantillonnées par PerformanceProfiler (SampleMetrics). -->
+    <!-- ★ (25/09, passe « moyen → élevé ») : texte seul en gris tertiaire (les emojis 💾 ⚙ 🧵 ♻ donnaient un air de jouet). -->
     <HorizontalStackLayout Spacing="{StaticResource SpaceMd}" VerticalOptions="Center" Padding="8,2">
-        <Label x:Name="MemLabel" Text="💾 — Mo" FontSize="11" Opacity="0.8" ToolTipProperties.Text="Mémoire utilisée par MOTO Editor" />
-        <Label x:Name="CpuLabel" Text="⚙ — %" FontSize="11" Opacity="0.8" ToolTipProperties.Text="Utilisation CPU (moyenne sur le dernier intervalle)" />
-        <Label x:Name="ThreadsLabel" Text="🧵 —" FontSize="11" Opacity="0.8" ToolTipProperties.Text="Nombre de threads actifs" />
-        <Label x:Name="GcLabel" Text="♻ —" FontSize="11" Opacity="0.8" ToolTipProperties.Text="Collectes du ramasse-miettes (génération 0)" />
+        <Label x:Name="MemLabel" Text="— Mo" FontSize="11" TextColor="{StaticResource Txt3}" ToolTipProperties.Text="Mémoire utilisée par MOTO Editor" />
+        <Label x:Name="CpuLabel" Text="CPU — %" FontSize="11" TextColor="{StaticResource Txt3}" ToolTipProperties.Text="Utilisation CPU (moyenne sur le dernier intervalle)" />
+        <Label x:Name="ThreadsLabel" Text="— threads" FontSize="11" TextColor="{StaticResource Txt3}" ToolTipProperties.Text="Nombre de threads actifs" />
+        <Label x:Name="GcLabel" Text="GC —" FontSize="11" TextColor="{StaticResource Txt3}" ToolTipProperties.Text="Collectes du ramasse-miettes (génération 0)" />
     </HorizontalStackLayout>
 </ContentView>

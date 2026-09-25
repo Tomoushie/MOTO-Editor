@@ -19,6 +19,7 @@
 -->
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:Moto.Editor.Controls"
              x:Class="Moto.Editor.Views.SettingsWindowView"
              IsVisible="False">
 
@@ -62,9 +63,13 @@
                     <Border x:Name="DragHandle" Grid.Row="0"
                             BackgroundColor="{StaticResource BgSide}" StrokeThickness="0">
                         <Grid ColumnDefinitions="*,Auto,Auto" Padding="14,0">
-                            <Label Text="⚙ Réglages" FontAttributes="Bold"
-                                   FontSize="{DynamicResource FontSizeUiText}"
-                                   TextColor="{StaticResource Txt1}" VerticalOptions="Center" />
+                            <!-- ★ (25/09, passe « moyen → élevé ») : glyphe engrenage + texte (plus d'emoji ⚙ collé au titre). -->
+                            <HorizontalStackLayout Spacing="8" VerticalOptions="Center">
+                                <Label Text="{x:Static controls:MotoIcons.Settings}" Style="{StaticResource MotoGlyph}" />
+                                <Label Text="Réglages" FontAttributes="Bold"
+                                       FontSize="{DynamicResource FontSizeUiText}"
+                                       TextColor="{StaticResource Txt1}" VerticalOptions="Center" />
+                            </HorizontalStackLayout>
                             <!-- ★ AJOUT (02/09, état des lieux) : seul point d'entrée réel vers
                                  la config des providers IA externes (clés API OpenAI/Anthropic/
                                  Mistral, chiffrées, + test de connexion) — le catalogue de
@@ -73,13 +78,18 @@
                                  AiSettingsPage (Pages/AiSettingsPage.xaml.cs) existait déjà, mais
                                  n'avait plus aucun moyen de s'ouvrir depuis le 31/08 (ancien menu
                                  Réglages supprimé, voir CLAUDE.md). -->
-                            <Button Grid.Column="1" Text="🔑 Clés API" FontSize="{StaticResource FontSizeBody}"
-                                    Style="{StaticResource MotoHoverIconButton}"
+                            <!-- ★ (25/09) : bouton discret du thème, texte seul (l'emoji 🔑 retiré ; une icône-police dans le bouton
+                                 ne s'affichait pas sous Windows, vérifié sur capture), croix = glyphe. -->
+                            <Button Grid.Column="1" Text="Clés API"
+                                    Style="{StaticResource MotoGhostButton}"
+                                    VerticalOptions="Center"
                                     ToolTipProperties.Text="Configurer les providers IA externes (OpenAI/Anthropic/Mistral)"
                                     Clicked="OnApiKeysClicked" />
-                            <Button Grid.Column="2" Text="✕" WidthRequest="32" HeightRequest="32"
-                                    Padding="0" BackgroundColor="Transparent"
-                                    TextColor="{StaticResource Txt2}" Clicked="OnCloseClicked" />
+                            <Button Grid.Column="2" Text="{x:Static controls:MotoIcons.Close}"
+                                    Style="{StaticResource MotoIconButton}" FontSize="10"
+                                    Margin="4,0,0,0" VerticalOptions="Center"
+                                    ToolTipProperties.Text="Fermer"
+                                    Clicked="OnCloseClicked" />
                         </Grid>
                         <Border.GestureRecognizers>
                             <PanGestureRecognizer PanUpdated="OnDragPanUpdated" />

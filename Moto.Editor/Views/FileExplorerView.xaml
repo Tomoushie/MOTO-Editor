@@ -9,10 +9,11 @@
         <!-- Barre d'outils de l'explorateur -->
         <HorizontalStackLayout Grid.Row="0" Padding="8,6" Spacing="{StaticResource SpaceXs}">
 
+            <!-- ★ (25/09) : libellé de section façon VS Code (petites capitales espacées, rôle TextMicro). -->
             <Label Text="EXPLORATEUR"
-                   FontAttributes="Bold"
-                   FontSize="{StaticResource FontSizeBody}"
-                   VerticalOptions="Center" />
+                   Style="{StaticResource TextMicro}"
+                   VerticalOptions="Center"
+                   Margin="4,0,6,0" />
 
             <!-- ★ CORRECTION (31/08) : emojis → glyphes vectoriels Segoe Fluent Icons
                  (codepoints vérifiés visuellement, voir Controls/MotoIcons.cs) —
@@ -53,10 +54,10 @@
                     Clicked="OnRefreshClicked"
                     Style="{StaticResource MotoHoverIconButton}" VerticalOptions="Center" />
 
-            <Button x:Name="BtnToggleSide" Text="🡺"
-                    ToolTipProperties.Text="Changer de côté"
+            <Button x:Name="BtnToggleSide" Text="{x:Static controls:MotoIcons.Swap}" FontFamily="{x:Static controls:MotoIcons.FontFamily}"
+                    ToolTipProperties.Text="Changer de côté (explorateur ⇄ panneau IA)"
                     Clicked="OnToggleSideClicked"
-                    Style="{StaticResource MotoHoverIconButton}" FontSize="{StaticResource FontSizeBody}" VerticalOptions="Center" />
+                    Style="{StaticResource MotoHoverIconButton}" VerticalOptions="Center" />
 
         </HorizontalStackLayout>
 
@@ -66,10 +67,13 @@
              (dossier sans dépôt Git). -->
         <HorizontalStackLayout Grid.Row="1" x:Name="ProjectInfoBar"
                                 Padding="8,0,8,8" Spacing="{StaticResource SpaceXs}" IsVisible="False">
+            <!-- ★ (25/09) : glyphe dossier au lieu de l'emoji du dossier, puce de branche discrète (⎇ au lieu de l'emoji plante). -->
+            <Label Text="{x:Static controls:MotoIcons.FolderOpen}" Style="{StaticResource MotoGlyph}" FontSize="13"
+                   TextColor="#C8A45A" Margin="4,0,2,0" />
             <Label x:Name="ProjectNameLabel" FontSize="{StaticResource FontSizeBody}" FontAttributes="Bold"
-                   TextColor="{StaticResource Txt1}" />
-            <Border BackgroundColor="{StaticResource BgSide}" Padding="6,1"
-                    StrokeThickness="0" StrokeShape="RoundRectangle 8">
+                   TextColor="{StaticResource Txt1}" VerticalOptions="Center" />
+            <Border BackgroundColor="{StaticResource BgHover}" Padding="6,1"
+                    StrokeThickness="0" StrokeShape="RoundRectangle 8" VerticalOptions="Center">
                 <Label x:Name="BranchLabel" FontSize="11" TextColor="{StaticResource Txt2}" />
             </Border>
         </HorizontalStackLayout>
@@ -92,10 +96,11 @@
         <Grid x:Name="EmptyStatePanel" Grid.Row="2" HorizontalOptions="Fill" VerticalOptions="Fill" InputTransparent="True">
             <VerticalStackLayout Padding="{StaticResource SpaceMd}" Spacing="{StaticResource SpaceSm}"
                                  HorizontalOptions="Center" VerticalOptions="Center">
-                <Label Text="📂" FontSize="{StaticResource FontSizeDisplay}" HorizontalOptions="Center" Opacity="0.6" />
-                <Label Text="Aucun dossier ouvert" FontSize="{StaticResource FontSizeBody}" HorizontalOptions="Center" Opacity="0.8" />
-                <Label Text="Clique sur 📁 ci-dessus, ou sur &quot;Projet logiciel&quot; à l'accueil."
-                       FontSize="11" HorizontalOptions="Center" Opacity="0.5" HorizontalTextAlignment="Center" />
+                <Label Text="{x:Static controls:MotoIcons.FolderOpen}" Style="{StaticResource MotoGlyph}" FontSize="28"
+                       TextColor="{StaticResource Txt3}" HorizontalOptions="Center" />
+                <Label Text="Aucun dossier ouvert" FontSize="{StaticResource FontSizeBody}" TextColor="{StaticResource Txt2}" HorizontalOptions="Center" />
+                <Label Text="Clique sur l'icône dossier ci-dessus, ou sur « Projet logiciel » à l'accueil."
+                       FontSize="11" TextColor="{StaticResource Txt3}" HorizontalOptions="Center" HorizontalTextAlignment="Center" />
             </VerticalStackLayout>
         </Grid>
 
@@ -115,24 +120,40 @@
                          ce wrapper Border ; la sélection reste gérée nativement par
                          SelectionMode="Single" ci-dessus, non dupliquée ici pour éviter un
                          double surlignage. -->
-                    <Border Style="{StaticResource MotoHoverRow}">
-                        <Grid ColumnDefinitions="Auto,Auto,*" Padding="4,2">
-
-                            <!-- Espace d'indentation -->
-                            <BoxView Grid.Column="0"
-                                     WidthRequest="{Binding Indent}"
-                                     Color="Transparent" />
-
-                            <Label Grid.Column="1"
-                                   Text="{Binding Icon}"
-                                   FontSize="{StaticResource FontSizeBody}"
-                                   WidthRequest="44" />
-
-                            <Label Grid.Column="2"
-                                   Text="{Binding Name}"
-                                   FontSize="{StaticResource FontSizeBody}"
-                                   VerticalOptions="Center" />
-
+                    <!-- ★ REFAIT (25/09, passe « moyen → élevé ») : lignes de 24 px façon VS Code : chevron fin, glyphe dossier/
+                         fichier coloré par type (au lieu des mêmes emojis pour tout), nom tronqué proprement, et la ligne du
+                         fichier affiché dans l'éditeur surlignée (IsActive), sous le survol de MotoHoverRow. -->
+                    <Border Style="{StaticResource MotoHoverRow}" Margin="4,0">
+                        <Grid HeightRequest="24">
+                            <BoxView Color="{StaticResource RowActive}" CornerRadius="6" IsVisible="{Binding IsActive}" />
+                            <Grid ColumnDefinitions="Auto,Auto,Auto,*" Padding="4,0,6,0">
+                                <!-- Espace d'indentation -->
+                                <BoxView Grid.Column="0"
+                                         WidthRequest="{Binding Indent}"
+                                         Color="Transparent" />
+                                <Label Grid.Column="1"
+                                       Text="{Binding Chevron}"
+                                       FontFamily="{x:Static controls:MotoIcons.FontFamily}"
+                                       FontSize="9"
+                                       TextColor="{StaticResource Txt2}"
+                                       WidthRequest="16"
+                                       HorizontalTextAlignment="Center"
+                                       VerticalOptions="Center" />
+                                <Label Grid.Column="2"
+                                       Text="{Binding Glyph}"
+                                       TextColor="{Binding GlyphColor}"
+                                       FontFamily="{x:Static controls:MotoIcons.FontFamily}"
+                                       FontSize="14"
+                                       WidthRequest="20"
+                                       VerticalOptions="Center" />
+                                <Label Grid.Column="3"
+                                       Text="{Binding Name}"
+                                       FontSize="{StaticResource FontSizeBody}"
+                                       TextColor="{StaticResource Txt1}"
+                                       LineBreakMode="TailTruncation"
+                                       Margin="4,0,0,0"
+                                       VerticalOptions="Center" />
+                            </Grid>
                         </Grid>
                     </Border>
                 </DataTemplate>

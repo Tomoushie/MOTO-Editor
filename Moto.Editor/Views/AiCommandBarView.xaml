@@ -1,20 +1,25 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:Moto.Editor.Controls"
              x:Class="Moto.Editor.Views.AiCommandBarView">
 
-    <!-- Barre IA flottante, style Claude / Zen -->
+    <!-- Barre IA flottante, style Claude / Zen.
+         ★ (25/09, passe « moyen → élevé ») : surface « flottante » (BgElevated) pour qu'elle se détache du code, étoile en
+         bleu lisible, glyphe Envoyer du thème (au lieu du caractère ➤). Pas d'ombre portée : essayée, les panneaux posés
+         ensuite par-dessus l'éditeur (confirmation, palette) cessaient d'être redessinés (vérifié sur captures). -->
     <Border StrokeShape="RoundRectangle 12"
             Stroke="{StaticResource BorderCol}"
-            BackgroundColor="{StaticResource BgPanel}"
-            Padding="14,8"
+            BackgroundColor="{StaticResource BgElevated}"
+            Padding="14,6"
             WidthRequest="560">
 
         <Grid ColumnDefinitions="Auto,*,Auto">
 
             <Label Grid.Column="0"
                    Text="✦"
-                   FontSize="18"
+                   FontSize="16"
+                   TextColor="{StaticResource AccentText}"
                    VerticalOptions="Center"
                    Margin="0,0,8,0" />
 
@@ -26,10 +31,12 @@
                    Completed="OnSubmitted" />
 
             <Button Grid.Column="2"
-                    Text="➤"
-                    BackgroundColor="Transparent"
-                    Clicked="OnSubmitted"
-                    Padding="8,4" />
+                    Text="{x:Static controls:MotoIcons.Send}"
+                    Style="{StaticResource MotoIconButton}"
+                    TextColor="{StaticResource AccentText}"
+                    VerticalOptions="Center"
+                    ToolTipProperties.Text="Envoyer"
+                    Clicked="OnSubmitted" />
 
         </Grid>
 

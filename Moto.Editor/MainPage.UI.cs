@@ -137,6 +137,7 @@ namespace Moto.Editor
                 _sandboxPath = _sandbox.Create(_realRoot, "test");
                 _inSandbox = true;
                 _currentRoot = _sandboxPath;
+                EditorPane.WorkspaceRoot = _sandboxPath;
                 ExplorerPanel.LoadFolder(_sandboxPath);
                 StatusBar.SetSandbox(true);
             }
@@ -148,6 +149,7 @@ namespace Moto.Editor
                 else _sandbox.Discard(_sandboxPath);
                 _inSandbox = false;
                 _currentRoot = _realRoot;
+                EditorPane.WorkspaceRoot = _realRoot;
                 ExplorerPanel.LoadFolder(_realRoot);
                 StatusBar.SetSandbox(false);
             }
@@ -333,6 +335,7 @@ namespace Moto.Editor
         {
             if (doc == null) return;
             EditorPane.SetBreadcrumb(doc.Path);
+            ExplorerPanel.SetActiveFile(doc.Path); // ★ (25/09) : ligne du fichier affiché surlignée dans l'explorateur
             EditorPane.EditorText = doc.Text;
             _currentPath = doc.Path;
             RefreshAiUndoButton();

@@ -62,11 +62,14 @@ namespace Moto.Editor.Views
                 ColumnSpacing = 8
             };
 
-            // Icône
+            // Icône. ★ (25/09) : glyphe Segoe Fluent Icons dérivé de l'emoji fourni par le moteur (Moto.Core reste inchangé).
             var icon = new Label
             {
-                Text = suggestion.Icon,
-                FontSize = 18,
+                Text = GlyphFor(suggestion.Icon),
+                FontFamily = Moto.Editor.Controls.MotoIcons.FontFamily,
+                FontSize = 16,
+                TextColor = (Color)Application.Current.Resources["Txt2"],
+                Margin = new Thickness(0, 1, 2, 0),
                 VerticalOptions = LayoutOptions.Start
             };
             Grid.SetColumn(icon, 0);
@@ -117,5 +120,20 @@ namespace Moto.Editor.Views
         {
             IsVisible = false;
         }
+
+        /// <summary>
+        /// ★ AJOUT (25/09) : emoji du moteur de suggestions → glyphe du thème (même famille d'icônes que le reste de
+        /// l'interface). Une icône inconnue retombe sur l'ampoule plutôt que d'afficher l'emoji en couleur.
+        /// </summary>
+        private static string GlyphFor(string? emoji) => (emoji ?? string.Empty).Replace("\uFE0F", string.Empty) switch
+        {
+            "📐" => Moto.Editor.Controls.MotoIcons.Tiles,
+            "💻" => Moto.Editor.Controls.MotoIcons.Terminal,
+            "✏" => Moto.Editor.Controls.MotoIcons.Edit,
+            "🤖" => Moto.Editor.Controls.MotoIcons.Robot,
+            "🏗" => Moto.Editor.Controls.MotoIcons.Processing,
+            "🔧" => Moto.Editor.Controls.MotoIcons.Repair,
+            _ => Moto.Editor.Controls.MotoIcons.Bulb
+        };
     }
 }

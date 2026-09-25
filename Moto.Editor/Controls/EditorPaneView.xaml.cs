@@ -118,6 +118,13 @@ namespace Moto.Editor.Controls
         public void SelectTab(object document)
         {
             TabsList.SelectedItem = document;
+
+            // ★ (25/09) : l'onglet actif est dessiné d'après EditorDocument.IsActive (voir le XAML), pas d'après l'état
+            // visuel « Selected » du CollectionView, qui ne s'appliquait pas sous Windows.
+            if (TabsList.ItemsSource is System.Collections.IEnumerable items)
+                foreach (var item in items)
+                    if (item is EditorDocument doc)
+                        doc.IsActive = ReferenceEquals(doc, document);
         }
 
         /// <summary>
@@ -126,11 +133,59 @@ namespace Moto.Editor.Controls
         /// </summary>
         public void SetBreadcrumb(string fullPath)
         {
-            CrumbLabel.Text = string.IsNullOrWhiteSpace(fullPath)
-                ? "Aucun fichier ouvert"
-                : fullPath.Replace("\\", " \\ ");
+            _crumbPath = fullPath;
+            RenderBreadcrumb();
             // ★ AJOUT (25/09) : la coloration suit le type du fichier affiché (appelé à chaque changement de document).
             Editor.SetLanguageFromPath(fullPath);
+        }
+
+        private string? _crumbPath;
+        private string? _workspaceRoot;
+
+        private static Microsoft.Maui.Graphics.Color ThemeColor(string key, string fallback)
+            => Application.Current?.Resources.TryGetValue(key, out var value) == true && value is Microsoft.Maui.Graphics.Color color
+                ? color
+                : Microsoft.Maui.Graphics.Color.FromArgb(fallback);
+
+        /// <summary>★ AJOUT (25/09) : dossier du projet ouvert — le fil d'Ariane affiche le chemin relatif à ce dossier.</summary>
+        public string? WorkspaceRoot
+        {
+            get => _workspaceRoot;
+            set { _workspaceRoot = value; RenderBreadcrumb(); }
+        }
+
+        /// <summary>
+        /// ★ REFAIT (25/09) : « Moto.Core › Moto.AI › CodeApply.cs » (relatif au projet ; nom du fichier en clair, dossiers
+        /// estompés) au lieu de « C: \ Users \ nowak \ … » ; le chemin complet reste dans l'infobulle.
+        /// </summary>
+        private void RenderBreadcrumb()
+        {
+            if (string.IsNullOrWhiteSpace(_crumbPath))
+            {
+                CrumbLabel.FormattedText = null;
+                CrumbLabel.Text = "Aucun fichier ouvert";
+                ToolTipProperties.SetText(CrumbLabel, null);
+                return;
+            }
+            var shown = _crumbPath;
+            if (!string.IsNullOrWhiteSpace(_workspaceRoot))
+            {
+                var root = _workspaceRoot.TrimEnd('\\', '/') + System.IO.Path.DirectorySeparatorChar;
+                if (shown.StartsWith(root, StringComparison.OrdinalIgnoreCase))
+                    shown = System.IO.Path.GetFileName(_workspaceRoot.TrimEnd('\\', '/')) + System.IO.Path.DirectorySeparatorChar + shown.Substring(root.Length);
+            }
+            var parts = shown.Split(new[] { '\\', '/' }, StringSplitOptions.RemoveEmptyEntries);
+            var text = new FormattedString();
+            var dim = ThemeColor("Txt3", "#6B7280");
+            var bright = ThemeColor("Txt1", "#E5E7EB");
+            for (var i = 0; i < parts.Length; i++)
+            {
+                var last = i == parts.Length - 1;
+                text.Spans.Add(new Span { Text = parts[i], TextColor = last ? bright : dim });
+                if (!last) text.Spans.Add(new Span { Text = "  ›  ", TextColor = dim });
+            }
+            CrumbLabel.FormattedText = text;
+            ToolTipProperties.SetText(CrumbLabel, _crumbPath);
         }
 
         /// <summary>Contenu de l'éditeur (two-way).</summary>
@@ -173,7 +228,7 @@ namespace Moto.Editor.Controls
         public void SetAiBusy(bool busy)
         {
             _aiBusy = busy;
-            AiSendButton.Text = busy ? "■" : "➤";
+            AiSendButton.Text = busy ? MotoIcons.Stop : MotoIcons.Send;
             ToolTipProperties.SetText(AiSendButton, busy ? "Arrêter la génération" : "Envoyer");
             PromptEntry.IsEnabled = !busy;
         }
@@ -191,7 +246,7 @@ namespace Moto.Editor.Controls
         /// </summary>
         public void SetMaximizeIcon(bool maximized)
         {
-            BtnMaximize.Text = maximized ? "⛝" : "⛶";
+            BtnMaximize.Text = maximized ? MotoIcons.BackToWindow : MotoIcons.FullScreen;
             ToolTipProperties.SetText(BtnMaximize, maximized
                 ? "Revenir à la disposition normale"
                 : "Agrandir la zone (plein écran)");
