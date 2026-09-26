@@ -125,6 +125,16 @@ namespace Moto.Editor.Controls
                 foreach (var item in items)
                     if (item is EditorDocument doc)
                         doc.IsActive = ReferenceEquals(doc, document);
+
+            // ★ AJOUT (26/09) : la colonne centrale étant bornée (MainPage.UpdateCenterWidthBound), les onglets en trop défilent au lieu
+            // de pousser l'explorateur hors de la fenêtre — l'onglet actif est donc ramené dans la vue, comme dans VS Code. Différé : un
+            // onglet qui vient d'être ajouté n'a pas encore de place dans la liste.
+            if (document is not null)
+                Dispatcher.Dispatch(() =>
+                {
+                    try { TabsList.ScrollTo(document, position: ScrollToPosition.MakeVisible, animate: false); }
+                    catch (Exception) { /* onglet fermé entre-temps : rien à montrer */ }
+                });
         }
 
         /// <summary>
