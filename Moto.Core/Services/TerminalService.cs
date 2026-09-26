@@ -61,6 +61,7 @@ namespace Moto.Editor.Services
                 UseShellExecute = false,
                 CreateNoWindow = true
             };
+            UseUtf8ForPython(psi);
 
             using var process = new Process { StartInfo = psi };
 
@@ -152,6 +153,7 @@ namespace Moto.Editor.Services
                     // accent tapé illisible pour cmd (et supprime sa bannière).
                     StandardInputEncoding = encoding
                 };
+                UseUtf8ForPython(psi);
 
                 _process = new Process
                 {
@@ -226,6 +228,24 @@ namespace Moto.Editor.Services
 
         [DllImport("kernel32.dll")]
         private static extern uint GetOEMCP();
+
+        /// <summary>
+        /// ★ AJOUT (26/09, option B choisie par Tom) : Python écrit dans un tuyau (pipe) avec la
+        /// page ANSI (1252) — ses accents ressortaient faux et un emoji faisait planter le script
+        /// (UnicodeEncodeError, mesuré le 26/09). Forcé en UTF-8, que les deux décodages savent lire.
+        /// « :replace » : ce qu'on TAPE pour un programme Python (input) part en page OEM, invalide
+        /// en UTF-8 — remplacé par « � » plutôt que de faire planter le script (il le recevait déjà
+        /// faux avant : « ‚t‚ » pour « été »). Windows seulement ; un réglage Python déjà présent
+        /// (PYTHONIOENCODING ou PYTHONUTF8) est respecté.
+        /// </summary>
+        private static void UseUtf8ForPython(ProcessStartInfo psi)
+        {
+            if (!OperatingSystem.IsWindows()
+                || psi.Environment.ContainsKey("PYTHONIOENCODING")
+                || psi.Environment.ContainsKey("PYTHONUTF8"))
+                return;
+            psi.Environment["PYTHONIOENCODING"] = "utf-8:replace";
+        }
 
         /// <summary>
         /// Envoie une commande au shell.

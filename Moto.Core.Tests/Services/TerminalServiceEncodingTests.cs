@@ -135,6 +135,48 @@ public class TerminalServiceEncodingTests
         }
     }
 
+    /// <summary>Réglage Python déjà présent chez l'utilisateur : volontairement laissé tel quel, rien à vérifier.</summary>
+    private static bool UserSetPython() =>
+        Environment.GetEnvironmentVariable("PYTHONIOENCODING") != null
+        || Environment.GetEnvironmentVariable("PYTHONUTF8") != null;
+
+    /// <summary>Option B : un programme Python lancé en coulisses écrit en UTF-8 (voir TerminalService).</summary>
+    [Fact]
+    public async Task ExecuteAsync_TellsPythonToWriteUtf8()
+    {
+        if (!OperatingSystem.IsWindows() || UserSetPython()) return;
+
+        var result = await new TerminalService().ExecuteAsync("echo %PYTHONIOENCODING%");
+
+        Assert.Equal("utf-8:replace", result.Output.TrimEnd());
+    }
+
+    /// <summary>Option B : idem dans le terminal du bas.</summary>
+    [Fact]
+    public async Task Start_TellsPythonToWriteUtf8()
+    {
+        if (!OperatingSystem.IsWindows() || UserSetPython()) return;
+
+        var lines = new ConcurrentQueue<string>();
+        var terminal = new TerminalService();
+        terminal.OutputReceived += (line, _) => lines.Enqueue(line);
+        try
+        {
+            terminal.Start(Path.GetTempPath());
+            terminal.SendInput("echo PY=%PYTHONIOENCODING%");
+
+            var deadline = DateTime.UtcNow.AddSeconds(15);
+            while (DateTime.UtcNow < deadline && !lines.Contains("PY=utf-8:replace"))
+                await Task.Delay(50);
+        }
+        finally
+        {
+            terminal.Stop();
+        }
+
+        Assert.Contains("PY=utf-8:replace", lines);
+    }
+
     /// <summary>
     /// Bout en bout avec le vrai cmd.exe : un accent tapé doit arriver intact à cmd et en
     /// revenir intact (page OEM), et un fichier UTF-8 affiché par « type » rester lisible.
