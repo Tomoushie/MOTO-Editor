@@ -798,45 +798,22 @@ namespace Moto.Editor
         // ------------------------------------------------------------------
         // Stats réelles
         // ------------------------------------------------------------------
+        /// <summary>
+        /// ★ CHANGÉ (26/09, décision de Tom : « brancher les vrais compteurs, et masquer la rangée tant qu'il n'y a rien à montrer ») : les
+        /// chiffres viennent des compteurs gardés depuis l'installation (global-usage.json — les mêmes que le tableau de bord complet) et des
+        /// motifs appris du projet ouvert. Avant : conversations et messages de la session en cours, jamais sauvegardés, donc 0 à chaque
+        /// lancement. Rien à montrer → HomeView masque la carte (voir Moto.Core/Analytics/HomeStats.cs).
+        /// </summary>
         private void RefreshHomeStats()
         {
             try
             {
-                int threads = 0, messages = 0, chars = 0;
-                if (_chatService.Threads != null)
-                {
-                    threads = _chatService.Threads.Count;
-                    foreach (var t in _chatService.Threads)
-                    {
-                        messages += t.Messages?.Count ?? 0;
-                        foreach (var m in t.Messages)
-                            chars += m.Content?.Length ?? 0;
-                    }
-                }
-                var tokens = chars / 4;
-                var cortex = _cortex?.GetStats();
-                Home.SetStats(
-                    values: new[]
-                    {
-                        threads.ToString(),
-                        messages.ToString(),
-                        FormatCompact(tokens),
-                        (cortex?.TotalPatterns ?? 0).ToString()
-                    },
-                    titles: new[]
-                    {
-                        "Sessions",
-                        "Messages",
-                        "Tokens",
-                        "Patterns appris"
-                    });
+                Home.SetStats(Moto.Core.Analytics.HomeStats.Build(_globalUsage?.Snapshot(), _cortex?.GetStats()?.TotalPatterns ?? 0));
             }
-            catch { }
+            catch (Exception ex)
+            {
+                App.LogCrash("MainPage.RefreshHomeStats", ex);
+            }
         }
-
-        private static string FormatCompact(int n) =>
-            n >= 1_000_000 ? (n / 1_000_000.0).ToString("0.0M") :
-            n >= 1_000 ? (n / 1_000.0).ToString("0.0K") :
-            n.ToString();
     }
 }

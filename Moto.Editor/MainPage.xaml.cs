@@ -423,13 +423,14 @@ namespace Moto.Editor
             // ★ RETRAIT (31/08, point 1) : LocationMenu vit maintenant dans Home
             // elle-même (ancrée au-dessus de la chip "Local") — seul le résultat du
             // choix remonte encore jusqu'ici (voir HomeView.LocationSelected plus bas).
-            Home.SetStats(
-                values: new[] { "0", "0", "0", "0" },
-                titles: new[] { "Sessions", "Messages", "Tokens", "Patterns appris" });
+            // ★ RETRAIT (26/09, décision de Tom) : plus de rangée « 0 0 0 0 » posée d'office — RefreshHomeStats (au chargement) montre les
+            // vrais compteurs, ou rien du tout s'il n'y a encore rien à montrer.
 
             _viewModel.Documents.CollectionChanged += (s, e) =>
             {
                 bool hasDocs = _viewModel.Documents.Count > 0;
+                // ★ AJOUT (26/09) : l'Accueil réapparaît (dernier onglet fermé) → chiffres à jour (demandes à l'IA faites entre-temps).
+                if (!hasDocs && !Home.IsVisible) RefreshHomeStats();
                 Home.IsVisible = !hasDocs;
                 EditorPane.IsVisible = hasDocs;
                 // ★ CORRECTIF (03/09, trouvé par Tom) : AiBar.Show() (appelée sur

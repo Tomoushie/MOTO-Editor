@@ -1,9 +1,10 @@
 using System;
-using System.Threading;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.Maui.Controls;
 using Microsoft.Maui.Graphics;
 using Moto.Core.AI.Cortex;
+using Moto.Core.Analytics;
 using Moto.Core.Settings;
 using Moto.Editor.Controls;
 using Moto.Editor.Services;
@@ -19,8 +20,6 @@ namespace Moto.Editor.Views
         private readonly ChatService _chatService;
         private CortexEngine? _cortexEngine;
         private WorkspaceStateService? _workspaceState;
-        private CancellationTokenSource _refreshStatsCts;
-        private readonly TimeSpan _debounceDelay = TimeSpan.FromMilliseconds(150);
 
         /// <summary>Prompt saisi depuis l'accueil → routé vers le chat IA.</summary>
         public event Action<string>? HomePromptSubmitted;
@@ -100,34 +99,41 @@ namespace Moto.Editor.Views
             _workspaceState = workspaceState;
         }
 
-        /// <summary>Remplit la grille de stats (8 tuiles max).</summary>
-        public void SetStats(string[] values, string[] titles)
+        /// <summary>
+        /// Remplit la rangée de chiffres (4 tuiles par ligne). ★ CHANGÉ (26/09, décision de Tom) : reçoit les vrais compteurs
+        /// (<see cref="HomeStats.Build"/>) ; aucune tuile = rien à montrer → la carte ET le lien « Voir le tableau de bord » sont masqués.
+        /// </summary>
+        public void SetStats(IReadOnlyList<HomeStatTile> tiles)
         {
             if (StatsGrid == null) return;
             StatsGrid.Children.Clear();
+            StatsCard.IsVisible = DashboardLink.IsVisible = tiles.Count > 0;
+            if (tiles.Count == 0) return;
 
-            for (int i = 0; i < Math.Min(values.Length, 8); i++)
+            var columns = Math.Min(tiles.Count, 4);
+            StatsGrid.ColumnDefinitions.Clear();
+            for (int c = 0; c < columns; c++) StatsGrid.ColumnDefinitions.Add(new ColumnDefinition(GridLength.Star));
+
+            for (int i = 0; i < Math.Min(tiles.Count, 8); i++)
             {
                 var cell = new VerticalStackLayout { Spacing = 2 };
                 cell.Children.Add(new Label
                 {
-                    Text = values[i],
+                    Text = tiles[i].Value,
                     FontSize = 16,
                     FontAttributes = FontAttributes.Bold,
                     TextColor = (Color)Application.Current.Resources["Txt1"]
                 });
                 cell.Children.Add(new Label
                 {
-                    Text = titles[i],
+                    Text = tiles[i].Title,
                     FontSize = 10,
                     TextColor = (Color)Application.Current.Resources["Txt2"]
                 });
 
-                var col = i % 4;
-                var row = i / 4;
                 StatsGrid.Children.Add(cell);
-                Grid.SetColumn(cell, col);
-                Grid.SetRow(cell, row);
+                Grid.SetColumn(cell, i % columns);
+                Grid.SetRow(cell, i / columns);
             }
         }
 
@@ -189,63 +195,9 @@ namespace Moto.Editor.Views
             if (_workspaceState != null)
                 await _workspaceState.SetSessionSectionAsync(sessionId, section);
 
-            // Refresh stats avec debounce
-            await DebouncedRefreshHomeStatsAsync();
-
+            // ★ RETRAIT (26/09) : ce glisser-déposer rafraîchissait ici une 2e version des chiffres (8 tuiles « Threads/Habits/…/Réservé »,
+            // la moitié à 0) qui écrasait celle de MainPage — les chiffres de l'Accueil n'ont plus qu'une source : MainPage.RefreshHomeStats.
             SessionMoved?.Invoke(sessionId, targetSectionKey);
-        }
-
-        /// <summary>
-        /// Refresh des stats avec debounce de 150ms pour éviter les appels en rafale.
-        /// </summary>
-        private async Task DebouncedRefreshHomeStatsAsync()
-        {
-            _refreshStatsCts?.Cancel();
-            _refreshStatsCts = new CancellationTokenSource();
-            var localCts = _refreshStatsCts;
-
-            try
-            {
-                await Task.Delay(_debounceDelay, localCts.Token);
-                await RefreshHomeStatsAsync();
-            }
-            catch (OperationCanceledException)
-            {
-                // Un nouvel appel a annulé celui-ci
-            }
-        }
-
-        /// <summary>
-        /// Récupère les données des services et met à jour l'UI des stats.
-        /// </summary>
-        public async Task RefreshHomeStatsAsync()
-        {
-            try
-            {
-                var threads = _chatService.Threads;
-                var cortex = _cortexEngine?.GetStats();
-
-                var values = new[]
-                {
-                    threads.Count.ToString(),
-                    (cortex?.TotalHabits ?? 0).ToString(),
-                    (cortex?.TotalPatterns ?? 0).ToString(),
-                    (cortex?.TotalCorrections ?? 0).ToString(),
-                    "0", "0", "0", "0" // Padding pour maintenir la grille 4x2
-                };
-                var titles = new[]
-                {
-                    "Threads", "Habits", "Patterns", "Corrections",
-                    "Réservé", "Réservé", "Réservé", "Réservé"
-                };
-
-                SetStats(values, titles);
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"[HomeView] Échec RefreshHomeStats: {ex.Message}");
-            }
-            await Task.CompletedTask;
         }
 
         /// <summary>
