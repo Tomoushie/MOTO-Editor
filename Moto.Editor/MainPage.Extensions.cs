@@ -285,6 +285,10 @@ namespace Moto.Editor
                     Grid.SetRow(_proactivePanel, 2);
                     Grid.SetColumnSpan(_proactivePanel, 3);
                     _proactivePanel.SuggestionInvoked += command => OnAiCommandSubmitted(command);
+                    // ★ AJOUT (26/09, retour de Tom : fermée, la carte revenait 30 s plus tard) : la fermer à la main est retenu, même au
+                    // prochain lancement ; la palette (« Suggestions ») la rouvre.
+                    _proactivePanel.AutoShow = SettingsEngine.Shared.GetBool(SuggestionsAutoShowKey, true);
+                    _proactivePanel.ClosedByUser += () => SetSuggestionsAutoShow(false);
                 }
 
                 // Branche le handler de confirmation UI
@@ -610,11 +614,25 @@ namespace Moto.Editor
             }
         }
 
+        /// <summary>Réglage : la carte Suggestions s'ouvre-t-elle d'elle-même quand il y a des suggestions (faux une fois fermée à la main).</summary>
+        private const string SuggestionsAutoShowKey = "ui.suggestions.auto_show";
+
+        private void SetSuggestionsAutoShow(bool autoShow)
+        {
+            if (_proactivePanel is not null) _proactivePanel.AutoShow = autoShow;
+            SettingsEngine.Shared.Set(SuggestionsAutoShowKey, autoShow);
+            StatusBar.SetStatus(autoShow
+                ? "Suggestions affichées : la carte s'ouvrira de nouveau d'elle-même quand il y en a."
+                : "Suggestions masquées : la carte ne reviendra plus d'elle-même. Pour la revoir : palette de commandes (Ctrl+Maj+P) → « Suggestions ».");
+        }
+
         private void ToggleProactiveActions()
         {
             if (_proactivePanel != null)
             {
                 _proactivePanel.IsVisible = !_proactivePanel.IsVisible;
+                // ★ (26/09) Rouvrir depuis la palette rend à la carte son ouverture automatique ; la refermer ainsi équivaut à la croix.
+                SetSuggestionsAutoShow(_proactivePanel.IsVisible);
                 if (_proactivePanel.IsVisible) RefreshProactiveSuggestions();
             }
             else if (_proactiveActions != null)

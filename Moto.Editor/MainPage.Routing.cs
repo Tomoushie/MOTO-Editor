@@ -70,6 +70,8 @@ namespace Moto.Editor
             _commandRegistry.Register("view.terminal", () => _viewModel.IsTerminalVisible = !_viewModel.IsTerminalVisible);
             _commandRegistry.Register("view.diagnostics", () => _viewModel.IsDiagnosticsVisible = !_viewModel.IsDiagnosticsVisible);
             _commandRegistry.Register("view.maximize", () => OnMaximizeToggled());
+            // ★ AJOUT (26/09) : « Suggestions » dans la palette — seul chemin pour rouvrir la carte une fois fermée à la main.
+            _commandRegistry.Register("view.proactive", () => ToggleProactiveActions());
             _commandRegistry.Register("view.theme", () => ThemeService.SetDark());
 
             // ★ AJOUT (02/09, état des lieux) : "Paramètres" dans la barre de

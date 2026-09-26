@@ -156,6 +156,8 @@ namespace Moto.Core.AI.Commands
                 new() { Id = "view.explorer", Title = "Basculer l'explorateur", Description = "Affiche/cache l'explorateur.", Category = CommandCategory.Menu, CommandText = "menu:view.explorer", Shortcut = "Ctrl+B" },
                 new() { Id = "view.terminal", Title = "Basculer le terminal", Description = "Affiche/cache le terminal.", Category = CommandCategory.Menu, CommandText = "menu:view.terminal", Shortcut = "Ctrl+`" },
                 new() { Id = "view.maximize", Title = "Maximiser l'éditeur", Description = "Passe en plein écran.", Category = CommandCategory.Menu, CommandText = "menu:view.maximize" },
+                // ★ AJOUT (26/09, retour de Tom) : fermée à la main, la carte Suggestions ne revient plus d'elle-même — voici le chemin pour la revoir.
+                new() { Id = "view.proactive", Title = "Suggestions", Description = "Affiche ou masque la carte Suggestions (fermée à la main, elle ne revient plus d'elle-même).", Category = CommandCategory.Menu, CommandText = "menu:view.proactive" },
 
                 // ── Navigation ──
                 new() { Id = "nav.back", Title = "Retour", Description = "Navigue vers le fichier précédent.", Category = CommandCategory.Navigation, CommandText = "menu:nav.back", Shortcut = "Alt+←" },
