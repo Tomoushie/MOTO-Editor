@@ -1,8 +1,6 @@
 // Services/TerminalService.cs
 using System.Diagnostics;
 using System.IO;
-using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -87,7 +85,7 @@ namespace Moto.Editor.Services
                     return new TerminalCommandResult { ExitCode = -1, Output = string.Empty, Error = "Commande annulée (délai dépassé ou arrêt demandé)." };
                 }
 
-                var fallback = GetShellEncoding();
+                var fallback = TerminalOutputDecoder.GetConsoleEncoding();
                 return new TerminalCommandResult
                 {
                     ExitCode = process.ExitCode,
@@ -131,7 +129,7 @@ namespace Moto.Editor.Services
                 var shell = OperatingSystem.IsWindows()
                     ? "cmd.exe"
                     : "/bin/bash";
-                var encoding = GetShellEncoding();
+                var encoding = TerminalOutputDecoder.GetConsoleEncoding();
 
                 var psi = new ProcessStartInfo
                 {
@@ -170,8 +168,8 @@ namespace Moto.Editor.Services
                 // ★ CORRECTIF (26/09) : lecture des octets bruts à la place de
                 // BeginOutputReadLine/BeginErrorReadLine, qui décodaient tout le flux avec
                 // UN seul encodage — voir TerminalOutputDecoder.
-                _ = PumpAsync(_process.StandardOutput.BaseStream, encoding, isError: false);
-                _ = PumpAsync(_process.StandardError.BaseStream, encoding, isError: true);
+                _ = TerminalOutputDecoder.PumpLinesAsync(_process.StandardOutput.BaseStream, encoding, line => Emit(line, isError: false));
+                _ = TerminalOutputDecoder.PumpLinesAsync(_process.StandardError.BaseStream, encoding, line => Emit(line, isError: true));
 
                 OutputReceived?.Invoke($"[terminal] started {shell}", false);
             }
@@ -181,60 +179,12 @@ namespace Moto.Editor.Services
             }
         }
 
-        /// <summary>
-        /// Lit un flux du shell jusqu'à sa fin et publie chaque ligne non vide
-        /// (même contrat qu'avant : les lignes vides ne sont pas publiées).
-        /// </summary>
-        private async Task PumpAsync(Stream stream, Encoding fallback, bool isError)
-        {
-            var decoder = new TerminalOutputDecoder(fallback);
-            var buffer = new byte[4096];
-            try
-            {
-                int read;
-                while ((read = await stream.ReadAsync(buffer, 0, buffer.Length).ConfigureAwait(false)) > 0)
-                {
-                    foreach (var line in decoder.Push(buffer, read))
-                        Emit(line, isError);
-                }
-                Emit(decoder.Flush(), isError);
-            }
-            catch (Exception ex) when (ex is IOException or ObjectDisposedException or OperationCanceledException)
-            {
-                // Stop() a tué et libéré le shell pendant une lecture : fin normale du flux.
-            }
-        }
-
-        private void Emit(string? line, bool isError)
+        /// <summary>Publie une ligne du shell, sauf si elle est vide (même contrat qu'avant).</summary>
+        private void Emit(string line, bool isError)
         {
             if (!string.IsNullOrEmpty(line))
                 OutputReceived?.Invoke(line, isError);
         }
-
-        /// <summary>
-        /// Encodage des échanges avec le shell interactif : page OEM du système sous Windows
-        /// (celle de la console de cmd.exe — GetOEMCP plutôt que la culture de l'appli, qui
-        /// peut différer du réglage système), UTF-8 sans BOM ailleurs (bash). Le fournisseur
-        /// de pages de code est interrogé directement, sans enregistrement global : rien ne
-        /// change pour le reste de l'appli.
-        /// ★ CORRECTIF (26/09, trouvé en vérifiant l'option B) : remplacement par « ? » imposé.
-        /// Par défaut, .NET remplace un symbole absent de la page OEM par un « approchant » :
-        /// « → » devenait Ctrl+Z (0x1A), que cmd lit comme une fin de saisie, « ♪ » Entrée (0x0D),
-        /// « ◙ » un saut de ligne, « ♥ » Ctrl+C. Mesuré le 26/09 : « echo a→b♪c◙d » affichait « a »
-        /// puis faisait EXÉCUTER « d » comme une commande à part.
-        /// </summary>
-        private static Encoding GetShellEncoding()
-        {
-            var utf8 = new UTF8Encoding(encoderShouldEmitUTF8Identifier: false);
-            if (!OperatingSystem.IsWindows())
-                return utf8;
-            return CodePagesEncodingProvider.Instance.GetEncoding(
-                       (int)GetOEMCP(), EncoderFallback.ReplacementFallback, DecoderFallback.ReplacementFallback)
-                   ?? utf8;
-        }
-
-        [DllImport("kernel32.dll")]
-        private static extern uint GetOEMCP();
 
         /// <summary>
         /// ★ AJOUT (26/09, option B choisie par Tom) : Python écrit dans un tuyau (pipe) avec la

@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Moto.Editor.Services; // TerminalOutputDecoder (namespace historique)
 
 namespace Moto.Core.Services
 {
@@ -89,30 +90,29 @@ namespace Moto.Core.Services
 
                 using var process = Process.Start(psi);
 
-                process.OutputDataReceived += (s, e) =>
+                void OnLine(string line, bool isError)
                 {
-                    if (e.Data != null)
+                    // Sortie et erreurs sont lues en parallèle (déjà le cas avant) : les listes
+                    // du résultat ne supportent pas deux ajouts simultanés.
+                    lock (result)
                     {
-                        result.Output.Add(e.Data);
-                        ParseLine(e.Data, result);
-                        OutputReceived?.Invoke(e.Data, false);
+                        result.Output.Add(line);
+                        ParseLine(line, result);
                     }
-                };
+                    OutputReceived?.Invoke(line, isError);
+                }
 
-                process.ErrorDataReceived += (s, e) =>
-                {
-                    if (e.Data != null)
-                    {
-                        result.Output.Add(e.Data);
-                        ParseLine(e.Data, result);
-                        OutputReceived?.Invoke(e.Data, true);
-                    }
-                };
-
-                process.BeginOutputReadLine();
-                process.BeginErrorReadLine();
+                // ★ CORRECTIF (26/09, option D choisie par Tom) : sortie lue ligne par ligne comme
+                // dans le terminal (voir TerminalOutputDecoder) à la place de BeginOutputReadLine,
+                // qui décodait tout avec la page de l'appli alors que MSBuild écrit en UTF-8.
+                var fallback = TerminalOutputDecoder.GetConsoleEncoding();
+                var stdOut = TerminalOutputDecoder.PumpLinesAsync(process.StandardOutput.BaseStream, fallback, line => OnLine(line, false));
+                var stdErr = TerminalOutputDecoder.PumpLinesAsync(process.StandardError.BaseStream, fallback, line => OnLine(line, true));
 
                 await process.WaitForExitAsync();
+                // Comme avant (WaitForExitAsync attendait aussi la fin des lectures) : toute la sortie
+                // est lue avant de conclure, sinon des erreurs ou avertissements manqueraient au compte.
+                await Task.WhenAll(stdOut, stdErr);
 
                 result.Success = process.ExitCode == 0;
             }

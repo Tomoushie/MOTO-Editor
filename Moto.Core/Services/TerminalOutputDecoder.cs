@@ -1,5 +1,6 @@
 // Services/TerminalOutputDecoder.cs
 using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Text.Unicode;
 
@@ -27,6 +28,62 @@ namespace Moto.Editor.Services
         public TerminalOutputDecoder(Encoding fallback)
         {
             _fallback = fallback;
+        }
+
+        /// <summary>
+        /// Encodage de la console des programmes lancés en arrière-plan : page OEM du système sous
+        /// Windows (celle de la console de cmd.exe — GetOEMCP plutôt que la culture de l'appli, qui
+        /// peut différer du réglage système), UTF-8 sans BOM ailleurs (bash). Sert d'encodage de
+        /// repli au décodage, et d'encodage de ce qu'on tape dans le terminal. Le fournisseur de
+        /// pages de code est interrogé directement, sans enregistrement global : rien ne change
+        /// pour le reste de l'appli.
+        /// ★ CORRECTIF (26/09, trouvé en vérifiant l'option B) : remplacement par « ? » imposé.
+        /// Par défaut, .NET remplace un symbole absent de la page OEM par un « approchant » :
+        /// « → » devenait Ctrl+Z (0x1A), que cmd lit comme une fin de saisie, « ♪ » Entrée (0x0D),
+        /// « ◙ » un saut de ligne, « ♥ » Ctrl+C. Mesuré le 26/09 : « echo a→b♪c◙d » affichait « a »
+        /// puis faisait EXÉCUTER « d » comme une commande à part.
+        /// (Déplacé de TerminalService le 26/09, option D : Build et Exécuter s'en servent aussi.)
+        /// </summary>
+        public static Encoding GetConsoleEncoding()
+        {
+            var utf8 = new UTF8Encoding(encoderShouldEmitUTF8Identifier: false);
+            if (!OperatingSystem.IsWindows())
+                return utf8;
+            return CodePagesEncodingProvider.Instance.GetEncoding(
+                       (int)GetOEMCP(), EncoderFallback.ReplacementFallback, DecoderFallback.ReplacementFallback)
+                   ?? utf8;
+        }
+
+        [DllImport("kernel32.dll")]
+        private static extern uint GetOEMCP();
+
+        /// <summary>
+        /// Lit un flux (sortie d'un programme lancé) jusqu'à sa fin et passe chaque ligne décodée à
+        /// <paramref name="onLine"/>, lignes vides comprises. Remplace Process.BeginOutputReadLine,
+        /// qui décodait tout le flux avec UN seul encodage. La tâche se termine quand le flux est
+        /// fermé — à attendre avant de conclure si toute la sortie compte (BuildEngine).
+        /// (Déplacé de TerminalService le 26/09, option D.)
+        /// </summary>
+        public static async Task PumpLinesAsync(Stream stream, Encoding fallback, Action<string> onLine)
+        {
+            var decoder = new TerminalOutputDecoder(fallback);
+            var buffer = new byte[4096];
+            try
+            {
+                int read;
+                while ((read = await stream.ReadAsync(buffer, 0, buffer.Length).ConfigureAwait(false)) > 0)
+                {
+                    foreach (var line in decoder.Push(buffer, read))
+                        onLine(line);
+                }
+                var last = decoder.Flush();
+                if (last != null)
+                    onLine(last);
+            }
+            catch (Exception ex) when (ex is IOException or ObjectDisposedException or OperationCanceledException)
+            {
+                // Programme tué et libéré pendant une lecture (bouton Stop, arrêt du terminal) : fin normale du flux.
+            }
         }
 
         /// <summary>

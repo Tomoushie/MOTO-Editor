@@ -3,6 +3,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using Moto.Editor.Services; // TerminalOutputDecoder (namespace historique)
 
 namespace Moto.Core.Services
 {
@@ -47,21 +48,16 @@ namespace Moto.Core.Services
 
             _process = new Process { StartInfo = psi, EnableRaisingEvents = true };
 
-            _process.OutputDataReceived += (s, e) =>
-            {
-                if (e.Data != null) OutputReceived?.Invoke(e.Data);
-            };
-
-            _process.ErrorDataReceived += (s, e) =>
-            {
-                if (e.Data != null) OutputReceived?.Invoke("[err] " + e.Data);
-            };
-
             _process.Exited += (s, e) => Exited?.Invoke();
 
             _process.Start();
-            _process.BeginOutputReadLine();
-            _process.BeginErrorReadLine();
+            // ★ CORRECTIF (26/09, option D choisie par Tom) : sortie lue ligne par ligne comme
+            // dans le terminal (voir TerminalOutputDecoder) à la place de BeginOutputReadLine,
+            // qui décodait tout avec la page de l'appli : les accents du programme lancé et les
+            // messages de dotnet (UTF-8) ressortaient abîmés.
+            var fallback = TerminalOutputDecoder.GetConsoleEncoding();
+            _ = TerminalOutputDecoder.PumpLinesAsync(_process.StandardOutput.BaseStream, fallback, line => OutputReceived?.Invoke(line));
+            _ = TerminalOutputDecoder.PumpLinesAsync(_process.StandardError.BaseStream, fallback, line => OutputReceived?.Invoke("[err] " + line));
 
             OutputReceived?.Invoke($"[run] Démarrage de {Path.GetFileName(target)}...");
         }
