@@ -135,6 +135,41 @@ public class TerminalServiceEncodingTests
         }
     }
 
+    /// <summary>
+    /// Un symbole absent de la page OEM (« → », « ♪ »…) tapé dans le terminal doit partir en « ? ».
+    /// Le remplacement « approchant » de .NET en faisait des caractères de contrôle — « → » = Ctrl+Z,
+    /// que cmd lit comme une fin de saisie, « ♪ » = Entrée, « ◙ » = saut de ligne : la ligne était
+    /// coupée et un morceau pouvait partir comme une commande à part (vu le 26/09).
+    /// </summary>
+    [Fact]
+    public async Task Start_TypedSymbolOutsideOemPage_BecomesQuestionMark_WithoutSplittingTheLine()
+    {
+        if (!OperatingSystem.IsWindows()) return;
+
+        var lines = new ConcurrentQueue<string>();
+        var errors = new ConcurrentQueue<string>();
+        var terminal = new TerminalService();
+        terminal.OutputReceived += (line, isError) => (isError ? errors : lines).Enqueue(line);
+        try
+        {
+            terminal.Start(Path.GetTempPath());
+            terminal.SendInput("echo SYMBOLES: a→b♪c◙d♥e");
+            terminal.SendInput("echo TOUJOURS LA");
+
+            var deadline = DateTime.UtcNow.AddSeconds(15);
+            while (DateTime.UtcNow < deadline && !lines.Contains("TOUJOURS LA"))
+                await Task.Delay(50);
+        }
+        finally
+        {
+            terminal.Stop();
+        }
+
+        Assert.Contains("SYMBOLES: a?b?c?d?e", lines);
+        Assert.Contains("TOUJOURS LA", lines);
+        Assert.Empty(errors); // avant : « 'd' n'est pas reconnu… », un morceau de la ligne lancé comme commande
+    }
+
     /// <summary>Réglage Python déjà présent chez l'utilisateur : volontairement laissé tel quel, rien à vérifier.</summary>
     private static bool UserSetPython() =>
         Environment.GetEnvironmentVariable("PYTHONIOENCODING") != null

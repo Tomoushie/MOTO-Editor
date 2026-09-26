@@ -217,13 +217,20 @@ namespace Moto.Editor.Services
         /// peut différer du réglage système), UTF-8 sans BOM ailleurs (bash). Le fournisseur
         /// de pages de code est interrogé directement, sans enregistrement global : rien ne
         /// change pour le reste de l'appli.
+        /// ★ CORRECTIF (26/09, trouvé en vérifiant l'option B) : remplacement par « ? » imposé.
+        /// Par défaut, .NET remplace un symbole absent de la page OEM par un « approchant » :
+        /// « → » devenait Ctrl+Z (0x1A), que cmd lit comme une fin de saisie, « ♪ » Entrée (0x0D),
+        /// « ◙ » un saut de ligne, « ♥ » Ctrl+C. Mesuré le 26/09 : « echo a→b♪c◙d » affichait « a »
+        /// puis faisait EXÉCUTER « d » comme une commande à part.
         /// </summary>
         private static Encoding GetShellEncoding()
         {
             var utf8 = new UTF8Encoding(encoderShouldEmitUTF8Identifier: false);
             if (!OperatingSystem.IsWindows())
                 return utf8;
-            return CodePagesEncodingProvider.Instance.GetEncoding((int)GetOEMCP()) ?? utf8;
+            return CodePagesEncodingProvider.Instance.GetEncoding(
+                       (int)GetOEMCP(), EncoderFallback.ReplacementFallback, DecoderFallback.ReplacementFallback)
+                   ?? utf8;
         }
 
         [DllImport("kernel32.dll")]
