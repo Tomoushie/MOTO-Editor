@@ -91,6 +91,14 @@ public static class CodeBlocks
     /// <summary>Le premier bloc de la réponse, ou null s'il n'y en a aucun.</summary>
     public static CodeBlock? First(string? reply) => Extract(reply) is { Count: > 0 } all ? all[0] : null;
 
+    /// <summary>
+    /// ★ AJOUT (26/09, retour de Tom : « Appliquer » sur « pip install pygame » n'avait aucun sens) : l'étiquette annonce une commande à taper
+    /// dans un terminal (```bash, ```powershell…), pas du code à poser dans un fichier. Un bloc sans étiquette n'en est pas une.
+    /// </summary>
+    public static bool IsTerminalCommand(string? language) => (language ?? string.Empty).Trim().ToLowerInvariant() is
+        "bash" or "sh" or "shell" or "zsh" or "console" or "terminal" or "shellsession" or "sh-session" or "shell-session"
+        or "cmd" or "bat" or "batch" or "powershell" or "ps" or "ps1" or "pwsh";
+
     /// <summary>Extension de fichier pour une étiquette de langage (« csharp » → « .cs ») ; « .txt » si elle est inconnue.</summary>
     public static string ExtensionFor(string? language) => (language ?? string.Empty).Trim().ToLowerInvariant() switch
     {

@@ -641,6 +641,18 @@ namespace Moto.Editor
                 // hors périmètre de ce correctif).
                 var reply = answer.Content;
                 App.Breadcrumb($"OnAiCommandSubmitted — reply longueur={reply?.Length ?? -1}");
+
+                // ★ CHANGÉ (26/09, retour de Tom : « code moi une petite application de musique » a créé « Reponse-IA-….py » au lieu d'écrire
+                // dans le fichier qu'il avait ouvert pour ce test) : si un fichier est ouvert et que la réponse contient du code, ce code va DANS
+                // ce fichier — par le même chemin que « Appliquer » du chat (endroit choisi par CodeApplyPlanner, diff, accord avant d'écrire,
+                // « ↩ Annuler »). L'onglet temporaire ci-dessous ne sert plus que sans fichier ouvert, ou pour une réponse sans code.
+                if (!string.IsNullOrWhiteSpace(reply) && _viewModel.SelectedDocument is { } openDoc && answer.Segments.Any(s => s.IsCode))
+                {
+                    AiBar.SetBusy(false); // la réponse est arrivée : seule la boîte de confirmation attend encore
+                    await PlaceReplyCodeInOpenFileAsync(answer, openDoc);
+                    return;
+                }
+
                 if (!string.IsNullOrWhiteSpace(reply))
                 {
                     // ★ AJOUT (31/08) : si la réponse contient un bloc de code, on ouvre
@@ -682,6 +694,39 @@ namespace Moto.Editor
             {
                 AiBar.SetBusy(false);
                 RefreshHomeStats();
+            }
+        }
+
+        /// <summary>
+        /// ★ AJOUT (26/09, retour de Tom) : la réponse de la barre centrale contient du code et un fichier est ouvert — son bloc principal y est
+        /// proposé (diff, accord). Ce qui n'y va pas (autres blocs, refus, commandes de terminal, réponse coupée) reste dans le chat MOTO AI,
+        /// qu'on ouvre alors pour que le code et ses boutons (« Appliquer », « Copier ») soient sous les yeux.
+        /// </summary>
+        private async Task PlaceReplyCodeInOpenFileAsync(ChatMessage answer, EditorDocument doc)
+        {
+            var block = MainCodeBlock(answer, out var count);
+            if (block is null)
+            {
+                ShowAiChatPanel();
+                StatusBar.SetStatus(answer.Segments.Any(s => s.IsCode && !s.IsComplete)
+                    ? $"⚠ La réponse a été coupée avant la fin du code : rien n'a été posé dans « {doc.Title} ». Elle est dans le chat MOTO AI (demande-lui « continue »)."
+                    : $"La réponse ne contient que des commandes à taper dans le Terminal : rien à poser dans « {doc.Title} ». Elles sont dans le chat MOTO AI.");
+                return;
+            }
+
+            switch (await ApplyChatCodeAsync(block))
+            {
+                case ChatApplyResult.NotApplied:
+                    ShowAiChatPanel(); // la raison est écrite au-dessus du bloc, avec « Appliquer » pour réessayer
+                    break;
+                case ChatApplyResult.Declined:
+                    StatusBar.SetStatus("Refusé : rien n'a été modifié. Le code reste dans le chat MOTO AI (« Appliquer » / « Copier »).");
+                    break;
+                case ChatApplyResult.Applied when count > 1:
+                    ShowAiChatPanel();
+                    StatusBar.SetStatus($"✔ Code posé dans « {doc.Title} ». La réponse contient {count} blocs de code : les autres sont dans le chat MOTO AI "
+                                      + "(« Appliquer » / « Copier »).");
+                    break;
             }
         }
 

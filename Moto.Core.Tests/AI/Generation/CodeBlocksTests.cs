@@ -184,6 +184,18 @@ public class CodeBlocksTests
     }
 
     [Fact]
+    public void Shell_labels_mark_a_terminal_command_and_code_labels_do_not()
+    {
+        Assert.True(CodeBlocks.IsTerminalCommand("bash"));
+        Assert.True(CodeBlocks.IsTerminalCommand(" PowerShell "));
+        Assert.True(CodeBlocks.IsTerminalCommand("console"));
+        Assert.False(CodeBlocks.IsTerminalCommand("python"));
+        Assert.False(CodeBlocks.IsTerminalCommand("csharp"));
+        Assert.False(CodeBlocks.IsTerminalCommand(""));   // bloc sans étiquette : on ne sait pas, il garde « Appliquer »
+        Assert.False(CodeBlocks.IsTerminalCommand(null));
+    }
+
+    [Fact]
     public void Split_and_Extract_agree_on_the_blocks()
     {
         const string reply = "**Foo.cs**\n```\nclass Foo {}\n```\ntexte\n```js\nlet a;\n```";

@@ -22,7 +22,8 @@
                              modèle n'est plus mélangé à la première ligne du code), bouton Copier à droite de cet en-tête. -->
                         <!-- ★ AJOUT (25/09, « Appliquer ») : bouton qui pose ce bloc dans le fichier affiché — diff et confirmation dans la
                              fenêtre principale, « ↩ Annuler » ensuite dans le bandeau IA. Absent sur un bloc coupé ou écrit par l'utilisateur.
-                             Sous le code, une ligne dit ce qu'a donné le dernier clic (appliqué, refusé, ou pourquoi rien n'a été fait). -->
+                             Sous le bouton (au-dessus du code depuis le 26/09), une ligne dit ce qu'a donné le dernier clic (appliqué, refusé,
+                             ou pourquoi rien n'a été fait). -->
                         <!-- ★ (25/09, passe « moyen → élevé ») : bloc de code aux couleurs de l'éditeur (fond BgEditor, texte clair
                              neutre) au lieu d'un noir chaud qui jurait avec le reste ; « Appliquer » en bleu lisible (AccentText). -->
                         <Border StrokeShape="RoundRectangle 6" Stroke="{StaticResource BorderCol}"
@@ -40,10 +41,13 @@
                                         VerticalOptions="Start" BackgroundColor="Transparent"
                                         TextColor="{StaticResource Txt2}"
                                         Clicked="OnCopyCodeClicked" BindingContext="{Binding .}" />
-                                <Label Grid.Row="1" Grid.ColumnSpan="3" Text="{Binding Text}" FontFamily="Consolas"
+                                <!-- ★ CHANGÉ (26/09, retour de Tom : « Appliquer » semblait ne rien faire) : la ligne de résultat passe SOUS le
+                                     bouton, au-dessus du code. En dessous d'un long bloc, elle tombait hors de vue et un refus (« déjà dans le
+                                     fichier », « clique dans le fichier… ») passait pour un bouton mort. -->
+                                <Label Grid.Row="1" Grid.ColumnSpan="3" Text="{Binding ApplyStatus}" IsVisible="{Binding HasApplyStatus}"
+                                       FontSize="{StaticResource FontSizeSmall}" TextColor="{StaticResource Txt1}" Margin="0,2,0,4" />
+                                <Label Grid.Row="2" Grid.ColumnSpan="3" Text="{Binding Text}" FontFamily="Consolas"
                                        FontSize="11.5" TextColor="#D4D4D4" LineBreakMode="CharacterWrap" />
-                                <Label Grid.Row="2" Grid.ColumnSpan="3" Text="{Binding ApplyStatus}" IsVisible="{Binding HasApplyStatus}"
-                                       FontSize="{StaticResource FontSizeSmall}" TextColor="{StaticResource Txt1}" Margin="0,4,0,0" />
                             </Grid>
                         </Border>
                     </DataTemplate>
