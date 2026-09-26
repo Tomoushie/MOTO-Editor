@@ -185,6 +185,8 @@ namespace Moto.Editor
                 // ainsi TOUTES les surfaces qui envoient via _chatService.SendAsync
                 // (AiChatView "MOTO AI", bandeau IA/Accueil), pas seulement une seule.
                 _chatService.PluginCommandHandler = HandlePluginCommandAsync;
+                // ★ AJOUT (27/09, décision 2 de Tom) : le mode « Agent » du chat démarre l'agent v2, comme « /agent <objectif> ».
+                _chatService.AgentHandler = HandleAgentCommand;
 
                 // ★ CORRECTION : cette méthode construisait ICI une première
                 // PluginGalleryView (DI-résolue ou neuve) et l'ajoutait en overlay

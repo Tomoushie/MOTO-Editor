@@ -327,6 +327,33 @@ namespace Moto.Editor.Services
         /// </summary>
         public bool IncludeActiveFile { get; set; } = true;
 
+        /// <summary>
+        /// ★ AJOUT (27/09, décision 2 de Tom : « brancher le mode Agent sur l'agent v2 ») : mode « Agent » du chat, partagé par toutes ses
+        /// fenêtres comme <see cref="IncludeActiveFile"/>. Une demande (hors commande « / ») part alors à l'agent v2 au lieu du chat.
+        /// </summary>
+        public bool AgentMode { get; set; }
+
+        /// <summary>Démarre l'agent v2 pour cet objectif et renvoie son accusé de réception — fourni par MainPage (HandleAgentCommand).</summary>
+        public Func<string, string>? AgentHandler { get; set; }
+
+        /// <summary>
+        /// ★ AJOUT (27/09) : mode « Agent ». La demande s'affiche dans la conversation, puis l'agent v2 la prend : il lit le projet, propose
+        /// chaque modification en diff et n'écrit qu'avec ton accord (modèle local ; un run entier peut être annulé ensuite). Sa progression
+        /// s'écrit dans la même conversation, au fil de l'eau. Renvoie l'accusé de réception, ou null si le texte est vide.
+        /// </summary>
+        public ChatMessage? SendToAgent(string goal)
+        {
+            if (string.IsNullOrWhiteSpace(goal)) return null;
+            var thread = EnsureThread();
+            thread.Messages.Add(new ChatMessage { Role = "user", Content = goal });
+            var ack = AgentHandler?.Invoke(goal.Trim())
+                      ?? "🤖 Le mode Agent n'est pas disponible ici (agents non chargés). Utilise « Chat & Write », ou /agent dans la fenêtre principale.";
+            var message = new ChatMessage { Role = "ai", Content = ack };
+            thread.Messages.Add(message);
+            thread.LastActivityUtc = DateTime.UtcNow;
+            return message;
+        }
+
         /// <summary>Vrai tant qu'une réponse s'écrit (une seule à la fois).</summary>
         public bool IsReplying => _replyCts is not null;
 

@@ -46,7 +46,7 @@ namespace Moto.Editor.Views
             ContextList.ItemsSource = Chat.Contexts;
 
             // ★ CHANGÉ (24/09) : le mode reflète le réglage partagé (une 2e fenêtre « MOTO AI » ne remet plus « Chat & Write » d'office).
-            ModePicker.SelectedIndex = Chat.IncludeActiveFile ? 1 : 0;
+            ModePicker.SelectedIndex = Chat.AgentMode ? 2 : Chat.IncludeActiveFile ? 1 : 0;
             RebuildModelPicker(); // « MOTO interne » choisi au départ
 
             // Rebind des messages à chaque changement de thread.
@@ -177,8 +177,13 @@ namespace Moto.Editor.Views
         private void OnModeChanged(object? sender, EventArgs e)
         {
             if (Chat is null || ModePicker.SelectedIndex < 0) return; // pendant InitializeComponent
-            // « Chat » : seulement ce qui est joint ; « Chat & Write » / « Agent » : le fichier affiché et la sélection partent aussi.
+            // « Chat » : seulement ce qui est joint ; « Chat & Write » : le fichier affiché et la sélection partent aussi.
+            // ★ CHANGÉ (27/09, décision 2 de Tom) : « Agent » confie la demande à l'agent v2 (voir SendInput / ChatService.SendToAgent).
             Chat.IncludeActiveFile = ModePicker.SelectedIndex != 0;
+            Chat.AgentMode = ModePicker.SelectedIndex == 2;
+            InputEntry.Placeholder = Chat.AgentMode
+                ? "Objectif pour l'agent (diff avant chaque écriture)"
+                : "Message MOTO AI, @ pour le contexte, / pour les commandes";
         }
 
         private void OnNewThreadClicked(object sender, EventArgs e)
@@ -308,7 +313,11 @@ namespace Moto.Editor.Views
 
             try
             {
-                await Chat.SendAsync(text);
+                // ★ AJOUT (27/09) : mode « Agent » → l'agent v2 (les commandes « / » gardent leur chemin habituel).
+                if (Chat.AgentMode && !text.StartsWith("/", StringComparison.Ordinal))
+                    Chat.SendToAgent(text);
+                else
+                    await Chat.SendAsync(text);
             }
             catch (Exception ex)
             {

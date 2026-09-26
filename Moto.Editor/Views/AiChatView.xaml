@@ -175,7 +175,8 @@
                 <HorizontalStackLayout Grid.Row="1" Grid.Column="1" Spacing="{StaticResource SpaceXs}">
 
                     <!-- ★ BRANCHÉ (24/09) : « Chat » = seulement ce qui est joint (📎) ; « Chat & Write » = le fichier affiché et la
-                         sélection partent aussi (vers le modèle local uniquement). « Agent » : pour l'instant comme « Chat & Write ». -->
+                         sélection partent aussi (vers le modèle local uniquement). ★ CHANGÉ (27/09, décision 2 de Tom) : « Agent » confie
+                         la demande à l'agent v2 (diff avant chaque écriture, ton accord à chaque fois, modèle local). -->
                     <Picker x:Name="ModePicker" FontSize="{StaticResource FontSizeSmall}" WidthRequest="120"
                             SelectedIndexChanged="OnModeChanged">
                         <Picker.ItemsSource>
