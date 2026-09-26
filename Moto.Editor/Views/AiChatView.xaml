@@ -187,18 +187,10 @@
                         </Picker.ItemsSource>
                     </Picker>
 
+                    <!-- ★ CHANGÉ (26/09, décision de Tom) : liste remplie par le code (AiChatView.RebuildModelPicker) — les services en ligne
+                         n'y figurent qu'une fois leur clé ajoutée, suivis de « Ajouter un service en ligne… » qui ouvre Clés API. -->
                     <Picker x:Name="ModelPicker" FontSize="{StaticResource FontSizeSmall}" WidthRequest="150"
-                            SelectedIndexChanged="OnModelChanged">
-                        <Picker.ItemsSource>
-                            <x:Array Type="{x:Type x:String}">
-                                <x:String>MOTO interne</x:String>
-                                <x:String>Ollama (qwen2.5-coder:7b)</x:String>
-                                <x:String>OpenAI</x:String>
-                                <x:String>Anthropic</x:String>
-                                <x:String>Mistral</x:String>
-                            </x:Array>
-                        </Picker.ItemsSource>
-                    </Picker>
+                            SelectedIndexChanged="OnModelChanged" />
 
                 </HorizontalStackLayout>
 

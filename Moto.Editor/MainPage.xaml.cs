@@ -124,6 +124,8 @@ namespace Moto.Editor
                 : null;
             // ★ AJOUT (25/09) : « Appliquer » sur un bloc de code du chat (MainPage.ChatApply.cs).
             _chatService.ApplyCodeHandler = ApplyChatCodeAsync;
+            // ★ AJOUT (26/09, décision de Tom) : « Ajouter un service en ligne… » dans les listes de modèles ouvre Clés API.
+            _chatService.OpenApiKeysHandler = OpenApiKeysPage;
 
             CreateHome();
 
@@ -324,8 +326,35 @@ namespace Moto.Editor
             // ★ AJOUT (02/09, état des lieux) : redonne un point d'entrée à
             // AiSettingsPage (config des providers IA externes), orpheline depuis
             // le retrait du menu Réglages fantôme le 31/08 — voir CLAUDE.md.
-            SettingsWindow.ApiKeysRequested += async () =>
-                await Navigation.PushAsync(new Pages.AiSettingsPage(_aiService.Fallback));
+            SettingsWindow.ApiKeysRequested += OpenApiKeysPage;
+
+            // ★ AJOUT (26/09, décision de Tom) : liste de modèles du bandeau IA de l'éditeur — services en ligne seulement avec une clé.
+            EditorPane.AddOnlineServiceRequested += OpenApiKeysPage;
+            _chatService.OnlineProvidersChanged += RefreshBandModelChoices;
+            RefreshBandModelChoices();
+        }
+
+        private void RefreshBandModelChoices()
+            => EditorPane.SetModelChoices(_chatService.ModelChoices("MOTO interne", "Ollama (qwen2.5-coder:7b)"));
+
+        /// <summary>
+        /// ★ AJOUT (26/09) : Clés API — depuis les Réglages ou la ligne « Ajouter un service en ligne… » des listes de modèles. À sa fermeture,
+        /// les listes se reconstruisent : un service dont la clé vient d'être ajoutée y apparaît, un service dont la clé a été retirée en sort.
+        /// </summary>
+        private async void OpenApiKeysPage()
+        {
+            try
+            {
+                if (Navigation.NavigationStack.LastOrDefault() is Pages.AiSettingsPage) return; // déjà ouverte
+                var page = new Pages.AiSettingsPage(_aiService.Fallback);
+                page.Disappearing += (_, _) => _chatService.NotifyOnlineProvidersChanged();
+                await Navigation.PushAsync(page);
+            }
+            catch (Exception ex)
+            {
+                App.LogCrash("MainPage.OpenApiKeysPage", ex);
+                StatusBar.SetStatus("⚠ Impossible d'ouvrir Clés API : " + ex.Message);
+            }
         }
 
         private void WirePanels()

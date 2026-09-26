@@ -166,6 +166,32 @@ namespace Moto.Editor.Services
             !string.IsNullOrEmpty(model) &&
             ExternalProviderNames.Any(p => model.Contains(p, StringComparison.OrdinalIgnoreCase));
 
+        /// <summary>★ AJOUT (26/09, décision de Tom) : dernière ligne des listes de modèles — ouvre Clés API, ce n'est pas un modèle.</summary>
+        public const string AddOnlineServiceLabel = "Ajouter un service en ligne…";
+
+        /// <summary>
+        /// ★ AJOUT (26/09, décision de Tom : « les montrer seulement une fois leur clé ajoutée, avec une ligne « Ajouter un service en
+        /// ligne… » qui ouvre Clés API ») : ce que proposent les listes de modèles — les modèles locaux, puis les services en ligne dont une clé
+        /// est enregistrée, puis la ligne d'ajout. Une seule règle pour toutes les listes (chat, bandeau IA de l'éditeur, Accueil).
+        /// </summary>
+        public static IReadOnlyList<string> BuildModelChoices(IEnumerable<string> localModels, Func<string, bool> hasKey)
+            => localModels.Concat(ExternalProviderNames.Where(hasKey)).Append(AddOnlineServiceLabel).ToList();
+
+        /// <summary><see cref="BuildModelChoices"/> avec les clés réellement enregistrées dans Clés API.</summary>
+        public IReadOnlyList<string> ModelChoices(params string[] localModels) => BuildModelChoices(localModels, HasOnlineKey);
+
+        /// <summary>Une clé est enregistrée pour ce service en ligne (« OpenAI », « Anthropic », « Mistral »).</summary>
+        public bool HasOnlineKey(string providerName)
+            => Enum.TryParse<Moto.Core.AI.Models.AiProviderType>(providerName, out var type) && _fallback.HasApiKey(type);
+
+        /// <summary>Une clé a pu être ajoutée ou retirée (Clés API vient de se fermer) : les listes de modèles se reconstruisent.</summary>
+        public event Action? OnlineProvidersChanged;
+
+        public void NotifyOnlineProvidersChanged() => OnlineProvidersChanged?.Invoke();
+
+        /// <summary>Ouvre Clés API (ligne « Ajouter un service en ligne… » des listes de modèles) — fourni par MainPage.</summary>
+        public Action? OpenApiKeysHandler { get; set; }
+
         /// <summary>
         /// ★ AJOUT (03/09, identité de l'IA locale) : envoyé comme vrai "system
         /// prompt" Ollama (pas un texte ajouté au message) — sans ça, le modèle

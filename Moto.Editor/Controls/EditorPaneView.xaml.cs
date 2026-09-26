@@ -98,6 +98,48 @@ namespace Moto.Editor.Controls
         }
 
         // ------------------------------------------------------------------
+        // ★ AJOUT (26/09, décision de Tom) : liste de modèles du bandeau IA — les services en ligne n'y figurent qu'une fois leur clé
+        // ajoutée ; la dernière ligne, « Ajouter un service en ligne… », demande à MainPage d'ouvrir Clés API.
+        // ------------------------------------------------------------------
+
+        /// <summary>La ligne « Ajouter un service en ligne… » a été choisie : ouvrir Clés API.</summary>
+        public event Action? AddOnlineServiceRequested;
+
+        private bool _settingModels;
+        private string _bandModel = "MOTO interne";
+
+        /// <summary>Remplace la liste (ChatService.ModelChoices) ; le modèle choisi le reste s'il y figure encore, sinon retour au premier.</summary>
+        public void SetModelChoices(System.Collections.Generic.IReadOnlyList<string> choices)
+        {
+            if (choices.Count == 0) return;
+            _settingModels = true;
+            try
+            {
+                ModelPicker.ItemsSource = new System.Collections.Generic.List<string>(choices);
+                if (!System.Linq.Enumerable.Contains(choices, _bandModel)) _bandModel = choices[0];
+                ModelPicker.SelectedItem = _bandModel;
+            }
+            finally
+            {
+                _settingModels = false;
+            }
+        }
+
+        private void OnModelPickerChanged(object? sender, EventArgs e)
+        {
+            if (_settingModels || ModelPicker.SelectedItem is not string model) return;
+            if (model == Moto.Editor.Services.ChatService.AddOnlineServiceLabel)
+            {
+                _settingModels = true;
+                ModelPicker.SelectedItem = _bandModel; // pas un modèle : le choix d'avant reste
+                _settingModels = false;
+                AddOnlineServiceRequested?.Invoke();
+                return;
+            }
+            _bandModel = model;
+        }
+
+        // ------------------------------------------------------------------
         // API publique : binding depuis MainPage
         // ------------------------------------------------------------------
 

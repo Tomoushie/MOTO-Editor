@@ -73,6 +73,7 @@ namespace Moto.Editor.Views
             _workspaceState = workspaceState;
             LocationMenu.LocationSelected += id => LocationSelected?.Invoke(id);
             ComposerBar.PanelRequested += id => ComposerPanelRequested?.Invoke(id);
+            ComposerBar.AttachChat(_chatService); // ★ (26/09) liste des modèles : services en ligne seulement avec une clé
             // ★ AJOUT (31/08) : "+" de la barre du bas — pas de vrai système de pièces
             // jointes dans MOTO Editor, relayé vers la même action que "Rechercher
             // projet" (sélecteur de dossier) plutôt qu'un bouton qui ne ferait rien.

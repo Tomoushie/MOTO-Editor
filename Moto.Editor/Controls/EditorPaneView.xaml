@@ -184,15 +184,14 @@
                 Padding="10,8"
                 Margin="0">
             <Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto" ColumnSpacing="{StaticResource SpaceSm}">
+                <!-- ★ CHANGÉ (26/09, décision de Tom) : seulement les modèles locaux ici ; MainPage ajoute les services en ligne dont la clé
+                     est enregistrée, puis « Ajouter un service en ligne… » (EditorPaneView.SetModelChoices). -->
                 <Picker Grid.Row="0" Grid.Column="0" x:Name="ModelPicker"
-                        WidthRequest="200" FontSize="12">
+                        WidthRequest="200" FontSize="12" SelectedIndexChanged="OnModelPickerChanged">
                     <Picker.ItemsSource>
                         <x:Array Type="{x:Type x:String}">
                             <x:String>MOTO interne</x:String>
                             <x:String>Ollama (qwen2.5-coder:7b)</x:String>
-                            <x:String>OpenAI</x:String>
-                            <x:String>Anthropic</x:String>
-                            <x:String>Mistral</x:String>
                         </x:Array>
                     </Picker.ItemsSource>
                 </Picker>
