@@ -951,6 +951,43 @@ armé*. Pour voir la pile d'une exception qui tue le processus : abonner
 temporairement `AppDomain.FirstChanceException` (type + `new
 StackTrace(true)`) dès que le Handler est nul.
 
+**Mise à jour (27/09)** : sur la machine de Tom, la valeur ACTIVE du verrou de
+premier plan (`SPI_GETFOREGROUNDLOCKTIMEOUT`) est `0x7FFFFFFF`, même après un
+redémarrage (le registre dit pourtant 200000) : une appli la remet à chaque
+session. Un lancement par script n'est donc JAMAIS au premier plan (0 cycle
+armé sur 11, même avec 5 min d'inactivité). Pour les vraies fermetures, lire
+le journal Windows (Application, Id 1000) : il note chaque plantage avec le
+code `0xc000027b` et le chemin de l'exe. Dernier plantage : 24/09 à 21:06,
+sur la Release d'avant le correctif.
+
+## Écrans secondaires : DANS la fenêtre (`ScreenHost`), jamais `PushAsync` (27/09, `1aab72d`)
+
+**Règle** : ne jamais pousser une page par-dessus MainPage
+(`Navigation.PushAsync`/`PushModalAsync`). MainPage croit alors se fermer :
+- `OnDisappearing` détruit Cortex/Workspace/Doc/Preview et arrête le compteur
+  d'usage ;
+- au retour, `Loaded` rejoue tout le démarrage : explorateur rouvert,
+  arborescence remise à zéro, aperçu mort (`ObjectDisposedException`),
+  raccourcis ré-enregistrés.
+
+Tout cela a été mesuré le 27/09, avec HEAD comme témoin.
+
+**Comment faire à la place** :
+- Un écran secondaire est une `ContentView` affichée par
+  `ScreenHost.Show("Titre", vue)` (`Views/ScreenHostView`). Il se ferme par sa
+  croix ou par `ScreenHost.Close()`.
+- Une `ContentView` n'a pas de `DisplayAlert` : passer par
+  `ScreenHostView.AlertAsync` / `ConfirmAsync`.
+- Pour agir à la fermeture d'un écran, s'abonner à `vue.Unloaded` : il se
+  déclenche bien quand le cadre se ferme (mesuré).
+
+Écrans concernés : Clés API (`AiSettingsPage`), Monitoring IA, MOTO AI
+(`ai.motopage`), Beginner Assistant (`ai.beginnerassistant`).
+
+**Piège de sonde** : un gestionnaire `Loaded` abonné APRÈS le chargement est
+appelé tout de suite par MAUI (seul le nouveau, `OnPageLoaded` ne rejoue pas).
+Ne pas le compter comme un « Loaded rejoué ».
+
 ## Point d'entrée pour ouvrir l'Explorateur
 
 ✅ **Ctrl+B câblé et confirmé (02/09).** La palette de commandes annonçait
@@ -1055,7 +1092,8 @@ confirmée, moitié re-classée plus dure :**
   - ✅ `MotoAiPage` : entrée "MOTO AI (mode Débutant/Expert)" ajoutée à la
     palette de commandes (`CommandPaletteEngine.cs`, id `ai.motopage`) →
     `OnMenuCommanded` → `Navigation.PushAsync(new Pages.MotoAiPage())`.
-    Confirmé par Tom, l'écran s'ouvre.
+    Confirmé par Tom, l'écran s'ouvre. (★ 27/09 : maintenant
+    `ScreenHost.Show`, voir « Écrans secondaires » plus haut.)
   - ⏸️ `MarketplaceView` : PAS de point d'entrée, décision de Tom —
     `PluginGalleryView` (déjà réel et utilisé, bouton 🧱) affiche DÉJÀ
     installés+marketplace ensemble, risque de doublon confirmé avant
