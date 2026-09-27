@@ -78,6 +78,17 @@ namespace Moto.Core.Tests.AI.Commands
                 r.Title.Contains("terminal", StringComparison.OrdinalIgnoreCase));
         }
 
+        /// <summary>★ AJOUT (27/09, point 3 de Tom) : la petite barre qui modifie le fichier ouvert se trouve aussi par la palette.</summary>
+        [Fact]
+        public void Search_ModifierLeFichier_TrouveLaPetiteBarreIA()
+        {
+            var results = _palette.Search("modifier le fichier", new ActionContext { HasOpenDocument = true, OpenTabsCount = 1 });
+
+            var bar = Assert.Single(results, r => r.Id == "ai.editbar");
+            Assert.Equal("menu:ai.editbar", bar.CommandText);
+            Assert.Equal("Ctrl+Shift+I", bar.Shortcut);
+        }
+
         [Fact]
         public void E2E_MultipleExecutions_TopCommandsOrderingCorrect()
         {

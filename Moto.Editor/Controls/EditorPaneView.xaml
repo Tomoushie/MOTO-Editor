@@ -126,7 +126,7 @@
                         Clicked="OnPreviewClicked" />
                 <Button Style="{StaticResource MotoIconButton}"
                         Text="{x:Static controls:MotoIcons.Robot}"
-                        ToolTipProperties.Text="Bandeau IA : demander une modification du fichier"
+                        ToolTipProperties.Text="Modifier ce fichier avec l'IA (Ctrl+Maj+I)"
                         Clicked="OnAiClicked" />
                 <Button Style="{StaticResource MotoIconButton}"
                         Text="{x:Static controls:MotoIcons.DockRight}"
@@ -176,6 +176,8 @@
         </Grid>
 
         <!-- ═══ Ligne 3 : bandeau IA ═══ -->
+        <!-- ★ (27/09, point 3 de Tom) : la barre centrale flottante est retirée ; ce bandeau est LA petite barre qui modifie le fichier
+             ouvert. Fermé par défaut, il ne s'ouvre que sur demande : Ctrl+Maj+I, bouton 🤖, palette. Échap le referme. -->
         <Border Grid.Row="3" x:Name="AiBand" IsVisible="False"
                 StrokeShape="RoundRectangle 0"
                 BackgroundColor="{StaticResource BgPanel}"
@@ -197,7 +199,7 @@
                 </Picker>
 
                 <Entry Grid.Row="0" Grid.Column="1" x:Name="PromptEntry"
-                       Placeholder="Demande à l'IA de modifier le code… (Entrée pour envoyer)"
+                       Placeholder="Que changer dans ce fichier ? (Entrée pour envoyer, Échap pour fermer)"
                        FontSize="{StaticResource FontSizeBody}" BackgroundColor="Transparent"
                        Completed="OnAiSendClicked" />
 

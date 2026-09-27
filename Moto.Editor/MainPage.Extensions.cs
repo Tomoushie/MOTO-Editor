@@ -484,6 +484,10 @@ namespace Moto.Editor
                     _commandPalette.Close();
                     e.Handled = true;
                 }
+                else if (TryCloseFileAiBarOnEscape()) // ★ (27/09) : le bandeau IA de l'éditeur, curseur dans son champ
+                {
+                    e.Handled = true;
+                }
                 return;
             }
 

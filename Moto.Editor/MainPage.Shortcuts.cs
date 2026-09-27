@@ -46,7 +46,7 @@ namespace Moto.Editor
                     ToggleCommandPalette();
                     return true;
                 case "ctrl+shift+i":
-                    AiBar.Toggle();
+                    ToggleFileAiBar();
                     return true;
                 case "ctrl+b":
                     ToggleSide(isExplorer: true);
@@ -64,5 +64,25 @@ namespace Moto.Editor
                     return false;
             }
         }
+
+        /// <summary>
+        /// ★ AJOUT (27/09, point 3 de Tom : « le chat MOTO AI sur le côté, plus une petite barre qui n'apparaît que sur demande pour
+        /// modifier le fichier ouvert ») : Ctrl+Maj+I et la palette ouvrent le bandeau IA de l'éditeur (diff et accord avant d'écrire)
+        /// au lieu de l'ancienne barre centrale flottante, qui s'affichait d'elle-même à chaque fichier ouvert et à chaque retour dans
+        /// la fenêtre. Fermé → ouvert, curseur dedans. Ouvert mais curseur ailleurs (dans le code) → curseur dedans. Curseur dedans → fermé.
+        /// </summary>
+        private void ToggleFileAiBar()
+        {
+            if (_viewModel.SelectedDocument == null)
+            {
+                StatusBar.SetStatus("Ouvre d'abord un fichier : cette barre sert à le modifier. Pour discuter avec l'IA, utilise le chat MOTO AI.");
+                return;
+            }
+            if (EditorPane.IsAiBandFocused) EditorPane.CloseAiBand();
+            else EditorPane.OpenAiBand();
+        }
+
+        /// <summary>★ AJOUT (27/09) : Échap ferme le bandeau IA, seulement si le curseur est dans son champ (ailleurs, Échap garde son rôle).</summary>
+        private bool TryCloseFileAiBarOnEscape() => EditorPane.IsAiBandFocused && EditorPane.CloseAiBand();
     }
 }

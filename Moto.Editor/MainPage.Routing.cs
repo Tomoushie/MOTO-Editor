@@ -57,8 +57,12 @@ namespace Moto.Editor
             _commandRegistry.Register("file.export", () => ExportMenu.IsVisible = !ExportMenu.IsVisible);
             _commandRegistry.Register("file.lock", () => OnLockClicked(null, null));
 
-            _commandRegistry.Register("edit.search", () => AiBar.Toggle());
-            _commandRegistry.Register("edit.commands", () => AiBar.Toggle());
+            // ★ CHANGÉ (27/09, barre centrale retirée) : ces deux commandes ouvraient la barre IA flottante, sans rapport avec leur nom.
+            // « Palette de commandes » ouvre la palette ; « Rechercher » (Ctrl+F) n'a pas encore d'outil derrière lui : on le dit.
+            _commandRegistry.Register("edit.search", () => StatusBar.SetStatus("La recherche dans le fichier (Ctrl+F) n'existe pas encore dans MOTO."));
+            _commandRegistry.Register("edit.commands", () => ToggleCommandPalette());
+            // ★ AJOUT (27/09, point 3 de Tom) : la petite barre qui modifie le fichier ouvert — voir ToggleFileAiBar (MainPage.Shortcuts.cs).
+            _commandRegistry.Register("ai.editbar", () => ToggleFileAiBar());
 
             _commandRegistry.Register("view.explorer", () => ToggleSide(isExplorer: true));
             _commandRegistry.Register("view.sidebar", () => ToggleSide(isExplorer: false));
@@ -576,8 +580,8 @@ namespace Moto.Editor
             // vient du prompt de l'Accueil (AiBar, le bandeau flottant, n'est alors pas
             // visible) — l'attente (parfois 1 min+ avec un modèle local) semblait donc
             // "figée"/anormale à Tom. La barre de statut, elle, est TOUJOURS visible.
+            // ★ (27/09) : AiBar n'existe plus (point 3 de Tom) ; restent la barre de statut et Home.SetThinking ci-dessous.
             StatusBar.SetStatus("🧠 Réflexion de l'IA en cours…");
-            AiBar.SetBusy(true);
             try
             {
                 if (AutoProjectBuilder.ShouldHandle(text))
@@ -650,7 +654,6 @@ namespace Moto.Editor
                 // « ↩ Annuler »). L'onglet temporaire ci-dessous ne sert plus que sans fichier ouvert, ou pour une réponse sans code.
                 if (!string.IsNullOrWhiteSpace(reply) && _viewModel.SelectedDocument is { } openDoc && answer.Segments.Any(s => s.IsCode))
                 {
-                    AiBar.SetBusy(false); // la réponse est arrivée : seule la boîte de confirmation attend encore
                     await PlaceReplyCodeInOpenFileAsync(answer, openDoc);
                     return;
                 }
@@ -694,7 +697,6 @@ namespace Moto.Editor
             }
             finally
             {
-                AiBar.SetBusy(false);
                 RefreshHomeStats();
             }
         }

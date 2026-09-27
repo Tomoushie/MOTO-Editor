@@ -291,6 +291,31 @@ namespace Moto.Editor.Controls
         /// <summary>★ AJOUT (24/09) : ouvre le bandeau IA (s'il était fermé) pour qu'une réponse affichée dans sa ligne d'état soit visible.</summary>
         public void ShowAiBand() => AiBand.IsVisible = true;
 
+        // ★ AJOUT (27/09, point 3 de Tom) : la barre centrale flottante est retirée ; ce bandeau devient LA petite barre qui modifie le
+        // fichier ouvert, et n'apparaît que sur demande (Ctrl+Maj+I, bouton 🤖, palette « Modifier le fichier avec l'IA »).
+
+        /// <summary>Le bandeau est ouvert et le curseur est dans son champ de saisie.</summary>
+        public bool IsAiBandFocused => AiBand.IsVisible && PromptEntry.IsFocused;
+
+        /// <summary>Ouvre le bandeau (s'il était fermé) et met le curseur dans son champ.</summary>
+        public void OpenAiBand()
+        {
+            AiBand.IsVisible = true;
+            PromptEntry.Focus();
+        }
+
+        /// <summary>
+        /// Ferme le bandeau. Refusé pendant qu'un modèle écrit : son ■ (arrêter) doit rester à portée.
+        /// Le curseur n'est PAS rendu au code : WebView.Focus() fait planter MOTO (arrêt natif 0xc0000409, reproduit le 27/09) ;
+        /// on reclique dans le code.
+        /// </summary>
+        public bool CloseAiBand()
+        {
+            if (_aiBusy) return false;
+            AiBand.IsVisible = false;
+            return true;
+        }
+
         /// <summary>
         /// ★ AJOUT (30/08) : reflète l'état plein écran sur le bouton lui-même —
         /// Tom ne retrouvait pas comment revenir en arrière (rien n'indiquait que
@@ -327,12 +352,11 @@ namespace Moto.Editor.Controls
         // Handlers bandeau IA
         // ------------------------------------------------------------------
 
-        /// <summary>Basculer la visibilité du bandeau IA.</summary>
+        /// <summary>Basculer la visibilité du bandeau IA (★ 27/09 : il reste ouvert pendant qu'un modèle écrit, voir CloseAiBand).</summary>
         private void OnAiClicked(object s, EventArgs e)
         {
-            AiBand.IsVisible = !AiBand.IsVisible;
-
-            if (AiBand.IsVisible) PromptEntry.Focus();
+            if (AiBand.IsVisible) CloseAiBand();
+            else OpenAiBand();
         }
 
         /// <summary>

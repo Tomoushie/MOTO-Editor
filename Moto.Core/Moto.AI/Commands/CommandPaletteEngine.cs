@@ -151,6 +151,8 @@ namespace Moto.Core.AI.Commands
                 // ── Édition ──
                 new() { Id = "edit.search", Title = "Rechercher", Description = "Recherche dans le fichier.", Category = CommandCategory.Menu, CommandText = "menu:edit.search", Shortcut = "Ctrl+F" },
                 new() { Id = "edit.commands", Title = "Palette de commandes", Description = "Ouvre cette palette.", Category = CommandCategory.Menu, CommandText = "/palette", Shortcut = "Ctrl+Shift+P" },
+                // ★ AJOUT (27/09, point 3 de Tom) : la petite barre qui modifie le fichier ouvert (remplace la barre centrale flottante).
+                new() { Id = "ai.editbar", Title = "Modifier le fichier avec l'IA", Description = "Ouvre la petite barre qui modifie le fichier ouvert (diff et accord avant d'écrire).", Category = CommandCategory.Menu, CommandText = "menu:ai.editbar", Shortcut = "Ctrl+Shift+I" },
 
                 // ── Affichage ──
                 new() { Id = "view.explorer", Title = "Basculer l'explorateur", Description = "Affiche/cache l'explorateur.", Category = CommandCategory.Menu, CommandText = "menu:view.explorer", Shortcut = "Ctrl+B" },

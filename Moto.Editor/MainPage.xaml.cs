@@ -300,7 +300,6 @@ namespace Moto.Editor
                     ? "Panneaux inversés : IA à droite, explorateur à gauche"
                     : "Panneaux rétablis : IA à gauche, explorateur à droite");
             };
-            AiBar.Submitted += OnAiCommandSubmitted;
         }
 
         private void WireSettings()
@@ -433,19 +432,10 @@ namespace Moto.Editor
                 if (!hasDocs && !Home.IsVisible) RefreshHomeStats();
                 Home.IsVisible = !hasDocs;
                 EditorPane.IsVisible = hasDocs;
-                // ★ CORRECTIF (03/09, trouvé par Tom) : AiBar.Show() (appelée sur
-                // activation de la fenêtre, voir GlobalHotkeyService.Register plus bas)
-                // n'avait pas de contrepartie pour la cacher — fermer le dernier fichier
-                // ouvert la laissait affichée par-dessus l'écran d'Accueil.
-                // ★ CORRECTIF (04/09, trouvé par Tom) : jusqu'ici, ouvrir un fichier ne
-                // faisait JAMAIS apparaître AiBar — seule une réactivation de FENÊTRE
-                // (alt-tab, etc., voir GlobalHotkeyService.Register plus bas) le
-                // faisait, un événement Windows sans rapport avec le fait d'ouvrir un
-                // document. Repéré par Tom via le correctif "chevauchement WebView"
-                // (EditorPaneView.xaml) : l'espace réservé apparaissait immédiatement,
-                // mais la barre elle-même n'apparaissait dedans qu'après 30s-1min,
-                // au hasard d'une prochaine activation de fenêtre.
-                if (hasDocs) AiBar.Show(); else AiBar.Hide();
+                // ★ CHANGÉ (27/09, point 3 de Tom) : la barre centrale flottante (AiBar), qui s'affichait d'elle-même dès qu'un fichier
+                // s'ouvrait, est retirée. Sa remplaçante, le bandeau IA de l'éditeur, ne s'ouvre que sur demande (ToggleFileAiBar) ;
+                // on la referme avec le dernier onglet, pour qu'elle ne réapparaisse pas toute seule au fichier suivant.
+                if (!hasDocs) EditorPane.CloseAiBand();
             };
 
             // Panneaux Présentation / Remote / Collab : handlers déjà écrits dans
@@ -542,7 +532,8 @@ namespace Moto.Editor
             // manuel") : F11 — voir Platforms.Windows.SnapLayoutsHelper.ToggleFullScreen.
             // ★ MODIFIÉ (25/09) : chaque raccourci passe par RunShortcut (MainPage.Shortcuts.cs), qui reçoit aussi ceux tapés dans
             // l'éditeur — une frappe vue par les deux chemins n'agit qu'une fois. Ctrl+S ajouté (aucune touche n'enregistrait).
-            GlobalHotkeyService.Register(nativeWindow, onHotkey: () => RunShortcut("ctrl+shift+i"), onWindowActivated: () => { if (!Home.IsVisible) AiBar.Show(); }, onToggleExplorer: () => RunShortcut("ctrl+b"), onBuild: () => RunShortcut("f5"), onToggleFullScreen: () => RunShortcut("f11"), onSave: () => RunShortcut("ctrl+s"));
+            // ★ CHANGÉ (27/09, point 3 de Tom) : plus rien ne s'ouvre au retour dans la fenêtre (la barre IA ne vient que sur demande).
+            GlobalHotkeyService.Register(nativeWindow, onHotkey: () => RunShortcut("ctrl+shift+i"), onToggleExplorer: () => RunShortcut("ctrl+b"), onBuild: () => RunShortcut("f5"), onToggleFullScreen: () => RunShortcut("f11"), onSave: () => RunShortcut("ctrl+s"));
 
             // ★ AJOUT (02/09, état des lieux) : Ctrl+Shift+P (palette de commandes)
             // était câblé trop tôt (constructeur de MainPage, fenêtre native pas
