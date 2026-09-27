@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+<!-- ★ MODIFIÉ (27/09, option C choisie par Tom) : écran affiché DANS la fenêtre (Views/ScreenHostView), plus une page
+     séparée ; son titre (« Beginner Assistant (Orchestrator) ») est celui du cadre. -->
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="Moto.Editor.Pages.BeginnerAssistantPage"
-             Title="Beginner Assistant (Orchestrator)">
+             x:Class="Moto.Editor.Pages.BeginnerAssistantPage">
 
-    <ContentPage.Resources>
+    <ContentView.Resources>
         <!-- ★ AJOUT (08/09, chantier visuel) : Segoe UI Variable appliqué à ce
              panneau via un style implicite SCOPÉ À CETTE PAGE (n'affecte pas
              App.xaml ni les autres écrans). Un FontFamily explicite posé
@@ -25,7 +26,7 @@
         <Style TargetType="Picker">
             <Setter Property="FontFamily" Value="{StaticResource FontFamilyUi}" />
         </Style>
-    </ContentPage.Resources>
+    </ContentView.Resources>
 
     <ScrollView Padding="{StaticResource SpaceMd}">
 
@@ -125,4 +126,4 @@
 
     </ScrollView>
 
-</ContentPage>
+</ContentView>

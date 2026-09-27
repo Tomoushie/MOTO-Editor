@@ -324,8 +324,10 @@ namespace Moto.Editor
             // ★ AJOUT (02/09, état des lieux) : redonne un point d'entrée à
             // AiSettingsPage (config des providers IA externes), orpheline depuis
             // le retrait du menu Réglages fantôme le 31/08 — voir CLAUDE.md.
-            SettingsWindow.ApiKeysRequested += async () =>
-                await Navigation.PushAsync(new Pages.AiSettingsPage(_aiService.Fallback));
+            // ★ MODIFIÉ (27/09, option C choisie par Tom) : s'ouvre DANS la fenêtre (ScreenHost), plus en page séparée — une
+            // page poussée par-dessus faisait disparaître MainPage (moteurs détruits, démarrage rejoué au retour).
+            SettingsWindow.ApiKeysRequested += () =>
+                ScreenHost.Show("Clés API", new Pages.AiSettingsPage(_aiService.Fallback));
         }
 
         private void WirePanels()
@@ -665,14 +667,14 @@ namespace Moto.Editor
             return (code, extension);
         }
 
-        private async void OnAiMonitorTapped(object? sender, EventArgs e)
+        private void OnAiMonitorTapped(object? sender, EventArgs e)
         {
             try
             {
                 var monitoringView = Resolve<Views.AiMonitoringView>();
                 if (monitoringView != null)
-                    // AiMonitoringView est un ContentView, pas une Page : on l'enveloppe.
-                    await Navigation.PushAsync(new ContentPage { Title = "Monitoring IA", Content = monitoringView });
+                    // ★ MODIFIÉ (27/09, option C) : affiché DANS la fenêtre (ScreenHost), plus enveloppé dans une page poussée.
+                    ScreenHost.Show("Monitoring IA", monitoringView);
                 else if (_aiMonitorPage != null)
                 {
                     _aiMonitorPage.IsVisible = true;

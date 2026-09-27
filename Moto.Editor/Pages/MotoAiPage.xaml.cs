@@ -1,6 +1,7 @@
 // Moto.Editor/Pages/MotoAiPage.xaml.cs
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using Microsoft.Maui.Controls;
 using Moto.Core.AI.Internal.Models;
 using Moto.Editor.Services;
@@ -8,9 +9,11 @@ using Moto.Editor.Services;
 namespace Moto.Editor.Pages
 {
     /// <summary>
-    /// Page MAUI pour utiliser MOTO AI directement dans l'éditeur.
+    /// Écran pour utiliser MOTO AI directement dans l'éditeur.
+    /// ★ MODIFIÉ (27/09, option C choisie par Tom) : ContentView affichée DANS la fenêtre (Views/ScreenHostView), plus une
+    /// page poussée par-dessus MainPage. Le nom de classe « …Page » est gardé tel quel (référencé ailleurs).
     /// </summary>
-    public partial class MotoAiPage : ContentPage
+    public partial class MotoAiPage : ContentView
     {
         private readonly MotoAiService _service = new MotoAiService();
         private AiResponse _lastResponse;
@@ -21,6 +24,13 @@ namespace Moto.Editor.Pages
 
             ModePicker.SelectedIndex = 0;
         }
+
+        // ★ AJOUT (27/09) : une ContentView n'a pas de DisplayAlert — mêmes appels qu'avant, affichés par la page de la fenêtre.
+        private Task DisplayAlert(string title, string message, string cancel) =>
+            Views.ScreenHostView.AlertAsync(this, title, message, cancel);
+
+        private Task<bool> DisplayAlert(string title, string message, string accept, string cancel) =>
+            Views.ScreenHostView.ConfirmAsync(this, title, message, accept, cancel);
 
         private async void OnRunClicked(object sender, EventArgs e)
         {

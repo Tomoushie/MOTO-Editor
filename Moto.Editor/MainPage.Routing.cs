@@ -106,11 +106,13 @@ namespace Moto.Editor
             // avant ce correctif). Pas de dépendance à résoudre (MotoAiService
             // s'auto-construit) — fire-and-forget, comme les autres actions
             // ci-dessus qui ne bloquent pas sur un résultat.
-            _commandRegistry.Register("ai.motopage", () => _ = Navigation.PushAsync(new Pages.MotoAiPage()));
+            // ★ MODIFIÉ (27/09, option C choisie par Tom) : ces deux écrans s'ouvrent DANS la fenêtre (ScreenHost), plus en
+            // page séparée — voir Views/ScreenHostView.xaml.
+            _commandRegistry.Register("ai.motopage", () => ScreenHost.Show("MOTO AI", new Pages.MotoAiPage()));
             // ★ AJOUT (08/09, Tom) : point d'entrée UI de BeginnerAssistant,
             // désormais branché sur l'orchestrateur XENO-SSS∞ réel (voir
             // Pages/BeginnerAssistantPage.xaml.cs).
-            _commandRegistry.Register("ai.beginnerassistant", () => _ = Navigation.PushAsync(new Pages.BeginnerAssistantPage()));
+            _commandRegistry.Register("ai.beginnerassistant", () => ScreenHost.Show("Beginner Assistant (Orchestrator)", new Pages.BeginnerAssistantPage()));
             // ★ AJOUT (03/09, réveil de GlobalDashboardView) : ouvre dans sa propre
             // fenêtre (même mécanisme que le bouton ⧉ des panneaux ancrés) — pas
             // ajouté au dock IA lui-même dans cette passe, pour rester un petit

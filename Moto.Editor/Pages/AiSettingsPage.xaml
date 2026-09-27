@@ -1,34 +1,15 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="Moto.Editor.Pages.AiSettingsPage"
-             Title="Paramètres IA"
              BackgroundColor="{StaticResource BgApp}">
 
     <!--
-      ★ CORRECTION (30/08) : cette page n'avait ni fond ni en-tête custom — elle
-      s'affichait avec la barre de titre Windows native (bleue) ET sa flèche de
-      retour système, incohérentes avec le reste de l'appli (repéré par Tom :
-      "toujours la barre Windows 11", "flèche dans la barre bleue en haut à
-      gauche alors qu'elle devrait se trouver à l'intérieur"). MainPage masque
-      déjà sa propre barre de nav MAUI (NavigationPage.SetHasNavigationBar,
-      voir le constructeur ci-dessous) et dessine SA barre custom — cette page
-      fait maintenant pareil : en-tête sombre avec un vrai bouton "← Retour".
+      ★ MODIFIÉ (27/09, option C choisie par Tom) : écran affiché DANS la fenêtre (Views/ScreenHostView), plus une
+      page séparée. Le titre et la croix de fermeture sont ceux du cadre : l'en-tête sombre avec son bouton
+      "← Retour" (ajouté le 30/08 quand c'était une page poussée par-dessus MainPage) est retiré.
     -->
-    <Grid RowDefinitions="Auto,*">
-
-        <Border Grid.Row="0" BackgroundColor="{StaticResource BgSide}" Padding="12,10">
-            <Grid ColumnDefinitions="Auto,*">
-                <Button Grid.Column="0" Text="← Retour" Clicked="OnBackClicked"
-                        BackgroundColor="Transparent" TextColor="{StaticResource Txt1}"
-                        Padding="8,4" FontSize="{StaticResource FontSizeBody}" />
-                <Label Grid.Column="1" Text="Paramètres IA" FontSize="{StaticResource FontSizeHeading}" FontAttributes="Bold"
-                       TextColor="{StaticResource Txt1}" VerticalOptions="Center"
-                       HorizontalOptions="Center" />
-            </Grid>
-        </Border>
-
-    <ScrollView Grid.Row="1" Padding="{StaticResource SpaceMd}">
+    <ScrollView Padding="{StaticResource SpaceMd}">
 
         <VerticalStackLayout Spacing="{StaticResource SpaceMd}">
 
@@ -228,6 +209,4 @@
 
     </ScrollView>
 
-    </Grid>
-
-</ContentPage>
+</ContentView>

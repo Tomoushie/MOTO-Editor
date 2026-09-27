@@ -85,7 +85,8 @@ namespace Moto.Editor.Views
         /// ★ AJOUT (02/09, état des lieux) : bouton "🔑 Clés API" de la barre de
         /// titre. Cette ContentView n'a pas de Navigation propre (seule une Page en
         /// a une) — même patron que RealSettingChanged : on remonte l'intention à
-        /// MainPage, qui fait le Navigation.PushAsync (voir WireSettings).
+        /// MainPage, qui ouvre l'écran (voir WireSettings).
+        /// ★ MODIFIÉ (27/09, option C) : l'écran s'affiche DANS la fenêtre (ScreenHost.Show), plus par Navigation.PushAsync.
         /// </summary>
         public event Action? ApiKeysRequested;
 

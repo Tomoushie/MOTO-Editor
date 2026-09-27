@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+  Moto.Editor/Views/ScreenHostView.xaml
+  ★ AJOUT (27/09, option C choisie par Tom) : cadre qui affiche un écran (Clés API, Monitoring IA, MOTO AI,
+  Beginner Assistant) DANS la fenêtre, par-dessus l'éditeur, au lieu d'une page séparée (Navigation.PushAsync).
+  Une page séparée faisait disparaître MainPage : ses moteurs étaient détruits (OnDisappearing) et tout son
+  démarrage rejoué au retour (Loaded) — explorateur rouvert, arborescence repliée, aperçu en direct cassé.
+  Même habillage que la fenêtre de Réglages (voile, cadre arrondi, barre de titre avec la croix).
+-->
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:controls="clr-namespace:Moto.Editor.Controls"
+             x:Class="Moto.Editor.Views.ScreenHostView"
+             IsVisible="False">
+
+    <!-- Voile de fond : comme pour les Réglages, un clic dehors ne ferme pas ; seule la croix ferme. -->
+    <Grid BackgroundColor="#66000000">
+
+        <!-- Un Border n'a qu'UN enfant (piège documenté dans SettingsWindowView.xaml) : tout passe par ce Grid. -->
+        <Border WidthRequest="920" Margin="0,24"
+                HorizontalOptions="Center" VerticalOptions="Fill"
+                BackgroundColor="{StaticResource BgApp}"
+                Stroke="{StaticResource BorderSoft}" StrokeThickness="1"
+                StrokeShape="RoundRectangle 12"
+                Shadow="{StaticResource ShadowLg}">
+
+            <Grid RowDefinitions="40,*">
+
+                <Border Grid.Row="0" BackgroundColor="{StaticResource BgSide}" StrokeThickness="0">
+                    <Grid ColumnDefinitions="*,Auto" Padding="14,0">
+                        <Label x:Name="TitleLabel" FontAttributes="Bold"
+                               FontSize="{DynamicResource FontSizeUiText}"
+                               TextColor="{StaticResource Txt1}" VerticalOptions="Center" />
+                        <Button Grid.Column="1" Text="{x:Static controls:MotoIcons.Close}"
+                                Style="{StaticResource MotoIconButton}" FontSize="10"
+                                VerticalOptions="Center"
+                                ToolTipProperties.Text="Fermer"
+                                Clicked="OnCloseClicked" />
+                    </Grid>
+                </Border>
+
+                <ContentView x:Name="ContentSlot" Grid.Row="1" />
+
+            </Grid>
+        </Border>
+    </Grid>
+</ContentView>

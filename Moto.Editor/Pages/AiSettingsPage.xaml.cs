@@ -12,9 +12,11 @@ using Moto.Core.Settings;
 namespace Moto.Editor.Pages
 {
     /// <summary>
-    /// Page de paramètres pour configurer les providers IA.
+    /// Écran « Clés API » : configuration des providers IA.
+    /// ★ MODIFIÉ (27/09, option C choisie par Tom) : ContentView affichée DANS la fenêtre (Views/ScreenHostView), plus une
+    /// page poussée par-dessus MainPage. Le nom de classe « …Page » est gardé tel quel (référencé ailleurs).
     /// </summary>
-    public partial class AiSettingsPage : ContentPage
+    public partial class AiSettingsPage : ContentView
     {
         private readonly FallbackEngine _fallbackEngine;
         private readonly ObservableCollection<ProviderStatusItem> _providerStatus;
@@ -22,12 +24,6 @@ namespace Moto.Editor.Pages
         public AiSettingsPage(FallbackEngine fallbackEngine)
         {
             InitializeComponent();
-
-            // ★ CORRECTION (30/08) : masque la barre de nav MAUI native (avec sa
-            // flèche de retour intégrée à la barre de titre Windows) — même patron
-            // que MainPage (App.xaml.cs) ; la page dessine désormais son propre
-            // en-tête sombre avec un bouton "← Retour" (voir AiSettingsPage.xaml).
-            NavigationPage.SetHasNavigationBar(this, false);
 
             _fallbackEngine = fallbackEngine ?? new FallbackEngine();
             _providerStatus = new ObservableCollection<ProviderStatusItem>();
@@ -37,7 +33,12 @@ namespace Moto.Editor.Pages
             LoadExistingConfig();
         }
 
-        private async void OnBackClicked(object sender, EventArgs e) => await Navigation.PopAsync();
+        // ★ AJOUT (27/09) : une ContentView n'a pas de DisplayAlert — mêmes appels qu'avant, affichés par la page de la fenêtre.
+        private Task DisplayAlert(string title, string message, string cancel) =>
+            Views.ScreenHostView.AlertAsync(this, title, message, cancel);
+
+        private Task<bool> DisplayAlert(string title, string message, string accept, string cancel) =>
+            Views.ScreenHostView.ConfirmAsync(this, title, message, accept, cancel);
 
         /// <summary>
         /// Charge la configuration existante.
