@@ -317,7 +317,7 @@ namespace Moto.Editor.Views
                 if (Chat.AgentMode && !text.StartsWith("/", StringComparison.Ordinal))
                     Chat.SendToAgent(text);
                 else
-                    await Chat.SendAsync(text);
+                    await Chat.SendAsync(text, offerProjectCreation: true); // ★ (28/09) « crée un projet… » marche aussi ici, voir ChatService.ProjectRequestHandler
             }
             catch (Exception ex)
             {

@@ -44,6 +44,15 @@ namespace Moto.Editor.Services
         public Func<string, Task<string?>>? PluginCommandHandler { get; set; }
 
         /// <summary>
+        /// ★ AJOUT (28/09, choix de Tom : « crée un projet… » marche aussi depuis le chat, plus seulement depuis l'Accueil) : une phrase TAPÉE
+        /// dans le chat (SendAsync avec offerProjectCreation) qui n'est pas une commande « / » est d'abord proposée à MainPage, qui y reconnaît
+        /// (ou non) une demande de création de projet. Renvoie la réponse à afficher dans le chat, ou null pour que le modèle réponde comme
+        /// d'habitude. Les questions que MOTO compose lui-même (« Expliquer ») ne passent jamais par ici : le nom d'un fichier ne doit pas
+        /// suffire à ouvrir une demande de création.
+        /// </summary>
+        public Func<string, Task<string?>>? ProjectRequestHandler { get; set; }
+
+        /// <summary>
         /// ★ AJOUT (25/09, « Appliquer » dans le chat) : le bouton « Appliquer » d'un bloc de code d'une réponse. Câblé une fois par MainPage
         /// (qui connaît l'éditeur et la boîte de confirmation) — toutes les fenêtres du chat (panneau, fenêtre détachée ⧉) passent par ici.
         /// Null : le bouton ne fait rien.
@@ -373,8 +382,10 @@ namespace Moto.Editor.Services
         /// parti (texte vide, ou une réponse s'écrit déjà).
         /// <paramref name="includeActiveFile"/> : force l'envoi (ou non) du fichier affiché et de la sélection pour CETTE question, quel que soit le
         /// mode choisi (« Expliquer » en a besoin même en mode « Chat »).
+        /// <paramref name="offerProjectCreation"/> : le texte a été tapé dans le chat — voir <see cref="ProjectRequestHandler"/>.
         /// </summary>
-        public async Task<ChatMessage?> SendAsync(string text, bool? includeActiveFile = null, CancellationToken ct = default)
+        public async Task<ChatMessage?> SendAsync(string text, bool? includeActiveFile = null, CancellationToken ct = default,
+            bool offerProjectCreation = false)
         {
             if (string.IsNullOrWhiteSpace(text) || IsReplying) return null;
 
@@ -403,6 +414,14 @@ namespace Moto.Editor.Services
                     thread.LastActivityUtc = DateTime.UtcNow;
                     return message;
                 }
+            }
+            else if (offerProjectCreation && !text.StartsWith("/", StringComparison.Ordinal) && ProjectRequestHandler != null
+                     && await ProjectRequestHandler(text) is { } projectReply) // ★ (28/09) voir ProjectRequestHandler
+            {
+                var message = new ChatMessage { Role = "ai", Content = projectReply };
+                thread.Messages.Add(message);
+                thread.LastActivityUtc = DateTime.UtcNow;
+                return message;
             }
 
             var request = BuildRequest(thread, text, history, includeActiveFile ?? IncludeActiveFile);

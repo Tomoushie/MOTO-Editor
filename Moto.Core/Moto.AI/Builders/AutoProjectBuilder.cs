@@ -1,6 +1,8 @@
 // Moto.Core/AI/Builders/AutoProjectBuilder.cs
 using System;
+using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using Moto.Editor.AI.Builders;
 
@@ -47,6 +49,13 @@ namespace Moto.Core.AI.Builders
             var name = ExtractProjectName(description);
             return Path.Combine(targetRoot, name);
         }
+
+        /// <summary>
+        /// ★ AJOUT (28/09, « crée un projet… » depuis le chat) : les fichiers que <see cref="BuildAsync"/> écrira, en chemins relatifs au
+        /// dossier du projet — pour les montrer (et signaler ceux qui existent déjà) AVANT d'écrire quoi que ce soit.
+        /// </summary>
+        public List<string> PlannedFiles(string description)
+            => _templates.GetSnakeGameFiles(ExtractProjectName(description)).Select(f => f.RelativePath).ToList();
 
         /// <summary>
         /// Génère et écrit le projet complet sur disque.

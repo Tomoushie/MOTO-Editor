@@ -187,6 +187,8 @@ namespace Moto.Editor
                 _chatService.PluginCommandHandler = HandlePluginCommandAsync;
                 // ★ AJOUT (27/09, décision 2 de Tom) : le mode « Agent » du chat démarre l'agent v2, comme « /agent <objectif> ».
                 _chatService.AgentHandler = HandleAgentCommand;
+                // ★ AJOUT (28/09, choix de Tom) : « crée un projet… » tapé dans le chat — voir HandleChatProjectRequestAsync (MainPage.Routing.cs).
+                _chatService.ProjectRequestHandler = HandleChatProjectRequestAsync;
 
                 // ★ CORRECTION : cette méthode construisait ICI une première
                 // PluginGalleryView (DI-résolue ou neuve) et l'ajoutait en overlay
@@ -789,13 +791,14 @@ namespace Moto.Editor
         // ------------------------------------------------------------------
         // ★ v29 : Ouverture de fenêtres spécialisées (WindowManager)
         // ------------------------------------------------------------------
-        private void OpenSpecializedWindow(string kind)
+        // ★ CHANGÉ (28/09, /window depuis le chat) : renvoie le problème (déjà écrit dans la barre de statut) ou null si la fenêtre est
+        // ouverte — le chat MOTO AI l'affiche comme réponse (voir HandlePluginCommandAsync). Les autres appelants l'ignorent.
+        private string? OpenSpecializedWindow(string kind)
         {
+            string Fail(string problem) { StatusBar.SetStatus(problem); return problem; }
+
             if (_windowManager == null)
-            {
-                StatusBar.SetStatus("WindowManager non disponible.");
-                return;
-            }
+                return Fail("WindowManager non disponible.");
 
             var normalized = kind.ToLowerInvariant();
 
@@ -916,7 +919,7 @@ namespace Moto.Editor
                 // ce chantier — liste les AgentRunRecord en direct, permet
                 // d'arrêter un run, montre les messages échangés entre agents.
                 case "agentruns":
-                    if (_backgroundAgentService == null) { StatusBar.SetStatus("Agents : service indisponible."); break; }
+                    if (_backgroundAgentService == null) return Fail("Agents : service indisponible.");
                     _windowManager.OpenOrFocus(Moto.Editor.Windows.WindowKind.AgentRuns, () =>
                     {
                         var view = new Views.AgentRunsView(_backgroundAgentService)
@@ -934,7 +937,7 @@ namespace Moto.Editor
                 // construits (commit/push/pull/branches/diff/log réels) mais
                 // totalement injoignables jusqu'ici.
                 case "git":
-                    if (_gitService == null) { StatusBar.SetStatus("Git : service indisponible."); break; }
+                    if (_gitService == null) return Fail("Git : service indisponible.");
                     _windowManager.OpenOrFocus(Moto.Editor.Windows.WindowKind.Git, () =>
                     {
                         var view = new Views.GitPanelView(_gitService) { IsVisible = true };
@@ -956,10 +959,14 @@ namespace Moto.Editor
                     break;
 
                 default:
-                    StatusBar.SetStatus($"Fenêtre inconnue : {kind}");
-                    break;
+                    return Fail($"Fenêtre inconnue : {kind}");
             }
+            return null;
         }
+
+        /// <summary>★ AJOUT (28/09) : ce que « /window » sait ouvrir (les cas de OpenSpecializedWindow), pour le rappeler dans le chat.</summary>
+        private const string KnownWindowKinds =
+            "git, agentruns, backgroundtasks, threadlist, globaldashboard, analytics, aichat, cortex, neural, workspace, platform, plugin, debug, editor, claudeshell";
 
         // ------------------------------------------------------------------
         // Helpers
@@ -1036,6 +1043,35 @@ namespace Moto.Editor
                 return HandlePresetAgentCommand("test", text.Length > "/test".Length ? text["/test".Length..].Trim() : string.Empty);
             if (text.StartsWith("/doc", StringComparison.OrdinalIgnoreCase))
                 return HandlePresetAgentCommand("doc", text.Length > "/doc".Length ? text["/doc".Length..].Trim() : string.Empty);
+
+            // ★ AJOUT (28/09, choix de Tom : les commandes perdues pendant l'édition marchent aussi depuis le chat) : /analytics et /window
+            // n'étaient comprises que par l'Accueil — tapées dans le chat MOTO AI, elles partaient au modèle comme une question.
+            try
+            {
+                if (text.Equals("/analytics", StringComparison.OrdinalIgnoreCase) || text.StartsWith("/analytics ", StringComparison.OrdinalIgnoreCase))
+                    return await RunAnalyticsCommandAsync(text["/analytics".Length..].Trim());
+
+                if (text.Equals("/window", StringComparison.OrdinalIgnoreCase))
+                    return "Utilisation : /window <nom>\nFenêtres possibles : " + KnownWindowKinds;
+                if (text.StartsWith("/window ", StringComparison.OrdinalIgnoreCase))
+                {
+                    var kind = text["/window ".Length..].Trim().ToLowerInvariant();
+                    var openBefore = _windowManager?.OpenWindows.Count ?? 0;
+                    var problem = OpenSpecializedWindow(kind);
+                    if (problem == null)
+                        return (_windowManager?.OpenWindows.Count ?? 0) > openBefore
+                            ? $"✔ Fenêtre « {kind} » ouverte."
+                            : $"La fenêtre « {kind} » est déjà ouverte : cherche-la dans la barre des tâches (MOTO ne sait pas encore la ramener devant).";
+                    return problem.StartsWith("Fenêtre inconnue", StringComparison.Ordinal)
+                        ? $"⚠ {problem}\nFenêtres possibles : {KnownWindowKinds}"
+                        : "⚠ " + problem;
+                }
+            }
+            catch (Exception ex)
+            {
+                App.LogCrash("HandlePluginCommandAsync (/analytics, /window)", ex);
+                return "⚠ Erreur : " + ex.Message;
+            }
 
             if (_pluginRegistry == null) return null;
 
