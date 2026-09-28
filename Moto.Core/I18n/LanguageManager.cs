@@ -70,13 +70,21 @@ namespace Moto.Core.I18n
             new LanguageInfo { Code = "zh", Name = "Chinese", NativeName = "中文", Flag = "🇨🇳", IsBuiltIn = true }
         };
 
-        public LanguageManager(ILogger<LanguageManager> logger)
+        /// <param name="dataDirectory">
+        /// Dossier racine : packs installés dans languages\, langue choisie dans
+        /// language-settings.json ; null = %AppData%\MotoEditor (l'application).
+        /// ★ AJOUT (27/09) : les tests passent un dossier temporaire — sans ça,
+        /// E2E_LiveLanguageSwitch_NoRestartRequired enregistrait "es" comme vraie
+        /// langue de l'utilisateur à chaque exécution de la suite.
+        /// </param>
+        public LanguageManager(ILogger<LanguageManager> logger, string? dataDirectory = null)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
-            var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-            _languagesPath = Path.Combine(appData, "MotoEditor", "languages");
-            _settingsPath = Path.Combine(appData, "MotoEditor", "language-settings.json");
+            var root = dataDirectory ?? Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "MotoEditor");
+            _languagesPath = Path.Combine(root, "languages");
+            _settingsPath = Path.Combine(root, "language-settings.json");
 
             Directory.CreateDirectory(_languagesPath);
 

@@ -14,7 +14,9 @@ using Moto.Editor.AI.Beginner;
 
 namespace Moto.Editor.Pages
 {
-    public partial class BeginnerAssistantPage : ContentPage
+    // ★ MODIFIÉ (27/09, option C choisie par Tom) : ContentView affichée DANS la fenêtre (Views/ScreenHostView), plus une
+    // page poussée par-dessus MainPage. Le nom de classe « …Page » est gardé tel quel (référencé ailleurs).
+    public partial class BeginnerAssistantPage : ContentView
     {
         private readonly BeginnerAssistant _assistant;
         private BeginnerResult? _lastResult;
@@ -32,6 +34,13 @@ namespace Moto.Editor.Pages
 
             ActionPicker.SelectedIndex = 0;
         }
+
+        // ★ AJOUT (27/09) : une ContentView n'a pas de DisplayAlert — mêmes appels qu'avant, affichés par la page de la fenêtre.
+        private Task DisplayAlert(string title, string message, string cancel) =>
+            Views.ScreenHostView.AlertAsync(this, title, message, cancel);
+
+        private Task<bool> DisplayAlert(string title, string message, string accept, string cancel) =>
+            Views.ScreenHostView.ConfirmAsync(this, title, message, accept, cancel);
 
         private async void OnSendClicked(object sender, EventArgs e)
         {

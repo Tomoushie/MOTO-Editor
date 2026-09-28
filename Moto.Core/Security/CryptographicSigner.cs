@@ -15,11 +15,17 @@ namespace Moto.Core.Security
         private readonly ILogger<CryptographicSigner> _logger;
         private readonly string _keysDirectory;
 
-        public CryptographicSigner(ILogger<CryptographicSigner> logger)
+        /// <param name="keysDirectory">
+        /// Dossier des clés ; null = %AppData%\MotoEditor\keys (l'application).
+        /// ★ AJOUT (27/09) : les tests passent un dossier temporaire — sans ça, chaque
+        /// exécution de la suite réécrivait test-publisher.key/.pub dans les vraies
+        /// données de l'utilisateur.
+        /// </param>
+        public CryptographicSigner(ILogger<CryptographicSigner> logger, string? keysDirectory = null)
         {
             _logger = logger;
             var appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
-            _keysDirectory = Path.Combine(appData, "MotoEditor", "keys");
+            _keysDirectory = keysDirectory ?? Path.Combine(appData, "MotoEditor", "keys");
             Directory.CreateDirectory(_keysDirectory);
         }
 

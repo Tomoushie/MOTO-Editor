@@ -249,6 +249,12 @@
              plus aucun bouton ne le rouvrait depuis ce 31/08. -->
         <views:SettingsWindowView x:Name="SettingsWindow" Grid.Row="2" Grid.ColumnSpan="3" />
 
+        <!-- ══════════════════ Écrans dans la fenêtre (Clés API, Monitoring IA, MOTO AI, Beginner Assistant) ══════════════════ -->
+        <!-- ★ AJOUT (27/09, option C choisie par Tom) : remplace Navigation.PushAsync, qui faisait disparaître cette page
+             (moteurs détruits, démarrage rejoué au retour) — voir Views/ScreenHostView.xaml. Déclaré APRÈS SettingsWindow
+             pour passer par-dessus : Clés API s'ouvre depuis les Réglages, qu'on retrouve en fermant. -->
+        <views:ScreenHostView x:Name="ScreenHost" Grid.Row="2" Grid.ColumnSpan="3" />
+
     </Grid>
 
 </ContentPage>

@@ -325,6 +325,8 @@ namespace Moto.Editor
             // ★ AJOUT (02/09, état des lieux) : redonne un point d'entrée à
             // AiSettingsPage (config des providers IA externes), orpheline depuis
             // le retrait du menu Réglages fantôme le 31/08 — voir CLAUDE.md.
+            // ★ MODIFIÉ (27/09, option C choisie par Tom) : s'ouvre DANS la fenêtre (ScreenHost), plus en page séparée — une
+            // page poussée par-dessus faisait disparaître MainPage (moteurs détruits, démarrage rejoué au retour). Voir OpenApiKeysPage.
             SettingsWindow.ApiKeysRequested += OpenApiKeysPage;
 
             // ★ AJOUT (26/09, décision de Tom) : liste de modèles du bandeau IA de l'éditeur — services en ligne seulement avec une clé.
@@ -339,15 +341,22 @@ namespace Moto.Editor
         /// <summary>
         /// ★ AJOUT (26/09) : Clés API — depuis les Réglages ou la ligne « Ajouter un service en ligne… » des listes de modèles. À sa fermeture,
         /// les listes se reconstruisent : un service dont la clé vient d'être ajoutée y apparaît, un service dont la clé a été retirée en sort.
+        /// ★ MODIFIÉ (28/09, fusion avec l'option C) : l'écran s'ouvre DANS la fenêtre (ScreenHost.Show, jamais PushAsync : voir CLAUDE.md) ;
+        /// sa fermeture se voit à Unloaded, qui se déclenche quand le cadre se ferme (mesuré le 27/09).
         /// </summary>
-        private async void OpenApiKeysPage()
+        private void OpenApiKeysPage()
         {
             try
             {
-                if (Navigation.NavigationStack.LastOrDefault() is Pages.AiSettingsPage) return; // déjà ouverte
+                if (ScreenHost.CurrentScreen is Pages.AiSettingsPage) return; // déjà ouverte
                 var page = new Pages.AiSettingsPage(_aiService.Fallback);
-                page.Disappearing += (_, _) => _chatService.NotifyOnlineProvidersChanged();
-                await Navigation.PushAsync(page);
+                page.Unloaded += (_, _) =>
+                {
+                    // Arrive aussi quand la fenêtre se ferme avec l'écran ouvert : aucune exception ne doit remonter d'ici.
+                    try { _chatService.NotifyOnlineProvidersChanged(); }
+                    catch (Exception ex) { App.LogCrash("MainPage.OpenApiKeysPage (fermeture de Clés API)", ex); }
+                };
+                ScreenHost.Show("Clés API", page);
             }
             catch (Exception ex)
             {
@@ -686,14 +695,14 @@ namespace Moto.Editor
             return (code, extension);
         }
 
-        private async void OnAiMonitorTapped(object? sender, EventArgs e)
+        private void OnAiMonitorTapped(object? sender, EventArgs e)
         {
             try
             {
                 var monitoringView = Resolve<Views.AiMonitoringView>();
                 if (monitoringView != null)
-                    // AiMonitoringView est un ContentView, pas une Page : on l'enveloppe.
-                    await Navigation.PushAsync(new ContentPage { Title = "Monitoring IA", Content = monitoringView });
+                    // ★ MODIFIÉ (27/09, option C) : affiché DANS la fenêtre (ScreenHost), plus enveloppé dans une page poussée.
+                    ScreenHost.Show("Monitoring IA", monitoringView);
                 else if (_aiMonitorPage != null)
                 {
                     _aiMonitorPage.IsVisible = true;

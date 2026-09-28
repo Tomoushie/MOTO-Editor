@@ -53,6 +53,9 @@ namespace Moto.Editor
                 // NavigationPage.SetHasNavigationBar(false) masque sa barre à elle (celle de
                 // MAUI, indépendante de la barre de titre Windows gérée par SnapLayoutsHelper)
                 // pour ne rien changer visuellement — MainPage garde son chrome 100% custom.
+                // ★ (27/09, option C) : plus aucun écran n'est poussé par-dessus MainPage — ils s'affichent DANS la fenêtre
+                // (Views/ScreenHostView). Une page poussée fait disparaître MainPage : ses moteurs sont détruits
+                // (OnDisappearing) et tout son démarrage est rejoué au retour. La NavigationPage reste (sans risque).
                 var mainPage = new MainPage();
                 var navigationPage = new NavigationPage(mainPage);
                 NavigationPage.SetHasNavigationBar(mainPage, false);
