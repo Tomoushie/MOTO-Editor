@@ -1,6 +1,7 @@
 // Moto.Core.Tests/I18n/AiTranslationE2ETests.cs
 // Tests E2E : valider la traduction IA temps réel.
 using System;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using Moto.Core.I18n;
@@ -8,8 +9,19 @@ using Xunit;
 
 namespace Moto.Core.Tests.I18n
 {
-    public class AiTranslationE2ETests
+    // Dossier de données temporaire pour LanguageManager, supprimé après chaque test :
+    // sans lui, le changement de langue ("es") était enregistré dans le vrai
+    // %AppData%\MotoEditor\language-settings.json.
+    public class AiTranslationE2ETests : IDisposable
     {
+        private readonly string _tempDir;
+
+        public AiTranslationE2ETests()
+        {
+            _tempDir = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+            Directory.CreateDirectory(_tempDir);
+        }
+
         [Fact]
         public async Task E2E_TranslateText_ReturnsNonEmptyResult()
         {
@@ -67,7 +79,7 @@ namespace Moto.Core.Tests.I18n
             var translationLogger = new Microsoft.Extensions.Logging.Abstractions.NullLogger<AiTranslationEngine>();
             var switcherLogger = new Microsoft.Extensions.Logging.Abstractions.NullLogger<LiveLanguageSwitcher>();
 
-            var langManager = new LanguageManager(langManagerLogger);
+            var langManager = new LanguageManager(langManagerLogger, _tempDir);
             var translationEngine = new AiTranslationEngine(translationLogger);
             var switcher = new LiveLanguageSwitcher(langManager, translationEngine, switcherLogger);
 
@@ -76,6 +88,11 @@ namespace Moto.Core.Tests.I18n
 
             // THEN : la langue est changée sans redémarrage
             Assert.Equal("es", langManager.CurrentLanguageCode);
+
+            // … et enregistrée dans le dossier temporaire.
+            var settingsPath = Path.Combine(_tempDir, "language-settings.json");
+            Assert.True(File.Exists(settingsPath));
+            Assert.Contains("\"es\"", File.ReadAllText(settingsPath));
         }
 
         [Fact]
@@ -94,6 +111,12 @@ namespace Moto.Core.Tests.I18n
 
             // THEN : des suggestions sont générées si la langue diffère du système
             Assert.NotNull(suggestions);
+        }
+
+        public void Dispose()
+        {
+            try { Directory.Delete(_tempDir, recursive: true); }
+            catch { /* best-effort */ }
         }
     }
 }
