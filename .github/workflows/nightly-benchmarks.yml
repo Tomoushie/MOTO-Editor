@@ -20,9 +20,10 @@ jobs:
       - name: Install MAUI workload
         run: dotnet workload install maui-windows
 
+      # Restauration en Release, comme le build (sinon paquets d'exécution win-x64 absents → NETSDK1112).
       - name: Restore & Build
         run: |
-          dotnet restore MotoEditor.sln
+          dotnet restore MotoEditor.sln -p:Configuration=Release
           dotnet build MotoEditor.sln -c Release --no-restore
 
       - name: Run benchmarks (Lite/Standard/Full)

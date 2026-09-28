@@ -24,7 +24,9 @@ jobs:
         run: dotnet workload install maui-windows
 
       - name: Restore
-        run: dotnet restore MotoEditor.sln
+        # Même configuration que le build : en Release, MAUI active ReadyToRun, qui demande les paquets
+        # d'exécution win-x64. Une restauration sans configuration (Debug) ne les télécharge pas → NETSDK1112.
+        run: dotnet restore MotoEditor.sln -p:Configuration=Release
 
       - name: Build (Release)
         run: dotnet build MotoEditor.sln -c Release --no-restore
@@ -56,7 +58,7 @@ jobs:
         run: dotnet workload install maui-maccatalyst
 
       - name: Restore
-        run: dotnet restore MotoEditor.sln
+        run: dotnet restore MotoEditor.sln -p:Configuration=Release
 
       - name: Build (Release, maccatalyst)
         run: dotnet build MotoEditor.sln -c Release --no-restore -f net8.0-maccatalyst
