@@ -23,8 +23,8 @@ jobs:
 
       - name: Restore & Build
         run: |
-          dotnet restore MOTO-Editor.sln
-          dotnet build MOTO-Editor.sln -c Release --no-restore
+          dotnet restore MotoEditor.sln
+          dotnet build MotoEditor.sln -c Release --no-restore
 
       # ★ ITEM 102 : Perf Gate — capture les métriques et vérifie les seuils
       - name: Run Perf Gate

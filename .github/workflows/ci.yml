@@ -29,10 +29,10 @@ jobs:
         run: dotnet workload install maui-windows
 
       - name: Restore
-        run: dotnet restore MOTO-Editor.sln
+        run: dotnet restore MotoEditor.sln
 
       - name: Build
-        run: dotnet build MOTO-Editor.sln -c ${{ matrix.configuration }} --no-restore
+        run: dotnet build MotoEditor.sln -c ${{ matrix.configuration }} --no-restore
 
       - name: Run Unit Tests (Moto.Tests)
         run: dotnet test Moto.Tests/Moto.Tests.csproj -c ${{ matrix.configuration }} --logger "trx;LogFileName=test-results.trx" --results-directory ./TestResults
