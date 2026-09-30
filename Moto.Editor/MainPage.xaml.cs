@@ -333,6 +333,15 @@ namespace Moto.Editor
                 // comme un réglage inerte.
                 if (key.StartsWith("tb_", StringComparison.Ordinal))
                     MenuBar.ApplySettings(SettingsEngine.Shared);
+
+                // ★ AJOUT (01/10) : même traitement pour la géométrie/dock des familles
+                // ap_* (Agent Panel = le panneau de chat IA) et cp_* (Collaboration Panel).
+                // Sans cette ligne, ces réglages n'auraient été appliqués qu'au prochain
+                // retour de plein écran (ApplyLayoutSettings) — un réglage qui ne s'applique
+                // pas tout de suite se lit exactement comme un réglage inerte.
+                if (key.StartsWith("ap_", StringComparison.Ordinal) ||
+                    key.StartsWith("cp_", StringComparison.Ordinal))
+                    ApplyAgentAndCollabPanelSettings(SettingsEngine.Shared);
             };
 
             // ★ AJOUT (02/09, état des lieux) : redonne un point d'entrée à
