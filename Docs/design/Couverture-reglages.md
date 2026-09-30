@@ -1,17 +1,17 @@
 # Couverture du catalogue de réglages
 
 > **Généré automatiquement — analyse seule, aucun fichier modifié.**
-> Source : `scripts/settings-coverage.ps1` · Périmètre : 626 fichiers .cs réellement compilés
+> Source : `scripts/settings-coverage.ps1` · Périmètre : 629 fichiers .cs réellement compilés
 
 ## Chiffres
 
 | Mesure | Valeur |
 |---|---|
 | Réglages DÉCLARÉS au catalogue | 332 |
-| Clés lues par du code compilé | 56 |
-| **Déclarés ET lus → réellement opérants** | **29** |
-| Déclarés mais INERTES | 303 |
-| **Part réellement opérante** | **8.7 %** |
+| Clés lues par du code compilé | 72 |
+| **Déclarés ET lus → réellement opérants** | **45** |
+| Déclarés mais INERTES | 287 |
+| **Part réellement opérante** | **13.6 %** |
 
 ## Réglages réellement opérants
 
@@ -36,6 +36,18 @@
 | `ollama_timeout_seconds` | IA Locale | Moto.Core\Moto.AI\Internal\OllamaClient.cs |
 | `platform_auto_detect` | Agent | Moto.Editor\MainPage.Panels.cs |
 | `power_mode` | Agent | Moto.Core\Performance\PerformanceEngine.cs, Moto.Editor\Controls\AiComposerBarView.xaml.cs |
+| `pp_auto_reveal` | Panneaux | Moto.Editor\Settings\PanelSettings.cs |
+| `pp_dock` | Panneaux | Moto.Editor\Settings\PanelSettings.cs |
+| `pp_entry_spacing` | Panneaux | Moto.Editor\Settings\PanelSettings.cs |
+| `pp_file_icons` | Panneaux | Moto.Editor\Settings\PanelSettings.cs |
+| `pp_folder_icons` | Panneaux | Moto.Editor\Settings\PanelSettings.cs |
+| `pp_git_indicator` | Panneaux | Moto.Editor\Settings\PanelSettings.cs |
+| `pp_git_status` | Panneaux | Moto.Editor\Settings\PanelSettings.cs |
+| `pp_hide_gitignore` | Panneaux | Moto.Editor\Settings\PanelSettings.cs |
+| `pp_hide_hidden` | Panneaux | Moto.Editor\Settings\PanelSettings.cs |
+| `pp_horizontal_scroll` | Panneaux | Moto.Editor\Settings\PanelSettings.cs |
+| `pp_indent` | Panneaux | Moto.Editor\Settings\PanelSettings.cs |
+| `pp_width` | Panneaux | Moto.Editor\Settings\PanelSettings.cs |
 | `tabs_activate_on_close` | Fenêtre & Layout | Moto.Editor\ViewModels\MainViewModel.cs |
 | `tabs_bar_buttons` | Fenêtre & Layout | Moto.Editor\Controls\EditorPaneView.xaml.cs |
 | `tabs_close_position` | Fenêtre & Layout | Moto.Editor\Settings\TabBarSettings.cs |
@@ -45,6 +57,10 @@
 | `tabs_show` | Fenêtre & Layout | Moto.Editor\Controls\EditorPaneView.xaml.cs |
 | `tabs_show_close` | Fenêtre & Layout | Moto.Editor\Settings\TabBarSettings.cs |
 | `tabs_show_diagnostics` | Fenêtre & Layout | Moto.Editor\Settings\TabBarSettings.cs |
+| `tb_branch_name` | Fenêtre & Layout | Moto.Editor\Settings\TitleBarSettings.cs |
+| `tb_button_layout` | Fenêtre & Layout | Moto.Editor\Settings\TitleBarSettings.cs |
+| `tb_menus` | Fenêtre & Layout | Moto.Editor\Settings\TitleBarSettings.cs |
+| `tb_project_items` | Fenêtre & Layout | Moto.Editor\Settings\TitleBarSettings.cs |
 | `theme_mode` | Apparence | Moto.Editor\Settings\SettingsApplier.cs |
 
 ## Réglages INERTES, par catégorie
@@ -53,7 +69,47 @@ Ce sont les réglages affichés dans la fenêtre Réglages dont AUCUN code
 compilé ne lit la clé : ils sont persistés, mais sans effet. C'est la
 matière première du palier « tout ce qui est annoncé fonctionne ».
 
-### Panneaux — 44 réglage(s) inerte(s)
+### Fenêtre & Layout — 37 réglage(s) inerte(s)
+
+- `border_size`
+- `bottom_dock_layout`
+- `centered_left_padding`
+- `centered_right_padding`
+- `focus_follows_debounce`
+- `focus_follows_mouse`
+- `fullscreen_mode`
+- `horizontal_split_direction`
+- `inactive_opacity`
+- `preview_code_nav`
+- `preview_enabled`
+- `preview_file_finder`
+- `preview_keep_on_nav`
+- `preview_multibuffer`
+- `preview_project_panel`
+- `sb_active_file`
+- `sb_cursor_position`
+- `sb_debugger`
+- `sb_diagnostics`
+- `sb_encoding`
+- `sb_language`
+- `sb_line_endings`
+- `sb_project_panel`
+- `sb_search`
+- `sb_terminal`
+- `tabs_git_status`
+- `tabs_pinned_layout`
+- `tb_branch_icon`
+- `tb_onboarding`
+- `tb_sign_in`
+- `tb_user_menu`
+- `tb_user_picture`
+- `tb_worktree`
+- `use_system_window_tabs`
+- `vertical_split_direction`
+- `window_decorations`
+- `zoomed_padding`
+
+### Panneaux — 32 réglage(s) inerte(s)
 
 - `ap_button`
 - `ap_dock`
@@ -86,63 +142,7 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `op_button`
 - `op_dock`
 - `op_indent_guides`
-- `pp_auto_reveal`
 - `pp_count_badge`
-- `pp_dock`
-- `pp_entry_spacing`
-- `pp_file_icons`
-- `pp_folder_icons`
-- `pp_git_indicator`
-- `pp_git_status`
-- `pp_hide_gitignore`
-- `pp_hide_hidden`
-- `pp_horizontal_scroll`
-- `pp_indent`
-- `pp_width`
-
-### Fenêtre & Layout — 41 réglage(s) inerte(s)
-
-- `border_size`
-- `bottom_dock_layout`
-- `centered_left_padding`
-- `centered_right_padding`
-- `focus_follows_debounce`
-- `focus_follows_mouse`
-- `fullscreen_mode`
-- `horizontal_split_direction`
-- `inactive_opacity`
-- `preview_code_nav`
-- `preview_enabled`
-- `preview_file_finder`
-- `preview_keep_on_nav`
-- `preview_multibuffer`
-- `preview_project_panel`
-- `sb_active_file`
-- `sb_cursor_position`
-- `sb_debugger`
-- `sb_diagnostics`
-- `sb_encoding`
-- `sb_language`
-- `sb_line_endings`
-- `sb_project_panel`
-- `sb_search`
-- `sb_terminal`
-- `tabs_git_status`
-- `tabs_pinned_layout`
-- `tb_branch_icon`
-- `tb_branch_name`
-- `tb_button_layout`
-- `tb_menus`
-- `tb_onboarding`
-- `tb_project_items`
-- `tb_sign_in`
-- `tb_user_menu`
-- `tb_user_picture`
-- `tb_worktree`
-- `use_system_window_tabs`
-- `vertical_split_direction`
-- `window_decorations`
-- `zoomed_padding`
 
 ### AI — 31 réglage(s) inerte(s)
 
@@ -282,26 +282,6 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `git_stage_restore_buttons`
 - `git.enabled`
 
-### Recherche & Fichiers — 17 réglage(s) inerte(s)
-
-- `close_on_file_delete`
-- `file_finder_icons`
-- `file_finder_include_ignored`
-- `file_finder_skip_focus`
-- `file_scan_depth`
-- `file_scan_exclusions`
-- `file_scan_inclusions`
-- `restore_file_state`
-- `scan_symbolic_links`
-- `search_case_sensitive`
-- `search_center_on_match`
-- `search_include_ignored`
-- `search_regex`
-- `search_smartcase`
-- `search_whole_word`
-- `search_wrap`
-- `seed_search_from_cursor`
-
 ### Apparence — 17 réglage(s) inerte(s)
 
 - `agent_font_size`
@@ -321,6 +301,26 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `ui_font_family`
 - `ui_font_size`
 - `wrap_guides`
+
+### Recherche & Fichiers — 17 réglage(s) inerte(s)
+
+- `close_on_file_delete`
+- `file_finder_icons`
+- `file_finder_include_ignored`
+- `file_finder_skip_focus`
+- `file_scan_depth`
+- `file_scan_exclusions`
+- `file_scan_inclusions`
+- `restore_file_state`
+- `scan_symbolic_links`
+- `search_case_sensitive`
+- `search_center_on_match`
+- `search_include_ignored`
+- `search_regex`
+- `search_smartcase`
+- `search_whole_word`
+- `search_wrap`
+- `seed_search_from_cursor`
 
 ### Général — 14 réglage(s) inerte(s)
 
@@ -363,15 +363,6 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `max_severity`
 - `prettier_allowed`
 
-### Developer — 6 réglage(s) inerte(s)
-
-- `devops.crashtriage.enabled`
-- `devops.featureflags.enabled`
-- `devops.fuzzing.enabled`
-- `devops.journeys.enabled`
-- `devops.perfgate.enabled`
-- `perf_profiler`
-
 ### Marketplace — 6 réglage(s) inerte(s)
 
 - `marketplace.donations.enabled`
@@ -380,6 +371,15 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `marketplace.trial.days`
 - `marketplace.trial.enabled`
 - `marketplace.vulnscan.auto`
+
+### Developer — 6 réglage(s) inerte(s)
+
+- `devops.crashtriage.enabled`
+- `devops.featureflags.enabled`
+- `devops.fuzzing.enabled`
+- `devops.journeys.enabled`
+- `devops.perfgate.enabled`
+- `perf_profiler`
 
 ### Débogueur — 5 réglage(s) inerte(s)
 

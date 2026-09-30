@@ -471,6 +471,21 @@ vérifiés à l'œil.
   (`MainPage.Panels.cs`, `UpdateDockHeightBounds`). Même famille : un
   `ContentView` posé sur des colonnes `Auto` est mesuré en largeur infinie
   (contenu du terminal 2534 px dans 1774) → `TerminalRoot.MaximumWidthRequest`.
+- **★ Piège constaté le 01/10 — une colonne `Auto` ne se replie PAS quand son
+  enfant est masqué.** Dans le template de l'explorateur, les colonnes chevron
+  (16 px) et icône (20 px) gardaient leur place même après
+  `IsVisible="{Binding HasChevron}"` = false : le `WidthRequest` du `Label`
+  continue d'être MESURÉ par la colonne, d'où 36 px de vide à gauche du nom
+  quand `pp_folder_icons`/`pp_file_icons` étaient décochés. Correctif :
+  exposer la largeur depuis le modèle (`GridLength` 16/20 ou 0,
+  `FileNode.ChevronColumnWidth`/`GlyphColumnWidth`) et la lier sur la
+  `ColumnDefinition`. `IsVisible` seul ne suffit pas — à vérifier pour toute
+  colonne dont on veut libérer l'espace.
+  ⚠️ `GridLength` vit dans `Microsoft.Maui.Controls`, PAS dans
+  `Microsoft.Maui.Graphics` (erreur CS0234 sinon) — et **`x:Name` posé dans
+  un `DataTemplate` n'est pas atteignable depuis le code-behind** (l'élément
+  est instancié une fois PAR ligne) : toute valeur par ligne doit transiter
+  par une propriété du modèle, pas par un champ de la vue.
 - **Ombre MAUI (`Shadow`) sur un élément toujours visible au-dessus de
   l'éditeur WebView** (la barre IA) : les calques affichés ensuite
   (confirmation, palette) ne se dessinaient plus. Trouvé par bissection
@@ -549,13 +564,13 @@ lecture directe du code.
    (`SettingsCatalog.cs`) changé pour n'offrir plus qu'un seul choix
    ("Dark"). Construire une vraie palette claire reste une option pour plus
    tard (gros chantier), pas retenue aujourd'hui. Confirmé par Tom.
-4. **Réglages : 29 opérants sur 332 déclarés — soit 8,7 %** (mesuré le
-   28/09 par `scripts/settings-coverage.ps1`, rapport :
+4. **Réglages : 45 opérants sur 332 déclarés — soit 13,6 %** (mesuré le
+   01/10 par `scripts/settings-coverage.ps1`, rapport :
    `Docs/design/Couverture-reglages.md`). ⏳ Le chiffre historique était
-   **12 sur 324 (3,7 %)** au 22/09 ; la mesure du 28/09 sur le même script
-   donnait **20 sur 332** AVANT le chantier `tabs_*` (le catalogue et les
-   lectures ont grandi entre-temps) → **+9 clés en un seul chantier**, la
-   famille « Fenêtre & Layout / Tab Bar ».
+   **12 sur 324 (3,7 %)** au 22/09 ; **20 sur 332** au 28/09 AVANT les
+   chantiers de câblage (le catalogue et les lectures ont grandi entre-temps),
+   puis **29 sur 332 (8,7 %)** après `tabs_*` (28/09), puis **45 (13,6 %)**
+   après `pp_*` (01/10) et le chantier `tb_*` mené en parallèle le même jour.
    Périmètre : le code **réellement compilé** (les fichiers listés dans
    `<Compile Remove>`/`<MauiXaml Remove>` sont écartés, sinon on compterait
    comme « opérant » un réglage lu par du code mort — cas des `ai.embedded.*`,
@@ -570,7 +585,10 @@ lecture directe du code.
    du catalogue n'existe donc qu'à l'affichage dans la fenêtre Réglages.
    Tout nouveau réglage appliqué doit passer le défaut explicitement, de
    préférence via `Moto.Editor/Settings/TabBarSettings.DeclaredBool/Int/String`
-   (qui lit `SettingsCatalog.ById(id).Default`).
+   (qui lit `SettingsCatalog.ById(id).Default`) — même patron repris le 01/10
+   par `Moto.Editor/Settings/PanelSettings` pour la famille `pp_*`.
+   **Ligne de base de compilation (30/09, re-vérifiée le 01/10)** : **0 erreur
+   · 477 avertissements** en `Release` sur `net8.0-windows10.0.19041.0`.
    **Ce qui est opérant depuis le 28/09 (famille `tabs_*`, 9 clés)** :
    `tabs_show`, `tabs_bar_buttons`, `tabs_nav_buttons`, `tabs_file_icons`,
    `tabs_show_diagnostics`, `tabs_close_position`, `tabs_show_close` (application
@@ -586,18 +604,42 @@ lecture directe du code.
    concept d'onglet épinglé n'existe pour l'éditeur (`IsPinned` n'existe que pour
    les artefacts Claude et les signets de session), il n'y a donc rien à placer
    dans une « rangée séparée ».
-   **Les 303 inertes restants se répartissent par catégorie** — le plus gros
+   **Ce qui est opérant depuis le 01/10 (famille `pp_*`, 12 clés sur 13)** —
+   l'explorateur de fichiers. Point d'accroche unique :
+   `MainPage.UI.cs/ApplyLayoutSettings` appelle `ExplorerPanel.ApplySettings(s)`
+   puis `ApplyPanelGeometrySettings(s)`, donc démarrage + chaque changement de
+   réglage + retour de plein écran, comme `StatusBar`/`EditorPane`/`MenuBar`.
+   Mappage centralisé dans `Moto.Editor/Settings/PanelSettings.cs` :
+   `pp_file_icons`, `pp_folder_icons` (glyphe ET chevron masqués — c'est le
+   libellé « Icônes ou chevrons » qui le dit), `pp_indent` (indentation par
+   niveau), `pp_entry_spacing` (hauteur de ligne 24/28), `pp_horizontal_scroll`,
+   `pp_hide_hidden`, `pp_hide_gitignore` (nouveau `Services/GitIgnoreMatcher.cs`),
+   `pp_auto_reveal` (déplie les dossiers parents du fichier actif), `pp_width`,
+   `pp_dock` (`ApplyPanelGeometrySettings`), `pp_git_status` et `pp_git_indicator`
+   (branchés sur le VRAI `Moto.Core.Services.GitService.GetStatusAsync()`, la
+   même instance DI que le panneau Git, injectée par `ExplorerPanel.SetGitService`
+   depuis `ResolveExtensionServices`).
+   **Reste INERTE dans cette famille (1 clé)** : `pp_count_badge` — son libellé
+   annonce un « nombre de terminaux », or le dépôt n'a qu'UN SEUL
+   `TerminalPanelView` (aucune collection de terminaux) : il n'existe donc aucun
+   nombre réel. Le nombre de LIGNES de sortie du terminal existe
+   (`MainViewModel.TerminalLines`), mais l'afficher sous le mot « terminaux »
+   serait une valeur fausse — pire qu'un réglage inerte.
+   **Les 287 inertes restants se répartissent par catégorie** — le plus gros
    cluster correspond à des **interfaces qui EXISTENT déjà mais ignorent leur
-   configuration** : `Panneaux` 44 (explorateur `pp_*`, panneau Git `gp_*`,
-   panneaux agent/chat/debug/outline `ap_*`/`cp_*`/`dp_*`/`op_*`),
-   `Fenêtre & Layout` 41 (barre de titre `tb_*`, barre de statut `sb_*`,
-   aperçus `preview_*` — les onglets sont faits), puis AI 31, Agent 28,
-   Éditeur 25, Terminal 22, Version Control 17, Recherche & Fichiers 17,
-   Apparence 17, Général 14, Collaboration 10.
+   configuration** : `Panneaux` (explorateur `pp_*` FAIT ; restent le panneau Git
+   `gp_*`, et les panneaux agent/chat/debug/outline `ap_*`/`cp_*`/`dp_*`/`op_*`),
+   `Fenêtre & Layout` (barre de titre `tb_*` FAITE le 01/10 ; restent la barre de
+   statut `sb_*` et les aperçus `preview_*` ; les onglets sont faits), puis AI,
+   Agent, Éditeur, Terminal, Version Control, Recherche & Fichiers, Apparence,
+   Général, Collaboration.
    C'est **le plus grand écart « affiché mais inactif » de l'app**, et le
    verrou direct du palier « élevé → vendable » (la règle étant « tout ce qui
-   est annoncé fonctionne »). Effort : non pas 303 chantiers isolés, mais
-   quelques familles cohérentes à câbler sur de l'UI existante.
+   est annoncé fonctionne »). Effort : non pas des centaines de chantiers
+   isolés, mais quelques familles cohérentes à câbler sur de l'UI existante —
+   la méthode qui marche est celle des `tabs_*` (28/09) et des `pp_*` (01/10) :
+   un fichier de mappage `XxxSettings` (défauts DÉCLARÉS), un point d'accroche
+   unique dans `ApplyLayoutSettings`, des lectures à clé LITTÉRALE.
 5. ✅ **CORRIGÉ (02/09).** Menu Réglages fantôme (`SettingsMenuView`, l'ancien
    menu avant la fenêtre flottante façon Zed — plus aucun bouton nulle part
    pour l'ouvrir depuis le 31/08, mais construit et abonné à
