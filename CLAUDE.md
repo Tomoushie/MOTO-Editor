@@ -15,11 +15,21 @@ Dernier état des lieux complet : 02/09 (sonde à 4 agents, ~512k tokens,
 
 ## ⚠️ Piège de test : raccourci de bureau = build Release, pas Debug
 
-**Ligne de base de compilation, mesurée le 22/09 (à utiliser comme
-référence anti-régression)** : `Debug` **et** `Release` sur
-`net8.0-windows10.0.19041.0` construisent à **0 erreur · 479
-avertissements**. ⚠️ Les « ~300 warnings » annoncés par la présentation
-projet (`Docs/Documents/…`) sont faux : la dette réelle est de **479**.
+**Ligne de base de compilation (à utiliser comme référence
+anti-régression)** : `Debug` **et** `Release` sur
+`net8.0-windows10.0.19041.0` construisent à **0 erreur · 477
+avertissements**.
+⏳ **Historique de la mesure** : **479** au 22/09 → **477** au 30/09. La
+baisse de 2 vient d'un tiers (commits du 28/09, `5a8d3ca`/`d4cc0d4`), pas
+du chantier `tabs_*` — vérifié le 30/09 en compilant `5a8d3ca` dans un
+worktree temporaire : il produisait déjà **477**. La ligne de base est donc
+**477** depuis le 30/09.
+⚠️ **Point de vigilance** : une ligne de base périmée (479) est un piège
+silencieux — elle ferait accepter un lot qui **ajoute** 2 avertissements.
+Toujours recompiler la révision de référence dans un worktree jetable avant
+de conclure qu'un lot n'ajoute aucune dette.
+⚠️ Les « ~300 warnings » annoncés par la présentation projet
+(`Docs/Documents/…`) sont faux : la dette réelle est de **477**.
 Un lot visuel ne doit jamais faire monter ce nombre. Build de contrôle :
 `dotnet build Moto.Editor/Moto.Editor.csproj -f net8.0-windows10.0.19041.0`
 (~20-30 s une fois la restauration faite ; la toute première restauration

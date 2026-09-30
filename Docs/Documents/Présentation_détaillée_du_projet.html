@@ -70,7 +70,7 @@ table.t tr.tot td{background:#EAF4FB;font-weight:800;border-top:2px solid var(--
 <p>IDE 100 % local, sans cloud ni Electron, construit « fait maison » par un fondateur solo assisté de trois IA. Architecture Zed, interface minimaliste type Claude Code, complexité portée par le backend et 100+ paramètres. Document objectif : acquis réels, limites assumées, feuille de route.</p>
 </div>
 <div class="meta">
-<div><b>Stack</b>.NET 10 · MAUI · WinUI 3</div>
+<div><b>Stack</b>.NET 8 · MAUI · WinUI 3</div>
 <div><b>Projets</b>Engine · Core · Editor</div>
 <div><b>Builds</b>0 erreur (3 projets)</div>
 <div><b>Modèle</b>Open source + freemium</div>
@@ -106,7 +106,7 @@ table.t tr.tot td{background:#EAF4FB;font-weight:800;border-top:2px solid var(--
 <tr><th style="width:34mm">Champ</th><th>Valeur</th></tr>
 <tr><td>Nom / dépôt</td><td>MOTO Editor — github.com/Tomoushie/MOTO-Editor (public, branche main)</td></tr>
 <tr><td>Nature</td><td>IDE / éditeur de code 100 % local ; aucun cloud ; aucune dépendance runtime externe</td></tr>
-<tr><td>Stack</td><td>.NET 10 (net10.0-windows10.0.19041.0), C#, MAUI, WinUI 3, Windows App SDK 1.8 épinglé</td></tr>
+<tr><td>Stack</td><td>.NET 8 (net8.0-windows10.0.19041.0), C#, MAUI, WinUI 3, Windows App SDK 1.8 épinglé</td></tr>
 <tr><td>Projets</td><td>Snake2000.Engine (XENO) · Moto.Core (374 fichiers) · Moto.Editor</td></tr>
 <tr><td>Équipe</td><td>1 fondateur (non-développeur de métier) + 3 IA (Claude Code = repo, Qwen & Copilot = conseil)</td></tr>
 <tr><td>Références</td><td>Zed (architecture), Claude Code (UX), Zen (menus IA), VS Code (richesse fonctionnelle)</td></tr>
@@ -123,7 +123,7 @@ table.t tr.tot td{background:#EAF4FB;font-weight:800;border-top:2px solid var(--
 <div class="kpirow">
 <div class="kpi"><div class="v" style="color:var(--accent)">3</div><div class="l">PROJETS · 0 ERREUR BUILD</div></div>
 <div class="kpi"><div class="v" style="color:var(--accent)">374</div><div class="l">FICHIERS MOTO.CORE</div></div>
-<div class="kpi"><div class="v" style="color:var(--accent)">~300</div><div class="l">PARAMÈTRES DATA-DRIVEN</div></div>
+<div class="kpi"><div class="v" style="color:var(--accent)">332</div><div class="l">PARAMÈTRES DATA-DRIVEN</div></div>
 <div class="kpi"><div class="v" style="color:var(--accent)">20</div><div class="l">AGENTS IA SPÉCIALISÉS</div></div>
 </div>
 <div class="kpirow">
@@ -168,7 +168,8 @@ table.t tr.tot td{background:#EAF4FB;font-weight:800;border-top:2px solid var(--
 <tr><td>Plusieurs sessions IA avaient écrit des morceaux sans jamais les assembler ni compiler</td><td>Lecture de 44-47 fichiers de doc, vérification de chaque affirmation sur disque, activation Git + instantané</td><td>Base saine, annulable</td></tr>
 <tr><td>Moto.Core : 374 fichiers jamais réunis, cœurs manquants</td><td>Reconstruction du csproj + moteurs manquants</td><td>0 erreur, commité</td></tr>
 <tr><td>MainPage.xaml réduite à 16 lignes, abréviation XAML non déclarée</td><td>Reconstruction de la page principale</td><td>Shell fonctionnel</td></tr>
-<tr><td>.NET 8 visé mais absent de la machine</td><td>Bascule .NET 10 ; NuGet débloqué par config locale</td><td>Builds verts</td></tr>
+<tr><td>.NET 8 visé mais absent de la machine</td><td>Bascule .NET 10 (30/08) ; NuGet débloqué par config locale</td><td>Builds verts</td></tr>
+<tr><td>.NET 10 instable sur ce projet (TFM non supporté par le SDK MAUI 8)</td><td>Retour à .NET 8 (net8.0-windows10.0.19041.0)</td><td>Builds verts, stable depuis</td></tr>
 <tr><td>~15 fichiers fantômes à la racine</td><td>Tri, dossiers, nettoyage progressif</td><td>Dépôt lisible</td></tr>
 </table>
 <h3 class="sub">Discipline de travail installée</h3>
@@ -249,7 +250,7 @@ Scanner → Analyzer → Synthesizer → Connector → Validator
 <h2 class="sec" style="margin-top:4mm">5. Stack technique & contraintes</h2>
 <table class="t">
 <tr><th style="width:40mm">Couche</th><th>Choix</th><th style="width:52mm">Justification / contrainte</th></tr>
-<tr><td>Runtime</td><td>.NET 10 (net10.0-windows10.0.19041.0)</td><td>Machine équipée 9/10 ; .NET 8 absent au départ ; bascule documentée.</td></tr>
+<tr><td>Runtime</td><td>.NET 8 (net8.0-windows10.0.19041.0)</td><td>Machine équipée 9/10 ; .NET 8 absent au départ ; bascule .NET 10 du 30/08 abandonnée (instable), retour à .NET 8.</td></tr>
 <tr><td>UI</td><td>MAUI + WinUI 3</td><td>Natif Windows, léger, sans Electron ; accès UI Automation (accessibilité).</td></tr>
 <tr><td>Windows App SDK</td><td>1.8 <b>épinglé</b></td><td>Seule version installée/testée ; changer = plantage déjà vécu.</td></tr>
 <tr><td>Packaging</td><td>WindowsPackageType=None + MSIX optionnel</td><td>Deux exécutables : raccourci Bureau (unpackaged) et menu Démarrer (MSIX).</td></tr>
@@ -261,12 +262,12 @@ Scanner → Analyzer → Synthesizer → Connector → Validator
 <h3 class="sub">Contraintes techniques assumées (objectivité)</h3>
 <div class="grid2">
 <div class="card"><h4>Connues & documentées</h4><ul>
-<li>Sous-système titlebar WinUI3/MAUI instable (barre bleue : 3 échecs SetBorderAndTitleBar).</li>
-<li>~300 warnings de build (CS8618/CS8625/CS0618) — dette en cours de résorption.</li>
+<li>Sous-système titlebar WinUI3/MAUI instable (6 tentatives documentées, du 02/08 au 08/09).</li>
+<li>477 avertissements de build (CS8618/CS8625/CS0618) — dette en cours de résorption.</li>
 <li>Windows uniquement aujourd'hui ; macOS/Linux = PlatformEngine (planifié).</li>
 </ul></div>
 <div class="card"><h4>Choix de prudence</h4><ul>
-<li>Pas de migration .NET/MAUI sous pression (échec .NET 10 du 30/08 sur ce projet).</li>
+<li>Pas de migration .NET/MAUI sous pression (échec .NET 10 du 30/08 sur ce projet — revenu à .NET 8, qui fonctionne).</li>
 <li>Fichiers &gt; 400 lignes jamais régénérés d'un bloc (risque de corruption silencieuse).</li>
 <li>Chantiers isolés + revue croisée avant commit.</li>
 </ul></div>
@@ -447,7 +448,7 @@ XENO    = scanner, analyser, synthétiser, connecter, valider  (opérations proj
 <p class="txt">Le système de réglages est le <b>véritable tableau de bord de la complexité</b> : chaque fonctionnalité est un paramètre déclaratif (<span class="accent">1 ligne = 1 paramètre</span>, SettingItem&lt;T&gt;), recherché, templatisé et persisté. La fenêtre Réglages suit le modèle Zed : 15 catégories.</p>
 <div class="grid3">
 <div class="card"><h4>Catégories (15)</h4><ul><li>Général · Apparence · Keymap · Éditeur · Langages & Outils</li><li>Recherche & Fichiers · Fenêtre & Layout · Panneaux</li><li>Debugger · Terminal · Version Control · Collaboration</li><li>IA · Réseau · Développeur</li></ul></div>
-<div class="card"><h4>Capacités</h4><ul><li>Recherche instantanée dans les paramètres.</li><li>Templates de configuration.</li><li>Persistance au redémarrage.</li><li>Exposition progressive (97 exposés, ~300 au catalogue).</li></ul></div>
+<div class="card"><h4>Capacités</h4><ul><li>Recherche instantanée dans les paramètres.</li><li>Templates de configuration.</li><li>Persistance au redémarrage.</li><li>Exposition progressive (332 au catalogue, 29 réellement appliqués au 30/09 — écart assumé et mesuré).</li></ul></div>
 <div class="card"><h4>Exemples de familles</h4><ul><li>terminal.* (shell, police, scrollback, départ replié)</li><li>docks.* (hauteurs, visibilité, côtés)</li><li>ai.* (modèle, effort, ghost text, explicabilité)</li><li>perf.* (mode Eco→Ultra, caches)</li></ul></div>
 </div>
 <h3 class="sub">Pourquoi c'est un avantage concurrentiel</h3>
@@ -557,12 +558,12 @@ XENO    = scanner, analyser, synthétiser, connecter, valider  (opérations proj
 <div class="card" style="border-color:var(--green)"><h4 style="color:var(--green)">Forces</h4><ul>
 <li>100 % local, léger, sans Electron ; sécurité signée Ed25519.</li>
 <li>Architecture modulaire Zed livrée (5 briques) + terminal réel.</li>
-<li>~300 paramètres data-driven ; IA locale + 20 agents.</li>
+<li>332 paramètres data-driven ; IA locale + 20 agents.</li>
 <li>Méthode transparente (revues croisées, mémoire QWEN/CLAUDE.md).</li>
 </ul></div>
 <div class="card" style="border-color:var(--red)"><h4 style="color:var(--red)">Faiblesses</h4><ul>
 <li>Notoriété nulle ; équipe d'une personne ; Windows uniquement.</li>
-<li>~300 warnings ; barre bleue non résolue ; LSP/CRDT/DAP absents.</li>
+<li>477 avertissements ; barre bleue résolue le 25/09 ; LSP/CRDT/DAP absents.</li>
 <li>Dépendance à la stack MAUI/WinUI3 (régressions possibles).</li>
 </ul></div>
 <div class="card" style="border-color:var(--accent)"><h4 style="color:var(--accent)">Opportunités</h4><ul>
@@ -616,11 +617,11 @@ XENO    = scanner, analyser, synthétiser, connecter, valider  (opérations proj
 <h3 class="sub">Ce qui n'est pas encore vrai aujourd'hui (transparence)</h3>
 <table class="t">
 <tr><th style="width:56mm">Sujet</th><th>État réel</th></tr>
-<tr><td>Barre de titre bleue Windows</td><td>Non résolue ; 3 tentatives SetBorderAndTitleBar échouées ; chantier dédié planifié (H1).</td></tr>
+<tr><td>Barre de titre bleue Windows</td><td><b>Résolue le 25/09</b> : la bande de 32 px venait de MAUI (<code>AppTitleBarContainer</code>), pas de DWM — correctif <code>MauiTitleBarBand.cs</code>. Les 6 tentatives antérieures visaient la mauvaise cause.</td></tr>
 <tr><td>Multiplateforme</td><td>Windows uniquement ; PlatformEngine = H3.</td></tr>
 <tr><td>LSP / DAP / CRDT réel / tests / i18n / accessibilité</td><td>Annoncés « à venir v1.0 », non livrés.</td></tr>
 <tr><td>Boutons « Santé du projet / Snapshot »</td><td>Présents en UI, backend partiel — assumé comme « à venir », pas caché.</td></tr>
-<tr><td>Dette</td><td>~300 warnings ; fichiers legacy en cours de nettoyage.</td></tr>
+<tr><td>Dette</td><td>477 avertissements (mesuré le 30/09) ; fichiers legacy en cours de nettoyage.</td></tr>
 </table>
 <h3 class="sub">Pourquoi cette transparence est un actif</h3>
 <p class="txt">Chaque limite ci-dessus est <b>publique</b> (roadmap, tickets, devlog). Dans un marché où la confiance est le premier critère d'adoption d'un outil de code, « dire vrai, dire mesuré, dire utile » (charte éditoriale) remplace le budget marketing : les échecs documentés (barre bleue, échec .NET 10 du 30/08) sont publiés tels quels.</p>
