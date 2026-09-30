@@ -262,25 +262,25 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `terminal_show_scrollbar`
 - `terminal_working_dir`
 
-### Version Control — 17 réglage(s) inerte(s)
+### Recherche & Fichiers — 17 réglage(s) inerte(s)
 
-- `git_blame_avatar`
-- `git_blame_commit_summary`
-- `git_blame_delay`
-- `git_blame_enabled`
-- `git_blame_location`
-- `git_blame_min_column`
-- `git_blame_padding`
-- `git_branch_author`
-- `git_diff_base`
-- `git_diff_full_file`
-- `git_gutter_debounce`
-- `git_gutter_visibility`
-- `git_hunk_style`
-- `git_integration`
-- `git_path_style`
-- `git_stage_restore_buttons`
-- `git.enabled`
+- `close_on_file_delete`
+- `file_finder_icons`
+- `file_finder_include_ignored`
+- `file_finder_skip_focus`
+- `file_scan_depth`
+- `file_scan_exclusions`
+- `file_scan_inclusions`
+- `restore_file_state`
+- `scan_symbolic_links`
+- `search_case_sensitive`
+- `search_center_on_match`
+- `search_include_ignored`
+- `search_regex`
+- `search_smartcase`
+- `search_whole_word`
+- `search_wrap`
+- `seed_search_from_cursor`
 
 ### Apparence — 17 réglage(s) inerte(s)
 
@@ -302,25 +302,25 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `ui_font_size`
 - `wrap_guides`
 
-### Recherche & Fichiers — 17 réglage(s) inerte(s)
+### Version Control — 17 réglage(s) inerte(s)
 
-- `close_on_file_delete`
-- `file_finder_icons`
-- `file_finder_include_ignored`
-- `file_finder_skip_focus`
-- `file_scan_depth`
-- `file_scan_exclusions`
-- `file_scan_inclusions`
-- `restore_file_state`
-- `scan_symbolic_links`
-- `search_case_sensitive`
-- `search_center_on_match`
-- `search_include_ignored`
-- `search_regex`
-- `search_smartcase`
-- `search_whole_word`
-- `search_wrap`
-- `seed_search_from_cursor`
+- `git_blame_avatar`
+- `git_blame_commit_summary`
+- `git_blame_delay`
+- `git_blame_enabled`
+- `git_blame_location`
+- `git_blame_min_column`
+- `git_blame_padding`
+- `git_branch_author`
+- `git_diff_base`
+- `git_diff_full_file`
+- `git_gutter_debounce`
+- `git_gutter_visibility`
+- `git_hunk_style`
+- `git_integration`
+- `git_path_style`
+- `git_stage_restore_buttons`
+- `git.enabled`
 
 ### Général — 14 réglage(s) inerte(s)
 
@@ -363,15 +363,6 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `max_severity`
 - `prettier_allowed`
 
-### Marketplace — 6 réglage(s) inerte(s)
-
-- `marketplace.donations.enabled`
-- `marketplace.payment.currency`
-- `marketplace.sandbox.enabled`
-- `marketplace.trial.days`
-- `marketplace.trial.enabled`
-- `marketplace.vulnscan.auto`
-
 ### Developer — 6 réglage(s) inerte(s)
 
 - `devops.crashtriage.enabled`
@@ -380,6 +371,15 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `devops.journeys.enabled`
 - `devops.perfgate.enabled`
 - `perf_profiler`
+
+### Marketplace — 6 réglage(s) inerte(s)
+
+- `marketplace.donations.enabled`
+- `marketplace.payment.currency`
+- `marketplace.sandbox.enabled`
+- `marketplace.trial.days`
+- `marketplace.trial.enabled`
+- `marketplace.vulnscan.auto`
 
 ### Débogueur — 5 réglage(s) inerte(s)
 
@@ -396,17 +396,17 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `pair_programming`
 - `tutor_mode`
 
-### Raccourcis — 3 réglage(s) inerte(s)
-
-- `base_keymap`
-- `helix_mode`
-- `vim_mode`
-
 ### MCP — 3 réglage(s) inerte(s)
 
 - `mcp.adv.checkpointing`
 - `mcp.enabled`
 - `mcp.subagents`
+
+### Raccourcis — 3 réglage(s) inerte(s)
+
+- `base_keymap`
+- `helix_mode`
+- `vim_mode`
 
 ### Network — 2 réglage(s) inerte(s)
 
