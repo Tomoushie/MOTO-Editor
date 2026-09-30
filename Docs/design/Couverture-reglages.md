@@ -262,6 +262,26 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `op_indent_guides`
 - `pp_count_badge`
 
+### Apparence — 17 réglage(s) inerte(s)
+
+- `agent_font_size`
+- `buffer_font_family`
+- `buffer_font_weight`
+- `code_fade`
+- `current_line_highlight`
+- `cursor_blink`
+- `cursor_shape`
+- `dark_theme`
+- `indent_guides`
+- `light_theme`
+- `line_height`
+- `reduce_motion`
+- `rounded_selection`
+- `selection_highlight`
+- `ui_font_family`
+- `ui_font_size`
+- `wrap_guides`
+
 ### Version Control — 17 réglage(s) inerte(s)
 
 - `git_blame_avatar`
@@ -301,26 +321,6 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `search_whole_word`
 - `search_wrap`
 - `seed_search_from_cursor`
-
-### Apparence — 17 réglage(s) inerte(s)
-
-- `agent_font_size`
-- `buffer_font_family`
-- `buffer_font_weight`
-- `code_fade`
-- `current_line_highlight`
-- `cursor_blink`
-- `cursor_shape`
-- `dark_theme`
-- `indent_guides`
-- `light_theme`
-- `line_height`
-- `reduce_motion`
-- `rounded_selection`
-- `selection_highlight`
-- `ui_font_family`
-- `ui_font_size`
-- `wrap_guides`
 
 ### Général — 14 réglage(s) inerte(s)
 
@@ -396,17 +396,17 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `pair_programming`
 - `tutor_mode`
 
-### Raccourcis — 3 réglage(s) inerte(s)
-
-- `base_keymap`
-- `helix_mode`
-- `vim_mode`
-
 ### MCP — 3 réglage(s) inerte(s)
 
 - `mcp.adv.checkpointing`
 - `mcp.enabled`
 - `mcp.subagents`
+
+### Raccourcis — 3 réglage(s) inerte(s)
+
+- `base_keymap`
+- `helix_mode`
+- `vim_mode`
 
 ### Network — 2 réglage(s) inerte(s)
 
