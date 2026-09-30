@@ -8,8 +8,11 @@ using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using Microsoft.Maui.Storage;
 using Moto.Core.Performance;
+// ★ AJOUT (28/09) : réglages tabs_max / tabs_activate_on_close et état visuel d'onglet.
+using Moto.Core.Settings;
 using Moto.Editor.Models;
 using Moto.Editor.Services;
+using Moto.Editor.Settings;
 
 namespace Moto.Editor.ViewModels
 {
@@ -79,11 +82,23 @@ namespace Moto.Editor.ViewModels
             {
                 if (SetField(ref _selectedDocument, value))
                 {
+                    // ★ AJOUT (28/09) : ordre d'activation des onglets, le plus récent en tête.
+                    // Sert au réglage tabs_activate_on_close = « History » (revenir à l'onglet
+                    // précédemment actif), qui ne peut pas se déduire de l'ordre d'ouverture.
+                    if (value != null)
+                    {
+                        _activationOrder.Remove(value);
+                        _activationOrder.Insert(0, value);
+                    }
+
                     // Lazy loading : charge le contenu à la sélection.
                     _ = LoadSelectedAsync();
                 }
             }
         }
+
+        /// <summary>★ AJOUT (28/09) : onglets par ordre d'activation décroissant (réglage tabs_activate_on_close).</summary>
+        private readonly List<EditorDocument> _activationOrder = new();
 
         public bool IsBeginnerMode { get => _isBeginnerMode; private set => SetField(ref _isBeginnerMode, value); }
         public bool IsTerminalVisible { get => _isTerminalVisible; set => SetField(ref _isTerminalVisible, value); }
@@ -278,10 +293,39 @@ namespace Moto.Editor.ViewModels
         {
             if (doc is null) return;
             var wasSelected = ReferenceEquals(SelectedDocument, doc);
+            var closedIndex = Documents.IndexOf(doc);
+            _activationOrder.Remove(doc);
             Documents.Remove(doc);
 
             if (wasSelected)
-                SelectedDocument = Documents.Count > 0 ? Documents[^1] : null;
+                SelectedDocument = PickDocumentAfterClose(closedIndex);
+        }
+
+        /// <summary>
+        /// ★ AJOUT (28/09) : choisit l'onglet activé après une fermeture — réglage
+        /// <c>tabs_activate_on_close</c> ("History", "Neighbour", "Left Neighbour").
+        /// Avant cet ajout, le code choisissait TOUJOURS le dernier onglet de la liste
+        /// (ordre d'ouverture), quel que soit le réglage affiché.
+        /// </summary>
+        private EditorDocument PickDocumentAfterClose(int closedIndex)
+        {
+            if (Documents.Count == 0) return null;
+
+            switch (SettingsEngine.Shared.GetString("tabs_activate_on_close", TabBarSettings.DeclaredString("tabs_activate_on_close")))
+            {
+                // Voisin de droite (celui qui glisse à la place de l'onglet fermé) ; à défaut, celui de gauche.
+                case "Neighbour":
+                    return Documents[Math.Min(closedIndex, Documents.Count - 1)];
+
+                // Voisin de gauche ; à défaut (onglet fermé en tête), celui de droite.
+                case "Left Neighbour":
+                    return Documents[Math.Max(0, closedIndex - 1)];
+
+                // "History" (défaut) : l'onglet actif précédent, s'il est encore ouvert.
+                default:
+                    return _activationOrder.FirstOrDefault(d => Documents.Contains(d))
+                           ?? Documents[Math.Min(closedIndex, Documents.Count - 1)];
+            }
         }
 
         public void OpenFilePath(string path)
@@ -300,12 +344,29 @@ namespace Moto.Editor.ViewModels
                 return;
             }
 
+            // ★ AJOUT (28/09) : réglage tabs_max — 0 = illimité. La limite est appliquée ICI
+            // (logique d'ouverture), comme demandé : refuser un onglet au-delà de la limite,
+            // en le disant dans la barre de statut, plutôt qu'un onglet de plus en silence.
+            // ⚠️ Second argument = défaut DÉCLARÉ au catalogue : GetInt(clé) sans défaut renvoie 0
+            // pour une clé absente du store (le moteur ne connaît pas le catalogue). Voir TabBarSettings.
+            var maxDocuments = SettingsEngine.Shared.GetInt("tabs_max", TabBarSettings.DeclaredInt("tabs_max"));
+            if (maxDocuments > 0 && Documents.Count >= maxDocuments)
+            {
+                Status = $"Limite de {maxDocuments} onglet(s) atteinte (Réglages ▸ Fenêtre & Layout ▸ Onglets maximum). Fermez un onglet pour en ouvrir un autre.";
+                return;
+            }
+
             var doc = new EditorDocument
             {
                 Path = path,
                 Title = Path.GetFileName(path),
                 Text = string.Empty // Contenu chargé à la sélection.
             };
+
+            // ★ AJOUT (28/09) : l'onglet créé reçoit tout de suite l'état visuel courant
+            // (réglages tabs_*), sinon un onglet ouvert APRÈS un changement de réglage
+            // garderait les valeurs par défaut jusqu'au prochain ApplyLayoutSettings.
+            TabBarSettings.Apply(doc, SettingsEngine.Shared);
 
             // Chaque frappe met à jour le cache mémoire, pas le disque.
             doc.PropertyChanged += (s, e) =>
