@@ -38,8 +38,19 @@
              BackgroundColor="{StaticResource BgSide}">
     <Grid ColumnDefinitions="Auto,Auto,Auto,Auto,Auto,*,Auto,Auto,Auto,Auto,Auto">
 
+        <!-- ★ AJOUT (01/10) : conteneur des 5 items de navigation (Fichiers, Recherche,
+             Collaboration, Terminal, Assistant). Ils étaient posés à plat sur les
+             colonnes 0-4 du Grid — pour que le réglage tb_menus (« Afficher les menus »,
+             famille Fenêtre & Layout / Title Bar) puisse les masquer d'un seul geste,
+             ils sont regroupés dans un seul élément. Colonnes et contenu INTERNES
+             inchangés : les items occupent toujours les colonnes 0 à 4 de la barre, le
+             conteneur ne fait que recevoir la propriété IsVisible.
+             ⚠️ IsVisible=False fait bien disparaître l'élément du layout MAUI
+             (contribution 0,0) — patron déjà utilisé ailleurs dans MainPage.xaml. -->
+        <HorizontalStackLayout x:Name="NavMenus" Grid.Column="0" Grid.ColumnSpan="5" Spacing="0">
+
         <!-- Nav (ex-ActivityBarView, maintenant sur la même ligne) -->
-        <Border Grid.Column="0" Padding="12,6" Margin="14,0,0,0" StrokeThickness="0" BackgroundColor="Transparent">
+        <Border Padding="12,6" Margin="14,0,0,0" StrokeThickness="0" BackgroundColor="Transparent">
             <Label Text="Fichiers" FontSize="{DynamicResource FontSizeUiText}" FontFamily="Segoe UI Variable Text"
                    TextColor="{StaticResource Txt1}" />
             <Border.GestureRecognizers>
@@ -47,7 +58,7 @@
             </Border.GestureRecognizers>
         </Border>
 
-        <Border Grid.Column="1" Padding="12,6" StrokeThickness="0" BackgroundColor="Transparent">
+        <Border Padding="12,6" StrokeThickness="0" BackgroundColor="Transparent">
             <Label Text="Recherche" FontSize="{DynamicResource FontSizeUiText}" FontFamily="Segoe UI Variable Text"
                    TextColor="{StaticResource Txt1}" />
             <Border.GestureRecognizers>
@@ -55,7 +66,7 @@
             </Border.GestureRecognizers>
         </Border>
 
-        <Border Grid.Column="2" Padding="12,6" StrokeThickness="0" BackgroundColor="Transparent">
+        <Border Padding="12,6" StrokeThickness="0" BackgroundColor="Transparent">
             <Label Text="Collaboration" FontSize="{DynamicResource FontSizeUiText}" FontFamily="Segoe UI Variable Text"
                    TextColor="{StaticResource Txt1}" />
             <Border.GestureRecognizers>
@@ -70,7 +81,7 @@
              vraie commande enregistrée (RegisterMenuCommands, MainPage.Routing.cs)
              qui bascule _viewModel.IsTerminalVisible ; réutilisée telle quelle,
              aucune nouvelle logique de routage nécessaire. -->
-        <Border Grid.Column="3" Padding="12,6" StrokeThickness="0" BackgroundColor="Transparent">
+        <Border Padding="12,6" StrokeThickness="0" BackgroundColor="Transparent">
             <Label Text="Terminal" FontSize="{DynamicResource FontSizeUiText}" FontFamily="Segoe UI Variable Text"
                    TextColor="{StaticResource Txt1}" />
             <Border.GestureRecognizers>
@@ -81,7 +92,7 @@
         <!-- ★ AJOUT (08/09) : Beginner Assistant (Orchestrateur) — point d'entrée UI
              direct vers Pages/BeginnerAssistantPage, routed via ai.beginnerassistant
              (MainPage.Routing.cs). Même patron que les items ci-dessus. -->
-        <Border Grid.Column="4" Padding="12,6" StrokeThickness="0" BackgroundColor="Transparent">
+        <Border Padding="12,6" StrokeThickness="0" BackgroundColor="Transparent">
             <Label Text="Assistant" FontSize="{DynamicResource FontSizeUiText}" FontFamily="Segoe UI Variable Text"
                    TextColor="{StaticResource Txt1}" />
             <Border.GestureRecognizers>
@@ -89,10 +100,75 @@
             </Border.GestureRecognizers>
         </Border>
 
-        <!-- Zone de drag (tout l'espace libre) -->
-        <Border x:Name="TitleBarDragZone" x:FieldModifier="Public" Grid.Column="5"
-                BackgroundColor="Transparent"
-                HorizontalOptions="Fill" VerticalOptions="Fill" />
+        </HorizontalStackLayout>
+
+        <!-- ★ AJOUT (01/10) : nom du projet et branche git courante — réglages
+             tb_project_items (« Hôte et nom du projet ») et tb_branch_name
+             (« Nom de branche dans la titlebar »), famille Fenêtre & Layout / Title Bar.
+             Mêmes DONNÉES RÉELLES que le haut de l'explorateur (FileExplorerView) :
+             nom du dossier racine ouvert, et lecture de .git/HEAD via
+             FileExplorerView.ReadGitBranchShared (lecture partagée, pas dupliquée).
+             Les deux badges sont masqués tant qu'aucun dossier n'est ouvert ou que le
+             dossier n'est pas un dépôt git — aucune valeur inventée n'est affichée.
+             Colonne 4 (stable) : juste avant la colonne élastique qui pousse le reste
+             vers la droite ; ApplySettings peut la déplacer pour tb_button_layout. -->
+        <HorizontalStackLayout x:Name="ProjectBadges" Grid.Column="4" Spacing="{StaticResource SpaceSm}"
+                               Margin="8,0,8,0" VerticalOptions="Center" IsVisible="False">
+            <Label x:Name="ProjectHostLabel" FontSize="{DynamicResource FontSizeUiSmall}"
+                   TextColor="{StaticResource Txt3}" VerticalOptions="Center" />
+            <Label x:Name="ProjectNameLabel" FontSize="{DynamicResource FontSizeUiSmall}"
+                   TextColor="{StaticResource Txt2}" VerticalOptions="Center" />
+            <Border x:Name="BranchBadge" StrokeThickness="0" Padding="6,2"
+                    BackgroundColor="{StaticResource BgHover}"
+                    StrokeShape="RoundRectangle 6" VerticalOptions="Center" IsVisible="False">
+                <Label x:Name="BranchLabel" FontSize="{DynamicResource FontSizeUiSmall}"
+                       TextColor="{StaticResource Txt2}" VerticalOptions="Center" />
+            </Border>
+        </HorizontalStackLayout>
+
+        <!-- Zone de drag + contrôles de fenêtre, regroupés dans UN SEUL élément posé
+             sur la colonne élastique (5). ★ AJOUT (01/10) : ce regroupement est ce qui
+             permet au réglage tb_button_layout de basculer les contrôles à gauche ou à
+             droite — un seul HorizontalOptions à changer au lieu de renégocier 11
+             colonnes. Le bouton de mise à jour et l'avatar restent, eux, ancrés à droite
+             (colonnes 6/7) : le réglage ne concerne QUE les 3 contrôles système, comme
+             l'annonce le libellé « Position des contrôles de fenêtre ».
+             La zone de drag ne prend que la place restante (HorizontalOptions=Fill sur
+             une colonne "*") : cliquer dessus déplace la fenêtre, comportement inchangé. -->
+        <Grid x:Name="WindowButtons" Grid.Column="5" ColumnDefinitions="*,Auto,Auto,Auto"
+              HorizontalOptions="Fill">
+            <Border x:Name="TitleBarDragZone" x:FieldModifier="Public" Grid.Column="0"
+                    BackgroundColor="Transparent"
+                    HorizontalOptions="Fill" VerticalOptions="Fill" />
+
+            <!-- Boutons fenêtre -->
+            <Border x:Name="BtnMin" x:FieldModifier="Public" Grid.Column="1" WidthRequest="52"
+                    BackgroundColor="Transparent" StrokeThickness="0">
+                <Label Text="─" HorizontalOptions="Center" VerticalOptions="Center"
+                       FontSize="{StaticResource FontSizeSubheading}" TextColor="{StaticResource Txt1}" />
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnMinClicked" />
+                </Border.GestureRecognizers>
+            </Border>
+
+            <Border x:Name="BtnMax" x:FieldModifier="Public" Grid.Column="2" WidthRequest="52"
+                    BackgroundColor="Transparent" StrokeThickness="0">
+                <Label Text="□" HorizontalOptions="Center" VerticalOptions="Center"
+                       FontSize="{StaticResource FontSizeSubheading}" TextColor="{StaticResource Txt1}" />
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnMaxClicked" />
+                </Border.GestureRecognizers>
+            </Border>
+
+            <Border x:Name="BtnClose" x:FieldModifier="Public" Grid.Column="3" WidthRequest="52"
+                    BackgroundColor="Transparent" StrokeThickness="0">
+                <Label Text="×" HorizontalOptions="Center" VerticalOptions="Center"
+                       FontSize="{StaticResource FontSizeHeading}" TextColor="{StaticResource Txt1}" />
+                <Border.GestureRecognizers>
+                    <TapGestureRecognizer Tapped="OnCloseClicked" />
+                </Border.GestureRecognizers>
+            </Border>
+        </Grid>
 
         <!-- ★ Bouton Update (visible seulement si MAJ disponible) -->
         <Border Grid.Column="6" x:Name="UpdateBadge"
@@ -133,34 +209,6 @@
         <!-- ★ RETRAIT (31/08, point 9) : bouton texte "Paramètres" supprimé — il
              ouvrait le même menu que l'avatar rond juste à côté (doublon inutile,
              repéré par Tom). L'avatar seul suffit désormais comme point d'entrée. -->
-
-        <!-- Boutons fenêtre -->
-        <Border x:Name="BtnMin" x:FieldModifier="Public" Grid.Column="8" WidthRequest="52"
-                BackgroundColor="Transparent" StrokeThickness="0">
-            <Label Text="─" HorizontalOptions="Center" VerticalOptions="Center"
-                   FontSize="{StaticResource FontSizeSubheading}" TextColor="{StaticResource Txt1}" />
-            <Border.GestureRecognizers>
-                <TapGestureRecognizer Tapped="OnMinClicked" />
-            </Border.GestureRecognizers>
-        </Border>
-
-        <Border x:Name="BtnMax" x:FieldModifier="Public" Grid.Column="9" WidthRequest="52"
-                BackgroundColor="Transparent" StrokeThickness="0">
-            <Label Text="□" HorizontalOptions="Center" VerticalOptions="Center"
-                   FontSize="{StaticResource FontSizeSubheading}" TextColor="{StaticResource Txt1}" />
-            <Border.GestureRecognizers>
-                <TapGestureRecognizer Tapped="OnMaxClicked" />
-            </Border.GestureRecognizers>
-        </Border>
-
-        <Border x:Name="BtnClose" x:FieldModifier="Public" Grid.Column="10" WidthRequest="52"
-                BackgroundColor="Transparent" StrokeThickness="0">
-            <Label Text="×" HorizontalOptions="Center" VerticalOptions="Center"
-                   FontSize="{StaticResource FontSizeHeading}" TextColor="{StaticResource Txt1}" />
-            <Border.GestureRecognizers>
-                <TapGestureRecognizer Tapped="OnCloseClicked" />
-            </Border.GestureRecognizers>
-        </Border>
 
     </Grid>
 </ContentView>

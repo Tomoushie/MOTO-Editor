@@ -11,6 +11,7 @@ using Moto.Core.Collab;
 using Moto.Core.Settings;
 using Moto.Editor.Models;
 using Moto.Editor.Services;
+using Moto.Editor.Settings;
 
 namespace Moto.Editor
 {
@@ -288,6 +289,12 @@ namespace Moto.Editor
             // AUCUN jusque-là (tabs_show, tabs_bar_buttons, tabs_nav_buttons,
             // tabs_file_icons, tabs_show_diagnostics, tabs_close_position, tabs_show_close).
             EditorPane.ApplySettings(s);
+            // ★ AJOUT (01/10) : la barre de titre reçoit elle aussi ses réglages
+            // (famille « Fenêtre & Layout / Title Bar », clés tb_*) — tb_menus,
+            // tb_project_items, tb_branch_name et tb_button_layout n'étaient lus par
+            // AUCUN code compilé jusque-là. Même point d'accroche que StatusBar et
+            // EditorPane : démarrage, chaque changement de réglage, retour de plein écran.
+            MenuBar.ApplySettings(s);
             // ★ CORRECTION (30/08, refonte Zen) : "pp_dock" (Left/Right) n'est exposé
             // nulle part dans SettingsMenuView — réglage mort, jamais atteignable par
             // Tom. La colonne 0 est désormais fixe (dock IA, demandé "façon VS Code" à
@@ -302,6 +309,54 @@ namespace Moto.Editor
             // avoir inversé les panneaux. Remplacé par le vrai réappliqueur d'état, qui
             // replace aussi le dock IA et les 2 poignées de façon cohérente.
             ApplySidePanelLayout();
+            // ★ AJOUT (01/10) : l'explorateur de fichiers reçoit enfin ses réglages (famille
+            // « Panneaux / Project Panel », clés pp_*) — aucun n'était lu par du code compilé
+            // jusque-là (constat mesuré par scripts/settings-coverage.ps1). Même point d'accroche
+            // que StatusBar / EditorPane / MenuBar ci-dessus : démarrage, chaque changement de
+            // réglage et retour de plein écran.
+            ExplorerPanel.ApplySettings(s);
+            ApplyPanelGeometrySettings(s);
+        }
+
+        /// <summary>★ AJOUT (01/10) : dernière largeur d'explorateur posée par le réglage pp_width.</summary>
+        private double _appliedExplorerWidth = -1;
+
+        /// <summary>
+        /// ★ AJOUT (01/10) : les réglages pp_* qui portent sur la COLONNE de l'explorateur
+        /// (pp_width, pp_dock). Ils ne sont pas traités dans FileExplorerView parce que celle-ci
+        /// ne possède ni la colonne de la grille racine ni la poignée de redimensionnement —
+        /// ces éléments vivent dans MainPage.xaml.
+        /// </summary>
+        private void ApplyPanelGeometrySettings(SettingsEngine s)
+        {
+            // ── pp_width : largeur du panneau projet ────────────────────────────
+            // Appliquée à ExplorerPanel ET Sidebar ensemble : ils occupent la même colonne, une
+            // largeur divergente ferait sauter la colonne au basculement Fichiers/Sessions (même
+            // raison que dans OnExplorerResizePanUpdated).
+            // ⚠️ On ne réécrit que si la valeur DÉCLARÉE a changé : la poignée de redimensionnement
+            // écrit directement dans WidthRequest sans passer par le store, donc réappliquer le
+            // réglage à chaque passage ici annulerait un geste de l'utilisateur — comportement
+            // voulu (le réglage reste la source de vérité), mais seulement quand il change.
+            var width = PanelSettings.Width(s);
+            if (Math.Abs(width - _appliedExplorerWidth) > 0.01)
+            {
+                _appliedExplorerWidth = width;
+                ExplorerPanel.WidthRequest = width;
+                Sidebar.WidthRequest = width;
+            }
+
+            // ── pp_dock : côté de l'explorateur ─────────────────────────────────
+            // Le catalogue déclare "Right" par défaut, qui correspond à l'état normal
+            // (_panelsSwapped == false). « Left » revient donc exactement à ce que fait déjà la
+            // commande ⚙ « Disposition des panneaux » : on réutilise ce chemin (_panelsSwapped +
+            // ApplySidePanelLayout) plutôt que d'en créer un second, qui aurait pu laisser les
+            // deux poignées désynchronisées de leur dock.
+            var wantLeft = PanelSettings.DockLeft(s);
+            if (wantLeft != _panelsSwapped)
+            {
+                _panelsSwapped = wantLeft;
+                ApplySidePanelLayout();
+            }
         }
 
         // ★ RETRAIT (02/09, état des lieux) : OnSettingChanged (ancien gestionnaire,

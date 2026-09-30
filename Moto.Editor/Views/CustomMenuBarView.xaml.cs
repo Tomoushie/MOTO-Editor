@@ -5,6 +5,7 @@
 // - les boutons fenêtre (min/max/close), copiés depuis Controls/CustomMenuBarView.xaml.cs
 //   (variante non utilisée, conservée telle quelle).
 using System;
+using System.IO;
 using Microsoft.Maui.Controls;
 using Moto.Core.Updates;
 using Moto.Editor.Controls;
@@ -89,6 +90,81 @@ namespace Moto.Editor.Views
         {
             if (e.Parameter is string id)
                 MenuCommanded?.Invoke(id);
+        }
+
+        /// <summary>
+        /// ★ AJOUT (01/10) : alimente le nom du projet et la branche git affichés dans la
+        /// barre de titre (réglages tb_project_items et tb_branch_name). Appelée par
+        /// MainPage quand un dossier est ouvert, avec le MÊME chemin racine que celui
+        /// donné à l'explorateur — c'est la seule source de vérité, rien n'est deviné.
+        /// Un dossier hors dépôt git masque simplement le badge de branche.
+        /// </summary>
+        public void SetWorkspace(string? rootPath)
+        {
+            if (string.IsNullOrWhiteSpace(rootPath))
+            {
+                ProjectHostLabel.Text = string.Empty;
+                ProjectNameLabel.Text = string.Empty;
+                BranchBadge.IsVisible = false;
+                return;
+            }
+
+            var trimmed = rootPath.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+
+            // "Hôte et nom du projet" : pour un dossier local, l'hôte est la machine —
+            // même donnée que celle utilisée par le reste de l'app, pas une invention.
+            ProjectHostLabel.Text = Environment.MachineName;
+            ProjectNameLabel.Text = Path.GetFileName(trimmed);
+
+            var branch = Moto.Editor.Views.FileExplorerView.ReadGitBranchShared(trimmed);
+            BranchLabel.Text = branch is null ? string.Empty : $"⎇ {branch}";
+            BranchBadge.IsVisible = branch is not null;
+        }
+
+        /// <summary>
+        /// ★ AJOUT (01/10) : applique les réglages de la famille « Fenêtre &amp; Layout /
+        /// Title Bar » (clés tb_*) à la barre de titre. Appelée par
+        /// <c>MainPage.ApplyLayoutSettings</c> (démarrage, chaque changement de réglage et
+        /// retour de plein écran), même point d'accroche que StatusBar/EditorPane.
+        ///
+        ///   - tb_menus           : masque les 5 items de navigation ;
+        ///   - tb_project_items   : masque l'hôte + le nom du projet ;
+        ///   - tb_branch_name     : masque le badge de branche ;
+        ///   - tb_button_layout   : place Réduire/Agrandir/Fermer à gauche ou à droite.
+        ///
+        /// Les réglages tb_branch_icon, tb_worktree, tb_onboarding et tb_sign_in/
+        /// tb_user_menu/tb_user_picture sont VOLONTAIREMENT absents : les concepts
+        /// correspondants n'existent pas dans le dépôt (voir le commentaire de classe de
+        /// TitleBarSettings.cs) — les câbler obligerait à afficher une valeur inventée.
+        /// </summary>
+        public void ApplySettings(Moto.Core.Settings.SettingsEngine settings)
+        {
+            if (settings is null) return;
+
+            NavMenus.IsVisible = Moto.Editor.Settings.TitleBarSettings.ShowMenus(settings);
+            ProjectBadges.IsVisible = Moto.Editor.Settings.TitleBarSettings.ShowProjectItems(settings);
+            BranchBadge.IsVisible = ProjectBadges.IsVisible
+                && Moto.Editor.Settings.TitleBarSettings.ShowBranchName(settings)
+                && !string.IsNullOrEmpty(BranchLabel.Text);
+
+            // ★ tb_button_layout : les trois contrôles système sont groupés dans le Grid
+            // WindowButtons, posé sur la colonne élastique (5). Pour les placer à GAUCHE,
+            // il suffit de coller ce groupe au bord gauche ; la zone de drag (colonne "*"
+            // en interne) continue d'occuper tout l'espace restant, donc la fenêtre reste
+            // déplaçable. Les items de navigation se collent alors à droite. Le bouton de
+            // mise à jour et l'avatar (colonnes 6/7) ne bougent pas : le réglage ne
+            // concerne QUE les contrôles de fenêtre, comme l'annonce son libellé.
+            var layout = Moto.Editor.Settings.TitleBarSettings.ResolveButtonLayout(settings);
+            if (layout == Moto.Editor.Settings.TitleBarButtonLayout.Left)
+            {
+                WindowButtons.HorizontalOptions = LayoutOptions.Start;
+                NavMenus.HorizontalOptions = LayoutOptions.End;
+            }
+            else
+            {
+                WindowButtons.HorizontalOptions = LayoutOptions.Fill;
+                NavMenus.HorizontalOptions = LayoutOptions.Start;
+            }
         }
 
         public void SetUpdateManager(UpdateManager manager)

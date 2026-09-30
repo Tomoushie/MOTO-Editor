@@ -638,6 +638,11 @@ namespace Moto.Editor
 
             _currentRoot = path;
             EditorPane.WorkspaceRoot = path; // ★ (25/09) : fil d'Ariane relatif au projet
+            // ★ AJOUT (01/10) : la barre de titre affiche désormais l'hôte, le nom du
+            // projet et la branche git (réglages tb_project_items / tb_branch_name) —
+            // elle reçoit donc le MÊME chemin racine que l'explorateur juste en dessous.
+            // Un seul appel par import de projet, tous chemins d'entrée confondus.
+            MenuBar.SetWorkspace(path);
             _chatService.WorkspaceRoot = path;
             _aiService.SetWorkspace(path);
             ExplorerPanel.LoadFolder(path);
