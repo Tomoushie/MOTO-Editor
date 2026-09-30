@@ -124,23 +124,45 @@
                          fichier coloré par type (au lieu des mêmes emojis pour tout), nom tronqué proprement, et la ligne du
                          fichier affiché dans l'éditeur surlignée (IsActive), sous le survol de MotoHoverRow. -->
                     <Border Style="{StaticResource MotoHoverRow}" Margin="4,0">
-                        <Grid HeightRequest="24">
+                        <!-- ★ AJOUT (01/10) : HeightRequest était FIGÉ à 24 — pp_entry_spacing
+                             (Standard/Comfortable) n'avait donc aucune prise sur la densité.
+                             La hauteur vient maintenant du nœud (FileNode.RowHeight, posé par
+                             FileExplorerView.ApplySettings), avec 24 px pour valeur de repli
+                             afin que le rendu soit identique si la liaison n'aboutit pas. -->
+                        <Grid HeightRequest="{Binding RowHeight, FallbackValue=24}">
                             <BoxView Color="{StaticResource RowActive}" CornerRadius="6" IsVisible="{Binding IsActive}" />
-                            <Grid ColumnDefinitions="Auto,Auto,Auto,*" Padding="4,0,6,0">
+                            <!-- ★ AJOUT (01/10) : la largeur des colonnes chevron/icône suit la
+                                 visibilité réelle du contenu — une colonne « Auto » ne se replie
+                                 PAS toute seule quand son enfant est masqué (le WidthRequest
+                                 reste mesuré), ce qui laissait 16 px + 20 px de vide à gauche du
+                                 nom quand pp_folder_icons/pp_file_icons étaient décochés. -->
+                            <Grid Padding="4,0,6,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto" />
+                                    <ColumnDefinition Width="{Binding ChevronColumnWidth, FallbackValue=16}" />
+                                    <ColumnDefinition Width="{Binding GlyphColumnWidth, FallbackValue=20}" />
+                                    <ColumnDefinition Width="*" />
+                                </Grid.ColumnDefinitions>
                                 <!-- Espace d'indentation -->
                                 <BoxView Grid.Column="0"
                                          WidthRequest="{Binding Indent}"
                                          Color="Transparent" />
                                 <Label Grid.Column="1"
                                        Text="{Binding Chevron}"
+                                       IsVisible="{Binding HasChevron}"
                                        FontFamily="{x:Static controls:MotoIcons.FontFamily}"
                                        FontSize="9"
                                        TextColor="{StaticResource Txt2}"
                                        WidthRequest="16"
                                        HorizontalTextAlignment="Center"
                                        VerticalOptions="Center" />
+                                <!-- ★ AJOUT (01/10) : WidthRequest=20 était fixe, donc décocher
+                                     « Icônes de fichiers »/« Icônes de dossiers » laissait une
+                                     colonne vide de 20 px au lieu de rendre l'espace au nom
+                                     (IsVisible suit désormais le glyphe réellement fourni). -->
                                 <Label Grid.Column="2"
                                        Text="{Binding Glyph}"
+                                       IsVisible="{Binding HasGlyph}"
                                        TextColor="{Binding GlyphColor}"
                                        FontFamily="{x:Static controls:MotoIcons.FontFamily}"
                                        FontSize="14"
