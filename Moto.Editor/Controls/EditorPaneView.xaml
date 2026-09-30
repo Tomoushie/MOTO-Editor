@@ -26,7 +26,8 @@
     <Grid RowDefinitions="Auto,Auto,Auto,Auto,*">
 
         <!-- ═══ Ligne 0 : onglets (fond panneau ; actif = fond éditeur + trait d'accent) et actions ═══ -->
-        <Grid Grid.Row="0"
+        <!-- ★ AJOUT (28/09) : la barre entière porte un nom — réglage tabs_show. -->
+        <Grid Grid.Row="0" x:Name="TabBarRow"
               ColumnDefinitions="*,Auto"
               BackgroundColor="{StaticResource BgPanel}"
               HeightRequest="36">
@@ -59,8 +60,32 @@
                                 </DataTrigger>
                             </Grid.Triggers>
 
+                            <!-- ★ AJOUT (28/09) : survol de l'onglet, pour le réglage tabs_show_close = « Hover »
+                                 (la croix n'apparaît qu'au survol ; l'onglet actif la garde, voir EditorDocument). -->
+                            <Grid.GestureRecognizers>
+                                <PointerGestureRecognizer PointerEntered="OnTabPointerEntered"
+                                                          PointerExited="OnTabPointerExited" />
+                            </Grid.GestureRecognizers>
+
                             <HorizontalStackLayout Padding="12,0,6,0" Spacing="7" VerticalOptions="Center">
-                                <Label Text="{Binding FileGlyph}"
+                                <!-- ★ AJOUT (28/09) : croix de fermeture AVANT l'icône — réglage tabs_close_position = « Left ».
+                                     Deux exemplaires de la même croix (avant / après) plutôt qu'un déplacement d'enfant à
+                                     l'exécution : un StackLayout n'a pas d'ordre modifiable, et l'un OU l'autre est visible,
+                                     jamais les deux (le DataTemplate garde donc un seul ordre d'éléments, sans recoloration). -->
+                                <Label IsVisible="{Binding ShowCloseLeft}"
+                                       Text="{x:Static controls:MotoIcons.Close}"
+                                       FontFamily="{x:Static controls:MotoIcons.FontFamily}"
+                                       FontSize="9"
+                                       TextColor="{StaticResource Txt3}"
+                                       Padding="5,4"
+                                       VerticalOptions="Center"
+                                       ToolTipProperties.Text="Fermer">
+                                    <Label.GestureRecognizers>
+                                        <TapGestureRecognizer Tapped="OnTabCloseTapped" CommandParameter="{Binding .}" />
+                                    </Label.GestureRecognizers>
+                                </Label>
+                                <Label IsVisible="{Binding ShowFileGlyph}"
+                                       Text="{Binding FileGlyph}"
                                        TextColor="{Binding FileGlyphColor}"
                                        FontFamily="{x:Static controls:MotoIcons.FontFamily}"
                                        FontSize="13"
@@ -76,7 +101,7 @@
                                         </DataTrigger>
                                     </Label.Triggers>
                                 </Label>
-                                <Border IsVisible="{Binding HasErrors}"
+                                <Border IsVisible="{Binding ShowErrorBadge}"
                                         BackgroundColor="{StaticResource DangerMuted}"
                                         StrokeThickness="0"
                                         StrokeShape="RoundRectangle 8"
@@ -89,7 +114,8 @@
                                            FontAttributes="Bold"
                                            VerticalOptions="Center" />
                                 </Border>
-                                <Label Text="{x:Static controls:MotoIcons.Close}"
+                                <Label IsVisible="{Binding ShowCloseRight}"
+                                       Text="{x:Static controls:MotoIcons.Close}"
                                        FontFamily="{x:Static controls:MotoIcons.FontFamily}"
                                        FontSize="9"
                                        TextColor="{StaticResource Txt3}"
@@ -115,7 +141,8 @@
                 </CollectionView.ItemTemplate>
             </CollectionView>
 
-            <HorizontalStackLayout Grid.Column="1" Spacing="2" Padding="8,0,8,0" VerticalOptions="Center">
+            <!-- ★ AJOUT (28/09) : le groupe d'actions porte un nom — réglage tabs_bar_buttons. -->
+            <HorizontalStackLayout Grid.Column="1" x:Name="TabBarActions" Spacing="2" Padding="8,0,8,0" VerticalOptions="Center">
                 <Button Style="{StaticResource MotoIconButton}"
                         Text="{x:Static controls:MotoIcons.Download}"
                         ToolTipProperties.Text="Exporter (txt, md, html, pdf, docx, odt, rtf…)"
@@ -148,13 +175,16 @@
               ColumnSpacing="2"
               BackgroundColor="{StaticResource BgEditor}"
               Padding="6,3,8,3">
-            <Button Grid.Column="0"
+            <!-- ★ AJOUT (28/09) : les deux boutons d'historique portent un nom — réglage tabs_nav_buttons
+                 (le fil d'Ariane, colonne 2, reste visible dans tous les cas).
+                 ★ Piège évité : ce Grid ne doit pas être nommé « TabBarRow », déjà pris par la ligne 0. -->
+            <Button Grid.Column="0" x:Name="BtnNavBack"
                     Style="{StaticResource MotoIconButton}"
                     Text="{x:Static controls:MotoIcons.Back}"
                     FontSize="12" WidthRequest="24" HeightRequest="24" MinimumWidthRequest="24" MinimumHeightRequest="24"
                     ToolTipProperties.Text="Fichier précédent"
                     Clicked="OnBackClicked" />
-            <Button Grid.Column="1"
+            <Button Grid.Column="1" x:Name="BtnNavForward"
                     Style="{StaticResource MotoIconButton}"
                     Text="{x:Static controls:MotoIcons.Forward}"
                     FontSize="12" WidthRequest="24" HeightRequest="24" MinimumWidthRequest="24" MinimumHeightRequest="24"

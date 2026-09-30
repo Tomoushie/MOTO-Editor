@@ -1,7 +1,9 @@
 // Moto.Editor/Controls/EditorPaneView.xaml.cs (v5 — avec ExportRequested)
 using System;
 using Microsoft.Maui.Controls;
+using Moto.Core.Settings;
 using Moto.Editor.Models;
+using Moto.Editor.Settings;
 
 namespace Moto.Editor.Controls
 {
@@ -326,6 +328,68 @@ namespace Moto.Editor.Controls
             {
                 TabClosed?.Invoke(doc);
             }
+        }
+
+        // ------------------------------------------------------------------
+        // ★ AJOUT (28/09) : réglages « Fenêtre & Layout / Tab Bar » (clés tabs_*)
+        // ------------------------------------------------------------------
+
+        /// <summary>
+        /// Applique les réglages <c>tabs_*</c> à la barre d'onglets et à ses onglets.
+        ///
+        /// Appelée par <c>MainPage.ApplyLayoutSettings</c> (démarrage, sortie de plein écran,
+        /// action de layout) et à chaque changement d'un réglage <c>tabs_*</c> depuis la
+        /// fenêtre Réglages (<c>SettingsWindow.RealSettingChanged</c>) — sans ce second
+        /// chemin, un réglage modifié n'aurait d'effet qu'au prochain démarrage.
+        ///
+        /// Avant cet ajout, AUCUNE de ces clés n'était lue par du code compilé : la fenêtre
+        /// Réglages les affichait, l'interface les ignorait (mesuré par
+        /// <c>scripts/settings-coverage.ps1</c>).
+        /// </summary>
+        public void ApplySettings(SettingsEngine settings)
+        {
+            if (settings is null) return;
+
+            // Barre d'onglets entière, puis ses deux groupes d'actions. ⚠️ Le second argument est
+            // le défaut DÉCLARÉ au catalogue : GetBool(clé) sans défaut renvoie false pour une clé
+            // absente du store (le moteur ne connaît pas le catalogue) — sur une installation
+            // neuve, la barre d'onglets aurait donc disparu. Voir TabBarSettings.
+            TabBarRow.IsVisible = settings.GetBool("tabs_show", TabBarSettings.DeclaredBool("tabs_show"));
+            TabBarActions.IsVisible = settings.GetBool("tabs_bar_buttons", TabBarSettings.DeclaredBool("tabs_bar_buttons"));
+
+            // Précédent/suivant se cachent ENSEMBLE (un seul réglage pour la paire) ; le fil
+            // d'Ariane est dans une autre colonne du même Grid et reste visible.
+            var navVisible = settings.GetBool("tabs_nav_buttons", TabBarSettings.DeclaredBool("tabs_nav_buttons"));
+            BtnNavBack.IsVisible = navVisible;
+            BtnNavForward.IsVisible = navVisible;
+
+            // Le reste (icône de fichier, pastille de diagnostics, croix de fermeture) est
+            // propre à CHAQUE onglet : le DataTemplate ne peut lire que des propriétés de
+            // l'onglet lui-même, donc chaque EditorDocument reçoit sa copie. Le mappage
+            // vit dans TabBarSettings, partagé avec la création d'onglet (MainViewModel),
+            // sinon un onglet ouvert après le réglage garderait l'ancien état.
+            if (TabsList.ItemsSource is System.Collections.IEnumerable items)
+                foreach (var item in items)
+                    if (item is EditorDocument doc)
+                        TabBarSettings.Apply(doc, settings);
+        }
+
+        /// <summary>Mode de fermeture de la croix où elle ne se montre qu'au survol.</summary>
+        private const string TabCloseHoverMode = "Hover";
+
+        private void OnTabPointerEntered(object sender, PointerEventArgs e) => SetTabCloseHovered(sender, true);
+
+        private void OnTabPointerExited(object sender, PointerEventArgs e) => SetTabCloseHovered(sender, false);
+
+        /// <summary>
+        /// Survol d'un onglet (réglage <c>tabs_show_close</c> = « Hover »). Ne fait rien dans les
+        /// autres modes : l'état de la croix y est déjà entièrement décidé par le réglage.
+        /// </summary>
+        private void SetTabCloseHovered(object sender, bool hovered)
+        {
+            if ((sender as Element)?.BindingContext is not EditorDocument doc) return;
+            if (!string.Equals(doc.CloseMode, TabCloseHoverMode, StringComparison.OrdinalIgnoreCase)) return;
+            doc.SetCloseHovered(hovered);
         }
     }
 }
