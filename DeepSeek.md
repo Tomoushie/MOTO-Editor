@@ -128,6 +128,13 @@ code réellement compilé) :
 | 28/09, avant câblage | 20 / 332 (6,0 %) |
 | 28/09, après `tabs_*` | 29 / 332 (8,7 %) |
 | **01/10, après `pp_*` + `tb_*`** | **45 / 332 (13,6 %)** |
+| 01/10, après `ap_*` + `cp_*` (branche `chantier-panneaux-2`) | 50 / 332 (15,1 %) |
+
+⚠️ **Ne comparer qu'un avant/après mesuré dans le MÊME arbre de travail.** Ce
+chantier partait d'une branche où `gp_*`/`sb_*` ne sont pas câblés : son
+« après » (50) n'est donc **pas** comparable aux 59 du tronc, qui incluent ces
+deux familles. Un chiffre de couverture lu hors de son worktree ne veut rien
+dire.
 
 ### ⚠️ Le piège qui a failli casser l'application
 
@@ -168,6 +175,18 @@ qui lit `SettingsCatalog.ById(id).Default`.
   dossiers parents, largeur/côté, statut git par fichier (vrai `GitService`).
 - **`tb_*`** (4 clés sur 10) : barre de titre — menus, hôte + projet, branche
   git réelle, position des boutons de fenêtre.
+- **`ap_*`** (3 clés sur 7) et **`cp_*`** (2 clés sur 3), chantier
+  `chantier-panneaux-2` du 01/10 : géométrie et dock. Mappage
+  `Moto.Editor/Settings/DockPanelSettings.cs`, appliqué par
+  `ApplyAgentAndCollabPanelSettings(s)` depuis `ApplyLayoutSettings` **et**
+  `SettingsWindow.RealSettingChanged` (préfixes `ap_`/`cp_`).
+  ⚠️ **`ap_*` ne vise PAS un « AgentPanelView » — il n'en existe aucun.** Le
+  libellé du catalogue désigne le panneau de chat IA réel, **`Views/AiChatView`**
+  (titre « MOTO AI », `KindFor` → `"aichat"`). C'est lui que `ap_width`/`ap_height`
+  dimensionnent, et `ap_dock` place son dock via le mécanisme **existant**
+  `_panelsSwapped` + `ApplySidePanelLayout` (pas de 2e système de dock).
+  `cp_*` pilote `CollabPanelView` : `cp_width` sa largeur, `cp_dock` son ancrage
+  gauche/droite (colonne centrale et marge basse conservées).
 
 ### Familles encore inertes, et pourquoi (NE PAS LES RETENTER SANS LIRE)
 
@@ -185,9 +204,26 @@ qui lit `SettingsCatalog.ById(id).Default`.
   **qu'un seul** terminal.
 - `tb_branch_icon`, `tb_worktree`, `tb_onboarding`, `tabs_git_status`,
   `tabs_pinned_layout` : concept ou donnée inexistants.
-- **Restent à faire** : `gp_*` (panneau Git), `ap_*`/`cp_*`/`dp_*`/`op_*`
-  (panneaux agent/chat/debug/outline), puis AI, Agent, Éditeur, Terminal,
-  Version Control, Recherche, Apparence, Général, Collaboration.
+- **`ap_button` / `cp_button` / `gp_button` / `op_button`** : ils configurent
+  « un bouton dans la barre de statut », or `StatusBarPanelView.xaml` n'en
+  contient **aucun** (seulement des `Label`). En créer un est un **ajout de
+  fonctionnalité**, pas un câblage.
+- **`ap_limit_width` / `ap_max_width`** : supposent une colonne de contenu
+  **centrée**. Le chat occupe toute la largeur de sa colonne ; seules les bulles
+  ont une borne (420 px, figée dans le `DataTemplate`). Borner les bulles ne
+  bornerait pas « le contenu » comme l'annonce le libellé.
+- **`ap_flexible`** : la poignée d'étirement du dock IA est **toujours active**
+  (280..700 px). Rendre le panneau « non flexible » = **désactiver** un
+  redimensionnement qui marche → retrait de fonctionnalité, interdit.
+- **`dp_dock`** : le panneau Debug du système `AddFloatingPanel` (`_debugPanel`)
+  **n'est jamais rendu visible** — vérifié : rien ne met jamais son `IsVisible`
+  à `true`. Le seul écran Debug atteignable est une **fenêtre séparée**
+  (`DebugPanelProView`), hors du `RootGrid`, où un dock Bottom/Right/Left n'a
+  aucun sens. Le câbler déplacerait un panneau que personne ne peut ouvrir.
+- **`op_*` (5 clés)** : `OutlinePanelView` **n'existe pas** dans le dépôt.
+- **Restent à faire** : `gp_*` (panneau Git), le reste de `sb_*`, puis AI,
+  Agent, Éditeur, Terminal, Version Control, Recherche, Apparence, Général,
+  Collaboration.
 
 ## 6. Méthode de travail — leçons apprises
 
@@ -197,6 +233,13 @@ qui lit `SettingsCatalog.ById(id).Default`.
   changement de réglage n'agit qu'au redémarrage (ou au retour de plein écran),
   l'utilisateur conclut qu'il ne marche pas. C'est un défaut réel — corrigé une
   fois sur les `tb_*`.
+- **`ApplyLayoutSettings()` tourne AVANT que les panneaux existent** (elle est
+  appelée par `WireSettings()`, alors que `WirePanels()` vient après dans le
+  constructeur). Appliquer un réglage sur `_aiChatPanel`/`_cortexPanel`/… y lève
+  donc une **`NullReferenceException` au démarrage** : l'app ne se lance plus du
+  tout. Coûté une fois le 01/10 sur `ap_height`. Parade : garde `is null` **et**
+  second appel après `WirePanels()`. **Seul le contrôle 4 du garde-fou
+  (« démarrage réel ») attrape ce bug** — la lecture du code ne le voit pas.
 - **Le garde-fou ne juge pas la beauté.** `scripts/visual-lot-verify.ps1`
   prouve qu'un lot ne casse rien (0 erreur, avertissements ≤ ligne de base,
   périmètre, lancement réel sans exception) — **pas** que le résultat est joli.
