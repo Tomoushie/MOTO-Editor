@@ -342,6 +342,15 @@ namespace Moto.Editor
         /// </summary>
         private void ApplyAgentAndCollabPanelSettings(SettingsEngine s)
         {
+            // ⚠️ CORRECTION (01/10) : ApplyLayoutSettings est appelée depuis WireSettings(),
+            // donc AVANT WirePanels() (MainPage.xaml.cs) qui construit _aiChatPanel. Au tout
+            // premier passage, ce champ est donc encore null : sans cette garde, le démarrage
+            // levait une NullReferenceException AVANT même que la fenêtre existe (trouvé par
+            // scripts/visual-lot-verify.ps1, contrôle 4 « démarrage réel »). On sort simplement :
+            // le premier ApplyLayoutSettings utile passera après WirePanels, et
+            // RealSettingChanged couvre les changements ultérieurs.
+            if (_aiChatPanel is null) return;
+
             // ── ap_dock : côté du dock qui héberge le panneau IA ────────────────
             var wantAiLeft = DockPanelSettings.DockLeft(s);
             if (wantAiLeft != !_panelsSwapped)
