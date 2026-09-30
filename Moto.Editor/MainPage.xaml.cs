@@ -325,6 +325,14 @@ namespace Moto.Editor
                 // l'étaient qu'au prochain démarrage / retour de plein écran (ApplyLayoutSettings).
                 if (key.StartsWith("tabs_", StringComparison.Ordinal))
                     EditorPane.ApplySettings(SettingsEngine.Shared);
+
+                // ★ AJOUT (01/10) : même traitement pour la barre de titre (famille
+                // tb_*). Sans cette ligne, décocher « Afficher les menus » ou déplacer
+                // les contrôles de fenêtre n'aurait d'effet qu'au prochain retour de
+                // plein écran — un réglage qui ne s'applique pas tout de suite se lit
+                // comme un réglage inerte.
+                if (key.StartsWith("tb_", StringComparison.Ordinal))
+                    MenuBar.ApplySettings(SettingsEngine.Shared);
             };
 
             // ★ AJOUT (02/09, état des lieux) : redonne un point d'entrée à
