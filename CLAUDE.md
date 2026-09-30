@@ -517,6 +517,18 @@ touche).
   overlay centré — seul cas qui n'a NI glisser-réordonner NI changement de
   côté NI migration entre docks, choix délibéré documenté dans le code, pas
   un bug).
+  ⚠️ **CONSTAT (01/10) — `DebugPanel` est INATTEIGNABLE.** Vérifié : rien ne met
+  jamais `_debugPanel.IsVisible = true` (ses seules occurrences hors
+  construction sont `TitleFor`/`KindFor` et le `foreach` d'`AddFloatingPanel`,
+  qui le **masque**). Autrement dit, il est bien enregistré sur le système
+  modulaire, mais **aucun chemin de l'interface ne l'ouvre**. Le seul écran
+  Debug réellement atteignable est une **fenêtre séparée** (« debug »,
+  `MainPage.Extensions.cs` → `DebugPanelProView`), hors du `RootGrid` — donc
+  hors de portée d'un dock Bottom/Right/Left. Conséquence directe : le réglage
+  `dp_dock` n'est **pas câblable** (il déplacerait un panneau que personne ne
+  peut ouvrir — un réglage « qui marche » sans effet observable). Même famille
+  de problème que `op_*` (panneau outline inexistant) : le catalogue décrit des
+  panneaux dont l'accès n'existe pas.
 - **FileExplorerView / SidebarView** : confirmé PAS sur ce système —
   mécanisme séparé et plus ancien (`ExplorerDockPanel` dans `MainPage.xaml`,
   poignée dédiée `ExplorerResizeHandle`, ré-implémentation à la main du même
