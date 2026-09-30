@@ -46,10 +46,15 @@
   sur les flottants).
 - La **complexité vit côté backend** (Moto.Core / Snake2000.Engine) et dans
   **Settings** data-driven, fenêtre type Zed. Le catalogue réel compte
-  **297 réglages** (le « 97 » écrit ici jusqu'au 22/09 était obsolète : le
-  catalogue a été largement étendu depuis). ⚠️ Attention à ne pas confondre
-  « livré » et « actif » : seuls **4** sont réellement appliqués par
-  `SettingsApplier.ApplyAll()` — voir §9.
+  **332 réglages** (le chiffre « 297 » écrit ici jusqu'au 01/10 était
+  périmé — le catalogue a encore été étendu depuis).
+  ⚠️ **MISE À JOUR du 01/10 — l'écart « livré / actif » s'est fortement
+  réduit** : **45 réglages sur 332 sont réellement appliqués (13,6 %)**, contre
+  12 sur 324 (3,7 %) le 22/09. Trois familles ont été câblées : `tabs_*`
+  (onglets, 9 clés), `pp_*` (explorateur de fichiers, 12 clés) et `tb_*`
+  (barre de titre, 4 clés). Le « seuls 4 appliqués » du §9 ci-dessous est donc
+  **périmé**. Détail complet, méthode de câblage et familles encore inertes
+  (avec la raison exacte de chacune) : `DeepSeek.md` §5 et `CLAUDE.md`.
 - Règle dérivée : toute feature = service backend d'abord ; UI = exposition
   mince (réglage / palette Ctrl+Shift+P / panneau discret). **Pas d'UI
   factice** : un contrôle sans backend n'existe pas.
@@ -129,9 +134,13 @@
 - Dock du bas + vrai terminal : `TerminalService` réel (cmd.exe, sortie en
   direct) câblé sur `BottomPanelView`, replié par défaut, `Ctrl+`` ` `` —
   commit `1b7a830`.
-- Settings : fenêtre type Zed, **297 réglages** au catalogue — mais seuls 4
-  sont réellement appliqués (§9.3 : c'est le plus gros écart
-  « affiché mais inactif » de l'app).
+- Settings : fenêtre type Zed, **332 réglages** au catalogue, dont
+  **45 réellement appliqués au 01/10 (13,6 %)** — les familles `tabs_*`
+  (onglets), `pp_*` (explorateur) et `tb_*` (barre de titre) ont été câblées
+  le 28/09 et le 01/10. Reste le plus gros écart « affiché mais inactif » de
+  l'app, mais l'écart se réduit. Voir `DeepSeek.md` §5 pour les familles
+  encore inertes et **la raison exacte de chacune** (plusieurs ne sont pas
+  câblables : le concept ou la donnée n'existe pas dans le dépôt).
 - GitHub : OAuth device flow câblé (Client ID `Ov23lihSSLRCxh33SbnF` —
   un Client ID n'est pas secret, peut rester public).
 - 20 agents IA spécialisés (`StaticAnalysisAgents.cs` / `LlmBackedAgents.cs`),
@@ -184,10 +193,21 @@
    « Barre de titre bleue Windows ».
 
 2. **OrchestratorAgent / Tier 28 (MotoBridge)** — planifié, pas commencé.
-3. **Settings** — **297 réglages** au catalogue, mais `SettingsApplier.
-   ApplyAll()` n'en lit que **4** réellement (thème, taille de police,
-   minimap, diagnostics LSP). Le reste est affiché/persisté mais inactif.
-   C'est de loin le plus gros écart avec le palier « moyen » de Tom.
+3. **Settings** — **332 réglages** au catalogue. ⏳ **PÉRIMÉ au 01/10** :
+   cette entrée annonçait « seuls 4 réellement appliqués ». La mesure réelle
+   est **45 sur 332 (13,6 %)**, après les chantiers `tabs_*` (onglets),
+   `pp_*` (explorateur) et `tb_*` (barre de titre). Le point de méthode
+   reste vrai et important : `SettingsApplier.ApplyAll()` n'applique
+   effectivement que 4 clés (`theme_mode`, `buffer_font_size`,
+   `minimap_show`, `lsp_diagnostics`) — les 41 autres passent par d'autres
+   points d'accroche (`ApplyLayoutSettings` dans `MainPage.UI.cs`, et les
+   mappages `TabBarSettings`/`PanelSettings`/`TitleBarSettings`). Ne pas
+   conclure « inerte » à partir de la seule lecture de `ApplyAll()`.
+   ⚠️ **Piège majeur découvert le 28/09** : `SettingsEngine.GetBool(clé)`
+   sans second argument ne consulte **jamais** le catalogue — il retombe sur
+   `false` pour une clé absente, donc rendre un réglage opérant ainsi fait
+   **disparaître** l'élément sur une installation neuve. Toujours passer le
+   défaut via `DeclaredBool/Int/String`. Détail : `DeepSeek.md` §5.
 4. **Persistance de disposition** (docks/panneaux) — **CONFIRMÉ ABSENTE**
    (vérifié le 22/09, ne plus la noter « à vérifier ») : rien n'est
    mémorisé, tout revient aux valeurs XAML par défaut à chaque lancement.
