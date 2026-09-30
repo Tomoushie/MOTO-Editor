@@ -333,6 +333,16 @@ namespace Moto.Editor
                 // comme un réglage inerte.
                 if (key.StartsWith("tb_", StringComparison.Ordinal))
                     MenuBar.ApplySettings(SettingsEngine.Shared);
+
+                // ★ AJOUT (01/10) : même traitement pour le panneau Git (famille gp_*). Un seul
+                // appel suffit ici parce qu'ApplyLayoutSettings couvre les deux moitiés de la
+                // famille : les clés du PANNEAU (tri, style de statut, stats de diff, clic,
+                // scrollbar, repli des non suivis) et celles de la FENÊTRE (gp_dock, gp_width)
+                // — sans ce chemin, changer « Dock git » n'aurait d'effet qu'au prochain retour
+                // de plein écran, ce qui se lit exactement comme un réglage inerte (piège déjà
+                // rencontré sur les tb_* juste au-dessus).
+                if (key.StartsWith("gp_", StringComparison.Ordinal))
+                    ApplyLayoutSettings();
             };
 
             // ★ AJOUT (02/09, état des lieux) : redonne un point d'entrée à
@@ -432,6 +442,13 @@ namespace Moto.Editor
                 // mais la barre elle-même n'apparaissait dedans qu'après 30s-1min,
                 // au hasard d'une prochaine activation de fenêtre.
                 if (hasDocs) AiBar.Show(); else AiBar.Hide();
+
+                // ★ AJOUT (01/10) : dernier onglet fermé -> la barre de statut ne doit
+                // plus afficher de nom de fichier (réglage sb_active_file). Sans ça,
+                // la puce garderait le nom du fichier précédent alors que l'éditeur
+                // est revenu à l'Accueil — une valeur fausse, précisément ce que la
+                // règle « n'inventer aucune donnée » interdit.
+                if (!hasDocs) StatusBar.SetActiveFile(null);
             };
 
             // Panneaux Présentation / Remote / Collab : handlers déjà écrits dans
@@ -498,6 +515,14 @@ namespace Moto.Editor
             var lastFolder = SettingsEngine.Shared.GetString("workspace.last_folder", "");
             if (!string.IsNullOrWhiteSpace(lastFolder) && System.IO.Directory.Exists(lastFolder))
                 LoadWorkspace(lastFolder);
+
+            // ★ AJOUT (01/10) : ouverture de la fenêtre Git au démarrage (réglage
+            // gp_starts_open, défaut déclaré : non — rien ne change donc sur une installation
+            // neuve). Appelé ICI et non dans ApplyLayoutSettings : cette dernière tourne aussi
+            // au retour de plein écran, où rouvrir la fenêtre serait un effet qu'aucun libellé
+            // n'annonce. Appelé après LoadWorkspace pour que GitService connaisse déjà le
+            // dossier du projet — la fenêtre afficherait sinon l'état du dossier par défaut.
+            ApplyGitStartupSetting();
 
 #if WINDOWS
             var nativeWindow = Application.Current.Windows[0].Handler.PlatformView

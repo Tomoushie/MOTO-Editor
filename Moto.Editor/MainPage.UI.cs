@@ -315,7 +315,74 @@ namespace Moto.Editor
             // que StatusBar / EditorPane / MenuBar ci-dessus : démarrage, chaque changement de
             // réglage et retour de plein écran.
             ExplorerPanel.ApplySettings(s);
+            // ★ AJOUT (01/10) : le panneau Git reçoit enfin ses réglages (famille « Panneaux /
+            // Git Panel », clés gp_*) — les 15 clés étaient déclarées au catalogue et lues par
+            // AUCUN code compilé. Le panneau est construit par la fenêtre spécialisée « Git » :
+            // il faut donc le retrouver via cette fenêtre (instance unique, WindowManager) et
+            // non via une référence directe, sinon le réglage ne prendrait qu'à la réouverture.
+            var gitPanel = _windowManager?.Get(Moto.Editor.Windows.WindowKind.Git) is { Page: var gitPage }
+                ? FindGitPanel(gitPage)
+                : null;
+            if (gitPanel is not null)
+                ApplyGitPanelSettings(gitPanel, s);
             ApplyPanelGeometrySettings(s);
+        }
+
+        /// <summary>
+        /// ★ AJOUT (01/10) : parcourt l'arbre des éléments d'une fenêtre pour retrouver le
+        /// panneau Git. Nécessaire parce que la fenêtre spécialisée « Git » est construite À LA
+        /// DEMANDE par OpenSpecializedWindow (MainPage.Extensions.cs) et que MainPage n'en garde
+        /// aucune référence de champ — la seule source de vérité est le WindowManager. Parcours
+        /// volontairement borné (profondeur) pour ne pas dépendre d'une structure d'arbre précise.
+        ///
+        /// ⚠️ N'utilise PAS <c>Element.LogicalChildren</c> : l'API est marquée obsolète par MAUI
+        /// (« Hot Reload seulement ») et ferait monter la ligne de base d'avertissements du dépôt.
+        /// <see cref="Microsoft.Maui.IVisualTreeElement.GetVisualChildren"/> est l'API publique
+        /// et pérenne — c'est elle que MAUI recommande dans le message d'obsolescence lui-même.
+        /// </summary>
+        private static Views.GitPanelView? FindGitPanel(Microsoft.Maui.IVisualTreeElement? root, int depth = 0)
+        {
+            if (root is null || depth > 12) return null;
+            if (root is Views.GitPanelView panel) return panel;
+
+            foreach (var child in root.GetVisualChildren())
+                if (FindGitPanel(child, depth + 1) is { } found)
+                    return found;
+
+            return null;
+        }
+
+        /// <summary>
+        /// ★ AJOUT (01/10) : applique les réglages gp_* au panneau Git, plus l'abonnement à son
+        /// clic (réglage <c>gp_click_behavior</c>). L'abonnement est posé UNE SEULE FOIS par vue
+        /// (marqueur sur la vue elle-même) : ApplyLayoutSettings est appelée à chaque changement
+        /// de réglage, un += non gardé aurait accumulé les abonnements et ouvert plusieurs fois
+        /// le même fichier.
+        /// </summary>
+        private void ApplyGitPanelSettings(Views.GitPanelView panel, SettingsEngine s)
+        {
+            panel.ApplySettings(s);
+
+            if (!_gitPanelWired.Add(panel)) return;
+            panel.FileOpenRequested += path => MainThread.BeginInvokeOnMainThread(() => OpenInEditor(path));
+        }
+
+        /// <summary>★ AJOUT (01/10) : panneaux Git déjà câblés (un seul en pratique, mais la
+        /// fenêtre peut être fermée puis rouverte — le nouveau panneau doit être câblé à son tour).</summary>
+        private readonly System.Collections.Generic.HashSet<Views.GitPanelView> _gitPanelWired = new();
+
+        /// <summary>
+        /// ★ AJOUT (01/10) : ouvre la fenêtre « Git » au démarrage quand <c>gp_starts_open</c> est
+        /// coché (défaut déclaré : non — l'ouverture ne change donc rien sur une installation
+        /// neuve). Appelée par OnPageLoaded, seule à savoir que l'application vient de démarrer :
+        /// <c>ApplyLayoutSettings</c> est aussi appelée au retour de plein écran, et y ouvrir la
+        /// fenêtre la rouvrirait à chaque F11, ce qu'aucun libellé n'annonce.
+        /// </summary>
+        private void ApplyGitStartupSetting()
+        {
+            if (!GitPanelSettings.StartsOpen(SettingsEngine.Shared)) return;
+            if (_gitService is null) return;
+            OpenSpecializedWindow("git");
         }
 
         /// <summary>★ AJOUT (01/10) : dernière largeur d'explorateur posée par le réglage pp_width.</summary>
@@ -357,6 +424,65 @@ namespace Moto.Editor
                 _panelsSwapped = wantLeft;
                 ApplySidePanelLayout();
             }
+
+            ApplyGitWindowPlacement(s);
+        }
+
+        /// <summary>
+        /// ★ AJOUT (01/10) : position et largeur de la fenêtre « Git » (réglages <c>gp_dock</c> et
+        /// <c>gp_width</c>). Ces deux clés portent sur la FENÊTRE, pas sur le contenu du panneau :
+        /// c'est pourquoi elles sont traitées ici et non dans <c>GitPanelView</c>, exactement comme
+        /// <c>pp_width</c>/<c>pp_dock</c> le sont pour la colonne de l'explorateur.
+        ///
+        /// N'a d'effet que si la fenêtre EXISTE déjà : aucune fenêtre n'est créée ici — c'est
+        /// <c>gp_starts_open</c> qui décide de l'ouvrir au démarrage, et un changement de
+        /// <c>gp_dock</c> alors qu'elle est ouverte doit la déplacer tout de suite (sinon le
+        /// réglage se lirait comme inerte, piège déjà rencontré sur les <c>tb_*</c>).
+        /// </summary>
+        private void ApplyGitWindowPlacement(SettingsEngine s)
+        {
+#if WINDOWS
+            var gitWindow = _windowManager?.Get(Moto.Editor.Windows.WindowKind.Git);
+            var native = gitWindow?.Handler?.PlatformView as Microsoft.UI.Xaml.Window;
+            if (native is null) return;
+
+            var hwnd = global::WinRT.Interop.WindowNative.GetWindowHandle(native);
+            var windowId = Microsoft.UI.Win32Interop.GetWindowIdFromWindow(hwnd);
+            var appWindow = Microsoft.UI.Windowing.AppWindow.GetFromWindowId(windowId);
+            var area = Microsoft.UI.Windowing.DisplayArea.GetFromWindowId(
+                windowId, Microsoft.UI.Windowing.DisplayAreaFallback.Primary);
+            if (area is null) return;
+
+            var wa = area.WorkArea;
+            // Hauteur : celle que la fenêtre a déjà — rien dans la famille gp_* ne gouverne la
+            // hauteur, donc on n'en invente pas une (même règle que pour les valeurs affichées).
+            var height = Math.Min(Math.Max(480, appWindow.Size.Height), wa.Height);
+            var width = Math.Min(GitPanelSettings.Width(s), wa.Width);
+            const int margin = 24;
+
+            global::Windows.Graphics.PointInt32 position;
+            switch (GitPanelSettings.Dock(s))
+            {
+                case "Left":
+                    position = new global::Windows.Graphics.PointInt32(wa.X + margin, wa.Y + margin);
+                    break;
+                case "Bottom":
+                    // Ancrage en bas, centré horizontalement : la fenêtre garde la largeur
+                    // gp_width (le catalogue ne décrit pas une fenêtre pleine largeur).
+                    position = new global::Windows.Graphics.PointInt32(
+                        wa.X + Math.Max(0, (wa.Width - width) / 2),
+                        wa.Y + Math.Max(0, wa.Height - height - margin));
+                    break;
+                default: // "Right" — défaut DÉCLARÉ au catalogue
+                    position = new global::Windows.Graphics.PointInt32(
+                        wa.X + Math.Max(0, wa.Width - width - margin),
+                        wa.Y + margin);
+                    break;
+            }
+
+            appWindow.Resize(new global::Windows.Graphics.SizeInt32(width, height));
+            appWindow.Move(position);
+#endif
         }
 
         // ★ RETRAIT (02/09, état des lieux) : OnSettingChanged (ancien gestionnaire,
@@ -396,6 +522,10 @@ namespace Moto.Editor
             if (doc == null) return;
             EditorPane.SetBreadcrumb(doc.Path);
             ExplorerPanel.SetActiveFile(doc.Path); // ★ (25/09) : ligne du fichier affiché surlignée dans l'explorateur
+            // ★ AJOUT (01/10) : alimente la puce « fichier actif » de la barre de statut
+            // (réglage sb_active_file). Même point d'appel unique que le fil d'Ariane —
+            // pas de 2e mécanisme qui pourrait diverger.
+            StatusBar.SetActiveFile(doc.Path);
             EditorPane.EditorText = doc.Text;
             _currentPath = doc.Path;
             RefreshAiUndoButton();
