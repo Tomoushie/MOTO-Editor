@@ -576,13 +576,15 @@ lecture directe du code.
    (`SettingsCatalog.cs`) changé pour n'offrir plus qu'un seul choix
    ("Dark"). Construire une vraie palette claire reste une option pour plus
    tard (gros chantier), pas retenue aujourd'hui. Confirmé par Tom.
-4. **Réglages : 45 opérants sur 332 déclarés — soit 13,6 %** (mesuré le
+4. **Réglages : 59 opérants sur 332 déclarés — soit 17,8 %** (mesuré le
    01/10 par `scripts/settings-coverage.ps1`, rapport :
    `Docs/design/Couverture-reglages.md`). ⏳ Le chiffre historique était
    **12 sur 324 (3,7 %)** au 22/09 ; **20 sur 332** au 28/09 AVANT les
    chantiers de câblage (le catalogue et les lectures ont grandi entre-temps),
-   puis **29 sur 332 (8,7 %)** après `tabs_*` (28/09), puis **45 (13,6 %)**
-   après `pp_*` (01/10) et le chantier `tb_*` mené en parallèle le même jour.
+   puis **29 sur 332 (8,7 %)** après `tabs_*` (28/09), **45 (13,6 %)**
+   après `pp_*` (01/10) et le chantier `tb_*` mené en parallèle le même jour,
+   puis **59 (17,8 %)** après `gp_*` (01/10) et la famille `sb_*` menée en
+   parallèle le même jour.
    Périmètre : le code **réellement compilé** (les fichiers listés dans
    `<Compile Remove>`/`<MauiXaml Remove>` sont écartés, sinon on compterait
    comme « opérant » un réglage lu par du code mort — cas des `ai.embedded.*`,
@@ -665,6 +667,53 @@ lecture directe du code.
    (`Services/GitHubAccountService.cs`, déjà branché), et son point d'entrée
    dans la barre est l'avatar/engrenage existant : recâbler ces 3 clés
    afficherait un état de connexion MOTO qui n'existe pas.
+   **Ce qui est opérant depuis le 01/10 (famille `gp_*`, 12 clés sur 15)** —
+   le panneau Git (`Views/GitPanelView`, fenêtre spécialisée « Git » + palette
+   `git.panel`), alimenté par le VRAI `Moto.Core.Services.GitService` (git CLI).
+   Mappage dans `Moto.Editor/Settings/GitPanelSettings.cs` (même patron que
+   `TabBarSettings`/`PanelSettings`) + `Models/GitChangeNode.cs` pour les lignes
+   (les 3 sections affichaient des `string` bruts, qu'aucun réglage d'affichage
+   ne pouvait atteindre). Répartition : le PANNEAU reçoit ses réglages via
+   `ApplyLayoutSettings`, qui le retrouve à travers la fenêtre du `WindowManager`
+   (elle est construite à la demande — MainPage n'en garde aucune référence de
+   champ) ; la FENÊTRE (largeur/dock/ouverture) est traitée dans
+   `ApplyPanelGeometrySettings` / `OnPageLoaded`, comme `pp_width`/`pp_dock` le
+   sont pour l'explorateur. `SettingsWindow.RealSettingChanged` teste le préfixe
+   `gp_` et rappelle `ApplyLayoutSettings` (sans ça, « Dock git » n'aurait pris
+   qu'au prochain retour de plein écran).
+   - `gp_status_style` : lettre d'état (A/M/?) ou libellé complet ;
+   - `gp_sort` (Path/Name/Status), `gp_group` (Status/Folder — en « Folder » le
+     dossier parent est affiché en tête de ligne, git ne renvoyant QUE des
+     chemins), `gp_tree_view` (chemin complet au lieu du seul nom : le panneau
+     est une liste PLATE, on ne fabrique pas une arborescence) ;
+   - `gp_collapse_untracked` (replie le groupe « non suivis » entier),
+     `gp_scrollbar` (barre de défilement du panneau), `gp_diff_stats` (ajouts/
+     suppressions RÉELS par fichier, via le nouveau
+     `GitService.GetDiffStatsAsync()` = `git diff --numstat`) ;
+   - `gp_click_behavior` : « File Diff » ouvre le fichier dans l'éditeur,
+     « Project Diff » (défaut) déplie le diff RÉEL du projet
+     (`GitService.GetDiffAsync()`) — les deux vues de diff existaient déjà, on
+     n'en fabrique aucune ;
+   - `gp_commit_max_len` : appliqué au message RÉELLEMENT envoyé à `git commit`
+     (0 = illimité), pas seulement à l'affichage ;
+   - `gp_starts_open` (fenêtre ouverte au démarrage, défaut déclaré : non),
+     `gp_width` (bornée 200..1000), `gp_dock` (Right par défaut / Left / Bottom).
+   ⚠️ La hauteur de la fenêtre Git n'est jamais inventée : rien dans la famille
+   ne la gouverne.
+   **Restent INERTES dans cette famille (3 clés, raisons exactes)** :
+   `gp_button` — il configure « un bouton git dans la barre de statut », qui
+   n'existe pas (`StatusBarPanelView.xaml` n'a aucune puce git) : en ajouter une
+   est une fonctionnalité à concevoir, pas un réglage à câbler (même famille que
+   `sb_*`/`cp_button`/`ap_button`/`op_button`) ; `gp_fallback_branch` — la câbler
+   afficherait « main » dans un dossier SANS branche (dossier vide, `git status`
+   en échec) : ce serait une branche inventée, pas une valeur de repli
+   réellement utilisée — le panneau dit déjà vrai en affichant « aucune branche
+   détectée » ; `gp_count_badge` — le seul nombre non ambigu est `Staged.Count`
+   (l'index), or le libellé annonce les « changements non commités » : un total
+   Staged+Unstaged+Untracked compte DEUX FOIS tout fichier indexé puis remodifié
+   (« MM » dans `git status --porcelain`), soit exactement l'état de ce dépôt à
+   chaque commit. Un badge faux est pire qu'un badge absent (même décision que
+   `pp_count_badge`).
    **Famille `preview_*` : 0 clé câblable sur 6, TOUTE la famille est inerte**
    (`preview_enabled`, `preview_project_panel`, `preview_file_finder`,
    `preview_multibuffer`, `preview_code_nav`, `preview_keep_on_nav`). Le
@@ -675,10 +724,10 @@ lecture directe du code.
    sont un aperçu de RENDU web (serveur WebSocket + HTML généré), sans rapport
    avec des onglets. Câbler ces 6 clés demanderait de CONSTRUIRE d'abord le
    concept d'onglet aperçu — c'est un chantier, pas un câblage.
-   **Les 287 inertes restants se répartissent par catégorie** — le plus gros
+   **Les 273 inertes restants se répartissent par catégorie** — le plus gros
    cluster correspond à des **interfaces qui EXISTENT déjà mais ignorent leur
-   configuration** : `Panneaux` (explorateur `pp_*` FAIT ; restent le panneau Git
-   `gp_*`, et les panneaux agent/chat/debug/outline `ap_*`/`cp_*`/`dp_*`/`op_*`),
+   configuration** : `Panneaux` (explorateur `pp_*` et panneau Git `gp_*` FAITS ;
+   restent les panneaux agent/chat/debug/outline `ap_*`/`cp_*`/`dp_*`/`op_*`),
    `Fenêtre & Layout` (barre de titre `tb_*` FAITE le 01/10 ; restent la barre de
    statut `sb_*` et les aperçus `preview_*` ; les onglets sont faits), puis AI,
    Agent, Éditeur, Terminal, Version Control, Recherche & Fichiers, Apparence,

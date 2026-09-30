@@ -1,17 +1,17 @@
 # Couverture du catalogue de réglages
 
 > **Généré automatiquement — analyse seule, aucun fichier modifié.**
-> Source : `scripts/settings-coverage.ps1` · Périmètre : 629 fichiers .cs réellement compilés
+> Source : `scripts/settings-coverage.ps1` · Périmètre : 632 fichiers .cs réellement compilés
 
 ## Chiffres
 
 | Mesure | Valeur |
 |---|---|
 | Réglages DÉCLARÉS au catalogue | 332 |
-| Clés lues par du code compilé | 72 |
-| **Déclarés ET lus → réellement opérants** | **45** |
-| Déclarés mais INERTES | 287 |
-| **Part réellement opérante** | **13.6 %** |
+| Clés lues par du code compilé | 86 |
+| **Déclarés ET lus → réellement opérants** | **59** |
+| Déclarés mais INERTES | 273 |
+| **Part réellement opérante** | **17.8 %** |
 
 ## Réglages réellement opérants
 
@@ -29,6 +29,18 @@
 | `context_engine_enabled` | Agent | Moto.Core\Moto.AI\Context\ContextEngine.cs |
 | `doc_auto_update` | Agent | Moto.Core\Doc\DocEngine.cs |
 | `doc_on_project_open` | Agent | Moto.Editor\MainPage.Panels.cs |
+| `gp_click_behavior` | Panneaux | Moto.Editor\Settings\GitPanelSettings.cs |
+| `gp_collapse_untracked` | Panneaux | Moto.Editor\Settings\GitPanelSettings.cs |
+| `gp_commit_max_len` | Panneaux | Moto.Editor\Settings\GitPanelSettings.cs |
+| `gp_diff_stats` | Panneaux | Moto.Editor\Settings\GitPanelSettings.cs |
+| `gp_dock` | Panneaux | Moto.Editor\Settings\GitPanelSettings.cs |
+| `gp_group` | Panneaux | Moto.Editor\Settings\GitPanelSettings.cs |
+| `gp_scrollbar` | Panneaux | Moto.Editor\Settings\GitPanelSettings.cs |
+| `gp_sort` | Panneaux | Moto.Editor\Settings\GitPanelSettings.cs |
+| `gp_starts_open` | Panneaux | Moto.Editor\Settings\GitPanelSettings.cs |
+| `gp_status_style` | Panneaux | Moto.Editor\Settings\GitPanelSettings.cs |
+| `gp_tree_view` | Panneaux | Moto.Editor\Settings\GitPanelSettings.cs |
+| `gp_width` | Panneaux | Moto.Editor\Settings\GitPanelSettings.cs |
 | `lsp_diagnostics` | Langages & Outils | Moto.Editor\Settings\SettingsApplier.cs |
 | `minimap_show` | Éditeur | Moto.Editor\Settings\SettingsApplier.cs |
 | `ollama_endpoint` | IA Locale | Moto.Core\Moto.AI\Autonomy\V2\AgentV2Settings.cs, Moto.Core\Moto.AI\Generation\GenerationSettings.cs, Moto.Core\Moto.AI\Internal\OllamaClient.cs, Moto.Editor\Pages\AiSettingsPage.xaml.cs |
@@ -48,6 +60,8 @@
 | `pp_horizontal_scroll` | Panneaux | Moto.Editor\Settings\PanelSettings.cs |
 | `pp_indent` | Panneaux | Moto.Editor\Settings\PanelSettings.cs |
 | `pp_width` | Panneaux | Moto.Editor\Settings\PanelSettings.cs |
+| `sb_active_file` | Fenêtre & Layout | Moto.Editor\Settings\StatusBarSettings.cs |
+| `sb_diagnostics` | Fenêtre & Layout | Moto.Editor\Settings\StatusBarSettings.cs |
 | `tabs_activate_on_close` | Fenêtre & Layout | Moto.Editor\ViewModels\MainViewModel.cs |
 | `tabs_bar_buttons` | Fenêtre & Layout | Moto.Editor\Controls\EditorPaneView.xaml.cs |
 | `tabs_close_position` | Fenêtre & Layout | Moto.Editor\Settings\TabBarSettings.cs |
@@ -69,7 +83,7 @@ Ce sont les réglages affichés dans la fenêtre Réglages dont AUCUN code
 compilé ne lit la clé : ils sont persistés, mais sans effet. C'est la
 matière première du palier « tout ce qui est annoncé fonctionne ».
 
-### Fenêtre & Layout — 37 réglage(s) inerte(s)
+### Fenêtre & Layout — 35 réglage(s) inerte(s)
 
 - `border_size`
 - `bottom_dock_layout`
@@ -86,10 +100,8 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `preview_keep_on_nav`
 - `preview_multibuffer`
 - `preview_project_panel`
-- `sb_active_file`
 - `sb_cursor_position`
 - `sb_debugger`
-- `sb_diagnostics`
 - `sb_encoding`
 - `sb_language`
 - `sb_line_endings`
@@ -108,41 +120,6 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `vertical_split_direction`
 - `window_decorations`
 - `zoomed_padding`
-
-### Panneaux — 32 réglage(s) inerte(s)
-
-- `ap_button`
-- `ap_dock`
-- `ap_flexible`
-- `ap_height`
-- `ap_limit_width`
-- `ap_max_width`
-- `ap_width`
-- `cp_button`
-- `cp_dock`
-- `cp_width`
-- `dp_dock`
-- `gp_button`
-- `gp_click_behavior`
-- `gp_collapse_untracked`
-- `gp_commit_max_len`
-- `gp_count_badge`
-- `gp_diff_stats`
-- `gp_dock`
-- `gp_fallback_branch`
-- `gp_group`
-- `gp_scrollbar`
-- `gp_sort`
-- `gp_starts_open`
-- `gp_status_style`
-- `gp_tree_view`
-- `gp_width`
-- `op_auto_fold`
-- `op_auto_reveal`
-- `op_button`
-- `op_dock`
-- `op_indent_guides`
-- `pp_count_badge`
 
 ### AI — 31 réglage(s) inerte(s)
 
@@ -262,6 +239,49 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `terminal_show_scrollbar`
 - `terminal_working_dir`
 
+### Panneaux — 20 réglage(s) inerte(s)
+
+- `ap_button`
+- `ap_dock`
+- `ap_flexible`
+- `ap_height`
+- `ap_limit_width`
+- `ap_max_width`
+- `ap_width`
+- `cp_button`
+- `cp_dock`
+- `cp_width`
+- `dp_dock`
+- `gp_button`
+- `gp_count_badge`
+- `gp_fallback_branch`
+- `op_auto_fold`
+- `op_auto_reveal`
+- `op_button`
+- `op_dock`
+- `op_indent_guides`
+- `pp_count_badge`
+
+### Version Control — 17 réglage(s) inerte(s)
+
+- `git_blame_avatar`
+- `git_blame_commit_summary`
+- `git_blame_delay`
+- `git_blame_enabled`
+- `git_blame_location`
+- `git_blame_min_column`
+- `git_blame_padding`
+- `git_branch_author`
+- `git_diff_base`
+- `git_diff_full_file`
+- `git_gutter_debounce`
+- `git_gutter_visibility`
+- `git_hunk_style`
+- `git_integration`
+- `git_path_style`
+- `git_stage_restore_buttons`
+- `git.enabled`
+
 ### Recherche & Fichiers — 17 réglage(s) inerte(s)
 
 - `close_on_file_delete`
@@ -301,26 +321,6 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `ui_font_family`
 - `ui_font_size`
 - `wrap_guides`
-
-### Version Control — 17 réglage(s) inerte(s)
-
-- `git_blame_avatar`
-- `git_blame_commit_summary`
-- `git_blame_delay`
-- `git_blame_enabled`
-- `git_blame_location`
-- `git_blame_min_column`
-- `git_blame_padding`
-- `git_branch_author`
-- `git_diff_base`
-- `git_diff_full_file`
-- `git_gutter_debounce`
-- `git_gutter_visibility`
-- `git_hunk_style`
-- `git_integration`
-- `git_path_style`
-- `git_stage_restore_buttons`
-- `git.enabled`
 
 ### Général — 14 réglage(s) inerte(s)
 
@@ -396,17 +396,17 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `pair_programming`
 - `tutor_mode`
 
-### MCP — 3 réglage(s) inerte(s)
-
-- `mcp.adv.checkpointing`
-- `mcp.enabled`
-- `mcp.subagents`
-
 ### Raccourcis — 3 réglage(s) inerte(s)
 
 - `base_keymap`
 - `helix_mode`
 - `vim_mode`
+
+### MCP — 3 réglage(s) inerte(s)
+
+- `mcp.adv.checkpointing`
+- `mcp.enabled`
+- `mcp.subagents`
 
 ### Network — 2 réglage(s) inerte(s)
 

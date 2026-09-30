@@ -128,6 +128,7 @@ code réellement compilé) :
 | 28/09, avant câblage | 20 / 332 (6,0 %) |
 | 28/09, après `tabs_*` | 29 / 332 (8,7 %) |
 | **01/10, après `pp_*` + `tb_*`** | **45 / 332 (13,6 %)** |
+| **01/10, après `gp_*` (+ `sb_*` en parallèle)** | **59 / 332 (17,8 %)** |
 
 ### ⚠️ Le piège qui a failli casser l'application
 
@@ -142,8 +143,9 @@ d'onglets, les icônes de l'explorateur, le statut git).
 
 **Toujours passer le défaut explicitement**, via les mappages créés pour ça :
 `Moto.Editor/Settings/TabBarSettings.cs`, `PanelSettings.cs`,
-`TitleBarSettings.cs` — chacun expose `DeclaredBool/DeclaredInt/DeclaredString`
-qui lit `SettingsCatalog.ById(id).Default`.
+`TitleBarSettings.cs`, `GitPanelSettings.cs` — chacun expose
+`DeclaredBool/DeclaredInt/DeclaredString` qui lit
+`SettingsCatalog.ById(id).Default`.
 
 ### La méthode qui marche (à reproduire)
 
@@ -152,6 +154,12 @@ qui lit `SettingsCatalog.ById(id).Default`.
    (`MainPage.UI.cs`), appelé au démarrage, à **chaque changement de réglage**
    et au retour de plein écran. Il appelle déjà `StatusBar`, `EditorPane`,
    `MenuBar`, `ExplorerPanel`.
+   ⚠️ Variante `gp_*` : quand le panneau n'est **pas** un contrôle statique de
+   `MainPage.xaml` mais une vue construite à la demande dans une fenêtre
+   (`GitPanelView`), il faut la retrouver via `WindowManager.Get(...)` puis
+   parcourir l'arbre avec `IVisualTreeElement.GetVisualChildren()` —
+   `Element.LogicalChildren` est **obsolète** et ferait monter la ligne de base
+   d'avertissements (477 → 478).
 3. Des lectures à clé **LITTÉRALE** (le script de mesure ne compte pas les
    variables — une indirection fait mentir la mesure, en baisse).
 4. **N'inventer aucune donnée** : un réglage qui affiche une valeur fausse est
@@ -168,6 +176,20 @@ qui lit `SettingsCatalog.ById(id).Default`.
   dossiers parents, largeur/côté, statut git par fichier (vrai `GitService`).
 - **`tb_*`** (4 clés sur 10) : barre de titre — menus, hôte + projet, branche
   git réelle, position des boutons de fenêtre.
+- **`gp_*`** (12 clés sur 15) : panneau Git. Tri, style de statut, groupement,
+  repli des non suivis, vue « arborescente » (chemin complet), stats de diff
+  **réelles** (`git diff --numstat`, nouveau `GitService.GetDiffStatsAsync`),
+  comportement au clic (ouvrir le fichier / déplier le diff réel du projet),
+  scrollbar, longueur max du titre de commit appliquée **au message envoyé à
+  git**, ouverture au démarrage, largeur et dock de la fenêtre. Les lignes du
+  panneau sont passées de `string` à un modèle (`Models/GitChangeNode.cs`) :
+  sans ça, aucun réglage d'affichage ne pouvait les atteindre.
+  **Restent inertes :** `gp_button` (le bouton git de la barre de statut
+  n'existe pas), `gp_fallback_branch` (afficher « main » dans un dossier sans
+  dépôt = branche inventée, pas un repli réellement utilisé),
+  `gp_count_badge` (le seul nombre non ambigu, `Staged.Count`, ne répond pas au
+  libellé « changements non commités » ; un total compterait deux fois tout
+  fichier indexé puis remodifié — « MM »).
 
 ### Familles encore inertes, et pourquoi (NE PAS LES RETENTER SANS LIRE)
 
