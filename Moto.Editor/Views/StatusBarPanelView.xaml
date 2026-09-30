@@ -26,6 +26,21 @@
 
             <BoxView WidthRequest="1" Color="{StaticResource BorderMuted}" Margin="8,6" />
 
+            <!-- ★ AJOUT (01/10) : nom du fichier affiché, piloté par le réglage
+                 « Fenêtre & Layout / Status Bar » sb_active_file (défaut déclaré :
+                 false, donc MASQUÉ par défaut — comportement actuel inchangé tant
+                 que Tom ne l'active pas). Donnée RÉELLE : MainViewModel.SelectedDocument,
+                 posée par SetActiveFile(). Masqué tant qu'aucun fichier n'est ouvert
+                 (pas de valeur inventée). -->
+            <Label x:Name="ActiveFileLabel" Text=""
+                   FontSize="{DynamicResource FontSizeUiSmall}"
+                   TextColor="{StaticResource Txt3}"
+                   VerticalOptions="Center"
+                   Margin="0,0,8,0"
+                   LineBreakMode="TailTruncation"
+                   MaximumWidthRequest="260"
+                   IsVisible="False" />
+
             <Label x:Name="ErrorsLabel" Text="0 erreur"
                    FontSize="{DynamicResource FontSizeUiSmall}"
                    TextColor="{StaticResource Txt2}"

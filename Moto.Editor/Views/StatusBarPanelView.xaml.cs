@@ -12,6 +12,19 @@ namespace Moto.Editor.Views
     {
         private InfoOverlay? _infoOverlay;
 
+        // ★ AJOUT (01/10) : état de la puce « fichier actif » (réglage sb_active_file).
+        // Deux conditions distinctes : le réglage est-il actif, et y a-t-il un fichier ?
+        // Les séparer évite d'afficher une puce vide quand un fichier est ouvert mais
+        // que le réglage est éteint — et inversement.
+        private bool _showActiveFile;
+        private string _activeFileName = string.Empty;
+
+        /// <summary>★ AJOUT (01/10) : un avertissement existe-t-il ? (pour respecter sb_diagnostics).</summary>
+        private bool _hasWarnings;
+
+        /// <summary>★ AJOUT (01/10) : réglage sb_diagnostics actif ? (défaut déclaré : true).</summary>
+        private bool _showDiagnostics = true;
+
         /// <summary>Indicateur IA (🧠) tapé — MainPage ouvre le monitoring.</summary>
         public event Action? AiMonitorTapped;
 
@@ -65,7 +78,12 @@ namespace Moto.Editor.Views
                 ? (Color)Application.Current!.Resources["Txt2"]
                 : Colors.OrangeRed;
 
-            WarningsLabel.IsVisible = warnings > 0;
+            // ★ MODIFIÉ (01/10) : la visibilité dépend maintenant de DEUX choses —
+            // le réglage sb_diagnostics (appliqué par ApplySettings) et le fait qu'il
+            // y ait réellement des avertissements. On mémorise le second pour que
+            // ApplySettings puisse recomposer les deux sans connaître les compteurs.
+            _hasWarnings = warnings > 0;
+            WarningsLabel.IsVisible = _hasWarnings && _showDiagnostics;
             WarningsLabel.Text = $"{warnings} avertissement(s)";
         }
 
@@ -88,14 +106,50 @@ namespace Moto.Editor.Views
 
         /// <summary>
         /// Applique les réglages qui concernent la barre de statut elle-même.
-        /// Pour l'instant la barre n'a pas de réglage dédié — méthode conservée
-        /// comme point d'extension (appelée par MainPage.ApplyLayoutSettings).
         /// </summary>
+        /// <remarks>
+        /// ★ AJOUT (01/10) : cette méthode était VIDE (simple point d'extension
+        /// « Rien à appliquer pour l'instant ») alors que la catégorie
+        /// « Fenêtre &amp; Layout / Status Bar » déclare 10 réglages <c>sb_*</c> que
+        /// RIEN ne lisait. Elle en applique maintenant 2, ceux dont la donnée existe
+        /// réellement — voir <see cref="Moto.Editor.Settings.StatusBarSettings"/>,
+        /// qui documente pourquoi les 8 autres ne sont pas câblables (boutons
+        /// inexistants, ou absence totale de notion d'encodage / de fins de ligne /
+        /// de position de curseur dans le dépôt).
+        /// </remarks>
         public void ApplySettings(SettingsEngine settings)
         {
-            // Rien à appliquer pour l'instant : la barre affiche toujours
-            // statut + compteurs + sandbox + verrou + info.
+            if (settings is null) return;
+
+            // Compteurs d'erreurs/avertissements : la donnée est déjà alimentée par
+            // SetCounts() ; le réglage ne fait que choisir de l'afficher ou non.
+            _showDiagnostics = Moto.Editor.Settings.StatusBarSettings.ShowDiagnostics(settings);
+            ErrorsLabel.IsVisible = _showDiagnostics;
+            WarningsLabel.IsVisible = _showDiagnostics && _hasWarnings;
+
+            // Nom du fichier actif : masqué si le réglage est éteint OU si aucun
+            // fichier n'est ouvert (jamais de contenu inventé).
+            _showActiveFile = Moto.Editor.Settings.StatusBarSettings.ShowActiveFile(settings);
+            UpdateActiveFileVisibility();
         }
+
+        /// <summary>
+        /// ★ AJOUT (01/10) : nom du fichier actuellement affiché dans l'éditeur
+        /// (réglage <c>sb_active_file</c>). Appelée par MainPage à l'ouverture d'un
+        /// document, et avec <c>null</c> quand le dernier onglet est fermé.
+        /// </summary>
+        public void SetActiveFile(string? path)
+        {
+            _activeFileName = string.IsNullOrWhiteSpace(path)
+                ? string.Empty
+                : System.IO.Path.GetFileName(path);
+            ActiveFileLabel.Text = _activeFileName;
+            UpdateActiveFileVisibility();
+        }
+
+        /// <summary>Visible seulement si le réglage est actif ET qu'un fichier est ouvert.</summary>
+        private void UpdateActiveFileVisibility()
+            => ActiveFileLabel.IsVisible = _showActiveFile && _activeFileName.Length > 0;
 
         /// <summary>Branche l'overlay "À propos / mises à jour" sur le bouton ℹ️.</summary>
         public void InitializeInfoOverlay(InfoOverlay overlay)
