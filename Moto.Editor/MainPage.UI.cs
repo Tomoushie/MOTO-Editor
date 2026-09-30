@@ -283,6 +283,11 @@ namespace Moto.Editor
         {
             var s = SettingsEngine.Shared;
             StatusBar.ApplySettings(s);
+            // ★ AJOUT (28/09) : la barre d'onglets de l'éditeur reçoit enfin ses réglages
+            // (famille « Fenêtre & Layout / Tab Bar », clés tabs_*) — elle n'en appliquait
+            // AUCUN jusque-là (tabs_show, tabs_bar_buttons, tabs_nav_buttons,
+            // tabs_file_icons, tabs_show_diagnostics, tabs_close_position, tabs_show_close).
+            EditorPane.ApplySettings(s);
             // ★ CORRECTION (30/08, refonte Zen) : "pp_dock" (Left/Right) n'est exposé
             // nulle part dans SettingsMenuView — réglage mort, jamais atteignable par
             // Tom. La colonne 0 est désormais fixe (dock IA, demandé "façon VS Code" à

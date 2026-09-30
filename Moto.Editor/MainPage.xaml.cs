@@ -319,6 +319,12 @@ namespace Moto.Editor
             {
                 if (key == "terminal_show" && value is bool visible)
                     _viewModel.IsTerminalVisible = visible;
+
+                // ★ AJOUT (28/09) : les réglages de la barre d'onglets (tabs_*) sont maintenant
+                // réellement appliqués (EditorPaneView.ApplySettings) — sans cette ligne, ils ne
+                // l'étaient qu'au prochain démarrage / retour de plein écran (ApplyLayoutSettings).
+                if (key.StartsWith("tabs_", StringComparison.Ordinal))
+                    EditorPane.ApplySettings(SettingsEngine.Shared);
             };
 
             // ★ AJOUT (02/09, état des lieux) : redonne un point d'entrée à

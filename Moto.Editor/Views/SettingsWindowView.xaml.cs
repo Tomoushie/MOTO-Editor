@@ -55,10 +55,16 @@ namespace Moto.Editor.Views
         /// MainPage.xaml.cs : SettingsWindow.RealSettingChanged). Inchangé
         /// depuis la version précédente — ces 5 ids existent à l'identique
         /// dans le vrai catalogue (aucun n'a été renommé/retiré).
+        /// ★ MODIFIÉ (28/09) : la famille « Fenêtre &amp; Layout / Tab Bar » (tabs_*) est
+        /// ajoutée — ces clés étaient déclarées et affichées mais lues par aucun code ;
+        /// elles sont désormais réellement appliquées par EditorPaneView.ApplySettings
+        /// (via MainPage, sur le préfixe « tabs_ »). La liste redevient donc exacte.
         /// </summary>
         private static readonly HashSet<string> RealEffectKeys = new()
         {
-            "theme_mode", "buffer_font_size", "minimap_show", "terminal_show", "power_mode"
+            "theme_mode", "buffer_font_size", "minimap_show", "terminal_show", "power_mode",
+            "tabs_show", "tabs_bar_buttons", "tabs_nav_buttons", "tabs_file_icons",
+            "tabs_show_diagnostics", "tabs_close_position", "tabs_show_close"
         };
 
         private readonly List<string> _categories;
