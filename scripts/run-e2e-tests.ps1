@@ -22,9 +22,12 @@ $machineInfo | ConvertTo-Json -Depth 5 | Set-Content "$OutputDir/machine-info.js
 Write-Host "✅ machine-info.json généré"
 
 # 2. Tests E2E
-$testFilter = if ($Smoke) { "--filter Category=Smoke" } else { "" }
-dotnet test Moto.Tests/Moto.Tests.csproj -c Release $testFilter `
+# ★ (28/09) Le filtre part en DEUX arguments (tableau) : en une seule chaîne, dotnet test le refusait (MSB1001,
+# « Commutateur inconnu ») et le script continuait comme si les tests avaient réussi. Un échec arrête maintenant le script.
+$testFilter = if ($Smoke) { @("--filter", "Category=Smoke") } else { @() }
+dotnet test Moto.Tests/Moto.Tests.csproj -c Release @testFilter `
     --logger "trx;LogFileName=e2e.trx" --results-directory $OutputDir
+if ($LASTEXITCODE -ne 0) { throw "dotnet test a échoué (code $LASTEXITCODE)" }
 
 # 3. Métriques JSON consolidées
 $metrics = @{

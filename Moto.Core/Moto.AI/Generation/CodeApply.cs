@@ -7,7 +7,8 @@
 //  2. un bloc qui reprend l'essentiel du fichier le REMPLACE EN ENTIER ;
 //  3. en C#/Java, une méthode, propriété ou classe qui existe déjà (même en-tête, ou même nom sans ambiguïté) est remplacée À SA PLACE ;
 //  4. sinon le code est AJOUTÉ : au curseur — ou, pour une méthode que le curseur placerait mal (dans une autre méthode, hors de la classe),
-//     à la fin de la classe. Des « using » en tête du bloc vont en haut du fichier.
+//     à la fin de la classe. Des « using » en tête du bloc vont en haut du fichier. Sans curseur, l'appelant peut demander l'ajout à la fin
+//     du fichier (AppendWhenUnplaced, ajouté le 26/09) : le plan le dit alors en toutes lettres.
 // En cas de doute, on ne devine pas : on dit quoi faire (« clique à l'endroit voulu… »). Ce code n'APPLIQUE rien : il prépare un plan (texte
 // final, diff, phrase qui dit où, avertissements) ou explique pourquoi il refuse — l'humain voit le diff et décide.
 using System.Text;
@@ -36,6 +37,9 @@ public enum CodeApplyKind
 
     /// <summary>Le bloc ne contient que des directives « using » : elles sont ajoutées en haut du fichier.</summary>
     AddUsings,
+
+    /// <summary>★ AJOUT (26/09) : ni sélection ni curseur — le code est ajouté à la fin du fichier (seulement si l'appelant l'a demandé).</summary>
+    AppendToFile,
 }
 
 public sealed class CodeApplyRequest
@@ -63,6 +67,13 @@ public sealed class CodeApplyRequest
 
     /// <summary>Faux si la réponse s'est arrêtée au milieu du bloc.</summary>
     public bool IsComplete { get; init; } = true;
+
+    /// <summary>
+    /// ★ AJOUT (26/09, retour de Tom : « Appliquer » semblait ne rien faire) : quand aucun endroit n'est désigné (ni sélection, ni curseur
+    /// connu), proposer d'ajouter le code à la FIN du fichier au lieu de refuser. Le plan le dit en toutes lettres (description et
+    /// avertissement) : à réserver aux appelants qui montrent le diff et attendent l'accord avant d'écrire.
+    /// </summary>
+    public bool AppendWhenUnplaced { get; init; }
 }
 
 public sealed class CodeApplyPlan
@@ -217,6 +228,11 @@ public static class CodeApplyPlanner
 
         if (codeLines.Count == 0) return AddUsingsOnly(c, usings);
 
+        // ★ AJOUT (26/09) : un bloc déjà présent tel quel ne se pose pas une deuxième fois. Sans ce contrôle, recliquer sur « Appliquer » après
+        // un ajout proposait, dans un petit fichier, de le REMPLACER EN ENTIER par ce bloc (il en reprenait alors plus de 60 % des lignes).
+        if (AlreadyContains(c))
+            return (null, $"Ce code est déjà dans le fichier « {c.Name} », tel quel (indentation mise à part) : rien à ajouter. Rien n'a été modifié.");
+
         // Une déclaration qui existe déjà passe AVANT le « fichier entier » : une classe réécrite sans ses using ni son namespace remplace la
         // classe, pas le fichier (sinon ce début disparaîtrait).
         var main = c.IsBraceLanguage ? ReplaceMember(c, codeLines) : null;
@@ -370,8 +386,26 @@ public static class CodeApplyPlanner
         if (caretLine is int line)
             return (InsertLines(c, line, codeLines, separate: false, CodeApplyKind.InsertAtCursor, $"Insérer à la ligne {line + 1}, là où est ton curseur"), null);
 
+        if (c.Request.AppendWhenUnplaced)
+        {
+            c.Warnings.Add("Aucun curseur dans le fichier : ce code est proposé à la FIN du fichier (endroit choisi par défaut).");
+            return (InsertLines(c, c.RealLineCount, codeLines, separate: true, CodeApplyKind.AppendToFile,
+                $"Ajouter à la fin de « {c.Name} » (aucun curseur : endroit choisi par défaut)"), null);
+        }
+
         return (null, $"Je ne sais pas où poser ce code dans « {c.Name} » : clique dans le fichier à l'endroit voulu (ou sélectionne le passage à remplacer), "
                     + "puis reclique sur Appliquer. Rien n'a été modifié.");
+    }
+
+    /// <summary>Les lignes du bloc (indentation et lignes vides ignorées) se suivent déjà telles quelles quelque part dans le fichier.</summary>
+    private static bool AlreadyContains(Context c)
+    {
+        var code = c.CodeLines.Select(l => l.Trim()).Where(l => l.Length > 0).ToList();
+        if (code.Count < 3) return false; // une ou deux lignes courtes peuvent revenir volontairement (un appel répété…)
+        var doc = c.Lines.Select(l => l.Trim()).Where(l => l.Length > 0).ToList();
+        for (var i = 0; i + code.Count <= doc.Count; i++)
+            if (doc.Skip(i).Take(code.Count).SequenceEqual(code, StringComparer.Ordinal)) return true;
+        return false;
     }
 
     /// <summary>

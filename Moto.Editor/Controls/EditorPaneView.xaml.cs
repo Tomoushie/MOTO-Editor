@@ -100,6 +100,48 @@ namespace Moto.Editor.Controls
         }
 
         // ------------------------------------------------------------------
+        // ★ AJOUT (26/09, décision de Tom) : liste de modèles du bandeau IA — les services en ligne n'y figurent qu'une fois leur clé
+        // ajoutée ; la dernière ligne, « Ajouter un service en ligne… », demande à MainPage d'ouvrir Clés API.
+        // ------------------------------------------------------------------
+
+        /// <summary>La ligne « Ajouter un service en ligne… » a été choisie : ouvrir Clés API.</summary>
+        public event Action? AddOnlineServiceRequested;
+
+        private bool _settingModels;
+        private string _bandModel = "MOTO interne";
+
+        /// <summary>Remplace la liste (ChatService.ModelChoices) ; le modèle choisi le reste s'il y figure encore, sinon retour au premier.</summary>
+        public void SetModelChoices(System.Collections.Generic.IReadOnlyList<string> choices)
+        {
+            if (choices.Count == 0) return;
+            _settingModels = true;
+            try
+            {
+                ModelPicker.ItemsSource = new System.Collections.Generic.List<string>(choices);
+                if (!System.Linq.Enumerable.Contains(choices, _bandModel)) _bandModel = choices[0];
+                ModelPicker.SelectedItem = _bandModel;
+            }
+            finally
+            {
+                _settingModels = false;
+            }
+        }
+
+        private void OnModelPickerChanged(object? sender, EventArgs e)
+        {
+            if (_settingModels || ModelPicker.SelectedItem is not string model) return;
+            if (model == Moto.Editor.Services.ChatService.AddOnlineServiceLabel)
+            {
+                _settingModels = true;
+                ModelPicker.SelectedItem = _bandModel; // pas un modèle : le choix d'avant reste
+                _settingModels = false;
+                AddOnlineServiceRequested?.Invoke();
+                return;
+            }
+            _bandModel = model;
+        }
+
+        // ------------------------------------------------------------------
         // API publique : binding depuis MainPage
         // ------------------------------------------------------------------
 
@@ -127,6 +169,16 @@ namespace Moto.Editor.Controls
                 foreach (var item in items)
                     if (item is EditorDocument doc)
                         doc.IsActive = ReferenceEquals(doc, document);
+
+            // ★ AJOUT (26/09) : la colonne centrale étant bornée (MainPage.UpdateCenterWidthBound), les onglets en trop défilent au lieu
+            // de pousser l'explorateur hors de la fenêtre — l'onglet actif est donc ramené dans la vue, comme dans VS Code. Différé : un
+            // onglet qui vient d'être ajouté n'a pas encore de place dans la liste.
+            if (document is not null)
+                Dispatcher.Dispatch(() =>
+                {
+                    try { TabsList.ScrollTo(document, position: ScrollToPosition.MakeVisible, animate: false); }
+                    catch (Exception) { /* onglet fermé entre-temps : rien à montrer */ }
+                });
         }
 
         /// <summary>
@@ -241,6 +293,31 @@ namespace Moto.Editor.Controls
         /// <summary>★ AJOUT (24/09) : ouvre le bandeau IA (s'il était fermé) pour qu'une réponse affichée dans sa ligne d'état soit visible.</summary>
         public void ShowAiBand() => AiBand.IsVisible = true;
 
+        // ★ AJOUT (27/09, point 3 de Tom) : la barre centrale flottante est retirée ; ce bandeau devient LA petite barre qui modifie le
+        // fichier ouvert, et n'apparaît que sur demande (Ctrl+Maj+I, bouton 🤖, palette « Modifier le fichier avec l'IA »).
+
+        /// <summary>Le bandeau est ouvert et le curseur est dans son champ de saisie.</summary>
+        public bool IsAiBandFocused => AiBand.IsVisible && PromptEntry.IsFocused;
+
+        /// <summary>Ouvre le bandeau (s'il était fermé) et met le curseur dans son champ.</summary>
+        public void OpenAiBand()
+        {
+            AiBand.IsVisible = true;
+            PromptEntry.Focus();
+        }
+
+        /// <summary>
+        /// Ferme le bandeau. Refusé pendant qu'un modèle écrit : son ■ (arrêter) doit rester à portée.
+        /// Le curseur n'est PAS rendu au code : WebView.Focus() fait planter MOTO (arrêt natif 0xc0000409, reproduit le 27/09) ;
+        /// on reclique dans le code.
+        /// </summary>
+        public bool CloseAiBand()
+        {
+            if (_aiBusy) return false;
+            AiBand.IsVisible = false;
+            return true;
+        }
+
         /// <summary>
         /// ★ AJOUT (30/08) : reflète l'état plein écran sur le bouton lui-même —
         /// Tom ne retrouvait pas comment revenir en arrière (rien n'indiquait que
@@ -277,12 +354,11 @@ namespace Moto.Editor.Controls
         // Handlers bandeau IA
         // ------------------------------------------------------------------
 
-        /// <summary>Basculer la visibilité du bandeau IA.</summary>
+        /// <summary>Basculer la visibilité du bandeau IA (★ 27/09 : il reste ouvert pendant qu'un modèle écrit, voir CloseAiBand).</summary>
         private void OnAiClicked(object s, EventArgs e)
         {
-            AiBand.IsVisible = !AiBand.IsVisible;
-
-            if (AiBand.IsVisible) PromptEntry.Focus();
+            if (AiBand.IsVisible) CloseAiBand();
+            else OpenAiBand();
         }
 
         /// <summary>

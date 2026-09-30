@@ -326,6 +326,61 @@ public class CodeApplyPlannerTests
     }
 
     [Fact]
+    public void Without_a_cursor_the_code_can_go_to_the_end_of_the_file_and_the_plan_says_so()
+    {
+        var doc = "import os\n\nprint(os.getcwd())\n";
+        var plan = Ok(CodeApplyPlanner.Plan(new CodeApplyRequest
+        {
+            DisplayPath = "notes.py", DocumentText = doc, Code = "def hello():\n    print(\"hi\")", AppendWhenUnplaced = true,
+        }));
+
+        Assert.Equal(CodeApplyKind.AppendToFile, plan.Kind);
+        Assert.Equal(doc + "\ndef hello():\n    print(\"hi\")\n", plan.NewText);
+        Assert.Contains("fin de « notes.py »", plan.Description);
+        Assert.Contains(plan.Warnings, w => w.Contains("Aucun curseur"));
+    }
+
+    [Fact]
+    public void A_block_already_in_the_file_is_not_added_twice()
+    {
+        // Assez de lignes autour pour que le bloc ne passe pas pour le fichier entier.
+        var doc = "import sys\nimport os\n\nx = 1\ny = 2\nz = 3\n\ndef hello():\n    print(\"hi\")\n    return 0\n\nprint(x)\n";
+        var outcome = CodeApplyPlanner.Plan(new CodeApplyRequest
+        {
+            DisplayPath = "notes.py", DocumentText = doc, Code = "def hello():\n  print(\"hi\")\n  return 0", AppendWhenUnplaced = true,
+        });
+
+        Assert.False(outcome.Succeeded);
+        Assert.Contains("déjà dans le fichier « notes.py »", outcome.Problem);
+    }
+
+    [Fact]
+    public void A_block_already_in_a_small_file_is_not_taken_for_the_whole_file()
+    {
+        // Vu en vrai (26/09) : après un ajout en fin de fichier, recliquer sur « Appliquer » proposait de remplacer tout le fichier par ce
+        // bloc — il en reprenait plus de 60 % des lignes — ce qui aurait effacé le reste.
+        var doc = "import os\n\nprint(os.getcwd())\n\ndef bonjour(nom):\n    print(nom)\n    return nom.upper()\n";
+        var outcome = CodeApplyPlanner.Plan(new CodeApplyRequest
+        {
+            DisplayPath = "outils.py", DocumentText = doc, Code = "def bonjour(nom):\n    print(nom)\n    return nom.upper()", AppendWhenUnplaced = true,
+        });
+
+        Assert.False(outcome.Succeeded);
+        Assert.Contains("déjà dans le fichier", outcome.Problem);
+    }
+
+    [Fact]
+    public void The_end_of_file_fallback_never_beats_a_known_cursor()
+    {
+        var plan = Ok(CodeApplyPlanner.Plan(new CodeApplyRequest
+        {
+            DisplayPath = "src/Calc.cs", DocumentText = Doc, Code = "Console.WriteLine(a);", CaretIndex = At("return a + b;"), AppendWhenUnplaced = true,
+        }));
+
+        Assert.Equal(CodeApplyKind.InsertAtCursor, plan.Kind);
+    }
+
+    [Fact]
     public void After_a_line_that_opens_a_block_the_code_is_indented_one_step_further()
     {
         var plan = Ok(Plan("return 42", "def f():\n", caret: "def f():".Length, path: "tool.py"));

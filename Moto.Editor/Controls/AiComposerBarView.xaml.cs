@@ -11,7 +11,9 @@ namespace Moto.Editor.Controls
         // ★ "MOTO AI — Par défaut" ajouté en tête, demandé explicitement par Tom pour
         // le cas où aucun modèle n'est choisi. Correspond à la valeur par défaut déjà
         // réelle du réglage (ai.default_model = "MOTO interne").
-        private static readonly string[] Models = { "MOTO AI — Par défaut", "Ollama", "OpenAI", "Anthropic", "Mistral" };
+        // ★ CHANGÉ (26/09, décision de Tom) : seulement les modèles locaux ici — les services en ligne s'ajoutent une fois leur clé
+        // enregistrée (voir BuildModelList / ChatService.ModelChoices).
+        private static readonly string[] Models = { "MOTO AI — Par défaut", "Ollama" };
         private static readonly string[] EffortLevels = { "Éco", "Balanced", "Ultra" };
 
         /// <summary>Levée pour "ai"/"cortex" — MainPage route vers OnActivitySelected (code inchangé).</summary>
@@ -54,12 +56,42 @@ namespace Moto.Editor.Controls
             HoverEffects.Attach(BtnEffort, idleColor: bgPanel);
         }
 
+        private Moto.Editor.Services.ChatService? _chat;
+
+        /// <summary>
+        /// ★ AJOUT (26/09, décision de Tom) : branche la liste des modèles sur les clés réellement enregistrées — les services en ligne n'y
+        /// figurent qu'une fois leur clé ajoutée, et « Ajouter un service en ligne… » ouvre Clés API. Appelée par HomeView.
+        /// </summary>
+        public void AttachChat(Moto.Editor.Services.ChatService chat)
+        {
+            _chat = chat;
+            chat.OnlineProvidersChanged += () => Dispatcher.Dispatch(BuildModelList);
+            BuildModelList();
+        }
+
         private void BuildModelList()
         {
             var current = SettingsEngine.Shared.GetString("ai.default_model", "MOTO interne");
             ModelList.Children.Clear();
-            foreach (var model in Models)
+
+            // ★ (26/09) Liste commune (ChatService.ModelChoices) : locaux, services en ligne avec clé, ligne d'ajout. Avant l'appel à
+            // AttachChat : seulement les modèles locaux.
+            var models = _chat?.ModelChoices(Models) ?? Models;
+            if (_chat is not null && Moto.Editor.Services.ChatService.IsExternalProviderName(current) && !System.Linq.Enumerable.Contains(models, current))
+                ModelLabel.Text = "MOTO AI"; // service choisi un jour, clé retirée depuis : il n'est plus proposé
+
+            foreach (var model in models)
             {
+                if (model == Moto.Editor.Services.ChatService.AddOnlineServiceLabel)
+                {
+                    ModelList.Children.Add(MakeRow(model, false, () =>
+                    {
+                        ClosePopups();
+                        _chat?.OpenApiKeysHandler?.Invoke();
+                    }));
+                    continue;
+                }
+
                 // "MOTO AI — Par défaut" représente la valeur réelle "MOTO interne".
                 var realValue = model == "MOTO AI — Par défaut" ? "MOTO interne" : model;
                 ModelList.Children.Add(MakeRow(model, realValue == current, () =>

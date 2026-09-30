@@ -44,6 +44,15 @@ namespace Moto.Editor.Services
         public Func<string, Task<string?>>? PluginCommandHandler { get; set; }
 
         /// <summary>
+        /// ★ AJOUT (28/09, choix de Tom : « crée un projet… » marche aussi depuis le chat, plus seulement depuis l'Accueil) : une phrase TAPÉE
+        /// dans le chat (SendAsync avec offerProjectCreation) qui n'est pas une commande « / » est d'abord proposée à MainPage, qui y reconnaît
+        /// (ou non) une demande de création de projet. Renvoie la réponse à afficher dans le chat, ou null pour que le modèle réponde comme
+        /// d'habitude. Les questions que MOTO compose lui-même (« Expliquer ») ne passent jamais par ici : le nom d'un fichier ne doit pas
+        /// suffire à ouvrir une demande de création.
+        /// </summary>
+        public Func<string, Task<string?>>? ProjectRequestHandler { get; set; }
+
+        /// <summary>
         /// ★ AJOUT (25/09, « Appliquer » dans le chat) : le bouton « Appliquer » d'un bloc de code d'une réponse. Câblé une fois par MainPage
         /// (qui connaît l'éditeur et la boîte de confirmation) — toutes les fenêtres du chat (panneau, fenêtre détachée ⧉) passent par ici.
         /// Null : le bouton ne fait rien.
@@ -165,6 +174,32 @@ namespace Moto.Editor.Services
         public static bool IsExternalProviderName(string model) =>
             !string.IsNullOrEmpty(model) &&
             ExternalProviderNames.Any(p => model.Contains(p, StringComparison.OrdinalIgnoreCase));
+
+        /// <summary>★ AJOUT (26/09, décision de Tom) : dernière ligne des listes de modèles — ouvre Clés API, ce n'est pas un modèle.</summary>
+        public const string AddOnlineServiceLabel = "Ajouter un service en ligne…";
+
+        /// <summary>
+        /// ★ AJOUT (26/09, décision de Tom : « les montrer seulement une fois leur clé ajoutée, avec une ligne « Ajouter un service en
+        /// ligne… » qui ouvre Clés API ») : ce que proposent les listes de modèles — les modèles locaux, puis les services en ligne dont une clé
+        /// est enregistrée, puis la ligne d'ajout. Une seule règle pour toutes les listes (chat, bandeau IA de l'éditeur, Accueil).
+        /// </summary>
+        public static IReadOnlyList<string> BuildModelChoices(IEnumerable<string> localModels, Func<string, bool> hasKey)
+            => localModels.Concat(ExternalProviderNames.Where(hasKey)).Append(AddOnlineServiceLabel).ToList();
+
+        /// <summary><see cref="BuildModelChoices"/> avec les clés réellement enregistrées dans Clés API.</summary>
+        public IReadOnlyList<string> ModelChoices(params string[] localModels) => BuildModelChoices(localModels, HasOnlineKey);
+
+        /// <summary>Une clé est enregistrée pour ce service en ligne (« OpenAI », « Anthropic », « Mistral »).</summary>
+        public bool HasOnlineKey(string providerName)
+            => Enum.TryParse<Moto.Core.AI.Models.AiProviderType>(providerName, out var type) && _fallback.HasApiKey(type);
+
+        /// <summary>Une clé a pu être ajoutée ou retirée (Clés API vient de se fermer) : les listes de modèles se reconstruisent.</summary>
+        public event Action? OnlineProvidersChanged;
+
+        public void NotifyOnlineProvidersChanged() => OnlineProvidersChanged?.Invoke();
+
+        /// <summary>Ouvre Clés API (ligne « Ajouter un service en ligne… » des listes de modèles) — fourni par MainPage.</summary>
+        public Action? OpenApiKeysHandler { get; set; }
 
         /// <summary>
         /// ★ AJOUT (03/09, identité de l'IA locale) : envoyé comme vrai "system
@@ -301,6 +336,33 @@ namespace Moto.Editor.Services
         /// </summary>
         public bool IncludeActiveFile { get; set; } = true;
 
+        /// <summary>
+        /// ★ AJOUT (27/09, décision 2 de Tom : « brancher le mode Agent sur l'agent v2 ») : mode « Agent » du chat, partagé par toutes ses
+        /// fenêtres comme <see cref="IncludeActiveFile"/>. Une demande (hors commande « / ») part alors à l'agent v2 au lieu du chat.
+        /// </summary>
+        public bool AgentMode { get; set; }
+
+        /// <summary>Démarre l'agent v2 pour cet objectif et renvoie son accusé de réception — fourni par MainPage (HandleAgentCommand).</summary>
+        public Func<string, string>? AgentHandler { get; set; }
+
+        /// <summary>
+        /// ★ AJOUT (27/09) : mode « Agent ». La demande s'affiche dans la conversation, puis l'agent v2 la prend : il lit le projet, propose
+        /// chaque modification en diff et n'écrit qu'avec ton accord (modèle local ; un run entier peut être annulé ensuite). Sa progression
+        /// s'écrit dans la même conversation, au fil de l'eau. Renvoie l'accusé de réception, ou null si le texte est vide.
+        /// </summary>
+        public ChatMessage? SendToAgent(string goal)
+        {
+            if (string.IsNullOrWhiteSpace(goal)) return null;
+            var thread = EnsureThread();
+            thread.Messages.Add(new ChatMessage { Role = "user", Content = goal });
+            var ack = AgentHandler?.Invoke(goal.Trim())
+                      ?? "🤖 Le mode Agent n'est pas disponible ici (agents non chargés). Utilise « Chat & Write », ou /agent dans la fenêtre principale.";
+            var message = new ChatMessage { Role = "ai", Content = ack };
+            thread.Messages.Add(message);
+            thread.LastActivityUtc = DateTime.UtcNow;
+            return message;
+        }
+
         /// <summary>Vrai tant qu'une réponse s'écrit (une seule à la fois).</summary>
         public bool IsReplying => _replyCts is not null;
 
@@ -320,8 +382,10 @@ namespace Moto.Editor.Services
         /// parti (texte vide, ou une réponse s'écrit déjà).
         /// <paramref name="includeActiveFile"/> : force l'envoi (ou non) du fichier affiché et de la sélection pour CETTE question, quel que soit le
         /// mode choisi (« Expliquer » en a besoin même en mode « Chat »).
+        /// <paramref name="offerProjectCreation"/> : le texte a été tapé dans le chat — voir <see cref="ProjectRequestHandler"/>.
         /// </summary>
-        public async Task<ChatMessage?> SendAsync(string text, bool? includeActiveFile = null, CancellationToken ct = default)
+        public async Task<ChatMessage?> SendAsync(string text, bool? includeActiveFile = null, CancellationToken ct = default,
+            bool offerProjectCreation = false)
         {
             if (string.IsNullOrWhiteSpace(text) || IsReplying) return null;
 
@@ -350,6 +414,14 @@ namespace Moto.Editor.Services
                     thread.LastActivityUtc = DateTime.UtcNow;
                     return message;
                 }
+            }
+            else if (offerProjectCreation && !text.StartsWith("/", StringComparison.Ordinal) && ProjectRequestHandler != null
+                     && await ProjectRequestHandler(text) is { } projectReply) // ★ (28/09) voir ProjectRequestHandler
+            {
+                var message = new ChatMessage { Role = "ai", Content = projectReply };
+                thread.Messages.Add(message);
+                thread.LastActivityUtc = DateTime.UtcNow;
+                return message;
             }
 
             var request = BuildRequest(thread, text, history, includeActiveFile ?? IncludeActiveFile);

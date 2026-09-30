@@ -124,6 +124,8 @@ namespace Moto.Editor
                 : null;
             // ★ AJOUT (25/09) : « Appliquer » sur un bloc de code du chat (MainPage.ChatApply.cs).
             _chatService.ApplyCodeHandler = ApplyChatCodeAsync;
+            // ★ AJOUT (26/09, décision de Tom) : « Ajouter un service en ligne… » dans les listes de modèles ouvre Clés API.
+            _chatService.OpenApiKeysHandler = OpenApiKeysPage;
 
             CreateHome();
 
@@ -298,7 +300,6 @@ namespace Moto.Editor
                     ? "Panneaux inversés : IA à droite, explorateur à gauche"
                     : "Panneaux rétablis : IA à gauche, explorateur à droite");
             };
-            AiBar.Submitted += OnAiCommandSubmitted;
         }
 
         private void WireSettings()
@@ -331,9 +332,43 @@ namespace Moto.Editor
             // AiSettingsPage (config des providers IA externes), orpheline depuis
             // le retrait du menu Réglages fantôme le 31/08 — voir CLAUDE.md.
             // ★ MODIFIÉ (27/09, option C choisie par Tom) : s'ouvre DANS la fenêtre (ScreenHost), plus en page séparée — une
-            // page poussée par-dessus faisait disparaître MainPage (moteurs détruits, démarrage rejoué au retour).
-            SettingsWindow.ApiKeysRequested += () =>
-                ScreenHost.Show("Clés API", new Pages.AiSettingsPage(_aiService.Fallback));
+            // page poussée par-dessus faisait disparaître MainPage (moteurs détruits, démarrage rejoué au retour). Voir OpenApiKeysPage.
+            SettingsWindow.ApiKeysRequested += OpenApiKeysPage;
+
+            // ★ AJOUT (26/09, décision de Tom) : liste de modèles du bandeau IA de l'éditeur — services en ligne seulement avec une clé.
+            EditorPane.AddOnlineServiceRequested += OpenApiKeysPage;
+            _chatService.OnlineProvidersChanged += RefreshBandModelChoices;
+            RefreshBandModelChoices();
+        }
+
+        private void RefreshBandModelChoices()
+            => EditorPane.SetModelChoices(_chatService.ModelChoices("MOTO interne", "Ollama (qwen2.5-coder:7b)"));
+
+        /// <summary>
+        /// ★ AJOUT (26/09) : Clés API — depuis les Réglages ou la ligne « Ajouter un service en ligne… » des listes de modèles. À sa fermeture,
+        /// les listes se reconstruisent : un service dont la clé vient d'être ajoutée y apparaît, un service dont la clé a été retirée en sort.
+        /// ★ MODIFIÉ (28/09, fusion avec l'option C) : l'écran s'ouvre DANS la fenêtre (ScreenHost.Show, jamais PushAsync : voir CLAUDE.md) ;
+        /// sa fermeture se voit à Unloaded, qui se déclenche quand le cadre se ferme (mesuré le 27/09).
+        /// </summary>
+        private void OpenApiKeysPage()
+        {
+            try
+            {
+                if (ScreenHost.CurrentScreen is Pages.AiSettingsPage) return; // déjà ouverte
+                var page = new Pages.AiSettingsPage(_aiService.Fallback);
+                page.Unloaded += (_, _) =>
+                {
+                    // Arrive aussi quand la fenêtre se ferme avec l'écran ouvert : aucune exception ne doit remonter d'ici.
+                    try { _chatService.NotifyOnlineProvidersChanged(); }
+                    catch (Exception ex) { App.LogCrash("MainPage.OpenApiKeysPage (fermeture de Clés API)", ex); }
+                };
+                ScreenHost.Show("Clés API", page);
+            }
+            catch (Exception ex)
+            {
+                App.LogCrash("MainPage.OpenApiKeysPage", ex);
+                StatusBar.SetStatus("⚠ Impossible d'ouvrir Clés API : " + ex.Message);
+            }
         }
 
         private void WirePanels()
@@ -402,28 +437,20 @@ namespace Moto.Editor
             // ★ RETRAIT (31/08, point 1) : LocationMenu vit maintenant dans Home
             // elle-même (ancrée au-dessus de la chip "Local") — seul le résultat du
             // choix remonte encore jusqu'ici (voir HomeView.LocationSelected plus bas).
-            Home.SetStats(
-                values: new[] { "0", "0", "0", "0" },
-                titles: new[] { "Sessions", "Messages", "Tokens", "Patterns appris" });
+            // ★ RETRAIT (26/09, décision de Tom) : plus de rangée « 0 0 0 0 » posée d'office — RefreshHomeStats (au chargement) montre les
+            // vrais compteurs, ou rien du tout s'il n'y a encore rien à montrer.
 
             _viewModel.Documents.CollectionChanged += (s, e) =>
             {
                 bool hasDocs = _viewModel.Documents.Count > 0;
+                // ★ AJOUT (26/09) : l'Accueil réapparaît (dernier onglet fermé) → chiffres à jour (demandes à l'IA faites entre-temps).
+                if (!hasDocs && !Home.IsVisible) RefreshHomeStats();
                 Home.IsVisible = !hasDocs;
                 EditorPane.IsVisible = hasDocs;
-                // ★ CORRECTIF (03/09, trouvé par Tom) : AiBar.Show() (appelée sur
-                // activation de la fenêtre, voir GlobalHotkeyService.Register plus bas)
-                // n'avait pas de contrepartie pour la cacher — fermer le dernier fichier
-                // ouvert la laissait affichée par-dessus l'écran d'Accueil.
-                // ★ CORRECTIF (04/09, trouvé par Tom) : jusqu'ici, ouvrir un fichier ne
-                // faisait JAMAIS apparaître AiBar — seule une réactivation de FENÊTRE
-                // (alt-tab, etc., voir GlobalHotkeyService.Register plus bas) le
-                // faisait, un événement Windows sans rapport avec le fait d'ouvrir un
-                // document. Repéré par Tom via le correctif "chevauchement WebView"
-                // (EditorPaneView.xaml) : l'espace réservé apparaissait immédiatement,
-                // mais la barre elle-même n'apparaissait dedans qu'après 30s-1min,
-                // au hasard d'une prochaine activation de fenêtre.
-                if (hasDocs) AiBar.Show(); else AiBar.Hide();
+                // ★ CHANGÉ (27/09, point 3 de Tom) : la barre centrale flottante (AiBar), qui s'affichait d'elle-même dès qu'un fichier
+                // s'ouvrait, est retirée. Sa remplaçante, le bandeau IA de l'éditeur, ne s'ouvre que sur demande (ToggleFileAiBar) ;
+                // on la referme avec le dernier onglet, pour qu'elle ne réapparaisse pas toute seule au fichier suivant.
+                if (!hasDocs) EditorPane.CloseAiBand();
             };
 
             // Panneaux Présentation / Remote / Collab : handlers déjà écrits dans
@@ -520,7 +547,8 @@ namespace Moto.Editor
             // manuel") : F11 — voir Platforms.Windows.SnapLayoutsHelper.ToggleFullScreen.
             // ★ MODIFIÉ (25/09) : chaque raccourci passe par RunShortcut (MainPage.Shortcuts.cs), qui reçoit aussi ceux tapés dans
             // l'éditeur — une frappe vue par les deux chemins n'agit qu'une fois. Ctrl+S ajouté (aucune touche n'enregistrait).
-            GlobalHotkeyService.Register(nativeWindow, onHotkey: () => RunShortcut("ctrl+shift+i"), onWindowActivated: () => { if (!Home.IsVisible) AiBar.Show(); }, onToggleExplorer: () => RunShortcut("ctrl+b"), onBuild: () => RunShortcut("f5"), onToggleFullScreen: () => RunShortcut("f11"), onSave: () => RunShortcut("ctrl+s"));
+            // ★ CHANGÉ (27/09, point 3 de Tom) : plus rien ne s'ouvre au retour dans la fenêtre (la barre IA ne vient que sur demande).
+            GlobalHotkeyService.Register(nativeWindow, onHotkey: () => RunShortcut("ctrl+shift+i"), onToggleExplorer: () => RunShortcut("ctrl+b"), onBuild: () => RunShortcut("f5"), onToggleFullScreen: () => RunShortcut("f11"), onSave: () => RunShortcut("ctrl+s"));
 
             // ★ AJOUT (02/09, état des lieux) : Ctrl+Shift+P (palette de commandes)
             // était câblé trop tôt (constructeur de MainPage, fenêtre native pas

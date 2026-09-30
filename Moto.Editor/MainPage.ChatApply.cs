@@ -19,25 +19,38 @@ namespace Moto.Editor
         /// <summary>Vrai pendant qu'un bloc du chat attend l'accord de l'utilisateur (une seule boîte de confirmation à la fois).</summary>
         private bool _chatApplyBusy;
 
-        /// <summary>« Appliquer » sur un bloc de code du chat (ChatService.ApplyCodeHandler). Le résultat s'affiche sous le bloc.</summary>
-        private async Task ApplyChatCodeAsync(ChatContentSegment segment)
+        /// <summary>★ AJOUT (26/09) : ce qu'a donné une demande — la barre centrale, qui n'a pas le bloc sous les yeux, en a besoin pour la suite.</summary>
+        private enum ChatApplyResult { Applied, Declined, NotApplied }
+
+        /// <summary>
+        /// « Appliquer » sur un bloc de code du chat (ChatService.ApplyCodeHandler), et depuis le 26/09 la réponse de la barre centrale. Le
+        /// résultat s'affiche au-dessus du code du bloc ET dans la barre de statut (toujours visible, même chat fermé).
+        /// </summary>
+        private async Task<ChatApplyResult> ApplyChatCodeAsync(ChatContentSegment segment)
         {
+            // ★ (26/09, retour de Tom : « il semble ne rien appliquer ») : chaque issue, refus compris, est aussi dite dans la barre de statut.
+            void Say(string message)
+            {
+                segment.ApplyStatus = message;
+                StatusBar.SetStatus(message);
+            }
+
             if (_chatApplyBusy)
             {
-                segment.ApplyStatus = "Un autre bloc attend ta réponse dans la fenêtre principale : réponds-y d'abord.";
-                return;
+                Say("Un autre bloc attend ta réponse dans la fenêtre principale : réponds-y d'abord.");
+                return ChatApplyResult.NotApplied;
             }
             if (_inlineEditCts is not null)
             {
-                segment.ApplyStatus = "Le bandeau IA est en train de modifier le fichier : attends la fin (ou arrête-le avec ■), puis reclique sur Appliquer.";
-                return;
+                Say("Le bandeau IA est en train de modifier le fichier : attends la fin (ou arrête-le avec ■), puis reclique sur Appliquer.");
+                return ChatApplyResult.NotApplied;
             }
 
             var doc = _viewModel.SelectedDocument;
             if (doc is null)
             {
-                segment.ApplyStatus = "Aucun fichier n'est ouvert : ouvre celui où poser ce code, puis reclique sur Appliquer.";
-                return;
+                Say("Aucun fichier n'est ouvert : ouvre celui où poser ce code, puis reclique sur Appliquer.");
+                return ChatApplyResult.NotApplied;
             }
 
             _chatApplyBusy = true;
@@ -53,9 +66,9 @@ namespace Moto.Editor
                 // Le chat a écrit ce bloc pour un AUTRE fichier du projet : le poser dans celui affiché serait presque toujours une erreur.
                 if (selection is null && OtherProjectFile(segment.PathHint, doc) is { } other)
                 {
-                    segment.ApplyStatus = $"Ce code est pour « {Path.GetFileName(other)} », pas pour « {doc.Title} » : ouvre ce fichier, puis reclique sur Appliquer. "
-                                        + "(Pour le mettre quand même ici : sélectionne dans l'éditeur le passage à remplacer, puis reclique.) Rien n'a été modifié.";
-                    return;
+                    Say($"Ce code est pour « {Path.GetFileName(other)} », pas pour « {doc.Title} » : ouvre ce fichier, puis reclique sur Appliquer. "
+                        + "(Pour le mettre quand même ici : sélectionne dans l'éditeur le passage à remplacer, puis reclique.) Rien n'a été modifié.");
+                    return ChatApplyResult.NotApplied;
                 }
 
                 var outcome = CodeApplyPlanner.Plan(new CodeApplyRequest
@@ -68,44 +81,60 @@ namespace Moto.Editor
                     Code = segment.Text,
                     PathHint = segment.PathHint,
                     IsComplete = segment.IsComplete,
+                    // ★ (26/09) Curseur inconnu (fichier jamais cliqué depuis son ouverture) : proposer la fin du fichier plutôt que refuser. Sans
+                    // risque ici : le diff montre l'endroit et rien n'est écrit sans « Appliquer » dans la boîte de confirmation.
+                    AppendWhenUnplaced = true,
                 });
                 if (!outcome.Succeeded)
                 {
-                    segment.ApplyStatus = "⚠ " + outcome.Problem;
-                    return;
+                    Say("⚠ " + outcome.Problem);
+                    return ChatApplyResult.NotApplied;
                 }
 
                 var plan = outcome.Plan!;
-                segment.ApplyStatus = "⏳ Regarde la fenêtre principale : le diff t'attend.";
+                Say("⏳ Regarde la fenêtre principale : le diff t'attend.");
                 if (!await ConfirmChatApplyAsync(doc, plan))
                 {
-                    segment.ApplyStatus = "Refusé : rien n'a été modifié.";
-                    return;
+                    Say("Refusé : rien n'a été modifié.");
+                    return ChatApplyResult.Declined;
                 }
 
                 // Le fichier a pu bouger pendant la lecture du diff (autre onglet, frappe clavier) : le plan serait faux.
                 if (!StillSameText(doc, before))
                 {
-                    segment.ApplyStatus = "Le fichier a changé pendant que tu regardais le diff : rien n'a été appliqué. Reclique sur Appliquer.";
-                    return;
+                    Say("Le fichier a changé pendant que tu regardais le diff : rien n'a été appliqué. Reclique sur Appliquer.");
+                    return ChatApplyResult.NotApplied;
                 }
 
                 ApplyInlineEdit(doc, before, plan.NewText, segment);
                 applied = true;
                 EditorPane.ShowAiBand(); // pour que « ↩ Annuler » soit visible
                 EditorPane.SetAiStatus($"[Chat] Code appliqué dans « {doc.Title} » ({plan.Diff.Summary}). « ↩ Annuler » remet le fichier comme avant.");
-                segment.ApplyStatus = $"✔ Appliqué dans « {doc.Title} » — {plan.Description} · {plan.Diff.Summary}. "
-                                    + "« ↩ Annuler » (bandeau IA de l'éditeur) remet le fichier comme avant.";
+                Say($"✔ Appliqué dans « {doc.Title} » — {plan.Description} · {plan.Diff.Summary}. "
+                    + "« ↩ Annuler » (bandeau IA de l'éditeur) remet le fichier comme avant.");
+                return ChatApplyResult.Applied;
             }
             catch (Exception ex)
             {
                 App.LogCrash("MainPage.ApplyChatCodeAsync", ex);
-                segment.ApplyStatus = applied ? "⚠ Code appliqué, mais erreur ensuite : " + ex.Message : "⚠ Erreur : " + ex.Message + " Rien n'a été modifié.";
+                Say(applied ? "⚠ Code appliqué, mais erreur ensuite : " + ex.Message : "⚠ Erreur : " + ex.Message + " Rien n'a été modifié.");
+                return applied ? ChatApplyResult.Applied : ChatApplyResult.NotApplied;
             }
             finally
             {
                 _chatApplyBusy = false;
             }
+        }
+
+        /// <summary>
+        /// ★ AJOUT (26/09, retour de Tom) : le bloc de code « principal » d'une réponse — celui à poser dans le fichier ouvert quand la demande
+        /// vient de la barre centrale : le plus long des blocs applicables (pas une commande de terminal, pas un bloc coupé). Null s'il n'y en a pas.
+        /// </summary>
+        private static ChatContentSegment? MainCodeBlock(ChatMessage reply, out int applicableCount)
+        {
+            var blocks = reply.Segments.Where(s => s.IsCode && s.CanApply).ToList();
+            applicableCount = blocks.Count;
+            return blocks.OrderByDescending(s => s.Text.Length).FirstOrDefault();
         }
 
         /// <summary>La boîte de confirmation de l'éditeur, avec le diff. Sans elle (service absent) on refuse : jamais d'écriture sans accord.</summary>

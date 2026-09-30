@@ -1,9 +1,11 @@
 // Moto.Editor/Views/FileExplorerView.xaml.cs
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Threading.Tasks;
 using Microsoft.Maui.Controls;
+using Microsoft.Maui.Dispatching;
 using Microsoft.Maui.Storage;
 using CommunityToolkit.Maui.Storage;
 using Moto.Editor.Controls;
@@ -43,6 +45,10 @@ namespace Moto.Editor.Views
             HoverEffects.Attach(BtnNewFile);
             HoverEffects.Attach(BtnRefresh);
             HoverEffects.Attach(BtnToggleSide);
+
+            // ★ AJOUT (26/09) : la surveillance du dossier suit la vie de la vue (retirée de l'arbre visuel → plus aucun rappel).
+            Loaded += (_, _) => { if (_watcher is null && !string.IsNullOrWhiteSpace(CurrentRoot)) StartWatching(CurrentRoot); };
+            Unloaded += (_, _) => StopWatching();
         }
 
         /// <summary>Charge un dossier racine dans l'explorateur.</summary>
@@ -53,6 +59,99 @@ namespace Moto.Editor.Views
             _treeService.LoadChildren(_root);
             Refresh();
             RefreshProjectInfo(rootPath);
+            StartWatching(rootPath);
+        }
+
+        // ------------------------------------------------------------------
+        // ★ AJOUT (26/09, retour de Tom : « quand j'ai créé Fichierdetest.txt via l'explorateur de fichiers Windows, j'ai dû cliquer sur
+        // refresh pour qu'il apparaisse ; dans Zed ou VS Code c'est instantané ») : le dossier ouvert est surveillé. Un fichier ou dossier
+        // créé, supprimé ou renommé ailleurs (Explorateur Windows, terminal, git…) apparaît ou disparaît de lui-même, sans replier
+        // l'arborescence ni la faire défiler. bin, obj, .git… sont ignorés AVANT tout traitement : une compilation y écrit des milliers de
+        // fichiers. Plusieurs changements rapprochés ne donnent qu'une seule relecture (300 ms après le dernier).
+        // ------------------------------------------------------------------
+
+        private FileSystemWatcher? _watcher;
+        private IDispatcherTimer? _watchDebounce;
+
+        private void StartWatching(string rootPath)
+        {
+            StopWatching();
+            if (!Directory.Exists(rootPath)) return;
+
+            try
+            {
+                var watcher = new FileSystemWatcher(rootPath)
+                {
+                    IncludeSubdirectories = true,
+                    NotifyFilter = NotifyFilters.FileName | NotifyFilters.DirectoryName, // pas les écritures : un enregistrement ne change pas l'arbre
+                    InternalBufferSize = 64 * 1024,
+                };
+                FileSystemEventHandler onChange = (_, e) => OnWatchedChange(watcher, e.FullPath);
+                watcher.Created += onChange;
+                watcher.Deleted += onChange;
+                watcher.Renamed += (_, e) => { OnWatchedChange(watcher, e.OldFullPath); OnWatchedChange(watcher, e.FullPath); };
+                // Trop de changements d'un coup (git checkout…) : Windows en perd le détail — on relit tout ce qui est déplié.
+                watcher.Error += (_, _) => ScheduleTreeReload(watcher);
+                watcher.EnableRaisingEvents = true;
+                _watcher = watcher;
+            }
+            catch (Exception ex) when (ex is IOException or ArgumentException or UnauthorizedAccessException or PlatformNotSupportedException)
+            {
+                // Dossier réseau, lecteur retiré… : l'explorateur marche comme avant, avec « Actualiser ».
+                System.Diagnostics.Debug.WriteLine($"Explorer watcher: {ex.Message}");
+            }
+        }
+
+        private void StopWatching()
+        {
+            var watcher = _watcher;
+            _watcher = null;
+            if (watcher is null) return;
+            watcher.EnableRaisingEvents = false;
+            watcher.Dispose();
+        }
+
+        /// <summary>Thread du système de fichiers : filtre, puis relecture différée sur le thread de l'interface.</summary>
+        private void OnWatchedChange(FileSystemWatcher source, string fullPath)
+        {
+            if (!ReferenceEquals(source, _watcher)) return; // ancien dossier : rappel tardif d'une surveillance arrêtée
+            if (IsIgnoredPath(source.Path, fullPath)) return;
+            ScheduleTreeReload(source);
+        }
+
+        private static bool IsIgnoredPath(string root, string fullPath)
+        {
+            string relative;
+            try { relative = Path.GetRelativePath(root, fullPath); }
+            catch (ArgumentException) { return true; }
+            foreach (var segment in relative.Split(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar))
+                if (segment.Length > 0 && FileTreeService.IsHiddenName(segment)) return true;
+            return false;
+        }
+
+        private void ScheduleTreeReload(FileSystemWatcher source)
+        {
+            Dispatcher.Dispatch(() =>
+            {
+                if (!ReferenceEquals(source, _watcher)) return;
+                if (_watchDebounce is null)
+                {
+                    _watchDebounce = Dispatcher.CreateTimer();
+                    _watchDebounce.Interval = TimeSpan.FromMilliseconds(300);
+                    _watchDebounce.IsRepeating = false;
+                    _watchDebounce.Tick += (_, _) => { if (_watcher is not null) ReloadTree(); };
+                }
+                _watchDebounce.Stop();
+                _watchDebounce.Start();
+            });
+        }
+
+        /// <summary>Relit ce qui est déplié (fichiers apparus ou disparus) sans replier l'arborescence.</summary>
+        private void ReloadTree()
+        {
+            if (_root is null) return;
+            _treeService.Reload(_root);
+            Refresh();
         }
 
         /// <summary>
@@ -94,14 +193,25 @@ namespace Moto.Editor.Views
             }
         }
 
+        /// <summary>
+        /// ★ CHANGÉ (26/09) : la liste affichée est mise à jour en place (retraits, insertions) au lieu d'être vidée puis remplie — elle garde
+        /// sa position de défilement quand un dossier se déplie ou qu'un fichier apparaît.
+        /// </summary>
         private void Refresh()
         {
-            _visibleNodes.Clear();
+            var target = _treeService.Flatten(_root);
+            foreach (var node in target) node.IsActive = IsActivePath(node);
 
-            foreach (var node in _treeService.Flatten(_root))
+            var keep = new HashSet<FileNode>(target, ReferenceEqualityComparer.Instance);
+            for (var i = _visibleNodes.Count - 1; i >= 0; i--)
+                if (!keep.Contains(_visibleNodes[i])) _visibleNodes.RemoveAt(i);
+
+            for (var i = 0; i < target.Count; i++)
             {
-                node.IsActive = IsActivePath(node);
-                _visibleNodes.Add(node);
+                if (i < _visibleNodes.Count && ReferenceEquals(_visibleNodes[i], target[i])) continue;
+                var at = _visibleNodes.IndexOf(target[i]);
+                if (at >= 0) _visibleNodes.Move(at, i);
+                else _visibleNodes.Insert(i, target[i]);
             }
 
             UpdateEmptyState();
@@ -175,7 +285,7 @@ namespace Moto.Editor.Views
                 if (!File.Exists(path))
                     File.WriteAllText(path, string.Empty);
 
-                LoadFolder(CurrentRoot);
+                ReloadTree(); // ★ (26/09) sans replier l'arborescence, comme « Actualiser »
                 FileOpened?.Invoke(path);
             }
             catch (Exception ex)
@@ -188,7 +298,9 @@ namespace Moto.Editor.Views
         {
             if (!string.IsNullOrWhiteSpace(CurrentRoot))
             {
-                LoadFolder(CurrentRoot);
+                // ★ CHANGÉ (26/09) : relit ce qui est déplié au lieu de tout recharger (qui repliait chaque dossier ouvert).
+                ReloadTree();
+                RefreshProjectInfo(CurrentRoot);
             }
         }
 

@@ -139,10 +139,14 @@ namespace Moto.Editor.Models
                 if (part.Code is { } code)
                 {
                     if (code.Code.Length == 0) continue;
+                    var terminal = CodeBlocks.IsTerminalCommand(code.Language);
                     result.Add(new ChatContentSegment
                     {
                         IsCode = true, Text = code.Code, Language = code.Language, PathHint = code.PathHint, IsComplete = code.IsComplete,
-                        CanApply = isModelReply && code.IsComplete, // un bloc coupé n'a pas de bouton : le poser casserait le fichier
+                        IsTerminalCommand = terminal,
+                        // Un bloc coupé n'a pas de bouton : le poser casserait le fichier. ★ (26/09) Une commande de terminal (« pip install… ») non
+                        // plus : la poser dans le fichier affiché n'a pas de sens — Tom cliquait « Appliquer » dessus sans résultat.
+                        CanApply = isModelReply && code.IsComplete && !terminal,
                     });
                 }
                 else
@@ -175,6 +179,9 @@ namespace Moto.Editor.Models
         /// <summary>Faux si la réponse s'est arrêtée avant la fin du bloc : le code est incomplet.</summary>
         public bool IsComplete { get; init; } = true;
 
+        /// <summary>★ AJOUT (26/09) : bloc étiqueté bash, powershell… — une commande à taper dans un terminal, pas du code pour un fichier.</summary>
+        public bool IsTerminalCommand { get; init; }
+
         /// <summary>En-tête du bloc de code : « csharp · Program.cs », avec un avertissement s'il est incomplet.</summary>
         public string Header
         {
@@ -182,6 +189,7 @@ namespace Moto.Editor.Models
             {
                 var parts = new List<string>();
                 if (Language.Length > 0) parts.Add(Language);
+                if (IsTerminalCommand) parts.Add("à taper dans le Terminal");
                 if (!string.IsNullOrWhiteSpace(PathHint)) parts.Add(PathHint!);
                 if (!IsComplete) parts.Add("⚠ incomplet (réponse coupée)");
                 return string.Join(" · ", parts);

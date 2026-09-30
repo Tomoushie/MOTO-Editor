@@ -15,6 +15,15 @@ namespace Moto.Editor.Views
         /// <summary>Déclenché quand l'utilisateur clique sur une suggestion.</summary>
         public event Action<string>? SuggestionInvoked;
 
+        /// <summary>★ AJOUT (26/09) : l'utilisateur a fermé la carte avec la croix (MainPage retient ce choix d'une session à l'autre).</summary>
+        public event Action? ClosedByUser;
+
+        /// <summary>
+        /// ★ AJOUT (26/09, retour de Tom : fermée, la carte revenait 30 s à 1 min plus tard) : faux une fois la carte fermée à la main — les
+        /// mises à jour toutes les 30 s remplissent encore la liste, mais ne la rouvrent plus. Seule la palette (« Suggestions ») la rouvre.
+        /// </summary>
+        public bool AutoShow { get; set; } = true;
+
         public ProactivePanel(ProactiveSuggestionsEngine engine)
         {
             InitializeComponent();
@@ -38,7 +47,7 @@ namespace Moto.Editor.Views
                 SuggestionsList.Children.Add(card);
             }
 
-            IsVisible = true;
+            if (AutoShow) IsVisible = true;
         }
 
         private Border BuildSuggestionCard(ProactiveSuggestion suggestion)
@@ -119,6 +128,8 @@ namespace Moto.Editor.Views
         private void OnCloseClicked(object? sender, EventArgs e)
         {
             IsVisible = false;
+            AutoShow = false;
+            ClosedByUser?.Invoke();
         }
 
         /// <summary>

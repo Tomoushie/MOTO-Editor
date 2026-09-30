@@ -151,11 +151,15 @@ namespace Moto.Core.AI.Commands
                 // ── Édition ──
                 new() { Id = "edit.search", Title = "Rechercher", Description = "Recherche dans le fichier.", Category = CommandCategory.Menu, CommandText = "menu:edit.search", Shortcut = "Ctrl+F" },
                 new() { Id = "edit.commands", Title = "Palette de commandes", Description = "Ouvre cette palette.", Category = CommandCategory.Menu, CommandText = "/palette", Shortcut = "Ctrl+Shift+P" },
+                // ★ AJOUT (27/09, point 3 de Tom) : la petite barre qui modifie le fichier ouvert (remplace la barre centrale flottante).
+                new() { Id = "ai.editbar", Title = "Modifier le fichier avec l'IA", Description = "Ouvre la petite barre qui modifie le fichier ouvert (diff et accord avant d'écrire).", Category = CommandCategory.Menu, CommandText = "menu:ai.editbar", Shortcut = "Ctrl+Shift+I" },
 
                 // ── Affichage ──
                 new() { Id = "view.explorer", Title = "Basculer l'explorateur", Description = "Affiche/cache l'explorateur.", Category = CommandCategory.Menu, CommandText = "menu:view.explorer", Shortcut = "Ctrl+B" },
                 new() { Id = "view.terminal", Title = "Basculer le terminal", Description = "Affiche/cache le terminal.", Category = CommandCategory.Menu, CommandText = "menu:view.terminal", Shortcut = "Ctrl+`" },
                 new() { Id = "view.maximize", Title = "Maximiser l'éditeur", Description = "Passe en plein écran.", Category = CommandCategory.Menu, CommandText = "menu:view.maximize" },
+                // ★ AJOUT (26/09, retour de Tom) : fermée à la main, la carte Suggestions ne revient plus d'elle-même — voici le chemin pour la revoir.
+                new() { Id = "view.proactive", Title = "Suggestions", Description = "Affiche ou masque la carte Suggestions (fermée à la main, elle ne revient plus d'elle-même).", Category = CommandCategory.Menu, CommandText = "menu:view.proactive" },
 
                 // ── Navigation ──
                 new() { Id = "nav.back", Title = "Retour", Description = "Navigue vers le fichier précédent.", Category = CommandCategory.Navigation, CommandText = "menu:nav.back", Shortcut = "Alt+←" },

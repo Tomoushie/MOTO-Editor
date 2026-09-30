@@ -47,7 +47,7 @@ jobs:
           Write-Host "Version cible : $v"
 
       - name: Publish editor → dist/payload
-        run: dotnet publish Moto.Editor/Moto.Editor.csproj -c Release -r win-x64 --self-contained true -o dist/payload
+        run: dotnet publish Moto.Editor/Moto.Editor.csproj -c Release -f net8.0-windows10.0.19041.0 -r win-x64 --self-contained true -o dist/payload
 
       # ★ Clé privée injectée depuis les secrets (jamais loggée, runner éphémère)
       - name: Inject signing keys

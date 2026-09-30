@@ -1,5 +1,6 @@
 // Moto.Editor/Views/AiChatView.xaml.cs (régénéré)
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Linq;
@@ -45,12 +46,13 @@ namespace Moto.Editor.Views
             ContextList.ItemsSource = Chat.Contexts;
 
             // ★ CHANGÉ (24/09) : le mode reflète le réglage partagé (une 2e fenêtre « MOTO AI » ne remet plus « Chat & Write » d'office).
-            ModePicker.SelectedIndex = Chat.IncludeActiveFile ? 1 : 0;
-            ModelPicker.SelectedIndex = 0;  // MOTO interne
+            ModePicker.SelectedIndex = Chat.AgentMode ? 2 : Chat.IncludeActiveFile ? 1 : 0;
+            RebuildModelPicker(); // « MOTO interne » choisi au départ
 
             // Rebind des messages à chaque changement de thread.
             Chat.ActiveThreadChanged += ShowThread;
             Chat.ReplyingChanged += OnReplyingChanged;
+            Chat.OnlineProvidersChanged += RebuildModelPicker;
 
             ShowThread(Chat.ActiveThread);
             OnReplyingChanged(Chat.IsReplying);
@@ -161,6 +163,7 @@ namespace Moto.Editor.Views
         {
             Chat.ActiveThreadChanged -= ShowThread;
             Chat.ReplyingChanged -= OnReplyingChanged;
+            Chat.OnlineProvidersChanged -= RebuildModelPicker;
             ShowThread(null); // quitte la conversation et vide la pile
             ContextList.ItemsSource = null;
         }
@@ -174,8 +177,13 @@ namespace Moto.Editor.Views
         private void OnModeChanged(object? sender, EventArgs e)
         {
             if (Chat is null || ModePicker.SelectedIndex < 0) return; // pendant InitializeComponent
-            // « Chat » : seulement ce qui est joint ; « Chat & Write » / « Agent » : le fichier affiché et la sélection partent aussi.
+            // « Chat » : seulement ce qui est joint ; « Chat & Write » : le fichier affiché et la sélection partent aussi.
+            // ★ CHANGÉ (27/09, décision 2 de Tom) : « Agent » confie la demande à l'agent v2 (voir SendInput / ChatService.SendToAgent).
             Chat.IncludeActiveFile = ModePicker.SelectedIndex != 0;
+            Chat.AgentMode = ModePicker.SelectedIndex == 2;
+            InputEntry.Placeholder = Chat.AgentMode
+                ? "Objectif pour l'agent (diff avant chaque écriture)"
+                : "Message MOTO AI, @ pour le contexte, / pour les commandes";
         }
 
         private void OnNewThreadClicked(object sender, EventArgs e)
@@ -188,9 +196,51 @@ namespace Moto.Editor.Views
             Chat.ActiveThread?.Messages.Clear();
         }
 
+        // ------------------------------------------------------------------
+        // ★ AJOUT (26/09, décision de Tom) : la liste ne montre les services en ligne qu'une fois leur clé ajoutée, puis une ligne
+        // « Ajouter un service en ligne… » qui ouvre Clés API. Reconstruite quand Clés API se ferme (ChatService.OnlineProvidersChanged).
+        // ------------------------------------------------------------------
+
+        private bool _settingModels;
+        private string _currentModel = "MOTO interne";
+
+        private void RebuildModelPicker() => ApplyModelChoices(Chat.ModelChoices("MOTO interne", "Ollama (qwen2.5-coder:7b)"));
+
+        private void ApplyModelChoices(IReadOnlyList<string> choices)
+        {
+            _settingModels = true;
+            try
+            {
+                ModelPicker.ItemsSource = choices.ToList();
+                // Le modèle choisi le reste ; s'il n'est plus proposé (clé retirée), retour au premier modèle local.
+                ModelPicker.SelectedItem = choices.Contains(_currentModel) ? _currentModel : choices[0];
+            }
+            finally
+            {
+                _settingModels = false;
+            }
+            OnModelChanged(ModelPicker, EventArgs.Empty); // applique le routage du modèle effectivement choisi
+        }
+
         private void OnModelChanged(object sender, EventArgs e)
         {
-            var model = ModelPicker.SelectedItem as string ?? "MOTO interne";
+            if (_settingModels || ModelPicker.SelectedItem is not string model) return;
+
+            if (model == ChatService.AddOnlineServiceLabel)
+            {
+                _settingModels = true;
+                ModelPicker.SelectedItem = _currentModel; // la ligne d'ajout n'est pas un modèle : le choix d'avant reste
+                _settingModels = false;
+                Chat.OpenApiKeysHandler?.Invoke();
+#if WINDOWS
+                // Clés API s'ouvre dans la fenêtre principale : depuis la fenêtre « MOTO AI » séparée, on la ramène devant (sinon le clic
+                // semblerait ne rien faire).
+                if (Window is { } own && Application.Current?.Windows.FirstOrDefault() is { } main && !ReferenceEquals(own, main))
+                    (main.Handler?.PlatformView as Microsoft.UI.Xaml.Window)?.Activate();
+#endif
+                return;
+            }
+            _currentModel = model;
 
             // ★ CORRECTION (02/09, revue croisée) : ne testait que "interne", donc
             // choisir "Ollama (qwen2.5-coder:7b)" (qui utilise le MÊME chemin local
@@ -263,7 +313,11 @@ namespace Moto.Editor.Views
 
             try
             {
-                await Chat.SendAsync(text);
+                // ★ AJOUT (27/09) : mode « Agent » → l'agent v2 (les commandes « / » gardent leur chemin habituel).
+                if (Chat.AgentMode && !text.StartsWith("/", StringComparison.Ordinal))
+                    Chat.SendToAgent(text);
+                else
+                    await Chat.SendAsync(text, offerProjectCreation: true); // ★ (28/09) « crée un projet… » marche aussi ici, voir ChatService.ProjectRequestHandler
             }
             catch (Exception ex)
             {

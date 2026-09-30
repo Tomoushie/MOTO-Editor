@@ -33,7 +33,7 @@
                         Text="{x:Static controls:MotoIcons.Close}"
                         Style="{StaticResource MotoIconButton}"
                         FontSize="10"
-                        ToolTipProperties.Text="Fermer"
+                        ToolTipProperties.Text="Fermer : elle ne reviendra plus d'elle-même (pour la revoir : palette de commandes, Ctrl+Maj+P, « Suggestions »)"
                         Clicked="OnCloseClicked" />
             </Grid>
 

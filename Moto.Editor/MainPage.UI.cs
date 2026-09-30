@@ -193,7 +193,6 @@ namespace Moto.Editor
         // ------------------------------------------------------------------
         // Panneaux toggle
         // ------------------------------------------------------------------
-        private void OnToggleAiBarClicked(object sender, EventArgs e) => AiBar.Toggle();
         // ★ RETRAIT (02/09, état des lieux) : OnSettingsClicked supprimé — plus aucun
         // bouton/geste ne l'appelait depuis le 31/08 (SettingsWindow l'a remplacé),
         // mais SettingsMenu restait construit et abonné pour rien. Voir CreateHome.

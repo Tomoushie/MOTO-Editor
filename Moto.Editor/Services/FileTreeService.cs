@@ -18,6 +18,33 @@ namespace Moto.Editor.Services
             "bin", "obj", ".git", ".vs", "node_modules", ".idea"
         };
 
+        /// <summary>★ AJOUT (26/09) : nom d'un dossier ou fichier que l'arborescence n'affiche jamais (bin, obj, .git… et tout ce qui commence par « . »).</summary>
+        public static bool IsHiddenName(string name) => name.StartsWith(".") || Excluded.Contains(name);
+
+        /// <summary>
+        /// ★ AJOUT (26/09, retour de Tom : un fichier créé dans l'Explorateur Windows n'apparaissait qu'après « Actualiser ») : relit un dossier
+        /// DÉJÀ chargé. Les nœuds qui existent encore sont gardés tels quels (dépliés, avec leurs enfants), les nouveaux apparaissent, les
+        /// disparus s'en vont — et les sous-dossiers déjà chargés sont relus de la même façon. Un dossier jamais déplié n'est pas lu.
+        /// </summary>
+        public void Reload(FileNode node)
+        {
+            if (!node.IsDirectory || !node.IsLoaded) return;
+
+            var previous = new Dictionary<string, FileNode>(StringComparer.OrdinalIgnoreCase);
+            foreach (var child in node.Children) previous[child.Path] = child;
+
+            node.IsLoaded = false;
+            LoadChildren(node);
+            if (!node.IsLoaded) return; // dossier devenu illisible ou supprimé : LoadChildren l'a laissé tel qu'il a pu
+
+            for (var i = 0; i < node.Children.Count; i++)
+            {
+                if (!previous.TryGetValue(node.Children[i].Path, out var kept) || kept.IsDirectory != node.Children[i].IsDirectory) continue;
+                node.Children[i] = kept;
+                if (kept.IsDirectory) Reload(kept);
+            }
+        }
+
         /// <summary>Crée le nœud racine d'un dossier.</summary>
         public FileNode CreateRoot(string rootPath)
         {

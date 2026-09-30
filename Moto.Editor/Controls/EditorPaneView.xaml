@@ -153,7 +153,7 @@
                         Clicked="OnPreviewClicked" />
                 <Button Style="{StaticResource MotoIconButton}"
                         Text="{x:Static controls:MotoIcons.Robot}"
-                        ToolTipProperties.Text="Bandeau IA : demander une modification du fichier"
+                        ToolTipProperties.Text="Modifier ce fichier avec l'IA (Ctrl+Maj+I)"
                         Clicked="OnAiClicked" />
                 <Button Style="{StaticResource MotoIconButton}"
                         Text="{x:Static controls:MotoIcons.DockRight}"
@@ -206,6 +206,8 @@
         </Grid>
 
         <!-- ═══ Ligne 3 : bandeau IA ═══ -->
+        <!-- ★ (27/09, point 3 de Tom) : la barre centrale flottante est retirée ; ce bandeau est LA petite barre qui modifie le fichier
+             ouvert. Fermé par défaut, il ne s'ouvre que sur demande : Ctrl+Maj+I, bouton 🤖, palette. Échap le referme. -->
         <Border Grid.Row="3" x:Name="AiBand" IsVisible="False"
                 StrokeShape="RoundRectangle 0"
                 BackgroundColor="{StaticResource BgPanel}"
@@ -214,21 +216,20 @@
                 Padding="10,8"
                 Margin="0">
             <Grid ColumnDefinitions="Auto,*,Auto" RowDefinitions="Auto,Auto" ColumnSpacing="{StaticResource SpaceSm}">
+                <!-- ★ CHANGÉ (26/09, décision de Tom) : seulement les modèles locaux ici ; MainPage ajoute les services en ligne dont la clé
+                     est enregistrée, puis « Ajouter un service en ligne… » (EditorPaneView.SetModelChoices). -->
                 <Picker Grid.Row="0" Grid.Column="0" x:Name="ModelPicker"
-                        WidthRequest="200" FontSize="12">
+                        WidthRequest="200" FontSize="12" SelectedIndexChanged="OnModelPickerChanged">
                     <Picker.ItemsSource>
                         <x:Array Type="{x:Type x:String}">
                             <x:String>MOTO interne</x:String>
                             <x:String>Ollama (qwen2.5-coder:7b)</x:String>
-                            <x:String>OpenAI</x:String>
-                            <x:String>Anthropic</x:String>
-                            <x:String>Mistral</x:String>
                         </x:Array>
                     </Picker.ItemsSource>
                 </Picker>
 
                 <Entry Grid.Row="0" Grid.Column="1" x:Name="PromptEntry"
-                       Placeholder="Demande à l'IA de modifier le code… (Entrée pour envoyer)"
+                       Placeholder="Que changer dans ce fichier ? (Entrée pour envoyer, Échap pour fermer)"
                        FontSize="{StaticResource FontSizeBody}" BackgroundColor="Transparent"
                        Completed="OnAiSendClicked" />
 

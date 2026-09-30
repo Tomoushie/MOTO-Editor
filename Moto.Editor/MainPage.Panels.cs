@@ -603,6 +603,41 @@ namespace Moto.Editor
                 if (e.PropertyName is nameof(IsVisible) or nameof(HeightRequest)) UpdateDockHeightBounds();
             };
             UpdateDockHeightBounds();
+
+            // ★ AJOUT (26/09) : même principe en largeur pour la colonne centrale — voir UpdateCenterWidthBound.
+            RootGrid.SizeChanged += (_, _) => UpdateCenterWidthBound();
+            AiDockPanel.SizeChanged += (_, _) => UpdateCenterWidthBound();
+            ExplorerDockPanel.SizeChanged += (_, _) => UpdateCenterWidthBound();
+            AiDockPanel.PropertyChanged += (_, e) => { if (e.PropertyName == nameof(IsVisible)) UpdateCenterWidthBound(); };
+            ExplorerDockPanel.PropertyChanged += (_, e) => { if (e.PropertyName == nameof(IsVisible)) UpdateCenterWidthBound(); };
+            UpdateCenterWidthBound();
+        }
+
+        // ------------------------------------------------------------------
+        // ★ AJOUT (26/09, captures de Tom à 1567 px de large : explorateur, carte Suggestions et bout de la barre de statut coupés à droite,
+        // rien de coupé à 1751 px) : le contenu de la colonne centrale (« * ») est borné à la largeur que lui laissent les docks. Trois
+        // onglets aux noms longs demandaient ~900 px ; dans une Grid MAUI, une colonne « * » grandit jusqu'à la taille voulue par son contenu
+        // — elle poussait donc la colonne de droite hors de la fenêtre. Bornée, la bande d'onglets défile et le fil d'Ariane se raccourcit.
+        // Même remède que la hauteur ci-dessus et que le terminal (2f8f6ee).
+        // ------------------------------------------------------------------
+        private void UpdateCenterWidthBound()
+        {
+            if (RootGrid.Width <= 0) return;
+
+            double docks = 0;
+            if (AiDockPanel.IsVisible && AiDockPanel.Width > 0) docks += AiDockPanel.Width;
+            if (ExplorerDockPanel.IsVisible && ExplorerDockPanel.Width > 0) docks += ExplorerDockPanel.Width;
+            var available = Math.Max(200, Math.Floor(RootGrid.Width - docks));
+
+            foreach (var child in RootGrid.Children.OfType<View>())
+            {
+                // Éditeur en plein écran (colonnes 0 à 2) : toute la largeur, pas de borne.
+                var bound = Grid.GetColumn(child) == 1 && Grid.GetColumnSpan(child) == 1 ? available
+                          : ReferenceEquals(child, EditorPane) ? double.PositiveInfinity
+                          : child.MaximumWidthRequest;
+                if (double.IsPositiveInfinity(bound) ? !double.IsPositiveInfinity(child.MaximumWidthRequest) : Math.Abs(child.MaximumWidthRequest - bound) >= 1)
+                    child.MaximumWidthRequest = bound;
+            }
         }
 
         private void UpdateDockHeightBounds()
@@ -763,45 +798,22 @@ namespace Moto.Editor
         // ------------------------------------------------------------------
         // Stats réelles
         // ------------------------------------------------------------------
+        /// <summary>
+        /// ★ CHANGÉ (26/09, décision de Tom : « brancher les vrais compteurs, et masquer la rangée tant qu'il n'y a rien à montrer ») : les
+        /// chiffres viennent des compteurs gardés depuis l'installation (global-usage.json — les mêmes que le tableau de bord complet) et des
+        /// motifs appris du projet ouvert. Avant : conversations et messages de la session en cours, jamais sauvegardés, donc 0 à chaque
+        /// lancement. Rien à montrer → HomeView masque la carte (voir Moto.Core/Analytics/HomeStats.cs).
+        /// </summary>
         private void RefreshHomeStats()
         {
             try
             {
-                int threads = 0, messages = 0, chars = 0;
-                if (_chatService.Threads != null)
-                {
-                    threads = _chatService.Threads.Count;
-                    foreach (var t in _chatService.Threads)
-                    {
-                        messages += t.Messages?.Count ?? 0;
-                        foreach (var m in t.Messages)
-                            chars += m.Content?.Length ?? 0;
-                    }
-                }
-                var tokens = chars / 4;
-                var cortex = _cortex?.GetStats();
-                Home.SetStats(
-                    values: new[]
-                    {
-                        threads.ToString(),
-                        messages.ToString(),
-                        FormatCompact(tokens),
-                        (cortex?.TotalPatterns ?? 0).ToString()
-                    },
-                    titles: new[]
-                    {
-                        "Sessions",
-                        "Messages",
-                        "Tokens",
-                        "Patterns appris"
-                    });
+                Home.SetStats(Moto.Core.Analytics.HomeStats.Build(_globalUsage?.Snapshot(), _cortex?.GetStats()?.TotalPatterns ?? 0));
             }
-            catch { }
+            catch (Exception ex)
+            {
+                App.LogCrash("MainPage.RefreshHomeStats", ex);
+            }
         }
-
-        private static string FormatCompact(int n) =>
-            n >= 1_000_000 ? (n / 1_000_000.0).ToString("0.0M") :
-            n >= 1_000 ? (n / 1_000.0).ToString("0.0K") :
-            n.ToString();
     }
 }

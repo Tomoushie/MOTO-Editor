@@ -8,9 +8,8 @@ using Windows.System;
 namespace Moto.Editor.Platforms.Windows
 {
     /// <summary>
-    /// Enregistre CTRL+SHIFT+I, CTRL+B et l'activation de la fenêtre (clic icône
-    /// barre des tâches). Utilise KeyboardAccelerator WinUI : fonctionne quand la
-    /// fenêtre a le focus.
+    /// Enregistre CTRL+SHIFT+I, CTRL+B, F5, F11 et CTRL+S. Utilise KeyboardAccelerator
+    /// WinUI : fonctionne quand la fenêtre a le focus.
     /// </summary>
     public partial class GlobalHotkeyService
     {
@@ -20,7 +19,6 @@ namespace Moto.Editor.Platforms.Windows
         public static void Register(
             Microsoft.UI.Xaml.Window window,
             Action onHotkey,
-            Action onWindowActivated,
             Action onToggleExplorer = null,
             Action onBuild = null,
             Action onToggleFullScreen = null,
@@ -134,26 +132,8 @@ namespace Moto.Editor.Platforms.Windows
                 }
             }
 
-            // 2. Activation de la fenêtre (clic sur l'icône barre des tâches).
-            bool wasMinimizedOrDeactivated = false;
-
-            window.Activated += (s, e) =>
-            {
-                var state = e.WindowActivationState;
-
-                if (state == Microsoft.UI.Xaml.WindowActivationState.Deactivated)
-                {
-                    wasMinimizedOrDeactivated = true;
-                    return;
-                }
-
-                // La fenêtre revient au premier plan : on ouvre la barre IA.
-                if (wasMinimizedOrDeactivated)
-                {
-                    wasMinimizedOrDeactivated = false;
-                    MainThread.BeginInvokeOnMainThread(() => onWindowActivated?.Invoke());
-                }
-            };
+            // ★ RETIRÉ (27/09, point 3 de Tom) : « 2. Activation de la fenêtre » rouvrait la barre IA à chaque retour dans MOTO
+            // (alt-tab, clic sur l'icône). La barre ne vient plus que sur demande.
         }
     }
 }

@@ -26,6 +26,9 @@ namespace Moto.Editor.Views
             App.Breadcrumb($"Écran dans la fenêtre : « {title} » ouvert");
         }
 
+        /// <summary>★ AJOUT (28/09) : l'écran affiché, ou null — pour ne pas rouvrir un écran déjà ouvert (voir MainPage.OpenApiKeysPage).</summary>
+        public View? CurrentScreen => IsVisible ? ContentSlot.Content : null;
+
         /// <summary>Ferme l'écran affiché (croix de la barre de titre).</summary>
         public void Close()
         {

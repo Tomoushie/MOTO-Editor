@@ -57,8 +57,12 @@ namespace Moto.Editor
             _commandRegistry.Register("file.export", () => ExportMenu.IsVisible = !ExportMenu.IsVisible);
             _commandRegistry.Register("file.lock", () => OnLockClicked(null, null));
 
-            _commandRegistry.Register("edit.search", () => AiBar.Toggle());
-            _commandRegistry.Register("edit.commands", () => AiBar.Toggle());
+            // ★ CHANGÉ (27/09, barre centrale retirée) : ces deux commandes ouvraient la barre IA flottante, sans rapport avec leur nom.
+            // « Palette de commandes » ouvre la palette ; « Rechercher » (Ctrl+F) n'a pas encore d'outil derrière lui : on le dit.
+            _commandRegistry.Register("edit.search", () => StatusBar.SetStatus("La recherche dans le fichier (Ctrl+F) n'existe pas encore dans MOTO."));
+            _commandRegistry.Register("edit.commands", () => ToggleCommandPalette());
+            // ★ AJOUT (27/09, point 3 de Tom) : la petite barre qui modifie le fichier ouvert — voir ToggleFileAiBar (MainPage.Shortcuts.cs).
+            _commandRegistry.Register("ai.editbar", () => ToggleFileAiBar());
 
             _commandRegistry.Register("view.explorer", () => ToggleSide(isExplorer: true));
             _commandRegistry.Register("view.sidebar", () => ToggleSide(isExplorer: false));
@@ -70,6 +74,8 @@ namespace Moto.Editor
             _commandRegistry.Register("view.terminal", () => _viewModel.IsTerminalVisible = !_viewModel.IsTerminalVisible);
             _commandRegistry.Register("view.diagnostics", () => _viewModel.IsDiagnosticsVisible = !_viewModel.IsDiagnosticsVisible);
             _commandRegistry.Register("view.maximize", () => OnMaximizeToggled());
+            // ★ AJOUT (26/09) : « Suggestions » dans la palette — seul chemin pour rouvrir la carte une fois fermée à la main.
+            _commandRegistry.Register("view.proactive", () => ToggleProactiveActions());
             _commandRegistry.Register("view.theme", () => ThemeService.SetDark());
 
             // ★ AJOUT (02/09, état des lieux) : "Paramètres" dans la barre de
@@ -456,7 +462,7 @@ namespace Moto.Editor
             // ★ /analytics : rapport + export + dashboard
             if (text.StartsWith("/analytics", StringComparison.OrdinalIgnoreCase))
             {
-                await HandleAnalyticsCommandAsync(text.Substring("/analytics".Length).Trim());
+                StatusBar.SetStatus(await RunAnalyticsCommandAsync(text.Substring("/analytics".Length).Trim()));
                 return;
             }
 
@@ -576,24 +582,14 @@ namespace Moto.Editor
             // vient du prompt de l'Accueil (AiBar, le bandeau flottant, n'est alors pas
             // visible) — l'attente (parfois 1 min+ avec un modèle local) semblait donc
             // "figée"/anormale à Tom. La barre de statut, elle, est TOUJOURS visible.
+            // ★ (27/09) : AiBar n'existe plus (point 3 de Tom) ; restent la barre de statut et Home.SetThinking ci-dessous.
             StatusBar.SetStatus("🧠 Réflexion de l'IA en cours…");
-            AiBar.SetBusy(true);
             try
             {
                 if (AutoProjectBuilder.ShouldHandle(text))
                 {
                     App.Breadcrumb("OnAiCommandSubmitted — route : AutoProjectBuilder");
-                    var root = string.IsNullOrWhiteSpace(_currentRoot)
-                        ? Path.Combine(Environment.GetFolderPath(
-                            Environment.SpecialFolder.MyDocuments), "MotoProjects")
-                        : _currentRoot;
-                    var result = await _projectBuilder.BuildAsync(text, root);
-                    if (result.Success)
-                    {
-                        var dir = _projectBuilder.ComputeProjectDir(text, root);
-                        LoadWorkspace(dir);
-                    }
-                    StatusBar.SetStatus(result.Summary);
+                    await BuildProjectAsync(text);
                     RefreshHomeStats();
                     return;
                 }
@@ -643,6 +639,17 @@ namespace Moto.Editor
                 // hors périmètre de ce correctif).
                 var reply = answer.Content;
                 App.Breadcrumb($"OnAiCommandSubmitted — reply longueur={reply?.Length ?? -1}");
+
+                // ★ CHANGÉ (26/09, retour de Tom : « code moi une petite application de musique » a créé « Reponse-IA-….py » au lieu d'écrire
+                // dans le fichier qu'il avait ouvert pour ce test) : si un fichier est ouvert et que la réponse contient du code, ce code va DANS
+                // ce fichier — par le même chemin que « Appliquer » du chat (endroit choisi par CodeApplyPlanner, diff, accord avant d'écrire,
+                // « ↩ Annuler »). L'onglet temporaire ci-dessous ne sert plus que sans fichier ouvert, ou pour une réponse sans code.
+                if (!string.IsNullOrWhiteSpace(reply) && _viewModel.SelectedDocument is { } openDoc && answer.Segments.Any(s => s.IsCode))
+                {
+                    await PlaceReplyCodeInOpenFileAsync(answer, openDoc);
+                    return;
+                }
+
                 if (!string.IsNullOrWhiteSpace(reply))
                 {
                     // ★ AJOUT (31/08) : si la réponse contient un bloc de code, on ouvre
@@ -682,8 +689,40 @@ namespace Moto.Editor
             }
             finally
             {
-                AiBar.SetBusy(false);
                 RefreshHomeStats();
+            }
+        }
+
+        /// <summary>
+        /// ★ AJOUT (26/09, retour de Tom) : la réponse de la barre centrale contient du code et un fichier est ouvert — son bloc principal y est
+        /// proposé (diff, accord). Ce qui n'y va pas (autres blocs, refus, commandes de terminal, réponse coupée) reste dans le chat MOTO AI,
+        /// qu'on ouvre alors pour que le code et ses boutons (« Appliquer », « Copier ») soient sous les yeux.
+        /// </summary>
+        private async Task PlaceReplyCodeInOpenFileAsync(ChatMessage answer, EditorDocument doc)
+        {
+            var block = MainCodeBlock(answer, out var count);
+            if (block is null)
+            {
+                ShowAiChatPanel();
+                StatusBar.SetStatus(answer.Segments.Any(s => s.IsCode && !s.IsComplete)
+                    ? $"⚠ La réponse a été coupée avant la fin du code : rien n'a été posé dans « {doc.Title} ». Elle est dans le chat MOTO AI (demande-lui « continue »)."
+                    : $"La réponse ne contient que des commandes à taper dans le Terminal : rien à poser dans « {doc.Title} ». Elles sont dans le chat MOTO AI.");
+                return;
+            }
+
+            switch (await ApplyChatCodeAsync(block))
+            {
+                case ChatApplyResult.NotApplied:
+                    ShowAiChatPanel(); // la raison est écrite au-dessus du bloc, avec « Appliquer » pour réessayer
+                    break;
+                case ChatApplyResult.Declined:
+                    StatusBar.SetStatus("Refusé : rien n'a été modifié. Le code reste dans le chat MOTO AI (« Appliquer » / « Copier »).");
+                    break;
+                case ChatApplyResult.Applied when count > 1:
+                    ShowAiChatPanel();
+                    StatusBar.SetStatus($"✔ Code posé dans « {doc.Title} ». La réponse contient {count} blocs de code : les autres sont dans le chat MOTO AI "
+                                      + "(« Appliquer » / « Copier »).");
+                    break;
             }
         }
 
@@ -721,14 +760,13 @@ namespace Moto.Editor
 
         // ------------------------------------------------------------------
         // ★ v29 : Commande /analytics (méthode séparée, propre)
+        // ★ CHANGÉ (28/09, choix de Tom : /analytics marche aussi depuis le chat) : renvoie le message au lieu de l'écrire elle-même dans la
+        // barre de statut — l'Accueil l'y écrit, le chat MOTO AI l'affiche comme réponse (voir HandlePluginCommandAsync).
         // ------------------------------------------------------------------
-        private async Task HandleAnalyticsCommandAsync(string args)
+        private async Task<string> RunAnalyticsCommandAsync(string args)
         {
             if (_analytics == null)
-            {
-                StatusBar.SetStatus("Analytics non disponible.");
-                return;
-            }
+                return "Analytics non disponible.";
 
             var sub = args.ToLowerInvariant();
 
@@ -736,15 +774,13 @@ namespace Moto.Editor
             {
                 case "top":
                     var top = _analytics.GetTopPaletteCommands(5);
-                    StatusBar.SetStatus("🏆 Top 5 : " +
-                        string.Join(" · ", top.Select(c => $"{c.ItemId.Split('.').Last()} ({c.ExecutedCount})")));
-                    break;
+                    return "🏆 Top 5 : " +
+                        string.Join(" · ", top.Select(c => $"{c.ItemId.Split('.').Last()} ({c.ExecutedCount})"));
 
                 case "underperform":
                     var under = _analytics.GetUnderperformingSuggestions(3);
-                    StatusBar.SetStatus("⚠️ À améliorer : " +
-                        string.Join(" · ", under.Select(s => s.ItemId)));
-                    break;
+                    return "⚠️ À améliorer : " +
+                        string.Join(" · ", under.Select(s => s.ItemId));
 
                 case "export":
                     var report = _analytics.GetReport();
@@ -763,26 +799,84 @@ namespace Moto.Editor
                     Directory.CreateDirectory(exportDir);
                     var path = Path.Combine(exportDir, $"analytics-{DateTime.UtcNow:yyyyMMdd-HHmmss}.json");
                     await File.WriteAllTextAsync(path, json);
-                    StatusBar.SetStatus($"✅ Exporté : {Path.GetFileName(path)}");
-                    break;
+                    return $"✅ Exporté : {Path.GetFileName(path)}";
 
                 case "dashboard":
-                    if (_analyticsDashboard != null)
-                    {
-                        _analyticsDashboard.IsVisible = !_analyticsDashboard.IsVisible;
-                        if (_analyticsDashboard.IsVisible)
-                            _analyticsDashboard.SetAnalytics(_analytics);
-                    }
-                    else
-                    {
-                        StatusBar.SetStatus("Dashboard non disponible.");
-                    }
-                    break;
+                    if (_analyticsDashboard == null)
+                        return "Dashboard non disponible.";
+                    _analyticsDashboard.IsVisible = !_analyticsDashboard.IsVisible;
+                    if (!_analyticsDashboard.IsVisible)
+                        return "📊 Tableau des statistiques masqué.";
+                    _analyticsDashboard.SetAnalytics(_analytics);
+                    return "📊 Tableau des statistiques affiché.";
 
                 default:
-                    StatusBar.SetStatus(_analytics.GetReport());
-                    break;
+                    return _analytics.GetReport();
             }
+        }
+
+        // ------------------------------------------------------------------
+        // ★ AJOUT (28/09, choix de Tom : « crée un projet… » marche aussi depuis le chat) : la création partagée par l'Accueil
+        // (OnAiCommandSubmitted) et le chat MOTO AI (HandleChatProjectRequestAsync, plus bas).
+        // ------------------------------------------------------------------
+
+        /// <summary>Le projet s'écrit dans le dossier ouvert, sinon dans Documents\MotoProjects.</summary>
+        private string ProjectBuildRoot() => string.IsNullOrWhiteSpace(_currentRoot)
+            ? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments), "MotoProjects")
+            : _currentRoot;
+
+        /// <summary>Écrit le projet, l'ouvre dans l'explorateur s'il a réussi, et en dit le résultat dans la barre de statut.</summary>
+        private async Task<Moto.Editor.AI.Builders.BuilderResult> BuildProjectAsync(string text)
+        {
+            var root = ProjectBuildRoot();
+            var result = await _projectBuilder.BuildAsync(text, root);
+            if (result.Success)
+                LoadWorkspace(_projectBuilder.ComputeProjectDir(text, root));
+            StatusBar.SetStatus(result.Summary);
+            return result;
+        }
+
+        /// <summary>
+        /// Câblé sur ChatService.ProjectRequestHandler : une phrase tapée dans le chat MOTO AI. Dans le chat, la même phrase peut aussi être
+        /// une simple question (« comment créer un projet ? ») : rien ne s'écrit sans accord. « Répondre dans le chat » (ou l'absence de boîte
+        /// de confirmation) renvoie null, et le modèle répond comme d'habitude.
+        /// </summary>
+        private async Task<string?> HandleChatProjectRequestAsync(string text)
+        {
+            if (!AutoProjectBuilder.ShouldHandle(text) || _confirmationService is null) return null;
+
+            var root = ProjectBuildRoot();
+            var dir = _projectBuilder.ComputeProjectDir(text, root);
+            var files = _projectBuilder.PlannedFiles(text);
+            var existing = files.Where(f => File.Exists(Path.Combine(dir, f))).ToList();
+
+            var lines = new System.Collections.Generic.List<string>
+            {
+                $"MOTO va créer le dossier « {Path.GetFileName(dir)} » dans {root}, puis l'ouvrir dans l'explorateur (tes onglets restent ouverts).",
+                "Ce générateur ne sait faire qu'une chose : un petit jeu Snake en C#, prêt à lancer, quelle que soit la demande.",
+            };
+            if (existing.Count > 0)
+                lines.Add($"⚠ Ce dossier contient déjà {existing.Count} de ces fichiers : ils seront remplacés, et tes modifications dedans perdues.");
+            lines.Add("« Répondre dans le chat » ne crée rien : l'IA répond à ta phrase comme d'habitude.");
+
+            var answer = await _confirmationService.RequestAsync(new ConfirmationRequest
+            {
+                Action = ConfirmationAction.ModifyCode,
+                Title = "🏗 Créer un projet sur le disque ?",
+                Message = string.Join("\n", lines),
+                Details = string.Join("\n", files.Select(f => existing.Contains(f) ? f + "   (existe déjà : sera remplacé)" : f)),
+                ConfirmText = "Créer le projet",
+                CancelText = "Répondre dans le chat",
+                IsDestructive = existing.Count > 0,
+            });
+            if (!answer.Confirmed) return null;
+
+            App.Breadcrumb("HandleChatProjectRequestAsync — route : AutoProjectBuilder (accord donné dans le chat)");
+            var result = await BuildProjectAsync(text);
+            RefreshHomeStats();
+            return result.Success
+                ? $"✔ {result.Summary}\nIl est ouvert dans l'explorateur ; son README.md explique comment le lancer."
+                : $"⚠ {result.Summary} {result.Explanation}";
         }
     }
 }
