@@ -26,16 +26,30 @@
             </Grid>
 
             <!-- Listes staged / unstaged / untracked -->
-            <ScrollView Grid.Row="2">
+            <!-- ★ MODIFIÉ (01/10, chantier gp_*) : le ScrollView est nommé pour que le réglage
+                 gp_scrollbar puisse réellement piloter sa barre de défilement (Auto/Always/Never).
+                 Sans nom, le réglage n'aurait aucune prise : c'est le SEUL défilement du panneau. -->
+            <ScrollView Grid.Row="2" x:Name="ChangesScroll"
+                        VerticalScrollBarVisibility="Default" HorizontalScrollBarVisibility="Never">
                 <VerticalStackLayout Spacing="{StaticResource SpaceSm}">
 
                     <Label Text="📌 Staged" FontSize="{StaticResource FontSizeBody}" FontAttributes="Bold" Opacity="0.7" />
-                    <CollectionView x:Name="StagedList" HeightRequest="80">
+                    <CollectionView x:Name="StagedList" HeightRequest="80" SelectionMode="Single" SelectionChanged="OnChangeSelected">
                         <CollectionView.ItemTemplate>
+                            <!-- ★ MODIFIÉ (01/10, chantier gp_*) : les lignes sont des GitChangeNode
+                                 (et non plus des string) pour que l'affichage de statut, les stats de
+                                 diff et le clic soient réellement pilotables par les réglages. Le
+                                 libellé reste le chemin COMPLET renvoyé par git (rien n'est retiré de
+                                 ce que le panneau affichait). -->
                             <DataTemplate>
-                                <Grid ColumnDefinitions="*,Auto" Padding="{StaticResource SpaceXs}">
-                                    <Label Text="{Binding}" FontSize="{StaticResource FontSizeBody}" />
-                                    <Button Grid.Column="1" Text="−" FontSize="11" Padding="6,0"
+                                <Grid ColumnDefinitions="*,Auto,Auto" Padding="{StaticResource SpaceXs}">
+                                    <Label Text="{Binding Path}" FontSize="{StaticResource FontSizeBody}" />
+                                    <Label Grid.Column="1" Text="{Binding DiffStats}"
+                                           WidthRequest="{Binding StatsColumnWidth}"
+                                           TextColor="{StaticResource Success}"
+                                           FontSize="{StaticResource FontSizeBody}"
+                                           VerticalOptions="Center" Margin="6,0" />
+                                    <Button Grid.Column="2" Text="−" FontSize="11" Padding="6,0"
                                             Clicked="OnUnstageClicked" CommandParameter="{Binding}" />
                                 </Grid>
                             </DataTemplate>
@@ -43,30 +57,57 @@
                     </CollectionView>
 
                     <Label Text="✏️ Unstaged" FontSize="{StaticResource FontSizeBody}" FontAttributes="Bold" Opacity="0.7" />
-                    <CollectionView x:Name="UnstagedList" HeightRequest="80">
+                    <CollectionView x:Name="UnstagedList" HeightRequest="80" SelectionMode="Single" SelectionChanged="OnChangeSelected">
                         <CollectionView.ItemTemplate>
                             <DataTemplate>
-                                <Grid ColumnDefinitions="*,Auto" Padding="{StaticResource SpaceXs}">
-                                    <Label Text="{Binding}" FontSize="{StaticResource FontSizeBody}" />
-                                    <Button Grid.Column="1" Text="+" FontSize="11" Padding="6,0"
+                                <Grid ColumnDefinitions="*,Auto,Auto" Padding="{StaticResource SpaceXs}">
+                                    <Label Text="{Binding Path}" FontSize="{StaticResource FontSizeBody}" />
+                                    <Label Grid.Column="1" Text="{Binding DiffStats}"
+                                           WidthRequest="{Binding StatsColumnWidth}"
+                                           TextColor="{StaticResource Danger}"
+                                           FontSize="{StaticResource FontSizeBody}"
+                                           VerticalOptions="Center" Margin="6,0" />
+                                    <Button Grid.Column="2" Text="+" FontSize="11" Padding="6,0"
                                             Clicked="OnStageClicked" CommandParameter="{Binding}" />
                                 </Grid>
                             </DataTemplate>
                         </CollectionView.ItemTemplate>
                     </CollectionView>
 
-                    <Label Text="❓ Untracked" FontSize="{StaticResource FontSizeBody}" FontAttributes="Bold" Opacity="0.7" />
-                    <CollectionView x:Name="UntrackedList" HeightRequest="60">
-                        <CollectionView.ItemTemplate>
-                            <DataTemplate>
-                                <Grid ColumnDefinitions="*,Auto" Padding="{StaticResource SpaceXs}">
-                                    <Label Text="{Binding}" FontSize="{StaticResource FontSizeBody}" />
-                                    <Button Grid.Column="1" Text="+" FontSize="11" Padding="6,0"
-                                            Clicked="OnStageClicked" CommandParameter="{Binding}" />
-                                </Grid>
-                            </DataTemplate>
-                        </CollectionView.ItemTemplate>
-                    </CollectionView>
+                    <!-- ★ MODIFIÉ (01/10) : groupe nommé pour que gp_collapse_untracked puisse
+                         réellement replier cette section (titre ET liste), et pas seulement la liste. -->
+                    <VerticalStackLayout x:Name="UntrackedGroup" Spacing="{StaticResource SpaceSm}">
+                        <Label Text="❓ Untracked" FontSize="{StaticResource FontSizeBody}" FontAttributes="Bold" Opacity="0.7" />
+                        <CollectionView x:Name="UntrackedList" HeightRequest="60" SelectionMode="Single" SelectionChanged="OnChangeSelected">
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate>
+                                    <Grid ColumnDefinitions="*,Auto" Padding="{StaticResource SpaceXs}">
+                                        <Label Text="{Binding Path}" FontSize="{StaticResource FontSizeBody}" />
+                                        <Button Grid.Column="1" Text="+" FontSize="11" Padding="6,0"
+                                                Clicked="OnStageClicked" CommandParameter="{Binding}" />
+                                    </Grid>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </VerticalStackLayout>
+
+                    <!-- ★ AJOUT (01/10) : diff RÉEL du projet (GitService.GetDiffAsync, git CLI),
+                         déplié au clic sur un fichier quand gp_click_behavior vaut « Project Diff »
+                         (défaut). Aucune donnée inventée : un bloc par fichier, avec les lignes
+                         réellement ajoutées/retirées renvoyées par git. -->
+                    <VerticalStackLayout x:Name="ProjectDiffGroup" Spacing="{StaticResource SpaceXs}" IsVisible="False">
+                        <Label Text="Diff du projet" FontSize="{StaticResource FontSizeBody}" FontAttributes="Bold" Opacity="0.7" />
+                        <CollectionView x:Name="DiffList" HeightRequest="220" SelectionMode="None">
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate>
+                                    <VerticalStackLayout Spacing="2" Padding="{StaticResource SpaceXs}">
+                                        <Label Text="{Binding FilePath}" FontSize="{StaticResource FontSizeBody}" FontAttributes="Bold" />
+                                        <Label Text="{Binding Summary}" FontSize="{StaticResource FontSizeBody}" TextColor="{StaticResource Txt2}" />
+                                    </VerticalStackLayout>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+                        </CollectionView>
+                    </VerticalStackLayout>
                 </VerticalStackLayout>
             </ScrollView>
 
