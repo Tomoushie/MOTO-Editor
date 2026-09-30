@@ -178,13 +178,46 @@ qui lit `SettingsCatalog.ById(id).Default`.
 - **`tb_sign_in` / `tb_user_menu` / `tb_user_picture`** : **aucun compte
   utilisateur MOTO n'existe**. Le seul compte réel est GitHub OAuth, déjà
   servi par l'avatar existant.
-- **`sb_*`** (barre de statut : langage, encodage, curseur, fins de ligne) :
-  ces puces **n'existent pas** dans `StatusBarPanelView` — il faut d'abord les
-  **créer** avec de vraies données, puis les câbler.
+- **`sb_*` (barre de statut) — vérifié le 01/10, plus précisément que ce qui
+  était écrit avant.** Les 10 clés prétendent configurer des **boutons** de la
+  barre de statut. Or `StatusBarPanelView.xaml` ne contient **AUCUN de ces
+  boutons** : ses seuls éléments nommés sont `StatusLabel`, `RightChips`,
+  `ErrorsLabel`, `WarningsLabel`, `StateChips`, `SandboxLabel`, `LockedLabel`,
+  `AiStatusLabel`. Le tri réel :
+  - **Pas câblables — la donnée n'existe pas** : `sb_encoding` et
+    `sb_line_endings` (**aucune notion d'encodage ni de fins de ligne** dans
+    `Moto.Editor` : vérifié, 0 occurrence de `LineEnding`/`EOL`), et
+    `sb_cursor_position` (l'éditeur principal est `CodeEditorView`, un
+    **WebView** — la position du curseur vit côté JavaScript, pas dans un
+    modèle C# consultable).
+  - **Pas câblables — le bouton n'existe pas** : `sb_project_panel`,
+    `sb_language`, `sb_terminal`, `sb_debugger`, `sb_search` (ces actions
+    existent ailleurs dans l'app, mais aucun bouton de barre de statut ne les
+    porte). Les câbler = **créer** les boutons, donc ajouter une
+    fonctionnalité, pas câbler un réglage.
+  - **Partiellement câblable** : `sb_diagnostics` (les compteurs existent déjà
+    — `ErrorsLabel`/`WarningsLabel`) et `sb_active_file` (le nom du fichier
+    actif est disponible via `MainViewModel.SelectedDocument`), à condition
+    d'ajouter l'élément d'affichage manquant.
+- **`op_*` (Outline Panel) : LES 5 CLÉS NE SONT PAS CÂBLABLES — `OutlinePanelView`
+  N'EXISTE PAS** dans le dépôt (recherche complète faite le 01/10). Il n'y a
+  aucun panneau « outline » (vue symboles) à configurer.
+- **`gp_button`, `cp_button`, `ap_button`, `op_button`** : prétendent tous
+  configurer « un bouton dans la barre de statut », qui n'existe pas (voir
+  `sb_*` ci-dessus). Même conclusion : créer le bouton serait un ajout de
+  fonctionnalité, pas un câblage.
 - **`pp_count_badge`** : annonce un « nombre de terminaux » alors qu'il n'y a
   **qu'un seul** terminal.
 - `tb_branch_icon`, `tb_worktree`, `tb_onboarding`, `tabs_git_status`,
   `tabs_pinned_layout` : concept ou donnée inexistants.
+
+> **Constat de fond (01/10)** : une part notable du catalogue décrit une
+> application qui n'existe pas encore. Ce n'est pas seulement du « câblage en
+> retard » — certaines fonctionnalités annoncées n'ont **aucun support** dans
+> le code. C'est un point à connaître pour juger le palier « vendable » :
+> la règle « tout ce qui est annoncé fonctionne » ne se satisfait pas
+> uniquement en câblant, elle demande aussi de **retirer ou d'assumer**
+> les réglages sans support.
 - **Restent à faire** : `gp_*` (panneau Git), `ap_*`/`cp_*`/`dp_*`/`op_*`
   (panneaux agent/chat/debug/outline), puis AI, Agent, Éditeur, Terminal,
   Version Control, Recherche, Apparence, Général, Collaboration.

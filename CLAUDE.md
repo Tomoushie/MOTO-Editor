@@ -671,6 +671,37 @@ lecture directe du code.
    statut `sb_*` et les aperçus `preview_*` ; les onglets sont faits), puis AI,
    Agent, Éditeur, Terminal, Version Control, Recherche & Fichiers, Apparence,
    Général, Collaboration.
+
+   ⚠️ **RECALIBRAGE IMPORTANT (01/10) — une partie de ces « inertes » n'est PAS
+   câblable, car la fonctionnalité annoncée n'a aucun support dans le code.**
+   C'est une distinction décisive : câbler suppose qu'une donnée ou un élément
+   d'interface existe déjà et ignore son réglage. Ici, plusieurs réglages
+   décrivent une application qui n'existe pas. Constats **vérifiés** le 01/10 :
+   - **`op_*` (Outline Panel) : les 5 clés ne sont pas câblables —
+     `OutlinePanelView` N'EXISTE PAS** dans le dépôt (recherche complète). Il n'y
+     a aucun panneau « outline » (vue symboles) à configurer.
+   - **`sb_*` (barre de statut, 10 clés)** : elles prétendent toutes configurer
+     un **bouton** de la barre de statut, or `StatusBarPanelView.xaml` n'en
+     contient **aucun** (seuls `StatusLabel`, `RightChips`, `ErrorsLabel`,
+     `WarningsLabel`, `StateChips`, `SandboxLabel`, `LockedLabel`,
+     `AiStatusLabel`). Détail : `sb_encoding` et `sb_line_endings` se heurtent en
+     plus à une **absence de donnée** (aucune notion d'encodage ni de fins de
+     ligne dans `Moto.Editor`, 0 occurrence de `LineEnding`/`EOL`) ; et
+     `sb_cursor_position` aussi, l'éditeur principal étant `CodeEditorView`, un
+     **WebView** dont la position du curseur vit côté JavaScript. Seuls
+     `sb_diagnostics` et `sb_active_file` sont partiellement câblables (données
+     réelles disponibles), à condition d'ajouter l'élément d'affichage manquant.
+   - **`gp_button`, `cp_button`, `ap_button`, `op_button`** : même cause — ils
+     configurent « un bouton dans la barre de statut » qui n'existe pas.
+   - Rappel : **`preview_*` (6 clés)** décrit des « onglets aperçu » dont le
+     concept n'existe nulle part ; **`tb_sign_in`/`tb_user_menu`/
+     `tb_user_picture`** supposent un compte MOTO utilisateur inexistant.
+
+   **Conséquence pour le palier « vendable »** : la règle « tout ce qui est
+   annoncé fonctionne » ne se satisfait pas uniquement en câblant. Elle demande
+   aussi de **retirer du catalogue, ou d'assumer explicitement**, les réglages
+   sans support. C'est une décision produit qui revient à Tom, pas une tâche
+   technique — elle est listée dans les questions de fin de session.
    C'est **le plus grand écart « affiché mais inactif » de l'app**, et le
    verrou direct du palier « élevé → vendable » (la règle étant « tout ce qui
    est annoncé fonctionne »). Effort : non pas des centaines de chantiers
