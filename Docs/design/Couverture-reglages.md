@@ -1,33 +1,50 @@
 # Couverture du catalogue de réglages
 
 > **Généré automatiquement — analyse seule, aucun fichier modifié.**
-> Source : `scripts/settings-coverage.ps1` · Périmètre : 562 fichiers .cs réellement compilés
+> Source : `scripts/settings-coverage.ps1` · Périmètre : 626 fichiers .cs réellement compilés
 
 ## Chiffres
 
 | Mesure | Valeur |
 |---|---|
-| Réglages DÉCLARÉS au catalogue | 324 |
-| Clés lues par du code compilé | 39 |
-| **Déclarés ET lus → réellement opérants** | **12** |
-| Déclarés mais INERTES | 312 |
-| **Part réellement opérante** | **3.7 %** |
+| Réglages DÉCLARÉS au catalogue | 332 |
+| Clés lues par du code compilé | 56 |
+| **Déclarés ET lus → réellement opérants** | **29** |
+| Déclarés mais INERTES | 303 |
+| **Part réellement opérante** | **8.7 %** |
 
 ## Réglages réellement opérants
 
 | Clé | Catégorie | Lue par |
 |---|---|---|
+| `agent_engine` | IA Locale | Moto.Core\Moto.AI\Autonomy\V2\AgentV2Settings.cs |
+| `agent_max_minutes` | IA Locale | Moto.Core\Moto.AI\Autonomy\V2\AgentV2Settings.cs |
+| `agent_max_steps` | IA Locale | Moto.Core\Moto.AI\Autonomy\V2\AgentV2Settings.cs |
+| `agent_model` | IA Locale | Moto.Core\Moto.AI\Autonomy\V2\AgentV2Settings.cs |
+| `agent_num_ctx` | IA Locale | Moto.Core\Moto.AI\Autonomy\V2\AgentV2Settings.cs |
+| `agent_thought` | IA Locale | Moto.Core\Moto.AI\Autonomy\V2\AgentV2Settings.cs |
+| `agent_tool_mode` | IA Locale | Moto.Core\Moto.AI\Autonomy\V2\AgentV2Settings.cs |
+| `agent_verify_command` | IA Locale | Moto.Core\Moto.AI\Autonomy\V2\AgentV2Settings.cs |
 | `buffer_font_size` | Apparence | Moto.Editor\Settings\SettingsApplier.cs |
 | `context_engine_enabled` | Agent | Moto.Core\Moto.AI\Context\ContextEngine.cs |
 | `doc_auto_update` | Agent | Moto.Core\Doc\DocEngine.cs |
 | `doc_on_project_open` | Agent | Moto.Editor\MainPage.Panels.cs |
 | `lsp_diagnostics` | Langages & Outils | Moto.Editor\Settings\SettingsApplier.cs |
 | `minimap_show` | Éditeur | Moto.Editor\Settings\SettingsApplier.cs |
-| `ollama_endpoint` | IA Locale | Moto.Core\Moto.AI\Internal\OllamaClient.cs, Moto.Editor\Pages\AiSettingsPage.xaml.cs |
-| `ollama_model` | IA Locale | Moto.Core\Moto.AI\Internal\OllamaClient.cs, Moto.Editor\Pages\AiSettingsPage.xaml.cs |
+| `ollama_endpoint` | IA Locale | Moto.Core\Moto.AI\Autonomy\V2\AgentV2Settings.cs, Moto.Core\Moto.AI\Generation\GenerationSettings.cs, Moto.Core\Moto.AI\Internal\OllamaClient.cs, Moto.Editor\Pages\AiSettingsPage.xaml.cs |
+| `ollama_model` | IA Locale | Moto.Core\Moto.AI\Autonomy\V2\AgentV2Settings.cs, Moto.Core\Moto.AI\Generation\GenerationSettings.cs, Moto.Core\Moto.AI\Internal\OllamaClient.cs, Moto.Editor\Pages\AiSettingsPage.xaml.cs |
 | `ollama_timeout_seconds` | IA Locale | Moto.Core\Moto.AI\Internal\OllamaClient.cs |
 | `platform_auto_detect` | Agent | Moto.Editor\MainPage.Panels.cs |
 | `power_mode` | Agent | Moto.Core\Performance\PerformanceEngine.cs, Moto.Editor\Controls\AiComposerBarView.xaml.cs |
+| `tabs_activate_on_close` | Fenêtre & Layout | Moto.Editor\ViewModels\MainViewModel.cs |
+| `tabs_bar_buttons` | Fenêtre & Layout | Moto.Editor\Controls\EditorPaneView.xaml.cs |
+| `tabs_close_position` | Fenêtre & Layout | Moto.Editor\Settings\TabBarSettings.cs |
+| `tabs_file_icons` | Fenêtre & Layout | Moto.Editor\Settings\TabBarSettings.cs |
+| `tabs_max` | Fenêtre & Layout | Moto.Editor\ViewModels\MainViewModel.cs |
+| `tabs_nav_buttons` | Fenêtre & Layout | Moto.Editor\Controls\EditorPaneView.xaml.cs |
+| `tabs_show` | Fenêtre & Layout | Moto.Editor\Controls\EditorPaneView.xaml.cs |
+| `tabs_show_close` | Fenêtre & Layout | Moto.Editor\Settings\TabBarSettings.cs |
+| `tabs_show_diagnostics` | Fenêtre & Layout | Moto.Editor\Settings\TabBarSettings.cs |
 | `theme_mode` | Apparence | Moto.Editor\Settings\SettingsApplier.cs |
 
 ## Réglages INERTES, par catégorie
@@ -35,59 +52,6 @@
 Ce sont les réglages affichés dans la fenêtre Réglages dont AUCUN code
 compilé ne lit la clé : ils sont persistés, mais sans effet. C'est la
 matière première du palier « tout ce qui est annoncé fonctionne ».
-
-### Fenêtre & Layout — 50 réglage(s) inerte(s)
-
-- `border_size`
-- `bottom_dock_layout`
-- `centered_left_padding`
-- `centered_right_padding`
-- `focus_follows_debounce`
-- `focus_follows_mouse`
-- `fullscreen_mode`
-- `horizontal_split_direction`
-- `inactive_opacity`
-- `preview_code_nav`
-- `preview_enabled`
-- `preview_file_finder`
-- `preview_keep_on_nav`
-- `preview_multibuffer`
-- `preview_project_panel`
-- `sb_active_file`
-- `sb_cursor_position`
-- `sb_debugger`
-- `sb_diagnostics`
-- `sb_encoding`
-- `sb_language`
-- `sb_line_endings`
-- `sb_project_panel`
-- `sb_search`
-- `sb_terminal`
-- `tabs_activate_on_close`
-- `tabs_bar_buttons`
-- `tabs_close_position`
-- `tabs_file_icons`
-- `tabs_git_status`
-- `tabs_max`
-- `tabs_nav_buttons`
-- `tabs_pinned_layout`
-- `tabs_show`
-- `tabs_show_close`
-- `tabs_show_diagnostics`
-- `tb_branch_icon`
-- `tb_branch_name`
-- `tb_button_layout`
-- `tb_menus`
-- `tb_onboarding`
-- `tb_project_items`
-- `tb_sign_in`
-- `tb_user_menu`
-- `tb_user_picture`
-- `tb_worktree`
-- `use_system_window_tabs`
-- `vertical_split_direction`
-- `window_decorations`
-- `zoomed_padding`
 
 ### Panneaux — 44 réglage(s) inerte(s)
 
@@ -135,6 +99,50 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `pp_horizontal_scroll`
 - `pp_indent`
 - `pp_width`
+
+### Fenêtre & Layout — 41 réglage(s) inerte(s)
+
+- `border_size`
+- `bottom_dock_layout`
+- `centered_left_padding`
+- `centered_right_padding`
+- `focus_follows_debounce`
+- `focus_follows_mouse`
+- `fullscreen_mode`
+- `horizontal_split_direction`
+- `inactive_opacity`
+- `preview_code_nav`
+- `preview_enabled`
+- `preview_file_finder`
+- `preview_keep_on_nav`
+- `preview_multibuffer`
+- `preview_project_panel`
+- `sb_active_file`
+- `sb_cursor_position`
+- `sb_debugger`
+- `sb_diagnostics`
+- `sb_encoding`
+- `sb_language`
+- `sb_line_endings`
+- `sb_project_panel`
+- `sb_search`
+- `sb_terminal`
+- `tabs_git_status`
+- `tabs_pinned_layout`
+- `tb_branch_icon`
+- `tb_branch_name`
+- `tb_button_layout`
+- `tb_menus`
+- `tb_onboarding`
+- `tb_project_items`
+- `tb_sign_in`
+- `tb_user_menu`
+- `tb_user_picture`
+- `tb_worktree`
+- `use_system_window_tabs`
+- `vertical_split_direction`
+- `window_decorations`
+- `zoomed_padding`
 
 ### AI — 31 réglage(s) inerte(s)
 
@@ -254,26 +262,6 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `terminal_show_scrollbar`
 - `terminal_working_dir`
 
-### Apparence — 17 réglage(s) inerte(s)
-
-- `agent_font_size`
-- `buffer_font_family`
-- `buffer_font_weight`
-- `code_fade`
-- `current_line_highlight`
-- `cursor_blink`
-- `cursor_shape`
-- `dark_theme`
-- `indent_guides`
-- `light_theme`
-- `line_height`
-- `reduce_motion`
-- `rounded_selection`
-- `selection_highlight`
-- `ui_font_family`
-- `ui_font_size`
-- `wrap_guides`
-
 ### Version Control — 17 réglage(s) inerte(s)
 
 - `git_blame_avatar`
@@ -313,6 +301,26 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `search_whole_word`
 - `search_wrap`
 - `seed_search_from_cursor`
+
+### Apparence — 17 réglage(s) inerte(s)
+
+- `agent_font_size`
+- `buffer_font_family`
+- `buffer_font_weight`
+- `code_fade`
+- `current_line_highlight`
+- `cursor_blink`
+- `cursor_shape`
+- `dark_theme`
+- `indent_guides`
+- `light_theme`
+- `line_height`
+- `reduce_motion`
+- `rounded_selection`
+- `selection_highlight`
+- `ui_font_family`
+- `ui_font_size`
+- `wrap_guides`
 
 ### Général — 14 réglage(s) inerte(s)
 

@@ -377,8 +377,8 @@ juge le rendu actuel « cheap » alors que l'architecture est déjà « élevé 
   ne pas se fier à l'auto-évaluation de ce document.
 - **Backend / Structure** : architecture, moteurs réels, 0 erreur de build,
   fonctionnalités réellement branchées. Le passage à « vendable » exige que
-  **tout ce qui est annoncé fonctionne** (aujourd'hui, mesuré : 12 réglages
-  opérants sur 324 déclarés, LSP/DAP/CRDT absents, cluster ONNX mort — voir
+  **tout ce qui est annoncé fonctionne** (mesuré le 28/09 : 29 réglages
+  opérants sur 332 déclarés, LSP/DAP/CRDT absents, cluster ONNX mort — voir
   bug #4 ci-dessous).
 - **triple A** (les deux axes) : niveau VS Code / Zed / JetBrains en
   visuel **et** en profondeur fonctionnelle.
@@ -539,30 +539,54 @@ lecture directe du code.
    (`SettingsCatalog.cs`) changé pour n'offrir plus qu'un seul choix
    ("Dark"). Construire une vraie palette claire reste une option pour plus
    tard (gros chantier), pas retenue aujourd'hui. Confirmé par Tom.
-4. **Réglages : 12 opérants sur 324 déclarés — soit 3,7 %.** Mesuré le 22/09
-   par `scripts/settings-coverage.ps1` (rapport :
-   `Docs/design/Couverture-reglages.md`), sur le **périmètre réellement
-   compilé** (562 fichiers .cs ; les 98 fichiers exclus du build sont
-   écartés, sinon on compterait comme « opérant » un réglage lu par du code
-   mort — c'est le cas des `ai.embedded.*`, lus par le cluster ONNX non
-   compilé).
-   Le chiffre « 4 » qui figurait ici venait de la seule lecture de
-   `SettingsApplier.ApplyAll()` : il n'applique effectivement que 4 clés
-   (`theme_mode`, `buffer_font_size`, `minimap_show`, `lsp_diagnostics`),
-   mais 8 autres sont lues ailleurs dans du code compilé
-   (`context_engine_enabled`, `doc_auto_update`, `doc_on_project_open`,
-   `ollama_endpoint`, `ollama_model`, `ollama_timeout_seconds`,
-   `platform_auto_detect`, `power_mode`).
-   **Les 312 inertes se répartissent par catégorie** — et le plus gros
+4. **Réglages : 29 opérants sur 332 déclarés — soit 8,7 %** (mesuré le
+   28/09 par `scripts/settings-coverage.ps1`, rapport :
+   `Docs/design/Couverture-reglages.md`). ⏳ Le chiffre historique était
+   **12 sur 324 (3,7 %)** au 22/09 ; la mesure du 28/09 sur le même script
+   donnait **20 sur 332** AVANT le chantier `tabs_*` (le catalogue et les
+   lectures ont grandi entre-temps) → **+9 clés en un seul chantier**, la
+   famille « Fenêtre & Layout / Tab Bar ».
+   Périmètre : le code **réellement compilé** (les fichiers listés dans
+   `<Compile Remove>`/`<MauiXaml Remove>` sont écartés, sinon on compterait
+   comme « opérant » un réglage lu par du code mort — cas des `ai.embedded.*`,
+   lus par le cluster ONNX non compilé).
+   ⚠️ **Le script ne compte que les lectures à clé LITTÉRALE** : un
+   `GetBool(cle)` où `cle` est une variable n'est PAS compté. Garder les
+   littéraux aux points de lecture, sinon la mesure ment (en baisse).
+   ⚠️ **Piège majeur découvert le 28/09** : `SettingsEngine.GetBool(clé)` /
+   `GetInt(clé)` / `GetString(clé)` **sans second argument** ne consultent
+   JAMAIS le catalogue (`SettingsEngineCore.cs`) — ils retombent sur
+   `false` / `0` / `""` pour une clé absente du store. Le « défaut déclaré »
+   du catalogue n'existe donc qu'à l'affichage dans la fenêtre Réglages.
+   Tout nouveau réglage appliqué doit passer le défaut explicitement, de
+   préférence via `Moto.Editor/Settings/TabBarSettings.DeclaredBool/Int/String`
+   (qui lit `SettingsCatalog.ById(id).Default`).
+   **Ce qui est opérant depuis le 28/09 (famille `tabs_*`, 9 clés)** :
+   `tabs_show`, `tabs_bar_buttons`, `tabs_nav_buttons`, `tabs_file_icons`,
+   `tabs_show_diagnostics`, `tabs_close_position`, `tabs_show_close` (application
+   visuelle : `EditorPaneView.ApplySettings` + `TabBarSettings` + état par onglet
+   dans `EditorDocument`), `tabs_max` (refus d'ouverture au-delà de la limite,
+   `MainViewModel.OpenFilePath`) et `tabs_activate_on_close` (choix de l'onglet
+   activé après fermeture, `MainViewModel.RemoveDocument`, avec ordre d'activation
+   réel pour « History »).
+   **Restent INERTES dans cette famille (2 clés, raisons exactes)** :
+   `tabs_git_status` — aucune donnée de statut git **par onglet** n'existe dans
+   le dépôt (seule la branche du dossier racine est lue, `FileExplorerView`), donc
+   l'afficher obligerait à inventer une valeur ; `tabs_pinned_layout` — aucun
+   concept d'onglet épinglé n'existe pour l'éditeur (`IsPinned` n'existe que pour
+   les artefacts Claude et les signets de session), il n'y a donc rien à placer
+   dans une « rangée séparée ».
+   **Les 303 inertes restants se répartissent par catégorie** — le plus gros
    cluster correspond à des **interfaces qui EXISTENT déjà mais ignorent leur
-   configuration** : `Fenêtre & Layout` 50 (onglets `tabs_*`, barre de titre
-   `tb_*`, barre de statut `sb_*`, aperçus `preview_*`), `Panneaux` 44
-   (explorateur `pp_*`, panneau Git `gp_*`, panneaux agent/chat/debug/outline
-   `ap_*`/`cp_*`/`dp_*`/`op_*`), puis AI 31, Agent 28, Éditeur 25,
-   Terminal 22, Apparence 17, Version Control 17, Recherche & Fichiers 17.
+   configuration** : `Panneaux` 44 (explorateur `pp_*`, panneau Git `gp_*`,
+   panneaux agent/chat/debug/outline `ap_*`/`cp_*`/`dp_*`/`op_*`),
+   `Fenêtre & Layout` 41 (barre de titre `tb_*`, barre de statut `sb_*`,
+   aperçus `preview_*` — les onglets sont faits), puis AI 31, Agent 28,
+   Éditeur 25, Terminal 22, Version Control 17, Recherche & Fichiers 17,
+   Apparence 17, Général 14, Collaboration 10.
    C'est **le plus grand écart « affiché mais inactif » de l'app**, et le
    verrou direct du palier « élevé → vendable » (la règle étant « tout ce qui
-   est annoncé fonctionne »). Effort : non pas 312 chantiers isolés, mais
+   est annoncé fonctionne »). Effort : non pas 303 chantiers isolés, mais
    quelques familles cohérentes à câbler sur de l'UI existante.
 5. ✅ **CORRIGÉ (02/09).** Menu Réglages fantôme (`SettingsMenuView`, l'ancien
    menu avant la fenêtre flottante façon Zed — plus aucun bouton nulle part
