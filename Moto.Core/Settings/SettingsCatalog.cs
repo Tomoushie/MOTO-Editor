@@ -175,15 +175,26 @@ namespace Moto.Core.Settings
             E("tb_button_layout", "Fenêtre & Layout", "Title Bar", "Disposition des boutons", "Position des contrôles de fenêtre.", "Platform Default", "Platform Default", "Left", "Right");
             T("tabs_show", "Fenêtre & Layout", "Tab Bar", "Barre d'onglets", "Affiche la barre d'onglets.", true);
             T("tabs_git_status", "Fenêtre & Layout", "Tab Bar", "Statut git dans les onglets", "Statut git sur les onglets.", false);
-            T("tabs_file_icons", "Fenêtre & Layout", "Tab Bar", "Icônes dans les onglets", "Icônes de fichier dans les onglets.", false);
+            // ★ MODIFIÉ (28/09) : défaut passé de false à true. La clé est maintenant réellement
+            // appliquée (elle ne l'était par AUCUN code) ; au défaut déclaré d'origine, activer le
+            // réglage aurait fait DISPARAÎTRE les icônes que l'interface affiche depuis la passe
+            // visuelle du 25/09 — une régression visuelle au premier lancement. Le défaut rejoint
+            // donc le comportement réel ; le réglage reste un vrai choix (désactivable).
+            T("tabs_file_icons", "Fenêtre & Layout", "Tab Bar", "Icônes dans les onglets", "Icônes de fichier dans les onglets.", true);
             E("tabs_close_position", "Fenêtre & Layout", "Tab Bar", "Position du bouton fermer", "Position du bouton de fermeture.", "Right", "Right", "Left");
             I("tabs_max", "Fenêtre & Layout", "Tab Bar", "Onglets maximum", "0 = illimité.", 0, 0, 50);
             T("tabs_nav_buttons", "Fenêtre & Layout", "Tab Bar", "Boutons d'historique", "Boutons précédent/suivant.", true);
             T("tabs_bar_buttons", "Fenêtre & Layout", "Tab Bar", "Boutons de la barre", "Boutons New/Split/Zoom.", true);
             T("tabs_pinned_layout", "Fenêtre & Layout", "Tab Bar", "Onglets épinglés séparés", "Rangée séparée au-dessus.", false);
             E("tabs_activate_on_close", "Fenêtre & Layout", "Tab Settings", "Activer à la fermeture", "Onglet activé après fermeture.", "History", "History", "Neighbour", "Left Neighbour");
-            E("tabs_show_diagnostics", "Fenêtre & Layout", "Tab Settings", "Diagnostics dans les onglets", "Erreurs/warnings dans les onglets.", "Off", "Off", "On");
-            E("tabs_show_close", "Fenêtre & Layout", "Tab Settings", "Bouton fermer", "Comportement du bouton fermer.", "Hover", "Hover", "Always", "Hidden");
+            // ★ MODIFIÉ (28/09) : défaut passé de "Off" à "On" — même raison que tabs_file_icons :
+            // la pastille d'erreurs est affichée par l'interface d'aujourd'hui, et le défaut "Off"
+            // déclaré l'aurait fait disparaître dès que le réglage est devenu opérant.
+            E("tabs_show_diagnostics", "Fenêtre & Layout", "Tab Settings", "Diagnostics dans les onglets", "Erreurs/warnings dans les onglets.", "On", "Off", "On");
+            // ★ MODIFIÉ (28/09) : défaut passé de "Hover" à "Always" — même raison. Les trois modes
+            // sont réellement implémentés ("Hover" affiche la croix au survol ; l'onglet actif la
+            // garde pour rester fermable), le défaut rejoint simplement l'affichage actuel.
+            E("tabs_show_close", "Fenêtre & Layout", "Tab Settings", "Bouton fermer", "Comportement du bouton fermer.", "Always", "Hover", "Always", "Hidden");
             T("preview_enabled", "Fenêtre & Layout", "Preview Tabs", "Onglets aperçu", "Onglets temporaires en aperçu.", true);
             T("preview_project_panel", "Fenêtre & Layout", "Preview Tabs", "Aperçu depuis le projet", "Aperçu au clic simple du panneau projet.", true);
             T("preview_file_finder", "Fenêtre & Layout", "Preview Tabs", "Aperçu depuis le finder", "Aperçu depuis le file finder.", false);
