@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Moto.Core.Logging;
 using Moto.Core.Settings;
 using Moto.Editor.Services;
-
 namespace Moto.Core.Services;
 
 public enum GitOperationResult { Success, Failure, Cancelled }
@@ -24,6 +23,19 @@ public sealed class GitDiff
     public string FilePath { get; set; } = "";
     public string OldContent { get; set; } = "";
     public string NewContent { get; set; } = "";
+}
+
+/// <summary>
+/// ★ AJOUT (01/10, chantier <c>gp_*</c>) : statistiques de modification d'UN fichier, telles que
+/// git les compte (<c>git diff --numstat</c>) — jamais calculées ni estimées par MOTO.
+/// <see cref="IsBinary"/> : git renvoie « - » au lieu d'un nombre pour un fichier binaire, et un
+/// « 0 » affiché à la place serait une valeur fausse.
+/// </summary>
+public sealed class GitDiffStat
+{
+    public int Additions { get; init; }
+    public int Removals { get; init; }
+    public bool IsBinary { get; init; }
 }
 
 /// <summary>
@@ -52,6 +64,15 @@ public sealed class GitService
 
     /// <summary>Définit le dossier du dépôt sur lequel toutes les commandes Git opèrent.</summary>
     public void SetWorkspace(string path) => _workspaceRoot = path ?? string.Empty;
+
+    /// <summary>
+    /// ★ AJOUT (01/10, chantier <c>gp_*</c>) : dossier de travail courant, en LECTURE.
+    /// Il n'existait aucun moyen de le consulter : le panneau Git doit résoudre un chemin
+    /// relatif renvoyé par git (<c>src/Views/Main.cs</c>) en chemin absolu pour ouvrir le
+    /// fichier dans l'éditeur (réglage <c>gp_click_behavior</c> = « File Diff »). Une seconde
+    /// source de vérité côté vue aurait pu diverger du dossier réellement utilisé par git.
+    /// </summary>
+    public string WorkspaceRoot => _workspaceRoot;
 
     // ★ CORRECTIF (03/09, trouvé par Tom en testant) : sans "core.quotepath=false",
     // git échappe par défaut tout nom de fichier non-ASCII en séquences octales
@@ -258,6 +279,49 @@ public sealed class GitService
             diffs.Add(new GitDiff { FilePath = currentFile, OldContent = string.Join("\n", oldLines), NewContent = string.Join("\n", newLines) });
 
         return diffs;
+    }
+
+    /// <summary>
+    /// ★ AJOUT (01/10, chantier <c>gp_*</c>) : ajouts/suppressions par fichier, lus depuis
+    /// <c>git diff --numstat</c> — le comptage OFFICIEL de git, pas un calcul de MOTO sur le
+    /// texte du diff (qui se tromperait sur les changements d'en-tête et les fins de ligne).
+    ///
+    /// Portée volontairement limitée à ce que le panneau Git affiche vraiment : les
+    /// modifications SUIVIES (indexées et non indexées, donc diffées contre HEAD). Les fichiers
+    /// non suivis n'y figurent pas — git ne peut pas compter les lignes d'un fichier qui n'est
+    /// dans aucun commit, et leur afficher « +0 −0 » serait une valeur fausse ; l'appelant le
+    /// sait et n'affiche alors aucune statistique pour eux.
+    ///
+    /// Clé du dictionnaire : le chemin tel que git l'écrit (séparateur « / », échappement octal
+    /// désactivé par <c>ExecAsync</c>) — la MÊME forme que <c>git status --porcelain</c>, donc
+    /// directement comparable aux chemins affichés par le panneau.
+    /// </summary>
+    public async Task<IReadOnlyDictionary<string, GitDiffStat>> GetDiffStatsAsync(bool staged = false)
+    {
+        var result = await ExecAsync(staged ? "git diff --numstat --cached" : "git diff --numstat");
+        var stats = new Dictionary<string, GitDiffStat>(StringComparer.Ordinal);
+        if (result.ExitCode != 0) return stats;
+
+        foreach (var line in result.Output.Split('\n', StringSplitOptions.RemoveEmptyEntries))
+        {
+            // Format numstat : "<ajouts>\t<suppressions>\t<chemin>". Un fichier binaire porte
+            // "-" à la place des deux nombres — signalé, jamais converti en 0.
+            var parts = line.Split('\t');
+            if (parts.Length < 3) continue;
+
+            var path = parts[2].Trim();
+            if (path.Length == 0) continue;
+
+            var binary = parts[0] == "-" || parts[1] == "-";
+            stats[path] = new GitDiffStat
+            {
+                Additions = binary ? 0 : (int.TryParse(parts[0], out var a) ? a : 0),
+                Removals = binary ? 0 : (int.TryParse(parts[1], out var r) ? r : 0),
+                IsBinary = binary
+            };
+        }
+
+        return stats;
     }
 
     /// <summary>Log des commits (archéologie).</summary>
