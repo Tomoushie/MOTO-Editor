@@ -218,9 +218,31 @@ qui lit `SettingsCatalog.ById(id).Default`.
 > la règle « tout ce qui est annoncé fonctionne » ne se satisfait pas
 > uniquement en câblant, elle demande aussi de **retirer ou d'assumer**
 > les réglages sans support.
-- **Restent à faire** : `gp_*` (panneau Git), `ap_*`/`cp_*`/`dp_*`/`op_*`
-  (panneaux agent/chat/debug/outline), puis AI, Agent, Éditeur, Terminal,
-  Version Control, Recherche, Apparence, Général, Collaboration.
+- **Restent à faire** (préfixes réels, mesurés le 01/10 sur les 332 clés) :
+  `terminal_*` (23), `git_*` (16), `gp_*` (15), `pp_*` (13, fait),
+  `tabs_*` (11, fait), `tb_*` (10, fait), `sb_*` (10, 2 faits),
+  `agent_*` (9), `platform_*` (8), `ap_*` (7), `search_*` (7), `auto_*` (7),
+  `file_*` (7), `preview_*` (6, toute la famille inerte), `op_*` (5, inerte),
+  `show_*` (5), `lsp_*` (4), `context_*` (4), `doc_*` (4), `collab_*` (4)…
+  ⚠️ **Les préfixes ne suivent PAS les catégories affichées** dans la fenêtre
+  Réglages (ex. la catégorie « Terminal » n'utilise pas `term_` mais
+  `terminal_`). Toujours inventorier par préfixe RÉEL plutôt que de le deviner
+  — une recherche sur un préfixe supposé renvoie 0 résultat et laisse croire à
+  tort qu'il n'y a rien à faire.
+
+- **Répartition complète par catégorie** (332 clés) : Fenêtre & Layout 50,
+  Panneaux 44, Agent 33, AI 31, Éditeur 26, Terminal 22, Apparence 19,
+  Version Control 17, Recherche & Fichiers 17, Général 14, IA Locale 11,
+  Collaboration 10, Langages & Outils 9, Marketplace 6, Developer 6,
+  Débogueur 5, Débutant 4, MCP 3, Raccourcis 3, Network 2.
+
+> **Constat de fond (01/10)** : une part notable du catalogue décrit une
+> application qui n'existe pas encore. Ce n'est pas seulement du « câblage en
+> retard » — certaines fonctionnalités annoncées n'ont **aucun support** dans
+> le code. C'est un point à connaître pour juger le palier « vendable » :
+> la règle « tout ce qui est annoncé fonctionne » ne se satisfait pas
+> uniquement en câblant, elle demande aussi de **retirer ou d'assumer**
+> les réglages sans support.
 
 ## 6. Méthode de travail — leçons apprises
 
