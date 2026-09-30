@@ -80,6 +80,12 @@ namespace Moto.Editor.Settings
         internal static bool HideHidden(SettingsEngine s) => s.GetBool("pp_hide_hidden", DeclaredBool("pp_hide_hidden"));
         internal static bool HideGitIgnore(SettingsEngine s) => s.GetBool("pp_hide_gitignore", DeclaredBool("pp_hide_gitignore"));
 
+        /// <summary>★ AJOUT (01/10) : lettre d'état git (M/A/?) après le nom, d'après GitService.GetStatusAsync().</summary>
+        internal static bool GitStatus(SettingsEngine s) => s.GetBool("pp_git_status", DeclaredBool("pp_git_status"));
+
+        /// <summary>★ AJOUT (01/10) : teinte d'état git sur le nom lui-même (indicateur coloré).</summary>
+        internal static bool GitIndicator(SettingsEngine s) => s.GetBool("pp_git_indicator", DeclaredBool("pp_git_indicator"));
+
         // ------------------------------------------------------------------
         // Filtrage de l'arborescence (consommé par FileTreeService).
         // ------------------------------------------------------------------

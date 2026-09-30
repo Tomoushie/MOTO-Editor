@@ -135,6 +135,45 @@ namespace Moto.Editor.Models
         public GridLength GlyphColumnWidth
             => HasGlyph ? new GridLength(20) : new GridLength(0);
 
+        // ★ AJOUT (01/10) : statut git PAR FICHIER (réglages pp_git_status / pp_git_indicator).
+        // Rempli uniquement à partir du VRAI GitService.GetStatusAsync() — jamais deviné. Reste
+        // vide tant qu'aucun statut n'a été fourni, auquel cas la colonne n'est pas affichée.
+        private string _gitMark = string.Empty;
+        private string _gitColor = "#9CA3AF";
+
+        /// <summary>Lettre d'état git : "M" modifié, "A" indexé, "?" non suivi, "" si propre/inconnu.</summary>
+        public string GitMark
+        {
+            get => _gitMark;
+            set
+            {
+                if (_gitMark == value) return;
+                _gitMark = value ?? string.Empty;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(HasGitMark));
+                OnPropertyChanged(nameof(GitColumnWidth));
+            }
+        }
+
+        /// <summary>Couleur de la lettre d'état (M orange, A vert, ? gris).</summary>
+        public string GitColor
+        {
+            get => _gitColor;
+            set
+            {
+                if (_gitColor == value) return;
+                _gitColor = value ?? "#9CA3AF";
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>Vrai si une lettre d'état doit être affichée pour cette ligne.</summary>
+        public bool HasGitMark => !string.IsNullOrEmpty(_gitMark);
+
+        /// <summary>Largeur de la colonne d'état git (0 quand rien à afficher, même piège que les autres colonnes).</summary>
+        public GridLength GitColumnWidth
+            => HasGitMark ? new GridLength(14) : new GridLength(0);
+
         public event PropertyChangedEventHandler PropertyChanged;
 
         protected void OnPropertyChanged([CallerMemberName] string name = null)

@@ -1,5 +1,6 @@
 // Moto.Editor/Views/FileExplorerView.xaml.cs
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
@@ -33,6 +34,20 @@ namespace Moto.Editor.Views
 
         /// <summary>★ AJOUT (01/10) : hauteur d'une ligne, pilotée par pp_entry_spacing.</summary>
         private double _rowHeight = 24;
+
+        /// <summary>
+        /// ★ AJOUT (01/10) : le VRAI service git (DI, singleton), injecté par MainPage. Sert aux
+        /// réglages pp_git_status / pp_git_indicator. Nullable : tant qu'il n'est pas fourni,
+        /// aucune lettre d'état n'est affichée — on n'invente jamais un statut.
+        /// </summary>
+        private Moto.Core.Services.GitService? _git;
+
+        /// <summary>
+        /// ★ AJOUT (01/10) : reçoit le service git (même instance que le panneau Git, donc une
+        /// seule source de vérité). Appelé par MainPage.ResolveExtensionServices, pas depuis le
+        /// constructeur : la vue est construite par XAML, avant que le conteneur DI soit prêt.
+        /// </summary>
+        public void SetGitService(Moto.Core.Services.GitService? git) => _git = git;
 
         /// <summary>Chemin racine actuellement affiché.</summary>
         public string CurrentRoot { get; private set; } = string.Empty;
@@ -72,6 +87,92 @@ namespace Moto.Editor.Views
             _treeService.LoadChildren(_root);
             Refresh();
             RefreshProjectInfo(rootPath);
+
+            // ★ AJOUT (01/10) : statut git par fichier (pp_git_status / pp_git_indicator).
+            // Asynchrone et sans await : l'arborescence s'affiche tout de suite, les lettres
+            // d'état arrivent quand git a répondu (jamais de blocage de l'UI sur un process git).
+            _ = RefreshGitStatusAsync();
+        }
+
+        /// <summary>
+        /// ★ AJOUT (01/10) : interroge le VRAI <c>GitService.GetStatusAsync()</c> (git CLI) et
+        /// marque les nœuds visibles correspondants. Les deux réglages ont un rôle distinct :
+        ///   - <c>pp_git_status</c> (défaut true) : affiche la lettre d'état (M/A/?) après le nom ;
+        ///   - <c>pp_git_indicator</c> (défaut false) : affiche la couleur d'état sur le NOM
+        ///     lui-même (indicateur coloré), comme le fait JetBrains.
+        /// Si le dossier n'est pas un dépôt git, <c>GetStatusAsync</c> échoue : on efface les
+        /// marques et on n'affiche rien (catch), plutôt que d'inventer « propre ».
+        /// </summary>
+        private async Task RefreshGitStatusAsync()
+        {
+            var showStatus = PanelSettings.GitStatus(_settings);
+            var showIndicator = PanelSettings.GitIndicator(_settings);
+
+            if (_git is null || (!showStatus && !showIndicator) || string.IsNullOrWhiteSpace(CurrentRoot))
+            {
+                ClearGitMarks();
+                return;
+            }
+
+            IReadOnlyList<string> modified, staged, untracked;
+            string branch;
+            try
+            {
+                var status = await _git.GetStatusAsync();
+                modified = status.UnstagedFiles;
+                staged = status.StagedFiles;
+                untracked = status.UntrackedFiles;
+                branch = status.CurrentBranch;
+            }
+            catch
+            {
+                ClearGitMarks();
+                return; // pas un dépôt git (ou git absent) : rien à afficher, rien d'inventé.
+            }
+
+            // Le statut a été lu de façon asynchrone : un autre dossier a pu être ouvert
+            // entre-temps. On abandonne alors ce résultat périmé.
+            if (string.IsNullOrWhiteSpace(CurrentRoot)) return;
+
+            var root = CurrentRoot.TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+
+            var marks = new Dictionary<string, (string Mark, string Color)>(StringComparer.OrdinalIgnoreCase);
+            foreach (var f in staged) marks[FullPath(root, f)] = ("A", "#5AA76A");
+            foreach (var f in modified) marks[FullPath(root, f)] = ("M", "#D8954A");
+            foreach (var f in untracked) marks[FullPath(root, f)] = ("?", "#9CA3AF");
+
+            foreach (var node in _visibleNodes)
+            {
+                if (node.IsDirectory) continue; // l'état git n'a de sens que sur un fichier
+
+                if (marks.TryGetValue(node.Path, out var mark))
+                {
+                    // pp_git_status gouvernant la LETTRE, pp_git_indicator la teinte du nom.
+                    node.GitMark = showStatus ? mark.Mark : string.Empty;
+                    node.GitColor = showIndicator ? mark.Color : "#9CA3AF";
+                }
+                else
+                {
+                    node.GitMark = string.Empty;
+                }
+            }
+        }
+
+        private static string FullPath(string root, string relative)
+        {
+            try
+            {
+                return Path.GetFullPath(Path.Combine(root, relative.Replace('/', Path.DirectorySeparatorChar)));
+            }
+            catch
+            {
+                return string.Empty;
+            }
+        }
+
+        private void ClearGitMarks()
+        {
+            foreach (var node in _visibleNodes) node.GitMark = string.Empty;
         }
 
         /// <summary>

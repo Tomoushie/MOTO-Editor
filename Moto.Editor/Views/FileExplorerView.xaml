@@ -142,6 +142,7 @@
                                     <ColumnDefinition Width="{Binding ChevronColumnWidth, FallbackValue=16}" />
                                     <ColumnDefinition Width="{Binding GlyphColumnWidth, FallbackValue=20}" />
                                     <ColumnDefinition Width="*" />
+                                    <ColumnDefinition Width="{Binding GitColumnWidth, FallbackValue=0}" />
                                 </Grid.ColumnDefinitions>
                                 <!-- Espace d'indentation -->
                                 <BoxView Grid.Column="0"
@@ -174,6 +175,17 @@
                                        TextColor="{StaticResource Txt1}"
                                        LineBreakMode="TailTruncation"
                                        Margin="4,0,0,0"
+                                       VerticalOptions="Center" />
+                                <!-- ★ AJOUT (01/10) : lettre d'état git (pp_git_status), remplie
+                                     uniquement depuis le VRAI GitService.GetStatusAsync() — aucune
+                                     lettre n'est affichée si le statut n'a pas pu être lu. -->
+                                <Label Grid.Column="4"
+                                       Text="{Binding GitMark}"
+                                       IsVisible="{Binding HasGitMark}"
+                                       TextColor="{Binding GitColor}"
+                                       FontSize="11"
+                                       FontAttributes="Bold"
+                                       HorizontalTextAlignment="Center"
                                        VerticalOptions="Center" />
                             </Grid>
                         </Grid>

@@ -255,6 +255,13 @@ namespace Moto.Editor
                 if (_gitService != null && !string.IsNullOrEmpty(_currentRoot))
                     _gitService.SetWorkspace(_currentRoot);
 
+                // ★ AJOUT (01/10) : l'explorateur reçoit la MÊME instance de GitService, pour que
+                // pp_git_status / pp_git_indicator affichent un statut réel (git CLI) au lieu d'une
+                // valeur devinée. Une seule source de vérité : le panneau Git et l'explorateur ne
+                // peuvent pas se contredire. Fait ici (et non au démarrage par LoadFolder) car
+                // ResolveExtensionServices est le seul endroit où le conteneur DI est disponible.
+                ExplorerPanel.SetGitService(_gitService);
+
                 // ★ AJOUT (03/09, jalon 1 — "agents autonomes en tâche de fond").
                 _backgroundAgentService = services.GetService<Moto.Core.AI.Autonomy.BackgroundAgentService>();
                 // ★ AJOUT (24/09, agent v2) : l'éditeur recharge ses onglets quand l'agent écrit (ou qu'un run est annulé), et
