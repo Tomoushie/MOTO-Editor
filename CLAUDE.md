@@ -625,6 +625,44 @@ lecture directe du code.
    nombre réel. Le nombre de LIGNES de sortie du terminal existe
    (`MainViewModel.TerminalLines`), mais l'afficher sous le mot « terminaux »
    serait une valeur fausse — pire qu'un réglage inerte.
+   **Ce qui est opérant depuis le 01/10 (famille `tb_*`, 4 clés sur 10)** —
+   la barre de titre (`Views/CustomMenuBarView`, `x:Name="MenuBar"`).
+   Mappage dans `Moto.Editor/Settings/TitleBarSettings.cs` (même patron que
+   `TabBarSettings`), appliqué par `MenuBar.ApplySettings(s)` depuis
+   `ApplyLayoutSettings` ET depuis `SettingsWindow.RealSettingChanged` (test de
+   préfixe `tb_` — sans ce 2e chemin, le réglage n'aurait pris qu'au prochain
+   retour de plein écran, ce qui se lit comme un réglage inerte) :
+   `tb_menus` (masque les 5 items de navigation, regroupés dans un conteneur
+   `NavMenus`), `tb_project_items` (hôte = `Environment.MachineName` + nom du
+   dossier ouvert), `tb_branch_name` (branche git réelle),
+   `tb_button_layout` (`Left`/`Right` sur le groupe `WindowButtons`).
+   Les données viennent du MÊME chemin racine que l'explorateur
+   (`MenuBar.SetWorkspace(path)` appelé depuis `LoadWorkspace`, seul point
+   d'entrée d'un import de projet) ; la branche passe par la lecture PARTAGÉE
+   `FileExplorerView.ReadGitBranchShared` (exposée le 01/10 pour éviter une 2e
+   lecture de `.git/HEAD` qui pourrait diverger). Badge de branche masqué hors
+   dépôt git, badges projet masqués tant qu'aucun dossier n'est ouvert.
+   **Restent INERTES dans cette famille (6 clés, raisons exactes)** :
+   `tb_branch_icon` — aucune police du dépôt n'a de glyphe « branche »
+   (constat déjà écrit dans `Controls/MotoIcons.cs`) ; `tb_worktree` — aucun
+   concept de worktree git n'existe (une seule occurrence hors catalogue, et
+   c'est une variable locale de parsing `git status`) ; `tb_onboarding` —
+   aucune bannière de nouveautés n'existe ; `tb_sign_in`, `tb_user_menu`,
+   `tb_user_picture` — **aucun compte utilisateur MOTO n'existe** (pas de
+   service de compte ni de photo). Le SEUL compte réel est le GitHub OAuth
+   (`Services/GitHubAccountService.cs`, déjà branché), et son point d'entrée
+   dans la barre est l'avatar/engrenage existant : recâbler ces 3 clés
+   afficherait un état de connexion MOTO qui n'existe pas.
+   **Famille `preview_*` : 0 clé câblable sur 6, TOUTE la famille est inerte**
+   (`preview_enabled`, `preview_project_panel`, `preview_file_finder`,
+   `preview_multibuffer`, `preview_code_nav`, `preview_keep_on_nav`). Le
+   concept d'« onglet aperçu » (onglet temporaire, en italique, remplacé par le
+   prochain) **n'existe nulle part** : `EditorDocument` n'a aucune notion
+   d'aperçu (`grep` sur `IsPreview`/`PreviewTab` : 0 occurrence hors
+   catalogue). Ne pas confondre avec `LivePreviewView`/`PreviewEngine`, qui
+   sont un aperçu de RENDU web (serveur WebSocket + HTML généré), sans rapport
+   avec des onglets. Câbler ces 6 clés demanderait de CONSTRUIRE d'abord le
+   concept d'onglet aperçu — c'est un chantier, pas un câblage.
    **Les 287 inertes restants se répartissent par catégorie** — le plus gros
    cluster correspond à des **interfaces qui EXISTENT déjà mais ignorent leur
    configuration** : `Panneaux` (explorateur `pp_*` FAIT ; restent le panneau Git
