@@ -87,9 +87,15 @@ namespace Moto.Editor.Views
         "tabs_show", "tabs_bar_buttons", "tabs_nav_buttons", "tabs_file_icons",
         "tabs_show_diagnostics", "tabs_close_position", "tabs_show_close",
         "ap_dock", "ap_width", "ap_height", "cp_dock", "cp_width",
+        // ★ AJOUT (01/10, décision C item 1) : visibilité des boutons d'action de la
+        // barre de statut. ap_button/cp_button passent par le dispatch « ap_ »/« cp_ »
+        // (qui re-applique maintenant aussi StatusBar.ApplySettings), gp_button par
+        // « gp_ », et les 4 sb_* plus bas par « sb_ ».
+        "ap_button", "cp_button",
         // tb_* (title bar) — dispatch « tb_ » → MenuBar.ApplySettings
         "tb_branch_name", "tb_button_layout", "tb_menus", "tb_project_items",
         // gp_* (git panel) — dispatch « gp_ »/« git_ » → ApplyLayoutSettings
+        "gp_button",
         "gp_click_behavior", "gp_collapse_untracked", "gp_commit_max_len", "gp_diff_stats",
         "gp_dock", "gp_group", "gp_scrollbar", "gp_sort", "gp_starts_open",
         "gp_status_style", "gp_tree_view", "gp_width",
@@ -100,7 +106,8 @@ namespace Moto.Editor.Views
         "pp_git_indicator", "pp_git_status", "pp_hide_gitignore", "pp_hide_hidden",
         "pp_horizontal_scroll", "pp_indent", "pp_width",
         // sb_* (status bar) — dispatch « sb_ » → ApplyLayoutSettings
-        "sb_active_file", "sb_diagnostics",
+        "sb_active_file", "sb_debugger", "sb_diagnostics", "sb_project_panel",
+        "sb_search", "sb_terminal",
         // terminal_* (hors terminal_show déjà en tête) — dispatch « terminal_ » → ApplyTerminalSettings
         "terminal_audible_bell", "terminal_breadcrumbs", "terminal_default_height",
         "terminal_detect_venv", "terminal_env_vars", "terminal_font_family",

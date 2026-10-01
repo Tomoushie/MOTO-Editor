@@ -74,6 +74,113 @@
                        IsVisible="False" />
             </HorizontalStackLayout>
 
+            <!-- ★ AJOUT (01/10, décision C item 1) : 7 boutons d'action de la barre de statut.
+                 Jusqu'ici les réglages sb_project_panel/sb_terminal/sb_search/sb_debugger,
+                 gp_button, cp_button et ap_button étaient inertes : ils prétendent configurer
+                 « un bouton dans la barre de statut » qui n'existait pas. Chaque bouton suit le
+                 patron éprouvé du bouton « Infos »/« Monitoring IA » (Border transparent +
+                 Label + TapGestureRecognizer), et chaque bouton est REGROUPÉ avec SON séparateur
+                 dans un conteneur dont on bascule la visibilité (patron du StateChips plus haut) :
+                 masquer un bouton ne laisse donc jamais un trait vertical orphelin. -->
+
+            <HorizontalStackLayout x:Name="ProjectPanelChip" Spacing="0" VerticalOptions="Center">
+                <BoxView WidthRequest="1" Color="{StaticResource BorderMuted}" Margin="0,6" />
+                <Border BackgroundColor="Transparent" Padding="8,0" StrokeThickness="0"
+                        ToolTipProperties.Text="Projet — afficher/masquer l'explorateur">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnProjectPanelTapped" />
+                    </Border.GestureRecognizers>
+                    <Label Text="Projet"
+                           FontSize="{DynamicResource FontSizeUiSmall}"
+                           TextColor="{StaticResource Txt2}"
+                           VerticalOptions="Center" />
+                </Border>
+            </HorizontalStackLayout>
+
+            <HorizontalStackLayout x:Name="TerminalChip" Spacing="0" VerticalOptions="Center">
+                <BoxView WidthRequest="1" Color="{StaticResource BorderMuted}" Margin="0,6" />
+                <Border BackgroundColor="Transparent" Padding="8,0" StrokeThickness="0"
+                        ToolTipProperties.Text="Terminal — afficher/masquer le dock bas">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnTerminalTapped" />
+                    </Border.GestureRecognizers>
+                    <Label Text="Terminal"
+                           FontSize="{DynamicResource FontSizeUiSmall}"
+                           TextColor="{StaticResource Txt2}"
+                           VerticalOptions="Center" />
+                </Border>
+            </HorizontalStackLayout>
+
+            <HorizontalStackLayout x:Name="SearchChip" Spacing="0" VerticalOptions="Center">
+                <BoxView WidthRequest="1" Color="{StaticResource BorderMuted}" Margin="0,6" />
+                <Border BackgroundColor="Transparent" Padding="8,0" StrokeThickness="0"
+                        ToolTipProperties.Text="Recherche — afficher/masquer le panneau de recherche">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnSearchTapped" />
+                    </Border.GestureRecognizers>
+                    <Label Text="Recherche"
+                           FontSize="{DynamicResource FontSizeUiSmall}"
+                           TextColor="{StaticResource Txt2}"
+                           VerticalOptions="Center" />
+                </Border>
+            </HorizontalStackLayout>
+
+            <HorizontalStackLayout x:Name="DebuggerChip" Spacing="0" VerticalOptions="Center">
+                <BoxView WidthRequest="1" Color="{StaticResource BorderMuted}" Margin="0,6" />
+                <Border BackgroundColor="Transparent" Padding="8,0" StrokeThickness="0"
+                        ToolTipProperties.Text="Débogueur — ouvrir la fenêtre Debug">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnDebuggerTapped" />
+                    </Border.GestureRecognizers>
+                    <Label Text="Debug"
+                           FontSize="{DynamicResource FontSizeUiSmall}"
+                           TextColor="{StaticResource Txt2}"
+                           VerticalOptions="Center" />
+                </Border>
+            </HorizontalStackLayout>
+
+            <HorizontalStackLayout x:Name="GitChip" Spacing="0" VerticalOptions="Center">
+                <BoxView WidthRequest="1" Color="{StaticResource BorderMuted}" Margin="0,6" />
+                <Border BackgroundColor="Transparent" Padding="8,0" StrokeThickness="0"
+                        ToolTipProperties.Text="Git — ouvrir le panneau Git">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnGitTapped" />
+                    </Border.GestureRecognizers>
+                    <Label Text="Git"
+                           FontSize="{DynamicResource FontSizeUiSmall}"
+                           TextColor="{StaticResource Txt2}"
+                           VerticalOptions="Center" />
+                </Border>
+            </HorizontalStackLayout>
+
+            <HorizontalStackLayout x:Name="CollabChip" Spacing="0" VerticalOptions="Center">
+                <BoxView WidthRequest="1" Color="{StaticResource BorderMuted}" Margin="0,6" />
+                <Border BackgroundColor="Transparent" Padding="8,0" StrokeThickness="0"
+                        ToolTipProperties.Text="Collaboration — afficher/masquer le panneau de collaboration">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnCollabTapped" />
+                    </Border.GestureRecognizers>
+                    <Label Text="Collab"
+                           FontSize="{DynamicResource FontSizeUiSmall}"
+                           TextColor="{StaticResource Txt2}"
+                           VerticalOptions="Center" />
+                </Border>
+            </HorizontalStackLayout>
+
+            <HorizontalStackLayout x:Name="AiPanelChip" Spacing="0" VerticalOptions="Center">
+                <BoxView WidthRequest="1" Color="{StaticResource BorderMuted}" Margin="0,6" />
+                <Border BackgroundColor="Transparent" Padding="8,0" StrokeThickness="0"
+                        ToolTipProperties.Text="IA — afficher/masquer le panneau de chat IA">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnAiPanelTapped" />
+                    </Border.GestureRecognizers>
+                    <Label Text="IA"
+                           FontSize="{DynamicResource FontSizeUiSmall}"
+                           TextColor="{StaticResource Txt2}"
+                           VerticalOptions="Center" />
+                </Border>
+            </HorizontalStackLayout>
+
             <BoxView WidthRequest="1" Color="{StaticResource BorderMuted}" Margin="0,6" />
 
             <Border BackgroundColor="Transparent" Padding="8,0" StrokeThickness="0">

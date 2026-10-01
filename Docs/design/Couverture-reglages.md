@@ -8,10 +8,10 @@
 | Mesure | Valeur |
 |---|---|
 | Réglages DÉCLARÉS au catalogue | 332 |
-| Clés lues par du code compilé | 109 |
-| **Déclarés ET lus → réellement opérants** | **83** |
-| Déclarés mais INERTES | 249 |
-| **Part réellement opérante** | **25 %** |
+| Clés lues par du code compilé | 116 |
+| **Déclarés ET lus → réellement opérants** | **90** |
+| Déclarés mais INERTES | 242 |
+| **Part réellement opérante** | **27.1 %** |
 
 ## Réglages réellement opérants
 
@@ -26,6 +26,7 @@
 | `agent_thought` | IA Locale | Moto.Core\Moto.AI\Autonomy\V2\AgentV2Settings.cs |
 | `agent_tool_mode` | IA Locale | Moto.Core\Moto.AI\Autonomy\V2\AgentV2Settings.cs |
 | `agent_verify_command` | IA Locale | Moto.Core\Moto.AI\Autonomy\V2\AgentV2Settings.cs |
+| `ap_button` | Panneaux | Moto.Editor\Settings\StatusBarSettings.cs |
 | `ap_dock` | Panneaux | Moto.Editor\Settings\DockPanelSettings.cs |
 | `ap_height` | Panneaux | Moto.Editor\Settings\DockPanelSettings.cs |
 | `ap_width` | Panneaux | Moto.Editor\Settings\DockPanelSettings.cs |
@@ -33,6 +34,7 @@
 | `auto_update` | Général | Moto.Editor\Services\AutoUpdateService.cs, Moto.Editor\Settings\AutoSettings.cs |
 | `buffer_font_size` | Apparence | Moto.Editor\Settings\SettingsApplier.cs |
 | `context_engine_enabled` | Agent | Moto.Core\Moto.AI\Context\ContextEngine.cs |
+| `cp_button` | Panneaux | Moto.Editor\Settings\StatusBarSettings.cs |
 | `cp_dock` | Panneaux | Moto.Editor\Settings\DockPanelSettings.cs |
 | `cp_width` | Panneaux | Moto.Editor\Settings\DockPanelSettings.cs |
 | `doc_auto_update` | Agent | Moto.Core\Doc\DocEngine.cs |
@@ -42,6 +44,7 @@
 | `git_integration` | Version Control | Moto.Editor\Settings\GitSettings.cs |
 | `git_path_style` | Version Control | Moto.Editor\Settings\GitSettings.cs |
 | `git_stage_restore_buttons` | Version Control | Moto.Editor\Settings\GitSettings.cs |
+| `gp_button` | Panneaux | Moto.Editor\Settings\StatusBarSettings.cs |
 | `gp_click_behavior` | Panneaux | Moto.Editor\Settings\GitPanelSettings.cs |
 | `gp_collapse_untracked` | Panneaux | Moto.Editor\Settings\GitPanelSettings.cs |
 | `gp_commit_max_len` | Panneaux | Moto.Editor\Settings\GitPanelSettings.cs |
@@ -74,7 +77,11 @@
 | `pp_indent` | Panneaux | Moto.Editor\Settings\PanelSettings.cs |
 | `pp_width` | Panneaux | Moto.Editor\Settings\PanelSettings.cs |
 | `sb_active_file` | Fenêtre & Layout | Moto.Editor\Settings\StatusBarSettings.cs |
+| `sb_debugger` | Fenêtre & Layout | Moto.Editor\Settings\StatusBarSettings.cs |
 | `sb_diagnostics` | Fenêtre & Layout | Moto.Editor\Settings\StatusBarSettings.cs |
+| `sb_project_panel` | Fenêtre & Layout | Moto.Editor\Settings\StatusBarSettings.cs |
+| `sb_search` | Fenêtre & Layout | Moto.Editor\Settings\StatusBarSettings.cs |
+| `sb_terminal` | Fenêtre & Layout | Moto.Editor\Settings\StatusBarSettings.cs |
 | `search_include_ignored` | Recherche & Fichiers | Moto.Editor\Settings\SearchSettings.cs |
 | `tabs_activate_on_close` | Fenêtre & Layout | Moto.Editor\ViewModels\MainViewModel.cs |
 | `tabs_bar_buttons` | Fenêtre & Layout | Moto.Editor\Controls\EditorPaneView.xaml.cs |
@@ -107,7 +114,7 @@ Ce sont les réglages affichés dans la fenêtre Réglages dont AUCUN code
 compilé ne lit la clé : ils sont persistés, mais sans effet. C'est la
 matière première du palier « tout ce qui est annoncé fonctionne ».
 
-### Fenêtre & Layout — 35 réglage(s) inerte(s)
+### Fenêtre & Layout — 31 réglage(s) inerte(s)
 
 - `border_size`
 - `bottom_dock_layout`
@@ -125,13 +132,9 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `preview_multibuffer`
 - `preview_project_panel`
 - `sb_cursor_position`
-- `sb_debugger`
 - `sb_encoding`
 - `sb_language`
 - `sb_line_endings`
-- `sb_project_panel`
-- `sb_search`
-- `sb_terminal`
 - `tabs_git_status`
 - `tabs_pinned_layout`
 - `tb_branch_icon`
@@ -236,25 +239,6 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `tab_size`
 - `vertical_scroll_margin`
 
-### Recherche & Fichiers — 16 réglage(s) inerte(s)
-
-- `close_on_file_delete`
-- `file_finder_icons`
-- `file_finder_include_ignored`
-- `file_finder_skip_focus`
-- `file_scan_depth`
-- `file_scan_exclusions`
-- `file_scan_inclusions`
-- `restore_file_state`
-- `scan_symbolic_links`
-- `search_case_sensitive`
-- `search_center_on_match`
-- `search_regex`
-- `search_smartcase`
-- `search_whole_word`
-- `search_wrap`
-- `seed_search_from_cursor`
-
 ### Apparence — 16 réglage(s) inerte(s)
 
 - `buffer_font_family`
@@ -274,23 +258,24 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `ui_font_size`
 - `wrap_guides`
 
-### Panneaux — 15 réglage(s) inerte(s)
+### Recherche & Fichiers — 16 réglage(s) inerte(s)
 
-- `ap_button`
-- `ap_flexible`
-- `ap_limit_width`
-- `ap_max_width`
-- `cp_button`
-- `dp_dock`
-- `gp_button`
-- `gp_count_badge`
-- `gp_fallback_branch`
-- `op_auto_fold`
-- `op_auto_reveal`
-- `op_button`
-- `op_dock`
-- `op_indent_guides`
-- `pp_count_badge`
+- `close_on_file_delete`
+- `file_finder_icons`
+- `file_finder_include_ignored`
+- `file_finder_skip_focus`
+- `file_scan_depth`
+- `file_scan_exclusions`
+- `file_scan_inclusions`
+- `restore_file_state`
+- `scan_symbolic_links`
+- `search_case_sensitive`
+- `search_center_on_match`
+- `search_regex`
+- `search_smartcase`
+- `search_whole_word`
+- `search_wrap`
+- `seed_search_from_cursor`
 
 ### Général — 13 réglage(s) inerte(s)
 
@@ -338,6 +323,21 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `terminal_option_as_meta`
 - `terminal_scroll_multiplier`
 - `terminal_show_scrollbar`
+
+### Panneaux — 12 réglage(s) inerte(s)
+
+- `ap_flexible`
+- `ap_limit_width`
+- `ap_max_width`
+- `dp_dock`
+- `gp_count_badge`
+- `gp_fallback_branch`
+- `op_auto_fold`
+- `op_auto_reveal`
+- `op_button`
+- `op_dock`
+- `op_indent_guides`
+- `pp_count_badge`
 
 ### Collaboration — 10 réglage(s) inerte(s)
 
@@ -396,17 +396,17 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `pair_programming`
 - `tutor_mode`
 
-### Raccourcis — 3 réglage(s) inerte(s)
-
-- `base_keymap`
-- `helix_mode`
-- `vim_mode`
-
 ### MCP — 3 réglage(s) inerte(s)
 
 - `mcp.adv.checkpointing`
 - `mcp.enabled`
 - `mcp.subagents`
+
+### Raccourcis — 3 réglage(s) inerte(s)
+
+- `base_keymap`
+- `helix_mode`
+- `vim_mode`
 
 ### Network — 2 réglage(s) inerte(s)
 

@@ -593,7 +593,7 @@ lecture directe du code.
    (`SettingsCatalog.cs`) changé pour n'offrir plus qu'un seul choix
    ("Dark"). Construire une vraie palette claire reste une option pour plus
    tard (gros chantier), pas retenue aujourd'hui. Confirmé par Tom.
-  4. **Réglages : 83 opérants sur 332 déclarés — soit 25,0 %** (mesuré le
+  4. **Réglages : 90 opérants sur 332 déclarés — soit 27,1 %** (mesuré le
    01/10 par `scripts/settings-coverage.ps1`, rapport :
    `Docs/design/Couverture-reglages.md`). ⏳ Le chiffre historique était
    **12 sur 324 (3,7 %)** au 22/09 ; **20 sur 332** au 28/09 AVANT les
@@ -613,7 +613,13 @@ lecture directe du code.
     étaient déjà lues par `AgentV2Settings` dans Moto.Core), puis
     **80 (24,1 %)** après `search_include_ignored` (lot `search_*`, même
     jour) — famille terminée, 1 opérante / 7 inertes, avec défaut corrigé
-    au catalogue (voir plus bas).
+    au catalogue (voir plus bas), puis **83 (25,0 %)** après le lot `doc_*`
+    (doc_folder câblé + doc_auto_update corrigé, même jour), puis
+    **90 (27,1 %)** après la tranche 1 de l'item 1 (décision C) : les
+    7 boutons d'action de la barre de statut (`sb_project_panel`,
+    `sb_terminal`, `sb_search`, `sb_debugger`, `gp_button`, `cp_button`,
+    `ap_button`), clés de visibilité lues par `StatusBarSettings` et actions
+    réelles câblées dans `MainPage` (01/10).
    ⏳ **Mesures de branche (à ne pas confondre avec le tronc)** : le chantier
    `ap_*`/`cp_*` annonçait **45 → 50 (15,1 %)** mesuré dans SON worktree, où
    `gp_*`/`sb_*` n'étaient pas câblés. Ces chiffres ne sont pas comparables
@@ -700,7 +706,7 @@ lecture directe du code.
    (`Services/GitHubAccountService.cs`, déjà branché), et son point d'entrée
    dans la barre est l'avatar/engrenage existant : recâbler ces 3 clés
    afficherait un état de connexion MOTO qui n'existe pas.
-   **Ce qui est opérant depuis le 01/10 (famille `gp_*`, 12 clés sur 15)** —
+   **Ce qui est opérant depuis le 01/10 (famille `gp_*`, 13 clés sur 15)** —
    le panneau Git (`Views/GitPanelView`, fenêtre spécialisée « Git » + palette
    `git.panel`), alimenté par le VRAI `Moto.Core.Services.GitService` (git CLI).
    Mappage dans `Moto.Editor/Settings/GitPanelSettings.cs` (même patron que
@@ -733,11 +739,10 @@ lecture directe du code.
      `gp_width` (bornée 200..1000), `gp_dock` (Right par défaut / Left / Bottom).
    ⚠️ La hauteur de la fenêtre Git n'est jamais inventée : rien dans la famille
    ne la gouverne.
-   **Restent INERTES dans cette famille (3 clés, raisons exactes)** :
-   `gp_button` — il configure « un bouton git dans la barre de statut », qui
-   n'existe pas (`StatusBarPanelView.xaml` n'a aucune puce git) : en ajouter une
-   est une fonctionnalité à concevoir, pas un réglage à câbler (même famille que
-   `sb_*`/`cp_button`/`ap_button`/`op_button`) ; `gp_fallback_branch` — la câbler
+   **Restent INERTES dans cette famille (2 clés, raisons exactes)** :
+   ★ `gp_button` a été CÂBLÉ le 01/10 (tranche 1, décision C item 1) : bouton
+   « Git » créé dans `StatusBarPanelView.xaml`, visibilité par `StatusBarSettings`,
+   action `OpenSpecializedWindow("git")`. `gp_fallback_branch` — la câbler
    afficherait « main » dans un dossier SANS branche (dossier vide, `git status`
    en échec) : ce serait une branche inventée, pas une valeur de repli
    réellement utilisée — le panneau dit déjà vrai en affichant « aucune branche
@@ -757,7 +762,7 @@ lecture directe du code.
    sont un aperçu de RENDU web (serveur WebSocket + HTML généré), sans rapport
    avec des onglets. Câbler ces 6 clés demanderait de CONSTRUIRE d'abord le
    concept d'onglet aperçu — c'est un chantier, pas un câblage.
-   **Ce qui est opérant depuis le 01/10 (familles `ap_*` et `cp_*`, 5 clés sur 11)** —
+   **Ce qui est opérant depuis le 01/10 (familles `ap_*` et `cp_*`, 7 clés sur 11)** —
    géométrie et dock du panneau agent et du panneau collaboration. Mappage dans
    `Moto.Editor/Settings/DockPanelSettings.cs` (même patron que `TabBarSettings`/
    `PanelSettings`), appliqué par `ApplyAgentAndCollabPanelSettings(s)` depuis
@@ -773,12 +778,15 @@ lecture directe du code.
    - `ap_height` : hauteur de départ du chat, ensuite plafonnée par `FitToViewport` ;
    - `cp_width` : largeur de `CollabPanelView` (150..800) ;
    - `cp_dock` : ancrage gauche/droite de l'overlay collaboration.
-   **Restent INERTES dans ces familles (6 clés, raisons exactes)** :
-   `ap_button` et `cp_button` (bouton de barre de statut inexistant) ;
-   `ap_limit_width`/`ap_max_width` (« contenu centré » : le chat occupe toute la
-   largeur, seules les bulles ont une borne figée de 420 px) ; `ap_flexible`
-   (exigerait de DÉSACTIVER une poignée de redimensionnement qui fonctionne) ;
-    `dp_dock` (voir le constat `DebugPanel` INATTEIGNABLE ci-dessus).
+   **Restent INERTES dans ces familles (4 clés, raisons exactes)** :
+   ★ `ap_button` et `cp_button` ont été CÂBLÉS le 01/10 (tranche 1, décision C
+   item 1) : boutons « IA »/« Collab » créés dans `StatusBarPanelView.xaml`,
+   visibilité par `StatusBarSettings`, actions `OnActivitySelected("ai")` /
+   `OnActivitySelected("collab")`. `ap_limit_width`/`ap_max_width` (« contenu
+   centré » : le chat occupe toute la largeur, seules les bulles ont une borne
+   figée de 420 px) ; `ap_flexible` (exigerait de DÉSACTIVER une poignée de
+   redimensionnement qui fonctionne) ; `dp_dock` (voir le constat `DebugPanel`
+   INATTEIGNABLE ci-dessus).
     **Ce qui est opérant depuis le 01/10 (famille `terminal_*`, 10 clés sur 23 — famille TERMINÉE)** —
     le dock Terminal du bas (`Views/TerminalPanelView`, contrôle statique de
     `MainPage.xaml`, alimenté par `TerminalService` = cmd/bash en direct).
@@ -1021,19 +1029,23 @@ lecture directe du code.
    - **`op_*` (Outline Panel) : les 5 clés ne sont pas câblables —
      `OutlinePanelView` N'EXISTE PAS** dans le dépôt (recherche complète). Il n'y
      a aucun panneau « outline » (vue symboles) à configurer.
-   - **`sb_*` (barre de statut, 10 clés)** : elles prétendent toutes configurer
-     un **bouton** de la barre de statut, or `StatusBarPanelView.xaml` n'en
-     contient **aucun** (seuls `StatusLabel`, `RightChips`, `ErrorsLabel`,
-     `WarningsLabel`, `StateChips`, `SandboxLabel`, `LockedLabel`,
-     `AiStatusLabel`). Détail : `sb_encoding` et `sb_line_endings` se heurtent en
-     plus à une **absence de donnée** (aucune notion d'encodage ni de fins de
-     ligne dans `Moto.Editor`, 0 occurrence de `LineEnding`/`EOL`) ; et
-     `sb_cursor_position` aussi, l'éditeur principal étant `CodeEditorView`, un
-     **WebView** dont la position du curseur vit côté JavaScript. Seuls
-     `sb_diagnostics` et `sb_active_file` sont partiellement câblables (données
-     réelles disponibles), à condition d'ajouter l'élément d'affichage manquant.
-   - **`gp_button`, `cp_button`, `ap_button`, `op_button`** : même cause — ils
-     configurent « un bouton dans la barre de statut » qui n'existe pas.
+   - **`sb_*` (barre de statut, 10 clés)** : ★ **TRANCHE 1 FAITE (01/10, décision
+     C item 1)** — `sb_project_panel`/`sb_terminal`/`sb_search`/`sb_debugger`
+     configurent désormais de VRAIS boutons créés dans `StatusBarPanelView.xaml`
+     (patron `Border`+`Label`+`TapGestureRecognizer`, visibilité par
+     `StatusBarSettings`/`ApplySettings`, action réelle câblée dans `MainPage`).
+     Restent INERTES les 4 puces de DONNÉES : `sb_language`, `sb_encoding`,
+     `sb_line_endings`, `sb_cursor_position` — aucune donnée réelle n'existe
+     (pas de notion d'encodage ni de fins de ligne, 0 occurrence de
+     `LineEnding`/`EOL` ; position du curseur vivant dans le WebView
+     `CodeEditorView` sans copie C#). Afficher ces 4 valeurs = INVENTER —
+     tranche 2 de l'item 1. (`sb_diagnostics`/`sb_active_file` déjà câblées.)
+   - **`gp_button`, `cp_button`, `ap_button`** : ★ **FAITS (01/10, tranche 1)** —
+     les 3 boutons existent dans `StatusBarPanelView.xaml` (Git, Collab, IA),
+     visibilité par `StatusBarSettings`, action réelle (`OpenSpecializedWindow("git")`,
+     `OnActivitySelected("collab")`, `OnActivitySelected("ai")`). **Reste
+     `op_button`** : le panneau outline n'existe pas — item 3 de la feuille de
+     route (décision C), pas un câblage.
    - Rappel : **`preview_*` (6 clés)** décrit des « onglets aperçu » dont le
      concept n'existe nulle part ; **`tb_sign_in`/`tb_user_menu`/
      `tb_user_picture`** supposent un compte MOTO utilisateur inexistant.

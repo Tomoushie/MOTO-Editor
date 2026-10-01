@@ -28,6 +28,18 @@ namespace Moto.Editor.Views
         /// <summary>Indicateur IA (🧠) tapé — MainPage ouvre le monitoring.</summary>
         public event Action? AiMonitorTapped;
 
+        // ★ AJOUT (01/10, décision C item 1) : 7 boutons d'action, un événement chacun.
+        // MainPage les câble sur l'action réelle (OnActivitySelected / OpenSpecializedWindow /
+        // bascule du terminal). Chaque événement n'est levé que si le bouton est visible —
+        // la visibilité est pilotée par ApplySettings (clé sb_*/gp_*/cp_*/ap_* correspondante).
+        public event Action? ProjectPanelTapped;
+        public event Action? TerminalTapped;
+        public event Action? SearchTapped;
+        public event Action? DebuggerTapped;
+        public event Action? GitTapped;
+        public event Action? CollabTapped;
+        public event Action? AiPanelTapped;
+
         public StatusBarPanelView()
         {
             InitializeComponent();
@@ -131,6 +143,19 @@ namespace Moto.Editor.Views
             // fichier n'est ouvert (jamais de contenu inventé).
             _showActiveFile = Moto.Editor.Settings.StatusBarSettings.ShowActiveFile(settings);
             UpdateActiveFileVisibility();
+
+            // ★ AJOUT (01/10, décision C item 1) : visibilité des 7 boutons d'action,
+            // pilotée par leur clé respective. Chaque conteneur regroupe le bouton ET son
+            // séparateur (voir le .xaml) : basculer le conteneur ne laisse aucun trait
+            // orphelin. Les clés sont lues AVEC leur défaut déclaré (piège du GetBool sans
+            // second argument, documenté dans StatusBarSettings.cs).
+            ProjectPanelChip.IsVisible = Moto.Editor.Settings.StatusBarSettings.ShowProjectPanel(settings);
+            TerminalChip.IsVisible = Moto.Editor.Settings.StatusBarSettings.ShowTerminal(settings);
+            SearchChip.IsVisible = Moto.Editor.Settings.StatusBarSettings.ShowSearch(settings);
+            DebuggerChip.IsVisible = Moto.Editor.Settings.StatusBarSettings.ShowDebugger(settings);
+            GitChip.IsVisible = Moto.Editor.Settings.StatusBarSettings.ShowGit(settings);
+            CollabChip.IsVisible = Moto.Editor.Settings.StatusBarSettings.ShowCollab(settings);
+            AiPanelChip.IsVisible = Moto.Editor.Settings.StatusBarSettings.ShowAiPanel(settings);
         }
 
         /// <summary>
@@ -160,5 +185,18 @@ namespace Moto.Editor.Views
         private void OnInfoTapped(object? sender, EventArgs e) => _infoOverlay?.Show();
 
         private void OnAiMonitorTapped(object? sender, EventArgs e) => AiMonitorTapped?.Invoke();
+
+        // ★ AJOUT (01/10, décision C item 1) : handlers des 7 boutons d'action. Chacun ne fait
+        // qu'invoquer l'événement correspondant — la VUE ignore quelle action est branchée
+        // (toggle explorateur, fenêtre debug, etc.) : c'est MainPage qui décide, comme pour
+        // AiMonitorTapped. Cela garde la vue découplée du routage (MainPage.Routing.cs /
+        // MainPage.Extensions.cs) et évite toute dépendance circulaire.
+        private void OnProjectPanelTapped(object? sender, EventArgs e) => ProjectPanelTapped?.Invoke();
+        private void OnTerminalTapped(object? sender, EventArgs e) => TerminalTapped?.Invoke();
+        private void OnSearchTapped(object? sender, EventArgs e) => SearchTapped?.Invoke();
+        private void OnDebuggerTapped(object? sender, EventArgs e) => DebuggerTapped?.Invoke();
+        private void OnGitTapped(object? sender, EventArgs e) => GitTapped?.Invoke();
+        private void OnCollabTapped(object? sender, EventArgs e) => CollabTapped?.Invoke();
+        private void OnAiPanelTapped(object? sender, EventArgs e) => AiPanelTapped?.Invoke();
     }
 }

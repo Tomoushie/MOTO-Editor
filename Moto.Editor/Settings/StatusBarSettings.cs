@@ -1,34 +1,32 @@
 // Moto.Editor/Settings/StatusBarSettings.cs
 // ★ AJOUT (01/10) : mappage des réglages de la famille « Fenêtre & Layout / Status Bar »
-// (clés sb_*). Ces réglages étaient déclarés au catalogue mais lus par AUCUN code :
+// (clés sb_*) et des boutons d'action de la barre de statut (gp_button/cp_button/ap_button).
+// Ces réglages étaient déclarés au catalogue mais lus par AUCUN code :
 // StatusBarPanelView.ApplySettings(SettingsEngine) était une méthode VIDE, conservée
 // comme point d'extension depuis l'origine (« Rien à appliquer pour l'instant »).
 //
-// ⚠️ PORTÉE VOLONTAIREMENT RÉDUITE — 2 clés sur 10 seulement, et c'est un constat
-// VÉRIFIÉ le 01/10, pas un abandon :
+// ★ ÉVOLUTION (01/10, décision C item 1 tranche 1) : les 7 boutons d'action ont été
+// CRÉÉS dans StatusBarPanelView.xaml (voir ce fichier), donc leurs clés de visibilité
+// deviennent câblables — ce fichier lit maintenant 9 clés au total :
+//   • sb_diagnostics / sb_active_file : déjà câblées avant cette tranche (donnée réelle).
+//   • sb_project_panel / sb_terminal / sb_search / sb_debugger / gp_button / cp_button /
+//     ap_button : visibilité du bouton correspondant (le CLIC est câblé par MainPage).
 //
-//   • 5 clés (sb_project_panel, sb_language, sb_terminal, sb_debugger, sb_search)
-//     prétendent configurer « un bouton dans la barre de statut ». Or
-//     StatusBarPanelView.xaml n'en contient AUCUN (seuls StatusLabel, RightChips,
-//     ErrorsLabel, WarningsLabel, StateChips, SandboxLabel, LockedLabel,
-//     AiStatusLabel). Les câbler demanderait de CRÉER les boutons : c'est un ajout
-//     de fonctionnalité, pas un câblage. Hors périmètre ici.
+// ⚠️ RESTENT INERTES (hors périmètre de cette tranche, constat VÉRIFIÉ) :
+//   • les 4 puces de DONNÉES sb_language / sb_encoding / sb_line_endings /
+//     sb_cursor_position : aucune donnée réelle n'existe dans le dépôt
+//     (pas de notion d'encodage / de fins de ligne ; la position du curseur vit dans
+//     le WebView CodeEditorView, sans copie C# consultable). Afficher ces valeurs
+//     obligerait à INVENTER un contenu, ce qui est pire qu'un réglage inerte.
+//   • op_button : le panneau outline n'existe pas — c'est l'item 3 de la feuille de
+//     route (décision C), pas un câblage.
 //
-//   • 2 clés se heurtent à une ABSENCE DE DONNÉE dans le dépôt :
-//     - sb_encoding : aucune notion d'encodage de fichier n'existe dans Moto.Editor
-//       (0 occurrence de LineEnding/EOL/Encoding sur le contenu des documents).
-//     - sb_line_endings : idem, aucune notion de fins de ligne.
-//     - sb_cursor_position : l'éditeur principal est CodeEditorView, un WebView —
-//       la position du curseur vit côté JavaScript, il n'y en a aucune copie
-//       consultable dans un modèle C#. GutterQuickActions.CurrentLine existe mais
-//       appartient à l'ancien éditeur Skia, qui n'est plus celui utilisé.
-//     Afficher l'une de ces trois valeurs obligerait à INVENTER un contenu, ce qui
-//     est pire qu'un réglage inerte (doctrine du dépôt).
-//
-// Les 2 clés câblées ici ont, elles, une donnée RÉELLE disponible :
-//   • sb_diagnostics  : les compteurs d'erreurs/avertissements existent déjà
-//                       (ErrorsLabel / WarningsLabel, alimentés par SetCounts).
-//   • sb_active_file  : le nom du fichier actif existe (MainViewModel.SelectedDocument).
+// Les clés câblées ont chacune une donnée/action RÉELLE disponible :
+//   • sb_diagnostics : compteurs d'erreurs/avertissements (ErrorsLabel/WarningsLabel).
+//   • sb_active_file : nom du fichier actif (MainViewModel.SelectedDocument).
+//   • les 7 boutons : actions réelles vérifiées dans MainPage.Routing.cs /
+//     MainPage.Extensions.cs (toggle explorateur/recherche/IA/collab/terminal, fenêtres
+//     « debug » et « git »).
 using Moto.Core.Settings;
 
 namespace Moto.Editor.Settings
@@ -60,5 +58,40 @@ namespace Moto.Editor.Settings
         /// <summary>Réglage <c>sb_active_file</c> : nom du fichier affiché dans l'éditeur.</summary>
         public static bool ShowActiveFile(SettingsEngine s)
             => s.GetBool("sb_active_file", DeclaredBool("sb_active_file"));
+
+        // ★ AJOUT (01/10, décision C item 1 tranche 1) : visibilité des 7 boutons d'action.
+        // Chaque clé est lue AVEC son défaut déclaré au catalogue (tous à true pour ces
+        // 7 clés — voir SettingsCatalog.cs) : sans ce second argument, GetBool retomberait
+        // sur false pour une clé absente du store et MASQUERAIT le bouton sur une
+        // installation neuve (piège documenté plus haut). Le clic lui-même est câblé par
+        // MainPage (StatusBar.XxxTapped), pas ici — ce fichier ne gère que l'AFFICHAGE.
+
+        /// <summary>Réglage <c>sb_project_panel</c> : bouton « Projet » (toggle explorateur).</summary>
+        public static bool ShowProjectPanel(SettingsEngine s)
+            => s.GetBool("sb_project_panel", DeclaredBool("sb_project_panel"));
+
+        /// <summary>Réglage <c>sb_terminal</c> : bouton « Terminal » (toggle dock bas).</summary>
+        public static bool ShowTerminal(SettingsEngine s)
+            => s.GetBool("sb_terminal", DeclaredBool("sb_terminal"));
+
+        /// <summary>Réglage <c>sb_search</c> : bouton « Recherche » (toggle panneau de recherche).</summary>
+        public static bool ShowSearch(SettingsEngine s)
+            => s.GetBool("sb_search", DeclaredBool("sb_search"));
+
+        /// <summary>Réglage <c>sb_debugger</c> : bouton « Debug » (fenêtre spécialisée « debug »).</summary>
+        public static bool ShowDebugger(SettingsEngine s)
+            => s.GetBool("sb_debugger", DeclaredBool("sb_debugger"));
+
+        /// <summary>Réglage <c>gp_button</c> : bouton « Git » (fenêtre spécialisée « git »).</summary>
+        public static bool ShowGit(SettingsEngine s)
+            => s.GetBool("gp_button", DeclaredBool("gp_button"));
+
+        /// <summary>Réglage <c>cp_button</c> : bouton « Collab » (toggle panneau collaboration).</summary>
+        public static bool ShowCollab(SettingsEngine s)
+            => s.GetBool("cp_button", DeclaredBool("cp_button"));
+
+        /// <summary>Réglage <c>ap_button</c> : bouton « IA » (toggle panneau de chat IA).</summary>
+        public static bool ShowAiPanel(SettingsEngine s)
+            => s.GetBool("ap_button", DeclaredBool("ap_button"));
     }
 }

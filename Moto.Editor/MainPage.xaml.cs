@@ -368,7 +368,16 @@ namespace Moto.Editor
                 // viennent de deux chantiers menés en parallèle sur des familles distinctes.
                 if (key.StartsWith("ap_", StringComparison.Ordinal) ||
                     key.StartsWith("cp_", StringComparison.Ordinal))
+                {
                     ApplyAgentAndCollabPanelSettings(SettingsEngine.Shared);
+                    // ★ AJOUT (01/10, décision C item 1) : ap_button / cp_button pilotent la
+                    // VISIBILITÉ des boutons de la barre de statut, lus par
+                    // StatusBar.ApplySettings — l'appel ci-dessus ne touche que la géométrie
+                    // des panneaux. Sans ce 2e appel, cocher/décocher « Bouton agent » ou
+                    // « Bouton collaboration » ne se refléterait qu'au prochain démarrage /
+                    // retour de plein écran, ce qui se lit exactement comme un réglage inerte.
+                    StatusBar.ApplySettings(SettingsEngine.Shared);
+                }
 
                 // ★ AJOUT (01/10) : même traitement pour la famille terminal_* (police
                 // des lignes/de la saisie, hauteur du dock). terminal_show (la
@@ -544,6 +553,18 @@ namespace Moto.Editor
             // Panneaux Présentation / Remote / Collab : handlers déjà écrits dans
             // MainPage.UI.cs, jamais branchés faute de MainPage.xaml — câblés ici.
             StatusBar.AiMonitorTapped += () => OnAiMonitorTapped(this, EventArgs.Empty);
+            // ★ AJOUT (01/10, décision C item 1 tranche 1) : les 7 boutons d'action de la
+            // barre de statut, câblés sur l'action réelle vérifiée dans MainPage.Routing.cs /
+            // MainPage.Extensions.cs. Chaque action réutilise le point d'entrée existant
+            // (aucun nouveau routage) : toggle des panneaux via OnActivitySelected, bascule
+            // directe du terminal, et fenêtres spécialisées « debug » / « git ».
+            StatusBar.ProjectPanelTapped += () => OnActivitySelected("explorer");
+            StatusBar.TerminalTapped += () => _viewModel.IsTerminalVisible = !_viewModel.IsTerminalVisible;
+            StatusBar.SearchTapped += () => OnActivitySelected("search");
+            StatusBar.DebuggerTapped += () => OpenSpecializedWindow("debug");
+            StatusBar.GitTapped += () => OpenSpecializedWindow("git");
+            StatusBar.CollabTapped += () => OnActivitySelected("collab");
+            StatusBar.AiPanelTapped += () => OnActivitySelected("ai");
             Home.LocationSelected += OnLocationSelected;
             // ★ AJOUT (31/08, point 5) : "IA"/"Cortex" de la barre du bas (ComposerBar,
             // sous la zone de saisie de l'Accueil) — réutilise OnActivitySelected tel
