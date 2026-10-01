@@ -444,13 +444,13 @@ namespace Moto.Editor.Controls
 <style>
 :root{--fs:14px;--lh:21px}
 *{box-sizing:border-box}
-html,body{margin:0;height:100%;overflow:hidden;background:#1e2025;color:#d4d4d4}
+html,body{margin:0;height:100%;overflow:hidden;background:#262421;color:#d4d4d4}
 body,#area,#back{font-family:'Cascadia Mono','Cascadia Code',Consolas,'Courier New',monospace;font-size:var(--fs);line-height:var(--lh);font-variant-ligatures:none;tab-size:4}
 #wrap{position:absolute;top:0;left:0;bottom:0;right:72px;overflow:hidden}
-#gutter{position:absolute;left:0;top:0;bottom:0;width:60px;overflow:hidden;background:#1e2025;z-index:3;cursor:default}
+#gutter{position:absolute;left:0;top:0;bottom:0;width:60px;overflow:hidden;background:#262421;z-index:3;cursor:default}
 #gut{position:absolute;left:0;right:0;top:0;padding:10px 16px 0 0;text-align:right;white-space:pre;color:#5a5f69;font-size:calc(var(--fs) - 1px);line-height:var(--lh);user-select:none}
 #gitGut{position:absolute;left:0;top:0;bottom:0;width:5px;padding-top:10px;overflow:hidden;pointer-events:none}
-#gutA{position:absolute;left:0;right:0;height:var(--lh);padding-right:16px;text-align:right;color:#c6c8cc;background:#1e2025;font-size:calc(var(--fs) - 1px);line-height:var(--lh);display:none;user-select:none}
+#gutA{position:absolute;left:0;right:0;height:var(--lh);padding-right:16px;text-align:right;color:#c6c8cc;background:#262421;font-size:calc(var(--fs) - 1px);line-height:var(--lh);display:none;user-select:none}
 #cur{position:absolute;left:60px;right:0;height:var(--lh);background:rgba(255,255,255,.045);display:none;pointer-events:none;z-index:0}
 #back,#area{position:absolute;left:60px;top:0;margin:0;border:0;padding:10px 24px 120px 12px;white-space:pre}
 #back{right:14px;bottom:14px;overflow:hidden;pointer-events:none;z-index:1;color:#d4d4d4}
@@ -460,9 +460,9 @@ body,#area,#back{font-family:'Cascadia Mono','Cascadia Code',Consolas,'Courier N
 #area::-webkit-scrollbar-thumb{background-color:rgba(121,121,121,.32);border:4px solid transparent;background-clip:padding-box;border-radius:8px}
 #area::-webkit-scrollbar-thumb:hover{background-color:rgba(121,121,121,.55)}
 #area::-webkit-scrollbar-track,#area::-webkit-scrollbar-corner{background:transparent}
-#mini{position:absolute;right:0;top:0;bottom:0;width:72px;background:#1b1d21;border-left:1px solid rgba(255,255,255,.05);cursor:pointer}
+#mini{position:absolute;right:0;top:0;bottom:0;width:72px;background:#1e1c1a;border-left:1px solid rgba(255,255,255,.05);cursor:pointer}
 #view{position:absolute;right:0;width:72px;background:rgba(255,255,255,.07);pointer-events:none}
-#gbar{position:absolute;left:72px;bottom:12px;max-width:60%;background:#25272d;color:#9ca3af;border:1px solid rgba(255,255,255,.08);border-radius:6px;padding:4px 10px;font:12px 'Segoe UI Variable','Segoe UI',sans-serif;display:none;box-shadow:0 4px 16px rgba(0,0,0,.35);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;z-index:4}
+#gbar{position:absolute;left:72px;bottom:12px;max-width:60%;background:#2e2c28;color:#a09b93;border:1px solid rgba(255,255,255,.08);border-radius:6px;padding:4px 10px;font:12px 'Segoe UI Variable','Segoe UI',sans-serif;display:none;box-shadow:0 4px 16px rgba(0,0,0,.35);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;z-index:4}
 .k{color:#569cd6}.k2{color:#c586c0}.s{color:#ce9178}.c{color:#6a9955}.n{color:#b5cea8}.t{color:#4ec9b0}.f{color:#dcdcaa}
 .p{color:#9b9b9b}.a{color:#9cdcfe}.tg{color:#569cd6}.h{color:#569cd6}.u{color:#6b7280}.e{color:#d7ba7d}
 </style></head><body>
