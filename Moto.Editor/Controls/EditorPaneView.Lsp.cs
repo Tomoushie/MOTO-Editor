@@ -8,6 +8,9 @@ using System.Threading.Tasks;
 using Microsoft.Maui.Controls;
 using Microsoft.Maui.Graphics;
 using Moto.Core.LSP;
+// Alias du sous-namespace InlayHints : lève l'ambiguïté avec Moto.Core.LSP.InlayHint
+// (défini dans RoslynLspClient.cs) tout en gardant `InlayHints.InlayHint` qualifié.
+using InlayHints = Moto.Core.LSP.InlayHints;
 
 namespace Moto.Editor.Controls
 {
@@ -125,9 +128,9 @@ namespace Moto.Editor.Controls
             CodeActionsReceived?.Invoke(actions);
         }
 
-        public async Task ApplyCodeActionAsync(string filePath, LspCodeAction action)
+        public Task ApplyCodeActionAsync(string filePath, LspCodeAction action)
         {
-            if (action.Edits == null) return;
+            if (action.Edits == null) return Task.CompletedTask;
 
             // Applique les edits dans l'ordre inverse pour préserver les positions
             var sortedEdits = action.Edits
@@ -144,6 +147,7 @@ namespace Moto.Editor.Controls
             }
 
             EditorText = string.Join("\n", lines);
+            return Task.CompletedTask;
         }
 
         public async Task RenameSymbolAsync(string filePath, int line, int column, string newName)

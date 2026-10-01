@@ -125,7 +125,11 @@ namespace Moto.Editor.Views
         "search_include_ignored",
         // auto_* — dispatch « auto_ » → EditorPane.ApplyAutoSettings (auto_indent)
         // + auto_update (clé lue par AutoUpdateService, pas de dispatch live)
-        "auto_indent", "auto_update"
+        "auto_indent", "auto_update",
+        // lsp_* — dispatch « lsp_ » → SettingsApplier (lsp_diagnostics est appliqué en
+        // direct) ; lsp_enabled/lsp_completions/lsp_highlights sont lues par LspSettings
+        // (le gestionnaire LSP est initialisé une fois au démarrage, pas de re-câblage à chaud).
+        "lsp_enabled", "lsp_completions", "lsp_diagnostics", "lsp_highlights"
     };
 
         private readonly List<string> _categories;

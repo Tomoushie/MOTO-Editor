@@ -189,7 +189,11 @@ namespace Moto.Editor.DependencyInjection
                 sp.GetRequiredService<AgentGlobalBudget>(),
                 sp.GetRequiredService<Moto.Core.AI.Autonomy.V2.AgentV2Runner>()));
             services.AddSingleton<ProactiveAnalyticsEngine>(_ => new ProactiveAnalyticsEngine(workspaceRoot));
-            // LanguageServerManager : LSP mis de côté pour cette passe (voir Moto.Core.csproj)
+            // ★ AJOUT (LSP) : LanguageServerManager réactivé — le client OmniSharp 0.19.9
+            // (Moto.Core/LSP) est de nouveau compilé. Le gestionnaire ne démarre AUCUN
+            // serveur à l'enregistrement (construction paresseuse, voir LspSessionManager).
+            services.AddSingleton<LanguageServerManager>(sp =>
+                new LanguageServerManager(sp.GetRequiredService<ILogger<LanguageServerManager>>()));
             services.AddSingleton<ConfirmationPolicyEngine>(sp => new ConfirmationPolicyEngine(sp.GetRequiredService<SettingsEngine>()));
             services.AddSingleton<DismissPersistenceEngine>(_ => new DismissPersistenceEngine(workspaceRoot));
             services.AddSingleton<AgentScorer>();
@@ -207,7 +211,11 @@ namespace Moto.Editor.DependencyInjection
             // Services de base avec dépendances internes
             services.AddSingleton<CommandPaletteEngine>(sp => new CommandPaletteEngine(sp.GetRequiredService<ContextualActionsEngine>()));
             services.AddSingleton<ProactiveSuggestionsEngine>(sp => new ProactiveSuggestionsEngine(sp.GetRequiredService<ContextualActionsEngine>(), sp.GetRequiredService<ProactiveAnalyticsEngine>()));
-            // IInlayHintProvider/InlayHintService : LSP mis de côté pour cette passe
+            // IInlayHintProvider/InlayHintService : encore non enregistrés — activer le
+            // fournisseur RoslynLspInlayHintProvider (compilé dans Moto.Core) exigerait de
+            // brancher InlayHintService dans WireInlayHints (MainPage), ce qui pose un
+            // overlay d'inlay hints au-dessus de l'éditeur WebView. Différé volontairement
+            // (compilation verte d'abord, effet visuel à valider séparément avec Tom).
             services.AddSingleton<AgentOrchestratorV3>(sp => new AgentOrchestratorV3(sp.GetRequiredService<ContextualActionsEngine>(), sp.GetRequiredService<ProactiveAnalyticsEngine>(), sp.GetRequiredService<CortexEngine>()));
 
             // ══════════════════════════════════════════════════════════════

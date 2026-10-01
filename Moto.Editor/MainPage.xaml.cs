@@ -12,6 +12,7 @@ using Moto.Core.AI.Workspace;
 using Moto.Core.Collab;
 using Moto.Core.Doc;
 using Moto.Core.Export;
+using Moto.Core.LSP;
 using Moto.Core.Remote;
 using Moto.Core.Security;
 using Moto.Core.Services;
@@ -158,6 +159,7 @@ namespace Moto.Editor
             // le détail (RegisterMenuCommands/OnMenuCommanded/CommandRegistry).
             RegisterMenuCommands();
             WireInlayHints();
+            WireLsp();
 
             // ── Chargement : stats + provider IA + mises à jour ──
             // ★ CORRECTION (31/08) : OnPageLoaded était abonné ICI *et* déclarativement
@@ -243,6 +245,22 @@ namespace Moto.Editor
                 if (_viewModel.SelectedDocument?.Path != null)
                     EditorPane.NotifyTextChangedForInlayHints(_viewModel.SelectedDocument.Path, text);
             };
+        }
+
+        /// <summary>
+        /// ★ AJOUT (LSP) : initialise l'intégration LSP de l'éditeur (completions, hover,
+        /// diagnostics, inlay hints, semantic tokens) quand <c>lsp_enabled</c> est actif.
+        /// Le gestionnaire est résolu une seule fois ; il ne démarre AUCUN serveur tant
+        /// qu'aucun document n'est ouvert (construction paresseuse dans LspSessionManager).
+        /// </summary>
+        private void WireLsp()
+        {
+            if (!LspSettings.Enabled(SettingsEngine.Shared)) return;
+
+            var manager = Resolve<LanguageServerManager>();
+            if (manager is null) return;
+
+            EditorPane.InitializeLsp(manager);
         }
 
         // ══════════════ Câblage ══════════════
@@ -509,6 +527,16 @@ namespace Moto.Editor
                 // persistant). Les 11 autres clés auto_* restent inertes (voir AutoSettings).
                 if (key.StartsWith("auto_", StringComparison.Ordinal))
                     EditorPane.ApplyAutoSettings(SettingsEngine.Shared);
+
+                // ★ AJOUT (LSP) : lsp_diagnostics est déjà appliqué en direct via
+                // SettingsApplier.Subscribe (SettingChanged → ApplyAll) ; on re-applique
+                // ici pour couvrir la famille d'un seul tenant. lsp_enabled /
+                // lsp_completions / lsp_highlights sont lus par LspSettings : lsp_enabled
+                // gouverne l'initialisation du gestionnaire (une seule fois au démarrage),
+                // les deux autres gouvernent les requêtes émises par l'intégration éditeur
+                // — pas de re-câblage à chaud, l'effet prend au prochain lancement.
+                if (key.StartsWith("lsp_", StringComparison.Ordinal))
+                    SettingsApplier.ApplyAll(_viewModel, EditorPane.Editor, SettingsEngine.Shared);
             };
 
             // ★ AJOUT (02/09, état des lieux) : redonne un point d'entrée à

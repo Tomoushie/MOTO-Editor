@@ -40,7 +40,7 @@ namespace Moto.Editor.Settings
             var bufferFontSize = s.GetInt("buffer_font_size");
             editor.FontSizeMode = bufferFontSize;
             vm.IsMiniMapVisible = s.GetBool("minimap_show");
-            vm.IsDiagnosticsVisible = s.GetBool("lsp_diagnostics");
+            vm.IsDiagnosticsVisible = LspSettings.DiagnosticsEnabled(s);
 
             // ★ AJOUT (31/08) : le curseur "taille de police" (Réglages) ne changeait
             // que le contenu des fichiers ouverts — demandé par Tom (point 9) : qu'il

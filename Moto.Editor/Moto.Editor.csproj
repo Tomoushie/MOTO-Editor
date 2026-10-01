@@ -87,6 +87,15 @@
       IconLocation explicite — repéré par Tom : raccourci Bureau sans logo.
     -->
     <ApplicationIcon>Platforms\Windows\appicon.ico</ApplicationIcon>
+
+    <!--
+      ★ AJOUT (LSP) : OmniSharp.Extensions.LanguageClient 0.19.9 (référencé par
+      Moto.Core) tire transitivement Microsoft.VisualStudio.Threading, qui active
+      les analyseurs VSTHRD* sur tout le code existant — jamais voulus ici (ligne
+      de base : 0 avertissement VSTHRD). On les neutralise explicitement, même
+      traitement que dans Moto.Core.csproj.
+    -->
+    <NoWarn>$(NoWarn);VSTHRD002;VSTHRD100;VSTHRD101;VSTHRD103;VSTHRD105;VSTHRD110;VSTHRD200</NoWarn>
   </PropertyGroup>
 
   <!-- ══════════════ Packages NuGet ══════════════ -->
@@ -198,7 +207,9 @@
     <MauiXaml Remove="Views\RefactorPanel.xaml" />
     <Compile Remove="Controls\VoiceButton.xaml.cs" />
     <MauiXaml Remove="Controls\VoiceButton.xaml" />
-    <Compile Remove="Controls\EditorPaneView.Lsp.cs" />
+    <!-- ★ RÉACTIVÉ (LSP) : EditorPaneView.Lsp.cs (InitializeLsp, completions, hover,
+         diagnostics, inlay hints, semantic tokens) référence LanguageServerManager,
+         désormais compilé dans Moto.Core. -->
 
     <!--
       XAML au format WinUI (UserControl, xmlns winfx/2006) glissé par erreur dans
