@@ -144,6 +144,7 @@ code réellement compilé) :
 | **01/10, après `terminal_*` (2e lot, 5 clés de plus)** | **74 / 332 (22,3 %)** |
 | **01/10, après `git_*` (4 clés)** | **78 / 332 (23,5 %)** |
 | **01/10, après `agent_font_size` + correction du verrou `RealEffectKeys`** | **79 / 332 (23,8 %)** |
+| **01/10, après `search_include_ignored` (+ défaut corrigé au catalogue)** | **80 / 332 (24,1 %)** |
 
 ⚠️ **Ne comparer qu'un avant/après mesuré dans le MÊME arbre de travail.** Le
 chantier `ap_*`/`cp_*` annonçait **45 → 50 (15,1 %)** dans SON worktree, où
@@ -375,6 +376,36 @@ d'onglets, les icônes de l'explorateur, le statut git).
   propriétés `PlatformEngine` sans consommateur atteignable = câblage
   cosmétique (aucun effet observable), interdit.
 
+- **`search_*` + `seed_search_from_cursor`** (1 clé sur 8 — famille TERMINÉE) :
+  catégorie « Recherche & Fichiers », section « Recherche »
+  (`SettingsCatalog.cs:95-102`). Seule `search_include_ignored` est câblée —
+  elle pilote le filtrage `.gitignore` du panneau de recherche de fichiers,
+  qui possède **sa propre instance** de `FileTreeService`
+  (`SearchView.xaml.cs:24`), jamais configurée : la recherche affichait donc
+  **toujours** les fichiers gitignorés, quel que soit le réglage (faux état).
+  Correction de défaut au catalogue (false → true, précédent `tabs_file_icons`
+  du 28/09) : le défaut rejoint le comportement réel → **aucun changement
+  visible** au câblage, décocher reste un vrai choix. Mappage
+  `Moto.Editor/Settings/SearchSettings.cs`, dispatch live `search_` →
+  `SearchView.RefreshVisibility` (ré-applique les règles **et** rejoue la
+  requête en cours, sinon invisible jusqu'à la prochaine frappe).
+  **Restent inertes (7) — la recherche de CONTENU n'existe pas :**
+  `search_whole_word`, `search_case_sensitive`, `search_smartcase`,
+  `search_regex`, `search_wrap`, `search_center_on_match` (le find in file /
+  find in files / barre Ctrl+F sont absents : l'éditeur WebView n'expose
+  aucune fonction find, le Ctrl+F navigateur est désactivé, aucun FindBar,
+  aucun raccourci Ctrl+F — seul existe le matching de **nom** de fichier,
+  figé IgnoreCase) et `seed_search_from_cursor` (pré-remplissage exigeant
+  l'API word-at-caret, inexistante ; seul `On Selection` serait
+  implémentable, le mode par défaut `Always` resterait faux). ⚠️
+  `search_wrap` a pour défaut déclaré **true** : une lecture sans second
+  argument inverserait le réglage. ⚠️ Le mensonge produit préexistant
+  `edit.search` (Ctrl+F annoncé « Recherche dans le fichier »
+  `CommandPaletteEngine.cs:152`, qui ouvre le bandeau IA
+  `MainPage.Routing.cs:60`) fait partie du même chantier. ⚠️ Doublon
+  tranché : `file_finder_include_ignored` (Enum, même widget, section « File
+  Finder ») reste inerte — **un seul interrupteur par widget**.
+
 ### Familles encore inertes, et pourquoi (NE PAS LES RETENTER SANS LIRE)
 
 - **`preview_*` : les 6 clés.** Le concept d'« onglet aperçu » **n'existe nulle
@@ -428,7 +459,7 @@ d'onglets, les icônes de l'explorateur, le statut git).
   `terminal_*` (23, 10 faits — famille TERMINÉE), `git_*` (16, 4 faits — famille TERMINÉE : 12 inertes, 0 à câbler),
   `pp_*` (13, fait), `tabs_*` (11, fait),
   `tb_*` (10, fait), `sb_*` (10, 2 faits), `agent_*` (11, 9 opérantes — famille TERMINÉE : 2 boutons `Action` inertes), `platform_*` (8, 1 corrigée — famille TERMINÉE : 7 inertes),
-  `ap_*` (7, 3 faits), `search_*` (7), `auto_*` (7), `file_*` (7),
+  `ap_*` (7, 3 faits), `search_*` + `seed_search_from_cursor` (8, 1 faite — famille TERMINÉE : 7 inertes, 0 à câbler), `auto_*` (7), `file_*` (7),
   `preview_*` (6, toute la famille inerte), `op_*` (5, inerte), `show_*` (5),
   `lsp_*` (4), `context_*` (4), `doc_*` (4), `collab_*` (4)…
   ⚠️ **Les préfixes ne suivent PAS les catégories affichées** dans la fenêtre

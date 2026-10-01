@@ -414,6 +414,17 @@ namespace Moto.Editor
                         Settings.PlatformSettings.AutoDetect(SettingsEngine.Shared))
                         _platformPanel.Analyze();
                 }
+
+                // ★ AJOUT (01/10, lot search_*) : la seule clé search_* câblée est
+                // search_include_ignored — elle pilote le filtrage .gitignore du panneau
+                // de recherche de fichiers (SearchView a SA propre instance de
+                // FileTreeService). RefreshVisibility ré-applique les règles ET rejoue
+                // la requête en cours, sinon le basculement ne se verrait qu'à la
+                // prochaine frappe. Les 7 autres clés search_*/seed_* restent inertes :
+                // la recherche de contenu (find in file / Ctrl+F) n'existe pas — voir
+                // SearchSettings.
+                if (key.StartsWith("search_", StringComparison.Ordinal))
+                    _searchPanel?.RefreshVisibility();
             };
 
             // ★ AJOUT (02/09, état des lieux) : redonne un point d'entrée à

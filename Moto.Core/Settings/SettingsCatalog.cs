@@ -95,7 +95,14 @@ namespace Moto.Core.Settings
             T("search_whole_word", "Recherche & Fichiers", "Recherche", "Mot entier", "Recherche par mots entiers par défaut.", false);
             T("search_case_sensitive", "Recherche & Fichiers", "Recherche", "Sensible à la casse", "Recherche sensible à la casse.", false);
             T("search_smartcase", "Recherche & Fichiers", "Recherche", "Smartcase", "Casse automatique selon la requête.", false);
-            T("search_include_ignored", "Recherche & Fichiers", "Recherche", "Inclure les ignorés", "Inclut les fichiers ignorés.", false);
+            // ★ MODIFIÉ (01/10) : défaut passé de false à true — même raison que tabs_file_icons
+            // (28/09) : la recherche de fichiers inclut les fichiers gitignorés AUJOURD'HUI
+            // (instance SearchView jamais configurée, FileTreeService sans règle gitignore).
+            // Le défaut false déclaré l'aurait fait disparaître d'un coup dès le câblage —
+            // une divergence visible avec l'explorateur, qui affiche lui aussi les ignorés
+            // par défaut (pp_hide_gitignore = false). Le défaut rejoint le comportement
+            // réel ; décocher reste un vrai choix (masque les ignorés dans la recherche).
+            T("search_include_ignored", "Recherche & Fichiers", "Recherche", "Inclure les ignorés", "Inclut les fichiers ignorés.", true);
             T("search_regex", "Recherche & Fichiers", "Recherche", "Regex", "Recherche par expressions régulières.", false);
             T("search_wrap", "Recherche & Fichiers", "Recherche", "Boucler la recherche", "La recherche reboucle au début.", true);
             T("search_center_on_match", "Recherche & Fichiers", "Recherche", "Centrer sur le résultat", "Centre l'éditeur sur le match.", false);

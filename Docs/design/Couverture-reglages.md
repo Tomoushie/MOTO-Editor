@@ -1,17 +1,17 @@
 # Couverture du catalogue de réglages
 
 > **Généré automatiquement — analyse seule, aucun fichier modifié.**
-> Source : `scripts/settings-coverage.ps1` · Périmètre : 637 fichiers .cs réellement compilés
+> Source : `scripts/settings-coverage.ps1` · Périmètre : 638 fichiers .cs réellement compilés
 
 ## Chiffres
 
 | Mesure | Valeur |
 |---|---|
 | Réglages DÉCLARÉS au catalogue | 332 |
-| Clés lues par du code compilé | 106 |
-| **Déclarés ET lus → réellement opérants** | **79** |
-| Déclarés mais INERTES | 253 |
-| **Part réellement opérante** | **23.8 %** |
+| Clés lues par du code compilé | 107 |
+| **Déclarés ET lus → réellement opérants** | **80** |
+| Déclarés mais INERTES | 252 |
+| **Part réellement opérante** | **24.1 %** |
 
 ## Réglages réellement opérants
 
@@ -72,6 +72,7 @@
 | `pp_width` | Panneaux | Moto.Editor\Settings\PanelSettings.cs |
 | `sb_active_file` | Fenêtre & Layout | Moto.Editor\Settings\StatusBarSettings.cs |
 | `sb_diagnostics` | Fenêtre & Layout | Moto.Editor\Settings\StatusBarSettings.cs |
+| `search_include_ignored` | Recherche & Fichiers | Moto.Editor\Settings\SearchSettings.cs |
 | `tabs_activate_on_close` | Fenêtre & Layout | Moto.Editor\ViewModels\MainViewModel.cs |
 | `tabs_bar_buttons` | Fenêtre & Layout | Moto.Editor\Controls\EditorPaneView.xaml.cs |
 | `tabs_close_position` | Fenêtre & Layout | Moto.Editor\Settings\TabBarSettings.cs |
@@ -234,7 +235,7 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `tab_size`
 - `vertical_scroll_margin`
 
-### Recherche & Fichiers — 17 réglage(s) inerte(s)
+### Recherche & Fichiers — 16 réglage(s) inerte(s)
 
 - `close_on_file_delete`
 - `file_finder_icons`
@@ -247,7 +248,6 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `scan_symbolic_links`
 - `search_case_sensitive`
 - `search_center_on_match`
-- `search_include_ignored`
 - `search_regex`
 - `search_smartcase`
 - `search_whole_word`
@@ -363,15 +363,6 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `max_severity`
 - `prettier_allowed`
 
-### Marketplace — 6 réglage(s) inerte(s)
-
-- `marketplace.donations.enabled`
-- `marketplace.payment.currency`
-- `marketplace.sandbox.enabled`
-- `marketplace.trial.days`
-- `marketplace.trial.enabled`
-- `marketplace.vulnscan.auto`
-
 ### Developer — 6 réglage(s) inerte(s)
 
 - `devops.crashtriage.enabled`
@@ -380,6 +371,15 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `devops.journeys.enabled`
 - `devops.perfgate.enabled`
 - `perf_profiler`
+
+### Marketplace — 6 réglage(s) inerte(s)
+
+- `marketplace.donations.enabled`
+- `marketplace.payment.currency`
+- `marketplace.sandbox.enabled`
+- `marketplace.trial.days`
+- `marketplace.trial.enabled`
+- `marketplace.vulnscan.auto`
 
 ### Débogueur — 5 réglage(s) inerte(s)
 
@@ -396,17 +396,17 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `pair_programming`
 - `tutor_mode`
 
-### Raccourcis — 3 réglage(s) inerte(s)
-
-- `base_keymap`
-- `helix_mode`
-- `vim_mode`
-
 ### MCP — 3 réglage(s) inerte(s)
 
 - `mcp.adv.checkpointing`
 - `mcp.enabled`
 - `mcp.subagents`
+
+### Raccourcis — 3 réglage(s) inerte(s)
+
+- `base_keymap`
+- `helix_mode`
+- `vim_mode`
 
 ### Network — 2 réglage(s) inerte(s)
 

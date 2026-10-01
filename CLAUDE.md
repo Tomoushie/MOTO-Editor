@@ -593,7 +593,7 @@ lecture directe du code.
    (`SettingsCatalog.cs`) changé pour n'offrir plus qu'un seul choix
    ("Dark"). Construire une vraie palette claire reste une option pour plus
    tard (gros chantier), pas retenue aujourd'hui. Confirmé par Tom.
- 4. **Réglages : 79 opérants sur 332 déclarés — soit 23,8 %** (mesuré le
+  4. **Réglages : 80 opérants sur 332 déclarés — soit 24,1 %** (mesuré le
    01/10 par `scripts/settings-coverage.ps1`, rapport :
    `Docs/design/Couverture-reglages.md`). ⏳ Le chiffre historique était
    **12 sur 324 (3,7 %)** au 22/09 ; **20 sur 332** au 28/09 AVANT les
@@ -610,7 +610,10 @@ lecture directe du code.
     diff_base) — famille terminée, 4 opérantes / 12 inertes, puis
     **79 (23,8 %)** après `agent_font_size` (lot `agent_*`, même jour) —
     famille terminée, 9 opérantes / 2 inertes (les 8 autres clés `agent_*`
-    étaient déjà lues par `AgentV2Settings` dans Moto.Core).
+    étaient déjà lues par `AgentV2Settings` dans Moto.Core), puis
+    **80 (24,1 %)** après `search_include_ignored` (lot `search_*`, même
+    jour) — famille terminée, 1 opérante / 7 inertes, avec défaut corrigé
+    au catalogue (voir plus bas).
    ⏳ **Mesures de branche (à ne pas confondre avec le tronc)** : le chantier
    `ap_*`/`cp_*` annonçait **45 → 50 (15,1 %)** mesuré dans SON worktree, où
    `gp_*`/`sb_*` n'étaient pas câblés. Ces chiffres ne sont pas comparables
@@ -966,7 +969,42 @@ lecture directe du code.
     observable), interdit par la règle « jamais de réglage qui ment ».
     Construire les propositions de portage = construire la fonctionnalité
     (chantier à part entière), pas câbler un réglage.
-    **Les 253 inertes restants se répartissent par catégorie** — le plus gros
+    **Ce qui est opérant depuis le 01/10 (famille `search_*`, 1 clé sur 8 —
+    famille TERMINÉE)** — catégorie « Recherche & Fichiers », section
+    « Recherche » (`SettingsCatalog.cs:95-102`). Seule
+    `search_include_ignored` est câblée : elle pilote le filtrage `.gitignore`
+    du panneau de recherche de fichiers, qui possède **sa propre instance** de
+    `FileTreeService` (`SearchView.xaml.cs:24`), jamais configurée — la
+    recherche affichait donc **toujours** les fichiers gitignorés, quel que
+    soit le réglage. **Défaut corrigé au catalogue (false → true)**, sur le
+    précédent `tabs_file_icons` du 28/09 : le défaut rejoint le comportement
+    réel (aucun changement visible au câblage), décocher reste un vrai choix.
+    Mappage `Moto.Editor/Settings/SearchSettings.cs`, dispatch live `search_`
+    → `SearchView.RefreshVisibility` (ré-applique les règles **et** rejoue la
+    requête en cours, sinon invisible jusqu'à la prochaine frappe = se lit
+    comme inerte) + clé ajoutée à `RealEffectKeys`.
+    **Restent INERTES dans cette famille (7 clés, raison commune — la
+    recherche de CONTENU n'existe pas, vérifié le 01/10)** :
+    `search_whole_word`, `search_case_sensitive`, `search_smartcase`,
+    `search_regex`, `search_wrap`, `search_center_on_match` et
+    `seed_search_from_cursor`. Preuves : le find in file / find in files /
+    barre Ctrl+F sont **absents** — l'éditeur WebView n'expose aucune fonction
+    find (`CodeEditorView.xaml.cs:360-721` : set/goLine seulement), le Ctrl+F
+    du navigateur est désactivé (`id.:253-256`), aucun FindBar, aucun
+    ReplaceAll, aucun raccourci Ctrl+F (`MainPage.Shortcuts.cs:40-65`) ; seul
+    existe le matching de **nom** de fichier (`FileTreeService.SearchFiles:169`,
+    figé IgnoreCase) — l'appliquer à ces clés détournerait leur libellé
+    (doctrine). `seed_search_from_cursor` exigerait l'API word-at-caret
+    (inexistante) : seul `On Selection` serait implémentable, le mode par
+    défaut `Always` resterait faux. ⚠️ `search_wrap` a pour défaut déclaré
+    **true** : une lecture sans second argument inverserait le réglage.
+    ⚠️ Mensonge produit connu dans le même chantier : `edit.search` (Ctrl+F
+    annoncé « Recherche dans le fichier » `CommandPaletteEngine.cs:152`)
+    ouvre le bandeau IA (`MainPage.Routing.cs:60`). ⚠️ Doublon tranché :
+    `file_finder_include_ignored` (Enum, même widget, section « File Finder »)
+    reste inerte — **un seul interrupteur par widget**. **0 clé restant à
+    câbler dans cette famille.**
+    **Les 252 inertes restants se répartissent par catégorie** — le plus gros
    cluster correspond à des **interfaces qui EXISTENT déjà mais ignorent leur
    configuration** : `Panneaux` (explorateur `pp_*`, panneau Git `gp_*` et
    géométrie `ap_*`/`cp_*` FAITS ; restent l'outline `op_*`),

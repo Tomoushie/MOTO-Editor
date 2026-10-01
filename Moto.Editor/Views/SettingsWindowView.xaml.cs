@@ -110,7 +110,10 @@ namespace Moto.Editor.Views
         "agent_font_size",
         // platform_* — dispatch « platform_ » → relance de l'auto-analyse du panneau
         // Plateforme si activée et projet ouvert (lot platform_*, seule clé câblable)
-        "platform_auto_detect"
+        "platform_auto_detect",
+        // search_* — dispatch « search_ » → SearchView.RefreshVisibility (filtrage
+        // .gitignore du panneau de recherche, seule clé search_* câblable)
+        "search_include_ignored"
     };
 
         private readonly List<string> _categories;
