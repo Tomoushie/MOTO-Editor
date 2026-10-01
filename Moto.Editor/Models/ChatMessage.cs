@@ -107,14 +107,16 @@ namespace Moto.Editor.Models
 
         /// <summary>
         /// Couleur de la bulle selon le rôle.
-        /// ★ (25/09, passe « moyen → élevé ») : bulle utilisateur en bleu sourd (#264F78, le bleu de sélection de VS Code)
-        /// au lieu du bleu d'accent saturé, qui attirait l'œil plus que les réponses.
+        /// ★ (01/10, thème chaud Claude Code) : la bulle utilisateur passe du bleu sourd
+        /// (#264F78, 25/09) au BRUN chaud #3B3833 (le --userbubble de la maquette
+        /// IntefaceClaudeExtended) ; la bulle IA du gris neutre #202126 au brun panneau
+        /// #2A2825. Le bleu jurait avec l'accent orange #D97757 désormais en place.
         /// </summary>
         public Color BubbleColor => IsUser
-            ? Color.FromRgb(38, 79, 120)
+            ? Color.FromRgb(59, 56, 51)
             : Role == "system"
                 ? Color.FromRgb(60, 50, 20)
-                : Color.FromRgb(32, 33, 38);
+                : Color.FromRgb(42, 40, 37);
 
         /// <summary>Alignement : utilisateur à droite, IA à gauche.</summary>
         public LayoutOptions Alignment => IsUser ? LayoutOptions.End : LayoutOptions.Start;
