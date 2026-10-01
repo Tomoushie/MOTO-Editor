@@ -67,16 +67,16 @@ comptant sans vérifier dans le code.
 
 Exemples documentés et vérifiés :
 
-- **Réglages** : le catalogue compte **332** entrées, dont **104 réellement
-  opérantes (31,3 %)** au 01/10 — mesuré par `scripts/settings-coverage.ps1`
+- **Réglages** : le catalogue compte **332** entrées, dont **112 réellement
+  opérantes (33,7 %)** au 01/10 — mesuré par `scripts/settings-coverage.ps1`
   (contre 12 sur 324 le 22/09). Le chantier de câblage a rendu opérantes
   toutes les familles câblables (onglets, explorateur, barre de titre, panneau
   Git, terminal, agent, auto-update, doc…), puis la **décision C** a construit
-  les fonctionnalités manquantes des items 1 à 5 (boutons + puces de barre de
-  statut, onglets aperçu, panneau outline, auto-save, icônes du file finder).
-  Ce qui reste inerte décrit des **fonctionnalités absentes** (LSP, blame git,
-  git gutter, audio de collaboration, Quick Open complet…) — voir `DeepSeek.md`
-  §5 pour la raison exacte de chaque famille.
+  les fonctionnalités manquantes : boutons + puces de barre de statut, onglets
+  aperçu, panneau outline, auto-save, git gutter, git blame, pipeline
+  AutoLink/Context. Ce qui reste inerte décrit des **fonctionnalités lourdes
+  structurelles** (LSP, appels audio de collaboration, Quick Open complet…) —
+  voir `DeepSeek.md` §5 pour la raison exacte de chaque famille.
 - **Décision du 01/10 (Tom)** : **construire** ces fonctionnalités manquantes
   (choix C), plutôt que de les retirer du catalogue ou de les marquer « à
   venir ». Le câblage seul est épuisé ; le compteur ne progressera plus que

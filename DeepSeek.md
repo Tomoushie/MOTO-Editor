@@ -556,16 +556,31 @@ lourd (chaque item = une fonctionnalité réelle à développer, PAS un câblage
    indexeur configurable — Quick Open complet à construire) ;
    `file_finder_include_ignored` = doublon de `search_include_ignored` ;
    `file_finder_skip_focus` = comportement déjà d'origine.
-6. **Git blame** — `git_blame_*` (7 clés). Zéro `git blame` dans le produit.
-7. **Git gutter** — `git_gutter_*`. Statut git PAR LIGNE inexistant
-   (`--porcelain` ne renvoie que des fichiers).
-8. **LSP** — `lsp_completions`/`lsp_highlights`/`lsp_enabled`. Annoncé « à
-   venir v1.0 », non livré.
-9. **Pipeline AutoLink/Context** — `autolink_*`/`context_auto_apply`. Le
-   singleton `ContextEngine` est en DI mais jamais résolu ; les panneaux sont
-   vides (`Load()` sans appelant) ; aucun timer. Construire déclencheur +
-   timer + remplissage + apply/dismiss.
-10. **Audio de collaboration** — `collab_*`. Aucun canal audio.
+6. **Git blame** — ⏳ **PARTIEL (01/10, reprise Tom)** : `GitService.GetBlameAsync`
+   (parse `git blame --porcelain`, hash/auteur/résumé par ligne, réels) + puce
+   `BlameLabel` dans la barre de statut au mouvement du curseur. Câblées :
+   `git_blame_enabled`/`git_blame_delay`/`git_blame_commit_summary`. Reste inerte
+   (rendu INLINE dans l'éditeur) : `git_blame_location`/`padding`/`min_column`/`avatar`.
+7. **Git gutter** — ✅ **FAIT (01/10, reprise Tom)** : `GitService.GetChangedLineNumbersAsync`
+   (parse `git diff HEAD --unified=0`) + div `#gitGut` dans le gutter WebView
+   (`setGitLines` + sync scroll). Câblées : `git_gutter_visibility`/`git_gutter_debounce`.
+8. **LSP** — ⏸️ **BLOQUÉ STRUCTUREL (01/10, diagnostic sous-agent)** : le code LSP
+   (`RoslynLanguageServerClient.cs`, ~500 lignes) vise l'ANCIEN paquet monolithique
+   `OmniSharp.Extensions.LanguageServer`, pas le splitté `LanguageClient` 0.19.9
+   (~26 erreurs, ~16 structurelles : requêtes réactives, types supprimés). Même
+   compilé, aucun serveur Roslyn fourni → non fonctionnel. Décision à trancher :
+   A) référencer l'ancien paquet (le code est écrit pour lui), B) réécrire le client,
+   C) statu quo « à venir v1.0 ».
+9. **Pipeline AutoLink/Context** — ⏳ **PARTIEL (01/10, reprise Tom)** : `ContextEngine`
+   résolu (DI) + scan périodique (`autolink_enabled`/`autolink_scan_interval_sec`) +
+   `SetActiveFile` à chaque chargement + auto-apply réelle (`context_auto_apply`,
+   `ContextEngine.Apply` écrit sur disque). Câblées : 3 clés. `autolink_auto_apply`
+   reste inerte (pipeline `AutoLinkEngine` séparée, non branchée).
+10. **Audio de collaboration** — ⏸️ **BUILD FROM SCRATCH (01/10)** : les 5 clés
+    `collab_*` décrivent des APPELS vocaux (micro+streaming+périphériques). Le seul
+    `VoiceEngine` est TTS/STT, pas un moteur d'appels. Aucune capture/streaming
+    audio, aucune énumération de sortie. Chantier multi-sessions (capture + WebRTC
+    + gestion d'appel), le plus lourd.
 
 ⚠️ **Pour chaque item : relire la raison d'inertie dans `CLAUDE.md` bug #4**
 (elle donne les preuves fichier:ligne de l'absence de support). Une fois la
