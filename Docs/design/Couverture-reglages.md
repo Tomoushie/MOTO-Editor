@@ -1,17 +1,17 @@
 # Couverture du catalogue de réglages
 
 > **Généré automatiquement — analyse seule, aucun fichier modifié.**
-> Source : `scripts/settings-coverage.ps1` · Périmètre : 644 fichiers .cs réellement compilés
+> Source : `scripts/settings-coverage.ps1` · Périmètre : 651 fichiers .cs réellement compilés
 
 ## Chiffres
 
 | Mesure | Valeur |
 |---|---|
 | Réglages DÉCLARÉS au catalogue | 332 |
-| Clés lues par du code compilé | 138 |
-| **Déclarés ET lus → réellement opérants** | **112** |
-| Déclarés mais INERTES | 220 |
-| **Part réellement opérante** | **33.7 %** |
+| Clés lues par du code compilé | 141 |
+| **Déclarés ET lus → réellement opérants** | **115** |
+| Déclarés mais INERTES | 217 |
+| **Part réellement opérante** | **34.6 %** |
 
 ## Réglages réellement opérants
 
@@ -68,7 +68,10 @@
 | `gp_status_style` | Panneaux | Moto.Editor\Settings\GitPanelSettings.cs |
 | `gp_tree_view` | Panneaux | Moto.Editor\Settings\GitPanelSettings.cs |
 | `gp_width` | Panneaux | Moto.Editor\Settings\GitPanelSettings.cs |
-| `lsp_diagnostics` | Langages & Outils | Moto.Editor\Settings\SettingsApplier.cs |
+| `lsp_completions` | Langages & Outils | Moto.Editor\Settings\LspSettings.cs |
+| `lsp_diagnostics` | Langages & Outils | Moto.Editor\Settings\LspSettings.cs |
+| `lsp_enabled` | Langages & Outils | Moto.Editor\Settings\LspSettings.cs |
+| `lsp_highlights` | Langages & Outils | Moto.Editor\Settings\LspSettings.cs |
 | `minimap_show` | Éditeur | Moto.Editor\Settings\SettingsApplier.cs |
 | `ollama_endpoint` | IA Locale | Moto.Core\Moto.AI\Autonomy\V2\AgentV2Settings.cs, Moto.Core\Moto.AI\Generation\GenerationSettings.cs, Moto.Core\Moto.AI\Internal\OllamaClient.cs, Moto.Editor\Pages\AiSettingsPage.xaml.cs |
 | `ollama_model` | IA Locale | Moto.Core\Moto.AI\Autonomy\V2\AgentV2Settings.cs, Moto.Core\Moto.AI\Generation\GenerationSettings.cs, Moto.Core\Moto.AI\Internal\OllamaClient.cs, Moto.Editor\Pages\AiSettingsPage.xaml.cs |
@@ -331,17 +334,6 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `collab.scratchpads.enabled`
 - `collab.whiteboard.enabled`
 
-### Langages & Outils — 8 réglage(s) inerte(s)
-
-- `file_types`
-- `include_warnings`
-- `inline_diagnostics`
-- `lsp_completions`
-- `lsp_enabled`
-- `lsp_highlights`
-- `max_severity`
-- `prettier_allowed`
-
 ### Version Control — 8 réglage(s) inerte(s)
 
 - `git_blame_avatar`
@@ -363,15 +355,6 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `gp_fallback_branch`
 - `pp_count_badge`
 
-### Developer — 6 réglage(s) inerte(s)
-
-- `devops.crashtriage.enabled`
-- `devops.featureflags.enabled`
-- `devops.fuzzing.enabled`
-- `devops.journeys.enabled`
-- `devops.perfgate.enabled`
-- `perf_profiler`
-
 ### Marketplace — 6 réglage(s) inerte(s)
 
 - `marketplace.donations.enabled`
@@ -381,6 +364,15 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `marketplace.trial.enabled`
 - `marketplace.vulnscan.auto`
 
+### Developer — 6 réglage(s) inerte(s)
+
+- `devops.crashtriage.enabled`
+- `devops.featureflags.enabled`
+- `devops.fuzzing.enabled`
+- `devops.journeys.enabled`
+- `devops.perfgate.enabled`
+- `perf_profiler`
+
 ### Débogueur — 5 réglage(s) inerte(s)
 
 - `debugger_timeout`
@@ -388,6 +380,14 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `log_dap`
 - `save_breakpoints`
 - `stepping_granularity`
+
+### Langages & Outils — 5 réglage(s) inerte(s)
+
+- `file_types`
+- `include_warnings`
+- `inline_diagnostics`
+- `max_severity`
+- `prettier_allowed`
 
 ### Débutant — 4 réglage(s) inerte(s)
 
