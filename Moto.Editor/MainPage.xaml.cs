@@ -425,6 +425,14 @@ namespace Moto.Editor
                 // SearchSettings.
                 if (key.StartsWith("search_", StringComparison.Ordinal))
                     _searchPanel?.RefreshVisibility();
+
+                // ★ AJOUT (01/10, lot auto_*) : auto_indent (gate indentation auto dans
+                // CodeEditorView via EditorPane.ApplyAutoSettings) + auto_update (clé
+                // lue par AutoUpdateService au démarrage — pas de dispatch live nécessaire,
+                // mais la clé doit être dans RealEffectKeys pour que le changement soit
+                // persistant). Les 11 autres clés auto_* restent inertes (voir AutoSettings).
+                if (key.StartsWith("auto_", StringComparison.Ordinal))
+                    EditorPane.ApplyAutoSettings(SettingsEngine.Shared);
             };
 
             // ★ AJOUT (02/09, état des lieux) : redonne un point d'entrée à

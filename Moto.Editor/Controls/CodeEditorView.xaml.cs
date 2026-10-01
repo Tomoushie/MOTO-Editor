@@ -64,6 +64,10 @@ namespace Moto.Editor.Controls
         private double _pendingFontSize = 14.0;
         // ★ (31/08) : mémorisée même avant la fin du chargement du WebView, puis appliquée dans Navigated.
         private bool _pendingMinimapVisible = true;
+        // ★ (01/10, lot auto_*) : mémorisée avant la fin du chargement du WebView puis appliquée dans Navigated
+        // (même patron que _pendingMinimapVisible) — sans elle, auto_indent=false ne survivrait pas au redémarrage :
+        // SetAutoIndent est un no-op tant que _loaded est false, et le JS repartirait sur AUTO_INDENT=true.
+        private bool _pendingAutoIndent = true;
         private string _language = "plain";
         private string _lastSelection = string.Empty;
         private (int Start, int Length)? _lastRange;
@@ -111,6 +115,7 @@ namespace Moto.Editor.Controls
                 await Web.EvaluateJavaScriptAsync($"setLang('{_language}')");
                 await Web.EvaluateJavaScriptAsync($"setFontSize({_pendingFontSize.ToString(System.Globalization.CultureInfo.InvariantCulture)})");
                 await Web.EvaluateJavaScriptAsync($"setMini({(_pendingMinimapVisible ? "true" : "false")})");
+                await Web.EvaluateJavaScriptAsync($"setAutoIndent({(_pendingAutoIndent ? "true" : "false")})");
                 await PushContentAsync();
             };
         }
@@ -123,6 +128,14 @@ namespace Moto.Editor.Controls
         public async void GoToLine(int line)
         {
             if (_loaded) await Web.EvaluateJavaScriptAsync($"goLine({line})");
+        }
+
+        /// <summary>Active/désactive l'indentation auto (Tab/Enter) — réglage auto_indent.</summary>
+        public async void SetAutoIndent(bool enabled)
+        {
+            _pendingAutoIndent = enabled;
+            if (_loaded)
+                await Web.EvaluateJavaScriptAsync($"setAutoIndent({(enabled ? "true" : "false")})");
         }
 
         /// <summary>Affiche/masque la mini-carte (paramètre minimap_show).</summary>
@@ -391,7 +404,7 @@ body,#area,#back{font-family:'Cascadia Mono','Cascadia Code',Consolas,'Courier N
 var area=document.getElementById('area'),back=document.getElementById('back'),gut=document.getElementById('gut'),
 gutA=document.getElementById('gutA'),gutter=document.getElementById('gutter'),cur=document.getElementById('cur'),
 mini=document.getElementById('mini'),view=document.getElementById('view'),wrap=document.getElementById('wrap'),gbar=document.getElementById('gbar');
-var LANG='plain',LH=21,PAD=10,ghostText='',caretByUser=false,lines=[''],htmlC=[''],stC=[0],gutCount=0,pingT=0,selT=0,miniOn=true,miniSc=3,VER=0,pendingT=false;
+var LANG='plain',LH=21,PAD=10,ghostText='',caretByUser=false,lines=[''],htmlC=[''],stC=[0],gutCount=0,pingT=0,selT=0,miniOn=true,miniSc=3,VER=0,pendingT=false,AUTO_INDENT=true;
 
 function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 function sp(c,t){return '<span class="'+c+'">'+esc(t)+'</span>';}
@@ -669,6 +682,7 @@ area.setSelectionRange(ls,ls+m[0].length);insert('');var p=Math.max(ls,s-m[0].le
 
 area.addEventListener('keydown',function(e){
 markUser();
+if(!AUTO_INDENT)return;
 if(e.key==='Tab'&&!e.ctrlKey&&!e.altKey&&!e.metaKey){
 e.preventDefault();
 if(ghostText&&!e.shiftKey){var g=ghostText;setGhost('');insert(g);return;}
@@ -716,6 +730,7 @@ LH=parseFloat(getComputedStyle(area).lineHeight)||Math.round(px*1.5);paint();}
 function goLine(l){var p=0;for(var i=0;i<l-1&&i<lines.length;i++)p+=lines[i].length+1;
 area.focus();area.setSelectionRange(p,p);area.scrollTop=Math.max(0,(l-1)*LH-area.clientHeight/2);sync();}
 function setMini(on){miniOn=!!on;mini.style.display=on?'block':'none';view.style.display=on?'block':'none';wrap.style.right=on?'72px':'0';drawMini();sync();}
+function setAutoIndent(on){AUTO_INDENT=!!on;}
 renderAll();
 </script></body></html>
 """";

@@ -289,6 +289,11 @@ namespace Moto.Editor
             // AUCUN jusque-là (tabs_show, tabs_bar_buttons, tabs_nav_buttons,
             // tabs_file_icons, tabs_show_diagnostics, tabs_close_position, tabs_show_close).
             EditorPane.ApplySettings(s);
+            // ★ AJOUT (01/10, lot auto_*) : auto_indent s'applique au démarrage via le même point
+            // d'accroche (EditorPane.ApplyAutoSettings → CodeEditorView.SetAutoIndent). Sans ce
+            // chemin, le réglage ne serait posé que sur changement live, et auto_indent=false ne
+            // survivrait pas à un redémarrage (le JS du WebView repart sur AUTO_INDENT=true).
+            EditorPane.ApplyAutoSettings(s);
             // ★ AJOUT (01/10) : la barre de titre reçoit elle aussi ses réglages
             // (famille « Fenêtre & Layout / Title Bar », clés tb_*) — tb_menus,
             // tb_project_items, tb_branch_name et tb_button_layout n'étaient lus par

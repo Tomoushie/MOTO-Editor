@@ -1,17 +1,17 @@
 # Couverture du catalogue de réglages
 
 > **Généré automatiquement — analyse seule, aucun fichier modifié.**
-> Source : `scripts/settings-coverage.ps1` · Périmètre : 638 fichiers .cs réellement compilés
+> Source : `scripts/settings-coverage.ps1` · Périmètre : 639 fichiers .cs réellement compilés
 
 ## Chiffres
 
 | Mesure | Valeur |
 |---|---|
 | Réglages DÉCLARÉS au catalogue | 332 |
-| Clés lues par du code compilé | 107 |
-| **Déclarés ET lus → réellement opérants** | **80** |
-| Déclarés mais INERTES | 252 |
-| **Part réellement opérante** | **24.1 %** |
+| Clés lues par du code compilé | 108 |
+| **Déclarés ET lus → réellement opérants** | **82** |
+| Déclarés mais INERTES | 250 |
+| **Part réellement opérante** | **24.7 %** |
 
 ## Réglages réellement opérants
 
@@ -29,6 +29,8 @@
 | `ap_dock` | Panneaux | Moto.Editor\Settings\DockPanelSettings.cs |
 | `ap_height` | Panneaux | Moto.Editor\Settings\DockPanelSettings.cs |
 | `ap_width` | Panneaux | Moto.Editor\Settings\DockPanelSettings.cs |
+| `auto_indent` | Éditeur | Moto.Editor\Controls\EditorPaneView.xaml.cs, Moto.Editor\Settings\AutoSettings.cs |
+| `auto_update` | Général | Moto.Editor\Services\AutoUpdateService.cs, Moto.Editor\Settings\AutoSettings.cs |
 | `buffer_font_size` | Apparence | Moto.Editor\Settings\SettingsApplier.cs |
 | `context_engine_enabled` | Agent | Moto.Core\Moto.AI\Context\ContextEngine.cs |
 | `cp_dock` | Panneaux | Moto.Editor\Settings\DockPanelSettings.cs |
@@ -207,9 +209,8 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `temperature`
 - `thread_persistence`
 
-### Éditeur — 25 réglage(s) inerte(s)
+### Éditeur — 24 réglage(s) inerte(s)
 
-- `auto_indent`
 - `auto_save`
 - `auto_save_delay`
 - `autoclose_brackets`
@@ -291,10 +292,9 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `op_indent_guides`
 - `pp_count_badge`
 
-### Général — 14 réglage(s) inerte(s)
+### Général — 13 réglage(s) inerte(s)
 
 - `accessible_mode`
-- `auto_update`
 - `close_no_tabs`
 - `editor.update.channel`
 - `last_window_closed`
@@ -363,15 +363,6 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `max_severity`
 - `prettier_allowed`
 
-### Developer — 6 réglage(s) inerte(s)
-
-- `devops.crashtriage.enabled`
-- `devops.featureflags.enabled`
-- `devops.fuzzing.enabled`
-- `devops.journeys.enabled`
-- `devops.perfgate.enabled`
-- `perf_profiler`
-
 ### Marketplace — 6 réglage(s) inerte(s)
 
 - `marketplace.donations.enabled`
@@ -380,6 +371,15 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `marketplace.trial.days`
 - `marketplace.trial.enabled`
 - `marketplace.vulnscan.auto`
+
+### Developer — 6 réglage(s) inerte(s)
+
+- `devops.crashtriage.enabled`
+- `devops.featureflags.enabled`
+- `devops.fuzzing.enabled`
+- `devops.journeys.enabled`
+- `devops.perfgate.enabled`
+- `perf_profiler`
 
 ### Débogueur — 5 réglage(s) inerte(s)
 
@@ -396,17 +396,17 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `pair_programming`
 - `tutor_mode`
 
-### MCP — 3 réglage(s) inerte(s)
-
-- `mcp.adv.checkpointing`
-- `mcp.enabled`
-- `mcp.subagents`
-
 ### Raccourcis — 3 réglage(s) inerte(s)
 
 - `base_keymap`
 - `helix_mode`
 - `vim_mode`
+
+### MCP — 3 réglage(s) inerte(s)
+
+- `mcp.adv.checkpointing`
+- `mcp.enabled`
+- `mcp.subagents`
 
 ### Network — 2 réglage(s) inerte(s)
 
@@ -435,7 +435,6 @@ stockage que le catalogue — d'où la confusion possible.
 - `app.firstLaunchCompleted`
 - `cortex_mode`
 - `dashboard`
-- `editor.update.autoCheck`
 - `editor.update.releaseUrl`
 - `github.token`
 - `github.username`

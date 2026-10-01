@@ -37,15 +37,12 @@ public sealed class AutoUpdateService
     /// <summary>Vérifie si une mise à jour est disponible.</summary>
     public async Task<UpdateInfo> CheckAsync()
     {
-        // ★ CORRECTION : _settings.Shared.Editor.Update.X.Value supposait une API de
-        // réglages typés imbriqués qui n'a jamais été construite — SettingsEngine
-        // n'expose que l'API plate Get/Set/GetBool/GetString (voir SettingsEngineCore.cs).
-        // ★ CORRECTION (02/09, revue croisée) : clé mal casée ("autocheck" au lieu
-        // de "autoCheck") — ne correspondait ni au SettingItem<bool> AutoCheck réel
-        // (SettingsCatalog.Editor.Update.cs) ni à la case à cocher visible dans
-        // Réglages (SettingsCatalog.HiddenAiSettings.cs) : le bouton n'avait donc
-        // strictement aucun effet, la vérification restait toujours activée.
-        if (!_settings.GetBool("editor.update.autoCheck", defaultValue: true))
+        // ★ CORRECTION (01/10, lot auto_*) : clé migrée vers le catalogue principal
+        // "auto_update" (SettingsCatalog.cs:32, défaut true) — aligne la clé lue par
+        // le service sur le réglage visible dans la fenêtre Réglages. L'ancienne clé
+        // "editor.update.autoCheck" (SettingsCatalog.HiddenAiSettings.cs) n'était pas
+        // exposée en UI et le réglage affiché n'avait aucun effet (faux état).
+        if (!_settings.GetBool("auto_update", defaultValue: true))
             return new UpdateInfo { IsAvailable = false };
 
         try

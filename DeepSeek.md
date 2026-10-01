@@ -145,6 +145,7 @@ code réellement compilé) :
 | **01/10, après `git_*` (4 clés)** | **78 / 332 (23,5 %)** |
 | **01/10, après `agent_font_size` + correction du verrou `RealEffectKeys`** | **79 / 332 (23,8 %)** |
 | **01/10, après `search_include_ignored` (+ défaut corrigé au catalogue)** | **80 / 332 (24,1 %)** |
+| **01/10, après `auto_indent` + `auto_update` (lot auto_*)** | **82 / 332 (24,7 %)** |
 
 ⚠️ **Ne comparer qu'un avant/après mesuré dans le MÊME arbre de travail.** Le
 chantier `ap_*`/`cp_*` annonçait **45 → 50 (15,1 %)** dans SON worktree, où
@@ -405,6 +406,28 @@ d'onglets, les icônes de l'explorateur, le statut git).
   `MainPage.Routing.cs:60`) fait partie du même chantier. ⚠️ Doublon
   tranché : `file_finder_include_ignored` (Enum, même widget, section « File
   Finder ») reste inerte — **un seul interrupteur par widget**.
+
+- **`auto_*`** (2 clés sur 7 — famille TERMINÉE) : catégorie « Général » /
+  « Éditeur / Enregistrement auto » / « Éditeur / Indentation » /
+  « Agent / Conversation / Documentation »
+  (`SettingsCatalog.cs:32,67,68,82,276,280` + `SettingsCatalog.Extensions.cs:75`
+  + `SettingsCatalog.Doc.cs:10` + `SettingsCatalog.AutoLink.cs:10,12,14`
+  + `SettingsCatalog.Context.cs:14` + `SettingsCatalog.Platform.cs:10,19,21`).
+  Câblées par ce lot : `auto_indent` (gate indentation auto dans le JS de
+  `CodeEditorView` via `SetAutoIndent`) + `auto_update` (clé migrée depuis
+  `editor.update.autoCheck` vers `auto_update` dans `AutoUpdateService`,
+  alignement catalogue/UI). Déjà câblées avant : `doc_auto_update` (gate
+  watcher FS dans `DocEngine`), `platform_auto_detect` (gate auto-analyse
+  panneau Plateforme via `PlatformSettings`).
+  **Restent inertes (11) — une raison par clé :**
+  `auto_save`/`auto_save_delay` (fonctionnalité absente : pas de timer, pas de
+  dirty flag), `auto_compact`/`auto_compact_threshold` (pas de folding), `auto_doc`
+  (doublon de `doc_auto_update`), `autolink_enabled`/`autolink_auto_apply`/
+  `autolink_scan_interval_sec` (machinerie `AutoLinkEngine` existe mais
+  réglages non lus — chantier suivant), `context_auto_apply` (même pattern),
+  `platform_auto_validate`/`platform_incremental_validate` (chaîne produit
+  morte). ⚠️ `auto_doc` et `doc_auto_update` = doublon sémantique, même
+  catégorie, même défaut — seule `doc_auto_update` est active.
 
 ### Familles encore inertes, et pourquoi (NE PAS LES RETENTER SANS LIRE)
 

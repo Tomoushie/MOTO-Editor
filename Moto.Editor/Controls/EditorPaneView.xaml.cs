@@ -374,6 +374,17 @@ namespace Moto.Editor.Controls
                         TabBarSettings.Apply(doc, settings);
         }
 
+        /// <summary>
+        /// Applique les réglages <c>auto_*</c> à l'éditeur.
+        ///
+        /// Appelée par <c>MainPage.ApplyAutoSettings</c> (démarrage, fenêtre Réglages live).
+        /// </summary>
+        public void ApplyAutoSettings(SettingsEngine settings)
+        {
+            if (settings is null) return;
+            Editor.SetAutoIndent(settings.GetBool("auto_indent", AutoSettings.DeclaredBool("auto_indent")));
+        }
+
         /// <summary>Mode de fermeture de la croix où elle ne se montre qu'au survol.</summary>
         private const string TabCloseHoverMode = "Hover";
 

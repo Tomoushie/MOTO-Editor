@@ -113,7 +113,10 @@ namespace Moto.Editor.Views
         "platform_auto_detect",
         // search_* — dispatch « search_ » → SearchView.RefreshVisibility (filtrage
         // .gitignore du panneau de recherche, seule clé search_* câblable)
-        "search_include_ignored"
+        "search_include_ignored",
+        // auto_* — dispatch « auto_ » → EditorPane.ApplyAutoSettings (auto_indent)
+        // + auto_update (clé lue par AutoUpdateService, pas de dispatch live)
+        "auto_indent", "auto_update"
     };
 
         private readonly List<string> _categories;
