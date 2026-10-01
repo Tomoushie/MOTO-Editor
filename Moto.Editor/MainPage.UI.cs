@@ -376,6 +376,12 @@ namespace Moto.Editor
 
             TerminalPanel.Resources["TerminalFontSize"] = (double)TerminalSettings.FontSize(s);
             TerminalPanel.Resources["TerminalFontFamily"] = TerminalSettings.FontFamily(s);
+
+            // ★ AJOUT (01/10) : terminal_breadcrumbs pilote le titre de l'en-tête via
+            // MainViewModel.TerminalTitle (le VM recalcule depuis le répertoire réel du
+            // shell) — sans ce retour, basculer le réglage ne se verrait qu'au prochain
+            // démarrage de shell.
+            _viewModel.SetTerminalBreadcrumbs(TerminalSettings.Breadcrumbs(s));
         }
 
         /// <summary>★ AJOUT (01/10) : dernières valeurs posées par les réglages ap_* / cp_*.</summary>

@@ -141,6 +141,7 @@ code réellement compilé) :
 | **01/10, après `gp_*` (+ `sb_*` en parallèle)** | **59 / 332 (17,8 %)** |
 | **01/10, après fusion `ap_*` + `cp_*`** | **64 / 332 (19,3 %)** |
 | **01/10, après `terminal_*` (5 clés)** | **69 / 332 (20,8 %)** |
+| **01/10, après `terminal_*` (2e lot, 5 clés de plus)** | **74 / 332 (22,3 %)** |
 
 ⚠️ **Ne comparer qu'un avant/après mesuré dans le MÊME arbre de travail.** Le
 chantier `ap_*`/`cp_*` annonçait **45 → 50 (15,1 %)** dans SON worktree, où
@@ -227,7 +228,7 @@ d'onglets, les icônes de l'explorateur, le statut git).
   fonctionne), `dp_dock` (le panneau Debug n'est jamais rendu visible — le seul
   écran Debug est une fenêtre séparée, hors du `RootGrid`).
 
-- **`terminal_*`** (5 clés sur 23) : dock Terminal du bas (`TerminalPanelView` +
+- **`terminal_*`** (10 clés sur 23) : dock Terminal du bas (`TerminalPanelView` +
   `TerminalService`). Mappage `Moto.Editor/Settings/TerminalSettings.cs`,
   appliqué par `ApplyTerminalSettings(s)` depuis `ApplyLayoutSettings` **et**
   `SettingsWindow.RealSettingChanged` (préfixe `terminal_`). Câblés :
@@ -241,6 +242,30 @@ d'onglets, les icônes de l'explorateur, le statut git).
   BEL, retiré de la ligne affichée). Le clamp du geste
   `OnBottomDockResizePanUpdated` est passé de `120..360` (figé avant catalogue)
   aux bornes déclarées `100..1200`.
+  **2e lot (01/10, environnement du shell)** — tous résolus par
+  `MainViewModel.StartTerminal` (unique point de démarrage) et transmis à
+  `TerminalService.Start(dir, TerminalStartOptions)` :
+  - `terminal_shell` : `cmd.exe` / `powershell.exe` / `bash.exe -i` (vérifié en
+    pipe : powershell fournit déjà son invite, bash sans `-i` non) —
+    « System » (défaut) = comportement historique du service ;
+  - `terminal_working_dir` : profil utilisateur si pas de projet, dossier projet
+    pour le défaut « Current Project Directory », « Home » force le profil ;
+    « Custom » **sans clé compagnon de chemin au catalogue** → avertissement
+    affiché dans le terminal + répertoire projet conservé (jamais de dossier
+    inventé) ;
+  - `terminal_env_vars` : JSON clé-valeur parsé (`System.Text.Json`) et injecté
+    dans `psi.Environment` ; JSON invalide = rien d'appliqué + erreur annoncée
+    dans le terminal ;
+  - `terminal_detect_venv` : probe `.venv`/`venv`/`env` dans le répertoire de
+    départ et envoie `call …\activate.bat` (cmd) ou `& '…\Activate.ps1'`
+    (PowerShell — exécuter activate.bat depuis PowerShell lance un cmd enfant et
+    n'active rien) ; bash = non appliqué (activation Windows non portable vers
+    un shell POSIX) ;
+  - `terminal_breadcrumbs` : titre de l'en-tête = répertoire RÉEL du shell
+    démarré en segments (`C: › Users › …`), via
+    `MainViewModel.TerminalTitle` (« Terminal » tant qu'aucun shell n'a
+    démarré — afficher un chemin là serait prétendre un shell inexistant).
+  **Famille TERMINÉE : 10 opérantes, 13 inertes (raison par clé), 0 à câbler.**
   **Restent inertes :** `terminal_font_weight` (MAUI 8 n'a pas de `FontWeight`
   sur `Label`), `terminal_cursor_*` / `terminal_alternate_scroll` (aucun
   émulateur VT — sortie = `CollectionView` de lignes, seul le `Entry` de saisie
@@ -252,8 +277,10 @@ d'onglets, les icônes de l'explorateur, le statut git).
   (pas de `ScrollBarVisibility` exposé sur `CollectionView` en MAUI 8),
   `terminal_scroll_multiplier` (pas de configuration du pas de molette),
   `terminal_thread_init_cmd` (le « thread terminal » n'existe pas dans le code),
-  et reste à faire : `shell`, `working_dir`, `env_vars`, `detect_venv`,
-  `breadcrumbs`, `min_contrast`.
+  `terminal_min_contrast` (seuil **APCA** — algorithme Myndex précis ; une
+  approximation changerait les couleurs du thème au nom d'un standard non
+  réellement calculé = réglage « affichant faux », interdit — câbler exige le
+  référentiel officiel).
 
 ### Familles encore inertes, et pourquoi (NE PAS LES RETENTER SANS LIRE)
 
@@ -305,7 +332,7 @@ d'onglets, les icônes de l'explorateur, le statut git).
 > uniquement en câblant, elle demande aussi de **retirer ou d'assumer**
 > les réglages sans support.
 - **Restent à faire** (préfixes réels, mesurés le 01/10 sur les 332 clés) :
-  `terminal_*` (23, 5 faits), `git_*` (16), `pp_*` (13, fait), `tabs_*` (11, fait),
+  `terminal_*` (23, 10 faits — famille TERMINÉE), `git_*` (16), `pp_*` (13, fait), `tabs_*` (11, fait),
   `tb_*` (10, fait), `sb_*` (10, 2 faits), `agent_*` (9), `platform_*` (8),
   `ap_*` (7, 3 faits), `search_*` (7), `auto_*` (7), `file_*` (7),
   `preview_*` (6, toute la famille inerte), `op_*` (5, inerte), `show_*` (5),

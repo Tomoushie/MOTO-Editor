@@ -33,8 +33,13 @@
              posée PAR-DESSUS le bord haut de ce panneau (6px) ; sans cette marge,
              elle recouvrait les 2 derniers pixels du bouton ✕ juste en dessous. -->
         <Grid Grid.Row="0" ColumnDefinitions="*,Auto" Padding="10,8,10,4">
-            <!-- ★ (26/09, passe « moyen → élevé ») : titre en petites capitales (comme « EXPLORATEUR »), croix = glyphe du thème. -->
-            <Label Text="Terminal" Style="{StaticResource TextMicro}" VerticalOptions="Center" />
+            <!-- ★ (26/09, passe « moyen → élevé ») : titre en petites capitales (comme « EXPLORATEUR »), croix = glyphe du thème.
+                 ★ AJOUT (01/10, terminal_breadcrumbs) : le titre est désormais bindé à
+                 MainViewModel.TerminalTitle — « Terminal » par défaut, ou le répertoire
+                 réel du shell en segments (« C: › Users › nowak ») quand le réglage est
+                 activé. Binding et non Text figé : le VM le recalcule au démarrage du
+                 shell ET à chaque bascule du réglage. -->
+            <Label Text="{Binding TerminalTitle}" Style="{StaticResource TextMicro}" VerticalOptions="Center" />
             <Button Grid.Column="1" Text="{x:Static controls:MotoIcons.Close}"
                     Style="{StaticResource MotoIconButton}" FontSize="10"
                     ToolTipProperties.Text="Fermer le terminal"

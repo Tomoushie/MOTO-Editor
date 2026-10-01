@@ -8,10 +8,10 @@
 | Mesure | Valeur |
 |---|---|
 | Réglages DÉCLARÉS au catalogue | 332 |
-| Clés lues par du code compilé | 96 |
-| **Déclarés ET lus → réellement opérants** | **69** |
-| Déclarés mais INERTES | 263 |
-| **Part réellement opérante** | **20.8 %** |
+| Clés lues par du code compilé | 101 |
+| **Déclarés ET lus → réellement opérants** | **74** |
+| Déclarés mais INERTES | 258 |
+| **Part réellement opérante** | **22.3 %** |
 
 ## Réglages réellement opérants
 
@@ -81,10 +81,15 @@
 | `tb_menus` | Fenêtre & Layout | Moto.Editor\Settings\TitleBarSettings.cs |
 | `tb_project_items` | Fenêtre & Layout | Moto.Editor\Settings\TitleBarSettings.cs |
 | `terminal_audible_bell` | Terminal | Moto.Editor\Settings\TerminalSettings.cs |
+| `terminal_breadcrumbs` | Terminal | Moto.Editor\Settings\TerminalSettings.cs |
 | `terminal_default_height` | Terminal | Moto.Editor\Settings\TerminalSettings.cs |
+| `terminal_detect_venv` | Terminal | Moto.Editor\Settings\TerminalSettings.cs |
+| `terminal_env_vars` | Terminal | Moto.Editor\Settings\TerminalSettings.cs |
 | `terminal_font_family` | Terminal | Moto.Editor\Settings\TerminalSettings.cs |
 | `terminal_font_size` | Terminal | Moto.Editor\Settings\TerminalSettings.cs |
 | `terminal_max_scroll_lines` | Terminal | Moto.Editor\Settings\TerminalSettings.cs |
+| `terminal_shell` | Terminal | Moto.Editor\Settings\TerminalSettings.cs |
+| `terminal_working_dir` | Terminal | Moto.Editor\Settings\TerminalSettings.cs |
 | `theme_mode` | Apparence | Moto.Editor\Settings\SettingsApplier.cs |
 
 ## Réglages INERTES, par catégorie
@@ -224,25 +229,25 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `tab_size`
 - `vertical_scroll_margin`
 
-### Terminal — 17 réglage(s) inerte(s)
+### Recherche & Fichiers — 17 réglage(s) inerte(s)
 
-- `terminal_alternate_scroll`
-- `terminal_breadcrumbs`
-- `terminal_copy_on_select`
-- `terminal_cursor_blinking`
-- `terminal_cursor_shape`
-- `terminal_default_width`
-- `terminal_detect_venv`
-- `terminal_env_vars`
-- `terminal_font_weight`
-- `terminal_keep_selection_on_copy`
-- `terminal_min_contrast`
-- `terminal_open_links_mouse`
-- `terminal_option_as_meta`
-- `terminal_scroll_multiplier`
-- `terminal_shell`
-- `terminal_show_scrollbar`
-- `terminal_working_dir`
+- `close_on_file_delete`
+- `file_finder_icons`
+- `file_finder_include_ignored`
+- `file_finder_skip_focus`
+- `file_scan_depth`
+- `file_scan_exclusions`
+- `file_scan_inclusions`
+- `restore_file_state`
+- `scan_symbolic_links`
+- `search_case_sensitive`
+- `search_center_on_match`
+- `search_include_ignored`
+- `search_regex`
+- `search_smartcase`
+- `search_whole_word`
+- `search_wrap`
+- `seed_search_from_cursor`
 
 ### Version Control — 17 réglage(s) inerte(s)
 
@@ -263,26 +268,6 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `git_path_style`
 - `git_stage_restore_buttons`
 - `git.enabled`
-
-### Recherche & Fichiers — 17 réglage(s) inerte(s)
-
-- `close_on_file_delete`
-- `file_finder_icons`
-- `file_finder_include_ignored`
-- `file_finder_skip_focus`
-- `file_scan_depth`
-- `file_scan_exclusions`
-- `file_scan_inclusions`
-- `restore_file_state`
-- `scan_symbolic_links`
-- `search_case_sensitive`
-- `search_center_on_match`
-- `search_include_ignored`
-- `search_regex`
-- `search_smartcase`
-- `search_whole_word`
-- `search_wrap`
-- `seed_search_from_cursor`
 
 ### Apparence — 17 réglage(s) inerte(s)
 
@@ -338,6 +323,21 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `telemetry_diagnostics`
 - `telemetry_metrics`
 - `trust_all_projects`
+
+### Terminal — 12 réglage(s) inerte(s)
+
+- `terminal_alternate_scroll`
+- `terminal_copy_on_select`
+- `terminal_cursor_blinking`
+- `terminal_cursor_shape`
+- `terminal_default_width`
+- `terminal_font_weight`
+- `terminal_keep_selection_on_copy`
+- `terminal_min_contrast`
+- `terminal_open_links_mouse`
+- `terminal_option_as_meta`
+- `terminal_scroll_multiplier`
+- `terminal_show_scrollbar`
 
 ### Collaboration — 10 réglage(s) inerte(s)
 

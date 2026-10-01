@@ -37,6 +37,13 @@ namespace Moto.Editor.ViewModels
         private bool _isQuickActionsVisible = true;
         private string _terminalInput = string.Empty;
         private string _status = "MOTO prêt.";
+        // ★ AJOUT (01/10, famille terminal_*) : dernier dossier ouvert (sert de
+        // « Répertoire projet » à terminal_working_dir, y compris pour relancer un
+        // shell mort), répertoire RÉEL du shell démarré (titre breadcrumbs) et mode
+        // breadcrumbs courant (posé par MainPage.ApplyTerminalSettings).
+        private string? _openedFolderPath;
+        private string? _terminalCwd;
+        private bool _terminalBreadcrumbs;
 
         public ObservableCollection<FileItem> Files { get; } = new();
         public ObservableCollection<EditorDocument> Documents { get; } = new();
@@ -109,6 +116,42 @@ namespace Moto.Editor.ViewModels
         public string TerminalInput { get => _terminalInput; set => SetField(ref _terminalInput, value); }
         public string Status { get => _status; private set => SetField(ref _status, value); }
 
+        /// <summary>
+        /// Titre affiché dans l'en-tête du dock Terminal.
+        /// <c>terminal_breadcrumbs</c> Off (défaut déclaré) → « Terminal » (comme
+        /// avant) ; On → le répertoire RÉEL du shell démarré découpé en
+        /// segments (« C: › Users › nowak »). Tant qu'aucun shell n'a démarré, le
+        /// titre reste « Terminal » : afficher un chemin à ce moment-là serait
+        /// prétendre qu'un shell tourne là où aucun n'a encore été lancé.
+        /// </summary>
+        public string TerminalTitle
+        {
+            get
+            {
+                if (!_terminalBreadcrumbs || string.IsNullOrWhiteSpace(_terminalCwd))
+                {
+                    return "Terminal";
+                }
+                var parts = _terminalCwd.Split(new[] { '\\', '/' }, StringSplitOptions.RemoveEmptyEntries);
+                return parts.Length == 0 ? "Terminal" : string.Join(" › ", parts);
+            }
+        }
+
+        /// <summary>
+        /// ★ AJOUT (01/10) : posé par <c>MainPage.ApplyTerminalSettings</c> à chaque
+        /// changement de <c>terminal_breadcrumbs</c> — sans ce retour, basculer le
+        /// réglage ne se verrait qu'au prochain démarrage de shell.
+        /// </summary>
+        public void SetTerminalBreadcrumbs(bool enabled)
+        {
+            if (_terminalBreadcrumbs == enabled)
+            {
+                return;
+            }
+            _terminalBreadcrumbs = enabled;
+            Raise(nameof(TerminalTitle));
+        }
+
         /// <summary>Charge le contenu du document sélectionné (à la demande).</summary>
         private async Task LoadSelectedAsync()
         {
@@ -176,7 +219,12 @@ namespace Moto.Editor.ViewModels
                 }
 
                 LoadFileNames(path);
-                _terminal.Start(path);
+                // ★ AJOUT (01/10) : mémorise le dossier projet (terminal_working_dir
+                // « Current Project Directory » le relancera dessus, y compris si le
+                // shell a été fermé puis rouvert) puis démarre le shell avec les
+                // réglages résolus (shell/env/venv/répertoire).
+                _openedFolderPath = path;
+                StartTerminal(path);
 
                 Status = $"Workspace ouvert : {path}";
             }
@@ -495,14 +543,60 @@ namespace Moto.Editor.ViewModels
         /// zone de saisie) mais taper une commande n'avait silencieusement
         /// aucun effet (SendInput ignore tout en silence si IsRunning est faux).
         /// Appelé par TerminalPanelView dès que le dock devient visible.
-        /// TerminalService.Start(null) démarre dans le dossier utilisateur par
-        /// défaut (voir TerminalService.cs) — un shell général reste utile même
-        /// sans projet ouvert.
+        /// ★ AJOUT (01/10) : le répertoire de départ n'est plus forcément le profil
+        /// utilisateur — <see cref="StartTerminal"/> résout terminal_working_dir
+        /// (« Current Project Directory » → le dossier projet ouvert mémorisé).
         /// </summary>
         public void EnsureTerminalRunning()
         {
             if (!_terminal.IsRunning)
-                _terminal.Start();
+            {
+                StartTerminal(_openedFolderPath);
+            }
+        }
+
+        /// <summary>
+        /// ★ AJOUT (01/10, famille terminal_*) : unique point de démarrage du shell
+        /// interactif. Résout les clés <c>terminal_shell</c>,
+        /// <c>terminal_working_dir</c>, <c>terminal_env_vars</c> et
+        /// <c>terminal_detect_venv</c> via <see cref="TerminalSettings"/>, les
+        /// transmet à <c>TerminalService.Start</c> (qui reste ignorant des
+        /// réglages), annonce les éventuels avertissements (JSON invalide,
+        /// « Custom » sans chemin) comme lignes du terminal — jamais d'échec
+        /// silencieux — et met à jour le titre en breadcrumbs avec le répertoire
+        /// RÉELLEMENT démarré (lus dans <c>TerminalService.CurrentWorkingDirectory</c>).
+        /// </summary>
+        private void StartTerminal(string? projectPath)
+        {
+            var s = SettingsEngine.Shared;
+
+            var directory = TerminalSettings.ResolveStartDirectory(s, projectPath, out var dirWarning);
+            var (kind, shellFile, shellArgs) = TerminalSettings.ResolveShell(s);
+            var envVars = TerminalSettings.ResolveEnvVars(s, out var envWarning);
+            var initialCommand = TerminalSettings.ResolveInitialCommand(s, directory, kind);
+
+            if (!string.IsNullOrEmpty(dirWarning))
+            {
+                TerminalLines.Add(new TerminalLine { Text = $"[terminal] {dirWarning}" });
+            }
+            if (!string.IsNullOrEmpty(envWarning))
+            {
+                TerminalLines.Add(new TerminalLine { Text = $"[terminal] {envWarning}", IsError = true });
+            }
+
+            _terminal.Start(directory, new TerminalStartOptions
+            {
+                ShellFileName = shellFile,
+                ShellArguments = shellArgs,
+                EnvironmentVariables = envVars,
+                InitialCommand = initialCommand
+            });
+
+            // Ignoré si un shell tournait déjà (Start fait alors un retour
+            // anticipé) : le titre reste alors l'ancien répertoire, qui est la
+            // vérité du shell vivant.
+            _terminalCwd = _terminal.CurrentWorkingDirectory;
+            Raise(nameof(TerminalTitle));
         }
 
         private void SendTerminal()
@@ -593,6 +687,14 @@ namespace Moto.Editor.ViewModels
         }
 
         public event PropertyChangedEventHandler PropertyChanged;
+
+        /// <summary>
+        /// ★ AJOUT (01/10) : notifie une propriété calculée (sans backing field à
+        /// comparer) — utilisé par <c>TerminalTitle</c>, recalculé à partir du
+        /// répertoire du shell et du mode <c>terminal_breadcrumbs</c>.
+        /// </summary>
+        private void Raise(string propertyName)
+            => PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 
         private bool SetField<T>(ref T field, T value, [CallerMemberName] string propertyName = null)
         {

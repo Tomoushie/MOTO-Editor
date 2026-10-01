@@ -1,4 +1,5 @@
 // Services/TerminalService.cs
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Threading;
@@ -12,6 +13,34 @@ namespace Moto.Editor.Services
         public int ExitCode { get; init; }
         public string Output { get; init; } = string.Empty;
         public string Error { get; init; } = string.Empty;
+    }
+
+    /// <summary>
+    /// ★ AJOUT (01/10, famille « Terminal », clés <c>terminal_shell</c>,
+    /// <c>terminal_env_vars</c>, <c>terminal_detect_venv</c>) : options de
+    /// démarrage du shell INTERACTIF (<see cref="TerminalService.Start"/>).
+    ///
+    /// Le service reste volontairement ignorant des réglages (il vit dans
+    /// Moto.Core et ne connaît pas <c>SettingsEngine</c>/le catalogue) : c'est
+    /// l'appelant côté éditeur (<c>MainViewModel.StartTerminal</c>) qui résout
+    /// les clés via <c>Moto.Editor.Settings.TerminalSettings</c> et passe les
+    /// valeurs ici. Tous les champs sont facultatifs — ne rien passer =
+    /// comportement historique inchangé (cmd.exe sur Windows, /bin/bash ailleurs,
+    /// aucune variable ajoutée, aucune commande initiale).
+    /// </summary>
+    public sealed class TerminalStartOptions
+    {
+        /// <summary>Programme du shell (ex. <c>powershell.exe</c>, <c>bash.exe</c>). Null/vide = choix système du service.</summary>
+        public string? ShellFileName { get; init; }
+
+        /// <summary>Arguments du shell (ex. <c>-i</c> pour bash : sans lui, bash lit stdin sans aucun prompt — vérifié le 01/10). Null/vide = aucun.</summary>
+        public string? ShellArguments { get; init; }
+
+        /// <summary>Variables d'environnement ajoutées au process (source : <c>terminal_env_vars</c>, JSON clé-valeur).</summary>
+        public IReadOnlyDictionary<string, string>? EnvironmentVariables { get; init; }
+
+        /// <summary>Commande envoyée au shell juste après son démarrage (source : <c>terminal_detect_venv</c> — activation d'un venv Python).</summary>
+        public string? InitialCommand { get; init; }
     }
 
     /// <summary>
@@ -115,9 +144,23 @@ namespace Moto.Editor.Services
         public bool IsRunning => _process != null && !_process.HasExited;
 
         /// <summary>
+        /// ★ AJOUT (01/10) : répertoire RÉEL du shell interactif, renseigné
+        /// uniquement quand <see cref="Start"/> a vraiment démarré un process
+        /// (un Start ignoré parce qu'un shell tourne déjà laisse la valeur
+        /// précédente : c'est la vérité, le shell n'a pas bougé). Sert au titre
+        /// en breadcrumbs du dock (<c>terminal_breadcrumbs</c>).
+        /// </summary>
+        public string? CurrentWorkingDirectory { get; private set; }
+
+        /// <summary>
         /// Démarre cmd.exe sur Windows, bash sinon.
         /// </summary>
-        public void Start(string workingDirectory = null)
+        /// <param name="workingDirectory">Répertoire de départ (profil utilisateur si vide).</param>
+        /// <param name="options">
+        /// ★ AJOUT (01/10) : shell/variables/commande initiale décidés par
+        /// l'appelant à partir des réglages — null = comportement historique.
+        /// </param>
+        public void Start(string? workingDirectory = null, TerminalStartOptions? options = null)
         {
             if (IsRunning)
             {
@@ -129,14 +172,25 @@ namespace Moto.Editor.Services
                 var shell = OperatingSystem.IsWindows()
                     ? "cmd.exe"
                     : "/bin/bash";
+                var arguments = string.Empty;
+                if (!string.IsNullOrWhiteSpace(options?.ShellFileName))
+                {
+                    shell = options.ShellFileName;
+                }
+                if (!string.IsNullOrWhiteSpace(options?.ShellArguments))
+                {
+                    arguments = options.ShellArguments;
+                }
                 var encoding = TerminalOutputDecoder.GetConsoleEncoding();
+
+                var startDirectory = string.IsNullOrWhiteSpace(workingDirectory)
+                    ? Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)
+                    : workingDirectory;
 
                 var psi = new ProcessStartInfo
                 {
                     FileName = shell,
-                    WorkingDirectory = string.IsNullOrWhiteSpace(workingDirectory)
-                        ? Environment.GetFolderPath(Environment.SpecialFolder.UserProfile)
-                        : workingDirectory,
+                    WorkingDirectory = startDirectory,
                     RedirectStandardInput = true,
                     RedirectStandardOutput = true,
                     RedirectStandardError = true,
@@ -151,6 +205,20 @@ namespace Moto.Editor.Services
                     // accent tapé illisible pour cmd (et supprime sa bannière).
                     StandardInputEncoding = encoding
                 };
+                if (!string.IsNullOrEmpty(arguments))
+                {
+                    psi.Arguments = arguments;
+                }
+                if (options?.EnvironmentVariables != null)
+                {
+                    foreach (var pair in options.EnvironmentVariables)
+                    {
+                        if (!string.IsNullOrEmpty(pair.Key))
+                        {
+                            psi.Environment[pair.Key] = pair.Value ?? string.Empty;
+                        }
+                    }
+                }
                 UseUtf8ForPython(psi);
 
                 _process = new Process
@@ -165,13 +233,26 @@ namespace Moto.Editor.Services
                 };
 
                 _process.Start();
+                // ★ AJOUT (01/10) : la vérité pour les breadcrumbs = le process
+                // réellement démarré (si un catch plus bas échoue, la valeur reste
+                // celle du dernier démarrage réussi).
+                CurrentWorkingDirectory = startDirectory;
                 // ★ CORRECTIF (26/09) : lecture des octets bruts à la place de
-                // BeginOutputReadLine/BeginErrorReadLine, qui décodaient tout le flux avec
+                // BeginOutputReadLine/BeginErrorReadLine, qui décodtaient tout le flux avec
                 // UN seul encodage — voir TerminalOutputDecoder.
                 _ = TerminalOutputDecoder.PumpLinesAsync(_process.StandardOutput.BaseStream, encoding, line => Emit(line, isError: false));
                 _ = TerminalOutputDecoder.PumpLinesAsync(_process.StandardError.BaseStream, encoding, line => Emit(line, isError: true));
 
                 OutputReceived?.Invoke($"[terminal] started {shell}", false);
+
+                // ★ AJOUT (01/10) : commande initiale (activation venv) envoyée
+                // APRÈS la mise en place des pompes de lecture, pour que la sortie de
+                // l'activation remonte normalement. Le pipe tamponne : le shell la
+                // exécute dès qu'il atteint son invite.
+                if (!string.IsNullOrWhiteSpace(options?.InitialCommand))
+                {
+                    SendInput(options.InitialCommand);
+                }
             }
             catch (Exception ex)
             {

@@ -1,6 +1,10 @@
 // Moto.Editor/Settings/TerminalSettings.cs
 using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Text.Json;
 using Moto.Core.Settings;
+using Moto.Editor.Services;
 
 namespace Moto.Editor.Settings
 {
@@ -32,10 +36,18 @@ namespace Moto.Editor.Settings
     ///     (appelée par <c>ApplyLayoutSettings</c> et par le préfixe
     ///     <c>terminal_</c> de <c>SettingsWindow.RealSettingChanged</c>) ;
     ///   - <c>terminal_max_scroll_lines</c>, <c>terminal_audible_bell</c> :
-    ///     <c>MainViewModel.OnTerminalOutput</c> (à chaque ligne du shell).
+    ///     <c>MainViewModel.OnTerminalOutput</c> (à chaque ligne du shell) ;
+    ///   - <c>terminal_shell</c>, <c>terminal_working_dir</c>,
+    ///     <c>terminal_env_vars</c>, <c>terminal_detect_venv</c> :
+    ///     <c>MainViewModel.StartTerminal</c> (seul point de démarrage du shell)
+    ///     → <c>TerminalService.Start(dir, TerminalStartOptions)</c> — le service
+    ///     reste ignorant des réglages, comme exigé par sa localisation Core ;
+    ///   - <c>terminal_breadcrumbs</c> : titre de l'en-tête via
+    ///     <c>MainViewModel.TerminalTitle</c> (posé par
+    ///     <c>ApplyTerminalSettings</c>, recalculé à chaque démarrage de shell).
     ///
     /// CE QUI RESTE INERTE DANS CETTE FAMILLE (une raison par clé, jamais un
-    /// oubli) — voir aussi la note de fin de fichier pour le reste à faire :
+    /// oubli) :
     ///   - <c>terminal_font_weight</c> : MAUI 8 n'a PAS de `FontWeight` sur
     ///     `Label` (seulement `FontAttributes` None/Bold/Italic — `FontWeight`
     ///     n'est arrivé qu'en MAUI 10) : une graisse numérique 100-900 n'a
@@ -67,7 +79,14 @@ namespace Moto.Editor.Settings
     ///     le pas de défilement de la molette d'une `CollectionView` ;
     ///   - <c>terminal_thread_init_cmd</c> : annonce une commande au démarrage
     ///     d'un « thread terminal » — le concept de thread terminal n'existe
-    ///     nulle part dans le code (recherche complète 01/10).
+    ///     nulle part dans le code (recherche complète 01/10) ;
+    ///   - <c>terminal_min_contrast</c> : promet un seuil de contraste
+    ///     <b>APCA</b> (0-106). APCA est un algorithme précis (Myndex, Lc) dont
+    ///     une approximation changerait les couleurs du terminal au nom d'un
+    ///     standard que le code ne calcule pas réellement — exactement le
+    ///     réglage « affichant faux » interdit par le dépôt. Câbler exige le
+    ///     référentiel APCA officiel appliqué aux jetons de thème
+    ///     (Txt1/Txt2/Error vs BgChrome).
     /// </summary>
     internal static class TerminalSettings
     {
@@ -135,5 +154,172 @@ namespace Moto.Editor.Settings
         /// <summary>Sonnerie sur le caractère BEL (défaut déclaré : Off).</summary>
         internal static bool AudibleBell(SettingsEngine s)
             => s.GetBool("terminal_audible_bell", DeclaredBool("terminal_audible_bell"));
+
+        // ==================================================================
+        // ★ AJOUT (01/10, 2e lot de la famille) : environnement du shell.
+        // Consultés par MainViewModel.StartTerminal, qui construit les
+        // TerminalStartOptions passées à TerminalService.Start.
+        // ==================================================================
+
+        /// <summary>Titre du dock en breadcrumbs (défaut déclaré : Off).</summary>
+        internal static bool Breadcrumbs(SettingsEngine s)
+            => s.GetBool("terminal_breadcrumbs", DeclaredBool("terminal_breadcrumbs"));
+
+        /// <summary>Valeurs possibles de <c>terminal_working_dir</c> (enum du catalogue).</summary>
+        internal const string DirModeProject = "Current Project Directory";
+        internal const string DirModeHome = "Home";
+        internal const string DirModeCustom = "Custom";
+
+        /// <summary>
+        /// Répertoire de départ du shell, selon <c>terminal_working_dir</c>
+        /// (défaut déclaré : « Current Project Directory »).
+        /// Le résultat n'est JAMAIS vide : sans projet ouvert, c'est le profil
+        /// utilisateur — exactement le repli que <c>TerminalService.Start</c>
+        /// appliquait déjà avant d'être réglé.
+        /// </summary>
+        internal static string ResolveStartDirectory(SettingsEngine s, string? projectPath, out string? warning)
+        {
+            warning = null;
+            var home = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+            var mode = s.GetString("terminal_working_dir", DeclaredString("terminal_working_dir"));
+
+            if (string.Equals(mode, DirModeHome, StringComparison.Ordinal))
+            {
+                return home;
+            }
+
+            if (string.Equals(mode, DirModeCustom, StringComparison.Ordinal))
+            {
+                // Le catalogue déclare L'ENUM « Custom » mais aucune clé compagnon
+                // portant le chemin. Choisir un dossier nous-mêmes = inventer une
+                // donnée (interdit) ; faire croire que « Custom » s'applique en
+                // démarrant ailleurs serait un réglage AFFICHANT FAUX. On le dit
+                // donc explicitement dans le terminal et on garde le répertoire
+                // projet/utilisateur.
+                warning = "terminal_working_dir = « Custom » : aucune clé de chemin n'existe au catalogue — répertoire projet/utilisateur conservé.";
+                return string.IsNullOrWhiteSpace(projectPath) ? home : projectPath;
+            }
+
+            // Current Project Directory (défaut) — ou valeur inconnue.
+            return string.IsNullOrWhiteSpace(projectPath) ? home : projectPath;
+        }
+
+        /// <summary>
+        /// Shell demandé par <c>terminal_shell</c> (défaut déclaré : « System »).
+        /// Renvoie le KIND (pour la logique venv ci-dessous) plus le nom de
+        /// programme/arguments à passer au service ; FileName null = laisser le
+        /// service choisir comme avant (cmd.exe / /bin/bash).
+        /// Vérifié le 01/10 : powershell.exe fournit déjà son invite avec stdin
+        /// redirigé, mais bash SANS <c>-i</c> exécute sans aucun invite — d'où
+        /// l'argument <c>-i</c>. « bash » = bash.exe résolu dans le PATH (WSL ou
+        /// Git selon l'installation ; absent → le message d'erreur du service
+        /// s'affiche dans le terminal, rien n'est masqué).
+        /// </summary>
+        internal enum TerminalShellKind { System, Cmd, PowerShell, Bash }
+
+        internal static (TerminalShellKind Kind, string? FileName, string? Arguments) ResolveShell(SettingsEngine s)
+        {
+            var mode = s.GetString("terminal_shell", DeclaredString("terminal_shell"));
+            switch (mode)
+            {
+                case "cmd":
+                    return (TerminalShellKind.Cmd, "cmd.exe", null);
+                case "PowerShell":
+                    return (TerminalShellKind.PowerShell, "powershell.exe", null);
+                case "bash":
+                    return (TerminalShellKind.Bash, "bash.exe", "-i");
+                default:
+                    // « System » (défaut) ou valeur inconnue : comportement historique.
+                    return OperatingSystem.IsWindows()
+                        ? (TerminalShellKind.Cmd, null, null)
+                        : (TerminalShellKind.Bash, null, null);
+            }
+        }
+
+        /// <summary>
+        /// Variables d'<c>terminal_env_vars</c> (défaut déclaré : <c>{}</c>).
+        /// JSON clé-valeur texte ; JSON invalide = rien d'appliqué + avertissement
+        /// annoncé dans le terminal (jamais d'échec silencieux).
+        /// </summary>
+        internal static IReadOnlyDictionary<string, string>? ResolveEnvVars(SettingsEngine s, out string? warning)
+        {
+            warning = null;
+            var raw = s.GetString("terminal_env_vars", DeclaredString("terminal_env_vars"));
+            if (string.IsNullOrWhiteSpace(raw) || raw.Trim() == "{}")
+            {
+                return null;
+            }
+
+            try
+            {
+                var parsed = JsonSerializer.Deserialize<Dictionary<string, string>>(raw);
+                if (parsed is { Count: > 0 })
+                {
+                    return parsed;
+                }
+                return null;
+            }
+            catch (JsonException ex)
+            {
+                warning = $"terminal_env_vars n'est pas un JSON valide ({{\"CLE\":\"VAL\"}}) — ignoré. ({ex.Message})";
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Commande d'activation d'environnement virtuel Python selon
+        /// <c>terminal_detect_venv</c> (défaut déclaré : Oui). Probe UNIQUEMENT le
+        /// répertoire de départ (pas d'arborescence récursive : on active ce qui
+        /// est dans le dossier lancé, comme un cd classique).
+        /// bash = renvoyé null : l'activation Windows (<c>Scripts\activate</c>)
+        /// n'est pas portable vers un shell POSIX choisi par l'utilisateur
+        /// (Git bash et WSL ne partagent pas les mêmes chemins) — laisser
+        /// l'utilisateur l'activer à la main vaut mieux qu'envoyer une commande
+        /// qui échouerait silencieusement.
+        /// </summary>
+        internal static string? ResolveInitialCommand(SettingsEngine s, string? startDirectory, TerminalShellKind kind)
+        {
+            if (kind == TerminalShellKind.Bash || string.IsNullOrWhiteSpace(startDirectory))
+            {
+                return null;
+            }
+            if (!s.GetBool("terminal_detect_venv", DeclaredBool("terminal_detect_venv")))
+            {
+                return null;
+            }
+
+            try
+            {
+                foreach (var name in new[] { ".venv", "venv", "env" })
+                {
+                    var root = Path.Combine(startDirectory, name);
+                    if (kind == TerminalShellKind.PowerShell)
+                    {
+                        // PowerShell DOIT utiliser Activate.ps1 : exécuter
+                        // activate.bat depuis PowerShell lance un cmd enfant et ne
+                        // modifie PAS la session en cours.
+                        var ps1 = Path.Combine(root, "Scripts", "Activate.ps1");
+                        if (File.Exists(ps1))
+                        {
+                            return $"& '{ps1.Replace("'", "''")}'";
+                        }
+                    }
+                    else
+                    {
+                        var bat = Path.Combine(root, "Scripts", "activate.bat");
+                        if (File.Exists(bat))
+                        {
+                            return $"call \"{bat}\"";
+                        }
+                    }
+                }
+            }
+            catch
+            {
+                // Chemin illisible/gone : pas d'activation, jamais de plantage.
+            }
+
+            return null;
+        }
     }
 }
