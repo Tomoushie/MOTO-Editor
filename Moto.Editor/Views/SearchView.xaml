@@ -31,11 +31,21 @@
                 <DataTemplate>
                     <Border StrokeShape="RoundRectangle 8" BackgroundColor="{StaticResource BgHover}"
                             Padding="8,6" Margin="0,2">
-                        <VerticalStackLayout Spacing="{StaticResource SpaceXs}">
-                            <Label Text="{Binding Name}" FontSize="{StaticResource FontSizeBody}" TextColor="{StaticResource Txt1}" />
-                            <Label Text="{Binding RelativePath}" FontSize="{StaticResource FontSizeSmall}" TextColor="{StaticResource Txt2}"
-                                   LineBreakMode="MiddleTruncation" />
-                        </VerticalStackLayout>
+                        <Grid ColumnDefinitions="22,*">
+                            <!-- ★ AJOUT (01/10, décision C item 5) : icône du type de fichier
+                                 (file_finder_icons), masquée si le réglage est éteint. -->
+                            <Label Grid.Column="0"
+                                   Text="{Binding Glyph}"
+                                   TextColor="{Binding GlyphColor}"
+                                   FontSize="13"
+                                   VerticalOptions="Center"
+                                   IsVisible="{Binding ShowIcons}" />
+                            <VerticalStackLayout Grid.Column="1" Spacing="{StaticResource SpaceXs}">
+                                <Label Text="{Binding Name}" FontSize="{StaticResource FontSizeBody}" TextColor="{StaticResource Txt1}" />
+                                <Label Text="{Binding RelativePath}" FontSize="{StaticResource FontSizeSmall}" TextColor="{StaticResource Txt2}"
+                                       LineBreakMode="MiddleTruncation" />
+                            </VerticalStackLayout>
+                        </Grid>
                     </Border>
                 </DataTemplate>
             </CollectionView.ItemTemplate>

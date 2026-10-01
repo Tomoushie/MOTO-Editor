@@ -15,6 +15,11 @@ namespace Moto.Editor.Views
         public string Name { get; init; } = string.Empty;
         public string RelativePath { get; init; } = string.Empty;
         public string FullPath { get; init; } = string.Empty;
+        // ★ AJOUT (01/10, décision C item 5) : icône du type de fichier (FileTypeVisual),
+        // affichée seulement si le réglage file_finder_icons est actif.
+        public string Glyph => Controls.FileTypeVisual.Glyph(Name);
+        public Microsoft.Maui.Graphics.Color GlyphColor => Controls.FileTypeVisual.Tint(Name);
+        public bool ShowIcons { get; init; } = true;
     }
 
     /// <summary>
@@ -105,13 +110,15 @@ namespace Moto.Editor.Views
             }
 
             var matches = _treeService.SearchFiles(_root, query);
+            var showIcons = Settings.FileFinderSettings.ShowIcons(SettingsEngine.Shared);
             foreach (var path in matches)
             {
                 _results.Add(new SearchResultItem
                 {
                     Name = Path.GetFileName(path),
                     RelativePath = Path.GetRelativePath(_root, path),
-                    FullPath = path
+                    FullPath = path,
+                    ShowIcons = showIcons
                 });
             }
 

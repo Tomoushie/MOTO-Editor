@@ -1,17 +1,17 @@
 # Couverture du catalogue de réglages
 
 > **Généré automatiquement — analyse seule, aucun fichier modifié.**
-> Source : `scripts/settings-coverage.ps1` · Périmètre : 643 fichiers .cs réellement compilés
+> Source : `scripts/settings-coverage.ps1` · Périmètre : 644 fichiers .cs réellement compilés
 
 ## Chiffres
 
 | Mesure | Valeur |
 |---|---|
 | Réglages DÉCLARÉS au catalogue | 332 |
-| Clés lues par du code compilé | 129 |
-| **Déclarés ET lus → réellement opérants** | **103** |
-| Déclarés mais INERTES | 229 |
-| **Part réellement opérante** | **31 %** |
+| Clés lues par du code compilé | 130 |
+| **Déclarés ET lus → réellement opérants** | **104** |
+| Déclarés mais INERTES | 228 |
+| **Part réellement opérante** | **31.3 %** |
 
 ## Réglages réellement opérants
 
@@ -42,6 +42,7 @@
 | `doc_auto_update` | Agent | Moto.Core\Doc\DocEngine.cs |
 | `doc_folder` | Agent | Moto.Core\Doc\DocEngine.cs |
 | `doc_on_project_open` | Agent | Moto.Editor\MainPage.Panels.cs |
+| `file_finder_icons` | Recherche & Fichiers | Moto.Editor\Settings\FileFinderSettings.cs |
 | `git_diff_base` | Version Control | Moto.Editor\Settings\GitSettings.cs |
 | `git_integration` | Version Control | Moto.Editor\Settings\GitSettings.cs |
 | `git_path_style` | Version Control | Moto.Editor\Settings\GitSettings.cs |
@@ -244,25 +245,6 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `tab_size`
 - `vertical_scroll_margin`
 
-### Recherche & Fichiers — 16 réglage(s) inerte(s)
-
-- `close_on_file_delete`
-- `file_finder_icons`
-- `file_finder_include_ignored`
-- `file_finder_skip_focus`
-- `file_scan_depth`
-- `file_scan_exclusions`
-- `file_scan_inclusions`
-- `restore_file_state`
-- `scan_symbolic_links`
-- `search_case_sensitive`
-- `search_center_on_match`
-- `search_regex`
-- `search_smartcase`
-- `search_whole_word`
-- `search_wrap`
-- `seed_search_from_cursor`
-
 ### Apparence — 16 réglage(s) inerte(s)
 
 - `buffer_font_family`
@@ -282,21 +264,23 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `ui_font_size`
 - `wrap_guides`
 
-### Version Control — 13 réglage(s) inerte(s)
+### Recherche & Fichiers — 15 réglage(s) inerte(s)
 
-- `git_blame_avatar`
-- `git_blame_commit_summary`
-- `git_blame_delay`
-- `git_blame_enabled`
-- `git_blame_location`
-- `git_blame_min_column`
-- `git_blame_padding`
-- `git_branch_author`
-- `git_diff_full_file`
-- `git_gutter_debounce`
-- `git_gutter_visibility`
-- `git_hunk_style`
-- `git.enabled`
+- `close_on_file_delete`
+- `file_finder_include_ignored`
+- `file_finder_skip_focus`
+- `file_scan_depth`
+- `file_scan_exclusions`
+- `file_scan_inclusions`
+- `restore_file_state`
+- `scan_symbolic_links`
+- `search_case_sensitive`
+- `search_center_on_match`
+- `search_regex`
+- `search_smartcase`
+- `search_whole_word`
+- `search_wrap`
+- `seed_search_from_cursor`
 
 ### Général — 13 réglage(s) inerte(s)
 
@@ -313,6 +297,22 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `telemetry_diagnostics`
 - `telemetry_metrics`
 - `trust_all_projects`
+
+### Version Control — 13 réglage(s) inerte(s)
+
+- `git_blame_avatar`
+- `git_blame_commit_summary`
+- `git_blame_delay`
+- `git_blame_enabled`
+- `git_blame_location`
+- `git_blame_min_column`
+- `git_blame_padding`
+- `git_branch_author`
+- `git_diff_full_file`
+- `git_gutter_debounce`
+- `git_gutter_visibility`
+- `git_hunk_style`
+- `git.enabled`
 
 ### Terminal — 12 réglage(s) inerte(s)
 
@@ -396,17 +396,17 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `pair_programming`
 - `tutor_mode`
 
-### MCP — 3 réglage(s) inerte(s)
-
-- `mcp.adv.checkpointing`
-- `mcp.enabled`
-- `mcp.subagents`
-
 ### Raccourcis — 3 réglage(s) inerte(s)
 
 - `base_keymap`
 - `helix_mode`
 - `vim_mode`
+
+### MCP — 3 réglage(s) inerte(s)
+
+- `mcp.adv.checkpointing`
+- `mcp.enabled`
+- `mcp.subagents`
 
 ### Network — 2 réglage(s) inerte(s)
 
