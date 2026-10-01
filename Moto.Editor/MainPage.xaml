@@ -27,7 +27,7 @@
              xmlns:controls="clr-namespace:Moto.Editor.Controls"
              xmlns:views="clr-namespace:Moto.Editor.Views"
              x:Class="Moto.Editor.MainPage"
-             BackgroundColor="#1E2025"
+             BackgroundColor="{StaticResource BgApp}"
              Loaded="OnPageLoaded">
 
     <!--
@@ -77,7 +77,7 @@
              (OnMaximizeToggled) les repassait à visible=true en permanence,
              pouvant garder ce dock ouvert pour n'afficher que 2 labels morts. -->
         <Grid x:Name="AiDockPanel" Grid.Row="2" Grid.Column="0"
-              WidthRequest="500" IsVisible="False" BackgroundColor="#17181C">
+              WidthRequest="500" IsVisible="False" BackgroundColor="{StaticResource BgSide}">
             <ScrollView>
                 <VerticalStackLayout x:Name="PanelHost" Spacing="{StaticResource SpaceSm}" Padding="{StaticResource SpaceSm}" />
             </ScrollView>

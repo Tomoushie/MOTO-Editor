@@ -2,7 +2,7 @@
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="Moto.Editor.Views.HealthMonitorView"
-             BackgroundColor="#17181C">
+             BackgroundColor="{StaticResource BgSide}">
 
     <Grid RowDefinitions="Auto,Auto,*" Padding="8">
 
@@ -17,7 +17,7 @@
             <CollectionView.ItemTemplate>
                 <DataTemplate>
                     <Border StrokeShape="RoundRectangle 8" Padding="8" Margin="0,3"
-                            BackgroundColor="#202126">
+                            BackgroundColor="{StaticResource BgPanel}">
                         <VerticalStackLayout>
                             <Label Text="{Binding Message}" FontAttributes="Bold" FontSize="12" />
                             <Label Text="{Binding FilePath}" FontSize="10" Opacity="0.6" />

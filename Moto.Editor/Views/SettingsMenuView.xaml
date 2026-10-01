@@ -5,8 +5,8 @@
 
     <!-- Menu paramètres type IDE classique, ouvert par l'engrenage -->
     <Border StrokeShape="RoundRectangle 12"
-            Stroke="#3A3B40"
-            BackgroundColor="#1A1B1F"
+            Stroke="{StaticResource BorderCol}"
+            BackgroundColor="{StaticResource BgPanelInner}"
             WidthRequest="300"
             Padding="14">
 

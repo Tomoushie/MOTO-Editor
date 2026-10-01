@@ -25,7 +25,7 @@
             <!-- Status des providers -->
             <Border StrokeShape="RoundRectangle 12"
                     Padding="{StaticResource SpaceMd}"
-                    BackgroundColor="#1A1B1F">
+                    BackgroundColor="{StaticResource BgPanelInner}">
 
                 <VerticalStackLayout Spacing="{StaticResource SpaceSm}">
 
@@ -59,7 +59,7 @@
             <!-- Ollama -->
             <Border StrokeShape="RoundRectangle 12"
                     Padding="{StaticResource SpaceMd}"
-                    BackgroundColor="#1A1B1F">
+                    BackgroundColor="{StaticResource BgPanelInner}">
 
                 <VerticalStackLayout Spacing="{StaticResource SpaceSm}">
 
@@ -90,7 +90,7 @@
             <!-- OpenAI -->
             <Border StrokeShape="RoundRectangle 12"
                     Padding="{StaticResource SpaceMd}"
-                    BackgroundColor="#1A1B1F">
+                    BackgroundColor="{StaticResource BgPanelInner}">
 
                 <VerticalStackLayout Spacing="{StaticResource SpaceSm}">
 
@@ -121,7 +121,7 @@
             <!-- Anthropic -->
             <Border StrokeShape="RoundRectangle 12"
                     Padding="{StaticResource SpaceMd}"
-                    BackgroundColor="#1A1B1F">
+                    BackgroundColor="{StaticResource BgPanelInner}">
 
                 <VerticalStackLayout Spacing="{StaticResource SpaceSm}">
 
@@ -152,7 +152,7 @@
             <!-- Mistral -->
             <Border StrokeShape="RoundRectangle 12"
                     Padding="{StaticResource SpaceMd}"
-                    BackgroundColor="#1A1B1F">
+                    BackgroundColor="{StaticResource BgPanelInner}">
 
                 <VerticalStackLayout Spacing="{StaticResource SpaceSm}">
 
