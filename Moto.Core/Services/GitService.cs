@@ -350,6 +350,36 @@ public sealed class GitService
         return stats;
     }
 
+    /// <summary>
+    /// ★ AJOUT (01/10, décision C git gutter) : lignes modifiées/ajoutées d'UN fichier,
+    /// telles que git les rapporte (<c>git diff HEAD --unified=0</c>) — numéros de ligne
+    /// dans le FICHIER ACTUEL (colonne « + » des en-têtes de hunk). Couvre les changements
+    /// indexés ET non indexés (working tree vs HEAD), jamais estimés par MOTO.
+    /// </summary>
+    public async Task<IReadOnlyList<int>> GetChangedLineNumbersAsync(string path)
+    {
+        var result = await ExecAsync($"git diff HEAD --unified=0 -- \"{path}\"");
+        if (result.ExitCode != 0) return Array.Empty<int>();
+
+        var changed = new SortedSet<int>();
+        foreach (var line in result.Output.Split('\n', StringSplitOptions.RemoveEmptyEntries))
+        {
+            // En-tête de hunk : « @@ -ancienDébut[,ancienCompte] +nouveauDébut[,nouveauCompte] @@ ».
+            // Seule la colonne « + » nous intéresse (les lignes du fichier actuel).
+            if (!line.StartsWith("@@", StringComparison.Ordinal)) continue;
+            var plus = line.IndexOf('+');
+            if (plus < 0) continue;
+            var end = line.IndexOf(' ', plus + 1);
+            var range = end < 0 ? line[(plus + 1)..] : line[(plus + 1)..end];
+            var parts = range.Split(',');
+            if (!int.TryParse(parts[0], out var start)) continue;
+            var count = parts.Length > 1 && int.TryParse(parts[1], out var c) ? c : 1;
+            for (int i = 0; i < count; i++)
+                changed.Add(start + i);
+        }
+        return changed.ToList();
+    }
+
     /// <summary>Log des commits (archéologie).</summary>
     public async Task<IReadOnlyList<GitCommit>> GetLogAsync(int maxCount = 50)
     {
