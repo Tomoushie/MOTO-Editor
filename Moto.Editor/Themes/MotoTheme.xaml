@@ -776,6 +776,9 @@
                         <VisualState.Setters>
                             <Setter Property="BackgroundColor" Value="{StaticResource BgActive}" />
                             <Setter Property="TextColor" Value="{StaticResource Txt1}" />
+                            <!-- ★ AJOUT (01/10, micro-interaction Claude Code) : la maquette fait
+                                 .icobtn:active{transform:scale(.94)} — l'icône se tasse au clic. -->
+                            <Setter Property="Scale" Value="0.94" />
                         </VisualState.Setters>
                     </VisualState>
                     <VisualState x:Name="Focused">
