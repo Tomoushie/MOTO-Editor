@@ -624,6 +624,23 @@ le chat vers le client à outils) ; **heatmap** = données absentes (un graphe d
 contributions serait factice, interdit) ; **puces de code inline** = limitées en
 MAUI (`Span` sans coin arrondi, `FormattedText` non bindable).
 
+## Bridge Xeno (MOTO-Xeno-Desktop) — contexte durable
+
+- **Orchestrateur bridge HTTP** : `start_orchestrator.exe` dans
+  `E:\Corpus\MOTO-Xeno-Desktop\dist\`, port **127.0.0.1:5001**, dashboard
+  `/dashboard` (« OS Cognitif v5.1 »). 21 agents (8 système + 13 cognitifs, dont
+  `UIAgent`[Designer] et `DesignAgent`[DesignSynthesizer] pertinents pour le
+  visuel), 15 modules (tiers 30-45), 20 règles GOV001-020.
+- **Endpoints qui marchent** : `/api/agents`, `/api/runtime`,
+  `/api/cognitive/tier46/system-cognition-bridge-final` (liste des agents).
+- **Endpoints cassés** : `/api/cognitive/tier47/meta-forecast` (500) et
+  `/api/cognitive/tier45/product-viability` (`ModuleNotFoundError: modules.tier45`).
+  ⚠️ **DÉCISION DE TOM (01/10)** : NE PAS réparer `meta-forecast` — « il ne sert
+  qu'à prédire, pas à économiser un seul token ». Laisser tel quel.
+- MOTO Editor a déjà l'intégration : `Moto.Core/Integration/XenoGateway.cs`,
+  `Moto.Core/Moto.AI/XenoFallbackBridge.cs`, `Controls/XenoFeedbackControl`,
+  `Views/AboutXenoView`, etc.
+
 ## 6. Méthode de travail — leçons apprises
 
 - **Vérifier avant de croire.** Ne jamais déclarer « cette brique marche » sur
