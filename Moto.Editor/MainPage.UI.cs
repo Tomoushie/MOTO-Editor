@@ -695,11 +695,38 @@ namespace Moto.Editor
             // (réglage sb_active_file). Même point d'appel unique que le fil d'Ariane —
             // pas de 2e mécanisme qui pourrait diverger.
             StatusBar.SetActiveFile(doc.Path);
+            // ★ AJOUT (01/10, tranche 2) : puce « fins de ligne » (sb_line_endings).
+            // Détection RÉELLE depuis doc.Text (le texte chargé, dont File.ReadAllText
+            // préserve les fins de ligne) — jamais de valeur inventée.
+            StatusBar.SetLineEndings(DetectLineEndings(doc.Text));
             EditorPane.EditorText = doc.Text;
             _currentPath = doc.Path;
             RefreshAiUndoButton();
             if (_cortex != null && doc.Path != null)
                 _cortexPanel.LoadSuggestions(doc.Path, doc.Text);
+        }
+
+        /// <summary>
+        /// ★ AJOUT (01/10, tranche 2) : détecte les fins de ligne RÉELLES du texte
+        /// chargé. « CRLF » si les retours Windows dominent (ou à égalité), « LF » si
+        /// les sauts Unix dominent, <c>null</c> si aucun retour à la ligne (fichier
+        /// d'une seule ligne : il n'y a pas de « fins de ligne » à afficher — la puce
+        /// reste masquée, jamais de valeur inventée).
+        /// </summary>
+        private static string? DetectLineEndings(string? text)
+        {
+            if (string.IsNullOrEmpty(text)) return null;
+            int crlf = 0, lf = 0;
+            for (int i = 0; i < text.Length; i++)
+            {
+                if (text[i] == '\r')
+                {
+                    if (i + 1 < text.Length && text[i + 1] == '\n') { crlf++; i++; }
+                }
+                else if (text[i] == '\n') { lf++; }
+            }
+            if (crlf == 0 && lf == 0) return null;
+            return crlf >= lf ? "CRLF" : "LF";
         }
 
         private void OnNavBack()

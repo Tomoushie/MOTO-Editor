@@ -8,10 +8,10 @@
 | Mesure | Valeur |
 |---|---|
 | Réglages DÉCLARÉS au catalogue | 332 |
-| Clés lues par du code compilé | 116 |
-| **Déclarés ET lus → réellement opérants** | **90** |
-| Déclarés mais INERTES | 242 |
-| **Part réellement opérante** | **27.1 %** |
+| Clés lues par du code compilé | 117 |
+| **Déclarés ET lus → réellement opérants** | **91** |
+| Déclarés mais INERTES | 241 |
+| **Part réellement opérante** | **27.4 %** |
 
 ## Réglages réellement opérants
 
@@ -79,6 +79,7 @@
 | `sb_active_file` | Fenêtre & Layout | Moto.Editor\Settings\StatusBarSettings.cs |
 | `sb_debugger` | Fenêtre & Layout | Moto.Editor\Settings\StatusBarSettings.cs |
 | `sb_diagnostics` | Fenêtre & Layout | Moto.Editor\Settings\StatusBarSettings.cs |
+| `sb_line_endings` | Fenêtre & Layout | Moto.Editor\Settings\StatusBarSettings.cs |
 | `sb_project_panel` | Fenêtre & Layout | Moto.Editor\Settings\StatusBarSettings.cs |
 | `sb_search` | Fenêtre & Layout | Moto.Editor\Settings\StatusBarSettings.cs |
 | `sb_terminal` | Fenêtre & Layout | Moto.Editor\Settings\StatusBarSettings.cs |
@@ -114,40 +115,6 @@ Ce sont les réglages affichés dans la fenêtre Réglages dont AUCUN code
 compilé ne lit la clé : ils sont persistés, mais sans effet. C'est la
 matière première du palier « tout ce qui est annoncé fonctionne ».
 
-### Fenêtre & Layout — 31 réglage(s) inerte(s)
-
-- `border_size`
-- `bottom_dock_layout`
-- `centered_left_padding`
-- `centered_right_padding`
-- `focus_follows_debounce`
-- `focus_follows_mouse`
-- `fullscreen_mode`
-- `horizontal_split_direction`
-- `inactive_opacity`
-- `preview_code_nav`
-- `preview_enabled`
-- `preview_file_finder`
-- `preview_keep_on_nav`
-- `preview_multibuffer`
-- `preview_project_panel`
-- `sb_cursor_position`
-- `sb_encoding`
-- `sb_language`
-- `sb_line_endings`
-- `tabs_git_status`
-- `tabs_pinned_layout`
-- `tb_branch_icon`
-- `tb_onboarding`
-- `tb_sign_in`
-- `tb_user_menu`
-- `tb_user_picture`
-- `tb_worktree`
-- `use_system_window_tabs`
-- `vertical_split_direction`
-- `window_decorations`
-- `zoomed_padding`
-
 ### AI — 31 réglage(s) inerte(s)
 
 - `ai_disabled`
@@ -181,6 +148,39 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `thinking_display`
 - `threads_sidebar_side`
 - `use_modifier_to_send`
+
+### Fenêtre & Layout — 30 réglage(s) inerte(s)
+
+- `border_size`
+- `bottom_dock_layout`
+- `centered_left_padding`
+- `centered_right_padding`
+- `focus_follows_debounce`
+- `focus_follows_mouse`
+- `fullscreen_mode`
+- `horizontal_split_direction`
+- `inactive_opacity`
+- `preview_code_nav`
+- `preview_enabled`
+- `preview_file_finder`
+- `preview_keep_on_nav`
+- `preview_multibuffer`
+- `preview_project_panel`
+- `sb_cursor_position`
+- `sb_encoding`
+- `sb_language`
+- `tabs_git_status`
+- `tabs_pinned_layout`
+- `tb_branch_icon`
+- `tb_onboarding`
+- `tb_sign_in`
+- `tb_user_menu`
+- `tb_user_picture`
+- `tb_worktree`
+- `use_system_window_tabs`
+- `vertical_split_direction`
+- `window_decorations`
+- `zoomed_padding`
 
 ### Agent — 27 réglage(s) inerte(s)
 
@@ -239,25 +239,6 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `tab_size`
 - `vertical_scroll_margin`
 
-### Apparence — 16 réglage(s) inerte(s)
-
-- `buffer_font_family`
-- `buffer_font_weight`
-- `code_fade`
-- `current_line_highlight`
-- `cursor_blink`
-- `cursor_shape`
-- `dark_theme`
-- `indent_guides`
-- `light_theme`
-- `line_height`
-- `reduce_motion`
-- `rounded_selection`
-- `selection_highlight`
-- `ui_font_family`
-- `ui_font_size`
-- `wrap_guides`
-
 ### Recherche & Fichiers — 16 réglage(s) inerte(s)
 
 - `close_on_file_delete`
@@ -277,21 +258,24 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `search_wrap`
 - `seed_search_from_cursor`
 
-### Général — 13 réglage(s) inerte(s)
+### Apparence — 16 réglage(s) inerte(s)
 
-- `accessible_mode`
-- `close_no_tabs`
-- `editor.update.channel`
-- `last_window_closed`
-- `private_files`
-- `redact_private`
-- `restore_on_startup`
-- `restore_unsaved`
-- `system_path_prompts`
-- `system_prompts`
-- `telemetry_diagnostics`
-- `telemetry_metrics`
-- `trust_all_projects`
+- `buffer_font_family`
+- `buffer_font_weight`
+- `code_fade`
+- `current_line_highlight`
+- `cursor_blink`
+- `cursor_shape`
+- `dark_theme`
+- `indent_guides`
+- `light_theme`
+- `line_height`
+- `reduce_motion`
+- `rounded_selection`
+- `selection_highlight`
+- `ui_font_family`
+- `ui_font_size`
+- `wrap_guides`
 
 ### Version Control — 13 réglage(s) inerte(s)
 
@@ -308,6 +292,22 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `git_gutter_visibility`
 - `git_hunk_style`
 - `git.enabled`
+
+### Général — 13 réglage(s) inerte(s)
+
+- `accessible_mode`
+- `close_no_tabs`
+- `editor.update.channel`
+- `last_window_closed`
+- `private_files`
+- `redact_private`
+- `restore_on_startup`
+- `restore_unsaved`
+- `system_path_prompts`
+- `system_prompts`
+- `telemetry_diagnostics`
+- `telemetry_metrics`
+- `trust_all_projects`
 
 ### Terminal — 12 réglage(s) inerte(s)
 
@@ -396,17 +396,17 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `pair_programming`
 - `tutor_mode`
 
-### MCP — 3 réglage(s) inerte(s)
-
-- `mcp.adv.checkpointing`
-- `mcp.enabled`
-- `mcp.subagents`
-
 ### Raccourcis — 3 réglage(s) inerte(s)
 
 - `base_keymap`
 - `helix_mode`
 - `vim_mode`
+
+### MCP — 3 réglage(s) inerte(s)
+
+- `mcp.adv.checkpointing`
+- `mcp.enabled`
+- `mcp.subagents`
 
 ### Network — 2 réglage(s) inerte(s)
 

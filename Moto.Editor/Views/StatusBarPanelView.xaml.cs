@@ -19,6 +19,12 @@ namespace Moto.Editor.Views
         private bool _showActiveFile;
         private string _activeFileName = string.Empty;
 
+        // ★ AJOUT (01/10, tranche 2) : état de la puce « fins de ligne » (réglage
+        // sb_line_endings). Deux conditions distinctes : le réglage est-il actif, et
+        // une valeur réelle existe-t-elle ? (même patron que sb_active_file).
+        private bool _showLineEndings;
+        private string _lineEndings = string.Empty;
+
         /// <summary>★ AJOUT (01/10) : un avertissement existe-t-il ? (pour respecter sb_diagnostics).</summary>
         private bool _hasWarnings;
 
@@ -144,6 +150,10 @@ namespace Moto.Editor.Views
             _showActiveFile = Moto.Editor.Settings.StatusBarSettings.ShowActiveFile(settings);
             UpdateActiveFileVisibility();
 
+            // ★ AJOUT (01/10, tranche 2) : puce « fins de ligne » (sb_line_endings).
+            _showLineEndings = Moto.Editor.Settings.StatusBarSettings.ShowLineEndings(settings);
+            UpdateLineEndingsVisibility();
+
             // ★ AJOUT (01/10, décision C item 1) : visibilité des 7 boutons d'action,
             // pilotée par leur clé respective. Chaque conteneur regroupe le bouton ET son
             // séparateur (voir le .xaml) : basculer le conteneur ne laisse aucun trait
@@ -175,6 +185,24 @@ namespace Moto.Editor.Views
         /// <summary>Visible seulement si le réglage est actif ET qu'un fichier est ouvert.</summary>
         private void UpdateActiveFileVisibility()
             => ActiveFileLabel.IsVisible = _showActiveFile && _activeFileName.Length > 0;
+
+        /// <summary>
+        /// ★ AJOUT (01/10, tranche 2) : fins de ligne du fichier actif (réglage
+        /// <c>sb_line_endings</c>). Valeur RÉELLE détectée par MainPage depuis
+        /// <c>EditorDocument.Text</c> (« CRLF » / « LF »), ou <c>null</c> si aucun
+        /// fichier / aucun retour à la ligne. La vue ne fait qu'afficher — elle ne
+        /// devine jamais rien.
+        /// </summary>
+        public void SetLineEndings(string? eol)
+        {
+            _lineEndings = string.IsNullOrWhiteSpace(eol) ? string.Empty : eol;
+            LineEndingsLabel.Text = _lineEndings;
+            UpdateLineEndingsVisibility();
+        }
+
+        /// <summary>Visible seulement si le réglage est actif ET qu'une valeur réelle existe.</summary>
+        private void UpdateLineEndingsVisibility()
+            => LineEndingsLabel.IsVisible = _showLineEndings && _lineEndings.Length > 0;
 
         /// <summary>Branche l'overlay "À propos / mises à jour" sur le bouton ℹ️.</summary>
         public void InitializeInfoOverlay(InfoOverlay overlay)

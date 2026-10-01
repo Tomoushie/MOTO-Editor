@@ -59,6 +59,13 @@ namespace Moto.Editor.Settings
         public static bool ShowActiveFile(SettingsEngine s)
             => s.GetBool("sb_active_file", DeclaredBool("sb_active_file"));
 
+        /// <summary>Réglage <c>sb_line_endings</c> : puce « CRLF/LF » (fins de ligne du fichier actif).</summary>
+        /// <remarks>★ AJOUT (01/10, tranche 2) : la donnée est maintenant RÉELLE — détectée
+        /// depuis <c>EditorDocument.Text</c> (le texte tel que chargé, dont <c>File.ReadAllText</c>
+        /// préserve les fins de ligne), jamais inventée.</remarks>
+        public static bool ShowLineEndings(SettingsEngine s)
+            => s.GetBool("sb_line_endings", DeclaredBool("sb_line_endings"));
+
         // ★ AJOUT (01/10, décision C item 1 tranche 1) : visibilité des 7 boutons d'action.
         // Chaque clé est lue AVEC son défaut déclaré au catalogue (tous à true pour ces
         // 7 clés — voir SettingsCatalog.cs) : sans ce second argument, GetBool retomberait

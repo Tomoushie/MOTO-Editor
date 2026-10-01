@@ -41,6 +41,19 @@
                    MaximumWidthRequest="260"
                    IsVisible="False" />
 
+            <!-- ★ AJOUT (01/10, décision C item 1 tranche 2) : puce « CRLF » / « LF »
+                 pilotée par sb_line_endings. Donnée RÉELLE : détectée depuis
+                 EditorDocument.Text (le texte chargé, fins de ligne préservées par
+                 File.ReadAllText), posée par SetLineEndings(). Masquée tant qu'aucun
+                 fichier n'est ouvert OU que le fichier n'a aucun retour à la ligne
+                 (jamais de valeur inventée). -->
+            <Label x:Name="LineEndingsLabel" Text=""
+                   FontSize="{DynamicResource FontSizeUiSmall}"
+                   TextColor="{StaticResource Txt3}"
+                   VerticalOptions="Center"
+                   Margin="0,0,8,0"
+                   IsVisible="False" />
+
             <Label x:Name="ErrorsLabel" Text="0 erreur"
                    FontSize="{DynamicResource FontSizeUiSmall}"
                    TextColor="{StaticResource Txt2}"
