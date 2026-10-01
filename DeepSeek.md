@@ -441,16 +441,18 @@ d'onglets, les icônes de l'explorateur, le statut git).
 - **`tb_sign_in` / `tb_user_menu` / `tb_user_picture`** : **aucun compte
   utilisateur MOTO n'existe**. Le seul compte réel est GitHub OAuth, déjà
   servi par l'avatar existant.
-- **`sb_*` (barre de statut)** : ★ **TRANCHE 1 FAITE (01/10, décision C item 1)** —
-  les 4 clés `sb_project_panel`/`sb_terminal`/`sb_search`/`sb_debugger` ont
-  maintenant de VRAIS boutons dans `StatusBarPanelView.xaml` (visibilité par
-  `StatusBarSettings`, action réelle dans `MainPage`). Restent INERTES les
-  4 puces de DONNÉES : `sb_language`, `sb_encoding`, `sb_line_endings`,
-  `sb_cursor_position` — **aucune donnée réelle n'existe** (aucune notion
-  d'encodage ni de fins de ligne, 0 occurrence de `LineEnding`/`EOL` ;
-  position du curseur vivant dans le WebView `CodeEditorView` sans copie C#).
-  Afficher ces 4 valeurs = INVENTER — tranche 2 de l'item 1.
-  (`sb_diagnostics`/`sb_active_file` étaient déjà câblées avant.)
+- **`sb_*` (barre de statut)** : ★ **ITEM 1 CLOS (01/10, décision C)** — les
+  4 clés `sb_project_panel`/`sb_terminal`/`sb_search`/`sb_debugger` ont de VRAIS
+  boutons dans `StatusBarPanelView.xaml` (tranche 1), et les **4 puces de DONNÉES
+  sont désormais câblées** (tranche 2, chacune avec une donnée RÉELLE, jamais
+  inventée) : `sb_line_endings` (CRLF/LF détecté depuis `EditorDocument.Text`),
+  `sb_language` (`CodeEditorView.LanguageDisplayName`, nom lisible depuis
+  l'extension), `sb_cursor_position` (position poussée par le WebView via
+  `CodeEditorView.SelectionChanged` puis convertie en ligne:colonne),
+  `sb_encoding` (BOM détecté sur les premiers octets : UTF-8 BOM / UTF-16 LE /
+  UTF-16 BE, sinon « UTF-8 » = défaut du chargeur). `sb_diagnostics`/`sb_active_file`
+  étaient déjà câblées avant. Couverture totale de l'item 1 : 90 → 94/332 (28,3 %).
+  Reste `op_button` → item 3 (outline).
 - **`op_*` (Outline Panel) : LES 5 CLÉS NE SONT PAS CÂBLABLES — `OutlinePanelView`
   N'EXISTE PAS** dans le dépôt (recherche complète faite le 01/10). Il n'y a
   aucun panneau « outline » (vue symboles) à configurer. C'est l'item 3 de la
@@ -524,19 +526,18 @@ décrites par les réglages inertes, plutôt que de les retirer (A) ou de les
 marquer « à venir » (B). Ordre de construction suggéré, du plus petit au plus
 lourd (chaque item = une fonctionnalité réelle à développer, PAS un câblage) :
 
-1. **Boutons de barre de statut** — ✅ **TRANCHE 1 FAITE (01/10)** : les 7
+1. **Boutons de barre de statut** — ✅ **ITEM 1 CLOS (01/10)** : les 7
    boutons d'ACTION sont construits et câblés (`sb_project_panel`,
    `sb_terminal`, `sb_search`, `sb_debugger` + `gp_button`/`cp_button`/
    `ap_button`) — `StatusBarPanelView.xaml` a maintenant de vrais boutons
    (patron `Border`+`Label`+`TapGestureRecognizer`), visibilité par
    `StatusBarSettings`, action réelle branchée dans `MainPage` (toggle
    explorateur/recherche/IA/collab/terminal, fenêtres « debug »/« git »).
-   ⏭️ **RESTE de l'item 1** : les 4 puces de DONNÉES `sb_language`,
-   `sb_encoding`, `sb_line_endings`, `sb_cursor_position` (tranche 2 — il faut
-   de VRAIES données : langage = extension du fichier actif ; encodage/fins de
-   ligne = à détecter au chargement ; curseur = le WebView doit remonter la
-   position via `moto://sel`), et `op_button` (panneau outline inexistant,
-   c'est l'item 3 ci-dessous).
+   ✅ **TRANCHE 2 FAITE (01/10)** : les 4 puces de DONNÉES sont câblées avec
+   de VRAIES données — `sb_line_endings` (CRLF/LF depuis `EditorDocument.Text`),
+   `sb_language` (`CodeEditorView.LanguageDisplayName`), `sb_cursor_position`
+   (`CodeEditorView.SelectionChanged` → ligne:colonne), `sb_encoding` (BOM).
+   Couverture 90 → **94/332 (28,3 %)**. Reste `op_button` (item 3, outline).
 2. **Onglets aperçu** — `preview_*` (6 clés). Concept d'onglet temporaire
    (italique, remplacé par le suivant) à ajouter à `EditorDocument` +
    `EditorPaneView`. Ne pas confondre avec `LivePreviewView` (rendu web).

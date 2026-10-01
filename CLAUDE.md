@@ -593,7 +593,7 @@ lecture directe du code.
    (`SettingsCatalog.cs`) changé pour n'offrir plus qu'un seul choix
    ("Dark"). Construire une vraie palette claire reste une option pour plus
    tard (gros chantier), pas retenue aujourd'hui. Confirmé par Tom.
-  4. **Réglages : 90 opérants sur 332 déclarés — soit 27,1 %** (mesuré le
+  4. **Réglages : 94 opérants sur 332 déclarés — soit 28,3 %** (mesuré le
    01/10 par `scripts/settings-coverage.ps1`, rapport :
    `Docs/design/Couverture-reglages.md`). ⏳ Le chiffre historique était
    **12 sur 324 (3,7 %)** au 22/09 ; **20 sur 332** au 28/09 AVANT les
