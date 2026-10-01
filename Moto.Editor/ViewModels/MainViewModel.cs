@@ -376,7 +376,7 @@ namespace Moto.Editor.ViewModels
             }
         }
 
-        public void OpenFilePath(string path)
+        public void OpenFilePath(string path, bool asPreview = false)
         {
             if (string.IsNullOrWhiteSpace(path) || !File.Exists(path))
             {
@@ -390,6 +390,24 @@ namespace Moto.Editor.ViewModels
             {
                 SelectedDocument = existing;
                 return;
+            }
+
+            // ★ AJOUT (01/10, décision C item 2) : onglet aperçu. Si on ouvre en aperçu
+            // alors qu'un aperçu existe déjà, on REMPLACE celui-ci (même emplacement, nouveau
+            // fichier) au lieu d'empiler un onglet — c'est exactement le comportement VS Code.
+            // La limite tabs_max n'est donc pas consommée par les aperçus qui se remplacent.
+            if (asPreview)
+            {
+                var preview = Documents.FirstOrDefault(d => d.IsPreview);
+                if (preview != null)
+                {
+                    preview.Path = path;
+                    preview.Title = Path.GetFileName(path);
+                    preview.Text = string.Empty; // contenu rechargé à la sélection (même chemin que la création)
+                    preview.IsPreview = true;
+                    SelectedDocument = preview;
+                    return;
+                }
             }
 
             // ★ AJOUT (28/09) : réglage tabs_max — 0 = illimité. La limite est appliquée ICI
@@ -408,7 +426,8 @@ namespace Moto.Editor.ViewModels
             {
                 Path = path,
                 Title = Path.GetFileName(path),
-                Text = string.Empty // Contenu chargé à la sélection.
+                Text = string.Empty, // Contenu chargé à la sélection.
+                IsPreview = asPreview // ★ AJOUT (01/10, item 2) : l'onglet naît en aperçu si demandé.
             };
 
             // ★ AJOUT (28/09) : l'onglet créé reçoit tout de suite l'état visuel courant

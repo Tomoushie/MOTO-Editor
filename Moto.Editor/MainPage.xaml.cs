@@ -293,6 +293,15 @@ namespace Moto.Editor
                 }
                 StatusBar.SetCursorPosition($"L {line}, C {col}");
             };
+            // ★ AJOUT (01/10, décision C item 2) : toute édition par l'utilisateur rend
+            // l'onglet aperçu DÉFINITIF (il quitte l'italique et ne sera plus remplacé
+            // par le prochain aperçu). EditorChanged ne se déclenche PAS sur un chargement
+            // programmatique (garde _suppress de CodeEditorView), donc ce signal est fiable.
+            EditorPane.EditorChanged += (s, text) =>
+            {
+                if (_viewModel.SelectedDocument is { } doc && doc.IsPreview)
+                    doc.IsPreview = false;
+            };
             LivePreview.SetPreviewEngine(_previewEngine);
             // Le "Live" de Live Preview : répercute chaque frappe si le panneau est ouvert.
             EditorPane.EditorChanged += (s, text) =>
@@ -310,7 +319,13 @@ namespace Moto.Editor
                 }
             };
 
-            ExplorerPanel.FileOpened += path => _viewModel.OpenFilePath(path);
+            // ★ AJOUT (01/10, décision C item 2) : simple clic dans l'explorateur → onglet
+            // APERÇU si preview_enabled ET preview_project_panel (sinon ouverture définitive,
+            // comportement historique). Les deux clés sont lues avec leur défaut DÉCLARÉ.
+            ExplorerPanel.FileOpened += path =>
+                _viewModel.OpenFilePath(path,
+                    Settings.PreviewSettings.Enabled(SettingsEngine.Shared)
+                    && Settings.PreviewSettings.ProjectPanel(SettingsEngine.Shared));
             // ★ AJOUT (02/09, état des lieux) : le bouton "🡺" de la barre d'outils de
             // l'Explorateur émettait déjà SideToggleRequested, mais rien ne l'écoutait
             // nulle part dans le dépôt depuis l'ajout du bascule global du menu ⚙

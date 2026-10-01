@@ -47,6 +47,30 @@ namespace Moto.Editor.Models
         }
 
         // ------------------------------------------------------------------
+        // ★ AJOUT (01/10, décision C item 2) : concept d'« onglet aperçu » (preview tab).
+        // Un onglet aperçu est TEMPORAIRE : affiché en italique, il est remplacé par le
+        // prochain fichier ouvert en aperçu (au lieu d'ajouter un onglet), et devient
+        // définitif dès que l'utilisateur le modifie. Même patron d'état visuel que
+        // IsActive/ShowFileGlyph : le modèle est la seule source pour le DataTemplate.
+        // ------------------------------------------------------------------
+
+        private bool _isPreview;
+
+        /// <summary>Vrai si l'onglet est un aperçu temporaire (réglages preview_*).</summary>
+        public bool IsPreview
+        {
+            get => _isPreview;
+            set
+            {
+                if (!SetField(ref _isPreview, value)) return;
+                OnPropertyChanged(nameof(IsPreviewStyle));
+            }
+        }
+
+        /// <summary>★ (01/10) : la police du titre passe en italique quand l'onglet est un aperçu.</summary>
+        public Microsoft.Maui.Controls.FontAttributes IsPreviewStyle => _isPreview ? Microsoft.Maui.Controls.FontAttributes.Italic : Microsoft.Maui.Controls.FontAttributes.None;
+
+        // ------------------------------------------------------------------
         // ★ AJOUT (28/09) : état visuel de l'onglet piloté par les réglages de la
         // famille « Fenêtre & Layout / Tab Bar » (clés tabs_*). Ces réglages étaient
         // déclarés au catalogue mais lus par AUCUN code : la barre d'onglets les

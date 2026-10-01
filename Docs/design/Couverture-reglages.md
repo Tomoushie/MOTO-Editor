@@ -1,17 +1,17 @@
 # Couverture du catalogue de réglages
 
 > **Généré automatiquement — analyse seule, aucun fichier modifié.**
-> Source : `scripts/settings-coverage.ps1` · Périmètre : 639 fichiers .cs réellement compilés
+> Source : `scripts/settings-coverage.ps1` · Périmètre : 640 fichiers .cs réellement compilés
 
 ## Chiffres
 
 | Mesure | Valeur |
 |---|---|
 | Réglages DÉCLARÉS au catalogue | 332 |
-| Clés lues par du code compilé | 120 |
-| **Déclarés ET lus → réellement opérants** | **94** |
-| Déclarés mais INERTES | 238 |
-| **Part réellement opérante** | **28.3 %** |
+| Clés lues par du code compilé | 122 |
+| **Déclarés ET lus → réellement opérants** | **96** |
+| Déclarés mais INERTES | 236 |
+| **Part réellement opérante** | **28.9 %** |
 
 ## Réglages réellement opérants
 
@@ -76,6 +76,8 @@
 | `pp_horizontal_scroll` | Panneaux | Moto.Editor\Settings\PanelSettings.cs |
 | `pp_indent` | Panneaux | Moto.Editor\Settings\PanelSettings.cs |
 | `pp_width` | Panneaux | Moto.Editor\Settings\PanelSettings.cs |
+| `preview_enabled` | Fenêtre & Layout | Moto.Editor\Settings\PreviewSettings.cs |
+| `preview_project_panel` | Fenêtre & Layout | Moto.Editor\Settings\PreviewSettings.cs |
 | `sb_active_file` | Fenêtre & Layout | Moto.Editor\Settings\StatusBarSettings.cs |
 | `sb_cursor_position` | Fenêtre & Layout | Moto.Editor\Settings\StatusBarSettings.cs |
 | `sb_debugger` | Fenêtre & Layout | Moto.Editor\Settings\StatusBarSettings.cs |
@@ -182,7 +184,7 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `temperature`
 - `thread_persistence`
 
-### Fenêtre & Layout — 27 réglage(s) inerte(s)
+### Fenêtre & Layout — 25 réglage(s) inerte(s)
 
 - `border_size`
 - `bottom_dock_layout`
@@ -194,11 +196,9 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `horizontal_split_direction`
 - `inactive_opacity`
 - `preview_code_nav`
-- `preview_enabled`
 - `preview_file_finder`
 - `preview_keep_on_nav`
 - `preview_multibuffer`
-- `preview_project_panel`
 - `tabs_git_status`
 - `tabs_pinned_layout`
 - `tb_branch_icon`
@@ -239,25 +239,6 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `tab_size`
 - `vertical_scroll_margin`
 
-### Recherche & Fichiers — 16 réglage(s) inerte(s)
-
-- `close_on_file_delete`
-- `file_finder_icons`
-- `file_finder_include_ignored`
-- `file_finder_skip_focus`
-- `file_scan_depth`
-- `file_scan_exclusions`
-- `file_scan_inclusions`
-- `restore_file_state`
-- `scan_symbolic_links`
-- `search_case_sensitive`
-- `search_center_on_match`
-- `search_regex`
-- `search_smartcase`
-- `search_whole_word`
-- `search_wrap`
-- `seed_search_from_cursor`
-
 ### Apparence — 16 réglage(s) inerte(s)
 
 - `buffer_font_family`
@@ -276,6 +257,25 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `ui_font_family`
 - `ui_font_size`
 - `wrap_guides`
+
+### Recherche & Fichiers — 16 réglage(s) inerte(s)
+
+- `close_on_file_delete`
+- `file_finder_icons`
+- `file_finder_include_ignored`
+- `file_finder_skip_focus`
+- `file_scan_depth`
+- `file_scan_exclusions`
+- `file_scan_inclusions`
+- `restore_file_state`
+- `scan_symbolic_links`
+- `search_case_sensitive`
+- `search_center_on_match`
+- `search_regex`
+- `search_smartcase`
+- `search_whole_word`
+- `search_wrap`
+- `seed_search_from_cursor`
 
 ### Général — 13 réglage(s) inerte(s)
 
@@ -309,21 +309,6 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `git_hunk_style`
 - `git.enabled`
 
-### Terminal — 12 réglage(s) inerte(s)
-
-- `terminal_alternate_scroll`
-- `terminal_copy_on_select`
-- `terminal_cursor_blinking`
-- `terminal_cursor_shape`
-- `terminal_default_width`
-- `terminal_font_weight`
-- `terminal_keep_selection_on_copy`
-- `terminal_min_contrast`
-- `terminal_open_links_mouse`
-- `terminal_option_as_meta`
-- `terminal_scroll_multiplier`
-- `terminal_show_scrollbar`
-
 ### Panneaux — 12 réglage(s) inerte(s)
 
 - `ap_flexible`
@@ -338,6 +323,21 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `op_dock`
 - `op_indent_guides`
 - `pp_count_badge`
+
+### Terminal — 12 réglage(s) inerte(s)
+
+- `terminal_alternate_scroll`
+- `terminal_copy_on_select`
+- `terminal_cursor_blinking`
+- `terminal_cursor_shape`
+- `terminal_default_width`
+- `terminal_font_weight`
+- `terminal_keep_selection_on_copy`
+- `terminal_min_contrast`
+- `terminal_open_links_mouse`
+- `terminal_option_as_meta`
+- `terminal_scroll_multiplier`
+- `terminal_show_scrollbar`
 
 ### Collaboration — 10 réglage(s) inerte(s)
 
@@ -363,15 +363,6 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `max_severity`
 - `prettier_allowed`
 
-### Developer — 6 réglage(s) inerte(s)
-
-- `devops.crashtriage.enabled`
-- `devops.featureflags.enabled`
-- `devops.fuzzing.enabled`
-- `devops.journeys.enabled`
-- `devops.perfgate.enabled`
-- `perf_profiler`
-
 ### Marketplace — 6 réglage(s) inerte(s)
 
 - `marketplace.donations.enabled`
@@ -380,6 +371,15 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `marketplace.trial.days`
 - `marketplace.trial.enabled`
 - `marketplace.vulnscan.auto`
+
+### Developer — 6 réglage(s) inerte(s)
+
+- `devops.crashtriage.enabled`
+- `devops.featureflags.enabled`
+- `devops.fuzzing.enabled`
+- `devops.journeys.enabled`
+- `devops.perfgate.enabled`
+- `perf_profiler`
 
 ### Débogueur — 5 réglage(s) inerte(s)
 

@@ -99,6 +99,11 @@
                                         <DataTrigger TargetType="Label" Binding="{Binding IsActive}" Value="True">
                                             <Setter Property="TextColor" Value="{StaticResource Txt1}" />
                                         </DataTrigger>
+                                        <!-- ★ AJOUT (01/10, décision C item 2) : un onglet APERÇU est rendu en
+                                             italique (convention VS Code/Zed) pour le distinguer d'un onglet définitif. -->
+                                        <DataTrigger TargetType="Label" Binding="{Binding IsPreview}" Value="True">
+                                            <Setter Property="FontAttributes" Value="Italic" />
+                                        </DataTrigger>
                                     </Label.Triggers>
                                 </Label>
                                 <Border IsVisible="{Binding ShowErrorBadge}"
