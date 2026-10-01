@@ -1056,8 +1056,15 @@ lecture directe du code.
    **Conséquence pour le palier « vendable »** : la règle « tout ce qui est
    annoncé fonctionne » ne se satisfait pas uniquement en câblant. Elle demande
    aussi de **retirer du catalogue, ou d'assumer explicitement**, les réglages
-   sans support. C'est une décision produit qui revient à Tom, pas une tâche
-   technique — elle est listée dans les questions de fin de session.
+   sans support. **★ DÉCISION TOM (01/10) : option C — CONSTRUIRE ces
+   fonctionnalités.** Le câblage est épuisé ; la feuille de route de
+   construction (10 items, du plus petit au plus lourd : boutons de barre de
+   statut → onglets aperçu → outline → auto-save → Quick Open → git blame →
+   git gutter → LSP → AutoLink/Context → audio collab) est dans `DeepSeek.md`
+   §5, avec pour chaque item la preuve fichier:ligne de l'absence de support.
+   Chaque fonctionnalité construite devra ensuite câbler sa clé avec la méthode
+   éprouvée (`XxxSettings` + défaut DÉCLARÉ + `ApplyLayoutSettings` + dispatch
+   live + `RealEffectKeys`).
    C'est **le plus grand écart « affiché mais inactif » de l'app**, et le
    verrou direct du palier « élevé → vendable » (la règle étant « tout ce qui
    est annoncé fonctionne »). Effort : non pas des centaines de chantiers

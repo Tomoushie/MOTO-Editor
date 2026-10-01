@@ -67,9 +67,18 @@ comptant sans vérifier dans le code.
 
 Exemples documentés et vérifiés :
 
-- **Réglages** : le catalogue en compte ~300, mais seuls **4** sont
-  réellement appliqués par `SettingsApplier`. Le reste est affiché et
-  persisté sans effet.
+- **Réglages** : le catalogue compte **332** entrées, dont **83 réellement
+  opérantes (25 %)** au 01/10 — mesuré par `scripts/settings-coverage.ps1`
+  (contre 12 sur 324 le 22/09). Le chantier de câblage a rendu opérantes
+  toutes les familles câblables (onglets, explorateur, barre de titre, panneau
+  Git, terminal, agent, auto-update, doc…). Ce qui reste inerte décrit des
+  **fonctionnalités absentes** (panneau outline, onglets aperçu, LSP, blame
+  git, audio de collaboration…) — voir `DeepSeek.md` §5 pour la raison exacte
+  de chaque famille.
+- **Décision du 01/10 (Tom)** : **construire** ces fonctionnalités manquantes
+  (choix C), plutôt que de les retirer du catalogue ou de les marquer « à
+  venir ». Le câblage seul est épuisé ; le compteur ne progressera plus que
+  par du développement de fonctionnalités.
 - **Vue fractionnée (⧉)** : les réglages « Split vertical/horizontal »
   existent dans le catalogue, **sans aucun code derrière**.
 - **LSP Roslyn** : annoncé « à venir » en v1.0 dans la roadmap, et
@@ -103,7 +112,7 @@ pleinement opérationnel — pas un chantier en cours.
   Ce fichier vit dans Docs/. Il n'existe PAS de README.md à la racine du
   dépôt, donc c'est bien celui-ci que voit un visiteur — ne pas le traiter
   comme une simple note interne.
-  Dernière vérification factuelle : 22/09. Chaque affirmation ci-dessus a été
+  Dernière vérification factuelle : 01/10. Chaque affirmation ci-dessus a été
   contrôlée dans le code (.csproj, SettingsApplier, FEATURES.md). Si un fait
   change (nouvelle plateforme ciblée, réglages réellement branchés), mettre à
   jour ce fichier AU LIEU d'ajouter une promesse de plus.

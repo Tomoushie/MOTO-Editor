@@ -524,6 +524,47 @@ d'onglets, les icônes de l'explorateur, le statut git).
   Collaboration 10, Langages & Outils 9, Marketplace 6, Developer 6,
   Débogueur 5, Débutant 4, MCP 3, Raccourcis 3, Network 2.
 
+### ★ Décision C (01/10, Tom) — construire les fonctionnalités manquantes
+
+Le câblage est **épuisé**. Tom a choisi de **construire** les fonctionnalités
+décrites par les réglages inertes, plutôt que de les retirer (A) ou de les
+marquer « à venir » (B). Ordre de construction suggéré, du plus petit au plus
+lourd (chaque item = une fonctionnalité réelle à développer, PAS un câblage) :
+
+1. **Boutons de barre de statut** — `sb_project_panel`, `sb_language`,
+   `sb_terminal`, `sb_debugger`, `sb_search`, `sb_encoding`, `sb_line_endings`,
+   `sb_cursor_position` + `gp_button`/`cp_button`/`ap_button`/`op_button`.
+   `StatusBarPanelView.xaml` n'a aujourd'hui AUCUN bouton (que des `Label`) ;
+   il faut construire les puces avec de VRAIES données (langage = extension du
+   fichier actif ; encodage/fins de ligne = à détecter au chargement ; curseur
+   = le WebView doit remonter la position via `moto://sel`).
+2. **Onglets aperçu** — `preview_*` (6 clés). Concept d'onglet temporaire
+   (italique, remplacé par le suivant) à ajouter à `EditorDocument` +
+   `EditorPaneView`. Ne pas confondre avec `LivePreviewView` (rendu web).
+3. **Panneau outline (vue symboles)** — `op_*` (5 clés). `OutlinePanelView`
+   n'existe pas ; à créer (arborescence des membres du fichier actif).
+4. **Auto-save** — `auto_save`/`auto_save_delay`. Aucun timer, aucun `IsDirty`
+   dans `EditorDocument`, aucun `SaveDocumentAsync` automatique.
+5. **Quick Open / file finder** — `file_finder_*`/`file_scan_*`/`file_types`.
+   Aucun indexeur de fichiers avec profondeur/exclusions ; `file_finder_include_ignored`
+   est un doublon de `search_include_ignored` (déjà câblé).
+6. **Git blame** — `git_blame_*` (7 clés). Zéro `git blame` dans le produit.
+7. **Git gutter** — `git_gutter_*`. Statut git PAR LIGNE inexistant
+   (`--porcelain` ne renvoie que des fichiers).
+8. **LSP** — `lsp_completions`/`lsp_highlights`/`lsp_enabled`. Annoncé « à
+   venir v1.0 », non livré.
+9. **Pipeline AutoLink/Context** — `autolink_*`/`context_auto_apply`. Le
+   singleton `ContextEngine` est en DI mais jamais résolu ; les panneaux sont
+   vides (`Load()` sans appelant) ; aucun timer. Construire déclencheur +
+   timer + remplissage + apply/dismiss.
+10. **Audio de collaboration** — `collab_*`. Aucun canal audio.
+
+⚠️ **Pour chaque item : relire la raison d'inertie dans `CLAUDE.md` bug #4**
+(elle donne les preuves fichier:ligne de l'absence de support). Une fois la
+fonctionnalité construite, câbler la clé correspondante avec la méthode
+éprouvée (`XxxSettings` + défaut DÉCLARÉ + `ApplyLayoutSettings` + dispatch
+live + clé dans `RealEffectKeys`).
+
 ## 6. Méthode de travail — leçons apprises
 
 - **Vérifier avant de croire.** Ne jamais déclarer « cette brique marche » sur
