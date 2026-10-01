@@ -41,6 +41,16 @@ Dernière mise à jour : **2026-10-01**.
   re-vérifié le 01/10. ⚠️ Le chiffre **479** qui circule dans les documents
   plus anciens est **périmé** : une ligne de base trop haute ferait accepter
   un lot qui *ajoute* des avertissements. Toujours remesurer.
+- **Environnement de build (01/10, 06:40)** : la machine a été re-upgradée
+  pendant la nuit — les SDK .NET 8/9 ont été **désinstallés** (05:32–05:46)
+  et un **SDK 10.0.401 installé** (06:35). Conséquence : `dotnet build`
+  cassait (`global.json` exige 8.0.4xx). Réparé en réinstallant
+  **`Microsoft.DotNet.SDK.8` (8.0.425, winget)** + `dotnet workload install
+  maui`. `global.json` **inchangé** (la doctrine reste verrouillée sur
+  .NET 8 — la tentative .NET 10 du 30/08 a échoué). Le SDK 10 présent sur
+  la machine est **sans effet** tant que `global.json` pète 8.0.4xx.
+  Build de référence après réparation : `Moto.Editor.csproj` Release
+  `--no-incremental` = 0 erreur / 477 avertissements.
 - Distribution : le raccourci Bureau « MOTO Editor » pointe vers
   `Moto.Editor\bin\Release\net8.0-windows10.0.19041.0\win10-x64\Moto.Editor.exe`
   — **pas** `bin\Debug`. Un paquet MSIX séparé existe dans
@@ -129,6 +139,13 @@ code réellement compilé) :
 | 28/09, après `tabs_*` | 29 / 332 (8,7 %) |
 | **01/10, après `pp_*` + `tb_*`** | **45 / 332 (13,6 %)** |
 | **01/10, après `gp_*` (+ `sb_*` en parallèle)** | **59 / 332 (17,8 %)** |
+| **01/10, après fusion `ap_*` + `cp_*`** | **64 / 332 (19,3 %)** |
+
+⚠️ **Ne comparer qu'un avant/après mesuré dans le MÊME arbre de travail.** Le
+chantier `ap_*`/`cp_*` annonçait **45 → 50 (15,1 %)** dans SON worktree, où
+`gp_*`/`sb_*` n'étaient pas câblés : son « après » (50) n'est donc **pas**
+comparable aux 59 du tronc, qui incluent ces deux familles. Un chiffre de
+couverture lu hors de son worktree ne veut rien dire.
 
 ### ⚠️ Le piège qui a failli casser l'application
 
@@ -190,6 +207,23 @@ d'onglets, les icônes de l'explorateur, le statut git).
   `gp_count_badge` (le seul nombre non ambigu, `Staged.Count`, ne répond pas au
   libellé « changements non commités » ; un total compterait deux fois tout
   fichier indexé puis remodifié — « MM »).
+- **`ap_*`** (3 clés sur 7) et **`cp_*`** (2 clés sur 3) : géométrie et dock.
+  Mappage `Moto.Editor/Settings/DockPanelSettings.cs`, appliqué par
+  `ApplyAgentAndCollabPanelSettings(s)` depuis `ApplyLayoutSettings` **et**
+  `SettingsWindow.RealSettingChanged` (préfixes `ap_`/`cp_`).
+  ⚠️ **`ap_*` ne vise PAS un « AgentPanelView » — il n'en existe aucun.** Le
+  libellé du catalogue désigne le panneau de chat IA réel, **`Views/AiChatView`**
+  (titre « MOTO AI », `KindFor` → `"aichat"`). C'est lui que `ap_width`/`ap_height`
+  dimensionnent, et `ap_dock` place son dock via le mécanisme **existant**
+  `_panelsSwapped` + `ApplySidePanelLayout` (pas de 2e système de dock).
+  `cp_*` pilote `CollabPanelView` : `cp_width` sa largeur, `cp_dock` son ancrage
+  gauche/droite (colonne centrale et marge basse conservées).
+  **Restent inertes :** `ap_button`/`cp_button` (bouton de barre de statut
+  inexistant), `ap_limit_width`/`ap_max_width` (« contenu centré » : le chat
+  occupe toute la largeur, seules les bulles ont une borne figée de 420 px),
+  `ap_flexible` (exigerait de désactiver une poignée de redimensionnement qui
+  fonctionne), `dp_dock` (le panneau Debug n'est jamais rendu visible — le seul
+  écran Debug est une fenêtre séparée, hors du `RootGrid`).
 
 ### Familles encore inertes, et pourquoi (NE PAS LES RETENTER SANS LIRE)
 
@@ -241,11 +275,11 @@ d'onglets, les icônes de l'explorateur, le statut git).
 > uniquement en câblant, elle demande aussi de **retirer ou d'assumer**
 > les réglages sans support.
 - **Restent à faire** (préfixes réels, mesurés le 01/10 sur les 332 clés) :
-  `terminal_*` (23), `git_*` (16), `gp_*` (15), `pp_*` (13, fait),
-  `tabs_*` (11, fait), `tb_*` (10, fait), `sb_*` (10, 2 faits),
-  `agent_*` (9), `platform_*` (8), `ap_*` (7), `search_*` (7), `auto_*` (7),
-  `file_*` (7), `preview_*` (6, toute la famille inerte), `op_*` (5, inerte),
-  `show_*` (5), `lsp_*` (4), `context_*` (4), `doc_*` (4), `collab_*` (4)…
+  `terminal_*` (23), `git_*` (16), `pp_*` (13, fait), `tabs_*` (11, fait),
+  `tb_*` (10, fait), `sb_*` (10, 2 faits), `agent_*` (9), `platform_*` (8),
+  `ap_*` (7, 3 faits), `search_*` (7), `auto_*` (7), `file_*` (7),
+  `preview_*` (6, toute la famille inerte), `op_*` (5, inerte), `show_*` (5),
+  `lsp_*` (4), `context_*` (4), `doc_*` (4), `collab_*` (4)…
   ⚠️ **Les préfixes ne suivent PAS les catégories affichées** dans la fenêtre
   Réglages (ex. la catégorie « Terminal » n'utilise pas `term_` mais
   `terminal_`). Toujours inventorier par préfixe RÉEL plutôt que de le deviner
@@ -258,14 +292,6 @@ d'onglets, les icônes de l'explorateur, le statut git).
   Collaboration 10, Langages & Outils 9, Marketplace 6, Developer 6,
   Débogueur 5, Débutant 4, MCP 3, Raccourcis 3, Network 2.
 
-> **Constat de fond (01/10)** : une part notable du catalogue décrit une
-> application qui n'existe pas encore. Ce n'est pas seulement du « câblage en
-> retard » — certaines fonctionnalités annoncées n'ont **aucun support** dans
-> le code. C'est un point à connaître pour juger le palier « vendable » :
-> la règle « tout ce qui est annoncé fonctionne » ne se satisfait pas
-> uniquement en câblant, elle demande aussi de **retirer ou d'assumer**
-> les réglages sans support.
-
 ## 6. Méthode de travail — leçons apprises
 
 - **Vérifier avant de croire.** Ne jamais déclarer « cette brique marche » sur
@@ -274,6 +300,13 @@ d'onglets, les icônes de l'explorateur, le statut git).
   changement de réglage n'agit qu'au redémarrage (ou au retour de plein écran),
   l'utilisateur conclut qu'il ne marche pas. C'est un défaut réel — corrigé une
   fois sur les `tb_*`.
+- **`ApplyLayoutSettings()` tourne AVANT que les panneaux existent** (elle est
+  appelée par `WireSettings()`, alors que `WirePanels()` vient après dans le
+  constructeur). Appliquer un réglage sur `_aiChatPanel`/`_cortexPanel`/… y lève
+  donc une **`NullReferenceException` au démarrage** : l'app ne se lance plus du
+  tout. Coûté une fois le 01/10 sur `ap_height`. Parade : garde `is null` **et**
+  second appel après `WirePanels()`. **Seul le contrôle 4 du garde-fou
+  (« démarrage réel ») attrape ce bug** — la lecture du code ne le voit pas.
 - **Le garde-fou ne juge pas la beauté.** `scripts/visual-lot-verify.ps1`
   prouve qu'un lot ne casse rien (0 erreur, avertissements ≤ ligne de base,
   périmètre, lancement réel sans exception) — **pas** que le résultat est joli.

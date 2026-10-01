@@ -59,12 +59,21 @@ namespace Moto.Editor.Views
         /// ajoutée — ces clés étaient déclarées et affichées mais lues par aucun code ;
         /// elles sont désormais réellement appliquées par EditorPaneView.ApplySettings
         /// (via MainPage, sur le préfixe « tabs_ »). La liste redevient donc exacte.
+        /// ★ MODIFIÉ (01/10) : ajout des clés « Panneaux » réellement câblées ce jour-là —
+        /// ap_dock/ap_width/ap_height (Agent Panel = le panneau de chat IA AiChatView) et
+        /// cp_dock/cp_width (Collaboration Panel), appliquées par
+        /// MainPage.ApplyAgentAndCollabPanelSettings sur les préfixes « ap_ »/« cp_ ».
+        /// ⚠️ Volontairement ABSENTES de cette liste : ap_button, cp_button (aucun bouton
+        /// dans StatusBarPanelView), ap_flexible, ap_limit_width/ap_max_width (aucun
+        /// conteneur centré) et dp_dock (_debugPanel n'est jamais rendu visible) — ces
+        /// clés restent inertes, les marquer ici serait un mensonge à l'utilisateur.
         /// </summary>
         private static readonly HashSet<string> RealEffectKeys = new()
         {
             "theme_mode", "buffer_font_size", "minimap_show", "terminal_show", "power_mode",
             "tabs_show", "tabs_bar_buttons", "tabs_nav_buttons", "tabs_file_icons",
-            "tabs_show_diagnostics", "tabs_close_position", "tabs_show_close"
+            "tabs_show_diagnostics", "tabs_close_position", "tabs_show_close",
+            "ap_dock", "ap_width", "ap_height", "cp_dock", "cp_width"
         };
 
         private readonly List<string> _categories;

@@ -130,6 +130,14 @@ namespace Moto.Editor
             WireEditorPane();
             WireSettings();
             WirePanels();
+            // ★ AJOUT (01/10) : ApplyLayoutSettings (appelée par WireSettings ci-dessus) passe
+            // AVANT WirePanels, donc avant que _aiChatPanel existe — la géométrie ap_* / cp_*
+            // n'a donc pas pu être posée au tout premier passage (voir la garde
+            // `_aiChatPanel is null` dans ApplyAgentAndCollabPanelSettings). Sans ce second
+            // appel, ap_width/ap_height/cp_width/cp_dock n'auraient été appliqués qu'au
+            // prochain retour de plein écran — soit, au démarrage, un réglage qui se lit
+            // comme inerte. Les valeurs XAML par défaut servent de repli en attendant.
+            ApplyLayoutSettings();
             WireMenusAndSidebar();
             // ★ AJOUT (03/09) : bouton "Ouvrir" par fichier du panneau Documentation,
             // trouvé cassé par Tom en testant — DocPanelView.OpenFileRequested était
@@ -343,6 +351,17 @@ namespace Moto.Editor
                 // rencontré sur les tb_* juste au-dessus).
                 if (key.StartsWith("gp_", StringComparison.Ordinal))
                     ApplyLayoutSettings();
+
+                // ★ AJOUT (01/10) : même traitement pour la géométrie/dock des familles
+                // ap_* (Agent Panel = le panneau de chat IA) et cp_* (Collaboration Panel).
+                // Sans cette ligne, ces réglages n'auraient été appliqués qu'au prochain
+                // retour de plein écran (ApplyLayoutSettings) — un réglage qui ne s'applique
+                // pas tout de suite se lit exactement comme un réglage inerte.
+                // ★ FUSION (01/10) : les deux blocs gp_* et ap_*/cp_* sont CONSERVÉS — ils
+                // viennent de deux chantiers menés en parallèle sur des familles distinctes.
+                if (key.StartsWith("ap_", StringComparison.Ordinal) ||
+                    key.StartsWith("cp_", StringComparison.Ordinal))
+                    ApplyAgentAndCollabPanelSettings(SettingsEngine.Shared);
             };
 
             // ★ AJOUT (02/09, état des lieux) : redonne un point d'entrée à

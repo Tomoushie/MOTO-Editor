@@ -326,6 +326,94 @@ namespace Moto.Editor
             if (gitPanel is not null)
                 ApplyGitPanelSettings(gitPanel, s);
             ApplyPanelGeometrySettings(s);
+            // ★ AJOUT (01/10) : géométrie/dock des familles « Panneaux » ap_* (Agent Panel,
+            // qui est en réalité le panneau de chat IA — voir DockPanelSettings) et cp_*
+            // (Collaboration Panel). Aucune de ces clés n'était lue par du code compilé :
+            // la fenêtre Réglages les affichait, rien ne les appliquait.
+            ApplyAgentAndCollabPanelSettings(s);
+        }
+
+        /// <summary>★ AJOUT (01/10) : dernières valeurs posées par les réglages ap_* / cp_*.</summary>
+        private double _appliedAiDockWidth = -1;
+        private double _appliedAiChatHeight = -1;
+        private double _appliedCollabWidth = -1;
+        private bool _appliedCollabLeft;
+
+        /// <summary>
+        /// ★ AJOUT (01/10) : applique la GÉOMÉTRIE et le DOCK des panneaux agent (ap_*) et
+        /// collaboration (cp_*). Appelée depuis ApplyLayoutSettings — donc au démarrage, à chaque
+        /// changement de réglage et au retour de plein écran, exactement comme StatusBar /
+        /// EditorPane / MenuBar / ExplorerPanel juste au-dessus.
+        ///
+        /// ⚠️ Le côté du dock IA (ap_dock) réutilise le mécanisme EXISTANT _panelsSwapped +
+        /// ApplySidePanelLayout (celui du menu ⚙ « Disposition des panneaux ») — il n'y a
+        /// volontairement PAS de 2e système de placement, qui laisserait les poignées
+        /// désynchronisées de leur dock.
+        /// </summary>
+        private void ApplyAgentAndCollabPanelSettings(SettingsEngine s)
+        {
+            // ⚠️ CORRECTION (01/10) : ApplyLayoutSettings est appelée depuis WireSettings(),
+            // donc AVANT WirePanels() (MainPage.xaml.cs) qui construit _aiChatPanel. Au tout
+            // premier passage, ce champ est donc encore null : sans cette garde, le démarrage
+            // levait une NullReferenceException AVANT même que la fenêtre existe (trouvé par
+            // scripts/visual-lot-verify.ps1, contrôle 4 « démarrage réel »). On sort simplement :
+            // le premier ApplyLayoutSettings utile passera après WirePanels, et
+            // RealSettingChanged couvre les changements ultérieurs.
+            if (_aiChatPanel is null) return;
+
+            // ── ap_dock : côté du dock qui héberge le panneau IA ────────────────
+            var wantAiLeft = DockPanelSettings.DockLeft(s);
+            if (wantAiLeft != !_panelsSwapped)
+            {
+                _panelsSwapped = !wantAiLeft;
+                ApplySidePanelLayout();
+            }
+
+            // ── ap_width : largeur du dock IA ───────────────────────────────────
+            // ⚠️ Comme pour pp_width : on ne réécrit que si la valeur RÉGLÉE a changé, sinon
+            // réappliquer le réglage à chaque passage annulerait le geste de l'utilisateur
+            // sur la poignée d'étirement (qui écrit directement dans WidthRequest).
+            var aiWidth = DockPanelSettings.Width(s);
+            if (Math.Abs(aiWidth - _appliedAiDockWidth) > 0.01)
+            {
+                _appliedAiDockWidth = aiWidth;
+                AiDockPanel.WidthRequest = aiWidth;
+            }
+
+            // ── ap_height : hauteur visée pour le panneau de chat ──────────────
+            // AiChatView.FitToViewport recalcule sa hauteur à chaque changement de mise en page
+            // (la colonne peut contenir d'autres panneaux au-dessus) : poser HeightRequest ici
+            // ne ferait que donner la valeur de DÉPART, ce qui est bien ce qu'annonce le libellé
+            // (« Hauteur par défaut »). On ne l'impose donc que si le réglage a changé, pour ne
+            // pas écraser le recalcul permanent de la vue.
+            var aiHeight = DockPanelSettings.Height(s);
+            if (Math.Abs(aiHeight - _appliedAiChatHeight) > 0.01)
+            {
+                _appliedAiChatHeight = aiHeight;
+                _aiChatPanel.HeightRequest = aiHeight;
+            }
+
+            // ── cp_width : largeur du panneau collaboration ─────────────────────
+            var collabWidth = DockPanelSettings.CollabWidth(s);
+            if (Math.Abs(collabWidth - _appliedCollabWidth) > 0.01)
+            {
+                _appliedCollabWidth = collabWidth;
+                CollabPanel.WidthRequest = collabWidth;
+            }
+
+            // ── cp_dock : côté du panneau collaboration ─────────────────────────
+            // Le panneau est un OVERLAY flottant ancré sur la colonne centrale (voir MainPage.xaml,
+            // avec les 2 corrections d'alignement du 31/08) : changer de côté, c'est donc échanger
+            // son HorizontalOptions, pas le déplacer de colonne. On garde la colonne 1 (bord
+            // stable, correction du 31/08) et la marge basse (demande explicite de Tom), seuls
+            // l'ancrage horizontal et la marge opposée changent.
+            var collabLeft = DockPanelSettings.CollabDockLeft(s);
+            if (collabLeft != _appliedCollabLeft)
+            {
+                _appliedCollabLeft = collabLeft;
+                CollabPanel.HorizontalOptions = collabLeft ? LayoutOptions.Start : LayoutOptions.End;
+                CollabPanel.Margin = collabLeft ? new Thickness(20, 0, 0, 10) : new Thickness(0, 0, 20, 10);
+            }
         }
 
         /// <summary>

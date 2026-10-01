@@ -471,6 +471,23 @@ vérifiés à l'œil.
   (`MainPage.Panels.cs`, `UpdateDockHeightBounds`). Même famille : un
   `ContentView` posé sur des colonnes `Auto` est mesuré en largeur infinie
   (contenu du terminal 2534 px dans 1774) → `TerminalRoot.MaximumWidthRequest`.
+- **★ Piège constaté le 01/10 (chantier `ap_*`/`cp_*`) — `ApplyLayoutSettings()`
+  s'exécute AVANT que les panneaux existent.** Elle est appelée depuis
+  `WireSettings()`, or `WirePanels()` (qui construit `_aiChatPanel`,
+  `_cortexPanel`, etc.) vient APRÈS dans le constructeur de `MainPage`. Un
+  réglage appliqué par `ApplyLayoutSettings` sur un de ces panneaux lève donc
+  une **`NullReferenceException` au démarrage**, avant même que la fenêtre
+  existe — l'app ne se lance plus du tout (3 exceptions dans le journal,
+  processus arrêté, code `-1073741189`). Trouvé par le **contrôle 4 du
+  garde-fou** (`scripts/visual-lot-verify.ps1`, « démarrage réel »), pas par
+  lecture : c'est le seul contrôle qui l'attrape. Correctif : une garde
+  `if (_aiChatPanel is null) return;` **ET** un second appel à
+  `ApplyLayoutSettings()` après `WirePanels()` — la garde seule laisserait le
+  réglage inappliqué jusqu'au prochain retour de plein écran, ce qui se lit
+  comme un réglage inerte.
+  ⚠️ **Corollaire** : tout nouveau réglage appliqué dans `ApplyLayoutSettings`
+  doit viser soit un élément XAML (`x:Name` de `MainPage.xaml`, toujours
+  construit par `InitializeComponent`), soit un champ gardé contre `null`.
 - **★ Piège constaté le 01/10 — une colonne `Auto` ne se replie PAS quand son
   enfant est masqué.** Dans le template de l'explorateur, les colonnes chevron
   (16 px) et icône (20 px) gardaient leur place même après
@@ -584,7 +601,12 @@ lecture directe du code.
    puis **29 sur 332 (8,7 %)** après `tabs_*` (28/09), **45 (13,6 %)**
    après `pp_*` (01/10) et le chantier `tb_*` mené en parallèle le même jour,
    puis **59 (17,8 %)** après `gp_*` (01/10) et la famille `sb_*` menée en
-   parallèle le même jour.
+   parallèle le même jour, puis **64 (19,3 %)** après fusion de la branche
+   `chantier-panneaux-2` (`ap_*`/`cp_*`, 5 clés).
+   ⏳ **Mesures de branche (à ne pas confondre avec le tronc)** : le chantier
+   `ap_*`/`cp_*` annonçait **45 → 50 (15,1 %)** mesuré dans SON worktree, où
+   `gp_*`/`sb_*` n'étaient pas câblés. Ces chiffres ne sont pas comparables
+   entre eux : **ne comparer qu'un avant/après mesuré dans le MÊME arbre**.
    Périmètre : le code **réellement compilé** (les fichiers listés dans
    `<Compile Remove>`/`<MauiXaml Remove>` sont écartés, sinon on compterait
    comme « opérant » un réglage lu par du code mort — cas des `ai.embedded.*`,
@@ -724,10 +746,32 @@ lecture directe du code.
    sont un aperçu de RENDU web (serveur WebSocket + HTML généré), sans rapport
    avec des onglets. Câbler ces 6 clés demanderait de CONSTRUIRE d'abord le
    concept d'onglet aperçu — c'est un chantier, pas un câblage.
-   **Les 273 inertes restants se répartissent par catégorie** — le plus gros
+   **Ce qui est opérant depuis le 01/10 (familles `ap_*` et `cp_*`, 5 clés sur 11)** —
+   géométrie et dock du panneau agent et du panneau collaboration. Mappage dans
+   `Moto.Editor/Settings/DockPanelSettings.cs` (même patron que `TabBarSettings`/
+   `PanelSettings`), appliqué par `ApplyAgentAndCollabPanelSettings(s)` depuis
+   `ApplyLayoutSettings` ET depuis `SettingsWindow.RealSettingChanged` (préfixes
+   `ap_`/`cp_`).
+   ⚠️ **À QUOI CORRESPOND `ap_*`** : il n'existe **AUCUN `AgentPanelView`** dans le
+   dépôt. Le libellé du catalogue désigne le panneau de chat IA réel,
+   **`Views/AiChatView`** — enregistré sur `AddFloatingPanel` (titre « MOTO AI »,
+   `KindFor` → `"aichat"`). C'est donc LUI que la géométrie `ap_*` pilote.
+   - `ap_dock` : côté du dock qui héberge le chat, via le mécanisme EXISTANT
+     `_panelsSwapped` + `ApplySidePanelLayout` — aucun 2e système de dock créé ;
+   - `ap_width` : largeur du dock IA (`AiDockPanel.WidthRequest`), bornée 200..1200 ;
+   - `ap_height` : hauteur de départ du chat, ensuite plafonnée par `FitToViewport` ;
+   - `cp_width` : largeur de `CollabPanelView` (150..800) ;
+   - `cp_dock` : ancrage gauche/droite de l'overlay collaboration.
+   **Restent INERTES dans ces familles (6 clés, raisons exactes)** :
+   `ap_button` et `cp_button` (bouton de barre de statut inexistant) ;
+   `ap_limit_width`/`ap_max_width` (« contenu centré » : le chat occupe toute la
+   largeur, seules les bulles ont une borne figée de 420 px) ; `ap_flexible`
+   (exigerait de DÉSACTIVER une poignée de redimensionnement qui fonctionne) ;
+   `dp_dock` (voir le constat `DebugPanel` INATTEIGNABLE ci-dessus).
+   **Les 268 inertes restants se répartissent par catégorie** — le plus gros
    cluster correspond à des **interfaces qui EXISTENT déjà mais ignorent leur
-   configuration** : `Panneaux` (explorateur `pp_*` et panneau Git `gp_*` FAITS ;
-   restent les panneaux agent/chat/debug/outline `ap_*`/`cp_*`/`dp_*`/`op_*`),
+   configuration** : `Panneaux` (explorateur `pp_*`, panneau Git `gp_*` et
+   géométrie `ap_*`/`cp_*` FAITS ; restent l'outline `op_*`),
    `Fenêtre & Layout` (barre de titre `tb_*` FAITE le 01/10 ; restent la barre de
    statut `sb_*` et les aperçus `preview_*` ; les onglets sont faits), puis AI,
    Agent, Éditeur, Terminal, Version Control, Recherche & Fichiers, Apparence,

@@ -1,17 +1,17 @@
 # Couverture du catalogue de réglages
 
 > **Généré automatiquement — analyse seule, aucun fichier modifié.**
-> Source : `scripts/settings-coverage.ps1` · Périmètre : 632 fichiers .cs réellement compilés
+> Source : `scripts/settings-coverage.ps1` · Périmètre : 633 fichiers .cs réellement compilés
 
 ## Chiffres
 
 | Mesure | Valeur |
 |---|---|
 | Réglages DÉCLARÉS au catalogue | 332 |
-| Clés lues par du code compilé | 86 |
-| **Déclarés ET lus → réellement opérants** | **59** |
-| Déclarés mais INERTES | 273 |
-| **Part réellement opérante** | **17.8 %** |
+| Clés lues par du code compilé | 91 |
+| **Déclarés ET lus → réellement opérants** | **64** |
+| Déclarés mais INERTES | 268 |
+| **Part réellement opérante** | **19.3 %** |
 
 ## Réglages réellement opérants
 
@@ -25,8 +25,13 @@
 | `agent_thought` | IA Locale | Moto.Core\Moto.AI\Autonomy\V2\AgentV2Settings.cs |
 | `agent_tool_mode` | IA Locale | Moto.Core\Moto.AI\Autonomy\V2\AgentV2Settings.cs |
 | `agent_verify_command` | IA Locale | Moto.Core\Moto.AI\Autonomy\V2\AgentV2Settings.cs |
+| `ap_dock` | Panneaux | Moto.Editor\Settings\DockPanelSettings.cs |
+| `ap_height` | Panneaux | Moto.Editor\Settings\DockPanelSettings.cs |
+| `ap_width` | Panneaux | Moto.Editor\Settings\DockPanelSettings.cs |
 | `buffer_font_size` | Apparence | Moto.Editor\Settings\SettingsApplier.cs |
 | `context_engine_enabled` | Agent | Moto.Core\Moto.AI\Context\ContextEngine.cs |
+| `cp_dock` | Panneaux | Moto.Editor\Settings\DockPanelSettings.cs |
+| `cp_width` | Panneaux | Moto.Editor\Settings\DockPanelSettings.cs |
 | `doc_auto_update` | Agent | Moto.Core\Doc\DocEngine.cs |
 | `doc_on_project_open` | Agent | Moto.Editor\MainPage.Panels.cs |
 | `gp_click_behavior` | Panneaux | Moto.Editor\Settings\GitPanelSettings.cs |
@@ -239,28 +244,25 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `terminal_show_scrollbar`
 - `terminal_working_dir`
 
-### Panneaux — 20 réglage(s) inerte(s)
+### Recherche & Fichiers — 17 réglage(s) inerte(s)
 
-- `ap_button`
-- `ap_dock`
-- `ap_flexible`
-- `ap_height`
-- `ap_limit_width`
-- `ap_max_width`
-- `ap_width`
-- `cp_button`
-- `cp_dock`
-- `cp_width`
-- `dp_dock`
-- `gp_button`
-- `gp_count_badge`
-- `gp_fallback_branch`
-- `op_auto_fold`
-- `op_auto_reveal`
-- `op_button`
-- `op_dock`
-- `op_indent_guides`
-- `pp_count_badge`
+- `close_on_file_delete`
+- `file_finder_icons`
+- `file_finder_include_ignored`
+- `file_finder_skip_focus`
+- `file_scan_depth`
+- `file_scan_exclusions`
+- `file_scan_inclusions`
+- `restore_file_state`
+- `scan_symbolic_links`
+- `search_case_sensitive`
+- `search_center_on_match`
+- `search_include_ignored`
+- `search_regex`
+- `search_smartcase`
+- `search_whole_word`
+- `search_wrap`
+- `seed_search_from_cursor`
 
 ### Apparence — 17 réglage(s) inerte(s)
 
@@ -302,25 +304,23 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `git_stage_restore_buttons`
 - `git.enabled`
 
-### Recherche & Fichiers — 17 réglage(s) inerte(s)
+### Panneaux — 15 réglage(s) inerte(s)
 
-- `close_on_file_delete`
-- `file_finder_icons`
-- `file_finder_include_ignored`
-- `file_finder_skip_focus`
-- `file_scan_depth`
-- `file_scan_exclusions`
-- `file_scan_inclusions`
-- `restore_file_state`
-- `scan_symbolic_links`
-- `search_case_sensitive`
-- `search_center_on_match`
-- `search_include_ignored`
-- `search_regex`
-- `search_smartcase`
-- `search_whole_word`
-- `search_wrap`
-- `seed_search_from_cursor`
+- `ap_button`
+- `ap_flexible`
+- `ap_limit_width`
+- `ap_max_width`
+- `cp_button`
+- `dp_dock`
+- `gp_button`
+- `gp_count_badge`
+- `gp_fallback_branch`
+- `op_auto_fold`
+- `op_auto_reveal`
+- `op_button`
+- `op_dock`
+- `op_indent_guides`
+- `pp_count_badge`
 
 ### Général — 14 réglage(s) inerte(s)
 
@@ -396,17 +396,17 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `pair_programming`
 - `tutor_mode`
 
-### MCP — 3 réglage(s) inerte(s)
-
-- `mcp.adv.checkpointing`
-- `mcp.enabled`
-- `mcp.subagents`
-
 ### Raccourcis — 3 réglage(s) inerte(s)
 
 - `base_keymap`
 - `helix_mode`
 - `vim_mode`
+
+### MCP — 3 réglage(s) inerte(s)
+
+- `mcp.adv.checkpointing`
+- `mcp.enabled`
+- `mcp.subagents`
 
 ### Network — 2 réglage(s) inerte(s)
 
