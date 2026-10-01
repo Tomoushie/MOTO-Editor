@@ -538,16 +538,24 @@ lourd (chaque item = une fonctionnalité réelle à développer, PAS un câblage
    `sb_language` (`CodeEditorView.LanguageDisplayName`), `sb_cursor_position`
    (`CodeEditorView.SelectionChanged` → ligne:colonne), `sb_encoding` (BOM).
    Couverture 90 → **94/332 (28,3 %)**. Reste `op_button` (item 3, outline).
-2. **Onglets aperçu** — `preview_*` (6 clés). Concept d'onglet temporaire
-   (italique, remplacé par le suivant) à ajouter à `EditorDocument` +
-   `EditorPaneView`. Ne pas confondre avec `LivePreviewView` (rendu web).
-3. **Panneau outline (vue symboles)** — `op_*` (5 clés). `OutlinePanelView`
-   n'existe pas ; à créer (arborescence des membres du fichier actif).
-4. **Auto-save** — `auto_save`/`auto_save_delay`. Aucun timer, aucun `IsDirty`
-   dans `EditorDocument`, aucun `SaveDocumentAsync` automatique.
-5. **Quick Open / file finder** — `file_finder_*`/`file_scan_*`/`file_types`.
-   Aucun indexeur de fichiers avec profondeur/exclusions ; `file_finder_include_ignored`
-   est un doublon de `search_include_ignored` (déjà câblé).
+2. **Onglets aperçu** — ✅ **CŒUR FAIT (01/10)** : `EditorDocument.IsPreview`
+   (italique via DataTrigger), `OpenFilePath(asPreview)` remplace l'aperçu
+   existant, permanence à la 1re édition, explorateur → aperçu. Câblées :
+   `preview_enabled` + `preview_project_panel`. Reportées (features inexistantes) :
+   `preview_file_finder` (item 5), `preview_multibuffer`, `preview_code_nav`/`keep_on_nav`.
+3. **Panneau outline (vue symboles)** — ✅ **FAIT (01/10)** : `OutlineExtractor`
+   (motifs réels C#/Python/JS), `OutlinePanelView` (dock op_dock), chip barre de
+   statut (op_button), auto_reveal (SetCursorLine). Les 5 clés `op_*` lues.
+   ⚠️ `op_auto_fold`/`op_indent_guides` sont LUS MAIS SANS EFFET (liste plate,
+   pas d'arbre) — faux positifs de la couverture, à corriger.
+4. **Auto-save** — ✅ **FAIT (01/10)** : `EditorDocument.IsDirty`, `MarkDirty`
+   (debounce « After Delay »), `TrySaveOnFocusChange` (« On Focus Change »),
+   `SaveDocumentAsync`. Câblées : `auto_save` + `auto_save_delay`.
+5. **Quick Open / file finder** — ⏳ **PARTIEL (01/10)** : `file_finder_icons`
+   câblé (icônes dans SearchView). Reste : `file_scan_*`/`file_types` (aucun
+   indexeur configurable — Quick Open complet à construire) ;
+   `file_finder_include_ignored` = doublon de `search_include_ignored` ;
+   `file_finder_skip_focus` = comportement déjà d'origine.
 6. **Git blame** — `git_blame_*` (7 clés). Zéro `git blame` dans le produit.
 7. **Git gutter** — `git_gutter_*`. Statut git PAR LIGNE inexistant
    (`--porcelain` ne renvoie que des fichiers).
