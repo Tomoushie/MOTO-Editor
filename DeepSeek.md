@@ -146,6 +146,7 @@ code réellement compilé) :
 | **01/10, après `agent_font_size` + correction du verrou `RealEffectKeys`** | **79 / 332 (23,8 %)** |
 | **01/10, après `search_include_ignored` (+ défaut corrigé au catalogue)** | **80 / 332 (24,1 %)** |
 | **01/10, après `auto_indent` + `auto_update` (lot auto_*)** | **82 / 332 (24,7 %)** |
+| **01/10, après `doc_folder` + correction du défaut de `doc_auto_update` (lot doc_*)** | **83 / 332 (25,0 %)** |
 
 ⚠️ **Ne comparer qu'un avant/après mesuré dans le MÊME arbre de travail.** Le
 chantier `ap_*`/`cp_*` annonçait **45 → 50 (15,1 %)** dans SON worktree, où

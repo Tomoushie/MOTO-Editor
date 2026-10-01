@@ -8,10 +8,10 @@
 | Mesure | Valeur |
 |---|---|
 | Réglages DÉCLARÉS au catalogue | 332 |
-| Clés lues par du code compilé | 108 |
-| **Déclarés ET lus → réellement opérants** | **82** |
-| Déclarés mais INERTES | 250 |
-| **Part réellement opérante** | **24.7 %** |
+| Clés lues par du code compilé | 109 |
+| **Déclarés ET lus → réellement opérants** | **83** |
+| Déclarés mais INERTES | 249 |
+| **Part réellement opérante** | **25 %** |
 
 ## Réglages réellement opérants
 
@@ -36,6 +36,7 @@
 | `cp_dock` | Panneaux | Moto.Editor\Settings\DockPanelSettings.cs |
 | `cp_width` | Panneaux | Moto.Editor\Settings\DockPanelSettings.cs |
 | `doc_auto_update` | Agent | Moto.Core\Doc\DocEngine.cs |
+| `doc_folder` | Agent | Moto.Core\Doc\DocEngine.cs |
 | `doc_on_project_open` | Agent | Moto.Editor\MainPage.Panels.cs |
 | `git_diff_base` | Version Control | Moto.Editor\Settings\GitSettings.cs |
 | `git_integration` | Version Control | Moto.Editor\Settings\GitSettings.cs |
@@ -178,7 +179,7 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `threads_sidebar_side`
 - `use_modifier_to_send`
 
-### Agent — 28 réglage(s) inerte(s)
+### Agent — 27 réglage(s) inerte(s)
 
 - `ai_cache_enabled`
 - `auto_compact`
@@ -190,7 +191,6 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `context_scan_interval_sec`
 - `context_show_low_priority`
 - `default_model`
-- `doc_folder`
 - `doc_include_private`
 - `evolution_enabled`
 - `evolution_interval_min`
