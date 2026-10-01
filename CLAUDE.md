@@ -409,7 +409,7 @@ de fin de session.
 | # | Décision | Choix retenu | Réversible en |
 |---|---|---|---|
 | D1 | Corps de texte | **13 px** (VS Code et JetBrains sont à 13 ; l'app était à 12) | 1 ligne de jeton |
-| D2 | Accent | **#007ACC** (annoncé par la présentation ET QWEN.md ; les 3 références sont bleues). L'ancien orange est gardé sous `AccentWarm` | 1 ligne de jeton |
+| D2 | Accent | ~~**#007ACC** (annoncé par la présentation ET QWEN.md ; les 3 références sont bleues)~~ **INVERSÉ le 01/10** par Tom (« thème chaud Claude Code ») : accent **#D97757** orange, l'ancien bleu gardé sous `AccentWarm` | 1 ligne de jeton |
 | D3 | Police | `Segoe UI Variable, Segoe UI` — **appliquée partout** via un style implicite de `Label` (seuls 9 fichiers sur 71 en déclaraient une, donc deux typographies cohabitaient). Inter embarquée non retenue pour l'instant | enlève 1 style |
 | D4 | Interligne | **activé** (`LineHeight` sur les rôles ≥ 13 px) | par rôle |
 

@@ -591,6 +591,39 @@ fonctionnalité construite, câbler la clé correspondante avec la méthode
 éprouvée (`XxxSettings` + défaut DÉCLARÉ + `ApplyLayoutSettings` + dispatch
 live + clé dans `RealEffectKeys`).
 
+## ★ Décision visuelle (01/10, Tom) — thème CHAUD « Claude Code »
+
+Après la décision C (fonctionnalités), Tom a demandé un focus **visuel** :
+s'inspirer FORTEMENT de VS Code / Zen / Claude Code / Cursor / Cherry Studio /
+Goose, consulter `Docs/inspirations` (deux dossiers identiques `MOTO-Editor-wt`
+et `MOTO-Editor-vendable`) et les dépôts GitHub listés. **La référence clé est
+`Docs/inspirations/IntefaceClaudeExtended.txt`** (1342 lignes) : une maquette
+HTML/CSS complète « MOTO Editor — Interface type Claude Code (v4) ».
+
+**Décisions de Tom (01/10)** : (1) **thème CHAUD complet** — accent orange
+`#D97757` + fonds bruns (INVERSE la décision D2 « bleu #007ACC » du 22/09,
+l'ancien bleu est conservé sous le jeton `AccentWarm`) ; (2) commencer par le
+**Chat IA**.
+
+**Réalisé (4 lots, build 0/476, app lancée 9 s sans exception)** :
+- `156acd2` thème chaud : `Accent` #D97757, fonds #262421/#1e1c1a/#2e2c28/
+  #3b3833, textes #ece9e4/#a09b93, variantes hover/pressed dérivées de
+  #D97757/#E08B6D.
+- `6ff0306` réconciliation : 12 neutres codés en dur → jetons (suivent le thème).
+- `cf62569` micro-interaction : press-scale 0.94 des boutons icône
+  (`.icobtn:active{transform:scale(.94)}` de la maquette).
+- `487c495` bulles de chat chaudes (user #3B3833, IA #2A2825).
+
+**Constat honnête sur le Chat IA** : composeur (« @ … / … », modèle, contexte,
+slash), blocs de code (en-tête + Appliquer + Copier) et bulles sont DÉJÀ en
+place. Les manques restants ne sont pas purement visuels : **Thinking + appels
+d'outils** = fonctionnel (le chat passe par `OllamaClient` texte brut ; les
+champs `LlmMessage.Thinking`/`ToolCalls` parsés par `OllamaChatClient` ne sont
+utilisés que par la boucle Agent, pas par le chat — afficher exige de basculer
+le chat vers le client à outils) ; **heatmap** = données absentes (un graphe de
+contributions serait factice, interdit) ; **puces de code inline** = limitées en
+MAUI (`Span` sans coin arrondi, `FormattedText` non bindable).
+
 ## 6. Méthode de travail — leçons apprises
 
 - **Vérifier avant de croire.** Ne jamais déclarer « cette brique marche » sur
