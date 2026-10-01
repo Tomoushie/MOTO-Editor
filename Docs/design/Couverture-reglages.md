@@ -8,10 +8,10 @@
 | Mesure | Valeur |
 |---|---|
 | Réglages DÉCLARÉS au catalogue | 332 |
-| Clés lues par du code compilé | 124 |
-| **Déclarés ET lus → réellement opérants** | **98** |
-| Déclarés mais INERTES | 234 |
-| **Part réellement opérante** | **29.5 %** |
+| Clés lues par du code compilé | 129 |
+| **Déclarés ET lus → réellement opérants** | **103** |
+| Déclarés mais INERTES | 229 |
+| **Part réellement opérante** | **31 %** |
 
 ## Réglages réellement opérants
 
@@ -31,6 +31,8 @@
 | `ap_height` | Panneaux | Moto.Editor\Settings\DockPanelSettings.cs |
 | `ap_width` | Panneaux | Moto.Editor\Settings\DockPanelSettings.cs |
 | `auto_indent` | Éditeur | Moto.Editor\Controls\EditorPaneView.xaml.cs, Moto.Editor\Settings\AutoSettings.cs |
+| `auto_save` | Éditeur | Moto.Editor\Settings\AutoSettings.cs |
+| `auto_save_delay` | Éditeur | Moto.Editor\Settings\AutoSettings.cs |
 | `auto_update` | Général | Moto.Editor\Services\AutoUpdateService.cs, Moto.Editor\Settings\AutoSettings.cs |
 | `buffer_font_size` | Apparence | Moto.Editor\Settings\SettingsApplier.cs |
 | `context_engine_enabled` | Agent | Moto.Core\Moto.AI\Context\ContextEngine.cs |
@@ -62,8 +64,11 @@
 | `ollama_endpoint` | IA Locale | Moto.Core\Moto.AI\Autonomy\V2\AgentV2Settings.cs, Moto.Core\Moto.AI\Generation\GenerationSettings.cs, Moto.Core\Moto.AI\Internal\OllamaClient.cs, Moto.Editor\Pages\AiSettingsPage.xaml.cs |
 | `ollama_model` | IA Locale | Moto.Core\Moto.AI\Autonomy\V2\AgentV2Settings.cs, Moto.Core\Moto.AI\Generation\GenerationSettings.cs, Moto.Core\Moto.AI\Internal\OllamaClient.cs, Moto.Editor\Pages\AiSettingsPage.xaml.cs |
 | `ollama_timeout_seconds` | IA Locale | Moto.Core\Moto.AI\Internal\OllamaClient.cs |
+| `op_auto_fold` | Panneaux | Moto.Editor\Settings\OutlineSettings.cs |
+| `op_auto_reveal` | Panneaux | Moto.Editor\Settings\OutlineSettings.cs |
 | `op_button` | Panneaux | Moto.Editor\Settings\OutlineSettings.cs |
 | `op_dock` | Panneaux | Moto.Editor\Settings\OutlineSettings.cs |
+| `op_indent_guides` | Panneaux | Moto.Editor\Settings\OutlineSettings.cs |
 | `platform_auto_detect` | Agent | Moto.Editor\MainPage.Panels.cs, Moto.Editor\Settings\PlatformSettings.cs |
 | `power_mode` | Agent | Moto.Core\Performance\PerformanceEngine.cs, Moto.Editor\Controls\AiComposerBarView.xaml.cs |
 | `pp_auto_reveal` | Panneaux | Moto.Editor\Settings\PanelSettings.cs |
@@ -214,10 +219,8 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `window_decorations`
 - `zoomed_padding`
 
-### Éditeur — 24 réglage(s) inerte(s)
+### Éditeur — 22 réglage(s) inerte(s)
 
-- `auto_save`
-- `auto_save_delay`
 - `autoclose_brackets`
 - `autoclose_quotes`
 - `completions_enabled`
@@ -241,25 +244,6 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `tab_size`
 - `vertical_scroll_margin`
 
-### Apparence — 16 réglage(s) inerte(s)
-
-- `buffer_font_family`
-- `buffer_font_weight`
-- `code_fade`
-- `current_line_highlight`
-- `cursor_blink`
-- `cursor_shape`
-- `dark_theme`
-- `indent_guides`
-- `light_theme`
-- `line_height`
-- `reduce_motion`
-- `rounded_selection`
-- `selection_highlight`
-- `ui_font_family`
-- `ui_font_size`
-- `wrap_guides`
-
 ### Recherche & Fichiers — 16 réglage(s) inerte(s)
 
 - `close_on_file_delete`
@@ -279,21 +263,24 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `search_wrap`
 - `seed_search_from_cursor`
 
-### Général — 13 réglage(s) inerte(s)
+### Apparence — 16 réglage(s) inerte(s)
 
-- `accessible_mode`
-- `close_no_tabs`
-- `editor.update.channel`
-- `last_window_closed`
-- `private_files`
-- `redact_private`
-- `restore_on_startup`
-- `restore_unsaved`
-- `system_path_prompts`
-- `system_prompts`
-- `telemetry_diagnostics`
-- `telemetry_metrics`
-- `trust_all_projects`
+- `buffer_font_family`
+- `buffer_font_weight`
+- `code_fade`
+- `current_line_highlight`
+- `cursor_blink`
+- `cursor_shape`
+- `dark_theme`
+- `indent_guides`
+- `light_theme`
+- `line_height`
+- `reduce_motion`
+- `rounded_selection`
+- `selection_highlight`
+- `ui_font_family`
+- `ui_font_size`
+- `wrap_guides`
 
 ### Version Control — 13 réglage(s) inerte(s)
 
@@ -310,6 +297,22 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `git_gutter_visibility`
 - `git_hunk_style`
 - `git.enabled`
+
+### Général — 13 réglage(s) inerte(s)
+
+- `accessible_mode`
+- `close_no_tabs`
+- `editor.update.channel`
+- `last_window_closed`
+- `private_files`
+- `redact_private`
+- `restore_on_startup`
+- `restore_unsaved`
+- `system_path_prompts`
+- `system_prompts`
+- `telemetry_diagnostics`
+- `telemetry_metrics`
+- `trust_all_projects`
 
 ### Terminal — 12 réglage(s) inerte(s)
 
@@ -339,19 +342,6 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `collab.scratchpads.enabled`
 - `collab.whiteboard.enabled`
 
-### Panneaux — 10 réglage(s) inerte(s)
-
-- `ap_flexible`
-- `ap_limit_width`
-- `ap_max_width`
-- `dp_dock`
-- `gp_count_badge`
-- `gp_fallback_branch`
-- `op_auto_fold`
-- `op_auto_reveal`
-- `op_indent_guides`
-- `pp_count_badge`
-
 ### Langages & Outils — 8 réglage(s) inerte(s)
 
 - `file_types`
@@ -363,14 +353,15 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `max_severity`
 - `prettier_allowed`
 
-### Developer — 6 réglage(s) inerte(s)
+### Panneaux — 7 réglage(s) inerte(s)
 
-- `devops.crashtriage.enabled`
-- `devops.featureflags.enabled`
-- `devops.fuzzing.enabled`
-- `devops.journeys.enabled`
-- `devops.perfgate.enabled`
-- `perf_profiler`
+- `ap_flexible`
+- `ap_limit_width`
+- `ap_max_width`
+- `dp_dock`
+- `gp_count_badge`
+- `gp_fallback_branch`
+- `pp_count_badge`
 
 ### Marketplace — 6 réglage(s) inerte(s)
 
@@ -380,6 +371,15 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `marketplace.trial.days`
 - `marketplace.trial.enabled`
 - `marketplace.vulnscan.auto`
+
+### Developer — 6 réglage(s) inerte(s)
+
+- `devops.crashtriage.enabled`
+- `devops.featureflags.enabled`
+- `devops.fuzzing.enabled`
+- `devops.journeys.enabled`
+- `devops.perfgate.enabled`
+- `perf_profiler`
 
 ### Débogueur — 5 réglage(s) inerte(s)
 

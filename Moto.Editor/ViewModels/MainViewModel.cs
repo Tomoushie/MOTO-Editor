@@ -526,6 +526,68 @@ namespace Moto.Editor.ViewModels
             }
         }
 
+        // ------------------------------------------------------------------
+        // ★ AJOUT (01/10, décision C item 4) : auto-save (réglages auto_save /
+        // auto_save_delay). Deux modes RÉELS :
+        //   • « After Delay »     : minuteur debounce — sauvegarde N ms après la dernière édition.
+        //   • « On Focus Change » : sauvegarde l'ancien document quand l'onglet actif change.
+        // Le drapeau EditorDocument.IsDirty n'est posé QUE par une édition utilisateur
+        // (MainPage.EditorChanged — jamais par un chargement programmatique).
+        // ------------------------------------------------------------------
+
+        private System.Threading.CancellationTokenSource? _autoSaveCts;
+
+        /// <summary>
+        /// Marque le document « modifié » et relance le minuteur debounce en mode
+        /// « After Delay ». Appelé par MainPage sur EditorChanged.
+        /// </summary>
+        public void MarkDirty(EditorDocument doc)
+        {
+            doc.IsDirty = true;
+            var mode = AutoSettings.AutoSave(SettingsEngine.Shared);
+            if (!string.Equals(mode, "After Delay", StringComparison.OrdinalIgnoreCase)) return;
+
+            _autoSaveCts?.Cancel();
+            _autoSaveCts = new System.Threading.CancellationTokenSource();
+            var delay = Math.Max(200, AutoSettings.AutoSaveDelay(SettingsEngine.Shared));
+            var token = _autoSaveCts.Token;
+            _ = Task.Run(async () =>
+            {
+                try { await Task.Delay(delay, token); }
+                catch (TaskCanceledException) { return; }
+                MainThread.BeginInvokeOnMainThread(() => _ = SaveDocumentAsync(doc));
+            }, token);
+        }
+
+        /// <summary>Sauvegarde le document s'il est modifié (auto-save). Efface IsDirty.</summary>
+        public async Task SaveDocumentAsync(EditorDocument doc)
+        {
+            if (!doc.IsDirty || string.IsNullOrWhiteSpace(doc.Path)) return;
+            try
+            {
+                _loader.UpdateContent(doc.Path, doc.Text);
+                await _loader.SaveAsync(doc.Path);
+                doc.IsDirty = false;
+                Status = $"Auto-sauvegardé : {doc.Title}";
+            }
+            catch (Exception ex)
+            {
+                Status = $"Erreur d'auto-sauvegarde : {ex.Message}";
+            }
+        }
+
+        /// <summary>
+        /// Sauvegarde « On Focus Change » : appelé quand le document actif CHANGE. Si
+        /// l'ancien est modifié et que le mode est « On Focus Change », on le sauvegarde.
+        /// </summary>
+        public void TrySaveOnFocusChange(EditorDocument previous)
+        {
+            if (previous == null || !previous.IsDirty) return;
+            var mode = AutoSettings.AutoSave(SettingsEngine.Shared);
+            if (!string.Equals(mode, "On Focus Change", StringComparison.OrdinalIgnoreCase)) return;
+            _ = SaveDocumentAsync(previous);
+        }
+
         private void ToggleMode()
         {
             IsBeginnerMode = !IsBeginnerMode;

@@ -350,6 +350,11 @@ namespace Moto.Editor
             // MenuBar / ExplorerPanel / panneau Git : démarrage, chaque changement de
             // réglage et retour de plein écran.
             ApplyTerminalSettings(s);
+            // ★ AJOUT (01/10, décision C item 3) : le panneau Outline reçoit lui aussi ses
+            // réglages (famille « Panneaux / Outline Panel », op_auto_reveal). Garde null :
+            // ApplyLayoutSettings s'exécute avant WirePanels au tout premier passage (piège
+            // constaté le 01/10 sur ap_height) — le second appel post-WirePanels l'appliquera.
+            _outlinePanel?.ApplySettings(s);
         }
 
         /// <summary>★ AJOUT (01/10) : dernière hauteur posée par terminal_default_height.</summary>

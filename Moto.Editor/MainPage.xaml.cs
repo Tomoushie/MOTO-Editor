@@ -247,7 +247,14 @@ namespace Moto.Editor
         private void WireEditorPane()
         {
             EditorPane.BindTabs(_viewModel.Documents);
-            EditorPane.TabSelected += doc => { _viewModel.SelectedDocument = doc; LoadDocumentIntoEditor(doc); };
+            EditorPane.TabSelected += doc =>
+            {
+                // ★ AJOUT (01/10, décision C item 4) : auto-save « On Focus Change » —
+                // sauvegarde l'ancien document (si modifié) avant de basculer d'onglet.
+                _viewModel.TrySaveOnFocusChange(_viewModel.SelectedDocument);
+                _viewModel.SelectedDocument = doc;
+                LoadDocumentIntoEditor(doc);
+            };
 
             // ★ CORRECTION (30/08) : source unique de vérité pour "un document a été
             // sélectionné" — couvre TOUS les chemins (clic sur un onglet déjà visible,
@@ -296,6 +303,10 @@ namespace Moto.Editor
                     else col++;
                 }
                 StatusBar.SetCursorPosition($"L {line}, C {col}");
+                // ★ AJOUT (01/10, décision C item 3) : alimente le panneau Outline avec la
+                // position RÉELLE du curseur (même numéro de ligne que la puce ci-dessus) —
+                // op_auto_reveal surligne le symbole correspondant, jamais de ligne inventée.
+                _outlinePanel?.SetCursorLine(line);
             };
             // ★ AJOUT (01/10, décision C item 2) : toute édition par l'utilisateur rend
             // l'onglet aperçu DÉFINITIF (il quitte l'italique et ne sera plus remplacé
@@ -305,6 +316,9 @@ namespace Moto.Editor
             {
                 if (_viewModel.SelectedDocument is { } doc && doc.IsPreview)
                     doc.IsPreview = false;
+                // ★ AJOUT (01/10, décision C item 4) : marque le doc modifié (auto-save).
+                if (_viewModel.SelectedDocument is { } d)
+                    _viewModel.MarkDirty(d);
             };
             LivePreview.SetPreviewEngine(_previewEngine);
             // Le "Live" de Live Preview : répercute chaque frappe si le panneau est ouvert.
@@ -520,8 +534,12 @@ namespace Moto.Editor
             })
                 AddFloatingPanel(panel);
 
-            // L'outline a son propre dock piloté par op_dock (Right/Left) — pas dans le
-            // foreach ci-dessus pour respecter ce réglage.
+            // L'outline a son propre dock piloté par op_dock — pas dans le foreach
+            // ci-dessus pour respecter ce réglage. ⚠️ AddFloatingPanel n'a que deux hôtes
+            // (gauche = PanelHost, droite = PanelHostRight) : « Right » (défaut) et
+            // « Bottom » → droite, « Left » → gauche. « Bottom » est donc un repli vers
+            // le défaut (droite), documenté dans OutlineSettings.cs — il n'existe AUCUN
+            // dock bas sur le système modulaire.
             AddFloatingPanel(outline, preferRightHost:
                 Settings.OutlineSettings.Dock(SettingsEngine.Shared) != "Left");
 

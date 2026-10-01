@@ -70,6 +70,18 @@ namespace Moto.Editor.Models
         /// <summary>★ (01/10) : la police du titre passe en italique quand l'onglet est un aperçu.</summary>
         public Microsoft.Maui.Controls.FontAttributes IsPreviewStyle => _isPreview ? Microsoft.Maui.Controls.FontAttributes.Italic : Microsoft.Maui.Controls.FontAttributes.None;
 
+        // ★ AJOUT (01/10, décision C item 4) : drapeau « modifié non sauvegardé ».
+        // Posé par MainPage à la première édition (EditorChanged, jamais déclenché par un
+        // chargement programmatique), effacé après sauvegarde. Sert à l'auto-save.
+        private bool _isDirty;
+
+        /// <summary>Vrai si le document a des modifications non enregistrées.</summary>
+        public bool IsDirty
+        {
+            get => _isDirty;
+            set => SetField(ref _isDirty, value);
+        }
+
         // ------------------------------------------------------------------
         // ★ AJOUT (28/09) : état visuel de l'onglet piloté par les réglages de la
         // famille « Fenêtre & Layout / Tab Bar » (clés tabs_*). Ces réglages étaient

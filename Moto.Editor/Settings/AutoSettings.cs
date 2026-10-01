@@ -80,4 +80,18 @@ internal static class AutoSettings
     /// </summary>
     internal static bool AutoIndent(SettingsEngine s)
         => s.GetBool("auto_indent", DeclaredBool("auto_indent"));
+
+    /// <summary>
+    /// <c>auto_save</c> (E, "Off"/"On Focus Change"/"After Delay") — mode d'enregistrement
+    /// auto. ★ AJOUT (01/10, décision C item 4) : la fonctionnalité est maintenant RÉELLE.
+    /// </summary>
+    internal static string AutoSave(SettingsEngine s)
+        => s.GetString("auto_save", DeclaredEnum("auto_save") ?? "Off");
+
+    /// <summary>
+    /// <c>auto_save_delay</c> (I, 1000 ms) — délai avant l'enregistrement auto en mode
+    /// « After Delay ». ★ AJOUT (01/10, décision C item 4).
+    /// </summary>
+    internal static int AutoSaveDelay(SettingsEngine s)
+        => s.GetInt("auto_save_delay", DeclaredInt("auto_save_delay"));
 }

@@ -1,50 +1,60 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <!--
   OutlinePanelView — vue symboles du fichier actif (décision C, item 3).
-  Affiche les symboles RÉELS extraits par Services/OutlineExtractor : ligne,
-  nom, type (classe/méthode/déf/fonction/import), indentés par profondeur.
-  Aucun contenu inventé : liste vide si rien n'est reconnu.
+  Affiche les symboles RÉELS extraits par Services/OutlineExtractor : numéro de
+  ligne + nom, indentés par niveau (0..2). Le type (Class/Method/Function/…) est
+  exposé en infobulle. Aucun contenu inventé : liste vide si rien n'est reconnu.
+
+  ★ MAUI 8 : pas de FontWeight (FontAttributes seulement) ; l'état « sélectionné »
+  d'un CollectionView ne s'applique pas sous Windows → la surbrillance du symbole
+  courant (op_auto_reveal) passe par un DataTrigger sur OutlineSymbol.IsCurrent,
+  posé en code-behind (SetCursorLine).
 -->
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="Moto.Editor.Views.OutlinePanelView">
-    <Grid RowDefinitions="Auto,*">
-        <Label Grid.Row="0" Text="Symboles"
-               FontSize="{DynamicResource FontSizeUiSmall}"
-               TextColor="{StaticResource Txt2}"
-               Margin="0,0,0,4" />
-        <CollectionView Grid.Row="1" x:Name="SymbolsList"
-                        SelectionMode="None">
-            <CollectionView.ItemTemplate>
-                <DataTemplate>
-                    <Grid ColumnDefinitions="Auto,4,*">
+             x:Class="Moto.Editor.Views.OutlinePanelView"
+             WidthRequest="320">
+
+    <CollectionView x:Name="SymbolsList"
+                    SelectionMode="None">
+        <CollectionView.ItemTemplate>
+            <DataTemplate>
+                <Border StrokeThickness="0" Padding="4,2" BackgroundColor="Transparent"
+                        ToolTipProperties.Text="{Binding Kind}">
+                    <Border.Triggers>
+                        <DataTrigger TargetType="Border" Binding="{Binding IsCurrent}" Value="True">
+                            <Setter Property="BackgroundColor" Value="{StaticResource BgHover}" />
+                        </DataTrigger>
+                    </Border.Triggers>
+                    <Grid ColumnDefinitions="Auto,Auto,*" ColumnSpacing="0">
                         <Label Grid.Column="0"
                                Text="{Binding Line}"
-                               FontSize="{DynamicResource FontSizeUiSmall}"
+                               FontSize="{StaticResource FontSizeMicro}"
                                TextColor="{StaticResource Txt3}"
+                               WidthRequest="32"
+                               HorizontalTextAlignment="End"
+                               Margin="0,0,6,0"
                                VerticalOptions="Center" />
+                        <BoxView Grid.Column="1"
+                                 WidthRequest="{Binding IndentWidth}"
+                                 Color="Transparent" />
                         <Label Grid.Column="2"
-                               FontSize="{DynamicResource FontSizeUiSmall}"
-                               TextColor="{StaticResource Txt2}"
+                               Text="{Binding Name}"
+                               FontSize="{StaticResource FontSizeSmall}"
+                               TextColor="{StaticResource Txt1}"
                                VerticalOptions="Center"
-                               LineBreakMode="TailTruncation">
-                            <Label.Text>
-                                <MultiBinding StringFormat="{}{0}{1} ({2})">
-                                    <Binding Path="Indent" />
-                                    <Binding Path="Name" />
-                                    <Binding Path="Kind" />
-                                </MultiBinding>
-                            </Label.Text>
-                        </Label>
+                               LineBreakMode="TailTruncation" />
                     </Grid>
-                </DataTemplate>
-            </CollectionView.ItemTemplate>
-            <CollectionView.EmptyView>
-                <Label Text="Aucun symbole reconnu."
-                       FontSize="{DynamicResource FontSizeUiSmall}"
-                       TextColor="{StaticResource Txt3}"
-                       HorizontalOptions="Center" />
-            </CollectionView.EmptyView>
-        </CollectionView>
-    </Grid>
+                </Border>
+            </DataTemplate>
+        </CollectionView.ItemTemplate>
+        <CollectionView.EmptyView>
+            <Label Text="Aucun symbole reconnu."
+                   FontSize="{StaticResource FontSizeSmall}"
+                   TextColor="{StaticResource Txt3}"
+                   HorizontalOptions="Center"
+                   Margin="0,12" />
+        </CollectionView.EmptyView>
+    </CollectionView>
+
 </ContentView>
