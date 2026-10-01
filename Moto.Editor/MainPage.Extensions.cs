@@ -262,6 +262,19 @@ namespace Moto.Editor
                 // ResolveExtensionServices est le seul endroit où le conteneur DI est disponible.
                 ExplorerPanel.SetGitService(_gitService);
 
+                // ★ AJOUT (01/10, décision C AutoLink/Context) : résout le ContextEngine (jamais
+                // résolu jusqu'ici) et démarre le scan périodique si autolink_enabled. Le moteur
+                // analyse le fichier actif (SetActiveFile à chaque chargement) et émet
+                // SuggestionsReady ; l'auto-apply (context_auto_apply) est géré par
+                // OnContextSuggestionsReady.
+                _contextEngine = services.GetService<Moto.Core.AI.Context.ContextEngine>();
+                if (_contextEngine != null)
+                {
+                    _contextEngine.SuggestionsReady += OnContextSuggestionsReady;
+                    if (Settings.AutoSettings.AutolinkEnabled(SettingsEngine.Shared))
+                        _contextEngine.Start(Settings.AutoSettings.AutolinkScanIntervalSec(SettingsEngine.Shared));
+                }
+
                 // ★ AJOUT (03/09, jalon 1 — "agents autonomes en tâche de fond").
                 _backgroundAgentService = services.GetService<Moto.Core.AI.Autonomy.BackgroundAgentService>();
                 // ★ AJOUT (24/09, agent v2) : l'éditeur recharge ses onglets quand l'agent écrit (ou qu'un run est annulé), et

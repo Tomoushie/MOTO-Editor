@@ -94,4 +94,23 @@ internal static class AutoSettings
     /// </summary>
     internal static int AutoSaveDelay(SettingsEngine s)
         => s.GetInt("auto_save_delay", DeclaredInt("auto_save_delay"));
+
+    // ★ AJOUT (01/10, décision C AutoLink/Context) : les clés du pipeline AutoLink/Context,
+    // désormais RÉELLES (ContextEngine résolu + scan périodique + auto-apply).
+
+    /// <summary>Réglage <c>autolink_enabled</c> : gate du scan périodique AutoLink/Context.</summary>
+    internal static bool AutolinkEnabled(SettingsEngine s)
+        => s.GetBool("autolink_enabled", DeclaredBool("autolink_enabled"));
+
+    /// <summary>Réglage <c>autolink_scan_interval_sec</c> : intervalle (s) du scan périodique.</summary>
+    internal static int AutolinkScanIntervalSec(SettingsEngine s)
+        => s.GetInt("autolink_scan_interval_sec", DeclaredInt("autolink_scan_interval_sec"));
+
+    /// <summary>Réglage <c>context_auto_apply</c> : applique automatiquement les suggestions Context.</summary>
+    internal static bool ContextAutoApply(SettingsEngine s)
+        => s.GetBool("context_auto_apply", DeclaredBool("context_auto_apply"));
+
+    // ⚠️ autolink_auto_apply (T, false) reste INERT : il faudrait résoudre AutoLinkEngine
+    // (Moto.Core.AI.AutoLink) + analyser + auto-appliquer ses actions — pipeline séparée,
+    // pas encore branchée. Pas d'accesseur ici (sinon faux positif de la couverture).
 }

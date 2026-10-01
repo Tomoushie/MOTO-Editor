@@ -8,10 +8,10 @@
 | Mesure | Valeur |
 |---|---|
 | Réglages DÉCLARÉS au catalogue | 332 |
-| Clés lues par du code compilé | 135 |
-| **Déclarés ET lus → réellement opérants** | **109** |
-| Déclarés mais INERTES | 223 |
-| **Part réellement opérante** | **32.8 %** |
+| Clés lues par du code compilé | 138 |
+| **Déclarés ET lus → réellement opérants** | **112** |
+| Déclarés mais INERTES | 220 |
+| **Part réellement opérante** | **33.7 %** |
 
 ## Réglages réellement opérants
 
@@ -34,7 +34,10 @@
 | `auto_save` | Éditeur | Moto.Editor\Settings\AutoSettings.cs |
 | `auto_save_delay` | Éditeur | Moto.Editor\Settings\AutoSettings.cs |
 | `auto_update` | Général | Moto.Editor\Services\AutoUpdateService.cs, Moto.Editor\Settings\AutoSettings.cs |
+| `autolink_enabled` | Agent | Moto.Editor\Settings\AutoSettings.cs |
+| `autolink_scan_interval_sec` | Agent | Moto.Editor\Settings\AutoSettings.cs |
 | `buffer_font_size` | Apparence | Moto.Editor\Settings\SettingsApplier.cs |
+| `context_auto_apply` | Agent | Moto.Editor\Settings\AutoSettings.cs |
 | `context_engine_enabled` | Agent | Moto.Core\Moto.AI\Context\ContextEngine.cs |
 | `cp_button` | Panneaux | Moto.Editor\Settings\StatusBarSettings.cs |
 | `cp_dock` | Panneaux | Moto.Editor\Settings\DockPanelSettings.cs |
@@ -167,36 +170,6 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `threads_sidebar_side`
 - `use_modifier_to_send`
 
-### Agent — 27 réglage(s) inerte(s)
-
-- `ai_cache_enabled`
-- `auto_compact`
-- `auto_doc`
-- `autolink_auto_apply`
-- `autolink_enabled`
-- `autolink_scan_interval_sec`
-- `context_auto_apply`
-- `context_scan_interval_sec`
-- `context_show_low_priority`
-- `default_model`
-- `doc_include_private`
-- `evolution_enabled`
-- `evolution_interval_min`
-- `max_tokens`
-- `performance_full_auto`
-- `performance_show_indicator`
-- `platform_auto_validate`
-- `platform_avalonia_linux`
-- `platform_ci_provider`
-- `platform_generate_ci`
-- `platform_include_linux`
-- `platform_incremental_validate`
-- `platform_smart_detect`
-- `prefer_internal`
-- `story_comments`
-- `temperature`
-- `thread_persistence`
-
 ### Fenêtre & Layout — 25 réglage(s) inerte(s)
 
 - `border_size`
@@ -224,6 +197,33 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `vertical_split_direction`
 - `window_decorations`
 - `zoomed_padding`
+
+### Agent — 24 réglage(s) inerte(s)
+
+- `ai_cache_enabled`
+- `auto_compact`
+- `auto_doc`
+- `autolink_auto_apply`
+- `context_scan_interval_sec`
+- `context_show_low_priority`
+- `default_model`
+- `doc_include_private`
+- `evolution_enabled`
+- `evolution_interval_min`
+- `max_tokens`
+- `performance_full_auto`
+- `performance_show_indicator`
+- `platform_auto_validate`
+- `platform_avalonia_linux`
+- `platform_ci_provider`
+- `platform_generate_ci`
+- `platform_include_linux`
+- `platform_incremental_validate`
+- `platform_smart_detect`
+- `prefer_internal`
+- `story_comments`
+- `temperature`
+- `thread_persistence`
 
 ### Éditeur — 22 réglage(s) inerte(s)
 

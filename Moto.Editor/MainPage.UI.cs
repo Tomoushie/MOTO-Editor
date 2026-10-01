@@ -719,6 +719,9 @@ namespace Moto.Editor
             RefreshGitGutter(doc.Path);
             // ★ AJOUT (01/10, décision C git blame) : charge le blame par ligne (git_blame_enabled).
             RefreshGitBlame(doc.Path);
+            // ★ AJOUT (01/10, décision C AutoLink/Context) : le ContextEngine surveille le
+            // fichier actif (scan périodique + suggestions), si autolink_enabled.
+            _contextEngine?.SetActiveFile(doc.Path);
             EditorPane.EditorText = doc.Text;
             _currentPath = doc.Path;
             RefreshAiUndoButton();
@@ -849,6 +852,19 @@ namespace Moto.Editor
             if (includeSummary && !string.IsNullOrWhiteSpace(entry.Summary))
                 text += $" · {entry.Summary}";
             StatusBar.SetBlame(text);
+        }
+
+        /// <summary>
+        /// ★ AJOUT (01/10, décision C AutoLink/Context) : auto-apply des suggestions Context
+        /// quand <c>context_auto_apply</c> est actif. Le ContextEngine écrit RÉELLEMENT sur le
+        /// disque (Apply), jamais une simulation.
+        /// </summary>
+        private void OnContextSuggestionsReady(Moto.Core.AI.Context.ContextReport report)
+        {
+            if (_contextEngine == null) return;
+            if (!Settings.AutoSettings.ContextAutoApply(SettingsEngine.Shared)) return;
+            foreach (var suggestion in report.Suggestions)
+                _contextEngine.Apply(suggestion);
         }
 
         private void OnNavBack()

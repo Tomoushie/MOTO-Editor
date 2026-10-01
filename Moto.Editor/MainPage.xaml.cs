@@ -67,6 +67,9 @@ namespace Moto.Editor
         // main — GitService est déjà un singleton enregistré avec ses vraies
         // dépendances (TerminalService/StructuredLogCollector/SettingsEngine).
         private Moto.Core.Services.GitService? _gitService;
+        // ★ AJOUT (01/10, décision C AutoLink/Context) : le ContextEngine (jamais résolu
+        // jusqu'ici), résolu dans ResolveExtensionServices puis démarré si autolink_enabled.
+        private Moto.Core.AI.Context.ContextEngine? _contextEngine;
         // ★ AJOUT (03/09, jalon 1 — "agents autonomes en tâche de fond", demandé
         // par Tom). Résolu comme _gitService ci-dessus (DI, déjà un singleton
         // avec ses vraies dépendances — voir MotoServiceCollectionExtensions.cs).
