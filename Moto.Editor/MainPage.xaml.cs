@@ -377,6 +377,27 @@ namespace Moto.Editor
                 // ne se verrait qu'au prochain retour de plein écran.
                 if (key.StartsWith("terminal_", StringComparison.Ordinal))
                     ApplyTerminalSettings(SettingsEngine.Shared);
+
+                // ★ CORRECTION (01/10, verrou RealEffectKeys) : dispatch INEXISTANT pour
+                // les familles pp_* (explorateur de fichiers) et sb_* (barre de statut) —
+                // leurs clés opérantes n'étaient appliquées qu'au démarrage /
+                // retour de plein écran, jamais au changement dans la fenêtre Réglages.
+                // ApplyLayoutSettings couvre les deux moitiés de chaque famille
+                // (ExplorerPanel.ApplySettings + ApplyPanelGeometrySettings pour pp_*,
+                // StatusBar.ApplySettings pour sb_*). Même raison que tb_/gp_/terminal_ :
+                // un réglage qui ne bouge pas tout de suite se lit comme un réglage inerte.
+                if (key.StartsWith("pp_", StringComparison.Ordinal) ||
+                    key.StartsWith("sb_", StringComparison.Ordinal))
+                    ApplyLayoutSettings();
+
+                // ★ AJOUT (01/10, lot agent_*) : la clé agent_font_size (taille du texte
+                // du panneau IA) passe par le même chemin que la géométrie ap_*/cp_* —
+                // ApplyAgentAndCollabPanelSettings pose la ressource AgentFontSize sur
+                // AiChatView. Les 8 autres clés agent_* déjà opérantes sont lues par
+                // AgentV2Settings (Moto.Core) au lancement de CHAQUE run, pas en direct :
+                // aucun bloc n'est nécessaire pour elles.
+                if (key.StartsWith("agent_", StringComparison.Ordinal))
+                    ApplyAgentAndCollabPanelSettings(SettingsEngine.Shared);
             };
 
             // ★ AJOUT (02/09, état des lieux) : redonne un point d'entrée à

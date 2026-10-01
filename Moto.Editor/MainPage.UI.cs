@@ -473,7 +473,24 @@ namespace Moto.Editor
                 CollabPanel.HorizontalOptions = collabLeft ? LayoutOptions.Start : LayoutOptions.End;
                 CollabPanel.Margin = collabLeft ? new Thickness(20, 0, 0, 10) : new Thickness(0, 0, 20, 10);
             }
+
+            // ── agent_font_size : taille du texte du panneau IA (lot agent_*) ────
+            // Ressource AgentFontSize posée sur AiChatView, consommée en
+            // DynamicResource par les 3 éléments de texte (bulles + saisie) — même
+            // mécanisme exact que TerminalFontSize pour le dock du bas. Le défaut
+            // déclaré (13) est IDENTIQUE à FontSizeBody : avec le réglage intact,
+            // aucun pixel ne bouge (imposé par la règle « jamais d'affichage faux »).
+            // On ne réécrit que si la valeur a changé (patron _applied* de la classe).
+            var agentFontSize = Settings.AgentSettings.FontSize(s);
+            if (Math.Abs(agentFontSize - _appliedAgentFontSize) > 0.01)
+            {
+                _appliedAgentFontSize = agentFontSize;
+                _aiChatPanel.Resources["AgentFontSize"] = (double)agentFontSize;
+            }
         }
+
+        /// <summary>★ AJOUT (01/10, lot agent_*) : dernière taille posée par agent_font_size.</summary>
+        private double _appliedAgentFontSize = -1;
 
         /// <summary>
         /// ★ AJOUT (01/10) : parcourt l'arbre des éléments d'une fenêtre pour retrouver le

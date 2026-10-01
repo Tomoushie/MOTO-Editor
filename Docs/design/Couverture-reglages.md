@@ -1,23 +1,24 @@
 # Couverture du catalogue de réglages
 
 > **Généré automatiquement — analyse seule, aucun fichier modifié.**
-> Source : `scripts/settings-coverage.ps1` · Périmètre : 635 fichiers .cs réellement compilés
+> Source : `scripts/settings-coverage.ps1` · Périmètre : 636 fichiers .cs réellement compilés
 
 ## Chiffres
 
 | Mesure | Valeur |
 |---|---|
 | Réglages DÉCLARÉS au catalogue | 332 |
-| Clés lues par du code compilé | 105 |
-| **Déclarés ET lus → réellement opérants** | **78** |
-| Déclarés mais INERTES | 254 |
-| **Part réellement opérante** | **23.5 %** |
+| Clés lues par du code compilé | 106 |
+| **Déclarés ET lus → réellement opérants** | **79** |
+| Déclarés mais INERTES | 253 |
+| **Part réellement opérante** | **23.8 %** |
 
 ## Réglages réellement opérants
 
 | Clé | Catégorie | Lue par |
 |---|---|---|
 | `agent_engine` | IA Locale | Moto.Core\Moto.AI\Autonomy\V2\AgentV2Settings.cs |
+| `agent_font_size` | Apparence | Moto.Editor\Settings\AgentSettings.cs |
 | `agent_max_minutes` | IA Locale | Moto.Core\Moto.AI\Autonomy\V2\AgentV2Settings.cs |
 | `agent_max_steps` | IA Locale | Moto.Core\Moto.AI\Autonomy\V2\AgentV2Settings.cs |
 | `agent_model` | IA Locale | Moto.Core\Moto.AI\Autonomy\V2\AgentV2Settings.cs |
@@ -233,26 +234,6 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `tab_size`
 - `vertical_scroll_margin`
 
-### Apparence — 17 réglage(s) inerte(s)
-
-- `agent_font_size`
-- `buffer_font_family`
-- `buffer_font_weight`
-- `code_fade`
-- `current_line_highlight`
-- `cursor_blink`
-- `cursor_shape`
-- `dark_theme`
-- `indent_guides`
-- `light_theme`
-- `line_height`
-- `reduce_motion`
-- `rounded_selection`
-- `selection_highlight`
-- `ui_font_family`
-- `ui_font_size`
-- `wrap_guides`
-
 ### Recherche & Fichiers — 17 réglage(s) inerte(s)
 
 - `close_on_file_delete`
@@ -272,6 +253,25 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `search_whole_word`
 - `search_wrap`
 - `seed_search_from_cursor`
+
+### Apparence — 16 réglage(s) inerte(s)
+
+- `buffer_font_family`
+- `buffer_font_weight`
+- `code_fade`
+- `current_line_highlight`
+- `cursor_blink`
+- `cursor_shape`
+- `dark_theme`
+- `indent_guides`
+- `light_theme`
+- `line_height`
+- `reduce_motion`
+- `rounded_selection`
+- `selection_highlight`
+- `ui_font_family`
+- `ui_font_size`
+- `wrap_guides`
 
 ### Panneaux — 15 réglage(s) inerte(s)
 
@@ -396,17 +396,17 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `pair_programming`
 - `tutor_mode`
 
-### Raccourcis — 3 réglage(s) inerte(s)
-
-- `base_keymap`
-- `helix_mode`
-- `vim_mode`
-
 ### MCP — 3 réglage(s) inerte(s)
 
 - `mcp.adv.checkpointing`
 - `mcp.enabled`
 - `mcp.subagents`
+
+### Raccourcis — 3 réglage(s) inerte(s)
+
+- `base_keymap`
+- `helix_mode`
+- `vim_mode`
 
 ### Network — 2 réglage(s) inerte(s)
 

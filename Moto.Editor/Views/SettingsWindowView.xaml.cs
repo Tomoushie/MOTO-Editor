@@ -59,22 +59,56 @@ namespace Moto.Editor.Views
         /// ajoutée — ces clés étaient déclarées et affichées mais lues par aucun code ;
         /// elles sont désormais réellement appliquées par EditorPaneView.ApplySettings
         /// (via MainPage, sur le préfixe « tabs_ »). La liste redevient donc exacte.
-        /// ★ MODIFIÉ (01/10) : ajout des clés « Panneaux » réellement câblées ce jour-là —
-        /// ap_dock/ap_width/ap_height (Agent Panel = le panneau de chat IA AiChatView) et
-        /// cp_dock/cp_width (Collaboration Panel), appliquées par
-        /// MainPage.ApplyAgentAndCollabPanelSettings sur les préfixes « ap_ »/« cp_ ».
-        /// ⚠️ Volontairement ABSENTES de cette liste : ap_button, cp_button (aucun bouton
-        /// dans StatusBarPanelView), ap_flexible, ap_limit_width/ap_max_width (aucun
-        /// conteneur centré) et dp_dock (_debugPanel n'est jamais rendu visible) — ces
-        /// clés restent inertes, les marquer ici serait un mensonge à l'utilisateur.
-        /// </summary>
-        private static readonly HashSet<string> RealEffectKeys = new()
-        {
-            "theme_mode", "buffer_font_size", "minimap_show", "terminal_show", "power_mode",
-            "tabs_show", "tabs_bar_buttons", "tabs_nav_buttons", "tabs_file_icons",
-            "tabs_show_diagnostics", "tabs_close_position", "tabs_show_close",
-            "ap_dock", "ap_width", "ap_height", "cp_dock", "cp_width"
-        };
+    /// ★ MODIFIÉ (01/10) : ajout des clés « Panneaux » réellement câblées ce jour-là —
+    /// ap_dock/ap_width/ap_height (Agent Panel = le panneau de chat IA AiChatView) et
+    /// cp_dock/cp_width (Collaboration Panel), appliquées par
+    /// MainPage.ApplyAgentAndCollabPanelSettings sur les préfixes « ap_ »/« cp_ ».
+    /// ⚠️ Volontairement ABSENTES de cette liste : ap_button, cp_button (aucun bouton
+    /// dans StatusBarPanelView), ap_flexible, ap_limit_width/ap_max_width (aucun
+    /// conteneur centré) et dp_dock (_debugPanel n'est jamais rendu visible) — ces
+    /// clés restent inertes, les marquer ici serait un mensonge à l'utilisateur.
+    /// ★ CORRECTION (01/10, après le lot git_*) : la liste était devenue un VERROU —
+    /// les branches tb_*, gp_*, git_* et terminal_* du handler
+    /// MainPage.SettingsWindow.RealSettingChanged existaient mais ne se déclenchaient
+    /// JAMAIS, puisque seules ces clés-ci invoquent l'événement (L123-127). Le câblage
+    /// marchait donc au démarrage (ApplyLayoutSettings lit tout) mais pas au changement
+    /// en direct dans la fenêtre Réglages — un réglage qui ne bouge pas tout de suite se
+    /// lit comme un réglage inerte. Rattrapées ici : les 4 tb_* opérantes, les 12 gp_*
+    /// opérantes, les 4 git_* opérantes, les 12 pp_* opérantes (leur dispatch
+    /// « pp_ »/« sb_ » a été ajouté dans le même temps), les 2 sb_* opérantes et les
+    /// 10 terminal_* opérantes (terminal_show était déjà présente). Toutes ces clés
+    /// figurent déjà comme opérantes dans Docs/design/Couverture-reglages.md — cette
+    /// liste ne fait que rendre exact l'effet LIVE de ce qui était déjà lu au
+    /// démarrage. agent_font_size (lot agent_* du même jour) est ajoutée en même temps.
+    /// </summary>
+    private static readonly HashSet<string> RealEffectKeys = new()
+    {
+        "theme_mode", "buffer_font_size", "minimap_show", "terminal_show", "power_mode",
+        "tabs_show", "tabs_bar_buttons", "tabs_nav_buttons", "tabs_file_icons",
+        "tabs_show_diagnostics", "tabs_close_position", "tabs_show_close",
+        "ap_dock", "ap_width", "ap_height", "cp_dock", "cp_width",
+        // tb_* (title bar) — dispatch « tb_ » → MenuBar.ApplySettings
+        "tb_branch_name", "tb_button_layout", "tb_menus", "tb_project_items",
+        // gp_* (git panel) — dispatch « gp_ »/« git_ » → ApplyLayoutSettings
+        "gp_click_behavior", "gp_collapse_untracked", "gp_commit_max_len", "gp_diff_stats",
+        "gp_dock", "gp_group", "gp_scrollbar", "gp_sort", "gp_starts_open",
+        "gp_status_style", "gp_tree_view", "gp_width",
+        // git_* (version control) — même dispatch que gp_*
+        "git_diff_base", "git_integration", "git_path_style", "git_stage_restore_buttons",
+        // pp_* (project panel) — dispatch « pp_ » → ApplyLayoutSettings
+        "pp_auto_reveal", "pp_dock", "pp_entry_spacing", "pp_file_icons", "pp_folder_icons",
+        "pp_git_indicator", "pp_git_status", "pp_hide_gitignore", "pp_hide_hidden",
+        "pp_horizontal_scroll", "pp_indent", "pp_width",
+        // sb_* (status bar) — dispatch « sb_ » → ApplyLayoutSettings
+        "sb_active_file", "sb_diagnostics",
+        // terminal_* (hors terminal_show déjà en tête) — dispatch « terminal_ » → ApplyTerminalSettings
+        "terminal_audible_bell", "terminal_breadcrumbs", "terminal_default_height",
+        "terminal_detect_venv", "terminal_env_vars", "terminal_font_family",
+        "terminal_font_size", "terminal_max_scroll_lines", "terminal_shell",
+        "terminal_working_dir",
+        // agent_* — dispatch « agent_ » → ApplyAgentAndCollabPanelSettings (lot agent_*)
+        "agent_font_size"
+    };
 
         private readonly List<string> _categories;
         private string _currentCategory;

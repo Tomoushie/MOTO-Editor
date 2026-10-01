@@ -143,6 +143,7 @@ code réellement compilé) :
 | **01/10, après `terminal_*` (5 clés)** | **69 / 332 (20,8 %)** |
 | **01/10, après `terminal_*` (2e lot, 5 clés de plus)** | **74 / 332 (22,3 %)** |
 | **01/10, après `git_*` (4 clés)** | **78 / 332 (23,5 %)** |
+| **01/10, après `agent_font_size` + correction du verrou `RealEffectKeys`** | **79 / 332 (23,8 %)** |
 
 ⚠️ **Ne comparer qu'un avant/après mesuré dans le MÊME arbre de travail.** Le
 chantier `ap_*`/`cp_*` annonçait **45 → 50 (15,1 %)** dans SON worktree, où
@@ -321,9 +322,39 @@ d'onglets, les icônes de l'explorateur, le statut git).
   blame, `GitCommit` sans auteur — la doc annonce le blame « À venir (v1.0) »),
   `git_branch_author` (pas de branch picker : le bouton 🌿 écrit les noms dans
   la statut bar ; `CheckoutAsync` sans appelant ; pas de donnée auteur),
-  `git_diff_full_file` (aucun visualiseur de diff : le clic ouvre le fichier
-  ou déplie des résumés `+n −m` — rien à basculer), `git_hunk_style` (aucun
-  rendu de hunks).
+   `git_diff_full_file` (aucun visualiseur de diff : le clic ouvre le fichier
+   ou déplie des résumés `+n −m` — rien à basculer), `git_hunk_style` (aucun
+   rendu de hunks).
+
+- **`agent_*`** (9 clés sur 11 — famille TERMINÉE) : famille « Version
+  Control/IA » à deux visages. Les **8 clés « IA Locale »** (`agent_engine`,
+  `agent_model`, `agent_num_ctx`, `agent_max_steps`, `agent_max_minutes`,
+  `agent_tool_mode`, `agent_thought`, `agent_verify_command`) étaient **déjà
+  lues** par `Moto.Core/Moto.AI/Autonomy/V2/AgentV2Settings.cs` — opérantes,
+  effet pris au **prochain run** de l'agent (`AgentV2Runner.ExecuteAsync`
+  relit les settings à chaque run, pas en direct). La 9e, `agent_font_size`
+  (int 8..30, défaut 13), a été câblée par ce lot : mappage
+  `Moto.Editor/Settings/AgentSettings.cs`, ressource `AgentFontSize` posée sur
+  `AiChatView` par `ApplyAgentAndCollabPanelSettings` (patron identique à
+  `terminal_font_size` : défaut statique dans le XAML + écriture par code en
+  `DynamicResource` sur les 3 éléments de texte — bulles et saisie). Le défaut
+  déclaré (13) est **identique** à `FontSizeBody` : réglage intact = aucun
+  pixel ne bouge.
+  **⚠️ CORRECTION TRANSVERSE (même commit)** : le verrou `RealEffectKeys`
+  (`SettingsWindowView.xaml.cs`) n'invoquait `RealSettingChanged` que pour 17
+  clés — les dispatches `tb_*`, `gp_*`, `git_*`, `pp_*`, `sb_*` et
+  `terminal_*` du handler MainPage **n'arrivaient jamais en direct** (effet
+  uniquement au démarrage/retour de plein écran). Rattrapées (38 clés de
+  plus, toutes déjà comptées opérantes) + dispatch `pp_`/`sb_` et `agent_`
+  ajoutés. Sans ce verrou, un réglage qui ne bouge pas au changement se lit
+  exactement comme un réglage inerte.
+  **Restent inertes (2) :** `agent_skills` et `agent_sandbox` — boutons
+  `Action` du catalogue : le déclencheur `SettingItem.ActionRequested` n'a
+  **aucun abonné** dans tout le dépôt, et les écrans annoncés (installation de
+  skills, permissions du sandbox de l'agent) **n'existent pas** (faux amis
+  écartés : `ClaudeShellViewModel` = 4 skills de démo codés en dur ;
+  `SandboxEngine` = copie du projet pour `run.sandbox`). Câbler = construire
+  la fonctionnalité.
 
 ### Familles encore inertes, et pourquoi (NE PAS LES RETENTER SANS LIRE)
 
@@ -377,7 +408,7 @@ d'onglets, les icônes de l'explorateur, le statut git).
 - **Restent à faire** (préfixes réels, mesurés le 01/10 sur les 332 clés) :
   `terminal_*` (23, 10 faits — famille TERMINÉE), `git_*` (16, 4 faits — famille TERMINÉE : 12 inertes, 0 à câbler),
   `pp_*` (13, fait), `tabs_*` (11, fait),
-  `tb_*` (10, fait), `sb_*` (10, 2 faits), `agent_*` (9), `platform_*` (8),
+  `tb_*` (10, fait), `sb_*` (10, 2 faits), `agent_*` (11, 9 opérantes — famille TERMINÉE : 2 boutons `Action` inertes), `platform_*` (8),
   `ap_*` (7, 3 faits), `search_*` (7), `auto_*` (7), `file_*` (7),
   `preview_*` (6, toute la famille inerte), `op_*` (5, inerte), `show_*` (5),
   `lsp_*` (4), `context_*` (4), `doc_*` (4), `collab_*` (4)…

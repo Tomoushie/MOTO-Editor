@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:sys="clr-namespace:System;assembly=netstandard"
              xmlns:local="clr-namespace:Moto.Editor.Views"
              xmlns:controls="clr-namespace:Moto.Editor.Controls"
              x:Class="Moto.Editor.Views.AiChatView"
@@ -8,12 +9,21 @@
 
     <ContentView.Resources>
         <ResourceDictionary>
+            <!-- ★ AJOUT (01/10, lot agent_*) : police du texte du panneau IA
+                 (réglage agent_font_size, défaut déclaré 13 = valeur de
+                 FontSizeBody → aucun pixel ne bouge tant que Tom n'y touche pas).
+                 La valeur est ensuite RECRITE par
+                 MainPage.ApplyAgentAndCollabPanelSettings (ressource posée sur la
+                 vue, en DynamicResource ci-dessous) — même filet + mécanisme que
+                 TerminalFontSize du dock du bas. Le Double statique ici garantit
+                 qu'une clé existe TOUJOURS (jamais de DynamicResource orphelin). -->
+            <sys:Double x:Key="AgentFontSize">13</sys:Double>
             <!-- ★ AJOUT (03/09, bouton "copier" manquant sur le code) : distingue
                  texte normal / bloc de code dans une réponse IA (ChatMessage.Segments). -->
             <local:ChatSegmentSelector x:Key="SegmentSelector">
                 <local:ChatSegmentSelector.TextTemplate>
                     <DataTemplate>
-                        <Label Text="{Binding Text}" FontSize="{StaticResource FontSizeBody}" TextColor="{StaticResource Txt1}" LineHeight="1.15" />
+                        <Label Text="{Binding Text}" FontSize="{DynamicResource AgentFontSize}" TextColor="{StaticResource Txt1}" LineHeight="1.15" />
                     </DataTemplate>
                 </local:ChatSegmentSelector.TextTemplate>
                 <local:ChatSegmentSelector.CodeTemplate>
@@ -109,7 +119,7 @@
                                      le découpage texte / blocs de code ci-dessous n'est fait qu'une fois, à la fin — le refaire dix fois par
                                      seconde reconstruirait chaque cadre et chaque bouton. -->
                                 <Label Text="{Binding StreamingText}" IsVisible="{Binding IsStreaming}"
-                                       FontSize="{StaticResource FontSizeBody}" TextColor="{StaticResource Txt1}" LineHeight="1.15" />
+                                       FontSize="{DynamicResource AgentFontSize}" TextColor="{StaticResource Txt1}" LineHeight="1.15" />
                                 <!-- ★ CORRIGÉ (03/09) : Label plat unique remplacé par un rendu
                                      par segments (Segments, voir ChatMessage.cs) — permet de
                                      distinguer un bloc de code (police mono + bouton copier) du
@@ -158,7 +168,7 @@
 
                 <Entry Grid.Row="0" Grid.ColumnSpan="3" x:Name="InputEntry"
                        Placeholder="Message MOTO AI, @ pour le contexte, / pour les commandes"
-                       BackgroundColor="Transparent" FontSize="{StaticResource FontSizeBody}"
+                       BackgroundColor="Transparent" FontSize="{DynamicResource AgentFontSize}"
                        TextChanged="OnInputTextChanged"
                        Completed="OnInputCompleted" />
 

@@ -593,7 +593,7 @@ lecture directe du code.
    (`SettingsCatalog.cs`) changé pour n'offrir plus qu'un seul choix
    ("Dark"). Construire une vraie palette claire reste une option pour plus
    tard (gros chantier), pas retenue aujourd'hui. Confirmé par Tom.
- 4. **Réglages : 78 opérants sur 332 déclarés — soit 23,5 %** (mesuré le
+ 4. **Réglages : 79 opérants sur 332 déclarés — soit 23,8 %** (mesuré le
    01/10 par `scripts/settings-coverage.ps1`, rapport :
    `Docs/design/Couverture-reglages.md`). ⏳ Le chiffre historique était
    **12 sur 324 (3,7 %)** au 22/09 ; **20 sur 332** au 28/09 AVANT les
@@ -607,7 +607,10 @@ lecture directe du code.
     `terminal_*` (5 clés de plus : shell/répertoire/env/venv/breadcrumbs) —
     famille terminée, 10 opérantes / 13 inertes, puis **78 (23,5 %)** après
     `git_*` (4 clés : integration, path_style, stage_restore_buttons,
-    diff_base) — famille terminée, 4 opérantes / 12 inertes.
+    diff_base) — famille terminée, 4 opérantes / 12 inertes, puis
+    **79 (23,8 %)** après `agent_font_size` (lot `agent_*`, même jour) —
+    famille terminée, 9 opérantes / 2 inertes (les 8 autres clés `agent_*`
+    étaient déjà lues par `AgentV2Settings` dans Moto.Core).
    ⏳ **Mesures de branche (à ne pas confondre avec le tronc)** : le chantier
    `ap_*`/`cp_*` annonçait **45 → 50 (15,1 %)** mesuré dans SON worktree, où
    `gp_*`/`sb_*` n'étaient pas câblés. Ces chiffres ne sont pas comparables
@@ -890,7 +893,50 @@ lecture directe du code.
     `git_hunk_style` (aucun rendu de hunks — le seul coloriage +/−/@@ est
     `ConfirmationOverlay`, réservé aux confirmations d'agents). **0 clé
     restant à câbler dans cette famille.**
-    **Les 254 inertes restants se répartissent par catégorie** — le plus gros
+    **Ce qui est opérant depuis le 01/10 (famille `agent_*`, 9 clés sur 11 — famille TERMINÉE)** —
+    la famille « Agent » du catalogue a DEUX visages. Les **8 clés
+    « IA Locale »** (`agent_engine`, `agent_model`, `agent_num_ctx`,
+    `agent_max_steps`, `agent_max_minutes`, `agent_tool_mode`, `agent_thought`,
+    `agent_verify_command`) étaient **déjà lues** par
+    `Moto.Core/Moto.AI/Autonomy/V2/AgentV2Settings.cs` — opérantes avant ce
+    lot, effet pris au **prochain run** de l'agent (pas en direct) ; les tests
+    `AgentV2RunnerTests` (L623-630) garantissent l'égalité entre leurs défauts
+    codés en dur et ceux du catalogue — **ne pas changer un défaut au catalogue
+    sans toucher `AgentV2Settings`, ça casse les tests**. La 9e clé câblée par
+    ce lot :
+    - `agent_font_size` (int 8..30, défaut déclaré 13) : taille du texte du
+      panneau de chat IA — mappage `Moto.Editor/Settings/AgentSettings.cs`,
+      ressource `AgentFontSize` posée sur `AiChatView` par
+      `ApplyAgentAndCollabPanelSettings` (garde `_appliedAgentFontSize`,
+      patron exact de `terminal_font_size`) ; consommée en `DynamicResource`
+      par les 3 éléments de texte (bulles finies, bulle en streaming, champ de
+      saisie). Filet `<sys:Double x:Key="AgentFontSize">13</sys:Double>` dans
+      le XAML : une clé existe TOUJOURS (jamais de DynamicResource orphelin).
+      Le défaut déclaré (13) est **identique** à `FontSizeBody` : réglage
+      intact = aucun pixel ne bouge.
+    **⚠️ CORRECTION TRANSVERSE (même jour, même vérification)** — le verrou
+    `RealEffectKeys` (`Views/SettingsWindowView.xaml.cs`) : seules les 17 clés
+    de cette liste invoquent `SettingsWindow.RealSettingChanged`. Les
+    dispatches `tb_*`, `gp_*`, `git_*`, `terminal_*` (hors `terminal_show`)
+    ajoutés les jours précédents **n'arrivaient donc JAMAIS en direct** —
+    effet visible seulement au démarrage / retour de plein écran, ce qui se
+    lit exactement comme un réglage inerte. Rattrapées (+38 clés, toutes déjà
+    comptées opérantes au démarrage) et dispatch **`pp_`/`sb_`** ajoutés
+    (ils n'existaient tout simplement pas) + dispatch **`agent_`**. Toute
+    famille future devra ajouter ses clés à `RealEffectKeys`, sinon son
+    dispatch live est du code mort.
+    **Restent INERTES dans cette famille (2 clés, raisons exactes)** :
+    `agent_skills` et `agent_sandbox` — boutons `Action` du catalogue : le
+    déclencheur `SettingItem.ActionRequested` n'a **aucun abonné** dans tout le
+    dépôt (4 occurrences : la déclaration + 2 JSON de design) et les écrans
+    annoncés **n'existent pas** (installation de skills de l'agent,
+    permissions du sandbox terminal). Faux amis écartés :
+    `ClaudeShellViewModel.cs:67` = 4 skills Claude de démo codés en dur ;
+    `SandboxEngine` = copie du projet pour le menu `run.sandbox` ;
+    `LocalLlmSandbox` = timeout d'exécution, service jamais résolu. Câbler
+    ces boutons = construire deux fonctionnalités entières. **0 clé restant à
+    câbler dans cette famille.**
+    **Les 253 inertes restants se répartissent par catégorie** — le plus gros
    cluster correspond à des **interfaces qui EXISTENT déjà mais ignorent leur
    configuration** : `Panneaux` (explorateur `pp_*`, panneau Git `gp_*` et
    géométrie `ap_*`/`cp_*` FAITS ; restent l'outline `op_*`),
