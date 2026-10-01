@@ -564,13 +564,16 @@ lourd (chaque item = une fonctionnalité réelle à développer, PAS un câblage
 7. **Git gutter** — ✅ **FAIT (01/10, reprise Tom)** : `GitService.GetChangedLineNumbersAsync`
    (parse `git diff HEAD --unified=0`) + div `#gitGut` dans le gutter WebView
    (`setGitLines` + sync scroll). Câblées : `git_gutter_visibility`/`git_gutter_debounce`.
-8. **LSP** — ⏸️ **BLOQUÉ STRUCTUREL (01/10, diagnostic sous-agent)** : le code LSP
-   (`RoslynLanguageServerClient.cs`, ~500 lignes) vise l'ANCIEN paquet monolithique
-   `OmniSharp.Extensions.LanguageServer`, pas le splitté `LanguageClient` 0.19.9
-   (~26 erreurs, ~16 structurelles : requêtes réactives, types supprimés). Même
-   compilé, aucun serveur Roslyn fourni → non fonctionnel. Décision à trancher :
-   A) référencer l'ancien paquet (le code est écrit pour lui), B) réécrire le client,
-   C) statu quo « à venir v1.0 ».
+8. **LSP** — 🔄 **RÉÉCRIT (01/10, décision B de Tom)** : `RoslynLanguageServerClient.cs`
+   (~200 lignes) réécrit contre `OmniSharp.Extensions.LanguageClient` 0.19.9 (API réactive
+   `IRequestProgressObservable`), réflexion sur les assemblies (aucun nom inventé). Build
+   vert 0/476, app démarre. Câblé : `LanguageServerManager` en DI + `WireLsp` +
+   `InitializeLsp` + `LspSettings` (`lsp_enabled`/`lsp_completions`/`lsp_diagnostics`/
+   `lsp_highlights`, défauts DÉCLARÉS) + `RealEffectKeys`. ⚠️ **PAS encore fonctionnel de
+   bout en bout** : l'intégration éditeur (`OpenDocumentWithLspAsync`/
+   `UpdateDocumentWithLspAsync`/`RequestCompletionsAsync`) n'a AUCUN appelant dans le flux
+   d'édition, et AUCUN serveur Roslyn n'est fourni/résolu au runtime. Chantier suivant :
+   brancher ces méthodes sur EditorChanged/curseur + fournir le serveur.
 9. **Pipeline AutoLink/Context** — ⏳ **PARTIEL (01/10, reprise Tom)** : `ContextEngine`
    résolu (DI) + scan périodique (`autolink_enabled`/`autolink_scan_interval_sec`) +
    `SetActiveFile` à chaque chargement + auto-apply réelle (`context_auto_apply`,
