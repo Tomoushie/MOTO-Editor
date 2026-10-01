@@ -59,6 +59,15 @@ namespace Moto.Editor.Controls
         /// </summary>
         public event Action<string>? ShortcutPressed;
 
+        /// <summary>
+        /// ★ AJOUT (01/10, décision C item 1 tranche 2) : sélection (ou curseur si
+        /// Length = 0) changée par l'utilisateur. Levé aux deux points où <c>_lastRange</c>
+        /// est mis à jour (message WebView2 « S » et repli moto://sel). Porte l'offset de
+        /// début et la longueur, dans le repère du texte NORMALISÉ aux « \n » (voir
+        /// PullSelectionAsync) — c'est à l'abonné de convertir en ligne/colonne.
+        /// </summary>
+        public event Action<(int Start, int Length)>? SelectionChanged;
+
         private bool _loaded;
         private bool _suppress;
         private double _pendingFontSize = 14.0;
@@ -359,6 +368,7 @@ namespace Moto.Editor.Controls
                     }
                     _lastRange = (start, Math.Max(0, end - start));
                     _lastSelection = body;
+                    SelectionChanged?.Invoke(_lastRange.Value);
                     break;
             }
         }
@@ -401,6 +411,7 @@ namespace Moto.Editor.Controls
             end = Math.Clamp(end, start, normalized.Length);
             _lastRange = (start, end - start);
             _lastSelection = normalized.Substring(start, end - start);
+            SelectionChanged?.Invoke(_lastRange.Value);
         }
 
         // ------------------------------------------------------------------

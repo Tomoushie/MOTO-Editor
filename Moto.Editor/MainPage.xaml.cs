@@ -274,6 +274,25 @@ namespace Moto.Editor
             EditorPane.ExportRequested += () => ExportMenu.IsVisible = !ExportMenu.IsVisible;
             EditorPane.PreviewRequested += OnPreviewRequested;
             EditorPane.ShortcutPressed += combo => RunShortcut(combo);
+            // ★ AJOUT (01/10, tranche 2) : position du curseur pour la puce sb_cursor_position.
+            // L'offset reçu est dans le repère du texte normalisé aux « \n » (même contrat que
+            // CodeEditorView.GetSelectionRange) : on convertit en ligne:colonne sur ce même
+            // texte normalisé, puis on pousse « L:C » à la barre de statut. Aucune valeur inventée
+            // (offset clampé, ligne/colonne ≥ 1).
+            EditorPane.SelectionChanged += range =>
+            {
+                var doc = _viewModel.SelectedDocument;
+                if (doc == null) return;
+                var normalized = (doc.Text ?? string.Empty).Replace("\r\n", "\n");
+                var offset = Math.Clamp(range.Start + range.Length, 0, normalized.Length);
+                int line = 1, col = 1;
+                for (int i = 0; i < offset; i++)
+                {
+                    if (normalized[i] == '\n') { line++; col = 1; }
+                    else col++;
+                }
+                StatusBar.SetCursorPosition($"L {line}, C {col}");
+            };
             LivePreview.SetPreviewEngine(_previewEngine);
             // Le "Live" de Live Preview : répercute chaque frappe si le panneau est ouvert.
             EditorPane.EditorChanged += (s, text) =>

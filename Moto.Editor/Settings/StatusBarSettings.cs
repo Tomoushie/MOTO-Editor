@@ -72,6 +72,13 @@ namespace Moto.Editor.Settings
         public static bool ShowLanguage(SettingsEngine s)
             => s.GetBool("sb_language", DeclaredBool("sb_language"));
 
+        /// <summary>Réglage <c>sb_cursor_position</c> : puce « L x, C y » (position du curseur).</summary>
+        /// <remarks>★ AJOUT (01/10, tranche 2) : la donnée est RÉELLE — position du curseur
+        /// poussée par le WebView (CodeEditorView.SelectionChanged) et convertie en
+        /// ligne:colonne par MainPage, jamais inventée.</remarks>
+        public static bool ShowCursorPosition(SettingsEngine s)
+            => s.GetBool("sb_cursor_position", DeclaredBool("sb_cursor_position"));
+
         // ★ AJOUT (01/10, décision C item 1 tranche 1) : visibilité des 7 boutons d'action.
         // Chaque clé est lue AVEC son défaut déclaré au catalogue (tous à true pour ces
         // 7 clés — voir SettingsCatalog.cs) : sans ce second argument, GetBool retomberait

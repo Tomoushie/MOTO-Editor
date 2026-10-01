@@ -29,6 +29,10 @@ namespace Moto.Editor.Views
         private bool _showLanguage;
         private string _language = string.Empty;
 
+        // ★ AJOUT (01/10, tranche 2) : état de la puce « position du curseur » (sb_cursor_position).
+        private bool _showCursorPosition;
+        private string _cursorPosition = string.Empty;
+
         /// <summary>★ AJOUT (01/10) : un avertissement existe-t-il ? (pour respecter sb_diagnostics).</summary>
         private bool _hasWarnings;
 
@@ -162,6 +166,10 @@ namespace Moto.Editor.Views
             _showLanguage = Moto.Editor.Settings.StatusBarSettings.ShowLanguage(settings);
             UpdateLanguageVisibility();
 
+            // ★ AJOUT (01/10, tranche 2) : puce « position du curseur » (sb_cursor_position).
+            _showCursorPosition = Moto.Editor.Settings.StatusBarSettings.ShowCursorPosition(settings);
+            UpdateCursorPositionVisibility();
+
             // ★ AJOUT (01/10, décision C item 1) : visibilité des 7 boutons d'action,
             // pilotée par leur clé respective. Chaque conteneur regroupe le bouton ET son
             // séparateur (voir le .xaml) : basculer le conteneur ne laisse aucun trait
@@ -228,6 +236,22 @@ namespace Moto.Editor.Views
         /// <summary>Visible seulement si le réglage est actif ET qu'une valeur réelle existe.</summary>
         private void UpdateLanguageVisibility()
             => LanguageLabel.IsVisible = _showLanguage && _language.Length > 0;
+
+        /// <summary>
+        /// ★ AJOUT (01/10, tranche 2) : position du curseur (réglage <c>sb_cursor_position</c>).
+        /// Chaîne « L x, C y » déjà convertie par MainPage, ou <c>null</c>/"" si aucun
+        /// fichier / curseur pas encore placé. La vue ne fait qu'afficher.
+        /// </summary>
+        public void SetCursorPosition(string? position)
+        {
+            _cursorPosition = string.IsNullOrWhiteSpace(position) ? string.Empty : position;
+            CursorPositionLabel.Text = _cursorPosition;
+            UpdateCursorPositionVisibility();
+        }
+
+        /// <summary>Visible seulement si le réglage est actif ET qu'une valeur réelle existe.</summary>
+        private void UpdateCursorPositionVisibility()
+            => CursorPositionLabel.IsVisible = _showCursorPosition && _cursorPosition.Length > 0;
 
         /// <summary>Branche l'overlay "À propos / mises à jour" sur le bouton ℹ️.</summary>
         public void InitializeInfoOverlay(InfoOverlay overlay)

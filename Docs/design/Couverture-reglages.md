@@ -8,10 +8,10 @@
 | Mesure | Valeur |
 |---|---|
 | Réglages DÉCLARÉS au catalogue | 332 |
-| Clés lues par du code compilé | 118 |
-| **Déclarés ET lus → réellement opérants** | **92** |
-| Déclarés mais INERTES | 240 |
-| **Part réellement opérante** | **27.7 %** |
+| Clés lues par du code compilé | 119 |
+| **Déclarés ET lus → réellement opérants** | **93** |
+| Déclarés mais INERTES | 239 |
+| **Part réellement opérante** | **28 %** |
 
 ## Réglages réellement opérants
 
@@ -77,6 +77,7 @@
 | `pp_indent` | Panneaux | Moto.Editor\Settings\PanelSettings.cs |
 | `pp_width` | Panneaux | Moto.Editor\Settings\PanelSettings.cs |
 | `sb_active_file` | Fenêtre & Layout | Moto.Editor\Settings\StatusBarSettings.cs |
+| `sb_cursor_position` | Fenêtre & Layout | Moto.Editor\Settings\StatusBarSettings.cs |
 | `sb_debugger` | Fenêtre & Layout | Moto.Editor\Settings\StatusBarSettings.cs |
 | `sb_diagnostics` | Fenêtre & Layout | Moto.Editor\Settings\StatusBarSettings.cs |
 | `sb_language` | Fenêtre & Layout | Moto.Editor\Settings\StatusBarSettings.cs |
@@ -150,7 +151,7 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `threads_sidebar_side`
 - `use_modifier_to_send`
 
-### Fenêtre & Layout — 29 réglage(s) inerte(s)
+### Fenêtre & Layout — 28 réglage(s) inerte(s)
 
 - `border_size`
 - `bottom_dock_layout`
@@ -167,7 +168,6 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `preview_keep_on_nav`
 - `preview_multibuffer`
 - `preview_project_panel`
-- `sb_cursor_position`
 - `sb_encoding`
 - `tabs_git_status`
 - `tabs_pinned_layout`
@@ -239,25 +239,6 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `tab_size`
 - `vertical_scroll_margin`
 
-### Apparence — 16 réglage(s) inerte(s)
-
-- `buffer_font_family`
-- `buffer_font_weight`
-- `code_fade`
-- `current_line_highlight`
-- `cursor_blink`
-- `cursor_shape`
-- `dark_theme`
-- `indent_guides`
-- `light_theme`
-- `line_height`
-- `reduce_motion`
-- `rounded_selection`
-- `selection_highlight`
-- `ui_font_family`
-- `ui_font_size`
-- `wrap_guides`
-
 ### Recherche & Fichiers — 16 réglage(s) inerte(s)
 
 - `close_on_file_delete`
@@ -276,6 +257,25 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `search_whole_word`
 - `search_wrap`
 - `seed_search_from_cursor`
+
+### Apparence — 16 réglage(s) inerte(s)
+
+- `buffer_font_family`
+- `buffer_font_weight`
+- `code_fade`
+- `current_line_highlight`
+- `cursor_blink`
+- `cursor_shape`
+- `dark_theme`
+- `indent_guides`
+- `light_theme`
+- `line_height`
+- `reduce_motion`
+- `rounded_selection`
+- `selection_highlight`
+- `ui_font_family`
+- `ui_font_size`
+- `wrap_guides`
 
 ### Général — 13 réglage(s) inerte(s)
 
@@ -363,15 +363,6 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `max_severity`
 - `prettier_allowed`
 
-### Developer — 6 réglage(s) inerte(s)
-
-- `devops.crashtriage.enabled`
-- `devops.featureflags.enabled`
-- `devops.fuzzing.enabled`
-- `devops.journeys.enabled`
-- `devops.perfgate.enabled`
-- `perf_profiler`
-
 ### Marketplace — 6 réglage(s) inerte(s)
 
 - `marketplace.donations.enabled`
@@ -380,6 +371,15 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `marketplace.trial.days`
 - `marketplace.trial.enabled`
 - `marketplace.vulnscan.auto`
+
+### Developer — 6 réglage(s) inerte(s)
+
+- `devops.crashtriage.enabled`
+- `devops.featureflags.enabled`
+- `devops.fuzzing.enabled`
+- `devops.journeys.enabled`
+- `devops.perfgate.enabled`
+- `perf_profiler`
 
 ### Débogueur — 5 réglage(s) inerte(s)
 
@@ -396,17 +396,17 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `pair_programming`
 - `tutor_mode`
 
-### Raccourcis — 3 réglage(s) inerte(s)
-
-- `base_keymap`
-- `helix_mode`
-- `vim_mode`
-
 ### MCP — 3 réglage(s) inerte(s)
 
 - `mcp.adv.checkpointing`
 - `mcp.enabled`
 - `mcp.subagents`
+
+### Raccourcis — 3 réglage(s) inerte(s)
+
+- `base_keymap`
+- `helix_mode`
+- `vim_mode`
 
 ### Network — 2 réglage(s) inerte(s)
 

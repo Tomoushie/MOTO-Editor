@@ -89,6 +89,13 @@ namespace Moto.Editor.Controls
             remove => Editor.ShortcutPressed -= value;
         }
 
+        /// <summary>★ AJOUT (01/10, tranche 2) : sélection/curseur changé (voir CodeEditorView.SelectionChanged).</summary>
+        public event Action<(int Start, int Length)>? SelectionChanged
+        {
+            add => Editor.SelectionChanged += value;
+            remove => Editor.SelectionChanged -= value;
+        }
+
         // ------------------------------------------------------------------
         // Constructeur
         // ------------------------------------------------------------------

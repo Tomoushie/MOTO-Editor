@@ -65,6 +65,18 @@
                    Margin="0,0,8,0"
                    IsVisible="False" />
 
+            <!-- ★ AJOUT (01/10, décision C item 1 tranche 2) : puce « L x, C y » pilotée
+                 par sb_cursor_position. Donnée RÉELLE : position du curseur poussée par le
+                 WebView (CodeEditorView.SelectionChanged) puis convertie en ligne:colonne
+                 par MainPage. Masquée si réglage off, aucun fichier, ou curseur pas encore
+                 placé par l'utilisateur (jamais de valeur inventée). -->
+            <Label x:Name="CursorPositionLabel" Text=""
+                   FontSize="{DynamicResource FontSizeUiSmall}"
+                   TextColor="{StaticResource Txt3}"
+                   VerticalOptions="Center"
+                   Margin="0,0,8,0"
+                   IsVisible="False" />
+
             <Label x:Name="ErrorsLabel" Text="0 erreur"
                    FontSize="{DynamicResource FontSizeUiSmall}"
                    TextColor="{StaticResource Txt2}"
