@@ -16,6 +16,14 @@
     <Nullable>enable</Nullable>
     <SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
     <MauiVersion>8.0.100</MauiVersion>
+    <!--
+      OmniSharp.Extensions.LanguageClient 0.19.9 tire transitivement
+      Microsoft.VisualStudio.Threading (via Nerdbank.Streams), qui active les
+      analyseurs VSTHRD* sur tout le code existant — jamais voulus ici (ligne de
+      base : 0 avertissement VSTHRD). On les neutralise explicitement pour ne pas
+      ajouter ~150 avertissements parasites au dépôt.
+    -->
+    <NoWarn>$(NoWarn);VSTHRD002;VSTHRD100;VSTHRD101;VSTHRD103;VSTHRD105;VSTHRD110;VSTHRD200</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
@@ -24,6 +32,8 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="10.0.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.0" />
     <PackageReference Include="System.Security.Cryptography.ProtectedData" Version="10.0.11" />
+    <!-- LSP Roslyn : client OmniSharp 0.19.9 (API réactive nouvelle génération) -->
+    <PackageReference Include="OmniSharp.Extensions.LanguageClient" Version="0.19.9" />
   </ItemGroup>
 
   <!-- ★ AJOUT (24/09, agent v2) : les tests unitaires de l'agent v2 (EditMatcher, TextFile,
@@ -75,11 +85,7 @@
     <!-- Refactor Roslyn : v1.0 sur la Roadmap, pas encore -->
     <Compile Remove="Refactor\RefactorAnalyzer.cs" />
     <Compile Remove="Refactor\RefactorEngine.cs" />
-    <!-- LSP Roslyn (OmniSharp) : explicitement "à venir (v1.0)" dans Docs/product/Roadmap.md -->
-    <Compile Remove="LSP\LspSessionManager.cs" />
-    <Compile Remove="LSP\RoslynLanguageServerClient.cs" />
-    <Compile Remove="LSP\RoslynLspClient.cs" />
-    <Compile Remove="LSP\LanguageServerManager.cs" />
+    <!-- LSP Roslyn (OmniSharp 0.19.9) : réactivé — voir PackageReference ci-dessus -->
     <Compile Remove="Performance\PerFileServiceManager.cs" />
     <!-- ★ CORRECTION (02/09, "vrai système de plugins") : Plugins\SdkAdapter.cs
          réveillé (Moto.Plugin.SDK est maintenant référencé, voir ProjectReference
@@ -95,7 +101,6 @@
     <Compile Remove="Moto.AI\Internal\DualModelIntegration.cs" />
     <Compile Remove="Moto.AI\Internal\EmbeddedModelRouter.cs" />
     <Compile Remove="Moto.AI\Internal\InferenceHostClient.cs" />
-    <Compile Remove="LSP\InlayHints\RoslynInlayHintProvider.cs" />
     <Compile Remove="Security\PluginSandboxMinimalService.cs" />
     <Compile Remove="Moto.AI\Embedded\AiModeManager.cs" />
     <Compile Remove="Moto.AI\Embedded\AiModePreset.cs" />

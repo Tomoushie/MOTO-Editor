@@ -15,14 +15,14 @@ namespace Moto.Core.LSP
     /// </summary>
     public sealed class LspSessionManager : IAsyncDisposable
     {
-        private readonly ILogger<LspSessionManager> _logger;
+        private readonly ILogger _logger;
         private readonly Dictionary<string, RoslynLanguageServerClient> _sessions = new();
         private readonly SemaphoreSlim _gate = new(1, 1);
         private readonly Dictionary<string, int> _documentVersions = new();
 
         public event Action<string, IReadOnlyList<LspDiagnostic>>? DiagnosticsPublished;
 
-        public LspSessionManager(ILogger<LspSessionManager> logger)
+        public LspSessionManager(ILogger logger)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }

@@ -14,14 +14,12 @@ namespace Moto.Core.LSP
     public sealed class LanguageServerManager : IAsyncDisposable
     {
         private readonly LspSessionManager _sessionManager;
-        private readonly ILogger<LanguageServerManager> _logger;
 
         public event Action<string, IReadOnlyList<LspDiagnostic>>? DiagnosticsPublished;
 
-        public LanguageServerManager(ILogger<LanguageServerManager> logger)
+        public LanguageServerManager(ILogger logger)
         {
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _sessionManager = new LspSessionManager(logger);
+            _sessionManager = new LspSessionManager(logger ?? throw new ArgumentNullException(nameof(logger)));
             _sessionManager.DiagnosticsPublished += (path, diags) =>
                 DiagnosticsPublished?.Invoke(path, diags);
         }
@@ -39,42 +37,52 @@ namespace Moto.Core.LSP
             string filePath, int line, int column, CancellationToken ct = default)
         {
             var client = await _sessionManager.GetClientForFileAsync(filePath, ct).ConfigureAwait(false);
-            return client?.GetCompletionsAsync(filePath, line, column, ct).Result ?? Array.Empty<LspCompletionItem>();
+            return client is null
+                ? Array.Empty<LspCompletionItem>()
+                : await client.GetCompletionsAsync(filePath, line, column, ct).ConfigureAwait(false);
         }
 
         public async Task<LspHoverInfo?> GetHoverAsync(
             string filePath, int line, int column, CancellationToken ct = default)
         {
             var client = await _sessionManager.GetClientForFileAsync(filePath, ct).ConfigureAwait(false);
-            return client?.GetHoverAsync(filePath, line, column, ct).Result;
+            return client is null
+                ? null
+                : await client.GetHoverAsync(filePath, line, column, ct).ConfigureAwait(false);
         }
 
         public async Task<IReadOnlyList<LspLocation>> GetDefinitionAsync(
             string filePath, int line, int column, CancellationToken ct = default)
         {
             var client = await _sessionManager.GetClientForFileAsync(filePath, ct).ConfigureAwait(false);
-            return client?.GetDefinitionAsync(filePath, line, column, ct).Result ?? Array.Empty<LspLocation>();
+            return client is null
+                ? Array.Empty<LspLocation>()
+                : await client.GetDefinitionAsync(filePath, line, column, ct).ConfigureAwait(false);
         }
 
         public async Task<IReadOnlyList<LspLocation>> GetReferencesAsync(
             string filePath, int line, int column, CancellationToken ct = default)
         {
             var client = await _sessionManager.GetClientForFileAsync(filePath, ct).ConfigureAwait(false);
-            return client?.GetReferencesAsync(filePath, line, column, true, ct).Result ?? Array.Empty<LspLocation>();
+            return client is null
+                ? Array.Empty<LspLocation>()
+                : await client.GetReferencesAsync(filePath, line, column, true, ct).ConfigureAwait(false);
         }
 
         public async Task<IReadOnlyList<LspCodeAction>> GetCodeActionsAsync(
             string filePath, int startLine, int startCol, int endLine, int endCol, CancellationToken ct = default)
         {
             var client = await _sessionManager.GetClientForFileAsync(filePath, ct).ConfigureAwait(false);
-            return client?.GetCodeActionsAsync(filePath, startLine, startCol, endLine, endCol, ct).Result ?? Array.Empty<LspCodeAction>();
+            return client is null
+                ? Array.Empty<LspCodeAction>()
+                : await client.GetCodeActionsAsync(filePath, startLine, startCol, endLine, endCol, ct).ConfigureAwait(false);
         }
 
         public async Task<LspRenameResult> RenameSymbolAsync(
             string filePath, int line, int column, string newName, CancellationToken ct = default)
         {
             var client = await _sessionManager.GetClientForFileAsync(filePath, ct).ConfigureAwait(false);
-            if (client == null)
+            if (client is null)
                 return new LspRenameResult { Success = false, Message = "Client non disponible." };
             return await client.RenameSymbolAsync(filePath, line, column, newName, ct).ConfigureAwait(false);
         }
@@ -83,41 +91,27 @@ namespace Moto.Core.LSP
             string filePath, int startLine, int endLine, CancellationToken ct = default)
         {
             var client = await _sessionManager.GetClientForFileAsync(filePath, ct).ConfigureAwait(false);
-            return client?.GetInlayHintsAsync(filePath, startLine, endLine, ct).Result ?? Array.Empty<LspInlayHint>();
+            return client is null
+                ? Array.Empty<LspInlayHint>()
+                : await client.GetInlayHintsAsync(filePath, startLine, endLine, ct).ConfigureAwait(false);
         }
 
         public async Task<IReadOnlyList<LspSemanticToken>> GetSemanticTokensAsync(
             string filePath, CancellationToken ct = default)
         {
             var client = await _sessionManager.GetClientForFileAsync(filePath, ct).ConfigureAwait(false);
-            return client?.GetSemanticTokensAsync(filePath, ct).Result ?? Array.Empty<LspSemanticToken>();
+            return client is null
+                ? Array.Empty<LspSemanticToken>()
+                : await client.GetSemanticTokensAsync(filePath, ct).ConfigureAwait(false);
         }
 
         public async Task<LspSignatureHelp?> GetSignatureHelpAsync(
             string filePath, int line, int column, CancellationToken ct = default)
         {
             var client = await _sessionManager.GetClientForFileAsync(filePath, ct).ConfigureAwait(false);
-            return client?.GetSignatureHelpAsync(filePath, line, column, ct).Result;
-        }
-
-        public IReadOnlyList<LspDiagnostic> GetDiagnostics(string filePath)
-        {
-            var workspace = GetWorkspaceForFile(filePath);
-            var session = _sessionManager.GetOrCreateSessionAsync(workspace).Result;
-            return session?.GetCachedDiagnostics(filePath) ?? Array.Empty<LspDiagnostic>();
-        }
-
-        private static string GetWorkspaceForFile(string filePath)
-        {
-            var dir = System.IO.Path.GetDirectoryName(filePath);
-            while (!string.IsNullOrEmpty(dir))
-            {
-                if (System.IO.Directory.GetFiles(dir, "*.sln").Length > 0 ||
-                    System.IO.Directory.GetFiles(dir, "*.csproj").Length > 0)
-                    return dir;
-                dir = System.IO.Path.GetDirectoryName(dir);
-            }
-            return System.IO.Path.GetDirectoryName(filePath) ?? "";
+            return client is null
+                ? null
+                : await client.GetSignatureHelpAsync(filePath, line, column, ct).ConfigureAwait(false);
         }
 
         public async ValueTask DisposeAsync()
