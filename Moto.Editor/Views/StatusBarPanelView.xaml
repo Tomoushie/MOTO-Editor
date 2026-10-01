@@ -77,6 +77,17 @@
                    Margin="0,0,8,0"
                    IsVisible="False" />
 
+            <!-- ★ AJOUT (01/10, décision C item 1 tranche 2) : puce « Encodage » pilotée
+                 par sb_encoding. Donnée RÉELLE : BOM détecté sur les premiers octets du
+                 fichier (UTF-8 BOM / UTF-16 LE / UTF-16 BE), sinon « UTF-8 » (défaut du
+                 chargeur). Masquée si réglage off (jamais de valeur inventée). -->
+            <Label x:Name="EncodingLabel" Text=""
+                   FontSize="{DynamicResource FontSizeUiSmall}"
+                   TextColor="{StaticResource Txt3}"
+                   VerticalOptions="Center"
+                   Margin="0,0,8,0"
+                   IsVisible="False" />
+
             <Label x:Name="ErrorsLabel" Text="0 erreur"
                    FontSize="{DynamicResource FontSizeUiSmall}"
                    TextColor="{StaticResource Txt2}"

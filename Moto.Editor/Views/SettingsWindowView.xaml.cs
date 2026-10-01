@@ -106,7 +106,7 @@ namespace Moto.Editor.Views
         "pp_git_indicator", "pp_git_status", "pp_hide_gitignore", "pp_hide_hidden",
         "pp_horizontal_scroll", "pp_indent", "pp_width",
         // sb_* (status bar) — dispatch « sb_ » → ApplyLayoutSettings
-        "sb_active_file", "sb_cursor_position", "sb_debugger", "sb_diagnostics", "sb_language", "sb_line_endings", "sb_project_panel",
+        "sb_active_file", "sb_cursor_position", "sb_debugger", "sb_diagnostics", "sb_encoding", "sb_language", "sb_line_endings", "sb_project_panel",
         "sb_search", "sb_terminal",
         // terminal_* (hors terminal_show déjà en tête) — dispatch « terminal_ » → ApplyTerminalSettings
         "terminal_audible_bell", "terminal_breadcrumbs", "terminal_default_height",

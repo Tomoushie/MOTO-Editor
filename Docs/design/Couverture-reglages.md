@@ -8,10 +8,10 @@
 | Mesure | Valeur |
 |---|---|
 | Réglages DÉCLARÉS au catalogue | 332 |
-| Clés lues par du code compilé | 119 |
-| **Déclarés ET lus → réellement opérants** | **93** |
-| Déclarés mais INERTES | 239 |
-| **Part réellement opérante** | **28 %** |
+| Clés lues par du code compilé | 120 |
+| **Déclarés ET lus → réellement opérants** | **94** |
+| Déclarés mais INERTES | 238 |
+| **Part réellement opérante** | **28.3 %** |
 
 ## Réglages réellement opérants
 
@@ -80,6 +80,7 @@
 | `sb_cursor_position` | Fenêtre & Layout | Moto.Editor\Settings\StatusBarSettings.cs |
 | `sb_debugger` | Fenêtre & Layout | Moto.Editor\Settings\StatusBarSettings.cs |
 | `sb_diagnostics` | Fenêtre & Layout | Moto.Editor\Settings\StatusBarSettings.cs |
+| `sb_encoding` | Fenêtre & Layout | Moto.Editor\Settings\StatusBarSettings.cs |
 | `sb_language` | Fenêtre & Layout | Moto.Editor\Settings\StatusBarSettings.cs |
 | `sb_line_endings` | Fenêtre & Layout | Moto.Editor\Settings\StatusBarSettings.cs |
 | `sb_project_panel` | Fenêtre & Layout | Moto.Editor\Settings\StatusBarSettings.cs |
@@ -151,37 +152,6 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `threads_sidebar_side`
 - `use_modifier_to_send`
 
-### Fenêtre & Layout — 28 réglage(s) inerte(s)
-
-- `border_size`
-- `bottom_dock_layout`
-- `centered_left_padding`
-- `centered_right_padding`
-- `focus_follows_debounce`
-- `focus_follows_mouse`
-- `fullscreen_mode`
-- `horizontal_split_direction`
-- `inactive_opacity`
-- `preview_code_nav`
-- `preview_enabled`
-- `preview_file_finder`
-- `preview_keep_on_nav`
-- `preview_multibuffer`
-- `preview_project_panel`
-- `sb_encoding`
-- `tabs_git_status`
-- `tabs_pinned_layout`
-- `tb_branch_icon`
-- `tb_onboarding`
-- `tb_sign_in`
-- `tb_user_menu`
-- `tb_user_picture`
-- `tb_worktree`
-- `use_system_window_tabs`
-- `vertical_split_direction`
-- `window_decorations`
-- `zoomed_padding`
-
 ### Agent — 27 réglage(s) inerte(s)
 
 - `ai_cache_enabled`
@@ -211,6 +181,36 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `story_comments`
 - `temperature`
 - `thread_persistence`
+
+### Fenêtre & Layout — 27 réglage(s) inerte(s)
+
+- `border_size`
+- `bottom_dock_layout`
+- `centered_left_padding`
+- `centered_right_padding`
+- `focus_follows_debounce`
+- `focus_follows_mouse`
+- `fullscreen_mode`
+- `horizontal_split_direction`
+- `inactive_opacity`
+- `preview_code_nav`
+- `preview_enabled`
+- `preview_file_finder`
+- `preview_keep_on_nav`
+- `preview_multibuffer`
+- `preview_project_panel`
+- `tabs_git_status`
+- `tabs_pinned_layout`
+- `tb_branch_icon`
+- `tb_onboarding`
+- `tb_sign_in`
+- `tb_user_menu`
+- `tb_user_picture`
+- `tb_worktree`
+- `use_system_window_tabs`
+- `vertical_split_direction`
+- `window_decorations`
+- `zoomed_padding`
 
 ### Éditeur — 24 réglage(s) inerte(s)
 
@@ -309,21 +309,6 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `git_hunk_style`
 - `git.enabled`
 
-### Panneaux — 12 réglage(s) inerte(s)
-
-- `ap_flexible`
-- `ap_limit_width`
-- `ap_max_width`
-- `dp_dock`
-- `gp_count_badge`
-- `gp_fallback_branch`
-- `op_auto_fold`
-- `op_auto_reveal`
-- `op_button`
-- `op_dock`
-- `op_indent_guides`
-- `pp_count_badge`
-
 ### Terminal — 12 réglage(s) inerte(s)
 
 - `terminal_alternate_scroll`
@@ -338,6 +323,21 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `terminal_option_as_meta`
 - `terminal_scroll_multiplier`
 - `terminal_show_scrollbar`
+
+### Panneaux — 12 réglage(s) inerte(s)
+
+- `ap_flexible`
+- `ap_limit_width`
+- `ap_max_width`
+- `dp_dock`
+- `gp_count_badge`
+- `gp_fallback_branch`
+- `op_auto_fold`
+- `op_auto_reveal`
+- `op_button`
+- `op_dock`
+- `op_indent_guides`
+- `pp_count_badge`
 
 ### Collaboration — 10 réglage(s) inerte(s)
 
@@ -363,15 +363,6 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `max_severity`
 - `prettier_allowed`
 
-### Marketplace — 6 réglage(s) inerte(s)
-
-- `marketplace.donations.enabled`
-- `marketplace.payment.currency`
-- `marketplace.sandbox.enabled`
-- `marketplace.trial.days`
-- `marketplace.trial.enabled`
-- `marketplace.vulnscan.auto`
-
 ### Developer — 6 réglage(s) inerte(s)
 
 - `devops.crashtriage.enabled`
@@ -380,6 +371,15 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `devops.journeys.enabled`
 - `devops.perfgate.enabled`
 - `perf_profiler`
+
+### Marketplace — 6 réglage(s) inerte(s)
+
+- `marketplace.donations.enabled`
+- `marketplace.payment.currency`
+- `marketplace.sandbox.enabled`
+- `marketplace.trial.days`
+- `marketplace.trial.enabled`
+- `marketplace.vulnscan.auto`
 
 ### Débogueur — 5 réglage(s) inerte(s)
 

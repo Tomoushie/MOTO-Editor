@@ -702,6 +702,10 @@ namespace Moto.Editor
             // ★ AJOUT (01/10, tranche 2) : puce « langage » (sb_language). Nom lisible
             // depuis l'extension, jamais inventé (LanguageDisplayName renvoie "" si inconnu).
             StatusBar.SetLanguage(Moto.Editor.Controls.CodeEditorView.LanguageDisplayName(doc.Path));
+            // ★ AJOUT (01/10, tranche 2) : puce « encodage » (sb_encoding). Détection RÉELLE
+            // du BOM sur les premiers octets du fichier ; « UTF-8 » sinon (comportement exact
+            // de File.ReadAllText qui sert à charger le texte). Jamais de valeur inventée.
+            StatusBar.SetEncoding(DetectEncoding(doc.Path));
             EditorPane.EditorText = doc.Text;
             _currentPath = doc.Path;
             RefreshAiUndoButton();
@@ -730,6 +734,29 @@ namespace Moto.Editor
             }
             if (crlf == 0 && lf == 0) return null;
             return crlf >= lf ? "CRLF" : "LF";
+        }
+
+        /// <summary>
+        /// ★ AJOUT (01/10, tranche 2) : détecte l'encodage RÉEL du fichier d'après son BOM
+        /// (marque d'ordre des octets). « UTF-8 BOM » / « UTF-16 LE » / « UTF-16 BE » si le
+        /// BOM correspondant est présent, sinon « UTF-8 » — le défaut exact de File.ReadAllText
+        /// qui charge le texte (sans BOM). Aucune heuristique inventée (pas de devinette
+        /// ANSI/OEM : un fichier sans BOM est bien lu comme UTF-8 par le chargeur).
+        /// </summary>
+        private static string DetectEncoding(string? path)
+        {
+            if (string.IsNullOrWhiteSpace(path) || !System.IO.File.Exists(path)) return "UTF-8";
+            try
+            {
+                using var fs = System.IO.File.OpenRead(path);
+                Span<byte> bom = stackalloc byte[4];
+                int n = fs.Read(bom);
+                if (n >= 3 && bom[0] == 0xEF && bom[1] == 0xBB && bom[2] == 0xBF) return "UTF-8 BOM";
+                if (n >= 2 && bom[0] == 0xFF && bom[1] == 0xFE) return "UTF-16 LE";
+                if (n >= 2 && bom[0] == 0xFE && bom[1] == 0xFF) return "UTF-16 BE";
+                return "UTF-8";
+            }
+            catch { return "UTF-8"; } // lecture échouée (verrou…) : repli = défaut du chargeur, pas une invention
         }
 
         private void OnNavBack()

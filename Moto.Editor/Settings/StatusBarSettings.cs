@@ -79,6 +79,13 @@ namespace Moto.Editor.Settings
         public static bool ShowCursorPosition(SettingsEngine s)
             => s.GetBool("sb_cursor_position", DeclaredBool("sb_cursor_position"));
 
+        /// <summary>Réglage <c>sb_encoding</c> : puce « encodage » (BOM du fichier actif).</summary>
+        /// <remarks>★ AJOUT (01/10, tranche 2) : la donnée est RÉELLE — BOM détecté sur les
+        /// premiers octets du fichier (UTF-8 BOM / UTF-16 LE / UTF-16 BE), sinon « UTF-8 »
+        /// (défaut du chargeur). Jamais de valeur inventée.</remarks>
+        public static bool ShowEncoding(SettingsEngine s)
+            => s.GetBool("sb_encoding", DeclaredBool("sb_encoding"));
+
         // ★ AJOUT (01/10, décision C item 1 tranche 1) : visibilité des 7 boutons d'action.
         // Chaque clé est lue AVEC son défaut déclaré au catalogue (tous à true pour ces
         // 7 clés — voir SettingsCatalog.cs) : sans ce second argument, GetBool retomberait

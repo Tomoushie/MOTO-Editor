@@ -33,6 +33,10 @@ namespace Moto.Editor.Views
         private bool _showCursorPosition;
         private string _cursorPosition = string.Empty;
 
+        // ★ AJOUT (01/10, tranche 2) : état de la puce « encodage » (réglage sb_encoding).
+        private bool _showEncoding;
+        private string _encoding = string.Empty;
+
         /// <summary>★ AJOUT (01/10) : un avertissement existe-t-il ? (pour respecter sb_diagnostics).</summary>
         private bool _hasWarnings;
 
@@ -170,6 +174,10 @@ namespace Moto.Editor.Views
             _showCursorPosition = Moto.Editor.Settings.StatusBarSettings.ShowCursorPosition(settings);
             UpdateCursorPositionVisibility();
 
+            // ★ AJOUT (01/10, tranche 2) : puce « encodage » (sb_encoding).
+            _showEncoding = Moto.Editor.Settings.StatusBarSettings.ShowEncoding(settings);
+            UpdateEncodingVisibility();
+
             // ★ AJOUT (01/10, décision C item 1) : visibilité des 7 boutons d'action,
             // pilotée par leur clé respective. Chaque conteneur regroupe le bouton ET son
             // séparateur (voir le .xaml) : basculer le conteneur ne laisse aucun trait
@@ -252,6 +260,22 @@ namespace Moto.Editor.Views
         /// <summary>Visible seulement si le réglage est actif ET qu'une valeur réelle existe.</summary>
         private void UpdateCursorPositionVisibility()
             => CursorPositionLabel.IsVisible = _showCursorPosition && _cursorPosition.Length > 0;
+
+        /// <summary>
+        /// ★ AJOUT (01/10, tranche 2) : encodage du fichier actif (réglage <c>sb_encoding</c>).
+        /// Étiquette RÉELLE détectée par MainPage d'après le BOM (« UTF-8 BOM »/« UTF-16 LE »/
+        /// « UTF-16 BE »/« UTF-8 »). La vue ne fait qu'afficher.
+        /// </summary>
+        public void SetEncoding(string? encoding)
+        {
+            _encoding = string.IsNullOrWhiteSpace(encoding) ? string.Empty : encoding;
+            EncodingLabel.Text = _encoding;
+            UpdateEncodingVisibility();
+        }
+
+        /// <summary>Visible seulement si le réglage est actif ET qu'une valeur réelle existe.</summary>
+        private void UpdateEncodingVisibility()
+            => EncodingLabel.IsVisible = _showEncoding && _encoding.Length > 0;
 
         /// <summary>Branche l'overlay "À propos / mises à jour" sur le bouton ℹ️.</summary>
         public void InitializeInfoOverlay(InfoOverlay overlay)
