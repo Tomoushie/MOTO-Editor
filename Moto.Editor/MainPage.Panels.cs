@@ -350,6 +350,7 @@ namespace Moto.Editor
             AnalyticsDashboardView => "Analytics",
             DebugPanelView => "Debug",
             Views.SearchView => "Recherche",
+            Views.OutlinePanelView => "Outline",
             _ => panel.GetType().Name
         };
 
@@ -370,6 +371,7 @@ namespace Moto.Editor
             PluginGalleryView => "plugin",
             AnalyticsDashboardView => "analytics",
             DebugPanelView => "debug",
+            Views.OutlinePanelView => "outline",
             _ => null
         };
 

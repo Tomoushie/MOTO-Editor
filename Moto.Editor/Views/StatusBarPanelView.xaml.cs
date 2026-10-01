@@ -57,6 +57,8 @@ namespace Moto.Editor.Views
         public event Action? GitTapped;
         public event Action? CollabTapped;
         public event Action? AiPanelTapped;
+        /// <summary>★ AJOUT (01/10, décision C item 3) : bouton « Outline » tapé.</summary>
+        public event Action? OutlineTapped;
 
         public StatusBarPanelView()
         {
@@ -190,6 +192,8 @@ namespace Moto.Editor.Views
             GitChip.IsVisible = Moto.Editor.Settings.StatusBarSettings.ShowGit(settings);
             CollabChip.IsVisible = Moto.Editor.Settings.StatusBarSettings.ShowCollab(settings);
             AiPanelChip.IsVisible = Moto.Editor.Settings.StatusBarSettings.ShowAiPanel(settings);
+            // ★ AJOUT (01/10, décision C item 3) : bouton « Outline » (clé op_button).
+            OutlineChip.IsVisible = Moto.Editor.Settings.OutlineSettings.ShowOutline(settings);
         }
 
         /// <summary>
@@ -299,5 +303,6 @@ namespace Moto.Editor.Views
         private void OnGitTapped(object? sender, EventArgs e) => GitTapped?.Invoke();
         private void OnCollabTapped(object? sender, EventArgs e) => CollabTapped?.Invoke();
         private void OnAiPanelTapped(object? sender, EventArgs e) => AiPanelTapped?.Invoke();
+        private void OnOutlineTapped(object? sender, EventArgs e) => OutlineTapped?.Invoke();
     }
 }

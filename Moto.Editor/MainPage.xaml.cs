@@ -83,6 +83,10 @@ namespace Moto.Editor
         // branché comme les autres panneaux IA ci-dessus (voir WirePanels).
         private Views.AiChatView _aiChatPanel;
         private Views.SearchView _searchPanel;
+        // ★ AJOUT (01/10, décision C item 3) : panneau Outline (vue symboles).
+        // Nullable car construit dans WirePanels (appelé depuis le constructeur), pas
+        // directement dans le constructeur — évite le CS8618 sans supprimer le contrôle.
+        private Views.OutlinePanelView? _outlinePanel;
         // _pluginGallery / _analyticsDashboard / _aiSettings : déclarés dans MainPage.Extensions.cs
         // _globalUsage : déclaré dans MainPage.UI.cs
         private DebugPanelView _debugPanel;
@@ -430,7 +434,8 @@ namespace Moto.Editor
                 // StatusBar.ApplySettings pour sb_*). Même raison que tb_/gp_/terminal_ :
                 // un réglage qui ne bouge pas tout de suite se lit comme un réglage inerte.
                 if (key.StartsWith("pp_", StringComparison.Ordinal) ||
-                    key.StartsWith("sb_", StringComparison.Ordinal))
+                    key.StartsWith("sb_", StringComparison.Ordinal) ||
+                    key.StartsWith("op_", StringComparison.Ordinal)) // ★ op_button (bouton Outline) via StatusBar.ApplySettings
                     ApplyLayoutSettings();
 
                 // ★ AJOUT (01/10, lot agent_*) : la clé agent_font_size (taille du texte
@@ -499,6 +504,10 @@ namespace Moto.Editor
             _pluginGallery = new PluginGalleryView(null, null, System.IO.Path.Combine(_currentRoot ?? "", "plugins"));
             _analyticsDashboard = new AnalyticsDashboardView();
             _debugPanel = new DebugPanelView();
+            // ★ AJOUT (01/10, décision C item 3) : panneau Outline, ancré à droite par
+            // défaut (op_dock = "Right"), à gauche si le réglage vaut "Left".
+            var outline = new Views.OutlinePanelView();
+            _outlinePanel = outline;
             // ★ AJOUT (30/08, 2e passe) : onglet "Recherche" — cherche des fichiers
             // par nom dans le projet ouvert (voir SearchView.xaml.cs).
             _searchPanel = new Views.SearchView();
@@ -510,6 +519,11 @@ namespace Moto.Editor
                 _pluginGallery, _analyticsDashboard, _debugPanel
             })
                 AddFloatingPanel(panel);
+
+            // L'outline a son propre dock piloté par op_dock (Right/Left) — pas dans le
+            // foreach ci-dessus pour respecter ce réglage.
+            AddFloatingPanel(outline, preferRightHost:
+                Settings.OutlineSettings.Dock(SettingsEngine.Shared) != "Left");
 
             // ★ AJOUT (01/09, chantier "panneaux modulaires" — 4e étape) : zones de
             // drop "hôte vide" sur les 2 docks eux-mêmes — une seule fois, après
@@ -599,6 +613,12 @@ namespace Moto.Editor
             StatusBar.GitTapped += () => OpenSpecializedWindow("git");
             StatusBar.CollabTapped += () => OnActivitySelected("collab");
             StatusBar.AiPanelTapped += () => OnActivitySelected("ai");
+            // ★ AJOUT (01/10, décision C item 3) : bouton « Outline » → bascule le panneau.
+            StatusBar.OutlineTapped += () =>
+            {
+                if (_outlinePanel is null) return;
+                _outlinePanel.IsVisible = !_outlinePanel.IsVisible;
+            };
             Home.LocationSelected += OnLocationSelected;
             // ★ AJOUT (31/08, point 5) : "IA"/"Cortex" de la barre du bas (ComposerBar,
             // sous la zone de saisie de l'Accueil) — réutilise OnActivitySelected tel

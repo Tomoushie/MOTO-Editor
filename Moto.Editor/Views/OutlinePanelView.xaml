@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+  OutlinePanelView — vue symboles du fichier actif (décision C, item 3).
+  Affiche les symboles RÉELS extraits par Services/OutlineExtractor : ligne,
+  nom, type (classe/méthode/déf/fonction/import), indentés par profondeur.
+  Aucun contenu inventé : liste vide si rien n'est reconnu.
+-->
+<ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Moto.Editor.Views.OutlinePanelView">
+    <Grid RowDefinitions="Auto,*">
+        <Label Grid.Row="0" Text="Symboles"
+               FontSize="{DynamicResource FontSizeUiSmall}"
+               TextColor="{StaticResource Txt2}"
+               Margin="0,0,0,4" />
+        <CollectionView Grid.Row="1" x:Name="SymbolsList"
+                        SelectionMode="None">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Grid ColumnDefinitions="Auto,4,*">
+                        <Label Grid.Column="0"
+                               Text="{Binding Line}"
+                               FontSize="{DynamicResource FontSizeUiSmall}"
+                               TextColor="{StaticResource Txt3}"
+                               VerticalOptions="Center" />
+                        <Label Grid.Column="2"
+                               FontSize="{DynamicResource FontSizeUiSmall}"
+                               TextColor="{StaticResource Txt2}"
+                               VerticalOptions="Center"
+                               LineBreakMode="TailTruncation">
+                            <Label.Text>
+                                <MultiBinding StringFormat="{}{0}{1} ({2})">
+                                    <Binding Path="Indent" />
+                                    <Binding Path="Name" />
+                                    <Binding Path="Kind" />
+                                </MultiBinding>
+                            </Label.Text>
+                        </Label>
+                    </Grid>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+            <CollectionView.EmptyView>
+                <Label Text="Aucun symbole reconnu."
+                       FontSize="{DynamicResource FontSizeUiSmall}"
+                       TextColor="{StaticResource Txt3}"
+                       HorizontalOptions="Center" />
+            </CollectionView.EmptyView>
+        </CollectionView>
+    </Grid>
+</ContentView>

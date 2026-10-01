@@ -1,17 +1,17 @@
 # Couverture du catalogue de réglages
 
 > **Généré automatiquement — analyse seule, aucun fichier modifié.**
-> Source : `scripts/settings-coverage.ps1` · Périmètre : 640 fichiers .cs réellement compilés
+> Source : `scripts/settings-coverage.ps1` · Périmètre : 643 fichiers .cs réellement compilés
 
 ## Chiffres
 
 | Mesure | Valeur |
 |---|---|
 | Réglages DÉCLARÉS au catalogue | 332 |
-| Clés lues par du code compilé | 122 |
-| **Déclarés ET lus → réellement opérants** | **96** |
-| Déclarés mais INERTES | 236 |
-| **Part réellement opérante** | **28.9 %** |
+| Clés lues par du code compilé | 124 |
+| **Déclarés ET lus → réellement opérants** | **98** |
+| Déclarés mais INERTES | 234 |
+| **Part réellement opérante** | **29.5 %** |
 
 ## Réglages réellement opérants
 
@@ -62,6 +62,8 @@
 | `ollama_endpoint` | IA Locale | Moto.Core\Moto.AI\Autonomy\V2\AgentV2Settings.cs, Moto.Core\Moto.AI\Generation\GenerationSettings.cs, Moto.Core\Moto.AI\Internal\OllamaClient.cs, Moto.Editor\Pages\AiSettingsPage.xaml.cs |
 | `ollama_model` | IA Locale | Moto.Core\Moto.AI\Autonomy\V2\AgentV2Settings.cs, Moto.Core\Moto.AI\Generation\GenerationSettings.cs, Moto.Core\Moto.AI\Internal\OllamaClient.cs, Moto.Editor\Pages\AiSettingsPage.xaml.cs |
 | `ollama_timeout_seconds` | IA Locale | Moto.Core\Moto.AI\Internal\OllamaClient.cs |
+| `op_button` | Panneaux | Moto.Editor\Settings\OutlineSettings.cs |
+| `op_dock` | Panneaux | Moto.Editor\Settings\OutlineSettings.cs |
 | `platform_auto_detect` | Agent | Moto.Editor\MainPage.Panels.cs, Moto.Editor\Settings\PlatformSettings.cs |
 | `power_mode` | Agent | Moto.Core\Performance\PerformanceEngine.cs, Moto.Editor\Controls\AiComposerBarView.xaml.cs |
 | `pp_auto_reveal` | Panneaux | Moto.Editor\Settings\PanelSettings.cs |
@@ -309,21 +311,6 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `git_hunk_style`
 - `git.enabled`
 
-### Panneaux — 12 réglage(s) inerte(s)
-
-- `ap_flexible`
-- `ap_limit_width`
-- `ap_max_width`
-- `dp_dock`
-- `gp_count_badge`
-- `gp_fallback_branch`
-- `op_auto_fold`
-- `op_auto_reveal`
-- `op_button`
-- `op_dock`
-- `op_indent_guides`
-- `pp_count_badge`
-
 ### Terminal — 12 réglage(s) inerte(s)
 
 - `terminal_alternate_scroll`
@@ -352,6 +339,19 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `collab.scratchpads.enabled`
 - `collab.whiteboard.enabled`
 
+### Panneaux — 10 réglage(s) inerte(s)
+
+- `ap_flexible`
+- `ap_limit_width`
+- `ap_max_width`
+- `dp_dock`
+- `gp_count_badge`
+- `gp_fallback_branch`
+- `op_auto_fold`
+- `op_auto_reveal`
+- `op_indent_guides`
+- `pp_count_badge`
+
 ### Langages & Outils — 8 réglage(s) inerte(s)
 
 - `file_types`
@@ -363,15 +363,6 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `max_severity`
 - `prettier_allowed`
 
-### Marketplace — 6 réglage(s) inerte(s)
-
-- `marketplace.donations.enabled`
-- `marketplace.payment.currency`
-- `marketplace.sandbox.enabled`
-- `marketplace.trial.days`
-- `marketplace.trial.enabled`
-- `marketplace.vulnscan.auto`
-
 ### Developer — 6 réglage(s) inerte(s)
 
 - `devops.crashtriage.enabled`
@@ -380,6 +371,15 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `devops.journeys.enabled`
 - `devops.perfgate.enabled`
 - `perf_profiler`
+
+### Marketplace — 6 réglage(s) inerte(s)
+
+- `marketplace.donations.enabled`
+- `marketplace.payment.currency`
+- `marketplace.sandbox.enabled`
+- `marketplace.trial.days`
+- `marketplace.trial.enabled`
+- `marketplace.vulnscan.auto`
 
 ### Débogueur — 5 réglage(s) inerte(s)
 

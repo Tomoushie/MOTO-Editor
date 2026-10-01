@@ -228,6 +228,22 @@
                 </Border>
             </HorizontalStackLayout>
 
+            <!-- ★ AJOUT (01/10, décision C item 3) : bouton « Outline » (op_button) — ouvre
+                 le panneau Outline (vue symboles), patron identique aux 7 boutons ci-dessus. -->
+            <HorizontalStackLayout x:Name="OutlineChip" Spacing="0" VerticalOptions="Center">
+                <BoxView WidthRequest="1" Color="{StaticResource BorderMuted}" Margin="0,6" />
+                <Border BackgroundColor="Transparent" Padding="8,0" StrokeThickness="0"
+                        ToolTipProperties.Text="Outline — afficher/masquer la vue symboles">
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Tapped="OnOutlineTapped" />
+                    </Border.GestureRecognizers>
+                    <Label Text="Outline"
+                           FontSize="{DynamicResource FontSizeUiSmall}"
+                           TextColor="{StaticResource Txt2}"
+                           VerticalOptions="Center" />
+                </Border>
+            </HorizontalStackLayout>
+
             <BoxView WidthRequest="1" Color="{StaticResource BorderMuted}" Margin="0,6" />
 
             <Border BackgroundColor="Transparent" Padding="8,0" StrokeThickness="0">

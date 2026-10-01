@@ -108,6 +108,8 @@ namespace Moto.Editor.Views
         // sb_* (status bar) — dispatch « sb_ » → ApplyLayoutSettings
         "sb_active_file", "sb_cursor_position", "sb_debugger", "sb_diagnostics", "sb_encoding", "sb_language", "sb_line_endings", "sb_project_panel",
         "sb_search", "sb_terminal",
+        // op_* (outline) — dispatch « op_ » → ApplyLayoutSettings (item 3)
+        "op_button", "op_dock",
         // terminal_* (hors terminal_show déjà en tête) — dispatch « terminal_ » → ApplyTerminalSettings
         "terminal_audible_bell", "terminal_breadcrumbs", "terminal_default_height",
         "terminal_detect_venv", "terminal_env_vars", "terminal_font_family",

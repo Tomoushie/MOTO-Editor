@@ -706,6 +706,9 @@ namespace Moto.Editor
             // du BOM sur les premiers octets du fichier ; « UTF-8 » sinon (comportement exact
             // de File.ReadAllText qui sert à charger le texte). Jamais de valeur inventée.
             StatusBar.SetEncoding(DetectEncoding(doc.Path));
+            // ★ AJOUT (01/10, décision C item 3) : alimente le panneau Outline avec les
+            // symboles RÉELS du fichier actif (même point unique que les autres puces).
+            _outlinePanel?.Load(doc.Path, doc.Text);
             EditorPane.EditorText = doc.Text;
             _currentPath = doc.Path;
             RefreshAiUndoButton();
