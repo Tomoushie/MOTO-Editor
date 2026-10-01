@@ -282,22 +282,6 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `search_wrap`
 - `seed_search_from_cursor`
 
-### Général — 13 réglage(s) inerte(s)
-
-- `accessible_mode`
-- `close_no_tabs`
-- `editor.update.channel`
-- `last_window_closed`
-- `private_files`
-- `redact_private`
-- `restore_on_startup`
-- `restore_unsaved`
-- `system_path_prompts`
-- `system_prompts`
-- `telemetry_diagnostics`
-- `telemetry_metrics`
-- `trust_all_projects`
-
 ### Version Control — 13 réglage(s) inerte(s)
 
 - `git_blame_avatar`
@@ -313,6 +297,22 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `git_gutter_visibility`
 - `git_hunk_style`
 - `git.enabled`
+
+### Général — 13 réglage(s) inerte(s)
+
+- `accessible_mode`
+- `close_no_tabs`
+- `editor.update.channel`
+- `last_window_closed`
+- `private_files`
+- `redact_private`
+- `restore_on_startup`
+- `restore_unsaved`
+- `system_path_prompts`
+- `system_prompts`
+- `telemetry_diagnostics`
+- `telemetry_metrics`
+- `trust_all_projects`
 
 ### Terminal — 12 réglage(s) inerte(s)
 
