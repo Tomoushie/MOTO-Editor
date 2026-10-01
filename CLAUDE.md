@@ -936,6 +936,36 @@ lecture directe du code.
     `LocalLlmSandbox` = timeout d'exécution, service jamais résolu. Câbler
     ces boutons = construire deux fonctionnalités entières. **0 clé restant à
     câbler dans cette famille.**
+    **Ce qui est opérant depuis le 01/10 (famille `platform_*`, 1 clé sur 8 — famille TERMINÉE)** —
+    catégorie « Agent / Platform Engine » (`SettingsCatalog.Platform.cs`).
+    Seule `platform_auto_detect` (gate de l'auto-analyse du panneau Plateforme
+    à l'ouverture d'un projet) est câblée — et sa lecture dans
+    `MainPage.Panels.LoadWorkspace` a été **CORRIGÉE** par ce lot : elle
+    appelait `GetBool("platform_auto_detect")` **sans défaut déclaré** →
+    `false` sur installation neuve alors que la fenêtre Réglages affiche « ON »
+    (elle lit le défaut du catalogue) — réglage affiché activé,
+    auto-analyse jamais faite = AFFICHAGE FAUX, la règle absolue du dépôt.
+    Mappage `Moto.Editor/Settings/PlatformSettings.cs` (patron `DeclaredBool`),
+    dispatch live `platform_` ajouté (relance l'analyse immédiatement si
+    activée ET projet ouvert, sinon le changement ne se verrait qu'au prochain
+    import — effet différé = se lit comme inerte) + clé ajoutée à
+    `RealEffectKeys`.
+    **Restent INERTES dans cette famille (7 clés, raison commune — la chaîne
+    produit est MORTE en amont, vérifié le 01/10)** :
+    `platform_include_linux`, `platform_generate_ci`, `platform_ci_provider`,
+    `platform_auto_validate`, `platform_incremental_validate`,
+    `platform_avalonia_linux`, `platform_smart_detect`. Preuves :
+    `PlatformDetector.Analyze` ne remplit **ni `Detections` ni `Proposals`** →
+    le panneau affiche « 0 portage(s) proposé(s) » en permanence ;
+    `PlatformGenerators.BuildProposal` et
+    `PlatformEngine.AttachContinuousDetection` n'ont **aucun appelant** ;
+    `ApplyAsync` (bouton « Générer » de `PlatformView`) est injoignable tant
+    que la liste des propositions est vide. Assigner les propriétés
+    `PlatformEngine.GenerateCi/CiProvider/AutoValidate/IncrementalValidate`
+    sans consommateur atteignable = **câblage cosmétique** (0 effet
+    observable), interdit par la règle « jamais de réglage qui ment ».
+    Construire les propositions de portage = construire la fonctionnalité
+    (chantier à part entière), pas câbler un réglage.
     **Les 253 inertes restants se répartissent par catégorie** — le plus gros
    cluster correspond à des **interfaces qui EXISTENT déjà mais ignorent leur
    configuration** : `Panneaux` (explorateur `pp_*`, panneau Git `gp_*` et

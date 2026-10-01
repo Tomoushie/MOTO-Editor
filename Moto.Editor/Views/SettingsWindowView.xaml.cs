@@ -107,7 +107,10 @@ namespace Moto.Editor.Views
         "terminal_font_size", "terminal_max_scroll_lines", "terminal_shell",
         "terminal_working_dir",
         // agent_* — dispatch « agent_ » → ApplyAgentAndCollabPanelSettings (lot agent_*)
-        "agent_font_size"
+        "agent_font_size",
+        // platform_* — dispatch « platform_ » → relance de l'auto-analyse du panneau
+        // Plateforme si activée et projet ouvert (lot platform_*, seule clé câblable)
+        "platform_auto_detect"
     };
 
         private readonly List<string> _categories;

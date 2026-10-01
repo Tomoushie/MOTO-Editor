@@ -356,6 +356,25 @@ d'onglets, les icônes de l'explorateur, le statut git).
   `SandboxEngine` = copie du projet pour `run.sandbox`). Câbler = construire
   la fonctionnalité.
 
+- **`platform_*`** (1 clé sur 8 — famille TERMINÉE) : catégorie « Agent /
+  Platform Engine » (`SettingsCatalog.Platform.cs`). Seule
+  `platform_auto_detect` est réellement câblée — et sa lecture
+  (`MainPage.Panels.LoadWorkspace`) a été **corrigée** par ce lot : elle
+  appelait `GetBool("platform_auto_detect")` sans défaut déclaré → `false`
+  sur install neuve alors que la fenêtre Réglages affiche « ON » (affichage
+  faux). Mappage `Moto.Editor/Settings/PlatformSettings.cs`, dispatch live
+  `platform_` (relance l'analyse si activée + projet ouvert).
+  **Restent inertes (7) — la chaîne produit est morte en amont (vérifié) :**
+  `PlatformDetector.Analyze` ne remplit ni `Detections` ni `Proposals`
+  (« 0 portage(s) proposé(s) » en permanence), `BuildProposal` et
+  `AttachContinuousDetection` n'ont aucun appelant, `ApplyAsync` (bouton «
+  Générer ») est injoignable tant que la liste est vide →
+  `platform_include_linux`, `platform_generate_ci`, `platform_ci_provider`,
+  `platform_auto_validate`, `platform_incremental_validate`,
+  `platform_avalonia_linux`, `platform_smart_detect`. Assigner les
+  propriétés `PlatformEngine` sans consommateur atteignable = câblage
+  cosmétique (aucun effet observable), interdit.
+
 ### Familles encore inertes, et pourquoi (NE PAS LES RETENTER SANS LIRE)
 
 - **`preview_*` : les 6 clés.** Le concept d'« onglet aperçu » **n'existe nulle
@@ -408,7 +427,7 @@ d'onglets, les icônes de l'explorateur, le statut git).
 - **Restent à faire** (préfixes réels, mesurés le 01/10 sur les 332 clés) :
   `terminal_*` (23, 10 faits — famille TERMINÉE), `git_*` (16, 4 faits — famille TERMINÉE : 12 inertes, 0 à câbler),
   `pp_*` (13, fait), `tabs_*` (11, fait),
-  `tb_*` (10, fait), `sb_*` (10, 2 faits), `agent_*` (11, 9 opérantes — famille TERMINÉE : 2 boutons `Action` inertes), `platform_*` (8),
+  `tb_*` (10, fait), `sb_*` (10, 2 faits), `agent_*` (11, 9 opérantes — famille TERMINÉE : 2 boutons `Action` inertes), `platform_*` (8, 1 corrigée — famille TERMINÉE : 7 inertes),
   `ap_*` (7, 3 faits), `search_*` (7), `auto_*` (7), `file_*` (7),
   `preview_*` (6, toute la famille inerte), `op_*` (5, inerte), `show_*` (5),
   `lsp_*` (4), `context_*` (4), `doc_*` (4), `collab_*` (4)…

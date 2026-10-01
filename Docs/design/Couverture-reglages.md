@@ -1,7 +1,7 @@
 # Couverture du catalogue de réglages
 
 > **Généré automatiquement — analyse seule, aucun fichier modifié.**
-> Source : `scripts/settings-coverage.ps1` · Périmètre : 636 fichiers .cs réellement compilés
+> Source : `scripts/settings-coverage.ps1` · Périmètre : 637 fichiers .cs réellement compilés
 
 ## Chiffres
 
@@ -56,7 +56,7 @@
 | `ollama_endpoint` | IA Locale | Moto.Core\Moto.AI\Autonomy\V2\AgentV2Settings.cs, Moto.Core\Moto.AI\Generation\GenerationSettings.cs, Moto.Core\Moto.AI\Internal\OllamaClient.cs, Moto.Editor\Pages\AiSettingsPage.xaml.cs |
 | `ollama_model` | IA Locale | Moto.Core\Moto.AI\Autonomy\V2\AgentV2Settings.cs, Moto.Core\Moto.AI\Generation\GenerationSettings.cs, Moto.Core\Moto.AI\Internal\OllamaClient.cs, Moto.Editor\Pages\AiSettingsPage.xaml.cs |
 | `ollama_timeout_seconds` | IA Locale | Moto.Core\Moto.AI\Internal\OllamaClient.cs |
-| `platform_auto_detect` | Agent | Moto.Editor\MainPage.Panels.cs |
+| `platform_auto_detect` | Agent | Moto.Editor\MainPage.Panels.cs, Moto.Editor\Settings\PlatformSettings.cs |
 | `power_mode` | Agent | Moto.Core\Performance\PerformanceEngine.cs, Moto.Editor\Controls\AiComposerBarView.xaml.cs |
 | `pp_auto_reveal` | Panneaux | Moto.Editor\Settings\PanelSettings.cs |
 | `pp_dock` | Panneaux | Moto.Editor\Settings\PanelSettings.cs |
@@ -363,15 +363,6 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `max_severity`
 - `prettier_allowed`
 
-### Developer — 6 réglage(s) inerte(s)
-
-- `devops.crashtriage.enabled`
-- `devops.featureflags.enabled`
-- `devops.fuzzing.enabled`
-- `devops.journeys.enabled`
-- `devops.perfgate.enabled`
-- `perf_profiler`
-
 ### Marketplace — 6 réglage(s) inerte(s)
 
 - `marketplace.donations.enabled`
@@ -380,6 +371,15 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `marketplace.trial.days`
 - `marketplace.trial.enabled`
 - `marketplace.vulnscan.auto`
+
+### Developer — 6 réglage(s) inerte(s)
+
+- `devops.crashtriage.enabled`
+- `devops.featureflags.enabled`
+- `devops.fuzzing.enabled`
+- `devops.journeys.enabled`
+- `devops.perfgate.enabled`
+- `perf_profiler`
 
 ### Débogueur — 5 réglage(s) inerte(s)
 
@@ -396,17 +396,17 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `pair_programming`
 - `tutor_mode`
 
-### MCP — 3 réglage(s) inerte(s)
-
-- `mcp.adv.checkpointing`
-- `mcp.enabled`
-- `mcp.subagents`
-
 ### Raccourcis — 3 réglage(s) inerte(s)
 
 - `base_keymap`
 - `helix_mode`
 - `vim_mode`
+
+### MCP — 3 réglage(s) inerte(s)
+
+- `mcp.adv.checkpointing`
+- `mcp.enabled`
+- `mcp.subagents`
 
 ### Network — 2 réglage(s) inerte(s)
 

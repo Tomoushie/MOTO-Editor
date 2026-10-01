@@ -398,6 +398,22 @@ namespace Moto.Editor
                 // aucun bloc n'est nécessaire pour elles.
                 if (key.StartsWith("agent_", StringComparison.Ordinal))
                     ApplyAgentAndCollabPanelSettings(SettingsEngine.Shared);
+
+                // ★ AJOUT (01/10, lot platform_*) : la seule clé platform_* câblée est
+                // platform_auto_detect (gate de l'auto-analyse du panneau Plateforme à
+                // l'ouverture d'un projet). En direct, on relance l'analyse tout de
+                // suite si elle est activée ET qu'un projet est ouvert — sinon le
+                // changement ne se verrait qu'au prochain import de projet, ce qui se
+                // lit comme un réglage inerte. Les 7 autres clés platform_* restent
+                // inertes : leur chaîne produit (propositions de portage, CI,
+                // validation) est morte en amont — voir PlatformSettings.
+                if (key.StartsWith("platform_", StringComparison.Ordinal))
+                {
+                    if (!string.IsNullOrEmpty(_currentRoot) &&
+                        _platformPanel is not null &&
+                        Settings.PlatformSettings.AutoDetect(SettingsEngine.Shared))
+                        _platformPanel.Analyze();
+                }
             };
 
             // ★ AJOUT (02/09, état des lieux) : redonne un point d'entrée à

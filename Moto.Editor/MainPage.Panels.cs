@@ -668,7 +668,13 @@ namespace Moto.Editor
             _aiSettings = new Moto.Core.Settings.AiSettingsService(SettingsEngine.Shared, path);
 
             _platformPanel.SetWorkspace(path);
-            if (SettingsEngine.Shared.GetBool("platform_auto_detect"))
+            // ★ CORRECTION (01/10, lot platform_*) : GetBool("platform_auto_detect")
+            // SANS défaut déclaré renvoyait false sur installation neuve, alors que la
+            // fenêtre Réglages affiche « ON » (elle lit le défaut du catalogue, true) —
+            // réglage affiché activé, auto-analyse jamais faite : un AFFICHAGE FAUX.
+            // La lecture passe par PlatformSettings.AutoDetect, qui fournit toujours
+            // le défaut déclaré (patron du dépôt, payé trois fois).
+            if (Settings.PlatformSettings.AutoDetect(SettingsEngine.Shared))
                 _platformPanel.Analyze();
 
             _cortex?.Dispose();
