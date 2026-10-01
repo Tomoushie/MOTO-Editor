@@ -22,6 +22,11 @@ namespace Moto.Editor.Views;
 /// sur des données RÉELLES de <see cref="GitService"/> : aucun compteur, aucun statut et aucune
 /// statistique de diff n'est inventé ici.
 ///
+/// ★ MODIFIÉ (01/10, chantier <c>git_*</c>) : trois clés de la famille « Version Control »
+/// arrivent aussi dans cette vue (voir <see cref="Settings.GitSettings"/>) —
+/// <c>git_path_style</c> et <c>git_stage_restore_buttons</c> au niveau des lignes
+/// (<c>GitChangeNode</c>), <c>git_diff_base</c> au niveau du « Diff du projet ».
+///
 /// La géométrie (largeur, dock) et l'ouverture au démarrage ne sont PAS traitées dans cette vue :
 /// elles concernent la FENÊTRE Git, qui n'appartient pas au panneau — c'est
 /// <c>MainPage.ApplyPanelGeometrySettings</c> qui les applique (même répartition que
@@ -37,6 +42,12 @@ public partial class GitPanelView : ContentView
     private bool _showDiffStats;
     private bool _openFileOnClick;
     private int _commitMaxLength;
+
+    /// <summary>★ AJOUT (01/10, git_path_style) : dernier style de chemin appliqué (true = « Path First »).</summary>
+    private bool _pathNameFirst;
+
+    /// <summary>★ AJOUT (01/10, git_stage_restore_buttons) : dernière visibilité des boutons stage/restore.</summary>
+    private bool _stageButtons = true;
 
     /// <summary>
     /// ★ MODIFIÉ (01/10) : propriétés passées en <c>internal</c> — le type de ligne
@@ -70,9 +81,11 @@ public partial class GitPanelView : ContentView
 
     /// <summary>
     /// ★ AJOUT (01/10) : applique les réglages de la famille « Panneaux / Git Panel » (clés
-    /// <c>gp_*</c>). Appelée par MainPage — au démarrage, à chaque changement de réglage et au
-    /// retour de plein écran, exactement comme <c>EditorPane.ApplySettings</c> (tabs_*) et
-    /// <c>ExplorerPanel.ApplySettings</c> (pp_*).
+    /// <c>gp_*</c>) plus l'arrivement des clés <c>git_path_style</c> /
+    /// <c>git_stage_restore_buttons</c> (famille « Version Control », voir
+    /// <see cref="Settings.GitSettings"/>). Appelée par MainPage — au démarrage, à chaque
+    /// changement de réglage et au retour de plein écran, exactement comme
+    /// <c>EditorPane.ApplySettings</c> (tabs_*) et <c>ExplorerPanel.ApplySettings</c> (pp_*).
     /// </summary>
     public void ApplySettings(Moto.Core.Settings.SettingsEngine settings)
     {
@@ -82,6 +95,16 @@ public partial class GitPanelView : ContentView
         // donc relus ici et répercutés sur les lignes déjà chargées (pas de nouvel appel git).
         _labeledStatus = !GitPanelSettings.StatusUsesIcons(settings);
         _groupByFolder = GitPanelSettings.GroupByFolder(settings);
+
+        // ★ AJOUT (01/10, git_path_style) : libellé affiché pour chaque fichier — nom d'abord
+        // (défaut déclaré) ou chemin complet. Choix d'AFFICHAGE pur : la clé Path (envoyée à
+        // git) n'est jamais réécrite.
+        _pathNameFirst = GitSettings.PathIsPathFirst(settings);
+
+        // ★ AJOUT (01/10, git_stage_restore_buttons) : visibilité des boutons stage/restore
+        // (défaut déclaré : visible) — largeur de colonne posée sur chaque ligne, sans nouvel
+        // appel git.
+        _stageButtons = GitSettings.StageRestoreButtons(settings);
 
         // Statistiques de diff (gp_diff_stats, défaut déclaré activé) : leur chargement demande
         // un appel git supplémentaire — on ne le fait que si le réglage le demande vraiment.
@@ -121,7 +144,7 @@ public partial class GitPanelView : ContentView
     private void ApplyRowDisplay()
     {
         foreach (var node in AllNodes())
-            node.ApplyDisplay(_labeledStatus, _groupByFolder);
+            node.ApplyDisplay(_labeledStatus, _groupByFolder, _pathNameFirst, _stageButtons);
     }
 
     private IEnumerable<GitChangeNode> AllNodes()
@@ -276,12 +299,30 @@ public partial class GitPanelView : ContentView
     /// avant/après tel que git le calcule. Un fichier sans modification suivie par git (cas d'un
     /// fichier NON SUIVI : il n'est dans aucun diff) le dit explicitement au lieu d'afficher un
     /// faux « aucune différence ».
+    ///
+    /// ★ AJOUT (01/10, git_diff_base) : la BASE du diff est choisie par le réglage « Base du
+    /// diff » — « Head » (défaut déclaré) = <c>git diff</c> sans argument (comportement
+    /// inchangé), « Default Branch » = diff contre la branche par défaut du remote
+    /// (<c>GitService.GetDefaultBranchAsync()</c>), la base réellement utilisée étant annoncée
+    /// dans la ligne de statut. Branche par défaut introuvable = repli sur Head + message
+    /// explicite — jamais une branche devinée.
     /// </summary>
     private async Task ShowProjectDiffAsync(string path)
     {
         try
         {
-            var diffs = await _git.GetDiffAsync();
+            string? baseRef = null;
+            var baseNote = string.Empty;
+            var settings = Moto.Core.Settings.SettingsEngine.Shared;
+            if (settings is not null && GitSettings.DiffBaseIsDefaultBranch(settings))
+            {
+                baseRef = await _git.GetDefaultBranchAsync();
+                baseNote = baseRef is null
+                    ? " — branche par défaut introuvable, base : HEAD"
+                    : $" — base : {baseRef}";
+            }
+
+            var diffs = await _git.GetDiffAsync(baseRef);
             var rows = diffs
                 .Where(d => !string.IsNullOrWhiteSpace(d.FilePath))
                 .Select(d => new GitDiffRow(d.FilePath, Summarize(d)))
@@ -292,8 +333,8 @@ public partial class GitPanelView : ContentView
 
             var mine = diffs.FirstOrDefault(d => string.Equals(d.FilePath, path, StringComparison.OrdinalIgnoreCase));
             StatusLabel.Text = mine is null
-                ? $"{rows.Count} fichier(s) modifié(s) — {path} n'apparaît pas dans le diff (non suivi ?)"
-                : $"{rows.Count} fichier(s) modifié(s) — {path} : {Summarize(mine)}";
+                ? $"{rows.Count} fichier(s) modifié(s) — {path} n'apparaît pas dans le diff (non suivi ?){baseNote}"
+                : $"{rows.Count} fichier(s) modifié(s) — {path} : {Summarize(mine)}{baseNote}";
         }
         catch (Exception ex)
         {

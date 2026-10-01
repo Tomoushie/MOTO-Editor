@@ -917,6 +917,17 @@ namespace Moto.Editor
                 // construits (commit/push/pull/branches/diff/log réels) mais
                 // totalement injoignables jusqu'ici.
                 case "git":
+                    // ★ AJOUT (01/10, git_integration) : gâchette d'ouverture — le réglage
+                    // « Git Integration » (défaut déclaré : activé) décide si la fenêtre Git
+                    // s'ouvre. Ce point unique sert la palette (git.panel), le bouton et
+                    // l'ouverture au démarrage (ApplyGitStartupSetting) : fermer à la source
+                    // plutôt que sur chaque appelant. La fermeture d'une fenêtre DÉJÀ ouverte
+                    // quand on décoche le réglage est traitée dans ApplyLayoutSettings.
+                    if (SettingsEngine.Shared is { } gs && !GitSettings.Integration(gs))
+                    {
+                        StatusBar.SetStatus("Git : intégration désactivée (git_integration).");
+                        break;
+                    }
                     if (_gitService == null) { StatusBar.SetStatus("Git : service indisponible."); break; }
                     _windowManager.OpenOrFocus(Moto.Editor.Windows.WindowKind.Git, () =>
                     {

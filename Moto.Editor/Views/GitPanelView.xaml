@@ -38,12 +38,22 @@
                         <CollectionView.ItemTemplate>
                             <!-- ★ MODIFIÉ (01/10, chantier gp_*) : les lignes sont des GitChangeNode
                                  (et non plus des string) pour que l'affichage de statut, les stats de
-                                 diff et le clic soient réellement pilotables par les réglages. Le
-                                 libellé reste le chemin COMPLET renvoyé par git (rien n'est retiré de
-                                 ce que le panneau affichait). -->
+                                 diff et le clic soient réellement pilotables par les réglages.
+                                 ★ MODIFIÉ (01/10, git_path_style) : le libellé vient de DisplayPath
+                                 (nom d'abord ou chemin d'abord selon le réglage) — la clé Path reste
+                                 celle envoyée à git, jamais affichée telle quelle.
+                                 ★ MODIFIÉ (01/10, git_stage_restore_buttons) : la colonne des
+                                 boutons est pilotée par StageButtonsColumnWidth (0 = repliée) ;
+                                 binding sur ColumnDefinition Width, même mécanisme que
+                                 GitColumnWidth dans l'explorateur. -->
                             <DataTemplate>
-                                <Grid ColumnDefinitions="*,Auto,Auto" Padding="{StaticResource SpaceXs}">
-                                    <Label Text="{Binding Path}" FontSize="{StaticResource FontSizeBody}" />
+                                <Grid Padding="{StaticResource SpaceXs}">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="{Binding StageButtonsColumnWidth, FallbackValue=Auto}" />
+                                    </Grid.ColumnDefinitions>
+                                    <Label Text="{Binding DisplayPath}" FontSize="{StaticResource FontSizeBody}" />
                                     <Label Grid.Column="1" Text="{Binding DiffStats}"
                                            WidthRequest="{Binding StatsColumnWidth}"
                                            TextColor="{StaticResource Success}"
@@ -59,9 +69,16 @@
                     <Label Text="✏️ Unstaged" FontSize="{StaticResource FontSizeBody}" FontAttributes="Bold" Opacity="0.7" />
                     <CollectionView x:Name="UnstagedList" HeightRequest="80" SelectionMode="Single" SelectionChanged="OnChangeSelected">
                         <CollectionView.ItemTemplate>
+                            <!-- ★ MODIFIÉ (01/10, git_path_style / git_stage_restore_buttons) :
+                                 même câblage que la section « Staged » ci-dessus. -->
                             <DataTemplate>
-                                <Grid ColumnDefinitions="*,Auto,Auto" Padding="{StaticResource SpaceXs}">
-                                    <Label Text="{Binding Path}" FontSize="{StaticResource FontSizeBody}" />
+                                <Grid Padding="{StaticResource SpaceXs}">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                        <ColumnDefinition Width="{Binding StageButtonsColumnWidth, FallbackValue=Auto}" />
+                                    </Grid.ColumnDefinitions>
+                                    <Label Text="{Binding DisplayPath}" FontSize="{StaticResource FontSizeBody}" />
                                     <Label Grid.Column="1" Text="{Binding DiffStats}"
                                            WidthRequest="{Binding StatsColumnWidth}"
                                            TextColor="{StaticResource Danger}"
@@ -80,13 +97,20 @@
                         <Label Text="❓ Untracked" FontSize="{StaticResource FontSizeBody}" FontAttributes="Bold" Opacity="0.7" />
                         <CollectionView x:Name="UntrackedList" HeightRequest="60" SelectionMode="Single" SelectionChanged="OnChangeSelected">
                             <CollectionView.ItemTemplate>
-                                <DataTemplate>
-                                    <Grid ColumnDefinitions="*,Auto" Padding="{StaticResource SpaceXs}">
-                                        <Label Text="{Binding Path}" FontSize="{StaticResource FontSizeBody}" />
-                                        <Button Grid.Column="1" Text="+" FontSize="11" Padding="6,0"
-                                                Clicked="OnStageClicked" CommandParameter="{Binding}" />
-                                    </Grid>
-                                </DataTemplate>
+                            <DataTemplate>
+                                <!-- ★ MODIFIÉ (01/10, git_path_style / git_stage_restore_buttons) :
+                                     même câblage que la section « Staged » (deux colonnes ici,
+                                     il n'y a pas de colonne de statistiques sur les non suivis). -->
+                                <Grid Padding="{StaticResource SpaceXs}">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="{Binding StageButtonsColumnWidth, FallbackValue=Auto}" />
+                                    </Grid.ColumnDefinitions>
+                                    <Label Text="{Binding DisplayPath}" FontSize="{StaticResource FontSizeBody}" />
+                                    <Button Grid.Column="1" Text="+" FontSize="11" Padding="6,0"
+                                            Clicked="OnStageClicked" CommandParameter="{Binding}" />
+                                </Grid>
+                            </DataTemplate>
                             </CollectionView.ItemTemplate>
                         </CollectionView>
                     </VerticalStackLayout>

@@ -142,6 +142,7 @@ code réellement compilé) :
 | **01/10, après fusion `ap_*` + `cp_*`** | **64 / 332 (19,3 %)** |
 | **01/10, après `terminal_*` (5 clés)** | **69 / 332 (20,8 %)** |
 | **01/10, après `terminal_*` (2e lot, 5 clés de plus)** | **74 / 332 (22,3 %)** |
+| **01/10, après `git_*` (4 clés)** | **78 / 332 (23,5 %)** |
 
 ⚠️ **Ne comparer qu'un avant/après mesuré dans le MÊME arbre de travail.** Le
 chantier `ap_*`/`cp_*` annonçait **45 → 50 (15,1 %)** dans SON worktree, où
@@ -277,10 +278,52 @@ d'onglets, les icônes de l'explorateur, le statut git).
   (pas de `ScrollBarVisibility` exposé sur `CollectionView` en MAUI 8),
   `terminal_scroll_multiplier` (pas de configuration du pas de molette),
   `terminal_thread_init_cmd` (le « thread terminal » n'existe pas dans le code),
-  `terminal_min_contrast` (seuil **APCA** — algorithme Myndex précis ; une
-  approximation changerait les couleurs du thème au nom d'un standard non
-  réellement calculé = réglage « affichant faux », interdit — câbler exige le
-  référentiel officiel).
+   `terminal_min_contrast` (seuil **APCA** — algorithme Myndex précis ; une
+   approximation changerait les couleurs du thème au nom d'un standard non
+   réellement calculé = réglage « affichant faux », interdit — câbler exige le
+   référentiel officiel).
+
+- **`git_*`** (4 clés sur 16) : famille « Version Control »
+  (`SettingsCatalog.Extensions.cs`), mappage `Moto.Editor/Settings/GitSettings.cs`.
+  Avant ce chantier, **aucune des 16 clés n'était lue** hors catalogue. Câblés :
+  - `git_integration` : gâchette d'ouverture de la fenêtre « Git » —
+    `MainPage.OpenSpecializedWindow` (case `"git"`, qui sert palette,
+    bouton et démarrage) refuse d'ouvrir quand décoché, et
+    `ApplyLayoutSettings` **ferme** la fenêtre déjà ouverte au moment du
+    changement (sinon : réglage décoché, panneau visible = affichage faux).
+    Portée « panneau » réelle ; gutter/blame annoncés **n'existent pas**
+    (voir inertes) ; les indicateurs de l'explorateur restent sous `pp_git_*`
+    (une seconde gâchette sur les mêmes afficheurs = deux interrupteurs
+    concurrents) ;
+  - `git_path_style` : libellé des trois listes du panneau —
+    `GitChangeNode.DisplayPath`, « File Name First » (défaut déclaré) =
+    `Nom (dossier)`, « Path First » = chemin complet « / » (l'affichage
+    historique). La clé `Path` (envoyée à `git`) n'est jamais réécrite ;
+  - `git_stage_restore_buttons` : colonne des boutons stage/restore pilotée
+    par `GitChangeNode.StageButtonsColumnWidth` (mécanisme `ColumnDefinition
+    Width` + INPC, comme `FileNode.GitColumnWidth`). ⚠️ **Divergence
+    documentée** : le descriptif dit « sur les hunks de diff », or **aucun
+    hunk n'existe** — câblé sur les seuls widgets réels (boutons PAR FICHIER,
+    même rôle), même décision que `ap_*` ;
+  - `git_diff_base` : base du « Diff du projet » — « Head » (défaut) =
+    `git diff` sans argument (inchangé), « Default Branch » =
+    `GitService.GetDefaultBranchAsync()` (`git symbolic-ref
+    refs/remotes/origin/HEAD`), base annoncée dans la ligne de statut ;
+    branche par défaut introuvable (dépôt local sans remote) = repli sur HEAD
+    + message explicite, jamais une branche devinée. `GetDiffAsync` accepte
+    désormais une ref SEULE (`git diff {ref}`) — avant, une ref seule
+    retombait silencieusement sur `git diff` sans argument.
+  **Famille TERMINÉE : 4 opérantes, 12 inertes (raison par clé), 0 à câbler.**
+  **Restent inertes (12) :** `git_gutter_visibility` / `git_gutter_debounce`
+  (le gutter de `CodeEditorView` n'a que des numéros de ligne ; aucune commande
+  git ne calcule un statut **par ligne**, le seul overlay est une TODO vide),
+  les 7 `git_blame_*` (0 commande `git blame` dans le produit, aucune vue de
+  blame, `GitCommit` sans auteur — la doc annonce le blame « À venir (v1.0) »),
+  `git_branch_author` (pas de branch picker : le bouton 🌿 écrit les noms dans
+  la statut bar ; `CheckoutAsync` sans appelant ; pas de donnée auteur),
+  `git_diff_full_file` (aucun visualiseur de diff : le clic ouvre le fichier
+  ou déplie des résumés `+n −m` — rien à basculer), `git_hunk_style` (aucun
+  rendu de hunks).
 
 ### Familles encore inertes, et pourquoi (NE PAS LES RETENTER SANS LIRE)
 
@@ -332,7 +375,8 @@ d'onglets, les icônes de l'explorateur, le statut git).
 > uniquement en câblant, elle demande aussi de **retirer ou d'assumer**
 > les réglages sans support.
 - **Restent à faire** (préfixes réels, mesurés le 01/10 sur les 332 clés) :
-  `terminal_*` (23, 10 faits — famille TERMINÉE), `git_*` (16), `pp_*` (13, fait), `tabs_*` (11, fait),
+  `terminal_*` (23, 10 faits — famille TERMINÉE), `git_*` (16, 4 faits — famille TERMINÉE : 12 inertes, 0 à câbler),
+  `pp_*` (13, fait), `tabs_*` (11, fait),
   `tb_*` (10, fait), `sb_*` (10, 2 faits), `agent_*` (9), `platform_*` (8),
   `ap_*` (7, 3 faits), `search_*` (7), `auto_*` (7), `file_*` (7),
   `preview_*` (6, toute la famille inerte), `op_*` (5, inerte), `show_*` (5),

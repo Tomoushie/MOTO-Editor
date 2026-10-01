@@ -593,7 +593,7 @@ lecture directe du code.
    (`SettingsCatalog.cs`) changé pour n'offrir plus qu'un seul choix
    ("Dark"). Construire une vraie palette claire reste une option pour plus
    tard (gros chantier), pas retenue aujourd'hui. Confirmé par Tom.
- 4. **Réglages : 74 opérants sur 332 déclarés — soit 22,3 %** (mesuré le
+ 4. **Réglages : 78 opérants sur 332 déclarés — soit 23,5 %** (mesuré le
    01/10 par `scripts/settings-coverage.ps1`, rapport :
    `Docs/design/Couverture-reglages.md`). ⏳ Le chiffre historique était
    **12 sur 324 (3,7 %)** au 22/09 ; **20 sur 332** au 28/09 AVANT les
@@ -605,7 +605,9 @@ lecture directe du code.
     `chantier-panneaux-2` (`ap_*`/`cp_*`, 5 clés),     puis **69 (20,8 %)** après
     `terminal_*` (5 clés, 01/10), puis **74 (22,3 %)** après le 2e lot
     `terminal_*` (5 clés de plus : shell/répertoire/env/venv/breadcrumbs) —
-    famille terminée, 10 opérantes / 13 inertes.
+    famille terminée, 10 opérantes / 13 inertes, puis **78 (23,5 %)** après
+    `git_*` (4 clés : integration, path_style, stage_restore_buttons,
+    diff_base) — famille terminée, 4 opérantes / 12 inertes.
    ⏳ **Mesures de branche (à ne pas confondre avec le tronc)** : le chantier
    `ap_*`/`cp_*` annonçait **45 → 50 (15,1 %)** mesuré dans SON worktree, où
    `gp_*`/`sb_*` n'étaient pas câblés. Ces chiffres ne sont pas comparables
@@ -841,7 +843,54 @@ lecture directe du code.
     interdit ; câbler exige le référentiel APCA officiel appliqué aux jetons
     de thème Txt1/Txt2/Error vs BgChrome). **0 clé restant à câbler dans cette
     famille.**
-    **Les 258 inertes restants se répartissent par catégorie** — le plus gros
+    **Ce qui est opérant depuis le 01/10 (famille `git_*`, 4 clés sur 16 — famille TERMINÉE)** —
+    la famille « Version Control » (`SettingsCatalog.Extensions.cs`), dont
+    **AUCUNE des 16 clés n'était lue** hors catalogue avant ce chantier.
+    Mappage `Moto.Editor/Settings/GitSettings.cs` (même patron `DeclaredBool`/
+    `DeclaredString`), appliqué via `SettingsWindow.RealSettingChanged`
+    (préfixe `git_` → `ApplyLayoutSettings`) :
+    - `git_integration` (défaut déclaré : activé) : gâchette d'ouverture de la
+      fenêtre « Git » — `MainPage.OpenSpecializedWindow` (case `"git"`,
+      commune à la palette `git.panel`, au bouton et au démarrage) refuse
+      d'ouvrir quand décoché, et `ApplyLayoutSettings` **ferme** une fenêtre
+      déjà ouverte au moment du changement (réglage décoché + panneau visible
+      = affichage faux). Portée « panneau » réelle ; gutter et blame annoncés
+      n'existent pas (voir inertes) ; les indicateurs git de l'explorateur
+      restent sous leur famille `pp_git_*` ;
+    - `git_path_style` (défaut déclaré : « File Name First ») : libellé des
+      trois listes du panneau via `GitChangeNode.DisplayPath` —
+      `Nom (dossier)` ou chemin complet « / » ; la clé `Path` (la chaîne
+      envoyée à `git add`/`git restore`) n'est jamais réécrite ;
+    - `git_stage_restore_buttons` (défaut déclaré : activé) : colonne des
+      boutons stage/restore via `GitChangeNode.StageButtonsColumnWidth`
+      (binding `ColumnDefinition Width`, INPC — même mécanisme que
+      `FileNode.GitColumnWidth`). **Divergence documentée** : le descriptif
+      dit « sur les hunks de diff », or aucun hunk n'existe — branché sur les
+      seuls widgets réels, les boutons stage/restore PAR FICHIER ;
+    - `git_diff_base` (défaut déclaré : « Head ») : base du « Diff du projet »
+      — « Head » = `git diff` sans argument (inchangé), « Default Branch » =
+      `GitService.GetDefaultBranchAsync()` (`git symbolic-ref
+      refs/remotes/origin/HEAD`), base annoncée dans la ligne de statut ;
+      branche par défaut introuvable = repli HEAD + message explicite (jamais
+      une branche devinée). `GetDiffAsync` accepte maintenant une ref seule
+      (`git diff {ref}`) — avant, elle retombait silencieusement sur `git diff`
+      sans argument.
+    **Restent INERTES dans cette famille (12 clés, raisons exactes)** :
+    `git_gutter_visibility`, `git_gutter_debounce` (le gutter de
+    `CodeEditorView` n'affiche que des numéros de ligne ; aucune commande git
+    ne calcule un statut PAR LIGNE — `--porcelain` ne renvoie que des
+    fichiers — et le seul overlay du gutter est une TODO vide) ;
+    les 7 clés `git_blame_*` (zéro commande `git blame` dans le produit, aucune
+    vue de blame, `GitCommit` sans auteur, la doc projet annonce le blame
+    « À venir (v1.0) ») ; `git_branch_author` (pas de branch picker — le
+    bouton 🌿 Branches écrit les noms dans la statut bar, `CheckoutAsync` n'a
+    aucun appelant, aucune donnée auteur lue) ; `git_diff_full_file` (aucun
+    visualiseur de diff : le clic ouvre le fichier dans l'éditeur ou déplie
+    une liste de résumés `+n −m`, rien à basculer entre deux vues) ;
+    `git_hunk_style` (aucun rendu de hunks — le seul coloriage +/−/@@ est
+    `ConfirmationOverlay`, réservé aux confirmations d'agents). **0 clé
+    restant à câbler dans cette famille.**
+    **Les 254 inertes restants se répartissent par catégorie** — le plus gros
    cluster correspond à des **interfaces qui EXISTENT déjà mais ignorent leur
    configuration** : `Panneaux` (explorateur `pp_*`, panneau Git `gp_*` et
    géométrie `ap_*`/`cp_*` FAITS ; restent l'outline `op_*`),

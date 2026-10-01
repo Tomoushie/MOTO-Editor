@@ -349,7 +349,14 @@ namespace Moto.Editor
                 // — sans ce chemin, changer « Dock git » n'aurait d'effet qu'au prochain retour
                 // de plein écran, ce qui se lit exactement comme un réglage inerte (piège déjà
                 // rencontré sur les tb_* juste au-dessus).
-                if (key.StartsWith("gp_", StringComparison.Ordinal))
+                // ★ AJOUT (01/10, git_*) : la famille « Version Control » (git_integration,
+                // git_path_style, git_stage_restore_buttons, git_diff_base) passe par le MÊME
+                // chemin — ApplyLayoutSettings applique la gâchette d'ouverture (dont la
+                // fermeture d'une fenêtre ouverte), et la fenêtre Git reçoit ses clés via
+                // ApplyGitPanelSettings. Les clés git_* inertes (blame, gutter…) ne changent
+                // jamais ici puisqu'elles ne sont lues nulle part (voir GitSettings).
+                if (key.StartsWith("gp_", StringComparison.Ordinal) ||
+                    key.StartsWith("git_", StringComparison.Ordinal))
                     ApplyLayoutSettings();
 
                 // ★ AJOUT (01/10) : même traitement pour la géométrie/dock des familles

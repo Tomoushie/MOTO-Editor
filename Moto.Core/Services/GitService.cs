@@ -248,10 +248,20 @@ public sealed class GitService
         };
     }
 
-    /// <summary>Diff entre deux commits ou staged/unstaged.</summary>
+    /// <summary>
+    /// Diff entre deux commits, entre une ref et l'arbre de travail, ou staged/unstaged.
+    /// ★ MODIFIÉ (01/10, git_diff_base) : <paramref name="commit1"/> seul a désormais un sens —
+    /// <c>git diff {ref}</c> (arbre de travail contre la branche choisie). Jusqu'ici, une ref
+    /// seule retombait silencieusement sur <c>git diff</c> sans argument : le réglage
+    /// « Base du diff » aurait alors affiché les chiffres de Head tout en annonçant une autre
+    /// base. <paramref name="commit2"/> seul n'est pas supporté (retombe sur <c>git diff</c>).
+    /// </summary>
     public async Task<IReadOnlyList<GitDiff>> GetDiffAsync(string? commit1 = null, string? commit2 = null, bool staged = false)
     {
-        string cmd = staged ? "git diff --cached" : (commit1 != null && commit2 != null ? $"git diff {commit1} {commit2}" : "git diff");
+        string cmd = staged ? "git diff --cached"
+            : commit1 != null && commit2 != null ? $"git diff {commit1} {commit2}"
+            : commit1 != null ? $"git diff {commit1}"
+            : "git diff";
         var result = await ExecAsync(cmd);
         if (result.ExitCode != 0) return Array.Empty<GitDiff>();
 
@@ -279,6 +289,22 @@ public sealed class GitService
             diffs.Add(new GitDiff { FilePath = currentFile, OldContent = string.Join("\n", oldLines), NewContent = string.Join("\n", newLines) });
 
         return diffs;
+    }
+
+    /// <summary>
+    /// ★ AJOUT (01/10, git_diff_base) : branche par défaut du dépôt, lue telle que git la
+    /// connaît (<c>git symbolic-ref --short refs/remotes/origin/HEAD</c> → « origin/main »).
+    /// Renvoie <c>null</c> quand elle est introuvable — dépôt local sans remote, remote sans
+    /// <c>origin/HEAD</c> — et laisse l'appelant replier sur Head avec un message explicite.
+    /// Aucune branche n'est devinée ici : « main » écrit dans le code ne serait pas la branche
+    /// par défaut du dépôt de l'utilisateur (règle du dépôt : jamais de donnée inventée).
+    /// </summary>
+    public async Task<string?> GetDefaultBranchAsync()
+    {
+        var result = await ExecAsync("git symbolic-ref --short refs/remotes/origin/HEAD");
+        if (result.ExitCode != 0) return null;
+        var branch = result.Output.Trim();
+        return branch.Length == 0 ? null : branch;
     }
 
     /// <summary>

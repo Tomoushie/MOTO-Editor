@@ -325,6 +325,14 @@ namespace Moto.Editor
                 : null;
             if (gitPanel is not null)
                 ApplyGitPanelSettings(gitPanel, s);
+            // ★ AJOUT (01/10, git_integration) : décocher « Git Integration » doit fermer une
+            // fenêtre Git DÉJÀ ouverte — sinon l'affichage mentirait au moment même du
+            // changement (réglage décoché, panneau visible), cas d'école de « réglage qui
+            // affiche une valeur fausse ». Close est sans effet si la fenêtre est fermée
+            // (WindowManager.Close → Get null → no-op), donc sans risque aux autres passages
+            // de cette méthode (démarrage, retour de plein écran).
+            if (!Settings.GitSettings.Integration(s) && _windowManager?.Get(Moto.Editor.Windows.WindowKind.Git) is not null)
+                _windowManager.Close(Moto.Editor.Windows.WindowKind.Git);
             ApplyPanelGeometrySettings(s);
             // ★ AJOUT (01/10) : géométrie/dock des familles « Panneaux » ap_* (Agent Panel,
             // qui est en réalité le panneau de chat IA — voir DockPanelSettings) et cp_*
