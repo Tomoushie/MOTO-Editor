@@ -331,6 +331,51 @@ namespace Moto.Editor
             // (Collaboration Panel). Aucune de ces clés n'était lue par du code compilé :
             // la fenêtre Réglages les affichait, rien ne les appliquait.
             ApplyAgentAndCollabPanelSettings(s);
+            // ★ AJOUT (01/10) : le dock Terminal reçoit lui aussi ses réglages (famille
+            // « Terminal », clés terminal_*) — police des lignes et de la saisie,
+            // hauteur du dock. Même point d'accroche que StatusBar / EditorPane /
+            // MenuBar / ExplorerPanel / panneau Git : démarrage, chaque changement de
+            // réglage et retour de plein écran.
+            ApplyTerminalSettings(s);
+        }
+
+        /// <summary>★ AJOUT (01/10) : dernière hauteur posée par terminal_default_height.</summary>
+        private double _appliedTerminalHeight = -1;
+
+        /// <summary>
+        /// ★ AJOUT (01/10) : applique les réglages d'AFFICHAGE de la famille
+        /// <c>terminal_*</c> sur le dock du bas (<c>TerminalPanel</c>, contrôle
+        /// statique de MainPage.xaml) :
+        ///   - <c>terminal_default_height</c> : hauteur du dock. Le XAML part de 220,
+        ///     le défaut DÉCLARÉ est 320 — c'est ce que la fenêtre Réglages affiche,
+        ///     donc c'est lui qui s'applique au premier passage. On ne réécrit que si
+        ///     la valeur RÉGLÉE a changé : sinon, réappliquer à chaque passage
+        ///     annulerait le geste de l'utilisateur sur la poignée
+        ///     <c>BottomDockResizeHandle</c> (patron identique à <c>pp_width</c> et
+        ///     <c>ap_width</c>) ;
+        ///   - <c>terminal_font_size</c> / <c>terminal_font_family</c> : ressources
+        ///     <c>TerminalFontSize</c>/<c>TerminalFontFamily</c> de la vue, en
+        ///     <c>DynamicResource</c> — la mise à jour touche d'un coup les lignes de
+        ///     sortie (DataTemplate, inatteignable depuis le code-behind : un x:Name
+        ///     posé dans un DataTemplate est instancié une fois PAR LIGNE) et le
+        ///     champ de saisie.
+        /// </summary>
+        private void ApplyTerminalSettings(SettingsEngine s)
+        {
+            // Garde de démarrage : ApplyLayoutSettings est appelée depuis WireSettings(),
+            // avant que la vue soit montée — même parade NullReferenceException que
+            // ApplyAgentAndCollabPanelSettings (constatée le 01/10 sur ap_height).
+            if (TerminalPanel is null) return;
+
+            var height = TerminalSettings.DefaultHeight(s);
+            if (Math.Abs(height - _appliedTerminalHeight) > 0.01)
+            {
+                _appliedTerminalHeight = height;
+                TerminalPanel.HeightRequest = height;
+            }
+
+            TerminalPanel.Resources["TerminalFontSize"] = (double)TerminalSettings.FontSize(s);
+            TerminalPanel.Resources["TerminalFontFamily"] = TerminalSettings.FontFamily(s);
         }
 
         /// <summary>★ AJOUT (01/10) : dernières valeurs posées par les réglages ap_* / cp_*.</summary>

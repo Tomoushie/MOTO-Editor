@@ -1,17 +1,17 @@
 # Couverture du catalogue de réglages
 
 > **Généré automatiquement — analyse seule, aucun fichier modifié.**
-> Source : `scripts/settings-coverage.ps1` · Périmètre : 633 fichiers .cs réellement compilés
+> Source : `scripts/settings-coverage.ps1` · Périmètre : 634 fichiers .cs réellement compilés
 
 ## Chiffres
 
 | Mesure | Valeur |
 |---|---|
 | Réglages DÉCLARÉS au catalogue | 332 |
-| Clés lues par du code compilé | 91 |
-| **Déclarés ET lus → réellement opérants** | **64** |
-| Déclarés mais INERTES | 268 |
-| **Part réellement opérante** | **19.3 %** |
+| Clés lues par du code compilé | 96 |
+| **Déclarés ET lus → réellement opérants** | **69** |
+| Déclarés mais INERTES | 263 |
+| **Part réellement opérante** | **20.8 %** |
 
 ## Réglages réellement opérants
 
@@ -80,6 +80,11 @@
 | `tb_button_layout` | Fenêtre & Layout | Moto.Editor\Settings\TitleBarSettings.cs |
 | `tb_menus` | Fenêtre & Layout | Moto.Editor\Settings\TitleBarSettings.cs |
 | `tb_project_items` | Fenêtre & Layout | Moto.Editor\Settings\TitleBarSettings.cs |
+| `terminal_audible_bell` | Terminal | Moto.Editor\Settings\TerminalSettings.cs |
+| `terminal_default_height` | Terminal | Moto.Editor\Settings\TerminalSettings.cs |
+| `terminal_font_family` | Terminal | Moto.Editor\Settings\TerminalSettings.cs |
+| `terminal_font_size` | Terminal | Moto.Editor\Settings\TerminalSettings.cs |
+| `terminal_max_scroll_lines` | Terminal | Moto.Editor\Settings\TerminalSettings.cs |
 | `theme_mode` | Apparence | Moto.Editor\Settings\SettingsApplier.cs |
 
 ## Réglages INERTES, par catégorie
@@ -219,23 +224,18 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `tab_size`
 - `vertical_scroll_margin`
 
-### Terminal — 22 réglage(s) inerte(s)
+### Terminal — 17 réglage(s) inerte(s)
 
 - `terminal_alternate_scroll`
-- `terminal_audible_bell`
 - `terminal_breadcrumbs`
 - `terminal_copy_on_select`
 - `terminal_cursor_blinking`
 - `terminal_cursor_shape`
-- `terminal_default_height`
 - `terminal_default_width`
 - `terminal_detect_venv`
 - `terminal_env_vars`
-- `terminal_font_family`
-- `terminal_font_size`
 - `terminal_font_weight`
 - `terminal_keep_selection_on_copy`
-- `terminal_max_scroll_lines`
 - `terminal_min_contrast`
 - `terminal_open_links_mouse`
 - `terminal_option_as_meta`
@@ -243,6 +243,26 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `terminal_shell`
 - `terminal_show_scrollbar`
 - `terminal_working_dir`
+
+### Version Control — 17 réglage(s) inerte(s)
+
+- `git_blame_avatar`
+- `git_blame_commit_summary`
+- `git_blame_delay`
+- `git_blame_enabled`
+- `git_blame_location`
+- `git_blame_min_column`
+- `git_blame_padding`
+- `git_branch_author`
+- `git_diff_base`
+- `git_diff_full_file`
+- `git_gutter_debounce`
+- `git_gutter_visibility`
+- `git_hunk_style`
+- `git_integration`
+- `git_path_style`
+- `git_stage_restore_buttons`
+- `git.enabled`
 
 ### Recherche & Fichiers — 17 réglage(s) inerte(s)
 
@@ -283,26 +303,6 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `ui_font_family`
 - `ui_font_size`
 - `wrap_guides`
-
-### Version Control — 17 réglage(s) inerte(s)
-
-- `git_blame_avatar`
-- `git_blame_commit_summary`
-- `git_blame_delay`
-- `git_blame_enabled`
-- `git_blame_location`
-- `git_blame_min_column`
-- `git_blame_padding`
-- `git_branch_author`
-- `git_diff_base`
-- `git_diff_full_file`
-- `git_gutter_debounce`
-- `git_gutter_visibility`
-- `git_hunk_style`
-- `git_integration`
-- `git_path_style`
-- `git_stage_restore_buttons`
-- `git.enabled`
 
 ### Panneaux — 15 réglage(s) inerte(s)
 
@@ -396,17 +396,17 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `pair_programming`
 - `tutor_mode`
 
-### Raccourcis — 3 réglage(s) inerte(s)
-
-- `base_keymap`
-- `helix_mode`
-- `vim_mode`
-
 ### MCP — 3 réglage(s) inerte(s)
 
 - `mcp.adv.checkpointing`
 - `mcp.enabled`
 - `mcp.subagents`
+
+### Raccourcis — 3 réglage(s) inerte(s)
+
+- `base_keymap`
+- `helix_mode`
+- `vim_mode`
 
 ### Network — 2 réglage(s) inerte(s)
 

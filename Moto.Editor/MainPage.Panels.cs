@@ -260,7 +260,13 @@ namespace Moto.Editor
                     _bottomDockStartHeight = TerminalPanel.HeightRequest > 0 ? TerminalPanel.HeightRequest : 220;
                     break;
                 case GestureStatus.Running:
-                    var newHeight = Math.Clamp(_bottomDockStartHeight - e.TotalY, 120, 360);
+                    // ★ AJOUT (01/10, famille terminal_*) : bornes alignées sur celles
+                    // DÉCLARÉES au catalogue pour terminal_default_height (100..1200).
+                    // L'ancien couple 120..360 datait d'avant le catalogue : avec un
+                    // réglage à 800, le premier geste aurait fait sauter le dock de
+                    // 800 à 360 — le réglage affiché et la réalité divergeaient alors
+                    // exactement comme un réglage inerte.
+                    var newHeight = Math.Clamp(_bottomDockStartHeight - e.TotalY, 100, 1200);
                     TerminalPanel.HeightRequest = newHeight;
                     break;
             }

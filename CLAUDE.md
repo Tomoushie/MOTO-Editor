@@ -593,16 +593,17 @@ lecture directe du code.
    (`SettingsCatalog.cs`) changé pour n'offrir plus qu'un seul choix
    ("Dark"). Construire une vraie palette claire reste une option pour plus
    tard (gros chantier), pas retenue aujourd'hui. Confirmé par Tom.
-4. **Réglages : 59 opérants sur 332 déclarés — soit 17,8 %** (mesuré le
+ 4. **Réglages : 69 opérants sur 332 déclarés — soit 20,8 %** (mesuré le
    01/10 par `scripts/settings-coverage.ps1`, rapport :
    `Docs/design/Couverture-reglages.md`). ⏳ Le chiffre historique était
    **12 sur 324 (3,7 %)** au 22/09 ; **20 sur 332** au 28/09 AVANT les
    chantiers de câblage (le catalogue et les lectures ont grandi entre-temps),
    puis **29 sur 332 (8,7 %)** après `tabs_*` (28/09), **45 (13,6 %)**
    après `pp_*` (01/10) et le chantier `tb_*` mené en parallèle le même jour,
-   puis **59 (17,8 %)** après `gp_*` (01/10) et la famille `sb_*` menée en
-   parallèle le même jour, puis **64 (19,3 %)** après fusion de la branche
-   `chantier-panneaux-2` (`ap_*`/`cp_*`, 5 clés).
+    puis **59 (17,8 %)** après `gp_*` (01/10) et la famille `sb_*` menée en
+    parallèle le même jour, puis **64 (19,3 %)** après fusion de la branche
+    `chantier-panneaux-2` (`ap_*`/`cp_*`, 5 clés), puis **69 (20,8 %)** après
+    `terminal_*` (5 clés, 01/10).
    ⏳ **Mesures de branche (à ne pas confondre avec le tronc)** : le chantier
    `ap_*`/`cp_*` annonçait **45 → 50 (15,1 %)** mesuré dans SON worktree, où
    `gp_*`/`sb_*` n'étaient pas câblés. Ces chiffres ne sont pas comparables
@@ -767,8 +768,48 @@ lecture directe du code.
    `ap_limit_width`/`ap_max_width` (« contenu centré » : le chat occupe toute la
    largeur, seules les bulles ont une borne figée de 420 px) ; `ap_flexible`
    (exigerait de DÉSACTIVER une poignée de redimensionnement qui fonctionne) ;
-   `dp_dock` (voir le constat `DebugPanel` INATTEIGNABLE ci-dessus).
-   **Les 268 inertes restants se répartissent par catégorie** — le plus gros
+    `dp_dock` (voir le constat `DebugPanel` INATTEIGNABLE ci-dessus).
+    **Ce qui est opérant depuis le 01/10 (famille `terminal_*`, 5 clés sur 23)** —
+    le dock Terminal du bas (`Views/TerminalPanelView`, contrôle statique de
+    `MainPage.xaml`, alimenté par `TerminalService` = cmd/bash en direct).
+    Mappage `Moto.Editor/Settings/TerminalSettings.cs` (même patron
+    `DeclaredBool`/`DeclaredInt`/`DeclaredString` que les autres familles),
+    appliqué par `ApplyTerminalSettings(s)` depuis `ApplyLayoutSettings` ET
+    depuis `SettingsWindow.RealSettingChanged` (préfixe `terminal_`) :
+    - `terminal_font_size` (8..30, défaut déclaré 15) et `terminal_font_family`
+      (défaut « Consolas ») : ressources `TerminalFontSize`/`TerminalFontFamily`
+      de la vue en `DynamicResource` — la mise à jour touche d'un coup les
+      lignes de sortie (DataTemplate, inatteignable depuis le code-behind) et le
+      champ de saisie ;
+    - `terminal_default_height` (100..1200, défaut déclaré 320) : hauteur du
+      dock, avec garde `_appliedTerminalHeight` pour ne réécrire que si le
+      réglage a CHANGÉ (sinon chaque changement d'un autre réglage annulerait le
+      geste de la poignée). Le clamp du geste
+      `OnBottomDockResizePanUpdated` est passé de `120..360` (figé avant
+      catalogue) aux bornes déclarées `100..1200` ;
+    - `terminal_max_scroll_lines` (0 = illimité) : trim dans
+      `MainViewModel.OnTerminalOutput` ;
+    - `terminal_audible_bell` (défaut déclaré : non) : `Console.Beep()` sur le
+      caractère BEL (`\a`), retiré de la ligne affichée.
+    **Restent INERTES dans cette famille (12 clés, raisons exactes)** :
+    `terminal_font_weight` (MAUI 8 n'expose PAS `FontWeight` sur `Label` —
+    seulement `FontAttributes` None/Bold/Italic) ; `terminal_cursor_shape`,
+    `terminal_cursor_blinking`, `terminal_alternate_scroll` (aucun émulateur VT
+    : la sortie est une `CollectionView` de lignes, le seul curseur réel est
+    celui du `Entry` de saisie, natif WinUI non configurable) ;
+    `terminal_option_as_meta` (sémantique Option=Meta macOS, app Windows
+    uniquement) ; `terminal_copy_on_select`, `terminal_keep_selection_on_copy`
+    (la sortie n'est PAS sélectionnable : `Label`s sans modèle de sélection) ;
+    `terminal_open_links_mouse` (aucune détection de liens dans la sortie du
+    shell) ; `terminal_default_width` (dock du bas pleine largeur, seule la
+    hauteur est ajustable) ; `terminal_show_scrollbar` (pas de
+    `ScrollBarVisibility` exposé sur `CollectionView` en MAUI 8) ;
+    `terminal_scroll_multiplier` (pas de configuration du pas de molette) ;
+    `terminal_thread_init_cmd` (le « thread terminal » n'existe nulle part
+    dans le code). **Restent à câbler** : `shell`, `working_dir`, `env_vars`,
+    `detect_venv`, `breadcrumbs`, `min_contrast` (données existantes côté
+    `TerminalService`/vue).
+    **Les 263 inertes restants se répartissent par catégorie** — le plus gros
    cluster correspond à des **interfaces qui EXISTENT déjà mais ignorent leur
    configuration** : `Panneaux` (explorateur `pp_*`, panneau Git `gp_*` et
    géométrie `ap_*`/`cp_*` FAITS ; restent l'outline `op_*`),

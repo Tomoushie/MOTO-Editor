@@ -11,9 +11,20 @@
 -->
 <ContentView xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             xmlns:sys="clr-namespace:System;assembly=netstandard"
              xmlns:controls="clr-namespace:Moto.Editor.Controls"
              x:Class="Moto.Editor.Views.TerminalPanelView"
              BackgroundColor="{StaticResource BgChrome}">
+    <!-- ★ AJOUT (01/10, famille terminal_*) : valeurs par défaut = défauts
+         DÉCLARÉS au catalogue (terminal_font_size = 15, terminal_font_family =
+         « Consolas »). DynamicResource et non StaticResource : le met à jour en
+         direct à chaque changement de réglage (MainPage.ApplyTerminalSettings),
+         lignes de sortie ET champ de saisie — un StaticResource figerait la
+         valeur au chargement du XAML. -->
+    <ContentView.Resources>
+        <sys:Double x:Key="TerminalFontSize">15</sys:Double>
+        <x:String x:Key="TerminalFontFamily">Consolas</x:String>
+    </ContentView.Resources>
     <Grid x:Name="TerminalRoot" RowDefinitions="Auto,*,Auto">
 
         <!-- ═══ En-tête ═══ -->
@@ -38,7 +49,7 @@
                         BackgroundColor="Transparent" Margin="10,4">
             <CollectionView.ItemTemplate>
                 <DataTemplate>
-                    <Label Text="{Binding Text}" FontFamily="Consolas" FontSize="{StaticResource FontSizeBody}"
+                    <Label Text="{Binding Text}" FontFamily="{DynamicResource TerminalFontFamily}" FontSize="{DynamicResource TerminalFontSize}"
                            TextColor="{StaticResource Txt1}" LineBreakMode="CharacterWrap">
                         <Label.Triggers>
                             <DataTrigger TargetType="Label" Binding="{Binding IsError}" Value="True">
@@ -53,7 +64,7 @@
         <!-- ═══ Entrée (TerminalInput → SendTerminalCommand → TerminalService.SendInput) ═══ -->
         <Grid Grid.Row="2" ColumnDefinitions="*,Auto" Padding="{StaticResource SpaceSm}" ColumnSpacing="{StaticResource SpaceXs}">
             <Entry Grid.Column="0" x:Name="InputEntry" Text="{Binding TerminalInput}"
-                   Placeholder="Tapez une commande…" FontFamily="Consolas" FontSize="{StaticResource FontSizeBody}"
+                   Placeholder="Tapez une commande…" FontFamily="{DynamicResource TerminalFontFamily}" FontSize="{DynamicResource TerminalFontSize}"
                    BackgroundColor="{StaticResource BgPanel}" TextColor="{StaticResource Txt1}"
                    Completed="OnSendClicked" />
             <!-- ★ (26/09) : glyphe Envoyer du thème (comme le chat et la barre IA), au lieu du caractère ➤ sur aplat bleu. -->

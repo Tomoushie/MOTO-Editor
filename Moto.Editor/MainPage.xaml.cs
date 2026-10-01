@@ -362,6 +362,14 @@ namespace Moto.Editor
                 if (key.StartsWith("ap_", StringComparison.Ordinal) ||
                     key.StartsWith("cp_", StringComparison.Ordinal))
                     ApplyAgentAndCollabPanelSettings(SettingsEngine.Shared);
+
+                // ★ AJOUT (01/10) : même traitement pour la famille terminal_* (police
+                // des lignes/de la saisie, hauteur du dock). terminal_show (la
+                // visibilité) est géré plus haut dans ce même handler — ici on couvre
+                // l'affichage du panneau lui-même, sans quoi un changement de police
+                // ne se verrait qu'au prochain retour de plein écran.
+                if (key.StartsWith("terminal_", StringComparison.Ordinal))
+                    ApplyTerminalSettings(SettingsEngine.Shared);
             };
 
             // ★ AJOUT (02/09, état des lieux) : redonne un point d'entrée à

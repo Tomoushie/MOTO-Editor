@@ -140,6 +140,7 @@ code réellement compilé) :
 | **01/10, après `pp_*` + `tb_*`** | **45 / 332 (13,6 %)** |
 | **01/10, après `gp_*` (+ `sb_*` en parallèle)** | **59 / 332 (17,8 %)** |
 | **01/10, après fusion `ap_*` + `cp_*`** | **64 / 332 (19,3 %)** |
+| **01/10, après `terminal_*` (5 clés)** | **69 / 332 (20,8 %)** |
 
 ⚠️ **Ne comparer qu'un avant/après mesuré dans le MÊME arbre de travail.** Le
 chantier `ap_*`/`cp_*` annonçait **45 → 50 (15,1 %)** dans SON worktree, où
@@ -160,7 +161,8 @@ d'onglets, les icônes de l'explorateur, le statut git).
 
 **Toujours passer le défaut explicitement**, via les mappages créés pour ça :
 `Moto.Editor/Settings/TabBarSettings.cs`, `PanelSettings.cs`,
-`TitleBarSettings.cs`, `GitPanelSettings.cs` — chacun expose
+`TitleBarSettings.cs`, `GitPanelSettings.cs`, `DockPanelSettings.cs`,
+`TerminalSettings.cs` — chacun expose
 `DeclaredBool/DeclaredInt/DeclaredString` qui lit
 `SettingsCatalog.ById(id).Default`.
 
@@ -225,6 +227,34 @@ d'onglets, les icônes de l'explorateur, le statut git).
   fonctionne), `dp_dock` (le panneau Debug n'est jamais rendu visible — le seul
   écran Debug est une fenêtre séparée, hors du `RootGrid`).
 
+- **`terminal_*`** (5 clés sur 23) : dock Terminal du bas (`TerminalPanelView` +
+  `TerminalService`). Mappage `Moto.Editor/Settings/TerminalSettings.cs`,
+  appliqué par `ApplyTerminalSettings(s)` depuis `ApplyLayoutSettings` **et**
+  `SettingsWindow.RealSettingChanged` (préfixe `terminal_`). Câblés :
+  `terminal_font_size` / `terminal_font_family` (ressources
+  `TerminalFontSize`/`TerminalFontFamily` en `DynamicResource` — touchent d'un
+  coup les lignes du `DataTemplate` et le champ de saisie),
+  `terminal_default_height` (hauteur du dock, avec garde `_appliedTerminalHeight`
+  pour ne pas écraser le geste de la poignée de redimensionnement),
+  `terminal_max_scroll_lines` (trim dans `MainViewModel.OnTerminalOutput`,
+  0 = illimité), `terminal_audible_bell` (`Console.Beep()` sur le caractère
+  BEL, retiré de la ligne affichée). Le clamp du geste
+  `OnBottomDockResizePanUpdated` est passé de `120..360` (figé avant catalogue)
+  aux bornes déclarées `100..1200`.
+  **Restent inertes :** `terminal_font_weight` (MAUI 8 n'a pas de `FontWeight`
+  sur `Label`), `terminal_cursor_*` / `terminal_alternate_scroll` (aucun
+  émulateur VT — sortie = `CollectionView` de lignes, seul le `Entry` de saisie
+  a un curseur, natif WinUI non configurable), `terminal_option_as_meta`
+  (sémantique macOS, app Windows), `terminal_copy_on_select` /
+  `terminal_keep_selection_on_copy` (la sortie n'est pas sélectionnable),
+  `terminal_open_links_mouse` (aucune détection de liens),
+  `terminal_default_width` (dock du bas pleine largeur), `terminal_show_scrollbar`
+  (pas de `ScrollBarVisibility` exposé sur `CollectionView` en MAUI 8),
+  `terminal_scroll_multiplier` (pas de configuration du pas de molette),
+  `terminal_thread_init_cmd` (le « thread terminal » n'existe pas dans le code),
+  et reste à faire : `shell`, `working_dir`, `env_vars`, `detect_venv`,
+  `breadcrumbs`, `min_contrast`.
+
 ### Familles encore inertes, et pourquoi (NE PAS LES RETENTER SANS LIRE)
 
 - **`preview_*` : les 6 clés.** Le concept d'« onglet aperçu » **n'existe nulle
@@ -275,7 +305,7 @@ d'onglets, les icônes de l'explorateur, le statut git).
 > uniquement en câblant, elle demande aussi de **retirer ou d'assumer**
 > les réglages sans support.
 - **Restent à faire** (préfixes réels, mesurés le 01/10 sur les 332 clés) :
-  `terminal_*` (23), `git_*` (16), `pp_*` (13, fait), `tabs_*` (11, fait),
+  `terminal_*` (23, 5 faits), `git_*` (16), `pp_*` (13, fait), `tabs_*` (11, fait),
   `tb_*` (10, fait), `sb_*` (10, 2 faits), `agent_*` (9), `platform_*` (8),
   `ap_*` (7, 3 faits), `search_*` (7), `auto_*` (7), `file_*` (7),
   `preview_*` (6, toute la famille inerte), `op_*` (5, inerte), `show_*` (5),

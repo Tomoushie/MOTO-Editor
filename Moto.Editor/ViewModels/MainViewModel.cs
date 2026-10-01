@@ -519,8 +519,35 @@ namespace Moto.Editor.ViewModels
 
         private void OnTerminalOutput(string line, bool isError)
         {
+            // ★ AJOUT (01/10, famille terminal_*) : le caractère BEL (\a) que certains
+            // programmes émettent est invisible dans un affichage ligne par ligne —
+            // on le retire de la ligne affichée et, si terminal_audible_bell est
+            // activé (défaut déclaré : Off), on joue le son. Console.Beep : API du
+            // paquet System.Console, disponible dans un projet MAUI Windows, contrairement
+            // à System.Media.SystemSounds (paquet Windows Desktop, absent ici).
+            var hasBell = line.IndexOf('\a') >= 0;
+            if (hasBell)
+                line = line.Replace("\a", string.Empty);
+
             MainThread.BeginInvokeOnMainThread(() =>
-                TerminalLines.Add(new TerminalLine { Text = line, IsError = isError }));
+            {
+                if (hasBell && TerminalSettings.AudibleBell(SettingsEngine.Shared))
+                    Console.Beep();
+
+                TerminalLines.Add(new TerminalLine { Text = line, IsError = isError });
+
+                // terminal_max_scroll_lines (0 = illimité, convention du catalogue) :
+                // on retire une ligne à la fois tant qu'on dépasse la limite —
+                // ObservableCollection lève CollectionChanged par retrait, la
+                // CollectionView se réarrange donc AU PLUS une fois par ligne reçue
+                // (un retrait en bloc n'est pas exposé par ce type).
+                var limit = TerminalSettings.MaxScrollLines(SettingsEngine.Shared);
+                if (limit > 0)
+                {
+                    while (TerminalLines.Count > limit)
+                        TerminalLines.RemoveAt(0);
+                }
+            });
         }
 
         private void RunQuickAction(AiQuickAction action)
