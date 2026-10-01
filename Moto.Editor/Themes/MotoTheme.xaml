@@ -14,10 +14,14 @@
                      xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml">
 
     <!-- ══════════════════ Palette de base ══════════════════ -->
-    <Color x:Key="BgApp">#1E2025</Color>
-    <Color x:Key="BgPanel">#202126</Color>
-    <Color x:Key="BgSide">#17181C</Color>
-    <Color x:Key="BgHover">#2A2C31</Color>
+    <!-- ★ CHANGÉ (01/10, décision de Tom « thème chaud ») : la palette de base
+         passe du gris neutre (#1E2025) au BRUN chaud de la maquette « Interface
+         type Claude Code (v4) » (IntefaceClaudeExtended.txt) : bg #262421,
+         bg2 #1e1c1a, bg3 #2e2c28, panel #2a2825, border #3b3833. -->
+    <Color x:Key="BgApp">#262421</Color>
+    <Color x:Key="BgPanel">#2A2825</Color>
+    <Color x:Key="BgSide">#1E1C1A</Color>
+    <Color x:Key="BgHover">#2E2C28</Color>
     <!-- ★ AJOUT (02/09, retouches visuelles) : #1A1B1F recopié à la main dans 12
          fichiers (Cortex/Neural/Platform/Workspace/AutoLink/ContextSuggestions/
          DocPanel/ExportMenu/PasswordGate/Performance/Presentation/RemoteConnect)
@@ -26,22 +30,19 @@
          (BgPanel) pour donner une impression de profondeur — usage cohérent et
          volontaire (pas une dérive), donc promu en vrai jeton au lieu d'être
          "corrigé" vers BgPanel/BgApp (ce qui aurait aplati cet effet exprès). -->
-    <Color x:Key="BgPanelInner">#1A1B1F</Color>
-    <Color x:Key="Txt1">#E5E7EB</Color>
-    <Color x:Key="Txt2">#9CA3AF</Color>
-    <!-- ★ CHANGÉ (22/09, Phase 0 du langage visuel — décision prise en
-         autonomie, Tom devant répondre après coup) : l'accent passe de
-         #D97757 (orange terracotta, la teinte de Claude) à #007ACC.
-         Trois raisons : c'est la valeur annoncée par la présentation projet
-         ET par QWEN.md (le code était le seul à dire autre chose), c'est
-         celle des trois références visuelles visées (VS Code #007ACC, Zed,
-         JetBrains — tous bleus), et MOTO se bat sur le terrain des IDE, pas
-         sur celui de Claude. L'ancienne teinte est CONSERVÉE sous
-         AccentWarm : revenir en arrière coûte une ligne. 55 usages dans le
-         code suivent ce jeton. -->
-    <Color x:Key="Accent">#007ACC</Color>
-    <Color x:Key="AccentWarm">#D97757</Color>
-    <Color x:Key="BorderCol">#3A3B40</Color>
+    <Color x:Key="BgPanelInner">#262421</Color>
+    <Color x:Key="Txt1">#ECE9E4</Color>
+    <Color x:Key="Txt2">#A09B93</Color>
+    <!-- ★ CHANGÉ (01/10, décision de Tom — chantier visuel « thème chaud ») :
+         l'accent revient à #D97757 (orange terracotta, la teinte de Claude),
+         choix explicite de Tom après relecture des références « Claude Code ».
+         L'ancien bleu #007ACC (22/09, D2) est CONSERVÉ sous AccentWarm : revenir
+         en arrière coûte une ligne. Les variantes hover/pressed sont dérivées de
+         #D97757 et #E08B6D (les 2 teintes d'accent de la maquette IntefaceClaude),
+         jamais une teinte inventée. 55 usages dans le code suivent ce jeton. -->
+    <Color x:Key="Accent">#D97757</Color>
+    <Color x:Key="AccentWarm">#007ACC</Color>
+    <Color x:Key="BorderCol">#3B3833</Color>
     <Color x:Key="MotoLogoBackground">#0B1526</Color>
     <Color x:Key="MotoAccentBlue">#2E9BFF</Color>
 
@@ -61,17 +62,17 @@
            plus clair/discret que BgPanel — ex. petites pastilles/badges)
          - MotoCanvasBackground = BgSide (déjà le fond le plus sombre/en retrait,
            utilisé pour les zones "de contenu" comme l'explorateur de fichiers). -->
-    <Color x:Key="MotoCardBackground">#202126</Color>
-    <Color x:Key="MotoCardBorder">#3A3B40</Color>
-    <Color x:Key="MotoSubtleBackground">#2A2C31</Color>
-    <Color x:Key="MotoCanvasBackground">#17181C</Color>
+    <Color x:Key="MotoCardBackground">#2A2825</Color>
+    <Color x:Key="MotoCardBorder">#3B3833</Color>
+    <Color x:Key="MotoSubtleBackground">#2E2C28</Color>
+    <Color x:Key="MotoCanvasBackground">#1E1C1A</Color>
 
     <!-- ★ AJOUT (03/09, réveil de ClaudeShellView) : référencée (DynamicResource)
          par la maquette convertie par Qwen, mais absente d'ici — même famille
          de bug que les 4 couleurs "01/09" ci-dessus (une note l'affirmait déjà
          présente, faux). Valeur reprise de Txt2 (déjà LE jeton "texte
          secondaire/discret" existant), pas une teinte inventée. -->
-    <Color x:Key="MotoSubtleText">#9CA3AF</Color>
+    <Color x:Key="MotoSubtleText">#A09B93</Color>
 
     <!-- ★ AJOUT (01/09, direction "Hybride Claude") : séparateur doux, blanc
          semi-transparent au lieu d'un gris plat (#3A3B40) — reste cohérent quel
@@ -101,8 +102,8 @@
          - Warning = un ambre distinct de Accent (qui est déjà pris par l'orange
            terracotta de la marque) — nouvelle couleur sémantique, pas de valeur
            préexistante à reprendre. -->
-    <Color x:Key="BgChrome">#17181C</Color>
-    <Color x:Key="BgEditor">#1E2025</Color>
+    <Color x:Key="BgChrome">#1E1C1A</Color>
+    <Color x:Key="BgEditor">#262421</Color>
     <Color x:Key="BorderMuted">#1AFFFFFF</Color>
     <Color x:Key="Error">#FF4500</Color>
     <Color x:Key="Warning">#D9A227</Color>
@@ -121,13 +122,13 @@
          teinte de survol au lieu de réutiliser un jeton. -->
     <Color x:Key="Success">#60BF60</Color>
     <Color x:Key="Info">#7986CB</Color>
-    <Color x:Key="AccentHover">#0062A3</Color>
+    <Color x:Key="AccentHover">#E08B6D</Color>
     <!-- Lavis translucide (15% d'opacité) plutôt qu'une teinte opaque quasi
          identique à Accent (c'est ce que l'orchestrateur avait proposé) — même
          principe que BorderSoft/BorderMuted ci-dessous (alpha, pas une
          nouvelle couleur), pour un fond subtil derrière un badge/pastille
          teinté Accent sans l'aplatir. -->
-    <Color x:Key="AccentMuted">#26007ACC</Color>
+    <Color x:Key="AccentMuted">#26D97757</Color>
     <!-- ★ AJOUT (22/09, Phase 2 du langage visuel — composants) : Success/
          Warning/Danger/Info avaient une teinte pleine mais pas de variante
          "lavis" comme AccentMuted — nécessaire pour les badges/pastilles
@@ -271,7 +272,7 @@
     <x:Double x:Key="IconHero">24</x:Double>
 
     <!-- ── Focus : anneau clavier (absent partout avant ce jour) ─────── -->
-    <Color x:Key="FocusRing">#007ACC</Color>
+    <Color x:Key="FocusRing">#D97757</Color>
 
     <!-- ── Rôles typographiques (opt-in via Style=) ──────────────────── -->
     <!-- TextColor volontairement en Txt1 par défaut : une valeur locale
@@ -576,9 +577,9 @@
     <Color x:Key="BgElevated">#25272D</Color>
     <Color x:Key="BgActive">#34363C</Color>
     <Color x:Key="RowActive">#2F333B</Color>
-    <Color x:Key="Txt3">#6B7280</Color>
-    <Color x:Key="AccentText">#3794FF</Color>
-    <Color x:Key="AccentPressed">#005A94</Color>
+    <Color x:Key="Txt3">#7B766E</Color>
+    <Color x:Key="AccentText">#E08B6D</Color>
+    <Color x:Key="AccentPressed">#C05F40</Color>
     <Color x:Key="DangerHover">#B91C1C</Color>
     <x:String x:Key="FontFamilyIcons">Segoe Fluent Icons</x:String>
 
