@@ -17,6 +17,8 @@ namespace Moto.Core.Doc
     public class DocEngine : IDisposable
     {
         private readonly string _workspace;
+        /// <summary>Dossier de documentation (réglage doc_folder, défaut .moto/docs).</summary>
+        private readonly string _docsFolder;
         private readonly ProjectUnderstandingEngine _understanding = new();
         private readonly PatternDetectorEngine _patterns = new();
         private readonly FileSystemWatcher _watcher;
@@ -29,8 +31,8 @@ namespace Moto.Core.Doc
         /// <summary>Déclenché quand un fichier source change (pour détection continue).</summary>
         public event Action<string> SourceFileChanged;
 
-        /// <summary>Chemin du dossier de documentation (.moto/docs/).</summary>
-        public string DocsFolder => Path.Combine(_workspace, ".moto", "docs");
+        /// <summary>Chemin du dossier de documentation (réglage doc_folder, défaut .moto/docs/).</summary>
+        public string DocsFolder => _docsFolder;
 
         /// <summary>6 fichiers générés par défaut.</summary>
         public static readonly DocKind[] AllKinds =
@@ -42,6 +44,16 @@ namespace Moto.Core.Doc
         public DocEngine(string workspacePath)
         {
             _workspace = workspacePath;
+
+            // ★ AJOUT (01/10) : le dossier de documentation devient réglable (clé doc_folder,
+            // défaut déclaré ".moto/docs"). Chemin relatif combiné à l'espace de travail ; une
+            // valeur vide retombe sur le défaut (jamais de dossier inventé). Lire la clé ici
+            // (au lieu d'une constante) n'a pas d'impact test : DocEngine lit déjà
+            // SettingsEngine.Shared dans OnProjectChanged, et aucun test ne le construit.
+            var configuredDocFolder = SettingsEngine.Shared.GetString("doc_folder", ".moto/docs");
+            _docsFolder = string.IsNullOrWhiteSpace(configuredDocFolder)
+                ? Path.Combine(_workspace, ".moto", "docs")
+                : Path.Combine(_workspace, configuredDocFolder);
 
             // Watcher : détecte les modifications dans le projet
             _watcher = new FileSystemWatcher(workspacePath)
@@ -196,7 +208,10 @@ namespace Moto.Core.Doc
         private void OnProjectChanged(object sender, FileSystemEventArgs e)
         {
             // Ignore les modifications dans .moto/ (on modifierait nos propres fichiers)
-            if (e.FullPath.Contains($"{Path.DirectorySeparatorChar}.moto{Path.DirectorySeparatorChar}"))
+            // ★ AJOUT (01/10) : ignore aussi le dossier de doc CONFIGURÉ (doc_folder) — s'il est
+            // ailleurs que sous .moto, sans ce test le watcher se re-déclencherait en boucle.
+            if (e.FullPath.Contains($"{Path.DirectorySeparatorChar}.moto{Path.DirectorySeparatorChar}") ||
+                e.FullPath.StartsWith(_docsFolder, StringComparison.OrdinalIgnoreCase))
                 return;
 
             // Ignore les fichiers non-source
@@ -204,7 +219,12 @@ namespace Moto.Core.Doc
             var validExts = new HashSet<string> { ".cs", ".xaml", ".json", ".md", ".txt" };
             if (!validExts.Contains(ext)) return;
 
-            if (!SettingsEngine.Shared.GetBool("doc_auto_update")) return;
+            // ★ CORRECTION (01/10) : le second argument manquait — GetBool sans défaut
+            // renvoie false si la clé est absente du store (il ne consulte JAMAIS le
+            // catalogue), donc sur une installation neuve la doc ne se régénérait PAS
+            // alors que le catalogue déclare doc_auto_update=true. Même piège que
+            // celui documenté dans SettingsEngineCore.cs.
+            if (!SettingsEngine.Shared.GetBool("doc_auto_update", true)) return;
 
             // Reset du timer debounce
             _debounceTimer.Stop();
