@@ -25,6 +25,10 @@ namespace Moto.Editor.Views
         private bool _showLineEndings;
         private string _lineEndings = string.Empty;
 
+        // ★ AJOUT (01/10, tranche 2) : état de la puce « langage » (réglage sb_language).
+        private bool _showLanguage;
+        private string _language = string.Empty;
+
         /// <summary>★ AJOUT (01/10) : un avertissement existe-t-il ? (pour respecter sb_diagnostics).</summary>
         private bool _hasWarnings;
 
@@ -154,6 +158,10 @@ namespace Moto.Editor.Views
             _showLineEndings = Moto.Editor.Settings.StatusBarSettings.ShowLineEndings(settings);
             UpdateLineEndingsVisibility();
 
+            // ★ AJOUT (01/10, tranche 2) : puce « langage » (sb_language).
+            _showLanguage = Moto.Editor.Settings.StatusBarSettings.ShowLanguage(settings);
+            UpdateLanguageVisibility();
+
             // ★ AJOUT (01/10, décision C item 1) : visibilité des 7 boutons d'action,
             // pilotée par leur clé respective. Chaque conteneur regroupe le bouton ET son
             // séparateur (voir le .xaml) : basculer le conteneur ne laisse aucun trait
@@ -203,6 +211,23 @@ namespace Moto.Editor.Views
         /// <summary>Visible seulement si le réglage est actif ET qu'une valeur réelle existe.</summary>
         private void UpdateLineEndingsVisibility()
             => LineEndingsLabel.IsVisible = _showLineEndings && _lineEndings.Length > 0;
+
+        /// <summary>
+        /// ★ AJOUT (01/10, tranche 2) : langage du fichier actif (réglage <c>sb_language</c>).
+        /// Nom LISIBLE détecté par MainPage depuis <c>CodeEditorView.LanguageDisplayName(path)</c>,
+        /// ou <c>null</c>/"" si aucun fichier ou extension inconnue. La vue ne fait
+        /// qu'afficher — elle ne devine jamais rien.
+        /// </summary>
+        public void SetLanguage(string? language)
+        {
+            _language = string.IsNullOrWhiteSpace(language) ? string.Empty : language;
+            LanguageLabel.Text = _language;
+            UpdateLanguageVisibility();
+        }
+
+        /// <summary>Visible seulement si le réglage est actif ET qu'une valeur réelle existe.</summary>
+        private void UpdateLanguageVisibility()
+            => LanguageLabel.IsVisible = _showLanguage && _language.Length > 0;
 
         /// <summary>Branche l'overlay "À propos / mises à jour" sur le bouton ℹ️.</summary>
         public void InitializeInfoOverlay(InfoOverlay overlay)

@@ -200,6 +200,43 @@ namespace Moto.Editor.Controls
             };
         }
 
+        /// <summary>
+        /// ★ AJOUT (01/10, décision C item 1 tranche 2) : nom LISIBLE du langage d'après
+        /// l'extension, pour la puce « Langage » de la barre de statut (sb_language).
+        /// Plus précis que <see cref="LanguageOf"/> — qui regroupe volontairement en
+        /// « clike » pour la COLORATION — : ici chaque extension connue reçoit son vrai
+        /// nom (Java, Kotlin, C#, C++…). Retourne "" si l'extension est inconnue : la
+        /// puce reste alors masquée (jamais de nom inventé).
+        /// </summary>
+        internal static string LanguageDisplayName(string? path)
+        {
+            var name = Path.GetFileName(path ?? string.Empty).ToLowerInvariant();
+            if (name is ".gitignore" or ".gitattributes" or ".editorconfig") return "INI";
+            return Path.GetExtension(name) switch
+            {
+                ".cs" => "C#", ".csx" => "C# Script",
+                ".java" => "Java", ".kt" or ".kts" => "Kotlin", ".scala" => "Scala",
+                ".swift" => "Swift", ".dart" => "Dart", ".go" => "Go", ".rs" => "Rust",
+                ".c" => "C", ".h" => "C/C++", ".cpp" or ".hpp" or ".cc" or ".cxx" => "C++",
+                ".m" => "Objective-C", ".php" => "PHP", ".gradle" => "Gradle",
+                ".js" or ".mjs" or ".cjs" => "JavaScript", ".jsx" => "JSX",
+                ".ts" => "TypeScript", ".tsx" => "TSX",
+                ".py" or ".pyw" => "Python",
+                ".json" or ".jsonc" or ".json5" => "JSON",
+                ".xaml" => "XAML", ".xml" => "XML",
+                ".csproj" or ".vbproj" or ".fsproj" or ".vcxproj" or ".props" or ".targets" => "MSBuild",
+                ".html" or ".htm" => "HTML", ".svg" => "SVG",
+                ".md" or ".markdown" => "Markdown",
+                ".ps1" or ".psm1" or ".psd1" => "PowerShell",
+                ".sh" => "Shell", ".bash" => "Bash", ".zsh" => "Zsh", ".bat" or ".cmd" => "Batch",
+                ".css" => "CSS", ".scss" => "SCSS", ".less" => "Less",
+                ".yml" or ".yaml" => "YAML",
+                ".sql" => "SQL",
+                ".ini" or ".toml" or ".cfg" or ".conf" or ".properties" or ".env" => "INI",
+                _ => "",
+            };
+        }
+
         // ------------------------------------------------------------------
         // Sync C# → JS
         // ------------------------------------------------------------------

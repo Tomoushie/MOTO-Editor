@@ -54,6 +54,17 @@
                    Margin="0,0,8,0"
                    IsVisible="False" />
 
+            <!-- ★ AJOUT (01/10, décision C item 1 tranche 2) : puce « Langage » pilotée
+                 par sb_language. Donnée RÉELLE : CodeEditorView.LanguageDisplayName(path),
+                 nom lisible depuis l'extension (C#, Java, Python…). Masquée si réglage
+                 off, aucun fichier, ou extension inconnue (jamais de nom inventé). -->
+            <Label x:Name="LanguageLabel" Text=""
+                   FontSize="{DynamicResource FontSizeUiSmall}"
+                   TextColor="{StaticResource Txt3}"
+                   VerticalOptions="Center"
+                   Margin="0,0,8,0"
+                   IsVisible="False" />
+
             <Label x:Name="ErrorsLabel" Text="0 erreur"
                    FontSize="{DynamicResource FontSizeUiSmall}"
                    TextColor="{StaticResource Txt2}"

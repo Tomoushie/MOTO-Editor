@@ -699,6 +699,9 @@ namespace Moto.Editor
             // Détection RÉELLE depuis doc.Text (le texte chargé, dont File.ReadAllText
             // préserve les fins de ligne) — jamais de valeur inventée.
             StatusBar.SetLineEndings(DetectLineEndings(doc.Text));
+            // ★ AJOUT (01/10, tranche 2) : puce « langage » (sb_language). Nom lisible
+            // depuis l'extension, jamais inventé (LanguageDisplayName renvoie "" si inconnu).
+            StatusBar.SetLanguage(Moto.Editor.Controls.CodeEditorView.LanguageDisplayName(doc.Path));
             EditorPane.EditorText = doc.Text;
             _currentPath = doc.Path;
             RefreshAiUndoButton();

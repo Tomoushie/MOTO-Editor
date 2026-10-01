@@ -66,6 +66,12 @@ namespace Moto.Editor.Settings
         public static bool ShowLineEndings(SettingsEngine s)
             => s.GetBool("sb_line_endings", DeclaredBool("sb_line_endings"));
 
+        /// <summary>Réglage <c>sb_language</c> : puce « langage » (nom lisible du langage du fichier actif).</summary>
+        /// <remarks>★ AJOUT (01/10, tranche 2) : la donnée est RÉELLE — nom lisible détecté
+        /// par <c>CodeEditorView.LanguageDisplayName(path)</c>, jamais inventé.</remarks>
+        public static bool ShowLanguage(SettingsEngine s)
+            => s.GetBool("sb_language", DeclaredBool("sb_language"));
+
         // ★ AJOUT (01/10, décision C item 1 tranche 1) : visibilité des 7 boutons d'action.
         // Chaque clé est lue AVEC son défaut déclaré au catalogue (tous à true pour ces
         // 7 clés — voir SettingsCatalog.cs) : sans ce second argument, GetBool retomberait
