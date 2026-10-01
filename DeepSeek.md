@@ -441,34 +441,25 @@ d'onglets, les icônes de l'explorateur, le statut git).
 - **`tb_sign_in` / `tb_user_menu` / `tb_user_picture`** : **aucun compte
   utilisateur MOTO n'existe**. Le seul compte réel est GitHub OAuth, déjà
   servi par l'avatar existant.
-- **`sb_*` (barre de statut) — vérifié le 01/10, plus précisément que ce qui
-  était écrit avant.** Les 10 clés prétendent configurer des **boutons** de la
-  barre de statut. Or `StatusBarPanelView.xaml` ne contient **AUCUN de ces
-  boutons** : ses seuls éléments nommés sont `StatusLabel`, `RightChips`,
-  `ErrorsLabel`, `WarningsLabel`, `StateChips`, `SandboxLabel`, `LockedLabel`,
-  `AiStatusLabel`. Le tri réel :
-  - **Pas câblables — la donnée n'existe pas** : `sb_encoding` et
-    `sb_line_endings` (**aucune notion d'encodage ni de fins de ligne** dans
-    `Moto.Editor` : vérifié, 0 occurrence de `LineEnding`/`EOL`), et
-    `sb_cursor_position` (l'éditeur principal est `CodeEditorView`, un
-    **WebView** — la position du curseur vit côté JavaScript, pas dans un
-    modèle C# consultable).
-  - **Pas câblables — le bouton n'existe pas** : `sb_project_panel`,
-    `sb_language`, `sb_terminal`, `sb_debugger`, `sb_search` (ces actions
-    existent ailleurs dans l'app, mais aucun bouton de barre de statut ne les
-    porte). Les câbler = **créer** les boutons, donc ajouter une
-    fonctionnalité, pas câbler un réglage.
-  - **Partiellement câblable** : `sb_diagnostics` (les compteurs existent déjà
-    — `ErrorsLabel`/`WarningsLabel`) et `sb_active_file` (le nom du fichier
-    actif est disponible via `MainViewModel.SelectedDocument`), à condition
-    d'ajouter l'élément d'affichage manquant.
+- **`sb_*` (barre de statut)** : ★ **TRANCHE 1 FAITE (01/10, décision C item 1)** —
+  les 4 clés `sb_project_panel`/`sb_terminal`/`sb_search`/`sb_debugger` ont
+  maintenant de VRAIS boutons dans `StatusBarPanelView.xaml` (visibilité par
+  `StatusBarSettings`, action réelle dans `MainPage`). Restent INERTES les
+  4 puces de DONNÉES : `sb_language`, `sb_encoding`, `sb_line_endings`,
+  `sb_cursor_position` — **aucune donnée réelle n'existe** (aucune notion
+  d'encodage ni de fins de ligne, 0 occurrence de `LineEnding`/`EOL` ;
+  position du curseur vivant dans le WebView `CodeEditorView` sans copie C#).
+  Afficher ces 4 valeurs = INVENTER — tranche 2 de l'item 1.
+  (`sb_diagnostics`/`sb_active_file` étaient déjà câblées avant.)
 - **`op_*` (Outline Panel) : LES 5 CLÉS NE SONT PAS CÂBLABLES — `OutlinePanelView`
   N'EXISTE PAS** dans le dépôt (recherche complète faite le 01/10). Il n'y a
-  aucun panneau « outline » (vue symboles) à configurer.
-- **`gp_button`, `cp_button`, `ap_button`, `op_button`** : prétendent tous
-  configurer « un bouton dans la barre de statut », qui n'existe pas (voir
-  `sb_*` ci-dessus). Même conclusion : créer le bouton serait un ajout de
-  fonctionnalité, pas un câblage.
+  aucun panneau « outline » (vue symboles) à configurer. C'est l'item 3 de la
+  feuille de route (décision C) — reste à construire, `op_button` compris.
+- **`gp_button`, `cp_button`, `ap_button`** : ★ **FAITS (01/10, tranche 1)** —
+  les 3 boutons existent dans `StatusBarPanelView.xaml` (Git, Collab, IA),
+  visibilité par `StatusBarSettings`, action réelle (`OpenSpecializedWindow("git")`,
+  `OnActivitySelected("collab")`, `OnActivitySelected("ai")`). Seul `op_button`
+  reste (panneau outline inexistant, item 3).
 - **`pp_count_badge`** : annonce un « nombre de terminaux » alors qu'il n'y a
   **qu'un seul** terminal.
 - `tb_branch_icon`, `tb_worktree`, `tb_onboarding`, `tabs_git_status`,
@@ -500,15 +491,17 @@ d'onglets, les icônes de l'explorateur, le statut git).
 > uniquement en câblant, elle demande aussi de **retirer ou d'assumer**
 > les réglages sans support.
 - **Bilan final du câblage (01/10)** — trois états :
-  **FAITES** : `tabs_*` (9), `pp_*` (12), `tb_*` (4), `sb_*` (2), `gp_*` (12),
-  `ap_*`/`cp_*` (5), `terminal_*` (10), `git_*` (4), `agent_*` (9), `search_*` (1),
-  `auto_*` (2 : auto_update + auto_indent), `doc_*` (doc_folder câblé, doc_auto_update
-  corrigé, doc_on_project_open déjà actif).
+  **FAITES** : `tabs_*` (9), `pp_*` (12), `tb_*` (4), `sb_*` (6 : diagnostics +
+  active_file + 4 boutons d'action), `gp_*` (13 : + gp_button), `ap_*`/`cp_*`
+  (7 : + ap_button/cp_button), `terminal_*` (10), `git_*` (4), `agent_*` (9),
+  `search_*` (1), `auto_*` (2 : auto_update + auto_indent), `doc_*` (doc_folder
+  câblé, doc_auto_update corrigé, doc_on_project_open déjà actif).
   **NON CÂBLABLES (fonctionnalité absente)** : `preview_*` (6), `op_*` (5 — pas de
   OutlinePanelView), `file_*` (7 — pas de Quick Open ni d'indexeur ; `file_finder_include_ignored`
   = doublon de `search_include_ignored`), `lsp_*` (LSP absent), `collab_*` (audio absent),
   `autolink_*`/`context_auto_apply` (pipeline jamais déclenchée depuis l'UI), `sb_*`
-  (8 restants : boutons de barre de statut inexistants ou donnée absente).
+  (4 restants : les 4 puces de données sb_language/sb_encoding/sb_line_endings/
+  sb_cursor_position — donnée absente, tranche 2 de l'item 1).
   **MINCE** : `show_*` (seul `show_gutter` est câblable — le gutter existe dans le JS —
   mais exige un décalage CSS non vérifiable à l'œil ; `show_whitespace`/`show_edit_predictions`/
   `show_merge_conflict`/`show_turn_stats` n'ont aucun rendu).
@@ -531,13 +524,19 @@ décrites par les réglages inertes, plutôt que de les retirer (A) ou de les
 marquer « à venir » (B). Ordre de construction suggéré, du plus petit au plus
 lourd (chaque item = une fonctionnalité réelle à développer, PAS un câblage) :
 
-1. **Boutons de barre de statut** — `sb_project_panel`, `sb_language`,
-   `sb_terminal`, `sb_debugger`, `sb_search`, `sb_encoding`, `sb_line_endings`,
-   `sb_cursor_position` + `gp_button`/`cp_button`/`ap_button`/`op_button`.
-   `StatusBarPanelView.xaml` n'a aujourd'hui AUCUN bouton (que des `Label`) ;
-   il faut construire les puces avec de VRAIES données (langage = extension du
-   fichier actif ; encodage/fins de ligne = à détecter au chargement ; curseur
-   = le WebView doit remonter la position via `moto://sel`).
+1. **Boutons de barre de statut** — ✅ **TRANCHE 1 FAITE (01/10)** : les 7
+   boutons d'ACTION sont construits et câblés (`sb_project_panel`,
+   `sb_terminal`, `sb_search`, `sb_debugger` + `gp_button`/`cp_button`/
+   `ap_button`) — `StatusBarPanelView.xaml` a maintenant de vrais boutons
+   (patron `Border`+`Label`+`TapGestureRecognizer`), visibilité par
+   `StatusBarSettings`, action réelle branchée dans `MainPage` (toggle
+   explorateur/recherche/IA/collab/terminal, fenêtres « debug »/« git »).
+   ⏭️ **RESTE de l'item 1** : les 4 puces de DONNÉES `sb_language`,
+   `sb_encoding`, `sb_line_endings`, `sb_cursor_position` (tranche 2 — il faut
+   de VRAIES données : langage = extension du fichier actif ; encodage/fins de
+   ligne = à détecter au chargement ; curseur = le WebView doit remonter la
+   position via `moto://sel`), et `op_button` (panneau outline inexistant,
+   c'est l'item 3 ci-dessous).
 2. **Onglets aperçu** — `preview_*` (6 clés). Concept d'onglet temporaire
    (italique, remplacé par le suivant) à ajouter à `EditorDocument` +
    `EditorPaneView`. Ne pas confondre avec `LivePreviewView` (rendu web).
