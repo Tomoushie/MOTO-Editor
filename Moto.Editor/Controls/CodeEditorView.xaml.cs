@@ -455,7 +455,7 @@ body,#area,#back{font-family:'Cascadia Mono','Cascadia Code',Consolas,'Courier N
 #back,#area{position:absolute;left:60px;top:0;margin:0;border:0;padding:10px 24px 120px 12px;white-space:pre}
 #back{right:14px;bottom:14px;overflow:hidden;pointer-events:none;z-index:1;color:#d4d4d4}
 #area{right:0;bottom:0;z-index:2;background:transparent;color:transparent;caret-color:#aeafad;resize:none;outline:none;overflow:auto}
-#area::selection{background:rgba(38,111,178,.5);color:transparent}
+#area::selection{background:rgba(217,119,87,.5);color:transparent}
 #area::-webkit-scrollbar{width:14px;height:14px}
 #area::-webkit-scrollbar-thumb{background-color:rgba(121,121,121,.32);border:4px solid transparent;background-clip:padding-box;border-radius:8px}
 #area::-webkit-scrollbar-thumb:hover{background-color:rgba(121,121,121,.55)}
