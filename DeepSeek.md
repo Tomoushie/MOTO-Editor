@@ -499,13 +499,19 @@ d'onglets, les icônes de l'explorateur, le statut git).
 > la règle « tout ce qui est annoncé fonctionne » ne se satisfait pas
 > uniquement en câblant, elle demande aussi de **retirer ou d'assumer**
 > les réglages sans support.
-- **Restent à faire** (préfixes réels, mesurés le 01/10 sur les 332 clés) :
-  `terminal_*` (23, 10 faits — famille TERMINÉE), `git_*` (16, 4 faits — famille TERMINÉE : 12 inertes, 0 à câbler),
-  `pp_*` (13, fait), `tabs_*` (11, fait),
-  `tb_*` (10, fait), `sb_*` (10, 2 faits), `agent_*` (11, 9 opérantes — famille TERMINÉE : 2 boutons `Action` inertes), `platform_*` (8, 1 corrigée — famille TERMINÉE : 7 inertes),
-  `ap_*` (7, 3 faits), `search_*` + `seed_search_from_cursor` (8, 1 faite — famille TERMINÉE : 7 inertes, 0 à câbler), `auto_*` (7), `file_*` (7),
-  `preview_*` (6, toute la famille inerte), `op_*` (5, inerte), `show_*` (5),
-  `lsp_*` (4), `context_*` (4), `doc_*` (4), `collab_*` (4)…
+- **Bilan final du câblage (01/10)** — trois états :
+  **FAITES** : `tabs_*` (9), `pp_*` (12), `tb_*` (4), `sb_*` (2), `gp_*` (12),
+  `ap_*`/`cp_*` (5), `terminal_*` (10), `git_*` (4), `agent_*` (9), `search_*` (1),
+  `auto_*` (2 : auto_update + auto_indent), `doc_*` (doc_folder câblé, doc_auto_update
+  corrigé, doc_on_project_open déjà actif).
+  **NON CÂBLABLES (fonctionnalité absente)** : `preview_*` (6), `op_*` (5 — pas de
+  OutlinePanelView), `file_*` (7 — pas de Quick Open ni d'indexeur ; `file_finder_include_ignored`
+  = doublon de `search_include_ignored`), `lsp_*` (LSP absent), `collab_*` (audio absent),
+  `autolink_*`/`context_auto_apply` (pipeline jamais déclenchée depuis l'UI), `sb_*`
+  (8 restants : boutons de barre de statut inexistants ou donnée absente).
+  **MINCE** : `show_*` (seul `show_gutter` est câblable — le gutter existe dans le JS —
+  mais exige un décalage CSS non vérifiable à l'œil ; `show_whitespace`/`show_edit_predictions`/
+  `show_merge_conflict`/`show_turn_stats` n'ont aucun rendu).
   ⚠️ **Les préfixes ne suivent PAS les catégories affichées** dans la fenêtre
   Réglages (ex. la catégorie « Terminal » n'utilise pas `term_` mais
   `terminal_`). Toujours inventorier par préfixe RÉEL plutôt que de le deviner
