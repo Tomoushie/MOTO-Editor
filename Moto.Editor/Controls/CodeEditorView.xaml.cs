@@ -77,6 +77,9 @@ namespace Moto.Editor.Controls
         // (même patron que _pendingMinimapVisible) — sans elle, auto_indent=false ne survivrait pas au redémarrage :
         // SetAutoIndent est un no-op tant que _loaded est false, et le JS repartirait sur AUTO_INDENT=true.
         private bool _pendingAutoIndent = true;
+        // ★ AJOUT (01/10, décision C git gutter) : lignes modifiées à afficher, mémorisées
+        // avant la fin du chargement du WebView puis appliquées dans Navigated.
+        private System.Collections.Generic.IReadOnlyList<int> _pendingGitLines = System.Array.Empty<int>();
         private string _language = "plain";
         private string _lastSelection = string.Empty;
         private (int Start, int Length)? _lastRange;
@@ -125,6 +128,8 @@ namespace Moto.Editor.Controls
                 await Web.EvaluateJavaScriptAsync($"setFontSize({_pendingFontSize.ToString(System.Globalization.CultureInfo.InvariantCulture)})");
                 await Web.EvaluateJavaScriptAsync($"setMini({(_pendingMinimapVisible ? "true" : "false")})");
                 await Web.EvaluateJavaScriptAsync($"setAutoIndent({(_pendingAutoIndent ? "true" : "false")})");
+                if (_pendingGitLines.Count > 0)
+                    await Web.EvaluateJavaScriptAsync($"setGitLines({JsonSerializer.Serialize(_pendingGitLines)})");
                 await PushContentAsync();
             };
         }
@@ -153,6 +158,21 @@ namespace Moto.Editor.Controls
             _pendingMinimapVisible = visible;
             if (_loaded)
                 await Web.EvaluateJavaScriptAsync($"setMini({(visible ? "true" : "false")})");
+        }
+
+        /// <summary>
+        /// ★ AJOUT (01/10, décision C git gutter) : lignes modifiées/ajoutées du fichier
+        /// (calculées par GitService.GetChangedLineNumbersAsync) à marquer dans le gutter.
+        /// Pousse un tableau JSON d'entiers au JS (setGitLines) qui rend les marqueurs.
+        /// </summary>
+        public async void SetGitChangedLines(System.Collections.Generic.IReadOnlyList<int> changedLines)
+        {
+            _pendingGitLines = changedLines ?? System.Array.Empty<int>();
+            if (_loaded)
+            {
+                var json = JsonSerializer.Serialize(_pendingGitLines);
+                await Web.EvaluateJavaScriptAsync($"setGitLines({json})");
+            }
         }
 
         /// <summary>Choisit la coloration d'après l'extension du fichier affiché (appelé à chaque chargement de document).</summary>
@@ -429,6 +449,7 @@ body,#area,#back{font-family:'Cascadia Mono','Cascadia Code',Consolas,'Courier N
 #wrap{position:absolute;top:0;left:0;bottom:0;right:72px;overflow:hidden}
 #gutter{position:absolute;left:0;top:0;bottom:0;width:60px;overflow:hidden;background:#1e2025;z-index:3;cursor:default}
 #gut{position:absolute;left:0;right:0;top:0;padding:10px 16px 0 0;text-align:right;white-space:pre;color:#5a5f69;font-size:calc(var(--fs) - 1px);line-height:var(--lh);user-select:none}
+#gitGut{position:absolute;left:0;top:0;bottom:0;width:5px;padding-top:10px;overflow:hidden;pointer-events:none}
 #gutA{position:absolute;left:0;right:0;height:var(--lh);padding-right:16px;text-align:right;color:#c6c8cc;background:#1e2025;font-size:calc(var(--fs) - 1px);line-height:var(--lh);display:none;user-select:none}
 #cur{position:absolute;left:60px;right:0;height:var(--lh);background:rgba(255,255,255,.045);display:none;pointer-events:none;z-index:0}
 #back,#area{position:absolute;left:60px;top:0;margin:0;border:0;padding:10px 24px 120px 12px;white-space:pre}
@@ -445,12 +466,12 @@ body,#area,#back{font-family:'Cascadia Mono','Cascadia Code',Consolas,'Courier N
 .k{color:#569cd6}.k2{color:#c586c0}.s{color:#ce9178}.c{color:#6a9955}.n{color:#b5cea8}.t{color:#4ec9b0}.f{color:#dcdcaa}
 .p{color:#9b9b9b}.a{color:#9cdcfe}.tg{color:#569cd6}.h{color:#569cd6}.u{color:#6b7280}.e{color:#d7ba7d}
 </style></head><body>
-<div id='wrap'><div id='cur'></div><div id='gutter'><div id='gut'></div><div id='gutA'></div></div>
+<div id='wrap'><div id='cur'></div><div id='gutter'><div id='gitGut'></div><div id='gut'></div><div id='gutA'></div></div>
 <div id='back'></div><textarea id='area' spellcheck='false' autocomplete='off' autocorrect='off' autocapitalize='off' wrap='off'></textarea></div>
 <canvas id='mini'></canvas><div id='view'></div><div id='gbar'></div>
 <script>
 var area=document.getElementById('area'),back=document.getElementById('back'),gut=document.getElementById('gut'),
-gutA=document.getElementById('gutA'),gutter=document.getElementById('gutter'),cur=document.getElementById('cur'),
+gutA=document.getElementById('gutA'),gitGut=document.getElementById('gitGut'),gutter=document.getElementById('gutter'),cur=document.getElementById('cur'),
 mini=document.getElementById('mini'),view=document.getElementById('view'),wrap=document.getElementById('wrap'),gbar=document.getElementById('gbar');
 var LANG='plain',LH=21,PAD=10,ghostText='',caretByUser=false,lines=[''],htmlC=[''],stC=[0],gutCount=0,pingT=0,selT=0,miniOn=true,miniSc=3,VER=0,pendingT=false,AUTO_INDENT=true;
 
@@ -693,6 +714,7 @@ function sync(){
 back.style.right=(area.offsetWidth-area.clientWidth)+'px';back.style.bottom=(area.offsetHeight-area.clientHeight)+'px';
 back.scrollTop=area.scrollTop;back.scrollLeft=area.scrollLeft;
 gut.style.transform='translateY(-'+area.scrollTop+'px)';
+gitGut.style.transform='translateY(-'+area.scrollTop+'px)';
 if(miniOn){view.style.top=(area.scrollTop/LH*miniSc)+'px';view.style.height=Math.max(8,area.clientHeight/LH*miniSc)+'px';}
 updateCur();}
 function drawMini(){
@@ -779,6 +801,7 @@ function goLine(l){var p=0;for(var i=0;i<l-1&&i<lines.length;i++)p+=lines[i].len
 area.focus();area.setSelectionRange(p,p);area.scrollTop=Math.max(0,(l-1)*LH-area.clientHeight/2);sync();}
 function setMini(on){miniOn=!!on;mini.style.display=on?'block':'none';view.style.display=on?'block':'none';wrap.style.right=on?'72px':'0';drawMini();sync();}
 function setAutoIndent(on){AUTO_INDENT=!!on;}
+function setGitLines(json){var ln=(JSON.parse(json||'[]')||[]);var h='';for(var i=0;i<ln.length;i++){var y=ln[i];h+='<div style="position:absolute;top:'+(PAD+(y-1)*LH+9)+'px;height:3px;width:5px;background:#f59e0b;border-radius:2px"></div>';}gitGut.innerHTML=h;gitGut.style.transform='translateY(-'+area.scrollTop+'px)';}
 renderAll();
 </script></body></html>
 """";

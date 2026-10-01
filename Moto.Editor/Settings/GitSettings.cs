@@ -76,6 +76,9 @@ namespace Moto.Editor.Settings
         /// <summary>Défaut déclaré au catalogue pour un réglage texte/énuméré (jamais nul).</summary>
         internal static string DeclaredString(string id) => SettingsCatalog.ById(id)?.Default as string ?? string.Empty;
 
+        /// <summary>Défaut déclaré au catalogue pour un réglage entier.</summary>
+        internal static int DeclaredInt(string id) => SettingsCatalog.ById(id)?.Default is int value ? value : 0;
+
         // ------------------------------------------------------------------
         // Accès typés
         // ------------------------------------------------------------------
@@ -108,6 +111,17 @@ namespace Moto.Editor.Settings
                 s.GetString("git_diff_base", DeclaredString("git_diff_base")),
                 "Default Branch",
                 StringComparison.OrdinalIgnoreCase);
+
+        // ★ AJOUT (01/10, décision C git gutter) : les 2 clés du gutter git, désormais RÉELLES
+        // (voir GitService.GetChangedLineNumbersAsync + CodeEditorView.SetGitChangedLines).
+
+        /// <summary>Réglage <c>git_gutter_visibility</c> : affiche les marqueurs git dans le gutter.</summary>
+        internal static bool ShowGutter(SettingsEngine s)
+            => s.GetBool("git_gutter_visibility", DeclaredBool("git_gutter_visibility"));
+
+        /// <summary>Réglage <c>git_gutter_debounce</c> : délai (ms) avant de rafraîchir les marqueurs.</summary>
+        internal static int GutterDebounce(SettingsEngine s)
+            => s.GetInt("git_gutter_debounce", DeclaredInt("git_gutter_debounce"));
     }
 
     // =====================================================================

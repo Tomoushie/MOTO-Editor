@@ -409,7 +409,13 @@ namespace Moto.Editor
                 // jamais ici puisqu'elles ne sont lues nulle part (voir GitSettings).
                 if (key.StartsWith("gp_", StringComparison.Ordinal) ||
                     key.StartsWith("git_", StringComparison.Ordinal))
+                {
                     ApplyLayoutSettings();
+                    // ★ AJOUT (01/10, décision C git gutter) : basculer git_gutter_visibility /
+                    // git_gutter_debounce re-rafraîchit les marqueurs du document actif (sans ça,
+                    // l'effet n'apparaîtrait qu'au prochain chargement de document).
+                    RefreshGitGutter(_viewModel.SelectedDocument?.Path);
+                }
 
                 // ★ AJOUT (01/10) : même traitement pour la géométrie/dock des familles
                 // ap_* (Agent Panel = le panneau de chat IA) et cp_* (Collaboration Panel).

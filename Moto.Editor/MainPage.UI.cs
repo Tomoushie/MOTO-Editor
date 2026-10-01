@@ -714,6 +714,9 @@ namespace Moto.Editor
             // ★ AJOUT (01/10, décision C item 3) : alimente le panneau Outline avec les
             // symboles RÉELS du fichier actif (même point unique que les autres puces).
             _outlinePanel?.Load(doc.Path, doc.Text);
+            // ★ AJOUT (01/10, décision C git gutter) : marqueurs git dans le gutter, si
+            // git_gutter_visibility est actif (debounce git_gutter_debounce).
+            RefreshGitGutter(doc.Path);
             EditorPane.EditorText = doc.Text;
             _currentPath = doc.Path;
             RefreshAiUndoButton();
@@ -765,6 +768,36 @@ namespace Moto.Editor
                 return "UTF-8";
             }
             catch { return "UTF-8"; } // lecture échouée (verrou…) : repli = défaut du chargeur, pas une invention
+        }
+
+        // ------------------------------------------------------------------
+        // ★ AJOUT (01/10, décision C git gutter) : rafraîchit les marqueurs git du gutter.
+        // ------------------------------------------------------------------
+
+        private System.Threading.CancellationTokenSource? _gitGutterCts;
+
+        /// <summary>
+        /// Calcule les lignes modifiées du fichier (GitService.GetChangedLineNumbersAsync,
+        /// données RÉELLES de git) et les pousse au gutter de l'éditeur, après un debounce
+        /// (git_gutter_debounce). Gate par git_gutter_visibility — si éteint, aucun marqueur.
+        /// </summary>
+        private async void RefreshGitGutter(string? path)
+        {
+            if (string.IsNullOrWhiteSpace(path) || _gitService is null) return;
+            if (!Settings.GitSettings.ShowGutter(SettingsEngine.Shared)) return;
+
+            _gitGutterCts?.Cancel();
+            _gitGutterCts = new System.Threading.CancellationTokenSource();
+            var delay = Math.Max(100, Settings.GitSettings.GutterDebounce(SettingsEngine.Shared));
+            var token = _gitGutterCts.Token;
+            try
+            {
+                await Task.Delay(delay, token);
+                var lines = await _gitService.GetChangedLineNumbersAsync(path);
+                if (token.IsCancellationRequested) return;
+                EditorPane.Editor.SetGitChangedLines(lines);
+            }
+            catch (OperationCanceledException) { }
         }
 
         private void OnNavBack()

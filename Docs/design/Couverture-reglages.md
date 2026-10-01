@@ -8,10 +8,10 @@
 | Mesure | Valeur |
 |---|---|
 | Réglages DÉCLARÉS au catalogue | 332 |
-| Clés lues par du code compilé | 130 |
-| **Déclarés ET lus → réellement opérants** | **104** |
-| Déclarés mais INERTES | 228 |
-| **Part réellement opérante** | **31.3 %** |
+| Clés lues par du code compilé | 132 |
+| **Déclarés ET lus → réellement opérants** | **106** |
+| Déclarés mais INERTES | 226 |
+| **Part réellement opérante** | **31.9 %** |
 
 ## Réglages réellement opérants
 
@@ -44,6 +44,8 @@
 | `doc_on_project_open` | Agent | Moto.Editor\MainPage.Panels.cs |
 | `file_finder_icons` | Recherche & Fichiers | Moto.Editor\Settings\FileFinderSettings.cs |
 | `git_diff_base` | Version Control | Moto.Editor\Settings\GitSettings.cs |
+| `git_gutter_debounce` | Version Control | Moto.Editor\Settings\GitSettings.cs |
+| `git_gutter_visibility` | Version Control | Moto.Editor\Settings\GitSettings.cs |
 | `git_integration` | Version Control | Moto.Editor\Settings\GitSettings.cs |
 | `git_path_style` | Version Control | Moto.Editor\Settings\GitSettings.cs |
 | `git_stage_restore_buttons` | Version Control | Moto.Editor\Settings\GitSettings.cs |
@@ -282,22 +284,6 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `search_wrap`
 - `seed_search_from_cursor`
 
-### Version Control — 13 réglage(s) inerte(s)
-
-- `git_blame_avatar`
-- `git_blame_commit_summary`
-- `git_blame_delay`
-- `git_blame_enabled`
-- `git_blame_location`
-- `git_blame_min_column`
-- `git_blame_padding`
-- `git_branch_author`
-- `git_diff_full_file`
-- `git_gutter_debounce`
-- `git_gutter_visibility`
-- `git_hunk_style`
-- `git.enabled`
-
 ### Général — 13 réglage(s) inerte(s)
 
 - `accessible_mode`
@@ -328,6 +314,20 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `terminal_option_as_meta`
 - `terminal_scroll_multiplier`
 - `terminal_show_scrollbar`
+
+### Version Control — 11 réglage(s) inerte(s)
+
+- `git_blame_avatar`
+- `git_blame_commit_summary`
+- `git_blame_delay`
+- `git_blame_enabled`
+- `git_blame_location`
+- `git_blame_min_column`
+- `git_blame_padding`
+- `git_branch_author`
+- `git_diff_full_file`
+- `git_hunk_style`
+- `git.enabled`
 
 ### Collaboration — 10 réglage(s) inerte(s)
 
@@ -363,15 +363,6 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `gp_fallback_branch`
 - `pp_count_badge`
 
-### Marketplace — 6 réglage(s) inerte(s)
-
-- `marketplace.donations.enabled`
-- `marketplace.payment.currency`
-- `marketplace.sandbox.enabled`
-- `marketplace.trial.days`
-- `marketplace.trial.enabled`
-- `marketplace.vulnscan.auto`
-
 ### Developer — 6 réglage(s) inerte(s)
 
 - `devops.crashtriage.enabled`
@@ -380,6 +371,15 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `devops.journeys.enabled`
 - `devops.perfgate.enabled`
 - `perf_profiler`
+
+### Marketplace — 6 réglage(s) inerte(s)
+
+- `marketplace.donations.enabled`
+- `marketplace.payment.currency`
+- `marketplace.sandbox.enabled`
+- `marketplace.trial.days`
+- `marketplace.trial.enabled`
+- `marketplace.vulnscan.auto`
 
 ### Débogueur — 5 réglage(s) inerte(s)
 
@@ -396,17 +396,17 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `pair_programming`
 - `tutor_mode`
 
-### Raccourcis — 3 réglage(s) inerte(s)
-
-- `base_keymap`
-- `helix_mode`
-- `vim_mode`
-
 ### MCP — 3 réglage(s) inerte(s)
 
 - `mcp.adv.checkpointing`
 - `mcp.enabled`
 - `mcp.subagents`
+
+### Raccourcis — 3 réglage(s) inerte(s)
+
+- `base_keymap`
+- `helix_mode`
+- `vim_mode`
 
 ### Network — 2 réglage(s) inerte(s)
 
