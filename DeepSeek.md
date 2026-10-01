@@ -423,8 +423,10 @@ d'onglets, les icônes de l'explorateur, le statut git).
   `auto_save`/`auto_save_delay` (fonctionnalité absente : pas de timer, pas de
   dirty flag), `auto_compact`/`auto_compact_threshold` (pas de folding), `auto_doc`
   (doublon de `doc_auto_update`), `autolink_enabled`/`autolink_auto_apply`/
-  `autolink_scan_interval_sec` (machinerie `AutoLinkEngine` existe mais
-  réglages non lus — chantier suivant), `context_auto_apply` (même pattern),
+  `autolink_scan_interval_sec` et `context_auto_apply` : **PAS câblables** —
+  la machinerie annoncée (scan périodique + application auto) n'est branchée
+  sur **aucun** point d'entrée UI atteignable (voir §5, famille
+  AutoLink/Context),
   `platform_auto_validate`/`platform_incremental_validate` (chaîne produit
   morte). ⚠️ `auto_doc` et `doc_auto_update` = doublon sémantique, même
   catégorie, même défaut — seule `doc_auto_update` est active.
@@ -470,6 +472,24 @@ d'onglets, les icônes de l'explorateur, le statut git).
   **qu'un seul** terminal.
 - `tb_branch_icon`, `tb_worktree`, `tb_onboarding`, `tabs_git_status`,
   `tabs_pinned_layout` : concept ou donnée inexistants.
+- **`autolink_*` (3 clés) et `context_*` (4 clés) : PAS CÂBLABLES — vérifié le
+  01/10, la machinerie n'est branchée sur AUCUN point d'entrée UI atteignable.**
+  Les classes « réelles » (celles que l'UI référence) sont
+  `Moto.Core.AI.AutoLink.AutoLinkEngine` et `Moto.Core.AI.Context.ContextEngine`
+  (+ `ContextAnalyzer`) ; les doublons `Moto.Core.AI.Internal.AutoLinkEngine` et
+  `Moto.Core.AI.Internal.ContextEngine` sont du **code mort** (0 appelant — la
+  seule « référence » à `Internal.AutoLinkEngine` est dans le code GÉNÉRÉ par
+  `AvaloniaLinuxGenerator`, qui importe d'ailleurs `Moto.Core.AI.AutoLink`).
+  Mais même les classes réelles sont **invoquées nulle part** : le singleton
+  `ContextEngine` est enregistré en DI (`MotoServiceCollectionExtensions.cs:262`)
+  et **jamais résolu** ; les panneaux `AutoLinkPanel`/`ContextPanel` sont
+  atteignables via la palette (`ai.autolink`/`ai.context`,
+  `MainPage.Routing.cs:92-93`) mais ne font que basculer `IsVisible` — `Load()`
+  n'a aucun appelant, `ApplyRequested`/`DismissRequested` aucun abonné. Câbler
+  `autolink_enabled`/`autolink_auto_apply`/`autolink_scan_interval_sec`/
+  `context_auto_apply` exigerait de **construire** la pipeline (déclencheur à la
+  demande + timer périodique + remplissage + apply), une fonctionnalité, pas un
+  câblage.
 
 > **Constat de fond (01/10)** : une part notable du catalogue décrit une
 > application qui n'existe pas encore. Ce n'est pas seulement du « câblage en

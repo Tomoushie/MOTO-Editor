@@ -1037,6 +1037,21 @@ lecture directe du code.
    - Rappel : **`preview_*` (6 clés)** décrit des « onglets aperçu » dont le
      concept n'existe nulle part ; **`tb_sign_in`/`tb_user_menu`/
      `tb_user_picture`** supposent un compte MOTO utilisateur inexistant.
+   - **`autolink_*` (3 clés) et `context_*` (4 clés) : PAS CÂBLABLES — vérifié
+     le 01/10, la machinerie annoncée n'est branchée sur AUCUN point d'entrée
+     UI atteignable.** Classes réelles (celles que l'UI référence) :
+     `Moto.Core.AI.AutoLink.AutoLinkEngine` + `Moto.Core.AI.Context.ContextEngine`
+     (+ `ContextAnalyzer`) ; doublons **morts** :
+     `Moto.Core.AI.Internal.AutoLinkEngine` / `Moto.Core.AI.Internal.ContextEngine`
+     (0 appelant — la seule « référence » est le code GÉNÉRÉ par
+     `AvaloniaLinuxGenerator`, qui importe d'ailleurs `Moto.Core.AI.AutoLink`).
+     Même les classes réelles ne sont **jamais invoquées** : le singleton
+     `ContextEngine` est enregistré en DI (`MotoServiceCollectionExtensions.cs:262`)
+     mais jamais résolu ; `AutoLinkPanel`/`ContextPanel` sont atteignables via la
+     palette (`ai.autolink`/`ai.context`, `MainPage.Routing.cs:92-93`) mais ne
+     font que basculer `IsVisible` — `Load()` n'a aucun appelant,
+     `ApplyRequested`/`DismissRequested` aucun abonné. Câbler =
+     **construire** la pipeline (déclencheur + timer + remplissage + apply).
 
    **Conséquence pour le palier « vendable »** : la règle « tout ce qui est
    annoncé fonctionne » ne se satisfait pas uniquement en câblant. Elle demande
