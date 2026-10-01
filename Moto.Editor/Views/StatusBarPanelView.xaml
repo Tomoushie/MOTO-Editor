@@ -88,6 +88,19 @@
                    Margin="0,0,8,0"
                    IsVisible="False" />
 
+            <!-- ★ AJOUT (01/10, décision C git blame) : puce « blame » pilotée par
+                 git_blame_enabled. Donnée RÉELLE : commit/auteur de la ligne focus, issue de
+                 git blame porcelain (GitService.GetBlameAsync). Masquée si réglage off,
+                 aucun fichier, ou ligne non suivie (jamais de valeur inventée). -->
+            <Label x:Name="BlameLabel" Text=""
+                   FontSize="{DynamicResource FontSizeUiSmall}"
+                   TextColor="{StaticResource Txt3}"
+                   VerticalOptions="Center"
+                   Margin="0,0,8,0"
+                   LineBreakMode="TailTruncation"
+                   MaximumWidthRequest="360"
+                   IsVisible="False" />
+
             <Label x:Name="ErrorsLabel" Text="0 erreur"
                    FontSize="{DynamicResource FontSizeUiSmall}"
                    TextColor="{StaticResource Txt2}"

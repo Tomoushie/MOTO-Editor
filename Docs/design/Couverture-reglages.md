@@ -8,10 +8,10 @@
 | Mesure | Valeur |
 |---|---|
 | Réglages DÉCLARÉS au catalogue | 332 |
-| Clés lues par du code compilé | 132 |
-| **Déclarés ET lus → réellement opérants** | **106** |
-| Déclarés mais INERTES | 226 |
-| **Part réellement opérante** | **31.9 %** |
+| Clés lues par du code compilé | 135 |
+| **Déclarés ET lus → réellement opérants** | **109** |
+| Déclarés mais INERTES | 223 |
+| **Part réellement opérante** | **32.8 %** |
 
 ## Réglages réellement opérants
 
@@ -43,6 +43,9 @@
 | `doc_folder` | Agent | Moto.Core\Doc\DocEngine.cs |
 | `doc_on_project_open` | Agent | Moto.Editor\MainPage.Panels.cs |
 | `file_finder_icons` | Recherche & Fichiers | Moto.Editor\Settings\FileFinderSettings.cs |
+| `git_blame_commit_summary` | Version Control | Moto.Editor\Settings\GitSettings.cs |
+| `git_blame_delay` | Version Control | Moto.Editor\Settings\GitSettings.cs |
+| `git_blame_enabled` | Version Control | Moto.Editor\Settings\GitSettings.cs |
 | `git_diff_base` | Version Control | Moto.Editor\Settings\GitSettings.cs |
 | `git_gutter_debounce` | Version Control | Moto.Editor\Settings\GitSettings.cs |
 | `git_gutter_visibility` | Version Control | Moto.Editor\Settings\GitSettings.cs |
@@ -315,20 +318,6 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `terminal_scroll_multiplier`
 - `terminal_show_scrollbar`
 
-### Version Control — 11 réglage(s) inerte(s)
-
-- `git_blame_avatar`
-- `git_blame_commit_summary`
-- `git_blame_delay`
-- `git_blame_enabled`
-- `git_blame_location`
-- `git_blame_min_column`
-- `git_blame_padding`
-- `git_branch_author`
-- `git_diff_full_file`
-- `git_hunk_style`
-- `git.enabled`
-
 ### Collaboration — 10 réglage(s) inerte(s)
 
 - `collab_input_device`
@@ -352,6 +341,17 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `lsp_highlights`
 - `max_severity`
 - `prettier_allowed`
+
+### Version Control — 8 réglage(s) inerte(s)
+
+- `git_blame_avatar`
+- `git_blame_location`
+- `git_blame_min_column`
+- `git_blame_padding`
+- `git_branch_author`
+- `git_diff_full_file`
+- `git_hunk_style`
+- `git.enabled`
 
 ### Panneaux — 7 réglage(s) inerte(s)
 

@@ -717,6 +717,8 @@ namespace Moto.Editor
             // ★ AJOUT (01/10, décision C git gutter) : marqueurs git dans le gutter, si
             // git_gutter_visibility est actif (debounce git_gutter_debounce).
             RefreshGitGutter(doc.Path);
+            // ★ AJOUT (01/10, décision C git blame) : charge le blame par ligne (git_blame_enabled).
+            RefreshGitBlame(doc.Path);
             EditorPane.EditorText = doc.Text;
             _currentPath = doc.Path;
             RefreshAiUndoButton();
@@ -798,6 +800,55 @@ namespace Moto.Editor
                 EditorPane.Editor.SetGitChangedLines(lines);
             }
             catch (OperationCanceledException) { }
+        }
+
+        // ------------------------------------------------------------------
+        // ★ AJOUT (01/10, décision C git blame) : blame inline de la ligne focus.
+        // ------------------------------------------------------------------
+
+        private System.Threading.CancellationTokenSource? _gitBlameCts;
+        private System.Collections.Generic.IReadOnlyList<Moto.Core.Services.GitBlameLine> _currentBlame =
+            System.Array.Empty<Moto.Core.Services.GitBlameLine>();
+
+        /// <summary>Charge le blame PAR LIGNE du fichier (git blame --porcelain) après un debounce.</summary>
+        private async void RefreshGitBlame(string? path)
+        {
+            if (string.IsNullOrWhiteSpace(path) || _gitService is null) return;
+            if (!Settings.GitSettings.ShowBlame(SettingsEngine.Shared)) { _currentBlame = System.Array.Empty<Moto.Core.Services.GitBlameLine>(); return; }
+
+            _gitBlameCts?.Cancel();
+            _gitBlameCts = new System.Threading.CancellationTokenSource();
+            var delay = Math.Max(0, Settings.GitSettings.BlameDelay(SettingsEngine.Shared));
+            var token = _gitBlameCts.Token;
+            try
+            {
+                await Task.Delay(delay, token);
+                _currentBlame = await _gitService.GetBlameAsync(path);
+                if (token.IsCancellationRequested) return;
+                UpdateBlameForLine(_lastBlameLine);
+            }
+            catch (OperationCanceledException) { }
+        }
+
+        private int _lastBlameLine;
+
+        /// <summary>Met à jour la puce blame pour une ligne 1-based (appelée au mouvement du curseur).</summary>
+        private void UpdateBlameForLine(int line)
+        {
+            _lastBlameLine = line;
+            if (line < 1 || _currentBlame.Count == 0)
+            {
+                StatusBar.SetBlame(null);
+                return;
+            }
+            var entry = _currentBlame.FirstOrDefault(b => b.Line == line);
+            if (entry == null) { StatusBar.SetBlame(null); return; }
+            var includeSummary = Settings.GitSettings.BlameCommitSummary(SettingsEngine.Shared);
+            var shortHash = entry.CommitHash.Length > 7 ? entry.CommitHash.Substring(0, 7) : entry.CommitHash;
+            var text = $"{shortHash} · {entry.Author}";
+            if (includeSummary && !string.IsNullOrWhiteSpace(entry.Summary))
+                text += $" · {entry.Summary}";
+            StatusBar.SetBlame(text);
         }
 
         private void OnNavBack()

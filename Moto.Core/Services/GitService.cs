@@ -39,6 +39,18 @@ public sealed class GitDiffStat
 }
 
 /// <summary>
+/// ★ AJOUT (01/10, décision C git blame) : blame d'UNE ligne, tel que git le rapporte
+/// (<c>git blame --porcelain</c>) — hash, auteur et résumé RÉELS, jamais inventés.
+/// </summary>
+public sealed class GitBlameLine
+{
+    public int Line { get; init; }
+    public string CommitHash { get; init; } = "";
+    public string Author { get; init; } = "";
+    public string Summary { get; init; } = "";
+}
+
+/// <summary>
 /// Item 83 — Intégration Git complète via TerminalService.
 /// Pas de lib tierce : utilise git CLI. Respecte "MOTO n'invente pas de systèmes".
 /// </summary>
@@ -378,6 +390,68 @@ public sealed class GitService
                 changed.Add(start + i);
         }
         return changed.ToList();
+    }
+
+    /// <summary>
+    /// ★ AJOUT (01/10, décision C git blame) : blame PAR LIGNE du fichier, tel que git le
+    /// rapporte (<c>git blame --porcelain</c>). Chaque ligne porte le hash, l'auteur et le
+    /// résumé du commit qui l'a introduite — jamais estimés par MOTO. Retourne vide si le
+    /// fichier n'est pas suivi / hors dépôt.
+    /// </summary>
+    public async Task<IReadOnlyList<GitBlameLine>> GetBlameAsync(string path)
+    {
+        var result = await ExecAsync($"git blame --porcelain -- \"{path}\"");
+        if (result.ExitCode != 0) return Array.Empty<GitBlameLine>();
+
+        var blame = new List<GitBlameLine>();
+        string hash = "", author = "", summary = "";
+        int line = 0, count = 1;
+        bool inBlock = false;
+
+        foreach (var raw in result.Output.Split('\n'))
+        {
+            if (raw.Length == 0) continue;
+
+            if (raw[0] == '\t')
+            {
+                // Fin de bloc : on étend aux « num-lines » lignes couvertes par ce commit.
+                if (inBlock)
+                    for (int i = 0; i < count; i++)
+                        blame.Add(new GitBlameLine { Line = line + i, CommitHash = hash, Author = author, Summary = summary });
+                inBlock = false;
+                continue;
+            }
+
+            // Nouvelle entrée : « <hash40> <orig> <final> <num-lines> ».
+            if (raw.Length > 41 && raw[40] == ' ' && IsHexHash(raw.Substring(0, 40)))
+            {
+                var parts = raw.Split(' ');
+                if (parts.Length >= 4)
+                {
+                    hash = parts[0];
+                    line = int.TryParse(parts[2], out var fl) ? fl : 0;
+                    count = int.TryParse(parts[3], out var c) && c > 0 ? c : 1;
+                    author = ""; summary = "";
+                    inBlock = true;
+                }
+                continue;
+            }
+
+            if (inBlock)
+            {
+                if (raw.StartsWith("author ", StringComparison.Ordinal)) author = raw.Substring(7);
+                else if (raw.StartsWith("summary ", StringComparison.Ordinal)) summary = raw.Substring(8);
+            }
+        }
+        return blame;
+    }
+
+    private static bool IsHexHash(string s)
+    {
+        foreach (var c in s)
+            if (!((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f')))
+                return false;
+        return true;
     }
 
     /// <summary>Log des commits (archéologie).</summary>

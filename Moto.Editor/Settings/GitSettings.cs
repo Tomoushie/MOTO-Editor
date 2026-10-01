@@ -122,6 +122,21 @@ namespace Moto.Editor.Settings
         /// <summary>Réglage <c>git_gutter_debounce</c> : délai (ms) avant de rafraîchir les marqueurs.</summary>
         internal static int GutterDebounce(SettingsEngine s)
             => s.GetInt("git_gutter_debounce", DeclaredInt("git_gutter_debounce"));
+
+        // ★ AJOUT (01/10, décision C git blame) : les clés du blame inline, désormais RÉELLES
+        // (voir GitService.GetBlameAsync + la puce BlameLabel de la barre de statut).
+
+        /// <summary>Réglage <c>git_blame_enabled</c> : affiche le blame sur la ligne focus.</summary>
+        internal static bool ShowBlame(SettingsEngine s)
+            => s.GetBool("git_blame_enabled", DeclaredBool("git_blame_enabled"));
+
+        /// <summary>Réglage <c>git_blame_delay</c> : délai (ms) avant d'afficher le blame.</summary>
+        internal static int BlameDelay(SettingsEngine s)
+            => s.GetInt("git_blame_delay", DeclaredInt("git_blame_delay"));
+
+        /// <summary>Réglage <c>git_blame_commit_summary</c> : inclut le résumé dans le blame.</summary>
+        internal static bool BlameCommitSummary(SettingsEngine s)
+            => s.GetBool("git_blame_commit_summary", DeclaredBool("git_blame_commit_summary"));
     }
 
     // =====================================================================

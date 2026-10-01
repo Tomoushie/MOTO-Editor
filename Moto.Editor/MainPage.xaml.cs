@@ -303,6 +303,8 @@ namespace Moto.Editor
                     else col++;
                 }
                 StatusBar.SetCursorPosition($"L {line}, C {col}");
+                // ★ AJOUT (01/10, décision C git blame) : met à jour la puce blame (ligne focus).
+                UpdateBlameForLine(line);
                 // ★ AJOUT (01/10, décision C item 3) : alimente le panneau Outline avec la
                 // position RÉELLE du curseur (même numéro de ligne que la puce ci-dessus) —
                 // op_auto_reveal surligne le symbole correspondant, jamais de ligne inventée.
@@ -415,6 +417,9 @@ namespace Moto.Editor
                     // git_gutter_debounce re-rafraîchit les marqueurs du document actif (sans ça,
                     // l'effet n'apparaîtrait qu'au prochain chargement de document).
                     RefreshGitGutter(_viewModel.SelectedDocument?.Path);
+                    // ★ AJOUT (01/10, décision C git blame) : basculer git_blame_* re-charge le
+                    // blame du document actif (et sa puce), sans attendre le prochain chargement.
+                    RefreshGitBlame(_viewModel.SelectedDocument?.Path);
                 }
 
                 // ★ AJOUT (01/10) : même traitement pour la géométrie/dock des familles

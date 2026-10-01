@@ -37,6 +37,10 @@ namespace Moto.Editor.Views
         private bool _showEncoding;
         private string _encoding = string.Empty;
 
+        // ★ AJOUT (01/10, décision C git blame) : état de la puce « blame » (git_blame_enabled).
+        private bool _showBlame;
+        private string _blame = string.Empty;
+
         /// <summary>★ AJOUT (01/10) : un avertissement existe-t-il ? (pour respecter sb_diagnostics).</summary>
         private bool _hasWarnings;
 
@@ -180,6 +184,10 @@ namespace Moto.Editor.Views
             _showEncoding = Moto.Editor.Settings.StatusBarSettings.ShowEncoding(settings);
             UpdateEncodingVisibility();
 
+            // ★ AJOUT (01/10, décision C git blame) : puce « blame » (git_blame_enabled).
+            _showBlame = Moto.Editor.Settings.GitSettings.ShowBlame(settings);
+            UpdateBlameVisibility();
+
             // ★ AJOUT (01/10, décision C item 1) : visibilité des 7 boutons d'action,
             // pilotée par leur clé respective. Chaque conteneur regroupe le bouton ET son
             // séparateur (voir le .xaml) : basculer le conteneur ne laisse aucun trait
@@ -280,6 +288,22 @@ namespace Moto.Editor.Views
         /// <summary>Visible seulement si le réglage est actif ET qu'une valeur réelle existe.</summary>
         private void UpdateEncodingVisibility()
             => EncodingLabel.IsVisible = _showEncoding && _encoding.Length > 0;
+
+        /// <summary>
+        /// ★ AJOUT (01/10, décision C git blame) : blame de la ligne focus (réglage
+        /// git_blame_enabled). Chaîne « commit · auteur [· résumé] » calculée par MainPage
+        /// depuis GitService.GetBlameAsync, ou <c>null</c>/"" si aucune donnée.
+        /// </summary>
+        public void SetBlame(string? blame)
+        {
+            _blame = string.IsNullOrWhiteSpace(blame) ? string.Empty : blame;
+            BlameLabel.Text = _blame;
+            UpdateBlameVisibility();
+        }
+
+        /// <summary>Visible seulement si le réglage est actif ET qu'une valeur réelle existe.</summary>
+        private void UpdateBlameVisibility()
+            => BlameLabel.IsVisible = _showBlame && _blame.Length > 0;
 
         /// <summary>Branche l'overlay "À propos / mises à jour" sur le bouton ℹ️.</summary>
         public void InitializeInfoOverlay(InfoOverlay overlay)

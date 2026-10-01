@@ -100,7 +100,7 @@ namespace Moto.Editor.Views
         "gp_dock", "gp_group", "gp_scrollbar", "gp_sort", "gp_starts_open",
         "gp_status_style", "gp_tree_view", "gp_width",
         // git_* (version control) — même dispatch que gp_*
-        "git_diff_base", "git_gutter_debounce", "git_gutter_visibility", "git_integration", "git_path_style", "git_stage_restore_buttons",
+        "git_blame_commit_summary", "git_blame_delay", "git_blame_enabled", "git_diff_base", "git_gutter_debounce", "git_gutter_visibility", "git_integration", "git_path_style", "git_stage_restore_buttons",
         // pp_* (project panel) — dispatch « pp_ » → ApplyLayoutSettings
         "pp_auto_reveal", "pp_dock", "pp_entry_spacing", "pp_file_icons", "pp_folder_icons",
         "pp_git_indicator", "pp_git_status", "pp_hide_gitignore", "pp_hide_hidden",
