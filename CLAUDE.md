@@ -613,13 +613,22 @@ lecture directe du code.
     étaient déjà lues par `AgentV2Settings` dans Moto.Core), puis
     **80 (24,1 %)** après `search_include_ignored` (lot `search_*`, même
     jour) — famille terminée, 1 opérante / 7 inertes, avec défaut corrigé
-    au catalogue (voir plus bas), puis **83 (25,0 %)** après le lot `doc_*`
+    au catalogue (voir plus bas), puis **82 (24,7 %)** après `auto_indent` +
+    `auto_update` (lot `auto_*`, même jour) — famille terminée, 4 opérantes /
+    3 inertes (voir entrée `auto_*` plus bas), puis **83 (25,0 %)** après le lot `doc_*`
     (doc_folder câblé + doc_auto_update corrigé, même jour), puis
     **90 (27,1 %)** après la tranche 1 de l'item 1 (décision C) : les
     7 boutons d'action de la barre de statut (`sb_project_panel`,
     `sb_terminal`, `sb_search`, `sb_debugger`, `gp_button`, `cp_button`,
     `ap_button`), clés de visibilité lues par `StatusBarSettings` et actions
-    réelles câblées dans `MainPage` (01/10).
+    réelles câblées dans `MainPage` (01/10), puis **94 (28,3 %)** après la
+    tranche 2 de l'item 1 : les 4 puces de DONNÉES de la barre de statut
+    (`sb_line_endings`, `sb_language`, `sb_cursor_position`, `sb_encoding`
+    avec de vraies données), puis **115 (34,6 %)** — mesure actuelle après les
+    items 2 à 9 de la décision C menés le même jour (onglets aperçu
+    `preview_*`, panneau outline `op_*`, auto-save, `file_finder_icons`,
+    git blame, git gutter, réécriture LSP, pipeline AutoLink/Context) ;
+    détail item par item dans `DeepSeek.md` § « ★ Décision C (01/10) ».
    ⏳ **Mesures de branche (à ne pas confondre avec le tronc)** : le chantier
    `ap_*`/`cp_*` annonçait **45 → 50 (15,1 %)** mesuré dans SON worktree, où
    `gp_*`/`sb_*` n'étaient pas câblés. Ces chiffres ne sont pas comparables
@@ -1012,12 +1021,32 @@ lecture directe du code.
     `file_finder_include_ignored` (Enum, même widget, section « File Finder »)
     reste inerte — **un seul interrupteur par widget**. **0 clé restant à
     câbler dans cette famille.**
-    **Les 252 inertes restants se répartissent par catégorie** — le plus gros
+    **Ce qui est opérant depuis le 01/10 (famille `auto_*`, 4 clés sur 7 —
+    famille TERMINÉE)** — le catalogue répartit ces clés entre « Général »,
+    « Éditeur / Enregistrement auto », « Éditeur / Indentation » et
+    « Agent / Conversation / Documentation ». Câblées dans ce lot :
+    `auto_indent` (gate de l'indentation auto dans le JS de
+    `CodeEditorView` via `EditorPaneView.ApplyAutoSettings` → `SetAutoIndent`,
+    dispatch live `auto_` dans `MainPage`, clé dans `RealEffectKeys`) +
+    `auto_update` (déplacée de `editor.update.autoCheck` vers `auto_update`
+    dans `AutoUpdateService`, alignement catalogue/UI), puis `auto_save` /
+    `auto_save_delay` par l'item 4 de la décision C (voir `DeepSeek.md`).
+    Mappage `Moto.Editor/Settings/AutoSettings.cs` (défauts DÉCLARÉS).
+    **Restent INERTES (3)** : `auto_compact` / `auto_compact_threshold`
+    (aucun folding dans l'éditeur) et `auto_doc` (doublon sémantique de
+    `doc_auto_update`, même catégorie, même défaut — seule `doc_auto_update`
+    est active). ⚠️ Attention au périmètre : `autolink_*` et `context_*`
+    (« auto-apply ») portent un libellé « auto » mais forment leurs propres
+    familles, traitées plus bas. ⚠️ Le script de couverture compte 2 faux
+    positifs dans `op_*` : `op_auto_fold` et `op_indent_guides` sont LUS mais
+    sans effet (liste plate, pas d'arbre).
+    **Les 217 inertes restants se répartissent par catégorie** — le plus gros
    cluster correspond à des **interfaces qui EXISTENT déjà mais ignorent leur
-   configuration** : `Panneaux` (explorateur `pp_*`, panneau Git `gp_*` et
-   géométrie `ap_*`/`cp_*` FAITS ; restent l'outline `op_*`),
-   `Fenêtre & Layout` (barre de titre `tb_*` FAITE le 01/10 ; restent la barre de
-   statut `sb_*` et les aperçus `preview_*` ; les onglets sont faits), puis AI,
+   configuration** : `Panneaux` (explorateur `pp_*`, panneau Git `gp_*`,
+   géométrie `ap_*`/`cp_*` et outline `op_*` TOUS FAITS — panneau outline
+   construit le 01/10, cf. décision C item 3), `Fenêtre & Layout` (barre de
+   titre `tb_*` et barre de statut `sb_*` FAITES ; restent les aperçus
+   `preview_*` — 2 clés sur 6), puis AI,
    Agent, Éditeur, Terminal, Version Control, Recherche & Fichiers, Apparence,
    Général, Collaboration.
 
@@ -1029,6 +1058,10 @@ lecture directe du code.
    - **`op_*` (Outline Panel) : les 5 clés ne sont pas câblables —
      `OutlinePanelView` N'EXISTE PAS** dans le dépôt (recherche complète). Il n'y
      a aucun panneau « outline » (vue symboles) à configurer.
+     ★ **DÉPASSÉ (01/10, décision C item 3)** : `OutlineExtractor` +
+     `OutlinePanelView` + chip `op_button` construits, les 5 clés lues par
+     `OutlineSettings` (⚠️ `op_auto_fold`/`op_indent_guides` lus sans effet —
+     faux positifs).
    - **`sb_*` (barre de statut, 10 clés)** : ★ **TRANCHE 1 FAITE (01/10, décision
      C item 1)** — `sb_project_panel`/`sb_terminal`/`sb_search`/`sb_debugger`
      configurent désormais de VRAIS boutons créés dans `StatusBarPanelView.xaml`
@@ -1040,15 +1073,26 @@ lecture directe du code.
      `LineEnding`/`EOL` ; position du curseur vivant dans le WebView
      `CodeEditorView` sans copie C#). Afficher ces 4 valeurs = INVENTER —
      tranche 2 de l'item 1. (`sb_diagnostics`/`sb_active_file` déjà câblées.)
+     ★ **DÉPASSÉ (01/10, tranche 2 FAITE)** : les 4 puces sont câblées avec de
+     VRAIES données (CRLF/LF depuis `EditorDocument.Text`, langue depuis
+     `CodeEditorView.LanguageDisplayName`, ligne:colonne via
+     `CodeEditorView.SelectionChanged`, encodage par BOM). **`sb_*` = 10/10.**
    - **`gp_button`, `cp_button`, `ap_button`** : ★ **FAITS (01/10, tranche 1)** —
      les 3 boutons existent dans `StatusBarPanelView.xaml` (Git, Collab, IA),
      visibilité par `StatusBarSettings`, action réelle (`OpenSpecializedWindow("git")`,
      `OnActivitySelected("collab")`, `OnActivitySelected("ai")`). **Reste
      `op_button`** : le panneau outline n'existe pas — item 3 de la feuille de
      route (décision C), pas un câblage.
+     ★ **DÉPASSÉ (01/10, item 3 FAIT)** : `op_button` existe (chip barre de
+     statut → `OutlinePanelView`).
    - Rappel : **`preview_*` (6 clés)** décrit des « onglets aperçu » dont le
      concept n'existe nulle part ; **`tb_sign_in`/`tb_user_menu`/
      `tb_user_picture`** supposent un compte MOTO utilisateur inexistant.
+     ★ **DÉPASSÉ en partie (01/10, item 2 FAIT)** : `EditorDocument.IsPreview`
+     + `OpenFilePath(asPreview)` construits, `preview_enabled` +
+     `preview_project_panel` câblées ; restent 4 clés reportées (features
+     inexistantes). `tb_sign_in`/`tb_user_menu`/`tb_user_picture` restent non
+     câblables (compte MOTO toujours inexistant).
    - **`autolink_*` (3 clés) et `context_*` (4 clés) : PAS CÂBLABLES — vérifié
      le 01/10, la machinerie annoncée n'est branchée sur AUCUN point d'entrée
      UI atteignable.** Classes réelles (celles que l'UI référence) :
@@ -1064,6 +1108,10 @@ lecture directe du code.
      font que basculer `IsVisible` — `Load()` n'a aucun appelant,
      `ApplyRequested`/`DismissRequested` aucun abonné. Câbler =
      **construire** la pipeline (déclencheur + timer + remplissage + apply).
+     ★ **PARTIELLEMENT DÉPASSÉ (01/10, item 9)** : `ContextEngine` résolu en
+     DI + scan périodique + auto-apply réel ; `autolink_enabled`,
+     `autolink_scan_interval_sec`, `context_auto_apply` câblées. Reste
+     `autolink_auto_apply` (pipeline `AutoLinkEngine` séparée, non branchée).
 
    **Conséquence pour le palier « vendable »** : la règle « tout ce qui est
    annoncé fonctionne » ne se satisfait pas uniquement en câblant. Elle demande
@@ -1074,6 +1122,11 @@ lecture directe du code.
    statut → onglets aperçu → outline → auto-save → Quick Open → git blame →
    git gutter → LSP → AutoLink/Context → audio collab) est dans `DeepSeek.md`
    §5, avec pour chaque item la preuve fichier:ligne de l'absence de support.
+   **★ AVANCEMENT (fin 01/10) : items 1 à 9 FAITS** (dont les 2 tranches de
+   l'item 1) — couverture 90 → **115/332 (34,6 %)**. Seul l'item 10 (audio de
+   collaboration, appel vocal WebRTC) reste à construire — le plus lourd ;
+   `file_scan_*`/`file_types` et la moitié de `preview_*` restent reportés
+   (voir bilan plus haut).
    Chaque fonctionnalité construite devra ensuite câbler sa clé avec la méthode
    éprouvée (`XxxSettings` + défaut DÉCLARÉ + `ApplyLayoutSettings` + dispatch
    live + `RealEffectKeys`).

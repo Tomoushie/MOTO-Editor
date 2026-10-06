@@ -147,6 +147,9 @@ code réellement compilé) :
 | **01/10, après `search_include_ignored` (+ défaut corrigé au catalogue)** | **80 / 332 (24,1 %)** |
 | **01/10, après `auto_indent` + `auto_update` (lot auto_*)** | **82 / 332 (24,7 %)** |
 | **01/10, après `doc_folder` + correction du défaut de `doc_auto_update` (lot doc_*)** | **83 / 332 (25,0 %)** |
+| **01/10, après tranche 1 de l'item 1 (7 boutons barre de statut)** | **90 / 332 (27,1 %)** |
+| **01/10, après tranche 2 de l'item 1 (4 puces de données barre de statut)** | **94 / 332 (28,3 %)** |
+| **01/10, après les items 2 à 9 de la décision C (aperçus, outline, auto-save, git blame/gutter, LSP, AutoLink/Context)** | **115 / 332 (34,6 %)** |
 
 ⚠️ **Ne comparer qu'un avant/après mesuré dans le MÊME arbre de travail.** Le
 chantier `ap_*`/`cp_*` annonçait **45 → 50 (15,1 %)** dans SON worktree, où
@@ -318,11 +321,13 @@ d'onglets, les icônes de l'explorateur, le statut git).
     désormais une ref SEULE (`git diff {ref}`) — avant, une ref seule
     retombait silencieusement sur `git diff` sans argument.
   **Famille TERMINÉE : 4 opérantes, 12 inertes (raison par clé), 0 à câbler.**
-  **Restent inertes (12) :** `git_gutter_visibility` / `git_gutter_debounce`
-  (le gutter de `CodeEditorView` n'a que des numéros de ligne ; aucune commande
-  git ne calcule un statut **par ligne**, le seul overlay est une TODO vide),
-  les 7 `git_blame_*` (0 commande `git blame` dans le produit, aucune vue de
-  blame, `GitCommit` sans auteur — la doc annonce le blame « À venir (v1.0) »),
+  ⚠️ **DÉPASSÉ par la décision C (items 6 et 7, même jour)** : `git_gutter_visibility`
+  / `git_gutter_debounce` (gutter `#gitGut` dans le WebView, parse
+  `git diff HEAD --unified=0`) et 3 clés `git_blame_*` (`enabled`, `delay`,
+  `commit_summary` — parse `git blame --porcelain`, puce `BlameLabel`) sont
+  désormais câblées : **`git_*` réel = 9 opérantes / 7 inertes.**
+  **Restent inertes (7, raison par clé) :** les 4 `git_blame_*` restants
+  (rendu INLINE dans l'éditeur : `location`/`padding`/`min_column`/`avatar`),
   `git_branch_author` (pas de branch picker : le bouton 🌿 écrit les noms dans
   la statut bar ; `CheckoutAsync` sans appelant ; pas de donnée auteur),
    `git_diff_full_file` (aucun visualiseur de diff : le clic ouvre le fichier
@@ -408,7 +413,7 @@ d'onglets, les icônes de l'explorateur, le statut git).
   tranché : `file_finder_include_ignored` (Enum, même widget, section « File
   Finder ») reste inerte — **un seul interrupteur par widget**.
 
-- **`auto_*`** (2 clés sur 7 — famille TERMINÉE) : catégorie « Général » /
+- **`auto_*`** (4 clés sur 7 — famille TERMINÉE) : catégorie « Général » /
   « Éditeur / Enregistrement auto » / « Éditeur / Indentation » /
   « Agent / Conversation / Documentation »
   (`SettingsCatalog.cs:32,67,68,82,276,280` + `SettingsCatalog.Extensions.cs:75`
@@ -417,20 +422,16 @@ d'onglets, les icônes de l'explorateur, le statut git).
   Câblées par ce lot : `auto_indent` (gate indentation auto dans le JS de
   `CodeEditorView` via `SetAutoIndent`) + `auto_update` (clé migrée depuis
   `editor.update.autoCheck` vers `auto_update` dans `AutoUpdateService`,
-  alignement catalogue/UI). Déjà câblées avant : `doc_auto_update` (gate
-  watcher FS dans `DocEngine`), `platform_auto_detect` (gate auto-analyse
-  panneau Plateforme via `PlatformSettings`).
-  **Restent inertes (11) — une raison par clé :**
-  `auto_save`/`auto_save_delay` (fonctionnalité absente : pas de timer, pas de
-  dirty flag), `auto_compact`/`auto_compact_threshold` (pas de folding), `auto_doc`
-  (doublon de `doc_auto_update`), `autolink_enabled`/`autolink_auto_apply`/
-  `autolink_scan_interval_sec` et `context_auto_apply` : **PAS câblables** —
-  la machinerie annoncée (scan périodique + application auto) n'est branchée
-  sur **aucun** point d'entrée UI atteignable (voir §5, famille
-  AutoLink/Context),
-  `platform_auto_validate`/`platform_incremental_validate` (chaîne produit
-  morte). ⚠️ `auto_doc` et `doc_auto_update` = doublon sémantique, même
-  catégorie, même défaut — seule `doc_auto_update` est active.
+  alignement catalogue/UI), puis `auto_save` / `auto_save_delay` par l'item 4
+  de la décision C (debounce « After Delay » + `TrySaveOnFocusChange`).
+  Déjà câblées avant : `doc_auto_update` (gate watcher FS dans `DocEngine`),
+  `platform_auto_detect` (gate auto-analyse panneau Plateforme via
+  `PlatformSettings`).
+  **Restent inertes (3)** : `auto_compact` / `auto_compact_threshold` (pas de
+  folding) et `auto_doc` (doublon de `doc_auto_update`). ⚠️ `auto_doc` et
+  `doc_auto_update` = doublon sémantique, même catégorie, même défaut — seule
+  `doc_auto_update` est active. ⚠️ `autolink_*`/`context_*` portent un
+  libellé « auto » mais forment leurs propres familles.
 
 ### Familles encore inertes, et pourquoi (NE PAS LES RETENTER SANS LIRE)
 
@@ -438,6 +439,11 @@ d'onglets, les icônes de l'explorateur, le statut git).
   part** dans le code (`grep IsPreview|PreviewTab` = 0 hors catalogue). Ne pas
   confondre avec `LivePreviewView`, qui est un aperçu de **rendu** web.
   Câbler ces clés demande de **construire** le concept — c'est un chantier.
+  ★ **DÉPASSÉ (01/10, item 2 FAIT)** : `EditorDocument.IsPreview` + italique +
+  `OpenFilePath(asPreview)` + permanence à la 1re édition construits ;
+  `preview_enabled`/`preview_project_panel` câblées. Restent 4 clés reportées
+  (`preview_file_finder`, `preview_multibuffer`, `preview_code_nav`,
+  `preview_keep_on_nav` — features toujours inexistantes).
 - **`tb_sign_in` / `tb_user_menu` / `tb_user_picture`** : **aucun compte
   utilisateur MOTO n'existe**. Le seul compte réel est GitHub OAuth, déjà
   servi par l'avatar existant.
@@ -457,11 +463,16 @@ d'onglets, les icônes de l'explorateur, le statut git).
   N'EXISTE PAS** dans le dépôt (recherche complète faite le 01/10). Il n'y a
   aucun panneau « outline » (vue symboles) à configurer. C'est l'item 3 de la
   feuille de route (décision C) — reste à construire, `op_button` compris.
+  ★ **DÉPASSÉ (01/10, item 3 FAIT)** : `OutlineExtractor` (motifs réels
+  C#/Python/JS) + `OutlinePanelView` (dock `op_dock`) + chip `op_button`
+  construits, les 5 clés lues par `OutlineSettings` (⚠️ `op_auto_fold`/
+  `op_indent_guides` lus sans effet — faux positifs).
 - **`gp_button`, `cp_button`, `ap_button`** : ★ **FAITS (01/10, tranche 1)** —
   les 3 boutons existent dans `StatusBarPanelView.xaml` (Git, Collab, IA),
   visibilité par `StatusBarSettings`, action réelle (`OpenSpecializedWindow("git")`,
   `OnActivitySelected("collab")`, `OnActivitySelected("ai")`). Seul `op_button`
   reste (panneau outline inexistant, item 3).
+  ★ **DÉPASSÉ (01/10, item 3 FAIT)** : `op_button` existe.
 - **`pp_count_badge`** : annonce un « nombre de terminaux » alors qu'il n'y a
   **qu'un seul** terminal.
 - `tb_branch_icon`, `tb_worktree`, `tb_onboarding`, `tabs_git_status`,
@@ -484,6 +495,11 @@ d'onglets, les icônes de l'explorateur, le statut git).
   `context_auto_apply` exigerait de **construire** la pipeline (déclencheur à la
   demande + timer périodique + remplissage + apply), une fonctionnalité, pas un
   câblage.
+  ★ **PARTIELLEMENT DÉPASSÉ (01/10, item 9 FAIT)** : `ContextEngine` résolu en
+  DI + scan périodique réel + auto-apply écrivant sur disque ;
+  `autolink_enabled`/`autolink_scan_interval_sec`/`context_auto_apply` sont
+  désormais câblées (3 des 7). **Reste** `autolink_auto_apply` (pipeline
+  `AutoLinkEngine` séparée, toujours non branchée).
 
 > **Constat de fond (01/10)** : une part notable du catalogue décrit une
 > application qui n'existe pas encore. Ce n'est pas seulement du « câblage en
@@ -492,19 +508,26 @@ d'onglets, les icônes de l'explorateur, le statut git).
 > la règle « tout ce qui est annoncé fonctionne » ne se satisfait pas
 > uniquement en câblant, elle demande aussi de **retirer ou d'assumer**
 > les réglages sans support.
-- **Bilan final du câblage (01/10)** — trois états :
-  **FAITES** : `tabs_*` (9), `pp_*` (12), `tb_*` (4), `sb_*` (6 : diagnostics +
-  active_file + 4 boutons d'action), `gp_*` (13 : + gp_button), `ap_*`/`cp_*`
-  (7 : + ap_button/cp_button), `terminal_*` (10), `git_*` (4), `agent_*` (9),
-  `search_*` (1), `auto_*` (2 : auto_update + auto_indent), `doc_*` (doc_folder
-  câblé, doc_auto_update corrigé, doc_on_project_open déjà actif).
-  **NON CÂBLABLES (fonctionnalité absente)** : `preview_*` (6), `op_*` (5 — pas de
-  OutlinePanelView), `file_*` (7 — pas de Quick Open ni d'indexeur ; `file_finder_include_ignored`
-  = doublon de `search_include_ignored`), `lsp_*` (LSP absent), `collab_*` (audio absent),
-  `autolink_*`/`context_auto_apply` (pipeline jamais déclenchée depuis l'UI), `sb_*`
-  (4 restants : les 4 puces de données sb_language/sb_encoding/sb_line_endings/
-  sb_cursor_position — donnée absente, tranche 2 de l'item 1).
-  **MINCE** : `show_*` (seul `show_gutter` est câblable — le gutter existe dans le JS —
+- **Bilan final du câblage (01/10, complété après la décision C)** — trois états :
+  **FAITES** : `tabs_*` (9), `pp_*` (12), `tb_*` (4), `sb_*` (10 : diagnostics +
+  active_file + 4 boutons d'action tranche 1 + 4 puces de données tranche 2),
+  `gp_*` (13 : + gp_button), `ap_*`/`cp_*` (7 : + ap_button/cp_button),
+  `terminal_*` (10), `git_*` (4) + `git_blame_*` (3) + `git_gutter_*` (2),
+  `agent_*` (9), `search_*` (1), `auto_*` (4 : auto_update + auto_indent +
+  auto_save + auto_save_delay), `doc_*` (doc_folder câblé, doc_auto_update
+  corrigé, doc_on_project_open déjà actif), `preview_*` (2 : preview_enabled +
+  preview_project_panel), `op_*` (5 — OutlinePanelView construit ; ⚠️ 2 faux
+  positifs sans effet), `file_finder_icons`, `lsp_*` (4 — câblés mais pas
+  encore fonctionnels bout en bout), `autolink_*`/`context_auto_apply` (3 —
+  item 9).
+  **NON CÂBLABLES (fonctionnalité absente)** : `preview_*` (4 restants :
+  multibuffer/code_nav/keep_on_nav + file_finder), `file_*` (5 restants —
+  pas de Quick Open ni d'indexeur ; `file_finder_include_ignored` = doublon
+  de `search_include_ignored`), `collab_*` (audio absent),
+  `autolink_auto_apply` (pipeline `AutoLinkEngine` jamais déclenchée depuis
+  l'UI).
+  **MINCE** : `show_*` (seul `show_gutter` est câblable — le gutter existe
+  dans le JS —
   mais exige un décalage CSS non vérifiable à l'œil ; `show_whitespace`/`show_edit_predictions`/
   `show_merge_conflict`/`show_turn_stats` n'ont aucun rendu).
   ⚠️ **Les préfixes ne suivent PAS les catégories affichées** dans la fenêtre
