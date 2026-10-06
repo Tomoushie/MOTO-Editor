@@ -317,7 +317,30 @@ namespace Moto.Editor
         private void ToggleSplit()
         {
             _aiChatPanel2.IsVisible = !_aiChatPanel2.IsVisible;
+            ApplySplitOrder();
             StatusBar.SetStatus(_aiChatPanel2.IsVisible ? "Vue fractionnée : deux conversations." : "Vue fractionnée : une conversation.");
+        }
+
+        /// <summary>
+        /// ★ AJOUT (06/10, vue fractionnée) : place la 2e conversation au-dessus (Up) ou
+        /// en-dessous (Down, défaut) de la 1re, selon <c>horizontal_split_direction</c>.
+        /// Les wrappers portent ClassId = titre (voir AddFloatingPanel).
+        /// </summary>
+        private void ApplySplitOrder()
+        {
+            var second = FindPanelWrapper(_aiChatPanel2.Title);
+            var first = FindPanelWrapper(_aiChatPanel.Title);
+            if (second is null || first is null) return;
+            if (!PanelHost.Children.Contains(second) || !PanelHost.Children.Contains(first)) return;
+
+            var si = PanelHost.Children.IndexOf(second);
+            var fi = PanelHost.Children.IndexOf(first);
+            var above = Settings.SplitSettings.SecondAbove(SettingsEngine.Shared);
+            if ((above && si > fi) || (!above && si < fi))
+            {
+                PanelHost.Children.Remove(second);
+                PanelHost.Children.Insert(fi + (above ? 0 : 1), second);
+            }
         }
 
         // ══════════════ Câblage ══════════════
