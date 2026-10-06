@@ -37,6 +37,15 @@ namespace Moto.Editor.Views
 
         public event Action<string> ModelChanged;
 
+        /// <summary>
+        /// ★ AJOUT (06/10, chantier « agent réellement agentique ») : déclenché quand
+        /// l'utilisateur envoie un message alors que le mode « Agent » est sélectionné.
+        /// L'objectif est délégué à MainPage (HandleAgentCommand), qui démarre la vraie
+        /// boucle d'agent (AgentV2Runner → AgentLoopV2, outils réels). Sans abonné, le
+        /// message retombe sur le chat classique (comportement d'avant).
+        /// </summary>
+        public event Action<string>? AgentCommandRequested;
+
         public AiChatView(ChatService chat)
         {
             InitializeComponent();
@@ -274,6 +283,15 @@ namespace Moto.Editor.Views
 
             InputEntry.Text = string.Empty;
             SlashList.IsVisible = false;
+
+            // ★ AJOUT (06/10, chantier « agent réellement agentique ») : le mode « Agent »
+            // (3e entrée du ModePicker) ne passe PLUS par le chat classique — l'objectif est
+            // délégué à MainPage qui démarre la vraie boucle d'agent (outils réels).
+            if (ModePicker.SelectedIndex == 2 && AgentCommandRequested != null)
+            {
+                AgentCommandRequested(text);
+                return;
+            }
 
             try
             {

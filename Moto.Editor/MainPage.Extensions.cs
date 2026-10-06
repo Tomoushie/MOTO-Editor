@@ -856,6 +856,9 @@ namespace Moto.Editor
                     {
                         // ★ CHANGÉ (25/09) : à la fermeture de la fenêtre, sa vue cesse de suivre le chat partagé (voir AiChatView.Detach).
                         var view = new Views.AiChatView(_chatService);
+                        // ★ AJOUT (06/10, agent réellement agentique) : même câblage du mode
+                        // « Agent » que le panneau ancré (WireAgentCommand).
+                        WireAgentCommand(view);
                         var window = new Microsoft.Maui.Controls.Window(new Moto.Editor.Windows.SpecializedWindowPage("MOTO AI", view));
                         window.Destroying += (_, _) => view.Detach();
                         return window;

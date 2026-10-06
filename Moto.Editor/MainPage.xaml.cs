@@ -263,6 +263,28 @@ namespace Moto.Editor
             EditorPane.InitializeLsp(manager);
         }
 
+        /// <summary>
+        /// ★ AJOUT (06/10, chantier « agent réellement agentique ») : abonne le mode
+        /// « Agent » d'une vue AiChatView à la vraie boucle d'agent. L'objectif tapé
+        /// devient la question de l'utilisateur (ajoutée au thread), puis
+        /// HandleAgentCommand démarre l'agent (BackgroundAgentService → AgentV2Runner →
+        /// AgentLoopV2, outils réels) et narre la progression pas à pas dans le même
+        /// thread. S'applique au panneau ancré ET à la fenêtre détachée « MOTO AI ».
+        /// </summary>
+        private void WireAgentCommand(Views.AiChatView view)
+        {
+            view.AgentCommandRequested += goal =>
+            {
+                var thread = _chatService.CurrentThread ?? _chatService.CreateThread();
+                thread.Messages.Add(new Moto.Editor.Models.ChatMessage { Role = "user", Content = goal });
+                thread.LastActivityUtc = DateTime.UtcNow;
+                var ack = HandleAgentCommand(goal);
+                thread.Messages.Add(new Moto.Editor.Models.ChatMessage { Role = "ai", Content = ack });
+                thread.LastActivityUtc = DateTime.UtcNow;
+                RefreshHomeStats();
+            };
+        }
+
         // ══════════════ Câblage ══════════════
 
         private void WireEditorPane()
@@ -557,6 +579,9 @@ namespace Moto.Editor
             // ★ AJOUT (02/09) : remplace le stub "AiHost" — _chatService existe déjà
             // à ce stade (construit dans le constructeur juste avant WirePanels()).
             _aiChatPanel = new Views.AiChatView(_chatService);
+            // ★ AJOUT (06/10, chantier « agent réellement agentique ») : le mode « Agent »
+            // délègue l'objectif à la vraie boucle d'agent (voir WireAgentCommand).
+            WireAgentCommand(_aiChatPanel);
             _pluginGallery = new PluginGalleryView(null, null, System.IO.Path.Combine(_currentRoot ?? "", "plugins"));
             _analyticsDashboard = new AnalyticsDashboardView();
             _debugPanel = new DebugPanelView();
