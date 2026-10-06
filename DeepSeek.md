@@ -674,6 +674,26 @@ bindable).
   `Moto.Core/Moto.AI/XenoFallbackBridge.cs`, `Controls/XenoFeedbackControl`,
   `Views/AboutXenoView`, etc.
 
+## ★ Chantier « agent réellement agentique » (06/10, Tom)
+
+Le mode « Agent » du chat (`AiChatView`, 3e entrée du `ModePicker`) était un
+no-op (identique à « Chat & Write »). La boucle d'agent existait déjà mais
+n'était joignable que par `/agent <objectif>` (commande slash → `HandleAgentCommand`).
+
+**Réalisé (3 lots)** :
+- `5135310` : `AiChatView.AgentCommandRequested` — le mode « Agent » délègue
+  l'objectif à `HandleAgentCommand` (BackgroundAgentService → AgentV2Runner →
+  AgentLoopV2, outils réels + approbation). Câblé panneau ancré + fenêtre
+  détachée « MOTO AI » (méthode `MainPage.WireAgentCommand`).
+- `bddece9` : `ChatMessage.Kind` (Text/Thinking/ToolCall) + rendu distinct —
+  raisonnement en italique, appel d'outil en rangée bordée (au lieu d'un texte plat).
+- `896c2bd` : `ClassifyAgentMessage` couvre aussi les résultats (`⚠`/`✅ Étape`).
+
+**État** : l'agent est réellement agentique (le mode « Agent » lance la boucle,
+raisonnement `💭` + appels d'outils `🤖/🚫/⚠/✅` affichés distinctement). Le
+**diff +/−** est montré dans l'overlay de confirmation au moment d'approuver —
+le rendre aussi inline dans le chat serait redondant.
+
 ## 6. Méthode de travail — leçons apprises
 
 - **Vérifier avant de croire.** Ne jamais déclarer « cette brique marche » sur
