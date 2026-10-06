@@ -28,7 +28,7 @@
 
             <!-- Résultat de génération -->
             <Border Grid.Row="3" StrokeShape="RoundRectangle 8"
-                    BackgroundColor="#0F1013" Padding="{StaticResource SpaceSm}">
+                    BackgroundColor="{StaticResource BgPanelInner}" Padding="{StaticResource SpaceSm}">
                 <ScrollView>
                     <Label x:Name="ResultLabel"
                            Text="(en attente d'une demande)"

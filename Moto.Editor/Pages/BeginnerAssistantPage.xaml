@@ -102,7 +102,7 @@
                 <Editor x:Name="OriginalEditor"
                         IsReadOnly="True"
                         HeightRequest="160"
-                        BackgroundColor="#1a1a1a"
+                        BackgroundColor="{StaticResource BgEditor}"
                         TextColor="White"
                         FontFamily="{StaticResource FontFamilyMono}" />
 

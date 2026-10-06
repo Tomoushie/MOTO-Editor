@@ -12,16 +12,13 @@
                 <ResourceDictionary Source="Themes/MotoTheme.xaml" />
             </ResourceDictionary.MergedDictionaries>
 
-            <!-- ★ NETTOYÉ (22/09, Phase 1) : la branche Light= est MORTE —
-                 l'application force le thème sombre (SettingsApplier n'appelle
-                 jamais que SetDark, et theme_mode n'offre plus que « Dark »).
-                 ⚠️ INCOHÉRENCE SIGNALÉE À TOM, NON TRANCHÉE : ce fond de page
-                 vaut #111214 alors que le jeton BgApp vaut #1E2025 — deux
-                 « fonds d'application » différents coexistent. Non unifié ici
-                 car ça changerait l'apparence de toutes les ContentPage sans
-                 que Tom ait pu le voir. -->
+            <!-- ★ UNIFIÉ (01/10, thème chaud Claude Code) : ce fond de page valait
+                 #111214 (gris neutre) alors que le jeton BgApp est passé au brun
+                 #262421. Aligné sur BgSide (#1E1C1A) — les fenêtres secondaires
+                 (ContentPage) restent plus sombres que la fenêtre principale,
+                 comme avant, mais dans la teinte chaude. -->
             <Style TargetType="ContentPage">
-                <Setter Property="BackgroundColor" Value="#111214" />
+                <Setter Property="BackgroundColor" Value="{StaticResource BgSide}" />
             </Style>
 
             <!-- Boutons MOTO — passés aux jetons (les valeurs étaient des

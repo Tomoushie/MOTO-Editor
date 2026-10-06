@@ -20,8 +20,8 @@
          essai). Très subtil : mêmes teintes que BgApp, juste une variation légère. -->
     <ContentView.Background>
         <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-            <GradientStop Color="#171B21" Offset="0" />
-            <GradientStop Color="#111419" Offset="1" />
+            <GradientStop Color="#262421" Offset="0" />
+            <GradientStop Color="#1E1C1A" Offset="1" />
         </LinearGradientBrush>
     </ContentView.Background>
 
