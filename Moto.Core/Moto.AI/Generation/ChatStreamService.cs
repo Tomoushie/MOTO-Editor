@@ -18,6 +18,11 @@ public sealed record ChatOutcome
     /// <summary>Ce que le modèle a écrit, tel quel (c'est ce texte qui sera rejoué dans l'historique).</summary>
     public string Content { get; init; } = string.Empty;
 
+    /// <summary>★ AJOUT (06/10, câblage thinking_display) : le raisonnement du modèle
+    /// (champ « thinking »), vide si le modèle ne réfléchit pas ou si la capacité est
+    /// absente. Jamais inventé — exactement ce qu'Ollama renvoie.</summary>
+    public string Thinking { get; init; } = string.Empty;
+
     /// <summary>Modèle réellement utilisé (ou fournisseur en ligne).</summary>
     public string? Model { get; init; }
 
@@ -98,7 +103,10 @@ public sealed class ChatStreamService
         if (prompt is null)
             return ChatOutcome.Failure(problem ?? "Message trop gros.", model);
 
-        var options = new LlmOptions { NumCtx = prompt.NumCtx, Temperature = settings.Temperature, NumPredict = prompt.MaxOutputTokens };
+        // ★ (06/10) : Think = null = ne pas forcer — un modèle capable de réfléchir le fait
+        // selon son défaut, un modèle qui ne sait pas l'ignore (la capacité est vérifiée dans
+        // OllamaChatClient). Le raisonnement reçu est rendu via thinking_display.
+        var options = new LlmOptions { NumCtx = prompt.NumCtx, Temperature = settings.Temperature, NumPredict = prompt.MaxOutputTokens, Think = null };
         status?.Invoke($"{model} lit la demande…");
 
         var written = new StringBuilder();
@@ -120,6 +128,7 @@ public sealed class ChatStreamService
         {
             Succeeded = true,
             Content = reply.Content,
+            Thinking = reply.Thinking,
             Model = model,
             Note = note,
             SentUserMessage = prompt.SentUserMessage,

@@ -120,6 +120,27 @@
                                      seconde reconstruirait chaque cadre et chaque bouton. -->
                                 <Label Text="{Binding StreamingText}" IsVisible="{Binding IsStreaming}"
                                        FontSize="{DynamicResource AgentFontSize}" TextColor="{StaticResource Txt1}" LineHeight="1.15" />
+                                <!-- ★ AJOUT (06/10, câblage thinking_display) : le raisonnement du modèle,
+                                     repliable — en-tête « ✦ Thinking » cliquable, contenu en italique discret,
+                                     replié par défaut (le même patron que Zed : section Thinking avant la réponse). -->
+                                <Border IsVisible="{Binding HasThinking}"
+                                        StrokeShape="RoundRectangle 8" Stroke="{StaticResource BorderSoft}"
+                                        BackgroundColor="{StaticResource BgPanelInner}" Padding="8,6">
+                                    <VerticalStackLayout Spacing="{StaticResource SpaceXs}">
+                                        <HorizontalStackLayout Spacing="6">
+                                            <HorizontalStackLayout.GestureRecognizers>
+                                                <TapGestureRecognizer Tapped="OnThinkingTapped" />
+                                            </HorizontalStackLayout.GestureRecognizers>
+                                            <Label Text="✦ Thinking" FontSize="{StaticResource FontSizeSmall}"
+                                                   TextColor="{StaticResource Txt2}" FontAttributes="Italic" />
+                                            <Label Text="{Binding ThinkingChevron}" FontSize="{StaticResource FontSizeSmall}"
+                                                   TextColor="{StaticResource Txt2}" />
+                                        </HorizontalStackLayout>
+                                        <Label Text="{Binding Thinking}" IsVisible="{Binding IsThinkingExpanded}"
+                                               FontSize="{StaticResource FontSizeSmall}" TextColor="{StaticResource Txt2}"
+                                               FontAttributes="Italic" LineHeight="1.2" />
+                                    </VerticalStackLayout>
+                                </Border>
                                 <!-- ★ CORRIGÉ (03/09) : Label plat unique remplacé par un rendu
                                      par segments (Segments, voir ChatMessage.cs) — permet de
                                      distinguer un bloc de code (police mono + bouton copier) du

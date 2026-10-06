@@ -33,6 +33,9 @@ internal static class AgentSettings
     internal static int DeclaredInt(string id)
         => SettingsCatalog.ById(id)?.Default is int value ? value : 0;
 
+    internal static string DeclaredString(string id)
+        => SettingsCatalog.ById(id)?.Default as string ?? string.Empty;
+
     /// <summary>
     /// <c>agent_font_size</c> : taille du texte du panneau IA, clampée aux
     /// bornes DÉCLARÉES du catalogue (8..30).
@@ -42,4 +45,14 @@ internal static class AgentSettings
         var declared = DeclaredInt("agent_font_size");
         return Math.Clamp(s.GetInt("agent_font_size", declared), 8, 30);
     }
+
+    /// <summary>
+    /// ★ AJOUT (06/10, câblage thinking_display) : le réglage <c>thinking_display</c>
+    /// (catégorie « Agent Configuration », hors préfixe <c>agent_*</c>) gouverne
+    /// l'affichage du raisonnement du CHAT. « Always Expanded » déplie par défaut ;
+    /// les autres valeurs (« Auto », « Preview », « Always Collapsed ») le replient —
+    /// l'utilisateur peut toujours cliquer sur « ✦ Thinking » pour déplier.
+    /// </summary>
+    internal static bool AlwaysExpandThinking(SettingsEngine s)
+        => string.Equals(s.GetString("thinking_display", DeclaredString("thinking_display")), "Always Expanded", StringComparison.OrdinalIgnoreCase);
 }

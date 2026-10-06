@@ -101,6 +101,30 @@ namespace Moto.Editor.Models
 
         public bool HasFootnote => _footnote.Length > 0;
 
+        // ★ AJOUT (06/10, câblage thinking_display) : le raisonnement du modèle (champ
+        // « thinking » d'Ollama), vide pour les modèles qui ne réfléchissent pas. Rendu
+        // comme une section repliable avant la réponse (voir AiChatView).
+        private string _thinking = string.Empty;
+        public string Thinking
+        {
+            get => _thinking;
+            set { _thinking = value ?? string.Empty; Notify(); Notify(nameof(HasThinking)); }
+        }
+
+        public bool HasThinking => _thinking.Length > 0;
+
+        // Repliable : l'utilisateur clique sur l'en-tête « Thinking » pour déplier/replier.
+        private bool _thinkingExpanded;
+        public bool IsThinkingExpanded
+        {
+            get => _thinkingExpanded;
+            set { _thinkingExpanded = value; Notify(); Notify(nameof(ThinkingChevron)); }
+        }
+
+        public void ToggleThinking() => IsThinkingExpanded = !IsThinkingExpanded;
+
+        public string ThinkingChevron => _thinkingExpanded ? "▾" : "▸";
+
         public bool IsUser => Role == "user";
 
         public string TimeLabel => Timestamp.ToString("HH:mm");

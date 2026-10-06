@@ -471,6 +471,8 @@ namespace Moto.Editor.Services
                 question.SentContent = outcome.SentUserMessage;
                 question.IsModelTurn = true;
                 reply.Content = outcome.Content;
+                reply.Thinking = outcome.Thinking;
+                reply.IsThinkingExpanded = Settings.AgentSettings.AlwaysExpandThinking(Moto.Core.Settings.SettingsEngine.Shared);
                 reply.IsModelTurn = true;
                 reply.Footnote = Footnote(outcome);
                 reply.IsStreaming = false;

@@ -210,6 +210,13 @@ namespace Moto.Editor.Views
                 await Clipboard.SetTextAsync(segment.Text);
         }
 
+        /// <summary>★ AJOUT (06/10, câblage thinking_display) : clique sur l'en-tête « ✦ Thinking » pour déplier/replier le raisonnement.</summary>
+        private void OnThinkingTapped(object sender, TappedEventArgs e)
+        {
+            if (sender is BindableObject b && b.BindingContext is ChatMessage m)
+                m.ToggleThinking();
+        }
+
         /// <summary>★ AJOUT (25/09, « Appliquer ») : pose le bloc dans le fichier affiché — tout le travail (où, diff, accord) est fait par MainPage.</summary>
         private async void OnApplyCodeClicked(object sender, EventArgs e)
         {

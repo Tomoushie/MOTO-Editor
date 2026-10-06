@@ -8,10 +8,10 @@
 | Mesure | Valeur |
 |---|---|
 | Réglages DÉCLARÉS au catalogue | 332 |
-| Clés lues par du code compilé | 141 |
-| **Déclarés ET lus → réellement opérants** | **115** |
-| Déclarés mais INERTES | 217 |
-| **Part réellement opérante** | **34.6 %** |
+| Clés lues par du code compilé | 142 |
+| **Déclarés ET lus → réellement opérants** | **116** |
+| Déclarés mais INERTES | 216 |
+| **Part réellement opérante** | **34.9 %** |
 
 ## Réglages réellement opérants
 
@@ -132,6 +132,7 @@
 | `terminal_shell` | Terminal | Moto.Editor\Settings\TerminalSettings.cs |
 | `terminal_working_dir` | Terminal | Moto.Editor\Settings\TerminalSettings.cs |
 | `theme_mode` | Apparence | Moto.Editor\Settings\SettingsApplier.cs |
+| `thinking_display` | AI | Moto.Editor\Settings\AgentSettings.cs |
 
 ## Réglages INERTES, par catégorie
 
@@ -139,7 +140,7 @@ Ce sont les réglages affichés dans la fenêtre Réglages dont AUCUN code
 compilé ne lit la clé : ils sont persistés, mais sans effet. C'est la
 matière première du palier « tout ce qui est annoncé fonctionne ».
 
-### AI — 31 réglage(s) inerte(s)
+### AI — 30 réglage(s) inerte(s)
 
 - `ai_disabled`
 - `ai.agents.enabled`
@@ -169,7 +170,6 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `show_turn_stats`
 - `single_file_review`
 - `terminal_thread_init_cmd`
-- `thinking_display`
 - `threads_sidebar_side`
 - `use_modifier_to_send`
 
@@ -396,17 +396,17 @@ matière première du palier « tout ce qui est annoncé fonctionne ».
 - `pair_programming`
 - `tutor_mode`
 
-### MCP — 3 réglage(s) inerte(s)
-
-- `mcp.adv.checkpointing`
-- `mcp.enabled`
-- `mcp.subagents`
-
 ### Raccourcis — 3 réglage(s) inerte(s)
 
 - `base_keymap`
 - `helix_mode`
 - `vim_mode`
+
+### MCP — 3 réglage(s) inerte(s)
+
+- `mcp.adv.checkpointing`
+- `mcp.enabled`
+- `mcp.subagents`
 
 ### Network — 2 réglage(s) inerte(s)
 
