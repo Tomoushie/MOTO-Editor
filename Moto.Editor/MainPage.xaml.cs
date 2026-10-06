@@ -282,6 +282,18 @@ namespace Moto.Editor
             if (manager is null) return;
 
             EditorPane.InitializeLsp(manager);
+
+            // ★ AJOUT (06/10, chantier « vendable ») : l'intégration LSP était CÂBLÉE au
+            // gestionnaire mais jamais branchée sur l'éditeur (OpenDocument/UpdateDocument
+            // n'avaient aucun appelant). Ici : chaque édition de l'utilisateur notifie le
+            // serveur (debounce 500 ms dans UpdateDocumentWithLspAsync). Sans serveur
+            // OmniSharp installé, FindOmniSharpServer renvoie null → no-op (sans risque).
+            EditorPane.EditorChanged += (s, text) =>
+            {
+                var path = _viewModel.SelectedDocument?.Path;
+                if (path != null)
+                    _ = EditorPane.UpdateDocumentWithLspAsync(path, text ?? string.Empty);
+            };
         }
 
         /// <summary>

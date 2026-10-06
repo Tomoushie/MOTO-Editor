@@ -723,6 +723,10 @@ namespace Moto.Editor
             // fichier actif (scan périodique + suggestions), si autolink_enabled.
             _contextEngine?.SetActiveFile(doc.Path);
             EditorPane.EditorText = doc.Text;
+            // ★ AJOUT (06/10, chantier « vendable ») : notifie le serveur LSP de
+            // l'ouverture du document (coloration sémantique + diagnostics). Sans serveur
+            // OmniSharp installé → no-op (FindOmniSharpServer renvoie null).
+            _ = EditorPane.OpenDocumentWithLspAsync(doc.Path, doc.Text);
             _currentPath = doc.Path;
             RefreshAiUndoButton();
             if (_cortex != null && doc.Path != null)
