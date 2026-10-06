@@ -35,6 +35,9 @@ namespace Moto.Editor.Views
     {
         public ChatService Chat { get; }
 
+        /// <summary>★ AJOUT (06/10, vue fractionnée) : titre du panneau (distinct pour la 2e conversation).</summary>
+        public string Title { get; set; } = "MOTO AI";
+
         public event Action<string> ModelChanged;
 
         /// <summary>

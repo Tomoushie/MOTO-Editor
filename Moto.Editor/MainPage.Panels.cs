@@ -344,7 +344,7 @@ namespace Moto.Editor
             PlatformView => "Plateforme",
             CortexView => "Cortex",
             NeuralView => "Neural",
-            AiChatView => "MOTO AI",
+            AiChatView chat => chat.Title,
             AIWorkspaceView => "Workspace",
             PluginGalleryView => "Plugins",
             AnalyticsDashboardView => "Analytics",

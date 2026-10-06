@@ -619,7 +619,7 @@ namespace Moto.Editor
             WireAgentCommand(_aiChatPanel);
             // ★ AJOUT (06/10, vue fractionnée) : seconde surface de chat (sa propre
             // conversation), affichée à côté quand le split est actif.
-            _aiChatPanel2 = new Views.AiChatView(_chatService2);
+            _aiChatPanel2 = new Views.AiChatView(_chatService2) { Title = "MOTO AI · 2" };
             WireAgentCommand(_aiChatPanel2);
             _pluginGallery = new PluginGalleryView(null, null, System.IO.Path.Combine(_currentRoot ?? "", "plugins"));
             _analyticsDashboard = new AnalyticsDashboardView();
