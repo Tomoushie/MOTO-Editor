@@ -217,6 +217,13 @@ namespace Moto.Editor.Views
                 m.ToggleThinking();
         }
 
+        /// <summary>★ AJOUT (06/10, Claude Code .msg-foot) : copie le texte du message dans le presse-papiers.</summary>
+        private async void OnCopyMessageClicked(object sender, EventArgs e)
+        {
+            if ((sender as Button)?.BindingContext is ChatMessage m && m.Content.Length > 0)
+                await Clipboard.SetTextAsync(m.Content);
+        }
+
         /// <summary>★ AJOUT (25/09, « Appliquer ») : pose le bloc dans le fichier affiché — tout le travail (où, diff, accord) est fait par MainPage.</summary>
         private async void OnApplyCodeClicked(object sender, EventArgs e)
         {

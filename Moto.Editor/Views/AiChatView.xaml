@@ -151,8 +151,14 @@
                                 <!-- ★ AJOUT (24/09) : modèle, durée, ce que le modèle a lu, ce qui n'a pas été envoyé. -->
                                 <Label Text="{Binding Footnote}" IsVisible="{Binding HasFootnote}"
                                        FontSize="{StaticResource FontSizeSmall}" TextColor="{StaticResource Txt2}" />
-                                <Label Text="{Binding TimeLabel}" FontSize="{StaticResource FontSizeSmall}"
-                                       TextColor="{StaticResource Txt2}" HorizontalOptions="End" />
+                                <!-- ★ AJOUT (06/10, Claude Code .msg-foot) : pied aligné à droite — heure + bouton copier le message. -->
+                                <HorizontalStackLayout HorizontalOptions="End" Spacing="{StaticResource SpaceSm}">
+                                    <Label Text="{Binding TimeLabel}" FontSize="{StaticResource FontSizeSmall}"
+                                           TextColor="{StaticResource Txt2}" VerticalOptions="Center" />
+                                    <Button Text="Copier" FontSize="10" Padding="6,1"
+                                            BackgroundColor="Transparent" TextColor="{StaticResource Txt3}"
+                                            VerticalOptions="Center" Clicked="OnCopyMessageClicked" />
+                                </HorizontalStackLayout>
                             </VerticalStackLayout>
                         </Border>
                     </DataTemplate>
