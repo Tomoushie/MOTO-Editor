@@ -628,7 +628,7 @@ HTML/CSS complète « MOTO Editor — Interface type Claude Code (v4) ».
 l'ancien bleu est conservé sous le jeton `AccentWarm`) ; (2) commencer par le
 **Chat IA**.
 
-**Réalisé (4 lots, build 0/476, app lancée 9 s sans exception)** :
+**Réalisé (lots successifs, tous build 0/476, app lancée sans exception)** :
 - `156acd2` thème chaud : `Accent` #D97757, fonds #262421/#1e1c1a/#2e2c28/
   #3b3833, textes #ece9e4/#a09b93, variantes hover/pressed dérivées de
   #D97757/#E08B6D.
@@ -636,16 +636,26 @@ l'ancien bleu est conservé sous le jeton `AccentWarm`) ; (2) commencer par le
 - `cf62569` micro-interaction : press-scale 0.94 des boutons icône
   (`.icobtn:active{transform:scale(.94)}` de la maquette).
 - `487c495` bulles de chat chaudes (user #3B3833, IA #2A2825).
+- `103b3e9` éditeur WebView réchauffé (fond/gutter/mini-carte/gbar #262421/#1e1c1a).
+- `6c4341b` sélection de texte de l'éditeur en orange (était bleue).
+- `3341d0d` surfaces secondaires (Neural, Threads, Accueil, ContentPage, Beginner).
+- `cb05813` rayons du chat 12px (bulles + composeur, `.msg-*`/`.inputbox`).
+- `f80dab6` **section « ✦ Thinking » repliable** : thread `LlmReply.Thinking` →
+  `ChatOutcome.Thinking` → `ChatMessage.Thinking` + `thinking_display` câblé
+  (116/332) ; `Think=null` ne force plus l'arrêt de la réflexion.
+- `0f7ebb3` bouton « Copier » sur chaque message (`.msg-foot`).
+- `151599c`+`daff9ff` mémoire parallèle reprise (couverture 82→115) + rapport
+  visuel « Moyen à Elevé » (captures avant/après).
 
 **Constat honnête sur le Chat IA** : composeur (« @ … / … », modèle, contexte,
-slash), blocs de code (en-tête + Appliquer + Copier) et bulles sont DÉJÀ en
-place. Les manques restants ne sont pas purement visuels : **Thinking + appels
-d'outils** = fonctionnel (le chat passe par `OllamaClient` texte brut ; les
-champs `LlmMessage.Thinking`/`ToolCalls` parsés par `OllamaChatClient` ne sont
-utilisés que par la boucle Agent, pas par le chat — afficher exige de basculer
-le chat vers le client à outils) ; **heatmap** = données absentes (un graphe de
-contributions serait factice, interdit) ; **puces de code inline** = limitées en
-MAUI (`Span` sans coin arrondi, `FormattedText` non bindable).
+slash), blocs de code (en-tête + Appliquer + Copier) et bulles étaient DÉJÀ en
+place. **Thinking = FAIT (06/10)**. Restent : **appels d'outils** = fonctionnel
+(le chat appelle `OllamaChatClient.ChatAsync` avec `tools:null` ; les outils
+vivent dans la boucle Agent `AgentLoopV2` — afficher exige de rendre le mode
+« Agent » réellement agentique, hors périmètre visuel) ; **heatmap** = données
+absentes (un graphe de contributions serait factice, interdit) ; **puces de code
+inline** = limitées en MAUI (`Span` sans coin arrondi, `FormattedText` non
+bindable).
 
 ## Bridge Xeno (MOTO-Xeno-Desktop) — contexte durable
 
