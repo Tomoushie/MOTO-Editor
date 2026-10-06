@@ -1117,12 +1117,17 @@ namespace Moto.Editor
         /// <summary>
         /// ★ AJOUT (06/10, agent réellement agentique) : classe un message narré par
         /// l'agent selon son préfixe déterministe (posé par AgentV2Runner.RunView) :
-        /// « 💭 » = raisonnement, « 🤖 »/« 🚫 » = appel d'outil, sinon texte ordinaire.
+        /// « 💭 » = raisonnement, « 🤖 »/« 🚫 »/« ⚠ »/« ✅ Étape » = appel d'outil
+        /// (proposition, refus, résultat), sinon texte ordinaire (« ✅ Agent … » = bilan final).
         /// </summary>
         private static ChatMessageKind ClassifyAgentMessage(string message)
         {
             if (message.StartsWith("💭 ", StringComparison.Ordinal)) return ChatMessageKind.Thinking;
-            if (message.StartsWith("🤖 ", StringComparison.Ordinal) || message.StartsWith("🚫 ", StringComparison.Ordinal)) return ChatMessageKind.ToolCall;
+            if (message.StartsWith("🤖 ", StringComparison.Ordinal)
+                || message.StartsWith("🚫 ", StringComparison.Ordinal)
+                || message.StartsWith("⚠ ", StringComparison.Ordinal)
+                || (message.StartsWith("✅ ", StringComparison.Ordinal) && !message.StartsWith("✅ Agent", StringComparison.Ordinal)))
+                return ChatMessageKind.ToolCall;
             return ChatMessageKind.Text;
         }
 
