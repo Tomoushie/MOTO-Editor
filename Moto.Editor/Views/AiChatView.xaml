@@ -108,7 +108,7 @@
                              (BorderSoft, déjà utilisé pour les séparateurs discrets du thème),
                              rayon réduit 10→8 pour rester cohérent avec le reste de l'appli
                              (MotoHoverButton/boutons d'icône utilisent déjà 8). -->
-                        <Border StrokeShape="RoundRectangle 8"
+                        <Border StrokeShape="RoundRectangle 12"
                                 Stroke="{StaticResource BorderSoft}" StrokeThickness="1"
                                 BackgroundColor="{Binding BubbleColor}"
                                 Padding="10,6" Margin="4,3"
@@ -161,7 +161,7 @@
                   ItemSelected="OnSlashSelected" />
 
         <!-- Zone de saisie + barre mode/modèle (structure type agent) -->
-        <Border Grid.Row="4" StrokeShape="RoundRectangle 8"
+        <Border Grid.Row="4" StrokeShape="RoundRectangle 12"
                 Stroke="{StaticResource BorderCol}" BackgroundColor="{StaticResource BgApp}" Padding="{StaticResource SpaceXs}">
 
             <Grid RowDefinitions="Auto,Auto" ColumnDefinitions="Auto,*,Auto">
