@@ -48,6 +48,9 @@ namespace Moto.Editor
         private readonly ExportEngine _exportEngine = new();
         private readonly PresentationEngine _presentationEngine = new();
         private readonly ChatService _chatService;
+        // ★ AJOUT (06/10, vue fractionnée) : seconde conversation indépendante (son propre
+        // ChatService/thread) affichée à côté de la première quand le split est actif.
+        private readonly ChatService _chatService2;
         private readonly CollabSession _collabSession = new();
         private readonly Moto.Core.Platform.PlatformEngine _platformEngine = new();
         // ★ AJOUT (30/08, 3e passe) : moteur de prévisualisation (existait déjà dans
@@ -86,6 +89,10 @@ namespace Moto.Editor
         // ★ AJOUT (02/09) : remplace le stub "AiHost" — vrai panneau de chat,
         // branché comme les autres panneaux IA ci-dessus (voir WirePanels).
         private Views.AiChatView _aiChatPanel;
+        // ★ AJOUT (06/10, vue fractionnée) : seconde surface de chat (côté split).
+        // Assignée dans WirePanels (comme _aiChatPanel) ; null! = le compilateur ne
+        // doit pas signaler CS8618 (elle existe avant tout usage).
+        private Views.AiChatView _aiChatPanel2 = null!;
         private Views.SearchView _searchPanel;
         // ★ AJOUT (01/10, décision C item 3) : panneau Outline (vue symboles).
         // Nullable car construit dans WirePanels (appelé depuis le constructeur), pas
@@ -114,6 +121,26 @@ namespace Moto.Editor
         private T? Resolve<T>() where T : class =>
             Application.Current?.Handler?.MauiContext?.Services?.GetService<T>();
 
+        /// <summary>
+        /// ★ AJOUT (06/10, vue fractionnée) : construit un ChatService avec les trois
+        /// fournisseurs déjà câblés (sélection, fichier affiché, « Appliquer »). Utilisé
+        /// pour la conversation principale ET la seconde (split) — même câblage, deux
+        /// conversations indépendantes.
+        /// </summary>
+        private ChatService CreateChatService()
+        {
+            var chat = new ChatService(_currentRoot, _aiService.Fallback, _aiService.Kernel);
+            chat.SelectionProvider = () => EditorPane.GetSelectedText();
+            // ★ AJOUT (24/09, chat en flux) : le fichier affiché part avec la question (mode « Chat & Write ») — texte ACTUEL de l'éditeur,
+            // modifications non enregistrées comprises.
+            chat.ActiveFileProvider = () => _viewModel.SelectedDocument is { } doc
+                ? (string.IsNullOrWhiteSpace(doc.Path) ? doc.Title : doc.Path, EditorPane.EditorText ?? doc.Text ?? string.Empty)
+                : null;
+            // ★ AJOUT (25/09) : « Appliquer » sur un bloc de code du chat (MainPage.ChatApply.cs).
+            chat.ApplyCodeHandler = ApplyChatCodeAsync;
+            return chat;
+        }
+
         public MainPage()
         {
             InitializeComponent();
@@ -123,15 +150,9 @@ namespace Moto.Editor
             InitializeInfoOverlayAndUpdates();
             InitializeGlobalUsage();
 
-            _chatService = new ChatService(_currentRoot, _aiService.Fallback, _aiService.Kernel);
-            _chatService.SelectionProvider = () => EditorPane.GetSelectedText();
-            // ★ AJOUT (24/09, chat en flux) : le fichier affiché part avec la question (mode « Chat & Write ») — texte ACTUEL de l'éditeur,
-            // modifications non enregistrées comprises.
-            _chatService.ActiveFileProvider = () => _viewModel.SelectedDocument is { } doc
-                ? (string.IsNullOrWhiteSpace(doc.Path) ? doc.Title : doc.Path, EditorPane.EditorText ?? doc.Text ?? string.Empty)
-                : null;
-            // ★ AJOUT (25/09) : « Appliquer » sur un bloc de code du chat (MainPage.ChatApply.cs).
-            _chatService.ApplyCodeHandler = ApplyChatCodeAsync;
+            _chatService = CreateChatService();
+            // ★ AJOUT (06/10, vue fractionnée) : seconde conversation indépendante.
+            _chatService2 = CreateChatService();
 
             CreateHome();
 
@@ -275,7 +296,9 @@ namespace Moto.Editor
         {
             view.AgentCommandRequested += goal =>
             {
-                var thread = _chatService.CurrentThread ?? _chatService.CreateThread();
+                // ★ (06/10) : la conversation de CETTE vue (view.Chat), pas le _chatService
+                // global — sinon la 2e surface (split) écrirait dans la 1re.
+                var thread = view.Chat.CurrentThread ?? view.Chat.CreateThread();
                 thread.Messages.Add(new Moto.Editor.Models.ChatMessage { Role = "user", Content = goal });
                 thread.LastActivityUtc = DateTime.UtcNow;
                 var ack = HandleAgentCommand(goal);
@@ -283,6 +306,18 @@ namespace Moto.Editor
                 thread.LastActivityUtc = DateTime.UtcNow;
                 RefreshHomeStats();
             };
+        }
+
+        /// <summary>
+        /// ★ AJOUT (06/10, vue fractionnée) : bascule la seconde conversation (split) —
+        /// affiche ou masque le panneau de chat n°2 (son propre ChatService/thread).
+        /// Empilé dans le dock (le système de panneaux modulaires empile verticalement) ;
+        /// le réglage de direction vertical/horizontal_split_direction reste un raffinement.
+        /// </summary>
+        private void ToggleSplit()
+        {
+            _aiChatPanel2.IsVisible = !_aiChatPanel2.IsVisible;
+            StatusBar.SetStatus(_aiChatPanel2.IsVisible ? "Vue fractionnée : deux conversations." : "Vue fractionnée : une conversation.");
         }
 
         // ══════════════ Câblage ══════════════
@@ -320,7 +355,7 @@ namespace Moto.Editor
             EditorPane.BackRequested += OnNavBack;
             EditorPane.ForwardRequested += OnNavForward;
             EditorPane.MaximizeRequested += OnMaximizeToggled;
-            EditorPane.SplitRequested += () => StatusBar.SetStatus("Split : à venir.");
+            EditorPane.SplitRequested += () => ToggleSplit();
             EditorPane.OpenFileRequested += () => _viewModel.OpenFileCommand.Execute(null);
             EditorPane.AiPromptSubmitted += OnAiBandPrompt;
             EditorPane.AiCancelRequested += OnAiBandCancel;
@@ -582,6 +617,10 @@ namespace Moto.Editor
             // ★ AJOUT (06/10, chantier « agent réellement agentique ») : le mode « Agent »
             // délègue l'objectif à la vraie boucle d'agent (voir WireAgentCommand).
             WireAgentCommand(_aiChatPanel);
+            // ★ AJOUT (06/10, vue fractionnée) : seconde surface de chat (sa propre
+            // conversation), affichée à côté quand le split est actif.
+            _aiChatPanel2 = new Views.AiChatView(_chatService2);
+            WireAgentCommand(_aiChatPanel2);
             _pluginGallery = new PluginGalleryView(null, null, System.IO.Path.Combine(_currentRoot ?? "", "plugins"));
             _analyticsDashboard = new AnalyticsDashboardView();
             _debugPanel = new DebugPanelView();
@@ -597,7 +636,7 @@ namespace Moto.Editor
             foreach (var panel in new ContentView[]
             {
                 _platformPanel, _cortexPanel, _neuralPanel, _workspacePanel, _aiChatPanel,
-                _pluginGallery, _analyticsDashboard, _debugPanel
+                _aiChatPanel2, _pluginGallery, _analyticsDashboard, _debugPanel
             })
                 AddFloatingPanel(panel);
 
