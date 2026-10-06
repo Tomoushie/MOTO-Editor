@@ -1,0 +1,519 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#faf9f5;color:#141413}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>MOTO Editor avant-après</title>
+<style>
+  :root {
+    color-scheme: dark;
+    --bg: #17181C;
+    --panel: #1E2025;
+    --elev: #25272D;
+    --hover: #2A2C31;
+    --border: #3A3B40;
+    --soft: rgba(255, 255, 255, 0.10);
+    --txt1: #E5E7EB;
+    --txt2: #9CA3AF;
+    --txt3: #6B7280;
+    --accent: #007ACC;
+    --accent-text: #3794FF;
+    --accent-muted: rgba(0, 122, 204, 0.16);
+    --warn: #D9A227;
+    --warn-muted: rgba(217, 162, 39, 0.14);
+    --danger: #DC2626;
+    --success: #60BF60;
+    --success-muted: rgba(96, 191, 96, 0.14);
+    --ui: "Segoe UI Variable Text", "Segoe UI Variable", "Segoe UI", system-ui, -apple-system, sans-serif;
+    --mono: "Cascadia Mono", "Cascadia Code", Consolas, ui-monospace, monospace;
+  }
+  * { box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--txt1);
+    font-family: var(--ui);
+    font-size: 15px;
+    line-height: 1.55;
+    padding-inline: 16px;
+    padding-block: 0 48px;
+  }
+  .wrap { max-width: 1180px; margin: 0 auto; display: grid; gap: 40px; }
+
+  /* Bandeau façon barre MOTO */
+  .chrome {
+    display: flex; align-items: center; gap: 18px; flex-wrap: wrap;
+    padding: 10px 0; border-bottom: 1px solid var(--soft);
+    font-size: 13px; color: var(--txt2);
+  }
+  .chrome .logo {
+    width: 22px; height: 22px; border-radius: 6px; flex: none;
+    background: linear-gradient(145deg, #2E9BFF, #0B4E8C);
+    display: grid; place-items: center; color: #fff; font-weight: 700; font-size: 12px;
+  }
+  .chrome nav { display: flex; gap: 16px; flex-wrap: wrap; }
+  .chrome nav span { color: var(--txt1); }
+
+  header.intro { display: grid; gap: 14px; padding-top: 28px; }
+  .eyebrow {
+    font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--txt2); font-weight: 600;
+  }
+  h1 { font-size: clamp(26px, 4.2vw, 38px); line-height: 1.15; margin: 0; text-wrap: balance; font-weight: 600; }
+  h2 { font-size: 21px; margin: 0; text-wrap: balance; font-weight: 600; }
+  h3 { font-size: 16px; margin: 0; font-weight: 600; }
+  p { margin: 0; max-width: 68ch; }
+  .lead { color: var(--txt2); font-size: 16px; }
+  .pill {
+    display: inline-flex; align-items: center; gap: 8px; width: fit-content;
+    padding: 4px 12px; border-radius: 999px; font-size: 13px; font-weight: 600;
+    background: var(--warn-muted); color: var(--warn); border: 1px solid rgba(217, 162, 39, 0.35);
+  }
+  .pill::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--warn); }
+
+  /* Échelle des paliers */
+  .scale { display: grid; gap: 10px; }
+  .steps { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 6px; }
+  .step {
+    padding: 10px 8px 9px; border-radius: 8px; text-align: center;
+    background: var(--panel); border: 1px solid var(--soft);
+    font-size: 13px; color: var(--txt3);
+  }
+  .step small { display: block; font-size: 11px; margin-top: 2px; color: var(--txt3); }
+  .step.done { color: var(--txt2); }
+  .step.was { color: var(--txt1); border-color: var(--border); }
+  .step.was small { color: var(--txt2); }
+  .step.now {
+    color: var(--txt1); background: var(--accent-muted);
+    border: 1px dashed var(--accent-text);
+  }
+  .step.now small { color: var(--accent-text); }
+  .scale-note { font-size: 13px; color: var(--txt2); }
+
+  /* Surfaces */
+  .section-head { display: flex; justify-content: space-between; align-items: end; gap: 16px; flex-wrap: wrap; }
+  .section-head p { color: var(--txt2); font-size: 14px; }
+  .seg {
+    display: inline-flex; padding: 3px; gap: 2px; border-radius: 8px;
+    background: var(--bg); border: 1px solid var(--border);
+  }
+  .seg button {
+    font: inherit; font-size: 13px; color: var(--txt2); background: transparent;
+    border: 0; border-radius: 6px; padding: 5px 14px; cursor: pointer;
+  }
+  .seg button:hover { color: var(--txt1); background: var(--hover); }
+  .seg button[aria-pressed="true"] { color: #fff; background: var(--accent); }
+  .seg button:focus-visible, .check input:focus-visible + span { outline: 2px solid var(--accent-text); outline-offset: 2px; }
+
+  .surfaces { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; }
+  .card {
+    display: grid; gap: 12px; align-content: start;
+    background: var(--panel); border: 1px solid var(--soft); border-radius: 12px; padding: 14px;
+  }
+  .card-top { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+  .tag {
+    font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 600;
+    padding: 2px 8px; border-radius: 6px; background: var(--success-muted); color: var(--success);
+  }
+  .frame {
+    position: relative; width: 100%; max-width: 100%; aspect-ratio: 1400 / 900;
+    border-radius: 8px; overflow: hidden; background: #000; border: 1px solid var(--border);
+  }
+  .frame img {
+    position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+    transition: opacity 160ms ease;
+  }
+  .frame .before { opacity: 0; }
+  .card[data-show="avant"] .frame .before { opacity: 1; }
+  .card[data-show="avant"] .frame .after { opacity: 0; }
+  .frame .label {
+    position: absolute; left: 10px; top: 10px; z-index: 2;
+    font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; font-weight: 700;
+    padding: 3px 8px; border-radius: 6px; background: rgba(23, 24, 28, 0.86); color: var(--txt1);
+    border: 1px solid var(--soft);
+  }
+  .frame a { position: absolute; inset: 0; z-index: 1; }
+  .card ul { margin: 0; padding-left: 18px; display: grid; gap: 4px; color: var(--txt2); font-size: 14px; }
+  .card ul b { color: var(--txt1); font-weight: 600; }
+  .card .note { font-size: 13px; color: var(--txt3); }
+
+  /* Listes basses */
+  .two { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; align-items: start; }
+  .box { background: var(--panel); border: 1px solid var(--soft); border-radius: 12px; padding: 18px; display: grid; gap: 12px; }
+  .box > p { color: var(--txt2); font-size: 14px; }
+  .checks { display: grid; gap: 8px; }
+  .check { position: relative; display: flex; gap: 10px; align-items: flex-start; font-size: 14px; cursor: pointer; }
+  .check input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+  .check span.box-mark {
+    flex: none; width: 18px; height: 18px; margin-top: 2px; border-radius: 4px;
+    border: 1.5px solid var(--border); background: var(--bg); display: grid; place-items: center;
+  }
+  .check input:checked + span.box-mark { background: var(--accent); border-color: var(--accent); }
+  .check input:checked + span.box-mark::after {
+    content: ""; width: 5px; height: 9px; border: solid #fff; border-width: 0 2px 2px 0; transform: rotate(45deg) translate(-1px, -1px);
+  }
+  .check input:checked ~ .check-text { color: var(--txt3); text-decoration: line-through; }
+  .check-text small { display: block; color: var(--txt3); font-size: 12.5px; }
+  .progress { font-size: 13px; color: var(--txt2); font-variant-numeric: tabular-nums; }
+
+  .decision { display: grid; gap: 8px; padding-top: 12px; border-top: 1px solid var(--soft); }
+  .decision:first-of-type { border-top: 0; padding-top: 0; }
+  .decision p { font-size: 14px; color: var(--txt2); }
+  .opts { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
+  .opts li {
+    display: grid; grid-template-columns: 26px 1fr; gap: 8px; align-items: start;
+    font-size: 14px; color: var(--txt2); padding: 7px 10px; border-radius: 8px; background: var(--bg);
+    border: 1px solid transparent;
+  }
+  .opts li b { color: var(--txt1); font-weight: 600; }
+  .opts li .k {
+    font-family: var(--mono); font-size: 12px; color: var(--txt2); background: var(--elev);
+    border-radius: 4px; text-align: center; padding: 1px 0; margin-top: 2px;
+  }
+  .opts li.reco { border-color: rgba(55, 148, 255, 0.45); background: var(--accent-muted); }
+  .opts li.reco .k { background: var(--accent); color: #fff; }
+  .reco-tag { font-size: 11px; color: var(--accent-text); font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; margin-left: 6px; }
+
+  .facts { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 12px; }
+  .fact { background: var(--panel); border: 1px solid var(--soft); border-radius: 10px; padding: 12px 14px; display: grid; gap: 2px; }
+  .fact .v { font-size: 20px; font-weight: 600; font-variant-numeric: tabular-nums; }
+  .fact .d { font-size: 13px; color: var(--txt2); }
+  .limits { margin: 0; padding-left: 18px; display: grid; gap: 6px; color: var(--txt2); font-size: 14px; }
+  .commits { overflow-x: auto; }
+  .commits table { border-collapse: collapse; width: 100%; min-width: 520px; font-size: 13px; }
+  .commits td { padding: 6px 10px; border-top: 1px solid var(--soft); color: var(--txt2); vertical-align: top; }
+  .commits td:first-child { font-family: var(--mono); color: var(--accent-text); white-space: nowrap; width: 1%; }
+  footer { font-size: 13px; color: var(--txt3); display: grid; gap: 6px; }
+
+  @media (max-width: 860px) {
+    .surfaces, .two { grid-template-columns: minmax(0, 1fr); }
+  }
+  @media (max-width: 560px) {
+    .steps { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .chrome nav { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .frame img { transition: none; }
+  }
+</style>
+
+<div class="wrap">
+  <div class="chrome" aria-hidden="true">
+    <div class="logo">M</div>
+    <nav><span>Fichiers</span><span>Recherche</span><span>Collaboration</span><span>Terminal</span><span>Assistant</span></nav>
+  </div>
+
+  <header class="intro">
+    <span class="eyebrow">MOTO Editor · axe visuel · 26 septembre</span>
+    <h1>Passe « moyen → élevé » : avant, après</h1>
+    <span class="pill">Candidat « élevé » · à juger par toi</span>
+    <p class="lead">Faite en une passe, sans te poser de question en route. Chaque écran ci-dessous est une capture réelle du logiciel, prise avant puis après. Clique sur « Avant » ou « Après » pour comparer au même endroit. La version de ton raccourci Bureau a été reconstruite avec tout ça cette nuit.</p>
+  </header>
+
+  <section class="scale" aria-label="Échelle des paliers">
+    <span class="eyebrow">Ton échelle, axe visuel</span>
+    <div class="steps">
+      <div class="step done">cheap<small>22/09</small></div>
+      <div class="step done">faible<small>24/09</small></div>
+      <div class="step was">moyen<small>au départ</small></div>
+      <div class="step now">élevé<small>candidat</small></div>
+      <div class="step">vendable</div>
+      <div class="step">triple A</div>
+    </div>
+    <p class="scale-note">« Élevé » selon ta définition : ressembler à Zed ou VS Code, un cran en dessous. Tant que tu n'as pas regardé, ce palier n'est pas acquis.</p>
+  </section>
+
+  <section style="display:grid; gap:18px" aria-labelledby="t-surfaces">
+    <div class="section-head">
+      <div style="display:grid; gap:6px">
+        <h2 id="t-surfaces">Les écrans de tous les jours</h2>
+        <p>8 surfaces parcourues. Le menu du compte était déjà au niveau : il n'a pas bougé.</p>
+      </div>
+      <div class="seg" role="group" aria-label="Tout afficher en">
+        <button type="button" id="all-avant" data-all="avant" aria-pressed="false">Tout en avant</button>
+        <button type="button" id="all-apres" data-all="apres" aria-pressed="true">Tout en après</button>
+      </div>
+    </div>
+
+    <div class="surfaces">
+
+      <article class="card" data-show="apres">
+        <div class="card-top">
+          <h3>Accueil</h3>
+          <div class="seg" role="group" aria-label="Accueil"><button type="button" data-set="avant" aria-pressed="false">Avant</button><button type="button" data-set="apres" aria-pressed="true">Après</button></div>
+        </div>
+        <div class="frame">
+          <img class="before" src="img/home-avant.webp" alt="Accueil avant : bande noire en haut, dossiers jaunes, barre d'état avec emoji" loading="lazy">
+          <img class="after" src="img/home-apres.webp" alt="Accueil après : plus de bande, icônes fines, barre d'état sobre">
+          <span class="label">Après</span>
+        </div>
+        <ul>
+          <li><b>La bande noire de 32 px en haut a disparu.</b> Elle venait de MAUI lui-même, pas de Windows.</li>
+          <li>Explorateur : une seule famille d'icônes fines, fini les dossiers jaunes.</li>
+          <li>Barre d'état et bouton d'envoi sans emoji.</li>
+        </ul>
+        <p class="note">Capture « après » prise sur la version Release de ton raccourci, relancée cette nuit.</p>
+      </article>
+
+      <article class="card" data-show="apres">
+        <div class="card-top">
+          <h3>Éditeur</h3>
+          <div class="seg" role="group" aria-label="Éditeur"><button type="button" data-set="avant" aria-pressed="false">Avant</button><button type="button" data-set="apres" aria-pressed="true">Après</button></div>
+        </div>
+        <div class="frame">
+          <img class="before" src="img/editeur-avant.webp" alt="Éditeur avant : chemin complet, onglet plat, peu de couleurs" loading="lazy">
+          <img class="after" src="img/editeur-apres.webp" alt="Éditeur après : fil d'Ariane, onglet actif souligné, coloration, mini-carte" loading="lazy">
+          <span class="label">Après</span>
+        </div>
+        <ul>
+          <li>Onglet actif mis en avant, avec l'icône du type de fichier.</li>
+          <li>Chemin court et lisible (MOTO-Editor › Moto.Core › …) au lieu du chemin complet.</li>
+          <li>Coloration par langage, mini-carte, barres de défilement fines.</li>
+        </ul>
+      </article>
+
+      <article class="card" data-show="apres">
+        <div class="card-top">
+          <h3>Chat MOTO AI</h3>
+          <div class="seg" role="group" aria-label="Chat MOTO AI"><button type="button" data-set="avant" aria-pressed="false">Avant</button><button type="button" data-set="apres" aria-pressed="true">Après</button></div>
+        </div>
+        <div class="frame">
+          <img class="before" src="img/chat-avant.webp" alt="Chat avant : emoji dans le titre, bulle bleu vif" loading="lazy">
+          <img class="after" src="img/chat-apres.webp" alt="Chat après : titre sobre, icônes fines, bulle plus calme" loading="lazy">
+          <span class="label">Après</span>
+        </div>
+        <ul>
+          <li>Titre sans emoji, boutons « nouveau », « effacer », « joindre » et « envoyer » en icônes du thème.</li>
+          <li>Ta bulle est d'un bleu plus calme ; les blocs de code sont sur le fond de l'éditeur.</li>
+        </ul>
+      </article>
+
+      <article class="card" data-show="apres">
+        <div class="card-top">
+          <h3>Confirmation avec diff</h3>
+          <div class="seg" role="group" aria-label="Confirmation avec diff"><button type="button" data-set="avant" aria-pressed="false">Avant</button><button type="button" data-set="apres" aria-pressed="true">Après</button></div>
+        </div>
+        <div class="frame">
+          <img class="before" src="img/diff-avant.webp" alt="Diff avant : boutons réduits à du texte collé" loading="lazy">
+          <img class="after" src="img/diff-apres.webp" alt="Diff après : vrais boutons avec marges et coins arrondis" loading="lazy">
+          <span class="label">Après</span>
+        </div>
+        <ul>
+          <li><b>« Refuser » et « Appliquer » sont de vrais boutons</b>, avec marges et coins arrondis. Avant, un réglage caché les écrasait en texte collé.</li>
+          <li>Titre sans emoji.</li>
+        </ul>
+        <p class="note">La ligne « // S » en haut du code vient du test automatique de Ctrl+S, sur un fichier temporaire.</p>
+      </article>
+
+      <article class="card" data-show="apres">
+        <div class="card-top">
+          <h3>Suppression</h3>
+          <span class="tag">Nouveau</span>
+        </div>
+        <div class="frame">
+          <img class="after" src="img/danger-apres.webp" alt="Boîte de suppression avec bouton rouge Supprimer et bouton discret Annuler" loading="lazy">
+          <span class="label" style="background:rgba(23,24,28,.86)">Après</span>
+        </div>
+        <ul>
+          <li>Toute action qui efface a maintenant un bouton rouge ; « Annuler » reste discret.</li>
+        </ul>
+        <p class="note">Capture de test : rien n'a été supprimé.</p>
+      </article>
+
+      <article class="card" data-show="apres">
+        <div class="card-top">
+          <h3>Réglages et suggestions</h3>
+          <div class="seg" role="group" aria-label="Réglages"><button type="button" data-set="avant" aria-pressed="false">Avant</button><button type="button" data-set="apres" aria-pressed="true">Après</button></div>
+        </div>
+        <div class="frame">
+          <img class="before" src="img/reglages-avant.webp" alt="Réglages avant : emoji engrenage et clé" loading="lazy">
+          <img class="after" src="img/reglages-apres.webp" alt="Réglages après : icône fine, bouton Clés API discret, carte Suggestions" loading="lazy">
+          <span class="label">Après</span>
+        </div>
+        <ul>
+          <li>Titre avec une icône d'engrenage fine, « Clés API » en bouton discret, croix du thème.</li>
+          <li>Carte « Suggestions » (en bas à droite) : icônes fines au lieu d'emoji.</li>
+        </ul>
+      </article>
+
+      <article class="card" data-show="apres">
+        <div class="card-top">
+          <h3>Palette de commandes</h3>
+          <div class="seg" role="group" aria-label="Palette de commandes"><button type="button" data-set="avant" aria-pressed="false">Avant</button><button type="button" data-set="apres" aria-pressed="true">Après</button></div>
+        </div>
+        <div class="frame">
+          <img class="before" src="img/palette-avant.webp" alt="Palette avant : en-tête Menu avec emoji" loading="lazy">
+          <img class="after" src="img/palette-apres.webp" alt="Palette après : en-tête MENU en petites capitales" loading="lazy">
+          <span class="label">Après</span>
+        </div>
+        <ul>
+          <li>En-têtes de section en petites capitales, sans emoji, comme dans VS Code.</li>
+          <li>La palette s'affiche bien par-dessus l'éditeur (elle ne s'affichait plus à un moment de la passe, corrigé).</li>
+        </ul>
+      </article>
+
+      <article class="card" data-show="apres">
+        <div class="card-top">
+          <h3>Terminal, chat ouvert</h3>
+          <div class="seg" role="group" aria-label="Terminal"><button type="button" data-set="avant" aria-pressed="false">Avant</button><button type="button" data-set="apres" aria-pressed="true">Après</button></div>
+        </div>
+        <div class="frame">
+          <img class="before" src="img/terminal-avant.webp" alt="Terminal avant : poussé hors de la fenêtre, seul le mot TERMINAL visible" loading="lazy">
+          <img class="after" src="img/terminal-apres.webp" alt="Terminal après : tient dans la fenêtre, croix et envoi visibles" loading="lazy">
+          <span class="label">Après</span>
+        </div>
+        <ul>
+          <li><b>Avant, le terminal sortait de la fenêtre</b> quand le chat était ouvert : on ne voyait que le mot « TERMINAL », et la barre d'état avait disparu.</li>
+          <li>Il tient maintenant dans la fenêtre, avec sa croix et son bouton d'envoi. Mesuré à 220 et 360 px de haut.</li>
+        </ul>
+        <p class="note">Les accents mal affichés de cmd (« r,serv,s » sur cette capture) ont été corrigés cette nuit par une session séparée (cc26332). Le correctif est dans la version Release, pas sur ces captures.</p>
+      </article>
+
+    </div>
+  </section>
+
+  <section class="two">
+    <div class="box" aria-labelledby="t-check">
+      <h2 id="t-check">À regarder toi-même</h2>
+      <p>Ce que mes tests hors écran ne peuvent pas prouver. Coche au fur et à mesure (la page s'en souvient sur ton appareil).</p>
+      <div class="checks" id="checks">
+        <label class="check"><input type="checkbox" id="c1"><span class="box-mark"></span><span class="check-text">Taper du vrai texte dans l'éditeur<small>fluidité, curseur, sélection à la souris</small></span></label>
+        <label class="check"><input type="checkbox" id="c2"><span class="box-mark"></span><span class="check-text">Ctrl+S depuis le code<small>testé seulement avec une touche simulée</small></span></label>
+        <label class="check"><input type="checkbox" id="c3"><span class="box-mark"></span><span class="check-text">F11 : plein écran puis retour</span></label>
+        <label class="check"><input type="checkbox" id="c4"><span class="box-mark"></span><span class="check-text">Le haut de la fenêtre quand MOTO est au premier plan<small>la bande doit rester partie</small></span></label>
+        <label class="check"><input type="checkbox" id="c5"><span class="box-mark"></span><span class="check-text">Survol et focus des boutons<small>les captures montrent l'état au repos</small></span></label>
+        <label class="check"><input type="checkbox" id="c6"><span class="box-mark"></span><span class="check-text">Réduire la fenêtre avec le chat ouvert</span></label>
+        <label class="check"><input type="checkbox" id="c7"><span class="box-mark"></span><span class="check-text">Intervertir les panneaux (chat à droite, explorateur à gauche)</span></label>
+        <label class="check"><input type="checkbox" id="c8"><span class="box-mark"></span><span class="check-text">Cliquer avec la vraie souris dans la palette et le diff, au-dessus du code</span></label>
+      </div>
+      <span class="progress" id="progress">0 sur 8 vérifiés</span>
+    </div>
+
+    <div class="box" aria-labelledby="t-dec">
+      <h2 id="t-dec">Trois choix pour toi</h2>
+      <p>Vus pendant la passe, pas tranchés seul : ce sont des choix de produit.</p>
+
+      <div class="decision">
+        <h3>1. La liste des modèles montre OpenAI, Anthropic et Mistral</h3>
+        <p>Aucune clé n'est configurée dans l'appli : les choisir donnerait une erreur.</p>
+        <ul class="opts">
+          <li class="reco"><span class="k">A</span><span><b>Les montrer seulement une fois leur clé ajoutée</b>, avec une ligne « Ajouter un service en ligne… » qui ouvre Clés API.<span class="reco-tag">ma reco</span></span></li>
+          <li><span class="k">B</span><span>Les laisser visibles mais grisés, avec « clé manquante ».</span></li>
+          <li><span class="k">C</span><span>Laisser comme aujourd'hui.</span></li>
+        </ul>
+      </div>
+
+      <div class="decision">
+        <h3>2. Le mode « Agent » du chat fait la même chose que « Chat &amp; Write »</h3>
+        <p>L'étiquette promet plus que ce qui est branché.</p>
+        <ul class="opts">
+          <li class="reco"><span class="k">A</span><span><b>Retirer « Agent » du menu</b> jusqu'à ce qu'il soit vraiment branché.<span class="reco-tag">ma reco</span></span></li>
+          <li><span class="k">B</span><span>Le brancher sur l'agent v2 (diff et accord avant d'écrire) : un vrai chantier de plusieurs sessions.</span></li>
+          <li><span class="k">C</span><span>Le renommer pour dire ce qu'il fait.</span></li>
+        </ul>
+      </div>
+
+      <div class="decision">
+        <h3>3. Les chiffres de l'Accueil affichent 0 partout</h3>
+        <p>Sessions, messages, jetons, patterns appris : cause pas encore cherchée.</p>
+        <ul class="opts">
+          <li class="reco"><span class="k">A</span><span><b>Brancher les vrais compteurs</b>, et masquer la rangée tant qu'il n'y a rien à montrer.<span class="reco-tag">ma reco</span></span></li>
+          <li><span class="k">B</span><span>Retirer la rangée.</span></li>
+          <li><span class="k">C</span><span>Laisser comme aujourd'hui.</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section style="display:grid; gap:14px" aria-labelledby="t-facts">
+    <h2 id="t-facts">Mesuré</h2>
+    <div class="facts">
+      <div class="fact"><span class="v">0 erreur</span><span class="d">compilation complète, 477 avertissements (référence : 479)</span></div>
+      <div class="fact"><span class="v">543 / 553</span><span class="d">tests du moteur verts ; les 10 échecs sont les mêmes qu'avant, hors interface</span></div>
+      <div class="fact"><span class="v">18 ms</span><span class="d">de calcul par touche tapée sur un fichier de 1 326 lignes ; à surveiller, une image d'écran dure 16 ms</span></div>
+      <div class="fact"><span class="v">26/09 · 01:12</span><span class="d">version Release du raccourci Bureau reconstruite, démarrage vérifié sans erreur</span></div>
+    </div>
+  </section>
+
+  <section class="two">
+    <div class="box" aria-labelledby="t-limits">
+      <h2 id="t-limits">Limites connues</h2>
+      <ul class="limits">
+        <li>« Élevé » vaut pour les 8 écrans ci-dessus. Des vues secondaires gardent environ 40 emoji.</li>
+        <li>Les fenêtres secondaires (panneaux détachés) gardent la barre de titre de MAUI.</li>
+        <li>L'ombre de la barre IA a été retirée : elle empêchait la palette et le diff de s'afficher. La cause profonde n'est pas établie.</li>
+        <li>L'éditeur de tous les jours est de nouveau le WebView ; l'éditeur Skia plus rapide est en pause.</li>
+      </ul>
+    </div>
+    <div class="box" aria-labelledby="t-commits">
+      <h2 id="t-commits">Enregistré, pas envoyé</h2>
+      <p>Tout est sauvegardé en local. Rien n'est poussé sur GitHub sans ton accord (20 enregistrements en attente au total).</p>
+      <div class="commits">
+        <table>
+          <tr><td>5ac1136</td><td>Bande de 32 px en haut supprimée</td></tr>
+          <tr><td>6951fbc</td><td>Retour à l'éditeur WebView, refait façon VS Code</td></tr>
+          <tr><td>4d82e45</td><td>Raccourcis depuis le code, Ctrl+S</td></tr>
+          <tr><td>587286f</td><td>Onglets, explorateur, chat, fenêtres, boutons</td></tr>
+          <tr><td>2f8f6ee</td><td>Le terminal ne pousse plus la barre d'état</td></tr>
+          <tr><td>936ddf0</td><td>Terminal : croix et envoi visibles</td></tr>
+          <tr><td>acccad6</td><td>Documentation et pièges techniques</td></tr>
+          <tr><td>cc26332</td><td>Terminal : accents corrects (session séparée)</td></tr>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <span>Captures prises hors écran sur le vrai logiciel (fenêtre invisible, tes réglages inchangés), le 25/09 avant la passe et le 26/09 après.</span>
+  </footer>
+</div>
+
+<script>
+  (function () {
+    function show(card, which) {
+      if (!card.querySelector('.before')) return;
+      card.dataset.show = which;
+      card.querySelectorAll('[data-set]').forEach(function (b) {
+        b.setAttribute('aria-pressed', String(b.dataset.set === which));
+      });
+      var label = card.querySelector('.frame .label');
+      if (label) label.textContent = which === 'avant' ? 'Avant' : 'Après';
+    }
+    document.querySelectorAll('.card').forEach(function (card) {
+      card.querySelectorAll('[data-set]').forEach(function (b) {
+        b.addEventListener('click', function () { show(card, b.dataset.set); syncAll(); });
+      });
+    });
+    var allBtns = document.querySelectorAll('[data-all]');
+    function syncAll() {
+      var cards = Array.prototype.filter.call(document.querySelectorAll('.card'), function (c) { return c.querySelector('.before'); });
+      var allAvant = cards.every(function (c) { return c.dataset.show === 'avant'; });
+      var allApres = cards.every(function (c) { return c.dataset.show === 'apres'; });
+      allBtns.forEach(function (b) {
+        b.setAttribute('aria-pressed', String((b.dataset.all === 'avant' && allAvant) || (b.dataset.all === 'apres' && allApres)));
+      });
+    }
+    allBtns.forEach(function (b) {
+      b.addEventListener('click', function () {
+        document.querySelectorAll('.card').forEach(function (c) { show(c, b.dataset.all); });
+        syncAll();
+      });
+    });
+
+    var KEY = 'moto-avant-apres-checks';
+    var saved = {};
+    try { saved = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch (e) { saved = {}; }
+    var boxes = document.querySelectorAll('#checks input[type=checkbox]');
+    var progress = document.getElementById('progress');
+    function count() {
+      var n = 0; boxes.forEach(function (x) { if (x.checked) n++; });
+      progress.textContent = n + ' sur ' + boxes.length + ' vérifiés';
+    }
+    boxes.forEach(function (x) {
+      if (saved[x.id]) x.checked = true;
+      x.addEventListener('change', function () {
+        saved[x.id] = x.checked;
+        try { localStorage.setItem(KEY, JSON.stringify(saved)); } catch (e) {}
+        count();
+      });
+    });
+    count();
+  })();
+</script>
+
+</body></html>
