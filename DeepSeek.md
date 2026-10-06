@@ -694,6 +694,28 @@ raisonnement `💭` + appels d'outils `🤖/🚫/⚠/✅` affichés distinctemen
 **diff +/−** est montré dans l'overlay de confirmation au moment d'approuver —
 le rendre aussi inline dans le chat serait redondant.
 
+## ★ Chantier « élevé → vendable » (06/10, Tom, en une passe)
+
+La barre « vendable » = **tout ce qui est annoncé fonctionne** (voir README.md,
+« État réel »). Deux gaps fermés :
+
+- **Vue fractionnée (B1, Idées-à-implémenter)** — le bouton « ⧉ Split » disait
+  « à venir » et `vertical/horizontal_split_direction` étaient décoratifs.
+  `MainPage.WireAgentCommand`/`ToggleSplit` + `_chatService2`/`_aiChatPanel2`
+  (2e conversation indépendante), titre « MOTO AI · 2 », et
+  `Settings/SplitSettings.cs` câble `horizontal_split_direction` (Up/Down =
+  ordre). Couverture 116 → 117 (35,2 %). `vertical_split_direction`
+  (côte-à-côte Grid 2 colonnes) reste non implémenté, documenté.
+- **LSP branché sur l'éditeur** — `OpenDocumentWithLspAsync`/`UpdateDocumentWithLspAsync`
+  n'avaient AUCUN appelant. `LoadDocumentIntoEditor` → open, `WireLsp` abonne
+  `EditorChanged` → update (debounce 500 ms). Sans `OmniSharp.exe` installé,
+  `FindOmniSharpServer` renvoie null → no-op sans risque.
+
+**Reste (BIG, à trancher avec Tom)** : LSP serveur (OmniSharp non embarqué) +
+rendu (complétion/hover/diagnostics = TODO dans `EditorPaneView.Lsp.cs`) ;
+Collab/CRDT non raccordé ; plugins (1 seul fonctionne). Le visuel est déjà au
+niveau « vendable » (thème chaud + Thinking + réconciliation, objectif précédent).
+
 ## 6. Méthode de travail — leçons apprises
 
 - **Vérifier avant de croire.** Ne jamais déclarer « cette brique marche » sur

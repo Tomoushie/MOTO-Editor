@@ -67,8 +67,8 @@ comptant sans vérifier dans le code.
 
 Exemples documentés et vérifiés :
 
-- **Réglages** : le catalogue compte **332** entrées, dont **115 réellement
-  opérantes (34,6 %)** au 01/10 — mesuré par `scripts/settings-coverage.ps1`
+- **Réglages** : le catalogue compte **332** entrées, dont **117 réellement
+  opérantes (35,2 %)** au 06/10 — mesuré par `scripts/settings-coverage.ps1`
   (contre 12 sur 324 le 22/09). Le chantier de câblage a rendu opérantes
   toutes les familles câblables (onglets, explorateur, barre de titre, panneau
   Git, terminal, agent, auto-update, doc…), puis la **décision C** a construit
