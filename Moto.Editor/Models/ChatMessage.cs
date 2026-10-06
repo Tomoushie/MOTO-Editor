@@ -12,6 +12,13 @@ namespace Moto.Editor.Models
     public enum DockSide { Left, Right }
 
     /// <summary>
+    /// ★ AJOUT (06/10, chantier « agent réellement agentique ») : nature d'un message,
+    /// pour rendre les événements d'agent (raisonnement / appels d'outils) distinctement
+    /// du texte ordinaire — au lieu d'un seul bloc de texte plat.
+    /// </summary>
+    public enum ChatMessageKind { Text, Thinking, ToolCall }
+
+    /// <summary>
     /// Message de la conversation IA.
     /// ★ CHANGÉ (24/09, chat en flux) : le texte d'une réponse grandit pendant que le modèle écrit — le message prévient donc l'affichage
     /// de chaque changement (INotifyPropertyChanged), au lieu d'être figé à sa création.
@@ -126,6 +133,15 @@ namespace Moto.Editor.Models
         public string ThinkingChevron => _thinkingExpanded ? "▾" : "▸";
 
         public bool IsUser => Role == "user";
+
+        /// <summary>★ AJOUT (06/10, agent) : nature du message (texte, raisonnement, appel d'outil).</summary>
+        public ChatMessageKind Kind { get; set; } = ChatMessageKind.Text;
+
+        public bool IsThinking => Kind == ChatMessageKind.Thinking;
+        public bool IsToolCall => Kind == ChatMessageKind.ToolCall;
+        public bool IsPlainText => Kind == ChatMessageKind.Text;
+        /// <summary>Les segments texte/code ne s'affichent que pour un message ordinaire terminé (pas les événements d'agent).</summary>
+        public bool ShowSegments => IsDone && IsPlainText;
 
         public string TimeLabel => Timestamp.ToString("HH:mm");
 

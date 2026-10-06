@@ -1092,7 +1092,7 @@ namespace Moto.Editor
             {
                 MainThread.BeginInvokeOnMainThread(() =>
                 {
-                    thread.Messages.Add(new ChatMessage { Role = "ai", Content = message });
+                    thread.Messages.Add(new ChatMessage { Role = "ai", Content = message, Kind = ClassifyAgentMessage(message) });
                     thread.LastActivityUtc = DateTime.UtcNow;
                     // ★ CORRECTIF (04/09, remarqué par Tom) : chaque autre point d'entrée
                     // du chat (SendAsync, etc.) rafraîchit les tuiles Sessions/Messages/
@@ -1112,6 +1112,18 @@ namespace Moto.Editor
             return usesV2
                 ? $"🤖 Agent « {agentId} » démarré — objectif : {goal}\nIl lit ton projet, modifie, puis compile. Chaque modification s'affiche en diff avant d'être écrite : tu l'autorises ou tu la refuses, et tout un run peut être annulé ensuite (Ctrl+Maj+P → « Agents en cours » → « Annuler les modifications »).\nSuis sa progression ci-dessous, étape par étape."
                 : $"🤖 Agent « {agentId} » démarré — objectif : {goal}\nSuis sa progression ci-dessous, étape par étape. Chaque action qui écrit un fichier ou lance une commande te demandera confirmation avant de s'exécuter.\n(Astuce : Ctrl+Maj+P → « Agents en cours » liste tous les agents actifs et permet d'en arrêter un.)";
+        }
+
+        /// <summary>
+        /// ★ AJOUT (06/10, agent réellement agentique) : classe un message narré par
+        /// l'agent selon son préfixe déterministe (posé par AgentV2Runner.RunView) :
+        /// « 💭 » = raisonnement, « 🤖 »/« 🚫 » = appel d'outil, sinon texte ordinaire.
+        /// </summary>
+        private static ChatMessageKind ClassifyAgentMessage(string message)
+        {
+            if (message.StartsWith("💭 ", StringComparison.Ordinal)) return ChatMessageKind.Thinking;
+            if (message.StartsWith("🤖 ", StringComparison.Ordinal) || message.StartsWith("🚫 ", StringComparison.Ordinal)) return ChatMessageKind.ToolCall;
+            return ChatMessageKind.Text;
         }
 
         /// <summary>

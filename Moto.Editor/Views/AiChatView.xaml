@@ -120,6 +120,17 @@
                                      seconde reconstruirait chaque cadre et chaque bouton. -->
                                 <Label Text="{Binding StreamingText}" IsVisible="{Binding IsStreaming}"
                                        FontSize="{DynamicResource AgentFontSize}" TextColor="{StaticResource Txt1}" LineHeight="1.15" />
+                                <!-- ★ AJOUT (06/10, agent réellement agentique) : raisonnement narré (💭) en italique discret,
+                                     et appel d'outil (🤖/🚫) dans une rangée distincte — au lieu d'un texte plat. -->
+                                <Label Text="{Binding Content}" IsVisible="{Binding IsThinking}"
+                                       FontSize="{StaticResource FontSizeSmall}" TextColor="{StaticResource Txt2}"
+                                       FontAttributes="Italic" LineHeight="1.2" />
+                                <Border IsVisible="{Binding IsToolCall}"
+                                        StrokeShape="RoundRectangle 8" Stroke="{StaticResource BorderSoft}"
+                                        BackgroundColor="{StaticResource BgPanelInner}" Padding="8,6">
+                                    <Label Text="{Binding Content}" FontSize="{StaticResource FontSizeSmall}"
+                                           TextColor="{StaticResource Txt2}" LineHeight="1.2" />
+                                </Border>
                                 <!-- ★ AJOUT (06/10, câblage thinking_display) : le raisonnement du modèle,
                                      repliable — en-tête « ✦ Thinking » cliquable, contenu en italique discret,
                                      replié par défaut (le même patron que Zed : section Thinking avant la réponse). -->
@@ -145,7 +156,7 @@
                                      par segments (Segments, voir ChatMessage.cs) — permet de
                                      distinguer un bloc de code (police mono + bouton copier) du
                                      reste, ce qu'un seul Label ne pouvait pas faire. -->
-                                <VerticalStackLayout Spacing="{StaticResource SpaceXs}" IsVisible="{Binding IsDone}"
+                                <VerticalStackLayout Spacing="{StaticResource SpaceXs}" IsVisible="{Binding ShowSegments}"
                                                      BindableLayout.ItemsSource="{Binding Segments}"
                                                      BindableLayout.ItemTemplateSelector="{StaticResource SegmentSelector}" />
                                 <!-- ★ AJOUT (24/09) : modèle, durée, ce que le modèle a lu, ce qui n'a pas été envoyé. -->
